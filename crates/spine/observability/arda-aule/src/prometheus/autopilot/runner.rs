@@ -2143,7 +2143,9 @@ fn select_cycle_objectives(
         if let Some(objective) = objective_from_queue_record(&record) {
             let candidate_id = objective.id.clone();
             let title = objective.statement.clone();
-            let requires_review = queue_record_requires_review(&record);
+            let approval_packet_id = queue_record_approval_packet_id(&record);
+            let human_approved = approval_packet_id.is_some();
+            let requires_review = !human_approved && queue_record_requires_review(&record);
             candidates.push(ObjectiveCandidate {
                 objective,
                 report: ObjectiveCandidateReport {
@@ -2154,19 +2156,25 @@ fn select_cycle_objectives(
                     effective_status: record.status.unwrap_or_else(|| "unknown".into()),
                     owner: record.owner,
                     priority: record.priority,
-                    governance_class: if requires_review {
+                    governance_class: if human_approved {
+                        "human_approved".into()
+                    } else if requires_review {
                         "operator_authored_review_required".into()
                     } else {
                         "unclassified".into()
                     },
-                    review_gate: GovernanceGate::ReviewRequired,
+                    review_gate: if human_approved {
+                        GovernanceGate::SafeAutonomous
+                    } else {
+                        GovernanceGate::ReviewRequired
+                    },
                     blocked_reason_code: None,
-                    approval_packet_id: None,
+                    approval_packet_id,
                     completion_receipt_path: None,
                     selected_reason: None,
                     rejection_reason: None,
                 },
-                human_approved: false,
+                human_approved,
                 human_conditions: Vec::new(),
                 requires_review,
             });
@@ -2616,6 +2624,23 @@ fn objective_from_queue_record(record: &QueueRecord) -> Option<Objective> {
     })
 }
 
+fn queue_record_approval_packet_id(record: &QueueRecord) -> Option<String> {
+    let meta = record.extra.get("meta").and_then(Value::as_object)?;
+    let approved = meta.get("mutation_risk").and_then(Value::as_str)
+        == Some("operator-approved")
+        && meta.get("execution_authority").and_then(Value::as_str)
+            == Some("arda_workbench")
+        && meta
+            .get("source_objective_packet_id")
+            .and_then(Value::as_str)
+            .is_some_and(|value| !value.trim().is_empty());
+    approved
+        .then(|| meta.get("approval_packet_id").and_then(Value::as_str))
+        .flatten()
+        .filter(|value| !value.trim().is_empty())
+        .map(ToOwned::to_owned)
+}
+
 fn queue_record_requires_review(record: &QueueRecord) -> bool {
     let meta = record.extra.get("meta").and_then(Value::as_object);
     let meta_value = |key: &str| meta.and_then(|meta| meta.get(key)).and_then(Value::as_str);
@@ -3039,6 +3064,29 @@ pub async fn ceo_loop(mut autopilot: CeoAutopilot, stop: Arc<AtomicBool>) {
 mod tests {
     use super::super::delegation::AgentCapabilities;
     use super::*;
+
+    #[test]
+    fn canonical_workbench_approval_satisfies_queue_review_gate() {
+        let record: QueueRecord = serde_json::from_value(serde_json::json!({
+            "id": "digital-organism-s7-living-mesh-proof",
+            "title": "Run living mesh proof",
+            "status": "in_progress",
+            "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "objective-packet-stage7",
+                "approval_packet_id": "approval-stage7"
+            }
+        }))
+        .expect("approved queue record");
+
+        assert_eq!(
+            queue_record_approval_packet_id(&record).as_deref(),
+            Some("approval-stage7")
+        );
+        assert!(!queue_record_requires_review(&record));
+    }
 
     fn write_allow_readiness_artifacts(root: &Path) {
         std::fs::create_dir_all(

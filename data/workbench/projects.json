@@ -131,6 +131,69 @@
       "approval_id": "approval-stage4-native-g3-20260731",
       "proposal_id": "proposal-stage4-native-g3-20260731",
       "idempotency_key": "attach-1785528753322"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "7a7e8400-e29b-41d4-a716-446655447007",
+          "name": "digital-organism-stage7-living-mesh",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "."
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify-stage7",
+            "program": "cargo",
+            "args": [
+              "test",
+              "-p",
+              "arda-engine",
+              "--test",
+              "stage5_homeostasis_recovery"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify-stage7",
+            "command": "verify-stage7"
+          }
+        ],
+        "artifacts": [],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda",
+          "declared_at": "2026-07-30T00:00:00Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "approval-stage7-operator-session",
+      "proposal_id": "proposal-stage7-living-mesh",
+      "idempotency_key": "stage7-attach"
     }
   ]
 }

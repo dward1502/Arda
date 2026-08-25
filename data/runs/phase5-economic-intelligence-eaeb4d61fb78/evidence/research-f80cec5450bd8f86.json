@@ -1,0 +1,72 @@
+{
+  "schema_version": "arda.workbench.research-brief.v1",
+  "brief_id": "research-f80cec5450bd8f86",
+  "run_id": "phase5-economic-intelligence-eaeb4d61fb78",
+  "node_id": "source-grounded-research",
+  "question": "What current lawful earning opportunities exist for autonomous agents using x402, digital services, and agent-commerce protocols, and what technical, custody, tax, fraud, and platform risks would require operator review before any funded action?",
+  "generated_at_utc": "2026-08-21T07:46:20.672730021+00:00",
+  "authority": "advisory_research_evidence",
+  "execution_authorized": false,
+  "warden_provider": "searxng",
+  "warden_memory_receipt": "mem_e964df57fc2e4972a006d5f56be919cb",
+  "rumil_evidence": null,
+  "summary": "No reliable evidence was found for the explicit question “What current lawful earning opportunities exist for autonomous agents using x402, digital services, and agent-commerce protocols, and what technical, custody, tax, fraud, and platform risks would require operator review before any funded action?”. 5 bounded source attempt(s) failed before a cited claim could be made; do not infer a factual answer from search previews.",
+  "contradiction_status": "no_reliable_evidence_found",
+  "contradictions": [
+    "No fetched source completed canonical retrieval and Varda evaluation."
+  ],
+  "citations": [],
+  "source_failures": [
+    "https://medium.com/@adnanmasood/agentic-payments-101-2-2-payment-standards-and-protocols-acp-ucp-ap2-and-x402-26486e6d511f: source exceeds approximate token budget of 8192",
+    "https://x.com/t54ai/status/2036539774970790087: source exceeds approximate token budget of 8192",
+    "https://systemprompt.io/guides/monetize-mcp-server-x402: source exceeds approximate token budget of 8192",
+    "https://www.elibrary.imf.org/view/journals/068/2026/004/article-A001-en.xml: canonical fetch returned failure: HTTP status client error (403 Forbidden) for url (https://www.elibrary.imf.org/view/journals/068/2026/004/article-A001-en.xml)",
+    "https://www.datawallet.com/crypto/x402-protocol-explained: source exceeds approximate token budget of 8192"
+  ],
+  "workbench_run_link": "arda://workbench/runs/phase5-economic-intelligence-eaeb4d61fb78?evidence=research-f80cec5450bd8f86",
+  "scope": {
+    "source_policy": "allowlisted_public_web",
+    "max_sources": 5,
+    "max_source_bytes": 524288,
+    "expires_at_utc": "2026-08-21T08:01:20.672730021+00:00",
+    "max_results": 10,
+    "max_fetch_bytes": 524288,
+    "max_tokens": 8192,
+    "max_attempts": 2,
+    "cooldown_ms": 50,
+    "max_sources_per_domain": 2,
+    "retained_preview_volume": 20
+  },
+  "claims": [],
+  "supporting_citation_ids": [],
+  "opposing_citation_ids": [],
+  "source_quality": [],
+  "uncertainty": [
+    "5 bounded source attempt(s) failed or were rejected.",
+    "Contradiction or missing-evidence review remains unresolved."
+  ],
+  "missing_evidence": [
+    "At least one fetched canonical source is required before asserting a factual claim.",
+    "Retry or replace the disclosed failed sources before treating the brief as complete."
+  ],
+  "next_research_or_proposal": [
+    {
+      "kind": "next_research",
+      "action": "Retry disclosed failures or refine the question/source policy; no proposal is authorized by this brief.",
+      "authority": "operator_advisory_only"
+    },
+    {
+      "kind": "operator_review",
+      "action": "Compare supporting and opposing citations before requesting any governed proposal.",
+      "authority": "operator_advisory_only"
+    }
+  ],
+  "receipt_references": [
+    "warden:memory:mem_e964df57fc2e4972a006d5f56be919cb"
+  ],
+  "material_fingerprint": "sha256:2173a76c5013ce7c885d718b71aafcab5dda6fd0d9ff7933c07e91e7cca5b095",
+  "change_status": "material_change",
+  "no_change_receipt_path": null,
+  "evidence_boundaries": [],
+  "prompt_injection_detected": false
+}

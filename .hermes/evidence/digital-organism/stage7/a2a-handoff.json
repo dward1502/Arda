@@ -1,0 +1,86 @@
+{
+  "dispatch": {
+    "receipt": {
+      "a2a_context_id": "run:envelope:two-roots",
+      "a2a_task_id": "task:envelope:two-roots",
+      "completed_at": "2026-08-23T12:21:48.737901408Z",
+      "dispatched_at": "2026-08-23T12:21:48.736448257Z",
+      "envelope_id": "envelope:two-roots",
+      "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+      "receipt_id": "receipt:de844391-cb2f-4542-ac6e-495f5a2f665c",
+      "run_id": "run:envelope:two-roots",
+      "schema_version": "arda.a2a-handoff-receipt.v1",
+      "source_node_id": "node-root",
+      "status": "completed",
+      "target_node_id": "node-peer",
+      "worker_id": "worker:root"
+    },
+    "result": {
+      "artifacts": [
+        {
+          "artifactId": "artifact:envelope:two-roots",
+          "parts": [
+            {
+              "data": {
+                "payload": {
+                  "kind": "typed_echo",
+                  "text": "hello independent node"
+                },
+                "receipt": {
+                  "a2a_context_id": "run:envelope:two-roots",
+                  "a2a_task_id": "task:envelope:two-roots",
+                  "completed_at": "2026-08-23T12:21:48.737068686Z",
+                  "dispatched_at": "2026-08-23T12:21:48.737062556Z",
+                  "envelope_id": "envelope:two-roots",
+                  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+                  "receipt_id": "receipt:8946e722-3668-41ce-bdea-11bae42bf955",
+                  "run_id": "run:envelope:two-roots",
+                  "schema_version": "arda.a2a-handoff-receipt.v1",
+                  "source_node_id": "node-root",
+                  "status": "completed",
+                  "target_node_id": "node-peer",
+                  "worker_id": "worker:root"
+                }
+              },
+              "mediaType": "application/vnd.arda.typed-result.v1+json"
+            }
+          ]
+        }
+      ],
+      "contextId": "run:envelope:two-roots",
+      "id": "task:envelope:two-roots",
+      "status": {
+        "state": "TASK_STATE_COMPLETED"
+      }
+    },
+    "schema_version": "arda.a2a-dispatch-response.v1"
+  },
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "peer_address": "127.0.0.1:42989",
+  "peer_projection": {
+    "dispatches_claimed": 1,
+    "generated_at": "2026-08-23T12:21:48.739343459Z",
+    "peers": [],
+    "receipts": [
+      {
+        "a2a_context_id": "run:envelope:two-roots",
+        "a2a_task_id": "task:envelope:two-roots",
+        "completed_at": "2026-08-23T12:21:48.737068686Z",
+        "dispatched_at": "2026-08-23T12:21:48.737062556Z",
+        "envelope_id": "envelope:two-roots",
+        "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+        "receipt_id": "receipt:8946e722-3668-41ce-bdea-11bae42bf955",
+        "run_id": "run:envelope:two-roots",
+        "schema_version": "arda.a2a-handoff-receipt.v1",
+        "source_node_id": "node-root",
+        "status": "completed",
+        "target_node_id": "node-peer",
+        "worker_id": "worker:root"
+      }
+    ],
+    "schema_version": "arda.a2a-mesh-projection.v1"
+  },
+  "root_address": "127.0.0.1:40921",
+  "schema_version": "arda.digital-organism.a2a-proof.v1",
+  "transport": "linux-foundation-a2a-jsonrpc-http"
+}

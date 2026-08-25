@@ -1,0 +1,132 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "stage7-living-mesh-20260823",
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 100.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 600000,
+      "idempotency_key": "stage7-plan",
+      "input_digest": null,
+      "output_digest": "receipt:plan",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "stage7-living-mesh-20260823:plan:4",
+        "checkpoint_digest": "sha256:4ac0921a8fbc04a2beb6d4ee844b874b94038bb6cc57aac8b9bc2b9817bf98bf"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 100.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 600000,
+      "idempotency_key": "stage7-approval",
+      "input_digest": null,
+      "output_digest": "approval-stage7-operator-session",
+      "parent_receipts": [
+        "receipt:plan"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "stage7-living-mesh-20260823:approval:7",
+        "checkpoint_digest": "sha256:97b779ca8cc9d41694ecfe1f38bcd8cdd25b675a10b8a47208674a4fc6e7daeb"
+      }
+    },
+    {
+      "id": "mesh-proof",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 100.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 600000,
+      "idempotency_key": "stage7-mesh-proof",
+      "input_digest": null,
+      "output_digest": "sha256:35153c7a87f23c132392db948b8a1fa0eedec242991ad8b2ccbececda1dfc486",
+      "parent_receipts": [
+        "approval-stage7-operator-session"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "stage7-living-mesh-20260823:mesh-proof:10",
+        "checkpoint_digest": "sha256:16eac40c34b4a43e044f68a8f598b481aa48104f13a47006b8676e226b5e7099"
+      }
+    },
+    {
+      "id": "acceptance",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 100.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 600000,
+      "idempotency_key": "stage7-acceptance",
+      "input_digest": null,
+      "output_digest": "sha256:18dfc73eb1aa1d06c7aafa70f3e406371e6eacaff83141235f7530bfeb26a36d",
+      "parent_receipts": [
+        "sha256:35153c7a87f23c132392db948b8a1fa0eedec242991ad8b2ccbececda1dfc486"
+      ],
+      "checkpoint": {
+        "sequence": 13,
+        "recovery_token": "stage7-living-mesh-20260823:acceptance:13",
+        "checkpoint_digest": "sha256:5aae116c641135b13dd9eb829cba5a3fb364562da505e9701c303e2be2f54f7c"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "receipt:plan"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "mesh-proof",
+      "parent_receipt": "approval-stage7-operator-session"
+    },
+    {
+      "id": "execute-verify",
+      "from": "mesh-proof",
+      "to": "acceptance",
+      "parent_receipt": "sha256:35153c7a87f23c132392db948b8a1fa0eedec242991ad8b2ccbececda1dfc486"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:e0fd78fb00247bde6a6f816ba7e67c4ef9926fd55f6d261e34df64643995f4e4",
+    "created_by": "operator:mythos",
+    "parent_receipts": [
+      "queue:digital-organism-s7-living-mesh-proof"
+    ]
+  }
+}

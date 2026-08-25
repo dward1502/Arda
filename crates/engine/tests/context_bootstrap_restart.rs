@@ -24,6 +24,15 @@ use tokio::sync::{Notify, RwLock};
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 const OBJECTIVE: &str = "Complete the bounded context-bootstrap check using only the governed capsule. Execute `python3 verify-context-bootstrap.py` as the first and only terminal command, then bind test evidence to that exact terminal call. Do not inspect the directory with ls or pwd.";
 
+fn objective_id(run_id: &str) -> String {
+    std::env::var("ARDA_CONTEXT_OBJECTIVE_ID")
+        .unwrap_or_else(|_| format!("objective-{run_id}"))
+}
+
+fn objective() -> String {
+    std::env::var("ARDA_CONTEXT_OBJECTIVE").unwrap_or_else(|_| OBJECTIVE.into())
+}
+
 async fn start(
     root: &TempDir,
 ) -> (
@@ -100,7 +109,7 @@ fn graph(run_id: &str, node_id: &str, additional_parent: Option<&str>) -> Value 
     json!({
         "schema_version": "arda.run-graph.v1",
         "run_id": run_id,
-        "objective_id": format!("objective-{run_id}"),
+        "objective_id": objective_id(run_id),
         "nodes": [
           {
             "id": "plan", "kind": "plan", "state": "pending", "authority": "read_only",
@@ -214,7 +223,7 @@ fn assembly(root: &Path, run_id: &str, worker_id: &str, parents: Vec<String>) ->
         .unwrap()
         .as_millis();
     let mut consumer = ConsumerContext::new(worker_id, vec![MemoryDomain::System]);
-    consumer.purpose = Some(OBJECTIVE.into());
+    consumer.purpose = Some(objective());
     let service = MnemosyneService::new(root.join("data/mnemosyne"))
         .unwrap()
         .with_contract_memory_root(root.join("core/state/memory"));
@@ -255,7 +264,7 @@ fn assembly(root: &Path, run_id: &str, worker_id: &str, parents: Vec<String>) ->
                     agent_ref: Some(format!("hermes:{worker_id}")),
                 },
                 lineage: ContextLineage {
-                    objective_id: ObjectiveId::new(format!("objective-{run_id}")).unwrap(),
+                    objective_id: ObjectiveId::new(objective_id(run_id)).unwrap(),
                     project_id: Some(PROJECT_ID.parse().unwrap()),
                     run_id: Some(RunId::new(run_id).unwrap()),
                     task_id: Some("digital-organism-s1-context-bootstrap".into()),
@@ -263,7 +272,7 @@ fn assembly(root: &Path, run_id: &str, worker_id: &str, parents: Vec<String>) ->
                     parent_receipts: parents,
                 },
                 objective: ContextObjective {
-                    requested_outcome: OBJECTIVE.into(),
+                    requested_outcome: objective(),
                     acceptance_conditions: vec!["declared check passes".into()],
                     required_capabilities: vec!["terminal".into()],
                     forbidden_capabilities: vec!["ambient-transcript-read".into()],
@@ -340,7 +349,7 @@ async fn execute(
     context: &ContextAssembly,
 ) -> Value {
     let response = client.post(format!("http://{bound}/v1/runs/{run_id}/nodes/{node_id}/execute-provider"))
-        .json(&json!({"envelope":envelope(&format!("execute-{run_id}")),"objective":OBJECTIVE,"context_assembly":context}))
+        .json(&json!({"envelope":envelope(&format!("execute-{run_id}")),"objective":objective(),"context_assembly":context}))
         .send().await.unwrap();
     let status = response.status();
     let body = response.text().await.unwrap();
@@ -467,7 +476,7 @@ async fn another_fresh_worker_continues_after_root_restart_without_conversation_
         ))
         .json(&json!({
             "envelope": envelope("execute-run-context-second"),
-            "objective": OBJECTIVE,
+            "objective": objective(),
             "context_assembly": mismatched,
         }))
         .send()
@@ -517,6 +526,7 @@ async fn another_fresh_worker_continues_after_root_restart_without_conversation_
         }
         let evidence = json!({
             "schema_version": "arda.context-bootstrap-runtime-proof.v1",
+            "objective_id": objective_id("run-context-second"),
             "live_hermes": live_hermes,
             "fresh_process_count": 2,
             "first": {

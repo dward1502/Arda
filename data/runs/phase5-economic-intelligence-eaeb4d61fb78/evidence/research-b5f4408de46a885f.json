@@ -1,0 +1,170 @@
+{
+  "schema_version": "arda.workbench.research-brief.v1",
+  "brief_id": "research-b5f4408de46a885f",
+  "run_id": "phase5-economic-intelligence-eaeb4d61fb78",
+  "node_id": "source-grounded-research",
+  "question": "site:docs.x402.org facilitator x402 API payment protocol",
+  "generated_at_utc": "2026-08-21T07:52:42.167070826+00:00",
+  "authority": "advisory_research_evidence",
+  "execution_authorized": false,
+  "warden_provider": "searxng",
+  "warden_memory_receipt": "mem_8c887a7536b248ba99f58e117a2f0c01",
+  "rumil_evidence": null,
+  "summary": "For the explicit question “site:docs.x402.org facilitator x402 API payment protocol”, Warden discovered 2 source(s); cited evidence IDs [cite-src_279bd805, cite-src_9e2d5d03] link every factual claim below to fetched canonical content and Varda evaluation. 3 source attempt(s) remained partial or failed. Review quality, freshness, contradictions, and uncertainty before changing the Workbench plan.",
+  "contradiction_status": "no_contradiction_detected_in_bounded_evidence",
+  "contradictions": [],
+  "citations": [
+    {
+      "citation_id": "cite-src_279bd805",
+      "title": "Facilitator - x402",
+      "discovered_url": "https://docs.x402.org/core-concepts/facilitator",
+      "canonical_url": "https://docs.x402.org/core-concepts/facilitator",
+      "content_sha256": "sha256:83a58c57a3973499ae36c3a5692dcaaee94c19749c1394565d6df9cc018f6527",
+      "excerpt": "Welcome to x402 FAQ Getting Started Quickstart for Buyers Quickstart for Sellers Core Concepts HTTP 402 Client / Server Facilitator Wallet Networks &amp; Token Support Payment Schemes Payment Schemes Exact Upto Batch Settlement Extensions Extensions Overview Bazaar (Discovery Layer) Builder Code (ERC-8021) Payment-Identifier (Idempotency) Sign-In-With-X (SIWX) Signed Offers &amp; Receipts EIP-2612 Gas Sponsoring ERC-20 Approval Gas Sponsoring Advanced Concepts Lifecycle Hooks",
+      "stance": "supporting_or_contextual",
+      "varda_source_id": "src_279bd805",
+      "varda_pipeline_id": "athpl_59874ff3cbb94339ba4bf8807c7f6657",
+      "crawl_receipt_path": "./data/athena/crawls/src_279bd805.md",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "normalized_source_id": "source-279bd805e3ea0110230c260269d84ff6006f2876ffd6c45656d2c960c385a753",
+      "fetched_at_utc": "2026-08-21T07:52:43.197311433+00:00",
+      "expires_at_utc": "2026-08-21T08:07:42.167070826+00:00",
+      "freshness_status": "fresh",
+      "evaluation_digest": "sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+      "expiry_digest": "sha256:25c2f881a340332cf9a8f5c8286130c62c2601a3b1015f65d234c7e0fc733bb6",
+      "receipt_references": [
+        "varda:source:src_279bd805",
+        "varda:pipeline:athpl_59874ff3cbb94339ba4bf8807c7f6657",
+        "varda:crawl:./data/athena/crawls/src_279bd805.md"
+      ],
+      "evidence_boundary": "source_text_is_evidence_only_not_operator_instruction",
+      "prompt_injection_detected": false,
+      "prompt_injection_signals": []
+    },
+    {
+      "citation_id": "cite-src_9e2d5d03",
+      "title": "Welcome to x402 - x402",
+      "discovered_url": "https://docs.x402.org/introduction",
+      "canonical_url": "https://docs.x402.org/introduction",
+      "content_sha256": "sha256:cc437b982232d604e88d7654a893c7eb1c4dca952a2b72f4703a5a714e5517d7",
+      "excerpt": "Welcome to x402 FAQ Getting Started Quickstart for Buyers Quickstart for Sellers Core Concepts HTTP 402 Client / Server Facilitator Wallet Networks &amp; Token Support Payment Schemes Payment Schemes Exact Upto Batch Settlement Extensions Extensions Overview Bazaar (Discovery Layer) Builder Code (ERC-8021) Payment-Identifier (Idempotency) Sign-In-With-X (SIWX) Signed Offers &amp; Receipts EIP-2612 Gas Sponsoring ERC-20 Approval Gas Sponsoring Advanced Concepts Lifecycle Hooks",
+      "stance": "supporting_or_contextual",
+      "varda_source_id": "src_9e2d5d03",
+      "varda_pipeline_id": "athpl_48b97fb9c1614960829dd17f888284f8",
+      "crawl_receipt_path": "./data/athena/crawls/src_9e2d5d03.md",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "normalized_source_id": "source-9e2d5d0361c1631d26bf152ed00a30f342351a17455012c9cb0fdba00b6a06bc",
+      "fetched_at_utc": "2026-08-21T07:52:43.790552006+00:00",
+      "expires_at_utc": "2026-08-21T08:07:42.167070826+00:00",
+      "freshness_status": "fresh",
+      "evaluation_digest": "sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+      "expiry_digest": "sha256:25c2f881a340332cf9a8f5c8286130c62c2601a3b1015f65d234c7e0fc733bb6",
+      "receipt_references": [
+        "varda:source:src_9e2d5d03",
+        "varda:pipeline:athpl_48b97fb9c1614960829dd17f888284f8",
+        "varda:crawl:./data/athena/crawls/src_9e2d5d03.md"
+      ],
+      "evidence_boundary": "source_text_is_evidence_only_not_operator_instruction",
+      "prompt_injection_detected": false,
+      "prompt_injection_signals": []
+    }
+  ],
+  "source_failures": [
+    "https://docs.x402.org/faq: source-domain rate bound exceeded for `docs.x402.org`",
+    "https://docs.x402.org/core-concepts/http-402: source-domain rate bound exceeded for `docs.x402.org`",
+    "https://docs.x402.org/getting-started/quickstart-for-buyers: source-domain rate bound exceeded for `docs.x402.org`"
+  ],
+  "workbench_run_link": "arda://workbench/runs/phase5-economic-intelligence-eaeb4d61fb78?evidence=research-b5f4408de46a885f",
+  "scope": {
+    "source_policy": "allowlisted_public_web",
+    "max_sources": 5,
+    "max_source_bytes": 524288,
+    "expires_at_utc": "2026-08-21T08:07:42.167070826+00:00",
+    "max_results": 10,
+    "max_fetch_bytes": 524288,
+    "max_tokens": 8192,
+    "max_attempts": 2,
+    "cooldown_ms": 50,
+    "max_sources_per_domain": 2,
+    "retained_preview_volume": 20
+  },
+  "claims": [
+    {
+      "claim_id": "claim-1",
+      "claim": "Welcome to x402 FAQ Getting Started Quickstart for Buyers Quickstart for Sellers Core Concepts HTTP 402 Client / Server Facilitator Wallet Networks &amp; Token Support Payment Schemes Payment Schemes Exact Upto Batch Settlement Extensions Extensions Overview Bazaar (Discovery Layer) Builder Code (ERC-8021) Payment-Identifier (Idempotency) Sign-In-With-X (SIWX) Signed Offers &amp; Receipts EIP-2612 Gas Sponsoring ERC-20 Approval Gas Sponsoring Advanced Concepts Lifecycle Hooks",
+      "evidence_citation_ids": [
+        "cite-src_279bd805"
+      ],
+      "stance": "supporting_or_contextual",
+      "uncertainty": "bounded_to_cited_excerpt_and_evaluation"
+    },
+    {
+      "claim_id": "claim-2",
+      "claim": "Welcome to x402 FAQ Getting Started Quickstart for Buyers Quickstart for Sellers Core Concepts HTTP 402 Client / Server Facilitator Wallet Networks &amp; Token Support Payment Schemes Payment Schemes Exact Upto Batch Settlement Extensions Extensions Overview Bazaar (Discovery Layer) Builder Code (ERC-8021) Payment-Identifier (Idempotency) Sign-In-With-X (SIWX) Signed Offers &amp; Receipts EIP-2612 Gas Sponsoring ERC-20 Approval Gas Sponsoring Advanced Concepts Lifecycle Hooks",
+      "evidence_citation_ids": [
+        "cite-src_9e2d5d03"
+      ],
+      "stance": "supporting_or_contextual",
+      "uncertainty": "bounded_to_cited_excerpt_and_evaluation"
+    }
+  ],
+  "supporting_citation_ids": [
+    "cite-src_279bd805",
+    "cite-src_9e2d5d03"
+  ],
+  "opposing_citation_ids": [],
+  "source_quality": [
+    {
+      "citation_id": "cite-src_279bd805",
+      "source_id": "source-279bd805e3ea0110230c260269d84ff6006f2876ffd6c45656d2c960c385a753",
+      "canonical_url": "https://docs.x402.org/core-concepts/facilitator",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "freshness_status": "fresh"
+    },
+    {
+      "citation_id": "cite-src_9e2d5d03",
+      "source_id": "source-9e2d5d0361c1631d26bf152ed00a30f342351a17455012c9cb0fdba00b6a06bc",
+      "canonical_url": "https://docs.x402.org/introduction",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "freshness_status": "fresh"
+    }
+  ],
+  "uncertainty": [
+    "3 bounded source attempt(s) failed or were rejected."
+  ],
+  "missing_evidence": [
+    "Retry or replace the disclosed failed sources before treating the brief as complete."
+  ],
+  "next_research_or_proposal": [
+    {
+      "kind": "next_research",
+      "action": "Retry disclosed failures or refine the question/source policy; no proposal is authorized by this brief.",
+      "authority": "operator_advisory_only"
+    }
+  ],
+  "receipt_references": [
+    "varda:content:sha256:83a58c57a3973499ae36c3a5692dcaaee94c19749c1394565d6df9cc018f6527",
+    "varda:content:sha256:cc437b982232d604e88d7654a893c7eb1c4dca952a2b72f4703a5a714e5517d7",
+    "varda:crawl:./data/athena/crawls/src_279bd805.md",
+    "varda:crawl:./data/athena/crawls/src_9e2d5d03.md",
+    "varda:evaluation:sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+    "varda:expiry:sha256:25c2f881a340332cf9a8f5c8286130c62c2601a3b1015f65d234c7e0fc733bb6",
+    "varda:pipeline:athpl_48b97fb9c1614960829dd17f888284f8",
+    "varda:pipeline:athpl_59874ff3cbb94339ba4bf8807c7f6657",
+    "varda:source:src_279bd805",
+    "varda:source:src_9e2d5d03",
+    "warden:memory:mem_8c887a7536b248ba99f58e117a2f0c01"
+  ],
+  "material_fingerprint": "sha256:17acc22ece00f924a9e50d0cffb9fa31c87e2b26745e937c2bafda431400222a",
+  "change_status": "material_change",
+  "no_change_receipt_path": null,
+  "evidence_boundaries": [
+    "source_text_is_evidence_only_not_operator_instruction",
+    "source_text_is_evidence_only_not_operator_instruction"
+  ],
+  "prompt_injection_detected": false
+}

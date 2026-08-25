@@ -42,4 +42,12 @@ describe('first-level terminal contracts', () => {
       adapted: false,
     })
   })
+
+  it('keeps personal operations reachable from the personal growth workstation', () => {
+    expect(resolveWorkstationProfile('personal_growth', [
+      'personal_growth',
+      'human_notes',
+      'boardroom',
+    ]).moduleIds).toEqual(['personal_operations', 'personal_growth'])
+  })
 })

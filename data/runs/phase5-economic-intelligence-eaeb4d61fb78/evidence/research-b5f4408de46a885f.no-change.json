@@ -1,0 +1,22 @@
+{
+  "schema_version": "arda.workbench.research-no-change.v1",
+  "brief_id": "research-b5f4408de46a885f",
+  "run_id": "phase5-economic-intelligence-eaeb4d61fb78",
+  "node_id": "source-grounded-research",
+  "recorded_at_utc": "2026-08-21T07:59:01.736709752+00:00",
+  "material_fingerprint": "sha256:17acc22ece00f924a9e50d0cffb9fa31c87e2b26745e937c2bafda431400222a",
+  "reason": "evidence, evaluation, contradiction state, and freshness state are unchanged",
+  "evidence_references": [
+    "varda:content:sha256:83a58c57a3973499ae36c3a5692dcaaee94c19749c1394565d6df9cc018f6527",
+    "varda:content:sha256:cc437b982232d604e88d7654a893c7eb1c4dca952a2b72f4703a5a714e5517d7",
+    "varda:crawl:./data/athena/crawls/src_279bd805.md",
+    "varda:crawl:./data/athena/crawls/src_9e2d5d03.md",
+    "varda:evaluation:sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+    "varda:expiry:sha256:fc8bdfea58ee017275805c39f705315c39f1fec512ed633cedfa4cd0b3aec877",
+    "varda:pipeline:athpl_73a1ac95944e4f61aa35b8bd823fabc4",
+    "varda:pipeline:athpl_88ca6a56c6cf43beb2b364ce3ac05f55",
+    "varda:source:src_279bd805",
+    "varda:source:src_9e2d5d03",
+    "warden:memory:mem_03adf5d1ef0a402189b62f016e60d383"
+  ]
+}

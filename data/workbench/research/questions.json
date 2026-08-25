@@ -1,0 +1,49 @@
+{
+  "records": [
+    {
+      "backend_suggestion_ids": [],
+      "budgets": {
+        "max_attempts": 2,
+        "max_fetch_bytes": 2000000,
+        "max_results": 10,
+        "max_tokens": 4000
+      },
+      "cadence": {
+        "kind": "manual"
+      },
+      "contradiction_policy": "require_disclosure",
+      "evidence_requirements": {
+        "max_source_age_seconds": 2592000,
+        "minimum_canonical_sources": 2,
+        "require_canonical_fetch": true
+      },
+      "expires_at_utc": "2026-09-20T06:31:06.657339Z",
+      "notification_policy": {
+        "destination": null,
+        "enabled": false
+      },
+      "owner": "operator:mythos",
+      "question": "What current lawful earning opportunities exist for autonomous agents using x402, digital services, and agent-commerce protocols, and what technical, custody, tax, fraud, and platform risks would require operator review before any funded action?",
+      "question_id": "8011c200-6743-4816-b100-c6f56e71da69",
+      "rationale": "Begin Phase 5 with source-grounded economic-intelligence research while keeping accounts, funds, payments, and public actions explicitly out of scope.",
+      "schema_version": "arda.warden.watchlist.v1",
+      "source_policy": {
+        "allow_private_targets": false,
+        "allowed_sources": [
+          "https://"
+        ],
+        "max_sources_per_run": 5,
+        "policy_id": "public-web"
+      },
+      "state": "enabled",
+      "tags": [
+        "phase-5",
+        "economic-intelligence",
+        "x402",
+        "agent-commerce",
+        "advisory-only"
+      ]
+    }
+  ],
+  "schema_version": "arda.workbench.research-questions.v1"
+}

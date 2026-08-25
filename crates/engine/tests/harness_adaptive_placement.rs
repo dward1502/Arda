@@ -363,12 +363,17 @@ async fn live_stage3_objective_uses_core_and_beelink_without_workflow_changes() 
             .unwrap();
     }
 
+    let objective_id = std::env::var("STAGE_ADAPTIVE_OBJECTIVE_ID")
+        .unwrap_or_else(|_| "objective:digital-organism-s3-live-proof".to_owned());
+    let objective = std::env::var("STAGE_ADAPTIVE_OBJECTIVE").unwrap_or_else(|_| {
+        "Review the Stage 3 adaptive placement slice for implementation correctness and unresolved operational risk".to_owned()
+    });
     let response = client
         .post(format!("http://{root_addr}/v1/adaptive-placement/objectives"))
         .header("x-arda-operator-id", "operator:placement-proof")
         .json(&json!({
-            "objective_id": "objective:digital-organism-s3-live-proof",
-            "objective": "Review the Stage 3 adaptive placement slice for implementation correctness and unresolved operational risk",
+            "objective_id": objective_id,
+            "objective": objective,
             "data_domain": "system",
             "task_kind": "code",
             "material_unresolved_risks": true,

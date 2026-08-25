@@ -1,0 +1,10 @@
+{
+  "stats": {
+    "arda_workbench::approved_autopilot_plan_step": {
+      "attempts": 1,
+      "successes": 1,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    }
+  }
+}

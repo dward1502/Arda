@@ -66,7 +66,7 @@ const WORKSTATION_COMPOSITIONS: Record<string, WorkstationComposition> = {
   },
   personal_growth: {
     title: 'Personal Growth',
-    moduleIds: ['personal_growth'],
+    moduleIds: ['personal_operations', 'personal_growth'],
     sourcePanelIds: ['personal_growth', 'human_notes', 'boardroom'],
     presentationModes: ['in_scene', 'native_window'],
   },

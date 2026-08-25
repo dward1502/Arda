@@ -198,7 +198,8 @@ fn envelope(id: &str) -> WorkEnvelope {
     WorkEnvelope {
         schema_version: "arda.work-envelope.v1".into(),
         envelope_id: id.into(),
-        objective_id: "objective:mesh-proof".into(),
+        objective_id: std::env::var("STAGE_A2A_OBJECTIVE_ID")
+            .unwrap_or_else(|_| "objective:mesh-proof".into()),
         run_id: format!("run:{id}"),
         worker_id: "worker:root".into(),
         capability: "arda.echo.typed.v1".into(),
@@ -272,6 +273,22 @@ async fn two_root_harness_nodes_exchange_and_receipt_both_sides() {
         peer_projection["receipts"][0]["envelope_id"],
         "envelope:two-roots"
     );
+
+    if let Ok(path) = std::env::var("STAGE_A2A_EVIDENCE_PATH") {
+        let artifact = json!({
+            "schema_version": "arda.digital-organism.a2a-proof.v1",
+            "objective_id": envelope("envelope:two-roots").objective_id,
+            "transport": "linux-foundation-a2a-jsonrpc-http",
+            "root_address": root_addr.to_string(),
+            "peer_address": peer_addr.to_string(),
+            "dispatch": body,
+            "peer_projection": peer_projection,
+        });
+        if let Some(parent) = std::path::Path::new(&path).parent() {
+            std::fs::create_dir_all(parent).unwrap();
+        }
+        std::fs::write(path, serde_json::to_vec_pretty(&artifact).unwrap()).unwrap();
+    }
 
     root_shutdown.notify_waiters();
     peer_shutdown.notify_waiters();

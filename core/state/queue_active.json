@@ -1,5 +1,5 @@
 {
-  "active_task_count": 0,
+  "active_task_count": 3,
   "agent_reading_policy": {
     "default_surface": "core/state/queue_active.json",
     "fallback_surface": "core/state/queue_summary.json",
@@ -7,11 +7,48 @@
     "raw_queue_policy": "Do not read the raw queue for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
   },
   "authority": "queue_active_projection",
-  "generated_at_utc": "2026-08-14T19:01:35.650654140+00:00",
-  "latest_task_ids_total": 0,
+  "generated_at_utc": "2026-08-25T16:07:45.614003563+00:00",
+  "latest_task_ids_total": 15,
   "mutation_policy": "read_only_latest_by_id_projection_no_queue_compaction",
-  "raw_ledger_rows_total": 0,
+  "raw_ledger_rows_total": 33,
   "schema_version": "arda.queue_active.v1",
   "source": "core/projects/tasks/queue.jsonl",
-  "tasks": []
+  "tasks": [
+    {
+      "completed_at_utc": null,
+      "id": "operator-objective-78370a00190fd9b8",
+      "origin": null,
+      "owner": "operator:mythos",
+      "priority": "critical",
+      "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+      "result": "pending",
+      "scope": null,
+      "status": "pending",
+      "title": "Review Arda comprehensively and introspectively against the operator vision"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "operator-objective-1463cc15ce0ff3cd",
+      "origin": null,
+      "owner": "operator:mythos",
+      "priority": "high",
+      "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+      "result": "pending",
+      "scope": null,
+      "status": "pending",
+      "title": "Design governed economic-intelligence routines and a future budgeted agent account"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "operator-objective-1b00e78b7eee3c3b",
+      "origin": null,
+      "owner": "operator:mythos",
+      "priority": "medium",
+      "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+      "result": "pending",
+      "scope": null,
+      "status": "pending",
+      "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post"
+    }
+  ]
 }

@@ -1,0 +1,220 @@
+{
+  "capability_profiles_used": [
+    {
+      "node_id": "node-beelink-live",
+      "provider_id": "edge_beelink_light"
+    },
+    {
+      "node_id": "node-core-live",
+      "provider_id": "edge_core"
+    }
+  ],
+  "composition": {
+    "reason": "a named material risk remains disputed, so bounded adjudication is required",
+    "roles": [
+      {
+        "allowed_access_tiers": [
+          "local",
+          "mixed",
+          "paid_cloud"
+        ],
+        "execution_lifetime": "task",
+        "required_model_tasks": [
+          "code"
+        ],
+        "required_node_capability": "arda.cognition.worker.v1",
+        "requires_structured_output": true,
+        "requires_tools": true,
+        "role": "worker"
+      },
+      {
+        "allowed_access_tiers": [
+          "local",
+          "mixed",
+          "paid_cloud"
+        ],
+        "execution_lifetime": "task",
+        "required_model_tasks": [
+          "reasoning"
+        ],
+        "required_node_capability": "arda.cognition.critic.v1",
+        "requires_structured_output": false,
+        "requires_tools": false,
+        "role": "critic"
+      },
+      {
+        "allowed_access_tiers": [
+          "local",
+          "mixed",
+          "paid_cloud"
+        ],
+        "execution_lifetime": "task",
+        "required_model_tasks": [
+          "reasoning"
+        ],
+        "required_node_capability": "arda.cognition.adjudicator.v1",
+        "requires_structured_output": true,
+        "requires_tools": false,
+        "role": "adjudicator"
+      }
+    ],
+    "worker_count": 3
+  },
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "placements": [
+    {
+      "cost_decision": "estimated bounded request cost $0.000000 within $0.010000 objective limit",
+      "execution": {
+        "actual_model_id": "Qwen3.5-9B-Q4_K_M",
+        "actual_provider_id": "edge_core",
+        "lifetime_status": "task_terminated_after_receipt",
+        "output_chars": 657,
+        "output_digest": "sha256:76824522ddb0f449219e3a747bc9f3eebd1e11e4b23cb02b89c568d95e2d2775",
+        "status": "completed"
+      },
+      "execution_lifetime": "task",
+      "fallback_decisions": [
+        "edge_beelink_light: lower joint capability/pressure/cost score or no eligible node binding",
+        "edge_carnice: rejected by live health",
+        "edge_backbone_long: rejected by live health",
+        "edge_backbone_coder: rejected by live health",
+        "edge_laptop: rejected by live health",
+        "edge_guardhouse: rejected by live health",
+        "local_fallback: rejected by live health",
+        "openrouter: rejected by live health",
+        "openai: rejected by live health",
+        "litellm_gateway: rejected by live health",
+        "google: rejected by live health",
+        "mistral: rejected by live health",
+        "zai: rejected by live health",
+        "nvidia: rejected by live health",
+        "minimax: rejected by live health",
+        "kimi: rejected by live health",
+        "anthropic: rejected by live health",
+        "openai_sub: lower joint capability/pressure/cost score or no eligible node binding",
+        "hermes_nous_proxy: rejected by live health",
+        "cerebras: rejected by live health",
+        "groq: rejected by live health"
+      ],
+      "health_decision": "Manwe reports provider `edge_core` and model `Qwen3.5-9B-Q4_K_M` healthy, enabled, and outside cooldown",
+      "learning_decision": "no approved Varda/Vairë placement learning matched this role and capability profile",
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "node_id": "node-core-live",
+      "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+      "pressure_decision": "live node pressure score 0.080 from CPU/memory/GPU/queue observation",
+      "privacy_decision": "data domain `system` admitted to provider access tier `local` in trust domain `home`",
+      "provider_id": "edge_core",
+      "provider_lifetime": "request",
+      "receipt_id": "placement:objective:digital-organism-s7-living-mesh-proof:worker",
+      "role": "worker",
+      "sources": [
+        "arda.a2a-mesh-projection.v1 generated 2026-08-23T12:19:46.782821402+00:00 for node `node-core-live`",
+        "Manwe /providers intelligence refreshed 2026-08-23T08:49:47.595440876+00:00 for provider `edge_core`",
+        "Manwe model catalog health for `Qwen3.5-9B-Q4_K_M`"
+      ]
+    },
+    {
+      "cost_decision": "estimated bounded request cost $0.000000 within $0.010000 objective limit",
+      "execution": {
+        "actual_model_id": "Ternary-Bonsai-8B-Q2_0",
+        "actual_provider_id": "edge_beelink_light",
+        "lifetime_status": "task_terminated_after_receipt",
+        "output_chars": 369,
+        "output_digest": "sha256:946e6939207df3a79963816213a58335d9ee9d71de63e5ac673080547eb847e9",
+        "status": "completed"
+      },
+      "execution_lifetime": "task",
+      "fallback_decisions": [
+        "edge_carnice: rejected by live health",
+        "edge_core: lower joint capability/pressure/cost score or no eligible node binding",
+        "edge_backbone_long: rejected by live health",
+        "edge_backbone_coder: rejected by live health",
+        "edge_laptop: rejected by live health",
+        "edge_guardhouse: rejected by live health",
+        "local_fallback: rejected by live health",
+        "openrouter: rejected by live health",
+        "openai: rejected by live health",
+        "litellm_gateway: rejected by live health",
+        "google: rejected by live health",
+        "mistral: rejected by live health",
+        "zai: rejected by live health",
+        "nvidia: rejected by live health",
+        "minimax: rejected by live health",
+        "kimi: rejected by live health",
+        "anthropic: rejected by live health",
+        "openai_sub: lower joint capability/pressure/cost score or no eligible node binding",
+        "hermes_nous_proxy: rejected by live health",
+        "cerebras: rejected by live health",
+        "groq: rejected by live health"
+      ],
+      "health_decision": "Manwe reports provider `edge_beelink_light` and model `Ternary-Bonsai-8B-Q2_0` healthy, enabled, and outside cooldown",
+      "learning_decision": "no approved Varda/Vairë placement learning matched this role and capability profile",
+      "model_id": "Ternary-Bonsai-8B-Q2_0",
+      "node_id": "node-beelink-live",
+      "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+      "pressure_decision": "live node pressure score 0.120 from CPU/memory/GPU/queue observation",
+      "privacy_decision": "data domain `system` admitted to provider access tier `local` in trust domain `home`",
+      "provider_id": "edge_beelink_light",
+      "provider_lifetime": "request",
+      "receipt_id": "placement:objective:digital-organism-s7-living-mesh-proof:critic",
+      "role": "critic",
+      "sources": [
+        "arda.a2a-mesh-projection.v1 generated 2026-08-23T12:19:46.782821402+00:00 for node `node-beelink-live`",
+        "Manwe /providers intelligence refreshed 2026-08-23T08:49:47.594375090+00:00 for provider `edge_beelink_light`",
+        "Manwe model catalog health for `Ternary-Bonsai-8B-Q2_0`"
+      ]
+    },
+    {
+      "cost_decision": "estimated bounded request cost $0.000000 within $0.010000 objective limit",
+      "execution": {
+        "actual_model_id": "Qwen3.5-9B-Q4_K_M",
+        "actual_provider_id": "edge_core",
+        "lifetime_status": "task_terminated_after_receipt",
+        "output_chars": 707,
+        "output_digest": "sha256:86d0c023d9e61ea744614b8c8e9095715ac259b47b410f76b19577fc2ec34f72",
+        "status": "completed"
+      },
+      "execution_lifetime": "task",
+      "fallback_decisions": [
+        "edge_beelink_light: lower joint capability/pressure/cost score or no eligible node binding",
+        "edge_carnice: rejected by live health",
+        "edge_backbone_long: rejected by live health",
+        "edge_backbone_coder: rejected by live health",
+        "edge_laptop: rejected by live health",
+        "edge_guardhouse: rejected by live health",
+        "local_fallback: rejected by live health",
+        "openrouter: rejected by live health",
+        "openai: rejected by live health",
+        "litellm_gateway: rejected by live health",
+        "google: rejected by live health",
+        "mistral: rejected by live health",
+        "zai: rejected by live health",
+        "nvidia: rejected by live health",
+        "minimax: rejected by live health",
+        "kimi: rejected by live health",
+        "anthropic: rejected by live health",
+        "openai_sub: lower joint capability/pressure/cost score or no eligible node binding",
+        "hermes_nous_proxy: rejected by live health",
+        "cerebras: rejected by live health",
+        "groq: rejected by live health"
+      ],
+      "health_decision": "Manwe reports provider `edge_core` and model `Qwen3.5-9B-Q4_K_M` healthy, enabled, and outside cooldown",
+      "learning_decision": "no approved Varda/Vairë placement learning matched this role and capability profile",
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "node_id": "node-core-live",
+      "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+      "pressure_decision": "live node pressure score 0.080 from CPU/memory/GPU/queue observation",
+      "privacy_decision": "data domain `system` admitted to provider access tier `local` in trust domain `home`",
+      "provider_id": "edge_core",
+      "provider_lifetime": "request",
+      "receipt_id": "placement:objective:digital-organism-s7-living-mesh-proof:adjudicator",
+      "role": "adjudicator",
+      "sources": [
+        "arda.a2a-mesh-projection.v1 generated 2026-08-23T12:19:46.782821402+00:00 for node `node-core-live`",
+        "Manwe /providers intelligence refreshed 2026-08-23T08:49:47.595440876+00:00 for provider `edge_core`",
+        "Manwe model catalog health for `Qwen3.5-9B-Q4_K_M`"
+      ]
+    }
+  ],
+  "schema_version": "arda.adaptive-placement.v1"
+}

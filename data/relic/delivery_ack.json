@@ -1,0 +1,9 @@
+{
+  "schema_version": "arda.relic.delivery-ack.v1",
+  "delivery_state": "confirmed_remote_install",
+  "acknowledgement_method": "ssh_command_success",
+  "remote_host": "citadel",
+  "remote_state_path": "annunimas_embodied/relic/public/scene.json",
+  "scene_sha256": "0133d0160c4468d08c9fb022a8af5f95e53e69365d2bd63ee05c7dcf7c6ae2e6",
+  "acknowledged_at_utc": "2026-08-25T16:29:21.595754Z"
+}

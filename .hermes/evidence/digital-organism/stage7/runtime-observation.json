@@ -1,0 +1,81 @@
+{
+  "schema_version": "arda.stage7.direct-runtime-observation.v1",
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "observed_at_utc": "2026-08-23T12:22:31.782740Z",
+  "source_provenance": [
+    {
+      "kind": "source",
+      "path": "/var/home/mythos/Eregion/Arda/crates/engine/src/harness.rs",
+      "sha256": "sha256:381a26f6a28f8bc7f44c2d68e95d96a130e44bf16faf3944f45c6d8008b25030"
+    },
+    {
+      "kind": "source",
+      "path": "/var/home/mythos/Eregion/Arda/crates/engine/src/harness/adaptive_placement.rs",
+      "sha256": "sha256:626436d5375229d593b2cd97be2681226e14385d791a552c9663994e0cae6518"
+    },
+    {
+      "kind": "installed_binary",
+      "path": "/var/home/mythos/.local/bin/arda",
+      "sha256": "sha256:14f5d301bda811a8362bb2f75d82b3dd0beee2129759bd0e894e04fd0fc2fea0"
+    }
+  ],
+  "live_services": [
+    {
+      "unit": "arda.service",
+      "result": {
+        "MainPID": "822805",
+        "ExecMainStartTimestamp": "Sat 2026-08-22 01:44:47 PDT",
+        "ActiveState": "active"
+      }
+    },
+    {
+      "unit": "hermes-gateway.service",
+      "result": {
+        "MainPID": "204499",
+        "ExecMainStartTimestamp": "Fri 2026-08-21 15:21:53 PDT",
+        "ActiveState": "active"
+      }
+    },
+    {
+      "unit": "arda-varda.service",
+      "result": {
+        "MainPID": "1821",
+        "ExecMainStartTimestamp": "Fri 2026-08-21 10:38:33 PDT",
+        "ActiveState": "active"
+      }
+    }
+  ],
+  "live_probes": [
+    {
+      "url": "http://127.0.0.1:7878/health",
+      "status": 200,
+      "body": "ok"
+    },
+    {
+      "url": "http://127.0.0.1:7878/v1/adaptive-placement/operator-projection",
+      "status": 404,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:7878/v1/operator-projection",
+      "status": 200,
+      "body": "{\"schema_version\":\"arda.operator-projection.v1\",\"projection_id\":\"operator-projection-1787487751790\",\"generated_at\":\"2026-08-23T12:22:31.790857158Z\",\"authority\":\"read_only\",\"freshness\":\"fresh\",\"objectives\":[{\"objective_id\":\"phase5-source-grounded-economic-intelligence\",\"project_id\":null,\"title\":\"phase5-source-grounded-economic-intelligence\",\"status\":\"active\"}],\"runs\":[{\"run_id\":\"phase5-economic-intelligence-eaeb4d61fb78\",\"objective_id\":\"phase5-source-grounded-economic-intelligence\",\"status\":\"pending\",\"nodes\":[{\"node_id\":\"source-grounded-research\",\"kind\":\"research\",\"state\":\"pending\"}],\"workers\":[]}],\"capabilities\":[],\"pending_approvals\":[],\"councils\":[],\"personal_operations\":{\"captures\":4,\"resumable_items\":1,\"reminders\":[]},\"joulework\":{\"budget_joules\":100.0,\"consumed_joules\":0.0,\"remaining_joules\":100.0,\"source\":\"default_fallback\",\"source_confidence\":0.5},\"evidence\":[{\"evidence_id\":\"research-f80cec5450bd8f86\",\"kind\":\"advisory_research_evidence\",\"uri\":\"data/runs/phase5-economic-intelligence-eaeb4d61fb78/evidence/research-f80cec5450bd8f86.json\",\"observed_at\":\"2026-08-21T07:46:23.674Z\",\"freshness\":\"fresh\"},{\"evidence_id\":\"research-24cbd227aa9870d0\",\"kind\":\"advisory_research_evidence\",\"uri\":\"data/runs/phase5-economic-intelligence-eaeb4d61fb78/evidence/research-24cbd227aa9870d0.json\",\"observed_at\":\"2026-08-21T07:47:04.228Z\",\"freshness\":\"fresh\"},{\"evidence_id\":\"research-b5f4408de46a885f\",\"kind\":\"advisory_research_evidence\",\"uri\":\"data/runs/phase5-economic-intelligence-eaeb4d61fb78/evidence/research-b5f4408de46a885f.json\",\"observed_at\":\"2026-08-21T07:47:32.576Z\",\"freshness\":\"fresh\"},{\"evidence_id\":\"research-b5f4408de46a885f:no-change\",\"kind\":\"advisory_research_evidence\",\"uri\":\"data/runs/phase5-economic-intelligence-eaeb4d61fb78/evidence/research-b5f4408de46a885f.no-change.json\",\"observed_at\":\"2026-08-21T07:56:44.119Z\",\"freshness\":\"fresh\"},{\"evidence_id\":\"research-497ea63fae507a8b\",\"kind\":\"advisory_research_evidence\",\"uri\":\"data/runs/phase5-economic-intelligence-eaeb4d61fb78/evidence/research-497ea63fae507a8b.json\",\"obser"
+    },
+    {
+      "url": "http://127.0.0.1:5111/status",
+      "status": 200,
+      "body": "{\"ok\":true,\"status\":{\"active_crawls\":[],\"active_crawls_total\":0,\"avg_deep_queue_latency_seconds\":0.0,\"books_count\":5,\"deduplicated_ingests_total\":8,\"deep_graph_events\":5,\"deep_graph_path\":\"/var/home/mythos/Eregion/Arda/data/athena/deep_graph.jsonl\",\"deep_queue_depth\":0,\"deep_queue_failed\":0,\"deep_queue_path\":\"/var/home/mythos/Eregion/Arda/data/athena/deep_queue.jsonl\",\"digest_events\":18,\"digest_path\":\"/var/home/mythos/Eregion/Arda/data/athena/digest.jsonl\",\"duplicate_hit_rate\":0.6153846153846154,\"execution_authority\":\"workstation\",\"execution_posture\":\"workstation_first_laptop_operator_fallback\",\"ingest_success_total\":13,\"knowledge_vault\":{\"authority\":\"athena_knowledge_sovereign\",\"autonomy_feed\":[\"skill_updates\",\"docs\",\"plans\",\"task_proposals\",\"safe_local_task_candidates\",\"high_risk_escalation_packets\"],\"autonomy_recommendations\":[{\"action\":\"review_ingested_lane_for_synthesis\",\"evidence_count\":3,\"human_gate_required\":false,\"lane\":\"blogs_rss\",\"rationale\":\"3 ingested source(s) are available for safe-local synthesis review\",\"recommendation_id\":\"athena.vault.blogs_rss.safe_local_ingest_review\",\"safe_local\":true},{\"action\":\"review_ingested_lane_for_synthesis\",\"evidence_count\":10,\"human_gate_required\":false,\"lane\":\"documentation\",\"rationale\":\"10 ingested source(s) are available for safe-local synthesis review\",\"recommendation_id\":\"athena.vault.documentation.safe_local_ingest_review\",\"safe_local\":true}],\"autonomy_recommendations_total\":2,\"doctrine_path\":\"docs/ARDA_AUTONOMY_DOCTRINE.md\",\"layers\":[\"source_acquisition\",\"evidence_vault\",\"knowledge_extraction\",\"memory_index\",\"synthesis\",\"autonomy_feed\"],\"local_first_recall\":true,\"source_lane_observations\":[{\"ingested_sources_total\":3,\"lane\":\"blogs_rss\",\"latest_observed_at_utc\":\"2026-08-21T07:47:03.898334958+00:00\",\"policy_ready_sources_total\":0},{\"ingested_sources_total\":10,\"lane\":\"documentation\",\"latest_observed_at_utc\":\"2026-08-21T08:40:43.001971199+00:00\",\"policy_ready_sources_total\":0}],\"source_lane_observations_total\":2,\"source_lanes\":[\"github\",\"documentation\",\"papers\",\""
+    },
+    {
+      "url": "http://127.0.0.1:7171/health",
+      "status": 200,
+      "body": "{\"alerts\":[],\"bootstrap_state_path\":\"/var/home/mythos/Eregion/Arda/core/state/fleet_bootstrap.json\",\"budget_pressure\":{\"cooldown_total\":0,\"critical_total\":0,\"exhausted_total\":0,\"highest_level\":\"ok\",\"providers\":[{\"cooldown_until_utc\":null,\"day_usage_ratio\":null,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"provider_id\":\"edge_backbone_coder\",\"provider_name\":\"Annunimas Server Nanbeige4.2 3B Coding Lane\"},{\"cooldown_until_utc\":null,\"day_usage_ratio\":null,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"provider_id\":\"edge_backbone_long\",\"provider_name\":\"Annunimas Server Bonsai 27B Q1 Review Lane\"},{\"cooldown_until_utc\":null,\"day_usage_ratio\":null,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"provider_id\":\"edge_beelink_light\",\"provider_name\":\"Beelink Light Ternary Bonsai 8B Worker\"},{\"cooldown_until_utc\":null,\"day_usage_ratio\":null,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"provider_id\":\"edge_core\",\"provider_name\":\"Annunimas Core (3080 Workstation)\"},{\"cooldown_until_utc\":null,\"day_usage_ratio\":null,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"provider_id\":\"edge_guardhouse\",\"provider_name\":\"Warden Pi5 Guardhouse\"},{\"cooldown_until_utc\":null,\"day_usage_ratio\":0.0,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"provider_id\":\"google\",\"provider_name\":\"Google Gemini\"},{\"cooldown_until_utc\":null,\"day_usage_ratio\":0.0,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"provider_id\":\"openai_sub\",\"provider_name\":\"OpenAI Codex (ChatGPT subscription via Hermes auth)\"},{\"cooldown_until_utc\":null,\"day_usage_ratio\":0.0,\"exhausted_day\":false,\"exhausted_minute\":false,\"in_cooldown\":false,\"level\":\"ok\",\"minute_usage_ratio\":0.0,\"prov"
+    }
+  ],
+  "contradiction": {
+    "status": "material_runtime_contradiction",
+    "supporting": "source-current harness implements adaptive placement and the focused source test executes it",
+    "opposing": "installed Arda harness does not expose the source-current adaptive-placement projection",
+    "interpretation": "implemented/focused-tested must not be projected as installed-live HUD capability"
+  }
+}

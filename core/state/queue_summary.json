@@ -13,20 +13,254 @@
     "primary_panel": "task_board"
   },
   "authority": "queue_summary_projection",
-  "generated_at_utc": "2026-08-14T19:01:35.648608301+00:00",
+  "generated_at_utc": "2026-08-25T16:07:45.613282482+00:00",
   "plans": {
     "count": 0,
     "paths": []
   },
   "project_tasks": {
-    "counts_by_owner": {},
-    "counts_by_priority": {},
-    "counts_by_status": {},
-    "open_compact": [],
+    "counts_by_owner": {
+      "arandur": 1,
+      "aule": 1,
+      "hades": 1,
+      "hermes": 2,
+      "manwe": 1,
+      "operator:mythos": 3,
+      "prometheus": 5,
+      "vaire": 1
+    },
+    "counts_by_priority": {
+      "critical": 6,
+      "high": 8,
+      "medium": 1
+    },
+    "counts_by_status": {
+      "completed": 12,
+      "pending": 3
+    },
+    "open_compact": [
+      {
+        "completed_at_utc": null,
+        "id": "operator-objective-78370a00190fd9b8",
+        "origin": null,
+        "owner": "operator:mythos",
+        "priority": "critical",
+        "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+        "result": "pending",
+        "scope": null,
+        "status": "pending",
+        "title": "Review Arda comprehensively and introspectively against the operator vision"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "operator-objective-1463cc15ce0ff3cd",
+        "origin": null,
+        "owner": "operator:mythos",
+        "priority": "high",
+        "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+        "result": "pending",
+        "scope": null,
+        "status": "pending",
+        "title": "Design governed economic-intelligence routines and a future budgeted agent account"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "operator-objective-1b00e78b7eee3c3b",
+        "origin": null,
+        "owner": "operator:mythos",
+        "priority": "medium",
+        "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+        "result": "pending",
+        "scope": null,
+        "status": "pending",
+        "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post"
+      }
+    ],
     "open_compact_limit": 32,
-    "open_total": 0,
-    "recent_compact": [],
-    "total_effective": 0
+    "open_total": 3,
+    "recent_compact": [
+      {
+        "completed_at_utc": null,
+        "id": "operator-objective-78370a00190fd9b8",
+        "origin": null,
+        "owner": "operator:mythos",
+        "priority": "critical",
+        "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+        "result": "pending",
+        "scope": null,
+        "status": "pending",
+        "title": "Review Arda comprehensively and introspectively against the operator vision"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "operator-objective-1463cc15ce0ff3cd",
+        "origin": null,
+        "owner": "operator:mythos",
+        "priority": "high",
+        "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+        "result": "pending",
+        "scope": null,
+        "status": "pending",
+        "title": "Design governed economic-intelligence routines and a future budgeted agent account"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "operator-objective-1b00e78b7eee3c3b",
+        "origin": null,
+        "owner": "operator:mythos",
+        "priority": "medium",
+        "queued_at_utc": "2026-08-21T00:27:57.584853Z",
+        "result": "pending",
+        "scope": null,
+        "status": "pending",
+        "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post"
+      },
+      {
+        "completed_at_utc": "2026-08-22T05:49:23Z",
+        "id": "digital-organism-s0-foundation-matrix",
+        "origin": null,
+        "owner": "prometheus",
+        "priority": "critical",
+        "queued_at_utc": "2026-08-22T05:29:02Z",
+        "result": "docs/audits/digital-organism-foundation-matrix.md",
+        "scope": null,
+        "status": "completed",
+        "title": "Build the digital-organism foundation maturity matrix"
+      },
+      {
+        "completed_at_utc": "2026-08-22T06:00:33Z",
+        "id": "digital-organism-s0-current-flow-trace",
+        "origin": null,
+        "owner": "prometheus",
+        "priority": "critical",
+        "queued_at_utc": "2026-08-22T05:29:02Z",
+        "result": "docs/audits/digital-organism-current-flow-trace.md",
+        "scope": null,
+        "status": "completed",
+        "title": "Trace one objective through the current Arda and Hermes system"
+      },
+      {
+        "completed_at_utc": "2026-08-22T06:53:16Z",
+        "id": "digital-organism-s0-authority-transport-map",
+        "origin": null,
+        "owner": "prometheus",
+        "priority": "critical",
+        "queued_at_utc": "2026-08-22T05:29:02Z",
+        "result": "docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md",
+        "scope": null,
+        "status": "completed",
+        "title": "Reconcile organism authority, protocol, and transport ownership"
+      },
+      {
+        "completed_at_utc": "2026-08-22T07:10:31Z",
+        "id": "digital-organism-s1-organism-contracts",
+        "origin": null,
+        "owner": "prometheus",
+        "priority": "critical",
+        "queued_at_utc": "2026-08-22T05:29:02Z",
+        "result": ".hermes/evidence/digital-organism/organism-contracts.json",
+        "scope": null,
+        "status": "completed",
+        "title": "Implement the minimal organism manifest and context contracts"
+      },
+      {
+        "completed_at_utc": "2026-08-22T08:50:47Z",
+        "id": "digital-organism-s1-context-bootstrap",
+        "origin": null,
+        "owner": "hermes",
+        "priority": "critical",
+        "queued_at_utc": "2026-08-22T05:29:02Z",
+        "result": ".hermes/evidence/digital-organism/context-bootstrap.json",
+        "scope": null,
+        "status": "completed",
+        "title": "Wire bounded organism context into fresh Hermes workers"
+      },
+      {
+        "completed_at_utc": "2026-08-22T12:02:33Z",
+        "id": "digital-organism-s2-node-mesh-a2a",
+        "origin": "docs/plans/digital-organism/02-node-mesh-and-a2a.md",
+        "owner": "hermes",
+        "priority": "high",
+        "queued_at_utc": "2026-08-22T12:07:03Z",
+        "result": "Verified two independent Arda daemon processes exchanged one bearer-authenticated typed A2A task with Agent Card discovery, correlated bilateral receipts, and honest offline expiry.",
+        "scope": "digital-organism-stage-2",
+        "status": "completed",
+        "title": "Activate the enrolled node mesh over standard A2A"
+      },
+      {
+        "completed_at_utc": "2026-08-22T19:08:30Z",
+        "id": "digital-organism-s3-adaptive-placement",
+        "origin": "docs/plans/digital-organism/03-adaptive-cognition-and-placement.md",
+        "owner": "manwe",
+        "priority": "high",
+        "queued_at_utc": "2026-08-22T19:08:37Z",
+        "result": "implemented_verified",
+        "scope": "digital-organism-stage-3",
+        "status": "completed",
+        "title": "Compose roles and place work across capable nodes and models"
+      },
+      {
+        "completed_at_utc": "2026-08-22T12:00:00Z",
+        "id": "digital-organism-s4-memory-learning-context",
+        "origin": "digital_organism_program",
+        "owner": "vaire",
+        "priority": "high",
+        "queued_at_utc": "2026-08-22T21:46:39Z",
+        "result": "Implemented digest-bound context outcome receipts, Varda-gated safe-local placement learning, restart-stable exact replay, and adaptive placement consumption with source receipts; focused continuation, capsule, correction/revoke, learning-loop, and build gates passed.",
+        "scope": "stage4_memory_learning_context",
+        "status": "completed",
+        "title": "Digital organism Stage 4 — memory, learning, and context"
+      },
+      {
+        "completed_at_utc": "2026-08-23T00:35:01+00:00",
+        "id": "digital-organism-s5-homeostasis-recovery",
+        "origin": "docs/plans/digital-organism/05-homeostasis-governance-and-recovery.md",
+        "owner": "hades",
+        "priority": "high",
+        "queued_at_utc": "2026-08-23T00:35:01Z",
+        "result": "Implemented direct-evidence health synthesis, bounded conservation policy, authority-preserving restart-safe recovery receipts, real two-process failure/reassignment proof, and configured-fleet endpoint evidence.",
+        "scope": "digital-organism-stage-5",
+        "status": "completed",
+        "title": "Implement organism homeostasis, degradation, and recovery"
+      },
+      {
+        "completed_at_utc": "2026-08-23T00:00:00Z",
+        "id": "digital-organism-s6-arandur-ceo-cycle",
+        "origin": "digital_organism_roadmap",
+        "owner": "prometheus",
+        "priority": "high",
+        "queued_at_utc": "2026-08-23T10:57:50Z",
+        "result": "completed",
+        "scope": "stage6_arandur_ceo_cycle",
+        "status": "completed",
+        "title": "Complete Digital Organism Stage 6: Arandur CEO orchestration"
+      },
+      {
+        "completed_at_utc": "2026-08-25T06:23:24.015140249+00:00",
+        "id": "digital-organism-s7-living-mesh-proof",
+        "origin": null,
+        "owner": "arandur",
+        "priority": "high",
+        "queued_at_utc": null,
+        "result": "completed",
+        "scope": null,
+        "status": "completed",
+        "title": "Run and obtain acceptance for the living-mesh proof"
+      },
+      {
+        "completed_at_utc": "2026-08-25T06:40:39.581915+00:00",
+        "id": "digital-organism-s8-hardware-portability",
+        "origin": null,
+        "owner": "aule",
+        "priority": "high",
+        "queued_at_utc": "2026-08-25T06:45:00Z",
+        "result": "completed",
+        "scope": null,
+        "status": "completed",
+        "title": "Prove hardware portability and read-only embodiment"
+      }
+    ],
+    "total_effective": 15
   },
   "runtime_queue": {
     "counts_by_owner": {},

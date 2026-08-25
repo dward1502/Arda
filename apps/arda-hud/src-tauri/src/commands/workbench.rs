@@ -731,8 +731,7 @@ mod tests {
 
     #[test]
     fn rejects_unversioned_harness_error_body() {
-        let payload =
-            serde_json::to_vec(&json!({"error": "legacy failure"})).expect("legacy body");
+        let payload = serde_json::to_vec(&json!({"error": "legacy failure"})).expect("legacy body");
         assert_eq!(
             decode_harness_error(reqwest::StatusCode::BAD_REQUEST, &payload),
             "Harness request failed (400 Bad Request): invalid or missing arda.hud.error.v1 envelope"

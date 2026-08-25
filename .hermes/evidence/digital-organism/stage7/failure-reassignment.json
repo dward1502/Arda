@@ -1,0 +1,76 @@
+{
+  "live_failure": {
+    "after": {
+      "node_id": "node-worker-a",
+      "observed_at_unix_ms": 1800000001000,
+      "ready_for_new_work": false,
+      "reasons": [
+        "owning service is down"
+      ],
+      "schema_version": "arda.organism-health.v1",
+      "source_refs": [
+        "process:2339766:exited:signal: 9 (SIGKILL)"
+      ],
+      "state": "service_down"
+    },
+    "before": {
+      "node_id": "node-worker-a",
+      "observed_at_unix_ms": 1800000000000,
+      "ready_for_new_work": true,
+      "reasons": [
+        "fresh heartbeat, service, endpoint, minimal work, and memory evidence agree"
+      ],
+      "schema_version": "arda.organism-health.v1",
+      "source_refs": [
+        "process:2339766:running"
+      ],
+      "state": "ready"
+    },
+    "exit_status": "signal: 9 (SIGKILL)",
+    "pid": 2339766
+  },
+  "recovery_receipt": {
+    "attempt_id": "attempt-worker-a",
+    "authority_preserved": true,
+    "completed_evidence_preserved": false,
+    "disposition": "reassign",
+    "duplicate_mutation_allowed": false,
+    "explanations": [
+      "eligible work may resume on a directly evidenced ready target with the same bounded authority and idempotency key"
+    ],
+    "input_digest": "sha256:fcba66a6747939315f594510c5f848ff0d0ed17d1ff24a8b5a9e01543ca20566",
+    "interrupted_node_id": "node-worker-a",
+    "receipt_id": "homeostasis:fcba66a674793931",
+    "recorded_at_unix_ms": 1800000001000,
+    "recovery_key": "stage5-run:attempt-worker-a:recovery-1",
+    "run_id": "stage5-run",
+    "schema_version": "arda.homeostasis-recovery-receipt.v1",
+    "source_refs": [
+      "attempt:worker-a",
+      "process:2339767:running",
+      "process:worker-a"
+    ],
+    "target_node_id": "node-worker-b",
+    "work_id": "bounded-summary"
+  },
+  "restart_replay": {
+    "duplicate_terminal_mutation": false,
+    "ledger_byte_stable": true,
+    "ledger_rows": 1
+  },
+  "schema_version": "arda.digital-organism.stage5-proof.v1",
+  "target_health": {
+    "node_id": "node-worker-b",
+    "observed_at_unix_ms": 1800000001000,
+    "ready_for_new_work": true,
+    "reasons": [
+      "fresh heartbeat, service, endpoint, minimal work, and memory evidence agree"
+    ],
+    "schema_version": "arda.organism-health.v1",
+    "source_refs": [
+      "process:2339767:running"
+    ],
+    "state": "ready"
+  },
+  "target_process_pid": 2339767
+}

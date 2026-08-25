@@ -509,38 +509,38 @@ describe('local CLI operator actions', () => {
     })
   })
 
-  it('invokes the HADES recurring maintenance descriptor through the Tauri local CLI adapter and refreshes receipt-backed status', async () => {
+  it('invokes the Rúmil organization maintenance descriptor through the Tauri local CLI adapter and refreshes receipt-backed status', async () => {
     setSystemActionAdapterPreset('local_cli')
     mockedSafeTauriInvoke.mockResolvedValueOnce({
       ok: true,
-      message: 'HADES recurring maintenance refreshed (pass)',
-      receiptPath: 'core/state/hades_nightly_operations.json',
-      resultPath: 'data/hades/organization_plan_last.json',
+      message: 'Rúmil organization maintenance refreshed (warn)',
+      receiptPath: 'data/rumil/storage_hygiene_last.json',
+      resultPath: 'data/rumil/storage_hygiene/summary.json',
       generatedAt: '2026-05-28T06:07:00.000Z',
     })
 
-    const result = await executeSystemAction('arda.hades_run_nightly', actionContext)
+    const result = await executeSystemAction('arda.rumil_run_nightly_organization', actionContext)
 
     expect(result).toMatchObject({
       ok: true,
       provider: 'tauri-local-cli',
-      message: 'HADES recurring maintenance refreshed (pass)',
+      message: 'Rúmil organization maintenance refreshed (warn)',
       data: expect.objectContaining({
-        receiptPath: 'core/state/hades_nightly_operations.json',
-        resultPath: 'data/hades/organization_plan_last.json',
+        receiptPath: 'data/rumil/storage_hygiene_last.json',
+        resultPath: 'data/rumil/storage_hygiene/summary.json',
       }),
     })
     expect(mockedSafeTauriInvoke).toHaveBeenCalledTimes(1)
-    expect(mockedSafeTauriInvoke).toHaveBeenCalledWith('run_hades_recurring_maintenance', {
-      actionId: 'arda.hades_run_nightly',
+    expect(mockedSafeTauriInvoke).toHaveBeenCalledWith('run_rumil_organization_maintenance', {
+      actionId: 'arda.rumil_run_nightly_organization',
       source: 'lounge',
     })
 
-    expect(getSystemActionCapabilityStatuses().find((status) => status.id === 'arda.hades_run_nightly')).toMatchObject({
+    expect(getSystemActionCapabilityStatuses().find((status) => status.id === 'arda.rumil_run_nightly_organization')).toMatchObject({
       currentStatus: 'succeeded',
       lastRun: '2026-05-28T06:07:00.000Z',
-      receiptPath: 'core/state/hades_nightly_operations.json',
-      resultPath: 'data/hades/organization_plan_last.json',
+      receiptPath: 'data/rumil/storage_hygiene_last.json',
+      resultPath: 'data/rumil/storage_hygiene/summary.json',
       failureReason: 'none observed',
     })
   })

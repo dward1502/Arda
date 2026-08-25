@@ -46,7 +46,7 @@ not as current-state claims.
 Run the contributor gate before closing plan work:
 
 ```bash
-python scripts/hades_markdown_link_check.py \
+python scripts/rumil_markdown_link_check.py \
   --root docs/plans \
   --out /tmp/arda-doc-health.md \
   --check-completion-language
@@ -56,5 +56,5 @@ The checker reports `unqualified_completion_claim` and
 `missing_evidence_link` with file and line locations. Its focused tests are:
 
 ```bash
-python -m unittest tests.test_hades_markdown_link_check -v
+python -m unittest tests.test_rumil_markdown_link_check -v
 ```

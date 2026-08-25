@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a no-delete HADES storage hygiene audit.
+"""Generate a no-delete Rúmil storage hygiene audit.
 
 The audit classifies high-churn and bulky repository surfaces so cleanup can be
 approved from evidence instead of guessed from directory names.
@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-CONTRACT = "arda.hades.storage_hygiene_audit.v1"
+CONTRACT = "arda.rumil.storage_hygiene_audit.v1"
 DEFAULT_ROOTS = ("audit", "data", "logs", "tmp", ".tmp", "core/state")
 MODEL_SUFFIXES = {
     ".bin",
@@ -187,7 +187,7 @@ def summarize(root: Path, roots: list[str], largest_limit: int, candidate_limit:
         "policy": {
             "destructive_actions_performed": False,
             "archive_or_delete_requires": [
-                "fresh HADES approval packet",
+                "fresh operator-approved Rúmil review packet",
                 "operator-selected scope",
                 "rollback or archive note",
                 "post-change verification receipt",
@@ -204,7 +204,7 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def render_md(payload: dict[str, Any]) -> str:
     lines = [
-        "# HADES Storage Hygiene Audit",
+        "# Rúmil Storage Hygiene Audit",
         "",
         f"- Generated: `{payload['generated_at_utc']}`",
         f"- Contract: `{payload['contract']}`",
@@ -244,7 +244,7 @@ def render_md(payload: dict[str, Any]) -> str:
             "## Boundary",
             "",
             "No files were deleted, moved, archived, or rewritten by this audit.",
-            "Any archive/delete pass must use a fresh HADES approval packet, an explicit operator-selected scope, and a post-change receipt.",
+            "Any archive/delete pass requires a fresh operator-approved Rúmil review packet, an explicit operator-selected scope, and a post-change receipt.",
             "Model weights and staged model artifacts belong outside the repository under `~/models`.",
             "",
         ]

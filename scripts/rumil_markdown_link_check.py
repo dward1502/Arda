@@ -162,7 +162,7 @@ def scan_completion_language(root: Path) -> list[tuple[Path, int, str, str]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=".")
-    parser.add_argument("--out", default="data/hades/markdown_link_check_last.md")
+    parser.add_argument("--out", default="data/rumil/markdown_link_check_last.md")
     parser.add_argument(
         "--check-completion-language",
         action="store_true",
@@ -188,7 +188,7 @@ def main() -> int:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
-        "# HADES Markdown Link Check",
+        "# Rúmil Markdown Link Check",
         "",
         f"- Root: `{root}`",
         f"- Local links checked: {checked}",
@@ -213,7 +213,7 @@ def main() -> int:
         else:
             lines.extend(["", "No completion-language issues found."])
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"HADES markdown link check written: {out_path}")
+    print(f"Rúmil markdown link check written: {out_path}")
     print(f"  local_links_checked={checked} broken_local_links={len(broken)}")
     return 1 if broken or completion_issues else 0
 

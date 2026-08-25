@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "scripts" / "hades_markdown_link_check.py"
+SCRIPT = ROOT / "scripts" / "rumil_markdown_link_check.py"
 
 
 class CompletionLanguageCheckTests(unittest.TestCase):

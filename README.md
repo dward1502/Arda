@@ -4,7 +4,7 @@
 
 Arda helps one sovereign operator organize personal life and projects, preserve context, coordinate hosted and local workers, integrate external systems, and act proactively without taking unearned authority. Workbench, Personal Operations, research, council, economic tools, and device/outpost integrations are composable capabilities over one task, memory, governance, communications, and receipt model—not separate product identities. The canonical Rust workspace lives in this repository; `~/Annunimas` is reference architecture and should not be modified unless explicitly requested.
 
-The installed/release support authority remains the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). Cohesive system development now follows the active [Digital Organism Program](docs/plans/digital-organism/README.md): Hermes remains the primary conversational and worker runtime while Arda composes organism identity, node topology, capability placement, continuity, governance, homeostasis, receipts, and embodiment boundaries. The [Core Arda Usefulness Repair](docs/plans/CORE_ARDA_USEFULNESS_REPAIR.md) remains the operator-relationship evidence track, and the [Ambient Agent Program](docs/plans/ambient-agent/README.md) remains downstream embodiment planning held behind a proven living mesh. The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) is active product doctrine, not proof that its runtime slices are complete.
+The installed/release support authority remains the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). Cohesive system development now follows the active [Digital Organism Authority and Transport Map](docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md); the completed planning program is preserved in the [Digital Organism archive](docs/archive/digital-organism/README.md). Hermes remains the primary conversational and worker runtime while Arda composes organism identity, node topology, capability placement, continuity, governance, homeostasis, receipts, and embodiment boundaries. The [Core Arda Usefulness Repair](docs/plans/CORE_ARDA_USEFULNESS_REPAIR.md) remains the operator-relationship evidence track, and the [Ambient Agent Program](docs/plans/ambient-agent/README.md) remains downstream embodiment planning held behind a proven living mesh. The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) is active product doctrine, not proof that its runtime slices are complete.
 
 ## Current workspace status
 
@@ -45,8 +45,8 @@ The installed/release support authority remains the [Arda 0.9 Baseline](docs/rel
 1. This file (`README.md`).
 2. `AGENTS.md` — working rules and canonical source layout.
 3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` — product doctrine and capability-composition model.
-4. `docs/plans/digital-organism/README.md` — active cohesion program for organism bootstrap, node mesh, placement, continuity, homeostasis, Arandur, and the living-mesh proof.
-5. `docs/plans/digital-organism/WORKSTREAMS.md` — organism-stage ownership, dependency, integration, and dirty-worktree boundaries.
+4. `docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md` — active authority and transport ownership for the organism architecture.
+5. `docs/archive/digital-organism/README.md` — completed planning program and historical workstream foundation.
 6. `docs/plans/ambient-agent/README.md` — downstream embodiment program held behind the living-mesh proof.
 7. `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — completed finite 0.9 improvement and evidence record.
 8. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.

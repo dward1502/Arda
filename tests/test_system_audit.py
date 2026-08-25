@@ -32,7 +32,7 @@ class SystemAuditTests(unittest.TestCase):
         report = {
             "contract": system_audit.CONTRACT,
             "run_id": "test-run",
-            "target": "HADES",
+            "target": "RUMIL",
             "target_type": "agent_crate",
             "score": 100,
             "score_breakdown": dict(system_audit.RUBRIC_MAX),
@@ -55,7 +55,7 @@ class SystemAuditTests(unittest.TestCase):
     def test_run_audit_emits_schema_checked_receipts_for_first_batch(self):
         with TemporaryDirectory() as raw:
             root = Path(raw)
-            for target in ("HADES", "PROMETHEUS", "MANWE"):
+            for target in ("RUMIL", "PROMETHEUS", "MANWE"):
                 src = root / system_audit.TARGETS[target].root / "src"
                 src.mkdir(parents=True, exist_ok=True)
                 (src / "lib.rs").write_text(
@@ -66,13 +66,14 @@ class SystemAuditTests(unittest.TestCase):
             (root / "config").mkdir()
             (root / "config/manwe.providers.toml").write_text("provider = 'local'\n", encoding="utf-8")
             (root / "scripts").mkdir(exist_ok=True)
-            (root / "scripts/hades_organization_maintenance.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+            (root / "scripts/rumil_organization_maintenance.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+            (root / "data/rumil").mkdir(parents=True)
             (root / "data/hades").mkdir(parents=True)
             (root / "data/hades/action_queue.jsonl").write_text("", encoding="utf-8")
             (root / "Cargo.toml").write_text("[workspace]\n", encoding="utf-8")
 
             out = root / "audit/system-audit-runs/TEST"
-            summary = system_audit.run_audit(root, out, ["HADES", "PROMETHEUS", "MANWE"], "test-run")
+            summary = system_audit.run_audit(root, out, ["RUMIL", "PROMETHEUS", "MANWE"], "test-run")
 
             self.assertEqual(summary["contract"], system_audit.RUN_CONTRACT)
             self.assertEqual(summary["target_count"], 3)
@@ -81,8 +82,8 @@ class SystemAuditTests(unittest.TestCase):
             self.assertTrue((out / "agent-scores.json").exists())
             self.assertTrue((out / "findings.jsonl").exists())
             self.assertTrue((out / "tasks-candidate.jsonl").exists())
-            self.assertTrue((out / "targets/HADES.json").exists())
-            for target in ("HADES", "PROMETHEUS", "MANWE"):
+            self.assertTrue((out / "targets/RUMIL.json").exists())
+            for target in ("RUMIL", "PROMETHEUS", "MANWE"):
                 report = json.loads((out / f"targets/{target}.json").read_text(encoding="utf-8"))
                 system_audit.validate_report(report)
                 self.assertEqual(report["contract"], system_audit.CONTRACT)

@@ -757,37 +757,35 @@ fn run_queue_cleanup_preview(
 }
 
 #[tauri::command]
-fn run_hades_recurring_maintenance(
+fn run_rumil_organization_maintenance(
     action_id: String,
     source: String,
 ) -> Result<LocalOperatorActionResult, String> {
-    if action_id != "hades.run_nightly" {
+    if action_id != "arda.rumil_run_nightly_organization" {
         return Err(format!(
-            "unsupported HADES recurring maintenance action: {action_id}"
+            "unsupported Rúmil organization maintenance action: {action_id}"
         ));
     }
 
     let arda_root = resolve_ardas_root();
-    let receipt_path = "core/state/hades_nightly_operations.json";
+    let receipt_path = "data/rumil/storage_hygiene_last.json";
     let output = run_bounded_command(
         {
-            let mut command = Command::new("python3");
+            let mut command = Command::new("bash");
             command
-                .arg("scripts/hades_nightly_operations.py")
-                .arg("--root")
-                .arg(&arda_root)
+                .arg("scripts/rumil_organization_maintenance.sh")
                 .current_dir(&arda_root);
             command
         },
         Duration::from_secs(120),
-        &format!("HADES recurring maintenance for {source}"),
+        &format!("Rúmil organization maintenance for {source}"),
     )?;
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     if !output.status.success() {
         return Err(format!(
-            "HADES recurring maintenance failed for {source}: {}",
+            "Rúmil organization maintenance failed for {source}: {}",
             if stderr.trim().is_empty() {
                 stdout.trim()
             } else {
@@ -796,26 +794,16 @@ fn run_hades_recurring_maintenance(
         ));
     }
 
-    let summary = serde_json::from_str::<serde_json::Value>(&stdout)
-        .unwrap_or_else(|_| serde_json::Value::Null);
     let state_json = fs::read_to_string(Path::new(&arda_root).join(receipt_path))
         .ok()
         .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
         .unwrap_or_else(|| serde_json::Value::Null);
-    let status = json_string_field(&state_json, "status")
-        .or_else(|| json_string_field(&summary, "status"))
-        .unwrap_or_else(|| "unknown".to_string());
-    let result_path = state_json
-        .get("artifacts")
-        .and_then(|artifacts| artifacts.get("organization_plan"))
-        .and_then(serde_json::Value::as_str)
-        .filter(|path| !path.trim().is_empty())
-        .unwrap_or("data/hades/organization_plan_last.json")
-        .to_string();
+    let status = json_string_field(&state_json, "status").unwrap_or_else(|| "unknown".to_string());
+    let result_path = "data/rumil/storage_hygiene/summary.json".to_string();
 
     Ok(local_action_result_from_state(
         &state_json,
-        format!("HADES recurring maintenance refreshed ({status})"),
+        format!("Rúmil organization maintenance refreshed ({status})"),
         receipt_path.to_string(),
         result_path,
     ))
@@ -3045,7 +3033,7 @@ pub fn run() {
             run_chronos_provider_checks,
             run_charon_provider_intelligence_refresh,
             run_queue_cleanup_preview,
-            run_hades_recurring_maintenance,
+            run_rumil_organization_maintenance,
             run_repeated_audit_preview,
             run_setup_readiness_check,
             run_setup_repair_preflight,

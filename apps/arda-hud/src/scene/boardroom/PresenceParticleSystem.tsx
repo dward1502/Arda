@@ -10,6 +10,7 @@ interface PresenceParticleSystemProps {
   /** 0 = fully dissolved into the emitter, 1 = fully assembled figure. */
   assemble: React.RefObject<number>
   color: string
+  opacity: number
   count?: number
 }
 
@@ -30,7 +31,10 @@ const ASSEMBLE_DURATION = 1.6
 export default function PresenceParticleSystem({
   assemble,
   color,
-  count = 24000,
+  opacity,
+  // 6000: enough to read as a particle hologram without additive saturation
+  // merging the silhouette into a white blob at the seated camera (WS3b fix).
+  count = 6000,
 }: PresenceParticleSystemProps) {
   const asset = getSceneAssetByBinding('presence_form')
   const gltf = useGLTF(asset?.glbUrl ?? '')
@@ -79,7 +83,8 @@ export default function PresenceParticleSystem({
           uAssemble: { value: easedRef.current },
           uTime: { value: 0 },
           uColor: { value: new THREE.Color(color) },
-          uSize: { value: 2.2 },
+          uOpacity: { value: opacity },
+          uSize: { value: 0.16 },
         },
         vertexShader: /* glsl */ `
           attribute float aRandom;
@@ -87,6 +92,7 @@ export default function PresenceParticleSystem({
           uniform float uAssemble;
           uniform float uTime;
           uniform float uSize;
+          uniform float uOpacity;
           varying float vAlpha;
 
           void main() {
@@ -107,8 +113,8 @@ export default function PresenceParticleSystem({
 
             vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
             gl_Position = projectionMatrix * mvPosition;
-            gl_PointSize = uSize * (1.0 + aRandom * 0.8) * (120.0 / -mvPosition.z);
-            vAlpha = mix(0.22, 0.5, t) * (0.5 + 0.3 * aRandom);
+            gl_PointSize = clamp(uSize * (1.0 + aRandom * 0.8) * (120.0 / -mvPosition.z), 1.0, 3.0);
+            vAlpha = mix(0.22, 0.5, t) * (0.5 + 0.3 * aRandom) * uOpacity;
           }
         `,
         fragmentShader: /* glsl */ `
@@ -124,7 +130,7 @@ export default function PresenceParticleSystem({
           }
         `,
       }),
-    [color],
+    [color, opacity],
   )
 
   useFrame(({ clock }, delta) => {

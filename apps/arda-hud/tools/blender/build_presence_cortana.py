@@ -7,7 +7,7 @@ Run with:
         tools/blender/build_presence_cortana.py
 
 Output:
-    src/assets/scene/hologram/presence_cortana/presence_cortana.glb
+    src/assets/scene/hologram/presence_cortana/presence_form.glb
     src/assets/scene/hologram/presence_cortana/metadata.json
 
 Stylized feminine humanoid silhouette (Cortana-like) built from primitives,
@@ -178,9 +178,9 @@ def main() -> int:
     metadata = {
         "id": "hologram_presence_cortana",
         "domain": "hologram",
-        "scene_binding": "hologram_anchor",
+        "scene_binding": "presence_form",
         "material_family": "hologram_presence",
-        "source": "tools/blender/build_presence_cortana.py",
+        "source": "apps/arda-hud/tools/blender/build_presence_cortana.py",
         "license": "Internal",
     }
     (ASSET_DIR / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")

@@ -566,17 +566,21 @@ fn execution_attempt(task: &QueueRecord) -> ActiveQueueExecutionAttempt {
 }
 
 fn attempt_from_claimed_task(task: &QueueRecord) -> std::io::Result<ActiveQueueExecutionAttempt> {
-    let required = |key: &str| {
+    let meta = task.extra.get("meta").and_then(Value::as_object);
+    let meta_str = |key: &str| {
+        meta.and_then(|meta| meta.get(key))
+            .and_then(Value::as_str)
+            .filter(|value| !value.trim().is_empty())
+    };
+    // Prefer top-level attempt fields written by this executor, then fall back
+    // to governed approval metadata so claims recorded by other governed
+    // surfaces (e.g. Workbench approvals) reconcile without wedging the queue.
+    let field = |key: &str| -> Option<&str> {
         task.extra
             .get(key)
             .and_then(Value::as_str)
             .filter(|value| !value.trim().is_empty())
-            .ok_or_else(|| {
-                std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    format!("claimed task `{}` omitted `{key}`", task.id),
-                )
-            })
+            .or_else(|| meta_str(key))
     };
     let parse_timestamp = |key: &str, value: &str| {
         parse_utc(value).ok_or_else(|| {
@@ -586,28 +590,59 @@ fn attempt_from_claimed_task(task: &QueueRecord) -> std::io::Result<ActiveQueueE
             )
         })
     };
-    let appended_at = task
-        .started_at_utc
-        .as_deref()
-        .ok_or_else(|| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                format!("claimed task `{}` omitted `started_at_utc`", task.id),
-            )
-        })
-        .and_then(|value| parse_timestamp("started_at_utc", value))?;
-    let lease_expires_at = required("lease_expires_at_utc")?;
+    let appended_at = match task.started_at_utc.as_deref() {
+        Some(value) if !value.trim().is_empty() => parse_timestamp("started_at_utc", value)?,
+        // Legacy claims without an executor start stamp are treated as
+        // discovered now; their lease is bounded below either way.
+        _ => Utc::now(),
+    };
+    let lease_expires_at = field("lease_expires_at_utc")
+        .map(|value| parse_timestamp("lease_expires_at_utc", value))
+        .unwrap_or(Ok(appended_at + Duration::minutes(20)))?;
     Ok(ActiveQueueExecutionAttempt {
-        contract: required("contract")?.to_owned(),
-        executor: required("executor")?.to_owned(),
+        contract: field("contract")
+            .unwrap_or("arda.prometheus.active_queue_execution_attempt.v1")
+            .to_owned(),
+        executor: field("executor")
+            .unwrap_or("arda_workbench.queue_executor")
+            .to_owned(),
         task_id: task.id.clone(),
         status: "claimed".to_owned(),
-        action_class: required("action_class")?.to_owned(),
+        action_class: field("action_class")
+            .unwrap_or("approved_autopilot_plan_step")
+            .to_owned(),
         hades_projection_repair: false,
         appended_at_utc: appended_at,
-        workbench_run_id: required("workbench_run_id")?.to_owned(),
-        lease_expires_at_utc: parse_timestamp("lease_expires_at_utc", lease_expires_at)?,
+        workbench_run_id: resolve_claimed_run_id(task)?,
+        lease_expires_at_utc: lease_expires_at,
     })
+}
+
+/// Resolve the Workbench run id for a claimed task from its executor attempt
+/// fields or governed approval metadata.
+fn resolve_claimed_run_id(task: &QueueRecord) -> std::io::Result<String> {
+    let meta = task.extra.get("meta").and_then(Value::as_object);
+    let meta_str = |key: &str| {
+        meta.and_then(|meta| meta.get(key))
+            .and_then(Value::as_str)
+            .filter(|value| !value.trim().is_empty())
+    };
+    if let Some(run_id) = meta_str("workbench_run_id") {
+        return Ok(run_id.to_owned());
+    }
+    if meta_str("approval_packet_id").is_some() {
+        // Governed approval lineage without an explicit run id: use the same
+        // canonical derivation as a fresh attempt so recovery targets the
+        // same run namespace instead of inventing a parallel one.
+        return Ok(workbench_run_id(&task.id, 0));
+    }
+    Err(std::io::Error::new(
+        std::io::ErrorKind::InvalidData,
+        format!(
+            "claimed task `{}` omitted `workbench_run_id` and approval lineage",
+            task.id
+        ),
+    ))
 }
 
 fn append_attempt_to_writer(
@@ -988,6 +1023,56 @@ mod tests {
             .expect("expired lease is recoverable");
         assert_eq!(claim.task.id, "expired-task");
         assert_eq!(claim.attempt.workbench_run_id, "queue-expired-task");
+    }
+
+    #[test]
+    fn governed_workbench_claim_without_executor_stamps_reconciles() {
+        // Regression: a Workbench approval flow appended an `in_progress`
+        // record whose lineage lives only in `meta`. Orphan reconciliation
+        // must recover it instead of failing the whole executor.
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let claimed = json!({
+            "id": "digital-organism-s7-living-mesh-proof",
+            "title": "Run and obtain acceptance for the living-mesh proof",
+            "owner": "arandur",
+            "priority": "high",
+            "status": "in_progress",
+            "result": "accepted_for_execution",
+            "updated_at_utc": "2026-08-23T12:34:54.413630Z",
+            "notes": "Explicit operator execution instruction admitted through governed Workbench approval; one existing canonical run only.",
+            "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "objective_packet:digital-organism-s7-living-mesh-proof:digital-organism-s7-living-mesh-proof",
+                "approval_packet_id": "approval-stage7-operator-session",
+                "workbench_run_id": "stage7-living-mesh-20260823",
+                "operator_authorization_receipt": "operator-message:2026-08-23:execute-stage-7"
+            }
+        });
+        std::fs::write(&queue_path, format!("{claimed}\n")).unwrap();
+        std::fs::write(
+            &active_path,
+            "{\"active\":[{\"id\":\"digital-organism-s7-living-mesh-proof\"}]}\n",
+        )
+        .unwrap();
+        let before = std::fs::read(&queue_path).unwrap();
+
+        let claim = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .claim_next_approved_reconciling_orphans()
+            .unwrap()
+            .expect("governed meta claim reconciles");
+
+        assert_eq!(claim.task.id, "digital-organism-s7-living-mesh-proof");
+        assert_eq!(
+            claim.attempt.workbench_run_id,
+            "stage7-living-mesh-20260823"
+        );
+        assert_eq!(claim.attempt.action_class, "approved_autopilot_plan_step");
+        assert!(claim.attempt.lease_expires_at_utc > claim.attempt.appended_at_utc);
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
     #[test]

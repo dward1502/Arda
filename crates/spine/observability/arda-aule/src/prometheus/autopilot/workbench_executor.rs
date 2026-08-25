@@ -323,11 +323,11 @@ fn acquire_executor_lock(root: &Path) -> Result<File> {
 }
 
 fn classify_existing_run(value: &Value) -> (String, Option<String>, Option<String>) {
-    let execute_state = value["graph"]["nodes"]
-        .as_array()
-        .and_then(|nodes| nodes.iter().find(|node| node["id"] == "execute"))
-        .and_then(|node| node["state"].as_str())
-        .unwrap_or("pending");
+    let nodes = value["graph"]["nodes"].as_array().cloned().unwrap_or_default();
+    let execute_state = nodes
+        .iter()
+        .find(|node| node["id"] == "execute")
+        .and_then(|node| node["state"].as_str());
     let digest = value["review"]["provider_receipt"]["receipt_digest"]
         .as_str()
         .map(str::to_owned);
@@ -335,10 +335,30 @@ fn classify_existing_run(value: &Value) -> (String, Option<String>, Option<Strin
         .as_str()
         .map(str::to_owned);
     let status = match execute_state {
-        "succeeded" => "succeeded",
-        "failed" => "failed",
-        "cancelled" => "cancelled",
-        _ => "in_progress",
+        Some("succeeded") => "succeeded",
+        Some("failed") => "failed",
+        Some("cancelled") => "cancelled",
+        // Run graphs without an `execute` node (e.g. multi-node acceptance
+        // graphs from governed approval flows) classify by their aggregate:
+        // any failure cancels the claim, pending/running work stays active,
+        // and only an all-succeeded graph is terminal success.
+        _ => {
+            let states: Vec<&str> = nodes
+                .iter()
+                .filter_map(|node| node["state"].as_str())
+                .collect();
+            if states.is_empty() {
+                "in_progress"
+            } else if states.contains(&"failed") {
+                "failed"
+            } else if states.contains(&"cancelled") {
+                "cancelled"
+            } else if states.iter().all(|state| *state == "succeeded") {
+                "succeeded"
+            } else {
+                "in_progress"
+            }
+        }
     };
     (status.to_owned(), digest, detail)
 }

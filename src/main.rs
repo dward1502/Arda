@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use clap::Parser;
-use tracing::{info, warn};
+use tracing::{info, info_span, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
 
 use arda_engine::registry::Registry;
@@ -56,7 +56,26 @@ async fn main() -> anyhow::Result<()> {
         .init();
     let _telemetry_shutdown = arda_aule::telemetry::shutdown_guard();
 
-    info!("arda daemon starting");
+    {
+        let trace_name =
+            std::env::var("ARDA_TRACE_NAME").unwrap_or_else(|_| "arda-daemon-startup".to_string());
+        let objective_id =
+            std::env::var("ARDA_TRACE_OBJECTIVE_ID").unwrap_or_else(|_| "unbound".to_string());
+        let run_id = std::env::var("ARDA_TRACE_RUN_ID").unwrap_or_else(|_| "unbound".to_string());
+        let node_id = std::env::var("ARDA_TRACE_NODE_ID").unwrap_or_else(|_| "unbound".to_string());
+        let startup_span = info_span!(
+            "arda.daemon.startup",
+            "langfuse.trace.name" = %trace_name,
+            "langfuse.trace.metadata.objective_id" = %objective_id,
+            "langfuse.trace.metadata.run_id" = %run_id,
+            "langfuse.trace.metadata.node_id" = %node_id,
+            "arda.objective.id" = %objective_id,
+            "arda.run.id" = %run_id,
+            "arda.node.id" = %node_id,
+        );
+        let _entered = startup_span.enter();
+        info!("arda daemon starting");
+    }
 
     // Resolve supervised services from data (services.toml). To add/remove an
     // app (launcher, HUD, `manwe` gateway), edit the toml — not this file.

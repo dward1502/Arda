@@ -3,13 +3,13 @@ use std::sync::OnceLock;
 
 use {
     opentelemetry::trace::TracerProvider as OtelTracerProvider,
-    opentelemetry_otlp::WithExportConfig,
+    opentelemetry_otlp::{WithExportConfig, WithHttpConfig},
     opentelemetry_sdk::trace::{SdkTracer, SdkTracerProvider},
     opentelemetry_sdk::Resource,
     tracing_opentelemetry::OpenTelemetryLayer,
 };
 
-use crate::telemetry::config::TelemetryConfig;
+use crate::telemetry::config::{OtlpProtocol, TelemetryConfig};
 
 static TRACER_PROVIDER: OnceLock<Option<SdkTracerProvider>> = OnceLock::new();
 
@@ -20,11 +20,18 @@ pub(crate) fn tracer_provider() -> Option<&'static SdkTracerProvider> {
 fn tracer_provider_inner() -> Option<SdkTracerProvider> {
     let config = TelemetryConfig::current();
     let endpoint = config.otlp_endpoint.as_ref()?;
-    let exporter = opentelemetry_otlp::SpanExporter::builder()
-        .with_tonic()
-        .with_endpoint(endpoint)
-        .build()
-        .ok()?;
+    let exporter = match config.otlp_protocol? {
+        OtlpProtocol::Grpc => opentelemetry_otlp::SpanExporter::builder()
+            .with_tonic()
+            .with_endpoint(endpoint)
+            .build(),
+        OtlpProtocol::HttpProtobuf => opentelemetry_otlp::SpanExporter::builder()
+            .with_http()
+            .with_endpoint(endpoint)
+            .with_headers(config.http_headers.clone())
+            .build(),
+    }
+    .ok()?;
     Some(
         SdkTracerProvider::builder()
             .with_batch_exporter(exporter)

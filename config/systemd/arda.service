@@ -10,6 +10,10 @@ Environment=RUST_LOG=info
 Environment=ARDA_ROOT=%h/Eregion/Arda
 Environment=ARDA_OPERATOR_ID=operator:mythos
 Environment=ARDA_PROMETHEUS_URL=http://100.103.125.88:9090
+Environment=ARDA_OTLP_ENDPOINT=http://100.103.125.88:3001/api/public/otel/v1/traces
+Environment=ARDA_OTLP_PROTOCOL=http/protobuf
+Environment=OTEL_SERVICE_NAME=arda
+LoadCredential=langfuse-otlp-authorization:%h/.local/share/arda/credentials/langfuse-otlp-authorization
 Environment=PATH=%h/.cargo/bin:%h/.local/bin:/usr/local/bin:/usr/bin
 ExecStart=%h/.local/bin/arda --no-ui
 Restart=on-failure

@@ -109,6 +109,11 @@ fn log_destination_preserves_attributes_without_creating_a_trace_span() {
 #[tokio::test]
 async fn configured_opentelemetry_layer_builds_emits_and_shuts_down() {
     std::env::set_var("ARDA_OTLP_ENDPOINT", "http://127.0.0.1:9");
+    std::env::set_var("ARDA_OTLP_PROTOCOL", "http/protobuf");
+    std::env::set_var(
+        "OTEL_EXPORTER_OTLP_HEADERS",
+        "Authorization=Basic%20test-placeholder",
+    );
     let layer = telemetry::tracing_layer().expect("configured OpenTelemetry layer");
     let subscriber = tracing_subscriber::registry().with(layer);
 
@@ -122,4 +127,6 @@ async fn configured_opentelemetry_layer_builds_emits_and_shuts_down() {
 
     telemetry::shutdown();
     std::env::remove_var("ARDA_OTLP_ENDPOINT");
+    std::env::remove_var("ARDA_OTLP_PROTOCOL");
+    std::env::remove_var("OTEL_EXPORTER_OTLP_HEADERS");
 }

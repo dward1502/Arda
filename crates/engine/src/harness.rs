@@ -86,10 +86,14 @@ struct TelemetryStatus {
     transport: &'static str,
 }
 
-fn telemetry_status_from_endpoint(endpoint: Option<&str>) -> TelemetryStatus {
+fn telemetry_status_from_config(endpoint: Option<&str>, protocol: Option<&str>) -> TelemetryStatus {
     TelemetryStatus {
         configured: endpoint.is_some_and(|value| !value.trim().is_empty()),
-        transport: "grpc_otlp",
+        transport: match protocol.map(str::trim).filter(|value| !value.is_empty()) {
+            None | Some("grpc") => "grpc_otlp",
+            Some("http/protobuf") => "http_protobuf_otlp",
+            Some(_) => "unsupported",
+        },
     }
 }
 
@@ -97,7 +101,11 @@ fn telemetry_status() -> TelemetryStatus {
     let endpoint = std::env::var("ARDA_OTLP_ENDPOINT")
         .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT"))
         .ok();
-    telemetry_status_from_endpoint(endpoint.as_deref())
+    let protocol = std::env::var("ARDA_OTLP_PROTOCOL")
+        .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_TRACES_PROTOCOL"))
+        .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_PROTOCOL"))
+        .ok();
+    telemetry_status_from_config(endpoint.as_deref(), protocol.as_deref())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -596,7 +604,7 @@ pub async fn serve(
 #[cfg(test)]
 mod tests {
     use super::{
-        project_beelink_targets, serve, telemetry_status_from_endpoint, HarnessState,
+        project_beelink_targets, serve, telemetry_status_from_config, HarnessState,
         TelemetryStatus, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
     };
     use crate::harness::presence::HarnessPresenceState;
@@ -698,17 +706,27 @@ mod tests {
         assert_eq!(status["telemetry"]["transport"], "grpc_otlp");
 
         assert_eq!(
-            telemetry_status_from_endpoint(None),
+            telemetry_status_from_config(None, None),
             TelemetryStatus {
                 configured: false,
                 transport: "grpc_otlp",
             }
         );
         assert_eq!(
-            telemetry_status_from_endpoint(Some("http://collector:4317")),
+            telemetry_status_from_config(Some("http://collector:4317"), Some("grpc")),
             TelemetryStatus {
                 configured: true,
                 transport: "grpc_otlp",
+            }
+        );
+        assert_eq!(
+            telemetry_status_from_config(
+                Some("http://beelink:3001/api/public/otel"),
+                Some("http/protobuf")
+            ),
+            TelemetryStatus {
+                configured: true,
+                transport: "http_protobuf_otlp",
             }
         );
         let targets = project_beelink_targets(&json!({

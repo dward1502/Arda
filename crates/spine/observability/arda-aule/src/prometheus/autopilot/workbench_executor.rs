@@ -23,6 +23,7 @@ pub struct QueueExecutionReceipt {
     pub status: String,
     pub result: String,
     pub execution_receipt_digest: Option<String>,
+    pub continuation_decision: Option<String>,
     pub detail: Option<String>,
     pub recorded_at_utc: String,
 }
@@ -66,6 +67,7 @@ impl WorkbenchQueueExecutor {
                 status: "idle".into(),
                 result: "no_eligible_task".into(),
                 execution_receipt_digest: None,
+                continuation_decision: None,
                 detail: None,
                 recorded_at_utc: Utc::now().to_rfc3339(),
             });
@@ -81,6 +83,7 @@ impl WorkbenchQueueExecutor {
                         status,
                         result: "existing_run_active".into(),
                         execution_receipt_digest: digest,
+                        continuation_decision: None,
                         detail,
                         recorded_at_utc: Utc::now().to_rfc3339(),
                     });
@@ -90,13 +93,16 @@ impl WorkbenchQueueExecutor {
                     "cancelled" => ("failed", "cancelled"),
                     _ => ("failed", "failed"),
                 };
-                queue.append_workbench_terminal(
+                let continuation_decision =
+                    (queue_status == "completed").then_some("close_complete");
+                queue.append_workbench_terminal_with_continuation(
                     &claim.task,
                     queue_status,
                     result,
                     &run_id,
                     digest.as_deref(),
                     detail.as_deref(),
+                    continuation_decision,
                 )?;
                 project_terminal_outcome(
                     &self.root,
@@ -114,6 +120,7 @@ impl WorkbenchQueueExecutor {
                     status: queue_status.into(),
                     result: result.into(),
                     execution_receipt_digest: digest,
+                    continuation_decision: continuation_decision.map(str::to_owned),
                     detail,
                     recorded_at_utc: Utc::now().to_rfc3339(),
                 })
@@ -145,27 +152,14 @@ impl WorkbenchQueueExecutor {
                         status: "failed".into(),
                         result: "cancelled".into(),
                         execution_receipt_digest: None,
+                        continuation_decision: Some("request_operator_decision".into()),
                         detail: Some(detail),
                         recorded_at_utc: Utc::now().to_rfc3339(),
                     });
                 }
-                queue.append_workbench_terminal(
-                    &claim.task,
-                    "failed",
-                    "dispatch_failed",
-                    &run_id,
-                    None,
-                    Some(&detail),
-                )?;
-                project_terminal_outcome(
-                    &self.root,
-                    &claim.task,
-                    &run_id,
-                    "failed",
-                    "dispatch_failed",
-                    None,
-                    Some(&detail),
-                )?;
+                // A transport error may occur after the harness durably
+                // accepted or completed a node. Preserve the claim and let
+                // the deterministic run id reconcile the journal next time.
                 Err(error)
             }
         }
@@ -227,9 +221,6 @@ impl WorkbenchQueueExecutor {
         claim: &ApprovedQueueClaim,
     ) -> Result<(String, Option<String>, Option<String>)> {
         let run_id = &claim.attempt.workbench_run_id;
-        if let Some(outcome) = self.existing_run_outcome(run_id).await? {
-            return Ok(outcome);
-        }
         let envelope = approval_envelope(&claim.task, &format!("plan-{run_id}"))?;
         let approval_id = envelope["approval"]["approval_id"]
             .as_str()
@@ -240,57 +231,137 @@ impl WorkbenchQueueExecutor {
             .as_deref()
             .unwrap_or(claim.task.id.as_str());
         let graph = run_graph(run_id, &claim.task.id, objective, approval_id);
+        let mut run = if let Some(existing) = self.existing_run(run_id).await? {
+            let outcome = classify_existing_run(&existing);
+            if outcome.0 != "in_progress" {
+                return Ok(outcome);
+            }
+            if run_has_running_node(&existing) {
+                return Ok(outcome);
+            }
+            existing
+        } else {
+            let project_id = task_project_id(&claim.task).unwrap_or(&self.project_id);
+            let response = self
+                .client
+                .post(format!("{}/v1/runs/plan", self.harness_url))
+                .json(&json!({
+                    "project_id": project_id,
+                    "graph": graph,
+                    "envelope": envelope,
+                }))
+                .send()
+                .await
+                .context("connect to the loopback Workbench harness")?;
+            response_error(response, "plan approved queue run").await?
+        };
 
-        let response = self
-            .client
-            .post(format!("{}/v1/runs/plan", self.harness_url))
-            .json(&json!({
-                "project_id": self.project_id,
-                "graph": graph,
-                "envelope": envelope,
-            }))
-            .send()
-            .await
-            .context("connect to the loopback Workbench harness")?;
-        response_error(response, "plan approved queue run").await?;
+        if node_state(&run, "approval") != Some("succeeded") {
+            let envelope = approval_envelope(&claim.task, &format!("approve-{run_id}"))?;
+            let response = self
+                .client
+                .post(format!("{}/v1/runs/{run_id}/approve", self.harness_url))
+                .json(&json!({"node_id": "approval", "envelope": envelope}))
+                .send()
+                .await
+                .context("submit Workbench approval")?;
+            run = response_error(response, "approve queue run").await?;
+        }
 
-        let envelope = approval_envelope(&claim.task, &format!("approve-{run_id}"))?;
-        let response = self
-            .client
-            .post(format!("{}/v1/runs/{run_id}/approve", self.harness_url))
-            .json(&json!({"node_id": "approval", "envelope": envelope}))
-            .send()
-            .await
-            .context("submit Workbench approval")?;
-        response_error(response, "approve queue run").await?;
+        for (node_id, stage_objective) in [
+            ("execute", objective.to_owned()),
+            (
+                "verify",
+                format!(
+                    "Verify task {} by running every project-native check from the attached project contract; do not modify project files.",
+                    claim.task.id
+                ),
+            ),
+        ] {
+            if node_state(&run, node_id) == Some("succeeded") {
+                continue;
+            }
+            let envelope = approval_envelope(&claim.task, &format!("{node_id}-{run_id}"))?;
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/runs/{run_id}/nodes/{node_id}/execute-provider",
+                    self.harness_url
+                ))
+                .json(&json!({"objective": stage_objective, "envelope": envelope}))
+                .send()
+                .await
+                .with_context(|| format!("dispatch approved Workbench {node_id} provider"))?;
+            let value = response_error(response, &format!("{node_id} approved queue task")).await?;
+            if value["receipt"]["status"] != "succeeded" {
+                return Ok((
+                    value["receipt"]["status"]
+                        .as_str()
+                        .unwrap_or("failed")
+                        .to_owned(),
+                    value["receipt"]["receipt_digest"].as_str().map(str::to_owned),
+                    value["receipt"]["summary"].as_str().map(str::to_owned),
+                ));
+            }
+            run = value["run"].clone();
+            ActiveQueueExecutor::new(&self.root).append_workbench_continuation(
+                &claim.task,
+                run_id,
+                node_id,
+                node_output_digest(&run, node_id),
+                if node_id == "execute" {
+                    "continue_verify"
+                } else {
+                    "continue_review"
+                },
+            )?;
+            forced_restart_after_stage(node_id);
+        }
 
-        let envelope = approval_envelope(&claim.task, &format!("execute-{run_id}"))?;
-        let response = self
-            .client
-            .post(format!(
-                "{}/v1/runs/{run_id}/nodes/execute/execute-provider",
-                self.harness_url
-            ))
-            .json(&json!({"objective": objective, "envelope": envelope}))
-            .send()
-            .await
-            .context("dispatch approved Workbench provider")?;
-        let value = response_error(response, "execute approved queue task").await?;
-        let status = value["receipt"]["status"]
-            .as_str()
-            .unwrap_or("failed")
-            .to_owned();
-        let digest = value["receipt"]["receipt_digest"]
-            .as_str()
-            .map(str::to_owned);
-        let detail = value["receipt"]["summary"].as_str().map(str::to_owned);
-        Ok((status, digest, detail))
+        require_closure_evidence(&run)?;
+        for node_id in ["review", "close"] {
+            if node_state(&run, node_id) == Some("succeeded") {
+                continue;
+            }
+            let parent = node_output_digest(
+                &run,
+                if node_id == "review" {
+                    "verify"
+                } else {
+                    "review"
+                },
+            )
+            .ok_or_else(|| anyhow!("{node_id} omitted its durable parent receipt"))?;
+            let receipt_digest = completion_digest(run_id, &claim.task.id, node_id, parent);
+            let envelope = approval_envelope(&claim.task, &format!("{node_id}-{run_id}"))?;
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/runs/{run_id}/nodes/{node_id}/complete",
+                    self.harness_url
+                ))
+                .json(&json!({
+                    "envelope": envelope,
+                    "receipt_digest": receipt_digest,
+                }))
+                .send()
+                .await
+                .with_context(|| format!("complete Workbench {node_id} node"))?;
+            run = response_error(response, &format!("complete queue {node_id}")).await?;
+            if node_id == "review" {
+                ActiveQueueExecutor::new(&self.root).append_workbench_continuation(
+                    &claim.task,
+                    run_id,
+                    node_id,
+                    node_output_digest(&run, node_id),
+                    "continue_close",
+                )?;
+            }
+        }
+        Ok(classify_existing_run(&run))
     }
 
-    async fn existing_run_outcome(
-        &self,
-        run_id: &str,
-    ) -> Result<Option<(String, Option<String>, Option<String>)>> {
+    async fn existing_run(&self, run_id: &str) -> Result<Option<Value>> {
         let response = self
             .client
             .get(format!("{}/v1/runs/{run_id}", self.harness_url))
@@ -301,7 +372,21 @@ impl WorkbenchQueueExecutor {
             return Ok(None);
         }
         let value = response_error(response, "inspect existing Workbench run").await?;
-        Ok(Some(classify_existing_run(&value)))
+        Ok(Some(value))
+    }
+}
+
+fn forced_restart_after_stage(stage: &str) {
+    if std::env::var("ARDA_WORKBENCH_FORCE_RESTART_AFTER_STAGE")
+        .ok()
+        .as_deref()
+        == Some(stage)
+    {
+        // Acceptance/recovery failpoint: the provider receipt and run graph are
+        // durable, but no later node or queue terminal has been written yet.
+        // Process exit is intentional so recovery exercises the same persisted
+        // boundary as an unplanned executor crash.
+        std::process::exit(86);
     }
 }
 
@@ -313,6 +398,7 @@ fn acquire_executor_lock(root: &Path) -> Result<File> {
     }
     let lock = OpenOptions::new()
         .create(true)
+        .truncate(false)
         .read(true)
         .write(true)
         .open(&lock_path)
@@ -323,44 +409,88 @@ fn acquire_executor_lock(root: &Path) -> Result<File> {
 }
 
 fn classify_existing_run(value: &Value) -> (String, Option<String>, Option<String>) {
-    let nodes = value["graph"]["nodes"].as_array().cloned().unwrap_or_default();
-    let execute_state = nodes
-        .iter()
-        .find(|node| node["id"] == "execute")
-        .and_then(|node| node["state"].as_str());
-    let digest = value["review"]["provider_receipt"]["receipt_digest"]
-        .as_str()
+    let nodes = value["graph"]["nodes"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default();
+    let close = nodes.iter().find(|node| node["id"] == "close");
+    let digest = close
+        .and_then(|node| node["output_digest"].as_str())
         .map(str::to_owned);
     let detail = value["review"]["provider_receipt"]["summary"]
         .as_str()
         .map(str::to_owned);
-    let status = match execute_state {
-        Some("succeeded") => "succeeded",
-        Some("failed") => "failed",
-        Some("cancelled") => "cancelled",
-        // Run graphs without an `execute` node (e.g. multi-node acceptance
-        // graphs from governed approval flows) classify by their aggregate:
-        // any failure cancels the claim, pending/running work stays active,
-        // and only an all-succeeded graph is terminal success.
-        _ => {
-            let states: Vec<&str> = nodes
-                .iter()
-                .filter_map(|node| node["state"].as_str())
-                .collect();
-            if states.is_empty() {
-                "in_progress"
-            } else if states.contains(&"failed") {
-                "failed"
-            } else if states.contains(&"cancelled") {
-                "cancelled"
-            } else if states.iter().all(|state| *state == "succeeded") {
-                "succeeded"
-            } else {
-                "in_progress"
-            }
-        }
+    let states: Vec<&str> = nodes
+        .iter()
+        .filter_map(|node| node["state"].as_str())
+        .collect();
+    let status = if states.contains(&"failed") {
+        "failed"
+    } else if states.contains(&"cancelled") {
+        "cancelled"
+    } else if close.is_some_and(|node| node["state"] == "succeeded")
+        && closure_evidence_present(value)
+    {
+        "succeeded"
+    } else {
+        "in_progress"
     };
     (status.to_owned(), digest, detail)
+}
+
+fn node_state<'a>(run: &'a Value, node_id: &str) -> Option<&'a str> {
+    run["graph"]["nodes"]
+        .as_array()?
+        .iter()
+        .find(|node| node["id"] == node_id)?["state"]
+        .as_str()
+}
+
+fn run_has_running_node(run: &Value) -> bool {
+    run["graph"]["nodes"]
+        .as_array()
+        .is_some_and(|nodes| nodes.iter().any(|node| node["state"] == "running"))
+}
+
+fn node_output_digest<'a>(run: &'a Value, node_id: &str) -> Option<&'a str> {
+    run["graph"]["nodes"]
+        .as_array()?
+        .iter()
+        .find(|node| node["id"] == node_id)?["output_digest"]
+        .as_str()
+}
+
+fn closure_evidence_present(run: &Value) -> bool {
+    run["review"]["provider_receipt"]["receipt_digest"].is_string()
+        && run["review"]["tests"].as_array().is_some_and(|tests| {
+            !tests.is_empty() && tests.iter().all(|test| test["status"] == "passed")
+        })
+}
+
+fn require_closure_evidence(run: &Value) -> Result<()> {
+    if closure_evidence_present(run) {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "refusing Workbench closure without a provider receipt and passing project-native test evidence"
+        ))
+    }
+}
+
+fn completion_digest(run_id: &str, task_id: &str, stage: &str, parent: &str) -> String {
+    format!(
+        "sha256:{:x}",
+        Sha256::digest(format!("{run_id}\n{task_id}\n{stage}\n{parent}").as_bytes())
+    )
+}
+
+fn task_project_id(task: &QueueRecord) -> Option<&str> {
+    task.extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get("project_id"))
+        .and_then(Value::as_str)
+        .filter(|id| !id.trim().is_empty())
 }
 
 fn approval_envelope(task: &QueueRecord, idempotency_key: &str) -> Result<Value> {
@@ -433,11 +563,28 @@ fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str) ->
                 "deadline_unix_ms": deadline,
                 "output_contract": "arda.hermes-job-result.v1",
                 "evidence_policy": "worker_report"
-            }))
+            })),
+            node("verify", "verify", "verify", vec![], json!({
+                "role": "independent_verifier",
+                "worker_id": format!("hermes:queue:{task_id}:verify"),
+                "route_id": "hosted:hermes-workbench",
+                "route_class": "hosted",
+                "prompt_digest": prompt_digest,
+                "allowed_toolsets": ["terminal"],
+                "dependencies": ["execute"],
+                "deadline_unix_ms": deadline,
+                "output_contract": "arda.hermes-job-result.v1",
+                "evidence_policy": "project_native_checks"
+            })),
+            node("review", "review", "read_only", vec![], Value::Null),
+            node("close", "close", "read_only", vec![], Value::Null)
         ],
         "edges": [
             {"id": "plan-approval", "from": "plan", "to": "approval", "parent_receipt": approval_id},
-            {"id": "approval-execute", "from": "approval", "to": "execute", "parent_receipt": approval_id}
+            {"id": "approval-execute", "from": "approval", "to": "execute", "parent_receipt": approval_id},
+            {"id": "execute-verify", "from": "execute", "to": "verify", "parent_receipt": null},
+            {"id": "verify-review", "from": "verify", "to": "review", "parent_receipt": null},
+            {"id": "review-close", "from": "review", "to": "close", "parent_receipt": null}
         ],
         "provenance": {
             "project_contract_digest": format!("sha256:{}", "0".repeat(64)),
@@ -626,7 +773,7 @@ mod tests {
             .unwrap_err();
         let requests = server.await.unwrap();
 
-        assert!(format!("{error:#}").contains("dispatch approved Workbench provider"));
+        assert!(format!("{error:#}").contains("dispatch approved Workbench execute provider"));
         assert_eq!(requests.len(), 4);
         assert!(requests[3]
             .starts_with("POST /v1/runs/queue-lost-response-task/nodes/execute/execute-provider "));
@@ -679,11 +826,19 @@ mod tests {
         let (harness_url, server) = scripted_harness(vec![Some((
             200,
             json!({
-                "graph": {"nodes": [{"id": "execute", "state": "succeeded"}]},
-                "review": {"provider_receipt": {
-                    "receipt_digest": "sha256:terminal",
-                    "summary": "provider completed before restart"
-                }}
+                "graph": {"nodes": [
+                    {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                    {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                    {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
+                    {"id": "close", "state": "succeeded", "output_digest": "sha256:terminal"}
+                ]},
+                "review": {
+                    "tests": [{"name": "project-check", "status": "passed"}],
+                    "provider_receipt": {
+                        "receipt_digest": "sha256:execute",
+                        "summary": "provider completed before restart"
+                    }
+                }
             })
             .to_string(),
         ))])
@@ -701,6 +856,125 @@ mod tests {
             outcome.2.as_deref(),
             Some("provider completed before restart")
         );
+    }
+
+    #[tokio::test]
+    async fn restart_after_execute_resumes_verify_review_close_and_persists_decision() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "restart-completion-task");
+        let (harness_url, server) = scripted_harness(vec![
+            Some((
+                200,
+                json!({
+                    "graph": {"nodes": [
+                        {"id": "plan", "state": "succeeded"},
+                        {"id": "approval", "state": "succeeded"},
+                        {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                        {"id": "verify", "state": "ready"},
+                        {"id": "review", "state": "blocked"},
+                        {"id": "close", "state": "blocked"}
+                    ]},
+                    "review": {"provider_receipt": {"receipt_digest": "sha256:execute", "summary": "executed"}}
+                })
+                .to_string(),
+            )),
+            Some((
+                200,
+                json!({
+                    "receipt": {"status": "succeeded", "receipt_digest": "sha256:verify", "summary": "verified"},
+                    "run": {
+                        "graph": {"nodes": [
+                            {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                            {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                            {"id": "review", "state": "ready"},
+                            {"id": "close", "state": "blocked"}
+                        ]},
+                        "review": {
+                            "tests": [{"name": "cargo test", "status": "passed"}],
+                            "provider_receipt": {"receipt_digest": "sha256:verify", "summary": "verified"}
+                        }
+                    }
+                })
+                .to_string(),
+            )),
+            Some((
+                200,
+                json!({
+                    "graph": {"nodes": [
+                        {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                        {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                        {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
+                        {"id": "close", "state": "ready"}
+                    ]},
+                    "review": {
+                        "tests": [{"name": "cargo test", "status": "passed"}],
+                        "provider_receipt": {"receipt_digest": "sha256:verify", "summary": "verified"}
+                    }
+                })
+                .to_string(),
+            )),
+            Some((
+                200,
+                json!({
+                    "graph": {"nodes": [
+                        {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                        {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                        {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
+                        {"id": "close", "state": "succeeded", "output_digest": "sha256:close"}
+                    ]},
+                    "review": {
+                        "tests": [{"name": "cargo test", "status": "passed"}],
+                        "provider_receipt": {"receipt_digest": "sha256:verify", "summary": "verified"}
+                    }
+                })
+                .to_string(),
+            )),
+        ])
+        .await;
+
+        let receipt = test_executor(dir.path(), harness_url)
+            .execute_once()
+            .await
+            .unwrap();
+        let requests = server.await.unwrap();
+
+        assert_eq!(receipt.status, "completed");
+        assert_eq!(
+            receipt.execution_receipt_digest.as_deref(),
+            Some("sha256:close")
+        );
+        assert_eq!(
+            receipt.continuation_decision.as_deref(),
+            Some("close_complete")
+        );
+        assert!(requests[1].contains("/nodes/verify/execute-provider"));
+        assert!(requests[2].contains("/nodes/review/complete"));
+        assert!(requests[3].contains("/nodes/close/complete"));
+        let records = super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+            .load()
+            .unwrap();
+        assert!(records.iter().any(|record| {
+            record
+                .extra
+                .get("continuation_decision")
+                .and_then(Value::as_str)
+                == Some("continue_review")
+                && record.extra.get("workbench_run_id").and_then(Value::as_str)
+                    == Some("queue-restart-completion-task")
+        }));
+        assert!(records.iter().any(|record| {
+            record
+                .extra
+                .get("continuation_decision")
+                .and_then(Value::as_str)
+                == Some("continue_close")
+                && record.extra.get("workbench_run_id").and_then(Value::as_str)
+                    == Some("queue-restart-completion-task")
+        }));
+        let terminal = records.last().unwrap();
+        assert_eq!(terminal.status.as_deref(), Some("completed"));
+        assert_eq!(terminal.extra["continuation_decision"], "close_complete");
+        assert_eq!(terminal.extra["closure_receipt_digest"], "sha256:close");
     }
 
     #[test]
@@ -792,7 +1066,16 @@ mod tests {
         let graph = run_graph("queue-task-1", "task-1", "bounded fixture", "approval-1");
         let raw = serde_json::to_string(&graph).unwrap();
         let parsed = arda_core::run_graph::RunGraph::from_json_str(&raw).unwrap();
-        assert_eq!(parsed.nodes.len(), 3);
+        assert_eq!(parsed.nodes.len(), 6);
+        assert_eq!(parsed.objective_id.as_str(), "task-1");
+        assert_eq!(
+            parsed
+                .nodes
+                .iter()
+                .map(|node| format!("{:?}", node.kind).to_ascii_lowercase())
+                .collect::<Vec<_>>(),
+            ["plan", "approval", "execute", "verify", "review", "close"]
+        );
         let execute = parsed
             .nodes
             .iter()
@@ -800,6 +1083,47 @@ mod tests {
             .unwrap();
         assert_eq!(execute.retry.max_attempts, 2);
         assert_eq!(execute.parent_receipts, vec!["approval-1"]);
+        let verify = parsed
+            .nodes
+            .iter()
+            .find(|node| node.id.as_str() == "verify")
+            .unwrap();
+        assert_eq!(
+            format!("{:?}", verify.worker.as_ref().unwrap().evidence_policy).to_ascii_lowercase(),
+            "projectnativechecks"
+        );
+    }
+
+    #[test]
+    fn evidence_backed_close_is_the_only_successful_terminal_state() {
+        let partial = classify_existing_run(&json!({
+            "graph": {"nodes": [
+                {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                {"id": "review", "state": "pending", "output_digest": null},
+                {"id": "close", "state": "pending", "output_digest": null}
+            ]},
+            "review": {"tests": [{"name": "project-check", "status": "passed"}]}
+        }));
+        assert_eq!(partial.0, "in_progress");
+
+        let closed = classify_existing_run(&json!({
+            "graph": {"nodes": [
+                {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
+                {"id": "close", "state": "succeeded", "output_digest": "sha256:close"}
+            ]},
+            "review": {
+                "tests": [{"name": "project-check", "status": "passed"}],
+                "provider_receipt": {
+                    "receipt_digest": "sha256:execute",
+                    "summary": "bounded mutation completed"
+                }
+            }
+        }));
+        assert_eq!(closed.0, "succeeded");
+        assert_eq!(closed.1.as_deref(), Some("sha256:close"));
     }
 
     #[test]

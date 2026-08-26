@@ -448,6 +448,28 @@ impl ActiveQueueExecutor {
         receipt_digest: Option<&str>,
         detail: Option<&str>,
     ) -> std::io::Result<()> {
+        self.append_workbench_terminal_with_continuation(
+            task,
+            status,
+            result,
+            run_id,
+            receipt_digest,
+            detail,
+            None,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn append_workbench_terminal_with_continuation(
+        &self,
+        task: &QueueRecord,
+        status: &str,
+        result: &str,
+        run_id: &str,
+        receipt_digest: Option<&str>,
+        detail: Option<&str>,
+        continuation_decision: Option<&str>,
+    ) -> std::io::Result<()> {
         append_jsonl_value(
             &self.queue_path,
             &json!({
@@ -463,7 +485,40 @@ impl ActiveQueueExecutor {
                 "executor": "arda_workbench.queue_executor",
                 "workbench_run_id": run_id,
                 "execution_receipt_digest": receipt_digest,
+                "closure_receipt_digest": receipt_digest,
+                "continuation_decision": continuation_decision,
+                "source_objective_packet_id": task.extra.get("meta").and_then(Value::as_object).and_then(|meta| meta.get("source_objective_packet_id")),
                 "detail": detail,
+                "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
+            }),
+        )
+    }
+
+    pub fn append_workbench_continuation(
+        &self,
+        task: &QueueRecord,
+        run_id: &str,
+        completed_stage: &str,
+        receipt_digest: Option<&str>,
+        continuation_decision: &str,
+    ) -> std::io::Result<()> {
+        append_jsonl_value(
+            &self.queue_path,
+            &json!({
+                "contract": "arda.workbench.queue_continuation.v1",
+                "id": task.id,
+                "source_record_id": task.id,
+                "title": task.title,
+                "owner": task.owner,
+                "priority": task.priority,
+                "status": "in_progress",
+                "executor": "arda_workbench.queue_executor",
+                "workbench_run_id": run_id,
+                "completed_stage": completed_stage,
+                "execution_receipt_digest": receipt_digest,
+                "continuation_decision": continuation_decision,
+                "source_objective_packet_id": task.extra.get("meta").and_then(Value::as_object).and_then(|meta| meta.get("source_objective_packet_id")),
+                "recorded_at_utc": Utc::now().to_rfc3339(),
                 "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
             }),
         )

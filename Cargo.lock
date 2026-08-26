@@ -102,6 +102,7 @@ name = "arda"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arda-aule",
  "arda-engine",
  "clap",
  "reqwest 0.12.28",

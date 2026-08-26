@@ -80,6 +80,108 @@ pub struct HarnessState {
     pub operator_id: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct TelemetryStatus {
+    configured: bool,
+    transport: &'static str,
+}
+
+fn telemetry_status_from_endpoint(endpoint: Option<&str>) -> TelemetryStatus {
+    TelemetryStatus {
+        configured: endpoint.is_some_and(|value| !value.trim().is_empty()),
+        transport: "grpc_otlp",
+    }
+}
+
+fn telemetry_status() -> TelemetryStatus {
+    let endpoint = std::env::var("ARDA_OTLP_ENDPOINT")
+        .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT"))
+        .ok();
+    telemetry_status_from_endpoint(endpoint.as_deref())
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct FleetTargetStatus {
+    job: String,
+    instance: String,
+    health: String,
+    last_error: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct FleetObservabilityStatus {
+    prometheus_configured: bool,
+    prometheus_reachable: bool,
+    beelink_targets: Vec<FleetTargetStatus>,
+}
+
+fn project_beelink_targets(value: &serde_json::Value) -> Vec<FleetTargetStatus> {
+    let mut targets = value
+        .pointer("/data/activeTargets")
+        .and_then(serde_json::Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter(|target| {
+            target
+                .pointer("/labels/node")
+                .and_then(serde_json::Value::as_str)
+                == Some("beelink")
+        })
+        .filter_map(|target| {
+            Some(FleetTargetStatus {
+                job: target.pointer("/labels/job")?.as_str()?.to_owned(),
+                instance: target.pointer("/labels/instance")?.as_str()?.to_owned(),
+                health: target.get("health")?.as_str()?.to_owned(),
+                last_error: target
+                    .get("lastError")
+                    .and_then(serde_json::Value::as_str)
+                    .unwrap_or_default()
+                    .to_owned(),
+            })
+        })
+        .collect::<Vec<_>>();
+    targets.sort_by(|left, right| (&left.job, &left.instance).cmp(&(&right.job, &right.instance)));
+    targets
+}
+
+async fn fleet_observability(client: &reqwest::Client) -> FleetObservabilityStatus {
+    let Some(base_url) = std::env::var("ARDA_PROMETHEUS_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return FleetObservabilityStatus {
+            prometheus_configured: false,
+            prometheus_reachable: false,
+            beelink_targets: Vec::new(),
+        };
+    };
+    let target = format!("{}/api/v1/targets", base_url.trim_end_matches('/'));
+    match client
+        .get(target)
+        .timeout(Duration::from_secs(3))
+        .send()
+        .await
+    {
+        Ok(response) if response.status().is_success() => match response.json().await {
+            Ok(value) => FleetObservabilityStatus {
+                prometheus_configured: true,
+                prometheus_reachable: true,
+                beelink_targets: project_beelink_targets(&value),
+            },
+            Err(_) => FleetObservabilityStatus {
+                prometheus_configured: true,
+                prometheus_reachable: true,
+                beelink_targets: Vec::new(),
+            },
+        },
+        _ => FleetObservabilityStatus {
+            prometheus_configured: true,
+            prometheus_reachable: false,
+            beelink_targets: Vec::new(),
+        },
+    }
+}
+
 #[derive(Serialize)]
 struct Status {
     daemon: &'static str,
@@ -90,6 +192,8 @@ struct Status {
     services: Vec<String>,
     service_statuses: Vec<ServiceRuntimeStatus>,
     child_pids: Vec<u32>,
+    telemetry: TelemetryStatus,
+    fleet_observability: FleetObservabilityStatus,
 }
 
 /// Build the axum router for the harness surface.
@@ -268,6 +372,7 @@ async fn health() -> impl IntoResponse {
 async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
     let pids = st.child_pids.read().await.clone();
     let service_statuses = st.service_statuses.read().await.clone();
+    let fleet_observability = fleet_observability(&st.client).await;
     let body = Status {
         daemon: "arda",
         operator_id: st.operator_id.clone(),
@@ -277,6 +382,8 @@ async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
         services: (*st.service_names).clone(),
         service_statuses,
         child_pids: pids,
+        telemetry: telemetry_status(),
+        fleet_observability,
     };
     (StatusCode::OK, Json(body))
 }
@@ -488,7 +595,10 @@ pub async fn serve(
 
 #[cfg(test)]
 mod tests {
-    use super::{serve, HarnessState, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT};
+    use super::{
+        project_beelink_targets, serve, telemetry_status_from_endpoint, HarnessState,
+        TelemetryStatus, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
+    };
     use crate::harness::presence::HarnessPresenceState;
 
     use axum::{
@@ -584,6 +694,43 @@ mod tests {
             .await
             .expect("status body");
         assert_eq!(status["harness_addr"], bound.to_string());
+        assert!(status["telemetry"]["configured"].is_boolean());
+        assert_eq!(status["telemetry"]["transport"], "grpc_otlp");
+
+        assert_eq!(
+            telemetry_status_from_endpoint(None),
+            TelemetryStatus {
+                configured: false,
+                transport: "grpc_otlp",
+            }
+        );
+        assert_eq!(
+            telemetry_status_from_endpoint(Some("http://collector:4317")),
+            TelemetryStatus {
+                configured: true,
+                transport: "grpc_otlp",
+            }
+        );
+        let targets = project_beelink_targets(&json!({
+            "status": "success",
+            "data": {
+                "activeTargets": [
+                    {
+                        "labels": {"job": "llama-server", "instance": "100.103.125.88:9337", "node": "beelink"},
+                        "health": "up",
+                        "lastError": ""
+                    },
+                    {
+                        "labels": {"job": "node", "instance": "100.78.138.113:9100", "node": "annunimas-core"},
+                        "health": "up",
+                        "lastError": ""
+                    }
+                ]
+            }
+        }));
+        assert_eq!(targets.len(), 1);
+        assert_eq!(targets[0].job, "llama-server");
+        assert_eq!(targets[0].health, "up");
 
         let response: Value = reqwest::Client::new()
             .post(format!("http://{bound}/v1/scout/search"))

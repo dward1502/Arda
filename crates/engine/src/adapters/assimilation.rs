@@ -127,6 +127,21 @@ impl AssimilationStore {
         adapter_id: &str,
         observed_at: DateTime<Utc>,
     ) -> Result<AssimilationCandidate, AssimilationError> {
+        self.discover_with_evidence(
+            candidate_id,
+            adapter_id,
+            AssimilationEvidence::default(),
+            observed_at,
+        )
+    }
+
+    pub fn discover_with_evidence(
+        &self,
+        candidate_id: &str,
+        adapter_id: &str,
+        evidence: AssimilationEvidence,
+        observed_at: DateTime<Utc>,
+    ) -> Result<AssimilationCandidate, AssimilationError> {
         require_text("candidate_id", candidate_id)?;
         require_text("adapter_id", adapter_id)?;
         let mut file = self.open_locked()?;
@@ -143,7 +158,7 @@ impl AssimilationStore {
             candidate_id: candidate_id.to_string(),
             adapter_id: adapter_id.to_string(),
             state: AssimilationState::Discovered,
-            evidence: AssimilationEvidence::default(),
+            evidence,
             transition_count: 0,
             updated_at: observed_at,
         };

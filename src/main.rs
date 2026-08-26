@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use clap::Parser;
 use tracing::{info, warn};
-use tracing_subscriber::EnvFilter;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
 
 use arda_engine::registry::Registry;
 use arda_engine::supervisor::{Shutdown, Supervisor};
@@ -49,9 +49,12 @@ const SERVICES_TOML: &str = "services.toml";
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_new(&cli.log).unwrap_or_else(|_| EnvFilter::new("info")))
+    let env_filter = EnvFilter::try_new(&cli.log).unwrap_or_else(|_| EnvFilter::new("info"));
+    tracing_subscriber::registry()
+        .with(arda_aule::telemetry::tracing_layer())
+        .with(tracing_subscriber::fmt::layer().with_filter(env_filter))
         .init();
+    let _telemetry_shutdown = arda_aule::telemetry::shutdown_guard();
 
     info!("arda daemon starting");
 

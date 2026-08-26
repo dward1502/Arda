@@ -4,6 +4,54 @@
       "backend_suggestion_ids": [],
       "budgets": {
         "max_attempts": 2,
+        "max_fetch_bytes": 3000000,
+        "max_results": 12,
+        "max_tokens": 6000
+      },
+      "cadence": {
+        "every_seconds": 86400,
+        "kind": "interval"
+      },
+      "contradiction_policy": "require_disclosure",
+      "evidence_requirements": {
+        "max_source_age_seconds": 2592000,
+        "minimum_canonical_sources": 2,
+        "require_canonical_fetch": true
+      },
+      "expires_at_utc": "2027-08-26T00:00:00Z",
+      "notification_policy": {
+        "destination": null,
+        "enabled": false
+      },
+      "owner": "operator:mythos",
+      "question": "What current Rust engineering standards and reusable open-source Rust agentic-system implementations should Arda adopt or track, based on canonical Rust guidance and relevant GitHub repositories, without repeating evidence already retained?",
+      "question_id": "6d4e23ce-35c7-4f62-b8d8-75f0dc46d33d",
+      "rationale": "Maintain a durable, source-grounded standards and capability discovery loop; deduplicate prior evidence and require license, provenance, security, and SBOM evidence before assimilation advances.",
+      "schema_version": "arda.warden.watchlist.v1",
+      "source_policy": {
+        "allow_private_targets": false,
+        "allowed_sources": [
+          "https://doc.rust-lang.org/",
+          "https://rust-lang.github.io/",
+          "https://github.com/"
+        ],
+        "max_sources_per_run": 8,
+        "policy_id": "public-web-canonical"
+      },
+      "state": "enabled",
+      "tags": [
+        "rust",
+        "engineering-standards",
+        "agentic-systems",
+        "github",
+        "assimilation",
+        "advisory-only"
+      ]
+    },
+    {
+      "backend_suggestion_ids": [],
+      "budgets": {
+        "max_attempts": 2,
         "max_fetch_bytes": 2000000,
         "max_results": 10,
         "max_tokens": 4000

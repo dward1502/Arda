@@ -24,6 +24,7 @@ use std::{
     path::Path,
 };
 
+use crate::adapters::{AssimilationEvidence, AssimilationStore};
 use crate::runs::{RunEventDraft, RunEventKind, RunStore};
 
 use super::{
@@ -520,6 +521,14 @@ pub(super) async fn create_brief(
                     .to_string_lossy()
                     .to_string(),
             );
+            persist_assimilation_discoveries(
+                &state.workbench_root,
+                request.question_id.as_deref().unwrap_or(&request.run_id),
+                &brief_id,
+                &brief_path,
+                &unchanged.citations,
+                generated_at,
+            )?;
             append_evidence_event(
                 &store,
                 node_id,
@@ -533,6 +542,14 @@ pub(super) async fn create_brief(
         }
     }
     write_json_atomic(&brief_path, &brief)?;
+    persist_assimilation_discoveries(
+        &state.workbench_root,
+        request.question_id.as_deref().unwrap_or(&request.run_id),
+        &brief_id,
+        &brief_path,
+        &brief.citations,
+        generated_at,
+    )?;
     append_evidence_event(
         &store,
         node_id,
@@ -1218,6 +1235,50 @@ fn append_evidence_event(
         .map_err(store_error)
 }
 
+fn persist_assimilation_discoveries(
+    root: &Path,
+    objective_id: &str,
+    brief_id: &str,
+    brief_path: &Path,
+    citations: &[BriefCitation],
+    observed_at: DateTime<Utc>,
+) -> Result<(), ApiError> {
+    let receipt_path = brief_path
+        .strip_prefix(root)
+        .unwrap_or(brief_path)
+        .to_string_lossy();
+    let store = AssimilationStore::new(root);
+    for citation in citations {
+        store
+            .discover_with_evidence(
+                &citation.normalized_source_id,
+                "warden-varda-research",
+                AssimilationEvidence {
+                    canonical_source: Some(citation.canonical_url.clone()),
+                    source_digest: Some(citation.content_sha256.clone()),
+                    objective_id: Some(objective_id.to_string()),
+                    usage_receipt: Some(format!("{receipt_path}#{brief_id}")),
+                    security_classification: Some(
+                        "untrusted_external_evidence_read_only".to_string(),
+                    ),
+                    privacy_classification: Some("public_web".to_string()),
+                    implementation_comparison: Some(format!(
+                        "varda_policy_readiness={}; evaluation_digest={}; freshness={}",
+                        citation.policy_readiness,
+                        citation.evaluation_digest,
+                        citation.freshness_status
+                    )),
+                    ..AssimilationEvidence::default()
+                },
+                observed_at,
+            )
+            .map_err(|error| {
+                ApiError::internal(format!("persist assimilation discovery: {error}"))
+            })?;
+    }
+    Ok(())
+}
+
 fn stable_brief_id(run_id: &str, node_id: &str, question: &str) -> String {
     let digest = Sha256::digest(format!("{run_id}\0{node_id}\0{}", question.trim()).as_bytes());
     format!("research-{:x}", digest)[..25].to_string()
@@ -1258,6 +1319,8 @@ fn store_error(error: impl std::fmt::Display) -> ApiError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::adapters::{AssimilationState, AssimilationStore};
+    use tempfile::TempDir;
 
     #[test]
     fn excerpts_are_bounded_and_contradiction_status_is_explicit() {
@@ -1359,6 +1422,66 @@ mod tests {
         assert_eq!(
             stable_brief_id("run", "plan", "question"),
             stable_brief_id("run", "plan", "question")
+        );
+    }
+
+    #[test]
+    fn research_citations_become_restart_safe_assimilation_discoveries() {
+        let root = TempDir::new().unwrap();
+        let brief_path = root
+            .path()
+            .join("data/runs/rust-standards/evidence/research.json");
+        let source = citation(
+            "rust-clippy",
+            "supporting_or_contextual",
+            "2099-01-01T00:00:00Z",
+        );
+        let observed_at = DateTime::parse_from_rfc3339("2026-08-25T12:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+
+        persist_assimilation_discoveries(
+            root.path(),
+            "rust-engineering-standards",
+            "research-rust-standards",
+            &brief_path,
+            std::slice::from_ref(&source),
+            observed_at,
+        )
+        .unwrap();
+        persist_assimilation_discoveries(
+            root.path(),
+            "rust-engineering-standards",
+            "research-rust-standards",
+            &brief_path,
+            &[source],
+            observed_at,
+        )
+        .unwrap();
+
+        let candidates = AssimilationStore::new(root.path()).load_all().unwrap();
+        let candidate = candidates.get("source-rust-clippy").unwrap();
+        assert_eq!(candidate.state, AssimilationState::Discovered);
+        assert_eq!(
+            candidate.evidence.objective_id.as_deref(),
+            Some("rust-engineering-standards")
+        );
+        assert_eq!(
+            candidate.evidence.canonical_source.as_deref(),
+            Some("https://example.com/rust-clippy")
+        );
+        assert_eq!(
+            candidate.evidence.usage_receipt.as_deref(),
+            Some("data/runs/rust-standards/evidence/research.json#research-rust-standards")
+        );
+        assert_eq!(candidate.evidence.license, None);
+        assert_eq!(candidate.evidence.sbom_digest, None);
+        assert_eq!(
+            std::fs::read_to_string(AssimilationStore::new(root.path()).ledger_path())
+                .unwrap()
+                .lines()
+                .count(),
+            1
         );
     }
 

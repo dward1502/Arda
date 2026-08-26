@@ -113,6 +113,6 @@ eligible = false
 [[adapter]]
 kind = "sidecar"
 contract = "config/adapters/arda-otlp-sidecar.external-capability.json"
-installed = false
+installed = true
 health = "not_configured"
 eligible = false

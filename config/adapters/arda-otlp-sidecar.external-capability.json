@@ -7,7 +7,7 @@
     "source_digest": "sha256:215e81c87644fb020d48b6d673b9f47be6f371d5fd9fb2fbb9cbb7bcb2efea60",
     "sbom": {
       "format": "cargo-lock",
-      "digest": "sha256:ddbb44aff4f21b9a999564f5204feac52a7e12fadcde602fad1783e0eb3622cf",
+      "digest": "sha256:16856c2febd4822535cd92f98e84d52c33aedb6719589a2320e4c1e97fdddec1",
       "reference": "Cargo.lock"
     },
     "adapter_id": "arda-otlp-sidecar",
@@ -68,7 +68,7 @@
   },
   "compatibility": {
     "minimum_arda_version": "0.1.0",
-    "tested_at": "2026-08-09T12:00:00Z",
+    "tested_at": "2026-08-26T05:55:00Z",
     "backup_operation": "otlp.config.snapshot",
     "removal_operation": "otlp.sidecar.disable",
     "rollback_operation": "otlp.config.restore"

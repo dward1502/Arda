@@ -61,6 +61,7 @@ path = "src/main.rs"
 
 [dependencies]
 arda-engine = { workspace = true }
+arda-aule = { workspace = true, features = ["telemetry"] }
 tokio = { workspace = true }
 clap = { workspace = true }
 tracing = { workspace = true }

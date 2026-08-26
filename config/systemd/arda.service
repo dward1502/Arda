@@ -9,6 +9,7 @@ WorkingDirectory=%h/Eregion/Arda
 Environment=RUST_LOG=info
 Environment=ARDA_ROOT=%h/Eregion/Arda
 Environment=ARDA_OPERATOR_ID=operator:mythos
+Environment=ARDA_PROMETHEUS_URL=http://100.103.125.88:9090
 Environment=PATH=%h/.cargo/bin:%h/.local/bin:/usr/local/bin:/usr/bin
 ExecStart=%h/.local/bin/arda --no-ui
 Restart=on-failure

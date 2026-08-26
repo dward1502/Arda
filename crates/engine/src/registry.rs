@@ -453,7 +453,7 @@ optional = true
 
         let sidecar = catalog.get("arda-otlp-sidecar").unwrap();
         assert_eq!(sidecar.kind, AdapterKind::Sidecar);
-        assert!(!sidecar.installed);
+        assert!(sidecar.installed);
         assert_eq!(sidecar.health, CapabilityHealth::NotConfigured);
         assert!(!sidecar.eligible);
     }

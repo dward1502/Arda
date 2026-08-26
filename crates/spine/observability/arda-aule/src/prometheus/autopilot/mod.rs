@@ -43,7 +43,9 @@ pub use core_executor_bridge::{
     Dispatch, ExecutionStatus,
 };
 pub use dashboard::{Alert, AlertSeverity, DashboardSnapshot};
-pub use decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
+pub use decomposer::{
+    Objective, ObjectiveContextSource, ObjectiveDecomposer, ObjectivePlan, PlannedTask, Priority,
+};
 pub use delegation::{
     delegate_plan, AgentCapabilities, AgentRegistry, Delegation, DelegationReport,
 };

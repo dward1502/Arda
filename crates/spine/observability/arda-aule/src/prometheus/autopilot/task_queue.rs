@@ -117,11 +117,17 @@ impl TaskQueueAnalyzer {
     }
 
     pub fn effective_records(records: Vec<QueueRecord>) -> Vec<QueueRecord> {
-        let mut latest_by_source_record_id = BTreeMap::<String, (usize, QueueRecord)>::new();
-        for (index, record) in records.into_iter().enumerate() {
-            latest_by_source_record_id.insert(Self::effective_record_key(&record), (index, record));
+        let mut seen_ids = BTreeSet::<String>::new();
+        let mut effective = Vec::<(usize, QueueRecord)>::new();
+        for (index, record) in records.into_iter().enumerate().rev() {
+            let source_record_id = Self::effective_record_key(&record);
+            let aliases = [record.id.clone(), source_record_id];
+            let already_superseded = aliases.iter().any(|alias| seen_ids.contains(alias));
+            seen_ids.extend(aliases);
+            if !already_superseded {
+                effective.push((index, record));
+            }
         }
-        let mut effective = latest_by_source_record_id.into_values().collect::<Vec<_>>();
         effective.sort_by_key(|(index, _)| *index);
         effective.into_iter().map(|(_, record)| record).collect()
     }
@@ -253,12 +259,9 @@ impl ActiveQueueExecutor {
     pub fn select_next_approved(&self) -> std::io::Result<Option<QueueRecord>> {
         let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
         let effective = TaskQueueAnalyzer::effective_records(records);
-        let active_ids = self.load_active_projection_ids().unwrap_or_default();
-        Ok(effective.into_iter().find(|record| {
-            claimable_status(record)
-                && (active_ids.is_empty() || active_ids.contains(&record.id))
-                && approved_workbench_metadata(record)
-        }))
+        Ok(effective
+            .into_iter()
+            .find(|record| claimable_status(record) && approved_workbench_metadata(record)))
     }
 
     /// Atomically claim one approved task by appending its in-progress state
@@ -276,12 +279,10 @@ impl ActiveQueueExecutor {
         let result = (|| {
             let records = read_queue_records(&file)?;
             let effective = TaskQueueAnalyzer::effective_records(records);
-            let active_ids = self.load_active_projection_ids().unwrap_or_default();
-            let Some(task) = effective.into_iter().find(|record| {
-                claimable_status(record)
-                    && (active_ids.is_empty() || active_ids.contains(&record.id))
-                    && approved_workbench_metadata(record)
-            }) else {
+            let Some(task) = effective
+                .into_iter()
+                .find(|record| claimable_status(record) && approved_workbench_metadata(record))
+            else {
                 return Ok(None);
             };
             let attempt = execution_attempt(&task);
@@ -314,12 +315,8 @@ impl ActiveQueueExecutor {
         let result = (|| {
             let records = read_queue_records(&file)?;
             let effective = TaskQueueAnalyzer::effective_records(records);
-            let active_ids = self.load_active_projection_ids().unwrap_or_default();
-            let is_active =
-                |task: &QueueRecord| active_ids.is_empty() || active_ids.contains(&task.id);
             if let Some(task) = effective.iter().find(|record| {
                 record.status.as_deref().map(normalize_task_status) == Some("in_progress")
-                    && is_active(record)
                     && approved_workbench_metadata(record)
             }) {
                 return Ok(Some(ApprovedQueueClaim {
@@ -327,9 +324,10 @@ impl ActiveQueueExecutor {
                     attempt: attempt_from_claimed_task(task)?,
                 }));
             }
-            let Some(task) = effective.into_iter().find(|record| {
-                claimable_status(record) && is_active(record) && approved_workbench_metadata(record)
-            }) else {
+            let Some(task) = effective
+                .into_iter()
+                .find(|record| claimable_status(record) && approved_workbench_metadata(record))
+            else {
                 return Ok(None);
             };
             let attempt = execution_attempt(&task);
@@ -876,6 +874,35 @@ mod tests {
     }
 
     #[test]
+    fn effective_records_fold_duplicate_id_after_source_key_correction() {
+        let recs = vec![
+            QueueRecord {
+                id: "objective".into(),
+                status: Some("completed".into()),
+                ..blank("objective")
+            },
+            QueueRecord {
+                id: "revised".into(),
+                status: Some("queued".into()),
+                extra: source_record_extra("objective"),
+                ..blank("revised")
+            },
+            QueueRecord {
+                id: "revised".into(),
+                status: Some("queued".into()),
+                extra: source_record_extra("revised"),
+                ..blank("revised")
+            },
+        ];
+
+        let effective = TaskQueueAnalyzer::effective_records(recs);
+
+        assert_eq!(effective.len(), 1);
+        assert_eq!(effective[0].id, "revised");
+        assert_eq!(effective[0].status.as_deref(), Some("queued"));
+    }
+
+    #[test]
     fn analyze_uses_effective_queue_records() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -954,7 +981,7 @@ mod tests {
     }
 
     #[test]
-    fn active_queue_executor_selects_operator_approved_workbench_task() {
+    fn approved_selection_uses_canonical_queue_when_generated_projection_is_stale() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -980,7 +1007,7 @@ mod tests {
             format!("{}\n", serde_json::to_string(&approved).unwrap()),
         )
         .unwrap();
-        std::fs::write(&active_path, "{\"active\":[{\"id\":\"approved-task\"}]}\n").unwrap();
+        std::fs::write(&active_path, "{\"active\":[{\"id\":\"stale-task\"}]}\n").unwrap();
 
         let selected = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
             .select_next_approved()

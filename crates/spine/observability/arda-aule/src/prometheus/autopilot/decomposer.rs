@@ -32,6 +32,33 @@ pub struct PlannedTask {
     pub assigned_agent: Option<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ObjectiveContextSource {
+    pub kind: String,
+    pub reference: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub digest: Option<String>,
+}
+
+impl ObjectiveContextSource {
+    pub fn new(kind: impl Into<String>, reference: impl Into<String>) -> Self {
+        Self {
+            kind: kind.into(),
+            reference: reference.into(),
+            digest: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ObjectivePlan {
+    pub objective_id: String,
+    pub tasks: Vec<PlannedTask>,
+    pub context_sources: Vec<ObjectiveContextSource>,
+    pub acceptance_criteria: Vec<String>,
+    pub approval_required: bool,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Priority {
@@ -112,6 +139,81 @@ impl ObjectiveDecomposer {
             }
         }
         tasks
+    }
+
+    /// Build a general, evidence-grounded objective plan. The plan separates
+    /// context recovery, inspection, synthesis, outcome production, and
+    /// acceptance verification so arbitrary operator objectives do not collapse
+    /// into one opaque execution prompt.
+    pub fn decompose_grounded(
+        &self,
+        obj: &Objective,
+        context_sources: Vec<ObjectiveContextSource>,
+    ) -> ObjectivePlan {
+        let mut tasks =
+            vec![
+            task(
+                "recover-context",
+                "Recover authoritative project, plan, evidence, receipt, and repository context",
+                "context_recovery",
+                &[],
+                Priority::High,
+                "vaire",
+                30,
+            ),
+            task(
+                "inspect-authorities",
+                &format!("Inspect live behavior and authorities for: {}", obj.statement),
+                "analysis",
+                &["recover-context"],
+                Priority::High,
+                "prometheus",
+                120,
+            ),
+            task(
+                "synthesize-findings",
+                "Synthesize evidence into prioritized findings and smallest authoritative repairs",
+                "synthesis",
+                &["inspect-authorities"],
+                Priority::High,
+                "prometheus",
+                120,
+            ),
+            task(
+                "produce-outcome",
+                &format!("Produce the concrete operator-visible outcome for: {}", obj.statement),
+                "ops",
+                &["synthesize-findings"],
+                Priority::Critical,
+                "ceo",
+                180,
+            ),
+            task(
+                "verify-acceptance",
+                "Verify objective acceptance criteria and evidence",
+                "monitor",
+                &["produce-outcome"],
+                Priority::High,
+                "warden",
+                60,
+            ),
+        ];
+        for planned in &mut tasks {
+            let canonical = super::taxonomy::canonical(&planned.task_type);
+            planned.joule_cost = self
+                .base_costs
+                .get(canonical)
+                .or_else(|| self.base_costs.get(&planned.task_type))
+                .copied()
+                .unwrap_or(self.default_cost);
+        }
+        ObjectivePlan {
+            objective_id: obj.id.clone(),
+            tasks,
+            context_sources,
+            acceptance_criteria: obj.success_criteria.clone(),
+            approval_required: true,
+        }
     }
 }
 
@@ -318,5 +420,48 @@ mod tests {
         let d = ObjectiveDecomposer::default();
         let t = d.decompose(&obj("Refactor module foo"));
         assert_eq!(t.len(), 3);
+    }
+
+    #[test]
+    fn grounded_decomposition_preserves_context_and_acceptance() {
+        let mut objective = obj("Review the system against the operator vision");
+        objective.success_criteria =
+            vec!["Produce a concrete prioritized repair backlog with source evidence".into()];
+        let context = vec![
+            ObjectiveContextSource::new("project_contract", "data/workbench/projects.json"),
+            ObjectiveContextSource::new(
+                "active_plan",
+                "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
+            ),
+            ObjectiveContextSource::new("repository_state", "git status --short"),
+        ];
+
+        let plan = ObjectiveDecomposer::default().decompose_grounded(&objective, context);
+
+        assert_eq!(plan.objective_id, "o");
+        assert_eq!(plan.context_sources.len(), 3);
+        assert_eq!(plan.acceptance_criteria, objective.success_criteria);
+        assert!(plan.approval_required);
+        assert_eq!(
+            plan.tasks.last().unwrap().title,
+            "Verify objective acceptance criteria and evidence"
+        );
+        assert!(plan
+            .tasks
+            .last()
+            .unwrap()
+            .depends_on
+            .contains(&"produce-outcome".to_string()));
+    }
+
+    #[test]
+    fn grounded_decomposition_requires_evidence_sources() {
+        let mut objective = obj("Review the system");
+        objective.success_criteria = vec!["Produce an evidence-backed result".into()];
+
+        let plan = ObjectiveDecomposer::default().decompose_grounded(&objective, Vec::new());
+
+        assert!(plan.context_sources.is_empty());
+        assert!(plan.tasks.iter().any(|task| task.key == "recover-context"));
     }
 }

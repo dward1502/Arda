@@ -2,7 +2,7 @@
 // sigil: REPAIR
 //! Plan validator — dependency graph + resource/budget checks.
 
-use super::decomposer::PlannedTask;
+use super::decomposer::{ObjectivePlan, PlannedTask};
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 
@@ -79,6 +79,27 @@ impl PlanValidator {
         }
         r
     }
+
+    pub fn validate_objective_plan(&self, plan: &ObjectivePlan) -> ValidationResult {
+        let mut result = self.validate(&plan.tasks);
+        if plan.acceptance_criteria.is_empty() {
+            result
+                .errors
+                .push("objective plan has no acceptance criteria".into());
+        }
+        if plan.context_sources.is_empty() {
+            result
+                .errors
+                .push("objective plan has no grounded context sources".into());
+        }
+        if result.topological_order.last().map(String::as_str) != Some("verify-acceptance") {
+            result
+                .errors
+                .push("objective plan must terminate in acceptance verification".into());
+        }
+        result.ok = result.errors.is_empty();
+        result
+    }
 }
 
 fn toposort(tasks: &[PlannedTask]) -> Result<Vec<String>, Vec<String>> {
@@ -122,7 +143,9 @@ fn toposort(tasks: &[PlannedTask]) -> Result<Vec<String>, Vec<String>> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::decomposer::{PlannedTask, Priority};
+    use super::super::decomposer::{
+        Objective, ObjectiveContextSource, ObjectiveDecomposer, PlannedTask, Priority,
+    };
     use super::*;
     fn t(k: &str, deps: &[&str], cost: f64, agent: &str) -> PlannedTask {
         PlannedTask {
@@ -158,5 +181,55 @@ mod tests {
         let r = PlanValidator::default().validate(&p);
         assert!(r.ok);
         assert_eq!(r.topological_order, vec!["a", "b"]);
+    }
+
+    #[test]
+    fn grounded_plan_requires_context_acceptance_and_terminal_verification() {
+        let objective = Objective {
+            id: "objective-1".into(),
+            statement: "Review Arda".into(),
+            constraints: vec![],
+            deadline: None,
+            success_criteria: vec![],
+            tags: vec![],
+        };
+        let plan = ObjectiveDecomposer::default().decompose_grounded(&objective, Vec::new());
+
+        let result = PlanValidator::default().validate_objective_plan(&plan);
+
+        assert!(!result.ok);
+        assert!(result
+            .errors
+            .contains(&"objective plan has no acceptance criteria".to_string()));
+        assert!(result
+            .errors
+            .contains(&"objective plan has no grounded context sources".to_string()));
+    }
+
+    #[test]
+    fn grounded_plan_with_sources_and_acceptance_is_valid() {
+        let objective = Objective {
+            id: "objective-1".into(),
+            statement: "Review Arda".into(),
+            constraints: vec![],
+            deadline: None,
+            success_criteria: vec!["Produce a prioritized repair backlog".into()],
+            tags: vec![],
+        };
+        let plan = ObjectiveDecomposer::default().decompose_grounded(
+            &objective,
+            vec![ObjectiveContextSource::new(
+                "active_plan",
+                "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
+            )],
+        );
+
+        let result = PlanValidator::default().validate_objective_plan(&plan);
+
+        assert!(result.ok, "{:?}", result.errors);
+        assert_eq!(
+            result.topological_order.last().unwrap(),
+            "verify-acceptance"
+        );
     }
 }

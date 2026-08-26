@@ -1,9 +1,16 @@
 #![cfg(feature = "full-cli")]
 //! Bounded adapter from operator-approved canonical queue work into Workbench.
 
+use super::decomposer::{Objective, ObjectiveContextSource, ObjectiveDecomposer, ObjectivePlan};
 use super::execution_outcome::project_terminal_outcome;
 use super::task_queue::{ActiveQueueExecutor, ApprovedQueueClaim, QueueRecord};
+use super::validator::PlanValidator;
 use anyhow::{anyhow, Context, Result};
+use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
+use arda_vaire::{
+    ContextDisposition, ContextOutcomeInput, ContextOutcomeReceipt, MnemosyneService,
+    OrganismContext,
+};
 use chrono::Utc;
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
@@ -74,7 +81,7 @@ impl WorkbenchQueueExecutor {
         };
         let run_id = claim.attempt.workbench_run_id.clone();
         match self.dispatch_claim(&claim).await {
-            Ok((status, digest, detail)) => {
+            Ok((mut status, digest, mut detail)) => {
                 if status == "in_progress" {
                     return Ok(QueueExecutionReceipt {
                         contract: QUEUE_EXECUTION_RECEIPT_CONTRACT.into(),
@@ -88,13 +95,33 @@ impl WorkbenchQueueExecutor {
                         recorded_at_utc: Utc::now().to_rfc3339(),
                     });
                 }
+                if status == "succeeded" {
+                    if let Err(error) = validate_task_acceptance_artifact(&self.root, &claim.task) {
+                        status = "failed".into();
+                        detail = Some(format!("acceptance criteria not satisfied: {error:#}"));
+                    }
+                }
                 let (queue_status, result) = match status.as_str() {
                     "succeeded" => ("completed", "completed"),
                     "cancelled" => ("failed", "cancelled"),
                     _ => ("failed", "failed"),
                 };
-                let continuation_decision =
-                    (queue_status == "completed").then_some("close_complete");
+                let decision = continuation_decision(
+                    queue_status,
+                    result,
+                    detail.as_deref(),
+                    continuation_sequence(&claim.task),
+                );
+                let mut outcome_evidence = digest.iter().cloned().collect::<Vec<_>>();
+                if let Some(receipt) = record_context_outcome(
+                    &self.root,
+                    &claim.task,
+                    &run_id,
+                    result,
+                    &outcome_evidence,
+                )? {
+                    outcome_evidence.push(receipt.receipt_digest);
+                }
                 queue.append_workbench_terminal_with_continuation(
                     &claim.task,
                     queue_status,
@@ -102,7 +129,7 @@ impl WorkbenchQueueExecutor {
                     &run_id,
                     digest.as_deref(),
                     detail.as_deref(),
-                    continuation_decision,
+                    Some(decision),
                 )?;
                 project_terminal_outcome(
                     &self.root,
@@ -120,7 +147,7 @@ impl WorkbenchQueueExecutor {
                     status: queue_status.into(),
                     result: result.into(),
                     execution_receipt_digest: digest,
-                    continuation_decision: continuation_decision.map(str::to_owned),
+                    continuation_decision: Some(decision.into()),
                     detail,
                     recorded_at_utc: Utc::now().to_rfc3339(),
                 })
@@ -128,13 +155,21 @@ impl WorkbenchQueueExecutor {
             Err(error) => {
                 let detail = format!("{error:#}");
                 if detail.contains("was cancelled while provider execution was active") {
-                    queue.append_workbench_terminal(
+                    let decision = continuation_decision(
+                        "failed",
+                        "cancelled",
+                        Some(&detail),
+                        continuation_sequence(&claim.task),
+                    );
+                    record_context_outcome(&self.root, &claim.task, &run_id, "cancelled", &[])?;
+                    queue.append_workbench_terminal_with_continuation(
                         &claim.task,
                         "failed",
                         "cancelled",
                         &run_id,
                         None,
                         Some(&detail),
+                        Some(decision),
                     )?;
                     project_terminal_outcome(
                         &self.root,
@@ -152,7 +187,7 @@ impl WorkbenchQueueExecutor {
                         status: "failed".into(),
                         result: "cancelled".into(),
                         execution_receipt_digest: None,
-                        continuation_decision: Some("request_operator_decision".into()),
+                        continuation_decision: Some(decision.into()),
                         detail: Some(detail),
                         recorded_at_utc: Utc::now().to_rfc3339(),
                     });
@@ -230,7 +265,21 @@ impl WorkbenchQueueExecutor {
             .title
             .as_deref()
             .unwrap_or(claim.task.id.as_str());
-        let graph = run_graph(run_id, &claim.task.id, objective, approval_id);
+        let objective_plan = objective_plan_for_task(&self.root, &claim.task)?;
+        let validation = PlanValidator::default().validate_objective_plan(&objective_plan);
+        if !validation.ok {
+            return Err(anyhow!(
+                "refusing to dispatch invalid objective plan: {}",
+                validation.errors.join("; ")
+            ));
+        }
+        let graph = run_graph_with_objective_plan(
+            run_id,
+            &claim.task.id,
+            objective,
+            approval_id,
+            &objective_plan,
+        );
         let mut run = if let Some(existing) = self.existing_run(run_id).await? {
             let outcome = classify_existing_run(&existing);
             if outcome.0 != "in_progress" {
@@ -269,7 +318,10 @@ impl WorkbenchQueueExecutor {
         }
 
         for (node_id, stage_objective) in [
-            ("execute", objective.to_owned()),
+            (
+                "execute",
+                objective_execution_prompt(&objective_plan, objective, &claim.task),
+            ),
             (
                 "verify",
                 format!(
@@ -493,6 +545,273 @@ fn task_project_id(task: &QueueRecord) -> Option<&str> {
         .filter(|id| !id.trim().is_empty())
 }
 
+fn continuation_sequence(task: &QueueRecord) -> u64 {
+    task.extra
+        .get("continuation_sequence")
+        .and_then(Value::as_u64)
+        .unwrap_or(0)
+}
+
+fn validate_task_acceptance_artifact(root: &Path, task: &QueueRecord) -> Result<()> {
+    let Some(meta) = task.extra.get("meta").and_then(Value::as_object) else {
+        return Ok(());
+    };
+    let Some(relative_path) = meta.get("acceptance_artifact").and_then(Value::as_str) else {
+        return Ok(());
+    };
+    let content = std::fs::read_to_string(root.join(relative_path))
+        .with_context(|| format!("read required acceptance artifact `{relative_path}`"))?;
+    if content.trim().is_empty() {
+        return Err(anyhow!(
+            "required acceptance artifact `{relative_path}` is empty"
+        ));
+    }
+    for marker in meta
+        .get("acceptance_markers")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+    {
+        if !content
+            .to_ascii_lowercase()
+            .contains(&marker.to_ascii_lowercase())
+        {
+            return Err(anyhow!(
+                "required acceptance artifact `{relative_path}` omitted marker `{marker}`"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn continuation_decision(
+    queue_status: &str,
+    result: &str,
+    detail: Option<&str>,
+    prior_continuations: u64,
+) -> &'static str {
+    if queue_status == "completed" {
+        return "close_complete";
+    }
+    if prior_continuations > 0 {
+        return "replan_objective";
+    }
+    let detail = detail.unwrap_or_default().to_ascii_lowercase();
+    if result == "cancelled" {
+        "request_operator_decision"
+    } else if ["acceptance", "criteria", "scope", "invalid plan"]
+        .iter()
+        .any(|marker| detail.contains(marker))
+    {
+        "revise_task"
+    } else {
+        "retry_same_task"
+    }
+}
+
+fn record_context_outcome(
+    root: &Path,
+    task: &QueueRecord,
+    run_id: &str,
+    result: &str,
+    evidence_refs: &[String],
+) -> Result<Option<ContextOutcomeReceipt>> {
+    let receipt_id = task
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get("context_use_receipt_id"))
+        .and_then(Value::as_str);
+    let service = MnemosyneService::new(root.join("data/vaire"))?
+        .with_contract_memory_root(root.join("core/state/memory"));
+    let use_receipt = if let Some(receipt_id) = receipt_id {
+        service
+            .context_use_receipt(receipt_id)?
+            .ok_or_else(|| anyhow!("context use receipt `{receipt_id}` was not found"))?
+    } else {
+        let now = Utc::now().timestamp_millis().max(0) as u128;
+        let context: OrganismContext = serde_json::from_value(json!({
+            "schema_version": "arda.organism-context.v1",
+            "organism_id": "arda",
+            "generated_at_unix_ms": now,
+            "expires_at_unix_ms": now.saturating_add(3_600_000),
+            "consumer": {
+                "consumer_id": "arda_workbench.queue_executor",
+                "role": "worker",
+                "authority_ceiling": "execute_with_approval",
+                "operator_authorized": true,
+                "memory_domains": ["system"],
+                "data_classes": ["internal"],
+                "permitted_egress": ["local_device"],
+                "compute_node_refs": [],
+                "agent_ref": "aule"
+            },
+            "lineage": {
+                "objective_id": task.id,
+                "project_id": task_project_id(task),
+                "run_id": run_id,
+                "task_id": task.id,
+                "session_ref": null,
+                "parent_receipts": []
+            },
+            "objective": {
+                "requested_outcome": task.title.as_deref().unwrap_or(task.id.as_str()),
+                "acceptance_conditions": ["Record an evidence-backed terminal outcome"],
+                "required_capabilities": ["objective_execution"],
+                "forbidden_capabilities": []
+            },
+            "evidence_refs": evidence_refs,
+            "memory_refs": [],
+            "unresolved_failures": [],
+            "return_contract": {
+                "schema_version": "arda.context-return.v1",
+                "required_receipt_types": ["arda.context-outcome-receipt.v1"],
+                "max_output_bytes": 65536
+            }
+        }))?;
+        let mut consumer =
+            ConsumerContext::new("arda_workbench.queue_executor", vec![MemoryDomain::System]);
+        consumer.purpose = Some(task.title.as_deref().unwrap_or(task.id.as_str()).to_owned());
+        consumer.operator_authorized = true;
+        service
+            .assemble_organism_context(context, &consumer, now)?
+            .use_receipt
+    };
+    if use_receipt.objective_id != task.id || use_receipt.run_id.as_deref() != Some(run_id) {
+        return Err(anyhow!(
+            "context use receipt `{}` is not bound to objective `{}` and run `{run_id}`",
+            use_receipt.receipt_id,
+            task.id
+        ));
+    }
+    let used = result == "completed" || result == "failed";
+    Ok(Some(service.record_context_outcome(
+        &use_receipt,
+        ContextOutcomeInput {
+            consumer_id: use_receipt.consumer_id.clone(),
+            disposition: if used {
+                ContextDisposition::Used
+            } else {
+                ContextDisposition::Deferred
+            },
+            influenced_memory_refs: if used {
+                use_receipt.memory_refs.clone()
+            } else {
+                Vec::new()
+            },
+            evidence_refs: evidence_refs.to_vec(),
+            rationale: format!(
+                "Workbench terminal result `{result}` recorded for governed objective `{}`",
+                task.id
+            ),
+            recorded_at_unix_ms: Utc::now().timestamp_millis().max(0) as u128,
+        },
+    )?))
+}
+
+fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectivePlan> {
+    let objective = task.title.as_deref().unwrap_or(task.id.as_str());
+    let detail = task
+        .extra
+        .get("detail")
+        .and_then(Value::as_str)
+        .unwrap_or(
+            "Inspect live behavior, compare it with operator-authored intent, and produce a prioritized repair backlog backed by reproducible evidence.",
+        );
+    let mut sources = Vec::new();
+    for (kind, relative_path) in [
+        ("project_contract", "data/workbench/projects.json"),
+        (
+            "operator_plan",
+            "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md",
+        ),
+        (
+            "operator_plan",
+            "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
+        ),
+        ("soterion_result", "ARDA_SYSTEM_STATUS_REPORT.md"),
+        ("recent_receipt", "core/projects/tasks/queue.jsonl"),
+    ] {
+        let bytes = std::fs::read(root.join(relative_path))
+            .with_context(|| format!("read objective context source `{relative_path}`"))?;
+        sources.push(ObjectiveContextSource {
+            kind: kind.into(),
+            reference: relative_path.into(),
+            digest: Some(format!("sha256:{:x}", Sha256::digest(bytes))),
+        });
+    }
+    let repository_state = std::process::Command::new("git")
+        .args(["status", "--short"])
+        .current_dir(root)
+        .output()
+        .map(|output| output.stdout)
+        .unwrap_or_else(|_| b"repository state unavailable".to_vec());
+    sources.push(ObjectiveContextSource {
+        kind: "repository_state".into(),
+        reference: "git status --short".into(),
+        digest: Some(format!("sha256:{:x}", Sha256::digest(repository_state))),
+    });
+
+    let plan = ObjectiveDecomposer::default().decompose_grounded(
+        &Objective {
+            id: task.id.clone(),
+            statement: objective.into(),
+            constraints: vec![detail.into(), "Preserve unrelated working-tree changes".into()],
+            deadline: None,
+            success_criteria: vec![
+                "A prioritized repair backlog names concrete human-visible behavior, source evidence, and the smallest authoritative repair surface.".into(),
+                "Every claim distinguishes implemented capability, configured runtime, and live deployed proof.".into(),
+                "No unrelated working-tree artifacts or generated queue projections are modified.".into(),
+            ],
+            tags: vec!["operator-vision".into(), "comprehensive-review".into()],
+        },
+        sources,
+    );
+    let validation = PlanValidator::default().validate_objective_plan(&plan);
+    if !validation.ok {
+        return Err(anyhow!(
+            "objective decomposition failed validation: {}",
+            validation.errors.join("; ")
+        ));
+    }
+    Ok(plan)
+}
+
+fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &QueueRecord) -> String {
+    let sources = plan
+        .context_sources
+        .iter()
+        .map(|source| {
+            format!(
+                "- {:?}: {} ({})",
+                source.kind,
+                source.reference,
+                source.digest.as_deref().unwrap_or("digest unavailable")
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let tasks = plan
+        .tasks
+        .iter()
+        .map(|task| format!("- {}: {}", task.key, task.title))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let artifact_requirement = task
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get("acceptance_artifact"))
+        .and_then(Value::as_str)
+        .map(|path| format!(" Write the final accepted backlog to `{path}`."))
+        .unwrap_or_default();
+    format!(
+        "{}\n\nExecute this validated objective plan in dependency order:\n{}\n\nRead and cite these live authorities before changing anything:\n{}\n\nFinal output must be a concrete prioritized repair backlog with evidence, human-visible behavior, and the smallest authoritative implementation surface.{} Preserve unrelated dirty work and do not edit generated queue projections.",
+        objective, tasks, sources, artifact_requirement
+    )
+}
+
 fn approval_envelope(task: &QueueRecord, idempotency_key: &str) -> Result<Value> {
     let meta = task
         .extra
@@ -525,7 +844,34 @@ fn required_meta<'a>(
         .ok_or_else(|| anyhow!("task `{task_id}` omitted `{key}`"))
 }
 
+#[cfg(test)]
 fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str) -> Value {
+    run_graph_value(run_id, task_id, objective, approval_id, None)
+}
+
+fn run_graph_with_objective_plan(
+    run_id: &str,
+    task_id: &str,
+    objective: &str,
+    approval_id: &str,
+    objective_plan: &ObjectivePlan,
+) -> Value {
+    run_graph_value(
+        run_id,
+        task_id,
+        objective,
+        approval_id,
+        Some(objective_plan),
+    )
+}
+
+fn run_graph_value(
+    run_id: &str,
+    task_id: &str,
+    objective: &str,
+    approval_id: &str,
+    objective_plan: Option<&ObjectivePlan>,
+) -> Value {
     let prompt_digest = format!("sha256:{:x}", Sha256::digest(objective.as_bytes()));
     let deadline = Utc::now().timestamp_millis().saturating_add(1_200_000) as u128;
     let node = |id: &str, kind: &str, authority: &str, parents: Vec<&str>, worker: Value| {
@@ -545,7 +891,7 @@ fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str) ->
             "worker": worker,
         })
     };
-    json!({
+    let mut graph = json!({
         "schema_version": "arda.run-graph.v1",
         "run_id": run_id,
         "objective_id": task_id,
@@ -591,7 +937,15 @@ fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str) ->
             "created_by": "arda_workbench.queue_executor",
             "parent_receipts": [approval_id]
         }
-    })
+    });
+    if let Some(plan) = objective_plan {
+        let validation = PlanValidator::default().validate_objective_plan(plan);
+        graph["provenance"]["objective_plan"] =
+            serde_json::to_value(plan).expect("validated objective plan must serialize");
+        graph["provenance"]["objective_plan_validation"] =
+            serde_json::to_value(validation).expect("objective plan validation must serialize");
+    }
+    graph
 }
 
 fn workbench_run_id(task_id: &str) -> String {
@@ -627,6 +981,7 @@ mod tests {
         let active_path = root.join("core/state/queue_active.json");
         std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
         std::fs::create_dir_all(active_path.parent().unwrap()).unwrap();
+        std::fs::create_dir_all(root.join("core/state/memory")).unwrap();
         std::fs::write(
             &queue_path,
             format!(
@@ -651,6 +1006,18 @@ mod tests {
             format!("{{\"active\":[{{\"id\":\"{task_id}\"}}]}}\n"),
         )
         .unwrap();
+        for relative_path in [
+            "data/workbench/projects.json",
+            "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md",
+            "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
+            "ARDA_SYSTEM_STATUS_REPORT.md",
+        ] {
+            let path = root.join(relative_path);
+            if let Some(parent) = path.parent() {
+                std::fs::create_dir_all(parent).unwrap();
+            }
+            std::fs::write(path, "authoritative fixture\n").unwrap();
+        }
         queue_path
     }
 
@@ -674,7 +1041,12 @@ mod tests {
         let server = tokio::spawn(async move {
             let mut requests = Vec::new();
             for response in responses {
-                let (mut stream, _) = listener.accept().await.unwrap();
+                let Ok(Ok((mut stream, _))) =
+                    tokio::time::timeout(std::time::Duration::from_secs(1), listener.accept())
+                        .await
+                else {
+                    break;
+                };
                 let mut request = Vec::new();
                 let mut buffer = [0_u8; 4096];
                 loop {
@@ -708,7 +1080,7 @@ mod tests {
                         .to_owned(),
                 );
                 let Some((status, body)) = response else {
-                    continue;
+                    break;
                 };
                 let reason = if status == 200 { "OK" } else { "Not Found" };
                 stream
@@ -773,7 +1145,10 @@ mod tests {
             .unwrap_err();
         let requests = server.await.unwrap();
 
-        assert!(format!("{error:#}").contains("dispatch approved Workbench execute provider"));
+        assert!(
+            format!("{error:#}").contains("dispatch approved Workbench execute provider"),
+            "unexpected error: {error:#}"
+        );
         assert_eq!(requests.len(), 4);
         assert!(requests[3]
             .starts_with("POST /v1/runs/queue-lost-response-task/nodes/execute/execute-provider "));
@@ -1124,6 +1499,160 @@ mod tests {
         }));
         assert_eq!(closed.0, "succeeded");
         assert_eq!(closed.1.as_deref(), Some("sha256:close"));
+    }
+
+    #[test]
+    fn objective_plan_is_grounded_in_live_authorities_and_embedded_in_graph() {
+        let dir = tempfile::tempdir().unwrap();
+        for path in [
+            "data/workbench/projects.json",
+            "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md",
+            "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
+            "ARDA_SYSTEM_STATUS_REPORT.md",
+            "core/projects/tasks/queue.jsonl",
+        ] {
+            let path = dir.path().join(path);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, "authoritative fixture\n").unwrap();
+        }
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "objective-1",
+            "title": "Review Arda against the operator vision",
+            "detail": "Inspect live behavior and produce the smallest authoritative repairs"
+        }))
+        .unwrap();
+
+        let plan = objective_plan_for_task(dir.path(), &task).unwrap();
+        let validation =
+            super::super::validator::PlanValidator::default().validate_objective_plan(&plan);
+        assert!(validation.ok, "{:?}", validation.errors);
+        assert_eq!(plan.context_sources.len(), 6);
+        assert!(plan.context_sources.iter().all(|source| source
+            .digest
+            .as_deref()
+            .is_some_and(|value| value.starts_with("sha256:"))));
+
+        let graph = run_graph_with_objective_plan(
+            "queue-objective-1",
+            "objective-1",
+            "Review Arda",
+            "approval-1",
+            &plan,
+        );
+        assert_eq!(
+            graph["provenance"]["objective_plan"]["objective_id"],
+            "objective-1"
+        );
+        assert_eq!(
+            graph["provenance"]["objective_plan_validation"]["topological_order"]
+                .as_array()
+                .unwrap()
+                .last()
+                .unwrap(),
+            "verify-acceptance"
+        );
+    }
+
+    #[test]
+    fn failed_attempts_choose_durable_retry_revise_and_replan_decisions() {
+        assert_eq!(
+            continuation_decision("failed", "failed", Some("provider timeout"), 0),
+            "retry_same_task"
+        );
+        assert_eq!(
+            continuation_decision(
+                "failed",
+                "failed",
+                Some("acceptance criteria were not satisfied"),
+                0,
+            ),
+            "revise_task"
+        );
+        assert_eq!(
+            continuation_decision("failed", "failed", Some("provider timeout"), 1),
+            "replan_objective"
+        );
+        assert_eq!(
+            continuation_decision("completed", "completed", None, 0),
+            "close_complete"
+        );
+    }
+
+    #[test]
+    fn declared_acceptance_artifact_must_exist_and_cover_required_markers() {
+        let dir = tempfile::tempdir().unwrap();
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "objective-1",
+            "meta": {
+                "acceptance_artifact": "docs/audits/backlog.md",
+                "acceptance_markers": ["human-visible behavior", "evidence", "priority"]
+            }
+        }))
+        .unwrap();
+        assert!(validate_task_acceptance_artifact(dir.path(), &task).is_err());
+        let path = dir.path().join("docs/audits/backlog.md");
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(
+            path,
+            "# Priority backlog\n\nHuman-visible behavior with source evidence.\n",
+        )
+        .unwrap();
+        validate_task_acceptance_artifact(dir.path(), &task).unwrap();
+    }
+
+    #[test]
+    fn terminal_result_records_vaire_context_outcome_when_use_receipt_is_bound() {
+        use arda_vaire::{ContextUseReceipt, MnemosyneService};
+
+        let dir = tempfile::tempdir().unwrap();
+        let memory_root = dir.path().join("data/vaire");
+        std::fs::create_dir_all(&memory_root).unwrap();
+        let mut use_receipt = ContextUseReceipt {
+            schema_version: "arda.context-use-receipt.v1".into(),
+            receipt_id: "context-use:fixture".into(),
+            receipt_digest: String::new(),
+            capsule_id: "capsule:fixture".into(),
+            capsule_digest: "sha256:fixture".into(),
+            objective_id: "objective-1".into(),
+            run_id: Some("queue-objective-1".into()),
+            consumer_id: "arda_workbench.queue_executor".into(),
+            purpose: "objective execution".into(),
+            memory_refs: vec!["memory-1".into()],
+            recorded_at_unix_ms: 10,
+            expires_at_unix_ms: 20,
+        };
+        use_receipt.receipt_digest = use_receipt.computed_digest().unwrap();
+        std::fs::write(
+            memory_root.join("context_use_receipts.jsonl"),
+            format!("{}\n", serde_json::to_string(&use_receipt).unwrap()),
+        )
+        .unwrap();
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "objective-1",
+            "meta": {"context_use_receipt_id": "context-use:fixture"}
+        }))
+        .unwrap();
+
+        let receipt = record_context_outcome(
+            dir.path(),
+            &task,
+            "queue-objective-1",
+            "completed",
+            &["sha256:closure".into()],
+        )
+        .unwrap()
+        .unwrap();
+
+        assert_eq!(receipt.objective_id, "objective-1");
+        assert_eq!(receipt.influenced_memory_refs, vec!["memory-1"]);
+        assert_eq!(
+            MnemosyneService::new(memory_root)
+                .unwrap()
+                .context_outcome_receipts()
+                .unwrap()
+                .len(),
+            1
+        );
     }
 
     #[test]

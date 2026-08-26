@@ -53,6 +53,7 @@ pub fn project_terminal_outcome(
     }
     let lock = OpenOptions::new()
         .create(true)
+        .truncate(false)
         .read(true)
         .write(true)
         .open(&lock_path)?;

@@ -1,3 +1,6 @@
+// Axum handlers return concrete responses so every rejection preserves its status and body.
+#![allow(clippy::result_large_err)]
+
 use super::HarnessState;
 use arda_orome::a2a_mesh::{
     A2aHandoffReceipt, A2aMeshError, CapabilityObservation, MeshRegistry, NodeEnrollment,

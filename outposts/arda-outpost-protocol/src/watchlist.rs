@@ -152,34 +152,37 @@ pub struct ResearchQuestion {
     pub backend_suggestion_ids: Vec<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResearchQuestionSpec {
+    pub owner: String,
+    pub question: String,
+    pub rationale: String,
+    pub tags: Vec<String>,
+    pub cadence: WatchlistCadence,
+    pub expires_at_utc: DateTime<Utc>,
+    pub source_policy: WatchlistSourcePolicy,
+    pub evidence_requirements: WatchlistEvidenceRequirements,
+    pub contradiction_policy: ContradictionPolicy,
+    pub budgets: WatchlistBudgets,
+    pub notification_policy: WatchlistNotificationPolicy,
+}
+
 impl ResearchQuestion {
-    pub fn new(
-        owner: impl Into<String>,
-        question: impl Into<String>,
-        rationale: impl Into<String>,
-        tags: Vec<String>,
-        cadence: WatchlistCadence,
-        expires_at_utc: DateTime<Utc>,
-        source_policy: WatchlistSourcePolicy,
-        evidence_requirements: WatchlistEvidenceRequirements,
-        contradiction_policy: ContradictionPolicy,
-        budgets: WatchlistBudgets,
-        notification_policy: WatchlistNotificationPolicy,
-    ) -> Result<Self, WatchlistError> {
+    pub fn new(spec: ResearchQuestionSpec) -> Result<Self, WatchlistError> {
         let question_record = Self {
             schema_version: WATCHLIST_SCHEMA_VERSION.to_owned(),
             question_id: Uuid::new_v4().to_string(),
-            owner: owner.into(),
-            question: question.into(),
-            rationale: rationale.into(),
-            tags,
-            cadence,
-            expires_at_utc,
-            source_policy,
-            evidence_requirements,
-            contradiction_policy,
-            budgets,
-            notification_policy,
+            owner: spec.owner,
+            question: spec.question,
+            rationale: spec.rationale,
+            tags: spec.tags,
+            cadence: spec.cadence,
+            expires_at_utc: spec.expires_at_utc,
+            source_policy: spec.source_policy,
+            evidence_requirements: spec.evidence_requirements,
+            contradiction_policy: spec.contradiction_policy,
+            budgets: spec.budgets,
+            notification_policy: spec.notification_policy,
             state: WatchlistState::Enabled,
             backend_suggestion_ids: Vec::new(),
         };

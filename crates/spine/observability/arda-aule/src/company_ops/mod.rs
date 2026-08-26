@@ -50,6 +50,6 @@ pub enum CompanyOpsEventKind {
     OpportunityObserved(Opportunity),
     ProposalDrafted(ProposalDraft),
     CommitmentApproved(Commitment),
-    ExperimentProposed(RevenueExperiment),
+    ExperimentProposed(Box<RevenueExperiment>),
     OutcomeRecorded(OutcomeReceipt),
 }

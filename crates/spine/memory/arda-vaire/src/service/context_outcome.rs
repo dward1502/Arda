@@ -40,6 +40,16 @@ pub struct ContextOutcomeReceipt {
     pub recorded_at_unix_ms: u128,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ContextOutcomeInput {
+    pub consumer_id: String,
+    pub disposition: ContextDisposition,
+    pub influenced_memory_refs: Vec<String>,
+    pub evidence_refs: Vec<String>,
+    pub rationale: String,
+    pub recorded_at_unix_ms: u128,
+}
+
 impl ContextOutcomeReceipt {
     pub fn has_valid_digest(&self) -> Result<bool> {
         Ok(
@@ -56,20 +66,14 @@ impl MnemosyneService {
     pub fn record_context_outcome(
         &self,
         use_receipt: &ContextUseReceipt,
-        consumer_id: &str,
-        disposition: ContextDisposition,
-        influenced_memory_refs: Vec<String>,
-        evidence_refs: Vec<String>,
-        rationale: impl Into<String>,
-        recorded_at_unix_ms: u128,
+        input: ContextOutcomeInput,
     ) -> Result<ContextOutcomeReceipt> {
-        if !use_receipt.has_valid_digest()? || consumer_id != use_receipt.consumer_id {
+        if !use_receipt.has_valid_digest()? || input.consumer_id != use_receipt.consumer_id {
             return Err(context_error(
                 "context outcome is not bound to a valid use receipt",
             ));
         }
-        let rationale = rationale.into();
-        if rationale.trim().is_empty() {
+        if input.rationale.trim().is_empty() {
             return Err(context_error("context outcome rationale is required"));
         }
         let selected = use_receipt
@@ -77,7 +81,8 @@ impl MnemosyneService {
             .iter()
             .cloned()
             .collect::<BTreeSet<_>>();
-        if influenced_memory_refs
+        if input
+            .influenced_memory_refs
             .iter()
             .any(|value| !selected.contains(value))
         {
@@ -85,7 +90,8 @@ impl MnemosyneService {
                 "influenced memory was not selected in the context capsule",
             ));
         }
-        if disposition != ContextDisposition::Used && !influenced_memory_refs.is_empty() {
+        if input.disposition != ContextDisposition::Used && !input.influenced_memory_refs.is_empty()
+        {
             return Err(context_error(
                 "only used context can claim memory influence",
             ));
@@ -93,7 +99,7 @@ impl MnemosyneService {
         let identity = format!(
             "{}\0{}\0{}",
             use_receipt.receipt_id,
-            consumer_id,
+            input.consumer_id,
             use_receipt.run_id.as_deref().unwrap_or_default()
         );
         let mut receipt = ContextOutcomeReceipt {
@@ -104,13 +110,13 @@ impl MnemosyneService {
             capsule_id: use_receipt.capsule_id.clone(),
             objective_id: use_receipt.objective_id.clone(),
             run_id: use_receipt.run_id.clone(),
-            consumer_id: consumer_id.into(),
-            disposition,
+            consumer_id: input.consumer_id,
+            disposition: input.disposition,
             selected_memory_refs: use_receipt.memory_refs.clone(),
-            influenced_memory_refs,
-            evidence_refs,
-            rationale,
-            recorded_at_unix_ms,
+            influenced_memory_refs: input.influenced_memory_refs,
+            evidence_refs: input.evidence_refs,
+            rationale: input.rationale,
+            recorded_at_unix_ms: input.recorded_at_unix_ms,
         };
         receipt.receipt_digest = receipt_digest(&receipt)?;
 

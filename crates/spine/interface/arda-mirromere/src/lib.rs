@@ -391,9 +391,7 @@ pub fn project_mirromere_surface_at(
         }
     };
 
-    let freshness = if unavailable {
-        MirromereFreshness::Unavailable
-    } else if continuity_unavailable {
+    let freshness = if unavailable || continuity_unavailable {
         MirromereFreshness::Unavailable
     } else if lifecycle_stale || continuity_stale {
         MirromereFreshness::Stale

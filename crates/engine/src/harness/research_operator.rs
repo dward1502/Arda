@@ -526,8 +526,8 @@ mod tests {
     use super::*;
     use arda_orome::types::{InterruptionLedgerDecision, TaskApprovalEnvelope};
     use arda_outpost_protocol::{
-        ContradictionPolicy, WatchlistBudgets, WatchlistCadence, WatchlistEvidenceRequirements,
-        WatchlistNotificationPolicy, WatchlistSourcePolicy,
+        ContradictionPolicy, ResearchQuestionSpec, WatchlistBudgets, WatchlistCadence,
+        WatchlistEvidenceRequirements, WatchlistNotificationPolicy, WatchlistSourcePolicy,
     };
     use axum::extract::ConnectInfo;
     use std::sync::Arc;
@@ -535,36 +535,36 @@ mod tests {
     use tokio::sync::RwLock;
 
     fn question() -> ResearchQuestion {
-        ResearchQuestion::new(
-            "operator-0",
-            "What changed in the Arda runtime?",
-            "Keep the operator brief current.",
-            vec!["runtime".to_string()],
-            WatchlistCadence::Manual,
-            Utc::now() + chrono::Duration::hours(1),
-            WatchlistSourcePolicy {
+        ResearchQuestion::new(ResearchQuestionSpec {
+            owner: "operator-0".to_string(),
+            question: "What changed in the Arda runtime?".to_string(),
+            rationale: "Keep the operator brief current.".to_string(),
+            tags: vec!["runtime".to_string()],
+            cadence: WatchlistCadence::Manual,
+            expires_at_utc: Utc::now() + chrono::Duration::hours(1),
+            source_policy: WatchlistSourcePolicy {
                 policy_id: "public".to_string(),
                 allowed_sources: vec!["docs.rs".to_string()],
                 max_sources_per_run: 2,
                 allow_private_targets: false,
             },
-            WatchlistEvidenceRequirements {
+            evidence_requirements: WatchlistEvidenceRequirements {
                 minimum_canonical_sources: 1,
                 require_canonical_fetch: true,
                 max_source_age_seconds: 3600,
             },
-            ContradictionPolicy::RequireDisclosure,
-            WatchlistBudgets {
+            contradiction_policy: ContradictionPolicy::RequireDisclosure,
+            budgets: WatchlistBudgets {
                 max_results: 2,
                 max_fetch_bytes: 4096,
                 max_tokens: 512,
                 max_attempts: 1,
             },
-            WatchlistNotificationPolicy {
+            notification_policy: WatchlistNotificationPolicy {
                 enabled: false,
                 destination: None,
             },
-        )
+        })
         .expect("valid question")
     }
 

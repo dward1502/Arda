@@ -4,9 +4,9 @@
 //!
 //! Merged surface: resident messaging + A2A/A2H protocol types.
 
+pub mod a2a_mesh;
 #[cfg(feature = "service-runtime")]
 pub mod agent;
-pub mod a2a_mesh;
 pub mod comm;
 pub mod commercial;
 #[cfg(feature = "service-runtime")]

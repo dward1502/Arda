@@ -25,8 +25,7 @@ const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 const OBJECTIVE: &str = "Complete the bounded context-bootstrap check using only the governed capsule. Execute `python3 verify-context-bootstrap.py` as the first and only terminal command, then bind test evidence to that exact terminal call. Do not inspect the directory with ls or pwd.";
 
 fn objective_id(run_id: &str) -> String {
-    std::env::var("ARDA_CONTEXT_OBJECTIVE_ID")
-        .unwrap_or_else(|_| format!("objective-{run_id}"))
+    std::env::var("ARDA_CONTEXT_OBJECTIVE_ID").unwrap_or_else(|_| format!("objective-{run_id}"))
 }
 
 fn objective() -> String {

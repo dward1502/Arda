@@ -1,43 +1,43 @@
 use arda_outpost_protocol::{
-    ContradictionPolicy, ResearchQuestion, ResearchWatchlist, WatchlistBudgets, WatchlistCadence,
-    WatchlistError, WatchlistEvidenceRequirements, WatchlistNotificationPolicy,
-    WatchlistSourcePolicy, WatchlistState, WATCHLIST_SCHEMA_VERSION,
+    ContradictionPolicy, ResearchQuestion, ResearchQuestionSpec, ResearchWatchlist,
+    WatchlistBudgets, WatchlistCadence, WatchlistError, WatchlistEvidenceRequirements,
+    WatchlistNotificationPolicy, WatchlistSourcePolicy, WatchlistState, WATCHLIST_SCHEMA_VERSION,
 };
 use chrono::{Duration, Utc};
 
 fn question() -> ResearchQuestion {
-    ResearchQuestion::new(
-        "operator@example.test",
-        "What changed in the Arda runtime this week?",
-        "Keep the operator brief current without granting execution authority.",
-        vec!["runtime".into(), "release".into()],
-        WatchlistCadence::Interval {
+    ResearchQuestion::new(ResearchQuestionSpec {
+        owner: "operator@example.test".into(),
+        question: "What changed in the Arda runtime this week?".into(),
+        rationale: "Keep the operator brief current without granting execution authority.".into(),
+        tags: vec!["runtime".into(), "release".into()],
+        cadence: WatchlistCadence::Interval {
             every_seconds: 86_400,
         },
-        Utc::now() + Duration::hours(24),
-        WatchlistSourcePolicy {
+        expires_at_utc: Utc::now() + Duration::hours(24),
+        source_policy: WatchlistSourcePolicy {
             policy_id: "public-docs-v1".into(),
             allowed_sources: vec!["docs".into(), "release-notes".into()],
             max_sources_per_run: 8,
             allow_private_targets: false,
         },
-        WatchlistEvidenceRequirements {
+        evidence_requirements: WatchlistEvidenceRequirements {
             minimum_canonical_sources: 2,
             require_canonical_fetch: true,
             max_source_age_seconds: 86_400,
         },
-        ContradictionPolicy::RequireDisclosure,
-        WatchlistBudgets {
+        contradiction_policy: ContradictionPolicy::RequireDisclosure,
+        budgets: WatchlistBudgets {
             max_results: 10,
             max_fetch_bytes: 256_000,
             max_tokens: 8_000,
             max_attempts: 2,
         },
-        WatchlistNotificationPolicy {
+        notification_policy: WatchlistNotificationPolicy {
             enabled: true,
             destination: Some("operator".into()),
         },
-    )
+    })
     .expect("valid question contract")
 }
 

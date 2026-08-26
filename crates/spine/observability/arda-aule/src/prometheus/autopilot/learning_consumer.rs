@@ -413,7 +413,7 @@ mod tests {
             dir.path().join("consumption.jsonl"),
         )
         .unwrap();
-        assert_eq!(receipt.vaire_receipt_id.len() > 0, true);
+        assert!(!receipt.vaire_receipt_id.is_empty());
         assert!(!receipt.task_promotion_allowed);
         let replay = consume_approved_delta(
             &service,

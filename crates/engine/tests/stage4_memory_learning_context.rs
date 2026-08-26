@@ -1,7 +1,7 @@
 use arda_engine::adapters::PlacementLearningStore;
 use arda_vaire::{
-    ContextDisposition, ContextUseReceipt, GovernedKnowledgeReceipt, MnemosyneService,
-    CONTEXT_USE_RECEIPT_SCHEMA_VERSION, GOVERNED_KNOWLEDGE_SCHEMA_VERSION,
+    ContextDisposition, ContextOutcomeInput, ContextUseReceipt, GovernedKnowledgeReceipt,
+    MnemosyneService, CONTEXT_USE_RECEIPT_SCHEMA_VERSION, GOVERNED_KNOWLEDGE_SCHEMA_VERSION,
 };
 use arda_varda::outcome_learning::{
     evaluate_outcome_learning, OutcomeLearningDecision, OutcomeLearningEvidence,
@@ -64,12 +64,14 @@ fn stage4_context_and_learning_survive_restart_without_duplicate_application() {
     let outcome = service
         .record_context_outcome(
             &use_receipt,
-            "worker-beelink-reassigned",
-            ContextDisposition::Used,
-            vec!["memory-user-correction".into()],
-            vec!["arda://varda/evidence/stage4-terminal".into()],
-            "The reassigned worker used the current operator correction; project state was selected but did not influence the terminal result.",
-            2_000,
+            ContextOutcomeInput {
+                consumer_id: "worker-beelink-reassigned".into(),
+                disposition: ContextDisposition::Used,
+                influenced_memory_refs: vec!["memory-user-correction".into()],
+                evidence_refs: vec!["arda://varda/evidence/stage4-terminal".into()],
+                rationale: "The reassigned worker used the current operator correction; project state was selected but did not influence the terminal result.".into(),
+                recorded_at_unix_ms: 2_000,
+            },
         )
         .unwrap();
     drop(service);
@@ -78,12 +80,14 @@ fn stage4_context_and_learning_survive_restart_without_duplicate_application() {
     let replayed_outcome = reopened
         .record_context_outcome(
             &use_receipt,
-            "worker-beelink-reassigned",
-            ContextDisposition::Used,
-            vec!["memory-user-correction".into()],
-            vec!["arda://varda/evidence/stage4-terminal".into()],
-            "The reassigned worker used the current operator correction; project state was selected but did not influence the terminal result.",
-            2_000,
+            ContextOutcomeInput {
+                consumer_id: "worker-beelink-reassigned".into(),
+                disposition: ContextDisposition::Used,
+                influenced_memory_refs: vec!["memory-user-correction".into()],
+                evidence_refs: vec!["arda://varda/evidence/stage4-terminal".into()],
+                rationale: "The reassigned worker used the current operator correction; project state was selected but did not influence the terminal result.".into(),
+                recorded_at_unix_ms: 2_000,
+            },
         )
         .unwrap();
     assert_eq!(outcome, replayed_outcome);

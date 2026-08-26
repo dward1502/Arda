@@ -5,7 +5,7 @@
 use super::decomposer::PlannedTask;
 use super::delegation::DelegationReport;
 use super::planner::ObjectivePacket;
-use super::queue_writer::append_plan_to_queue_with_gate_metadata;
+use super::queue_writer::{append_plan_to_queue_with_gate_metadata, QueueGateMetadata};
 use serde::Serialize;
 use std::path::Path;
 
@@ -130,11 +130,13 @@ pub fn append_approved_packet_plan(
         objective_id,
         plan,
         delegation,
-        oracle_conditions,
-        autonomy_readiness_decision,
-        autonomy_readiness_reasons,
-        Some(&packet.packet_id),
-        packet.approval_packet_id.as_deref(),
+        QueueGateMetadata {
+            oracle_conditions,
+            autonomy_readiness_decision,
+            autonomy_readiness_reasons,
+            source_objective_packet_id: Some(&packet.packet_id),
+            approval_packet_id: packet.approval_packet_id.as_deref(),
+        },
     ) {
         Ok(appended_task_ids) => QueueOperation {
             contract: QUEUE_OPERATION_CONTRACT.into(),

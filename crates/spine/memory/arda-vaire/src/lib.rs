@@ -16,7 +16,8 @@ pub use service::{
         CONTEXT_CAPSULE_SCHEMA_VERSION, CONTEXT_USE_RECEIPT_SCHEMA_VERSION,
     },
     context_outcome::{
-        ContextDisposition, ContextOutcomeReceipt, CONTEXT_OUTCOME_RECEIPT_SCHEMA_VERSION,
+        ContextDisposition, ContextOutcomeInput, ContextOutcomeReceipt,
+        CONTEXT_OUTCOME_RECEIPT_SCHEMA_VERSION,
     },
     continuity::{
         ContinuityPrivacyClass, ContinuityProvenance, ContinuityRecord, SurfaceHistoryEntry,

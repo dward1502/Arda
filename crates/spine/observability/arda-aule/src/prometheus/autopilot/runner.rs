@@ -2626,10 +2626,8 @@ fn objective_from_queue_record(record: &QueueRecord) -> Option<Objective> {
 
 fn queue_record_approval_packet_id(record: &QueueRecord) -> Option<String> {
     let meta = record.extra.get("meta").and_then(Value::as_object)?;
-    let approved = meta.get("mutation_risk").and_then(Value::as_str)
-        == Some("operator-approved")
-        && meta.get("execution_authority").and_then(Value::as_str)
-            == Some("arda_workbench")
+    let approved = meta.get("mutation_risk").and_then(Value::as_str) == Some("operator-approved")
+        && meta.get("execution_authority").and_then(Value::as_str) == Some("arda_workbench")
         && meta
             .get("source_objective_packet_id")
             .and_then(Value::as_str)

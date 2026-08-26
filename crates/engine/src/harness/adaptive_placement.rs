@@ -1,3 +1,6 @@
+// Axum handlers return concrete responses so every rejection preserves its status and body.
+#![allow(clippy::result_large_err)]
+
 use super::{mesh, HarnessState};
 use crate::adapters::PlacementLearningStore;
 use arda_orome::a2a_mesh::{MeshPeerProjection, MeshProjection};

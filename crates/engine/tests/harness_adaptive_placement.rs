@@ -369,7 +369,9 @@ async fn live_stage3_objective_uses_core_and_beelink_without_workflow_changes() 
         "Review the Stage 3 adaptive placement slice for implementation correctness and unresolved operational risk".to_owned()
     });
     let response = client
-        .post(format!("http://{root_addr}/v1/adaptive-placement/objectives"))
+        .post(format!(
+            "http://{root_addr}/v1/adaptive-placement/objectives"
+        ))
         .header("x-arda-operator-id", "operator:placement-proof")
         .json(&json!({
             "objective_id": objective_id,
@@ -383,7 +385,9 @@ async fn live_stage3_objective_uses_core_and_beelink_without_workflow_changes() 
             "max_cost_usd": 0.01,
             "execute": true
         }))
-        .send().await.unwrap();
+        .send()
+        .await
+        .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
     let body: Value = response.json().await.unwrap();
     assert_eq!(

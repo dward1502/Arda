@@ -48,9 +48,9 @@ pub use research_beta::{
     RESEARCH_BETA_POLICY_SCHEMA,
 };
 pub use watchlist::{
-    ContradictionPolicy, ResearchQuestion, ResearchWatchlist, WatchlistBudgets, WatchlistCadence,
-    WatchlistError, WatchlistEvidenceRequirements, WatchlistNotificationPolicy,
-    WatchlistSourcePolicy, WatchlistState, WATCHLIST_SCHEMA_VERSION,
+    ContradictionPolicy, ResearchQuestion, ResearchQuestionSpec, ResearchWatchlist,
+    WatchlistBudgets, WatchlistCadence, WatchlistError, WatchlistEvidenceRequirements,
+    WatchlistNotificationPolicy, WatchlistSourcePolicy, WatchlistState, WATCHLIST_SCHEMA_VERSION,
 };
 
 pub const SCHEMA_VERSION: &str = "arda.outpost.observation.v1";

@@ -354,7 +354,7 @@ mod tests {
             "normalized URL: {:?}",
             input.canonical_url
         );
-        let approved = evaluate_external_lane(input.clone(), now).unwrap();
+        let approved = evaluate_external_lane(input, now).unwrap();
         assert_eq!(approved.decision, EvaluationDecision::ApprovedSafeLocal);
         assert!(approved_delta(&approved, "approved knowledge")
             .unwrap()

@@ -159,7 +159,7 @@ pub fn build_projection(
                 commitments.insert(record.commitment_id, record);
             }
             CompanyOpsEventKind::ExperimentProposed(record) => {
-                experiments.insert(record.experiment_id, record);
+                experiments.insert(record.experiment_id, *record);
             }
             CompanyOpsEventKind::OutcomeRecorded(record) => {
                 outcomes.insert(record.receipt_id, record);

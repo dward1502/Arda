@@ -1,0 +1,38 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "rust-standards-assimilation-20260825",
+  "objective_id": "6d4e23ce-35c7-4f62-b8d8-75f0dc46d33d",
+  "nodes": [
+    {
+      "id": "discover-rust-standards",
+      "kind": "research",
+      "state": "pending",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 120000,
+      "idempotency_key": "research-rust-standards-v1",
+      "input_digest": null,
+      "output_digest": null,
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    }
+  ],
+  "edges": [],
+  "provenance": {
+    "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+    "created_by": "operator:mythos",
+    "parent_receipts": [
+      "research-question:6d4e23ce-35c7-4f62-b8d8-75f0dc46d33d"
+    ]
+  }
+}

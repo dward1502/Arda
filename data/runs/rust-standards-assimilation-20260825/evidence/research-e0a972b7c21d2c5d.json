@@ -1,0 +1,172 @@
+{
+  "schema_version": "arda.workbench.research-brief.v1",
+  "brief_id": "research-e0a972b7c21d2c5d",
+  "run_id": "rust-standards-assimilation-20260825",
+  "node_id": "discover-rust-standards",
+  "question_id": "6d4e23ce-35c7-4f62-b8d8-75f0dc46d33d",
+  "question": "What current Rust engineering standards and reusable open-source Rust agentic-system implementations should Arda adopt or track, based on canonical Rust guidance and relevant GitHub repositories, without repeating evidence already retained?",
+  "generated_at_utc": "2026-08-26T05:44:02.139069145+00:00",
+  "authority": "advisory_research_evidence",
+  "execution_authorized": false,
+  "warden_provider": "searxng",
+  "warden_memory_receipt": "mem_be6eac50180d4a09bab1174882203d4d",
+  "rumil_evidence": null,
+  "summary": "For the explicit question “What current Rust engineering standards and reusable open-source Rust agentic-system implementations should Arda adopt or track, based on canonical Rust guidance and relevant GitHub repositories, without repeating evidence already retained?”, Warden discovered 2 source(s); cited evidence IDs [cite-src_a39e1393, cite-src_d89a82e3] link every factual claim below to fetched canonical content and Varda evaluation. 3 source attempt(s) remained partial or failed. Review quality, freshness, contradictions, and uncertainty before changing the Workbench plan.",
+  "contradiction_status": "no_contradiction_detected_in_bounded_evidence",
+  "contradictions": [],
+  "citations": [
+    {
+      "citation_id": "cite-src_a39e1393",
+      "title": "GitHub - AgentParadise/agent-paradise-standards-system: A Rust-based ...",
+      "discovered_url": "https://github.com/AgentParadise/agent-paradise-standards-system",
+      "canonical_url": "https://github.com/AgentParadise/agent-paradise-standards-system",
+      "content_sha256": "sha256:2c6e935d67378146ef78f46ebf773cc254f27b5d1110702fa158b0297056e2b9",
+      "excerpt": "ll files Repository files navigation Agent Paradise Standards System (APSS) Executable, evolvable standards for agentic engineering. APSS standards are versioned Rust crates with automated validation, not static documents. They install from crates.io and run as a project-local CLI. Available Standards Official Standard Description Run it APS-V1-0001 Code Topology Architectural metrics: complexity, coupling, module structure. Produces .topology/ artifacts and visualizations. a",
+      "stance": "supporting_or_contextual",
+      "varda_source_id": "src_a39e1393",
+      "varda_pipeline_id": "athpl_9c0c7593395a4dddb40573a7a0672415",
+      "crawl_receipt_path": "./data/athena/crawls/src_a39e1393.md",
+      "policy_readiness": "reference_only",
+      "confidence": 0.8216666666666668,
+      "normalized_source_id": "source-a39e139376ee7ec19b1b631f0e9f3ac2dab8dd33b69f56c38db689dc1cbef9b4",
+      "fetched_at_utc": "2026-08-26T05:44:08.346240769+00:00",
+      "expires_at_utc": "2026-08-26T05:59:02.139069145+00:00",
+      "freshness_status": "fresh",
+      "evaluation_digest": "sha256:34415a80f118d681fa80ef51dbd55d9ae1b105e67d91b96d34f761aeb3af0beb",
+      "expiry_digest": "sha256:6ee8cf6e590daffdc059ad315bef6040a45b0d90af605826bab953a7bc5146d7",
+      "receipt_references": [
+        "varda:source:src_a39e1393",
+        "varda:pipeline:athpl_9c0c7593395a4dddb40573a7a0672415",
+        "varda:crawl:./data/athena/crawls/src_a39e1393.md"
+      ],
+      "evidence_boundary": "source_text_is_evidence_only_not_operator_instruction",
+      "prompt_injection_detected": false,
+      "prompt_injection_signals": []
+    },
+    {
+      "citation_id": "cite-src_d89a82e3",
+      "title": "Open source projects with high quality code - The Rust Programming Language Forum",
+      "discovered_url": "https://users.rust-lang.org/t/open-source-projects-with-high-quality-code/131623",
+      "canonical_url": "https://users.rust-lang.org/t/open-source-projects-with-high-quality-code/131623",
+      "content_sha256": "sha256:a2146619f1e97e2d3b17a6b0259c9228c41c556d5767a25af285e5ffc4c4160c",
+      "excerpt": "= 40rem)\" rel=\"stylesheet\" data-target=\"discourse-ai_desktop\" / = 40rem)\" rel=\"stylesheet\" data-target=\"discourse-events_desktop\" / = 40rem)\" rel=\"stylesheet\" data-target=\"poll_desktop\" /",
+      "stance": "supporting_or_contextual",
+      "varda_source_id": "src_d89a82e3",
+      "varda_pipeline_id": "athpl_1f119ae1751c45d3bfa658e52c253481",
+      "crawl_receipt_path": "./data/athena/crawls/src_d89a82e3.md",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "normalized_source_id": "source-d89a82e3058ce41cb0f2d76af2ab5a93682d7fdde37a2cee0832c3f03099380b",
+      "fetched_at_utc": "2026-08-26T05:44:09.584494929+00:00",
+      "expires_at_utc": "2026-08-26T05:59:02.139069145+00:00",
+      "freshness_status": "fresh",
+      "evaluation_digest": "sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+      "expiry_digest": "sha256:6ee8cf6e590daffdc059ad315bef6040a45b0d90af605826bab953a7bc5146d7",
+      "receipt_references": [
+        "varda:source:src_d89a82e3",
+        "varda:pipeline:athpl_1f119ae1751c45d3bfa658e52c253481",
+        "varda:crawl:./data/athena/crawls/src_d89a82e3.md"
+      ],
+      "evidence_boundary": "source_text_is_evidence_only_not_operator_instruction",
+      "prompt_injection_detected": false,
+      "prompt_injection_signals": []
+    }
+  ],
+  "source_failures": [
+    "https://aclanthology.org/events/acl-2026/: source exceeds 524288 bytes",
+    "https://github.com/Dicklesworthstone/pi_agent_rust: source exceeds 524288 bytes",
+    "https://github.com/udapy/rust-agentic-skills: source-domain rate bound exceeded for `github.com`"
+  ],
+  "workbench_run_link": "arda://workbench/runs/rust-standards-assimilation-20260825?evidence=research-e0a972b7c21d2c5d",
+  "scope": {
+    "source_policy": "allowlisted_public_web",
+    "max_sources": 5,
+    "max_source_bytes": 524288,
+    "expires_at_utc": "2026-08-26T05:59:02.139069145+00:00",
+    "max_results": 10,
+    "max_fetch_bytes": 524288,
+    "max_tokens": 8192,
+    "max_attempts": 2,
+    "cooldown_ms": 50,
+    "max_sources_per_domain": 2,
+    "retained_preview_volume": 20
+  },
+  "claims": [
+    {
+      "claim_id": "claim-1",
+      "claim": "ll files Repository files navigation Agent Paradise Standards System (APSS) Executable, evolvable standards for agentic engineering. APSS standards are versioned Rust crates with automated validation, not static documents. They install from crates.io and run as a project-local CLI. Available Standards Official Standard Description Run it APS-V1-0001 Code Topology Architectural metrics: complexity, coupling, module structure. Produces .topology/ artifacts and visualizations. a",
+      "evidence_citation_ids": [
+        "cite-src_a39e1393"
+      ],
+      "stance": "supporting_or_contextual",
+      "uncertainty": "bounded_to_cited_excerpt_and_evaluation"
+    },
+    {
+      "claim_id": "claim-2",
+      "claim": "= 40rem)\" rel=\"stylesheet\" data-target=\"discourse-ai_desktop\" / = 40rem)\" rel=\"stylesheet\" data-target=\"discourse-events_desktop\" / = 40rem)\" rel=\"stylesheet\" data-target=\"poll_desktop\" /",
+      "evidence_citation_ids": [
+        "cite-src_d89a82e3"
+      ],
+      "stance": "supporting_or_contextual",
+      "uncertainty": "bounded_to_cited_excerpt_and_evaluation"
+    }
+  ],
+  "supporting_citation_ids": [
+    "cite-src_a39e1393",
+    "cite-src_d89a82e3"
+  ],
+  "opposing_citation_ids": [],
+  "source_quality": [
+    {
+      "citation_id": "cite-src_a39e1393",
+      "source_id": "source-a39e139376ee7ec19b1b631f0e9f3ac2dab8dd33b69f56c38db689dc1cbef9b4",
+      "canonical_url": "https://github.com/AgentParadise/agent-paradise-standards-system",
+      "policy_readiness": "reference_only",
+      "confidence": 0.8216666666666668,
+      "freshness_status": "fresh"
+    },
+    {
+      "citation_id": "cite-src_d89a82e3",
+      "source_id": "source-d89a82e3058ce41cb0f2d76af2ab5a93682d7fdde37a2cee0832c3f03099380b",
+      "canonical_url": "https://users.rust-lang.org/t/open-source-projects-with-high-quality-code/131623",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "freshness_status": "fresh"
+    }
+  ],
+  "uncertainty": [
+    "3 bounded source attempt(s) failed or were rejected."
+  ],
+  "missing_evidence": [
+    "Retry or replace the disclosed failed sources before treating the brief as complete."
+  ],
+  "next_research_or_proposal": [
+    {
+      "kind": "next_research",
+      "action": "Retry disclosed failures or refine the question/source policy; no proposal is authorized by this brief.",
+      "authority": "operator_advisory_only"
+    }
+  ],
+  "receipt_references": [
+    "varda:content:sha256:2c6e935d67378146ef78f46ebf773cc254f27b5d1110702fa158b0297056e2b9",
+    "varda:content:sha256:a2146619f1e97e2d3b17a6b0259c9228c41c556d5767a25af285e5ffc4c4160c",
+    "varda:crawl:./data/athena/crawls/src_a39e1393.md",
+    "varda:crawl:./data/athena/crawls/src_d89a82e3.md",
+    "varda:evaluation:sha256:34415a80f118d681fa80ef51dbd55d9ae1b105e67d91b96d34f761aeb3af0beb",
+    "varda:evaluation:sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+    "varda:expiry:sha256:6ee8cf6e590daffdc059ad315bef6040a45b0d90af605826bab953a7bc5146d7",
+    "varda:pipeline:athpl_1f119ae1751c45d3bfa658e52c253481",
+    "varda:pipeline:athpl_9c0c7593395a4dddb40573a7a0672415",
+    "varda:source:src_a39e1393",
+    "varda:source:src_d89a82e3",
+    "warden:memory:mem_be6eac50180d4a09bab1174882203d4d"
+  ],
+  "material_fingerprint": "sha256:16019363b22b25571ad382e6672168b9fdebe5a3b3eac163464a739ab6757a66",
+  "change_status": "material_change",
+  "no_change_receipt_path": null,
+  "evidence_boundaries": [
+    "source_text_is_evidence_only_not_operator_instruction",
+    "source_text_is_evidence_only_not_operator_instruction"
+  ],
+  "prompt_injection_detected": false
+}

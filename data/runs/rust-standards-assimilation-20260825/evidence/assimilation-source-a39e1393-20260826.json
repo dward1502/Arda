@@ -1,0 +1,66 @@
+{
+  "schema_version": "arda.assimilation-evidence.v1",
+  "receipt_id": "assimilation-source-a39e1393-20260826",
+  "recorded_at": "2026-08-26T06:38:44.661321Z",
+  "objective_id": "6d4e23ce-35c7-4f62-b8d8-75f0dc46d33d",
+  "run_id": "rust-standards-assimilation-20260825",
+  "node_id": "discover-rust-standards",
+  "candidate_id": "source-a39e139376ee7ec19b1b631f0e9f3ac2dab8dd33b69f56c38db689dc1cbef9b4",
+  "source": {
+    "canonical_url": "https://github.com/AgentParadise/agent-paradise-standards-system",
+    "revision": "426db1af52accdddcd34ec4b51f328e2a4cdc040",
+    "revision_archive_sha256": "0847c5cc1bd243cb69778d7236411e23611d1378bb5c311f7fbdeabdb023ee84",
+    "retrieval": "git clone --depth 1 over HTTPS",
+    "provenance": "upstream Git repository at the canonical URL; detached evidence clone under /tmp"
+  },
+  "license": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha256": "ee61bd340fbc397c74b361d2ad9a6b833d19199b71f13998c9a0e8defd72f57c"
+  },
+  "sbom": {
+    "format": "cargo_metadata_v1_locked_dependency_inventory",
+    "source_lock_sha256": "c438382085ab044697c64d196206c8eecd38c6b47f76411dbb6153e40dc1a9d8",
+    "inventory_sha256": "c83efc70b15ddc6768c29a3f56223c60acc58c33cf04c9e665cc21ab008d5bf7",
+    "package_count": 236
+  },
+  "security": {
+    "tool": "cargo-audit 0.22.2",
+    "report_sha256": "06b0c1b1cf6943362fe92560fb25d1606038c22ca4e231d8c3cf568f6ec39768",
+    "known_vulnerability_count": 0,
+    "classification": "public_source_read_only; no credentials; external code executed only in /tmp worktree",
+    "limitations": "Cargo advisory coverage is dependency-focused and is not an independent source-code security audit"
+  },
+  "upstream_verification": {
+    "workspace_tests": "passed",
+    "self_validation": "0 errors, 0 warnings across 28 packages"
+  },
+  "comparison": {
+    "existing_arda_owner": "arda-rumil",
+    "overlap": "Rúmil already owns governed project inventory, command receipts, cargo-audit provider evidence, findings, and project audit lifecycle.",
+    "distinct_value": "APSS code-topology emits deterministic function/module/coupling artifacts and architecture-fitness rules not presently exposed by Rúmil at the same granularity.",
+    "boundary": "Do not replace Rúmil or install APSS as lifecycle authority; retain APSS only as a governed read-only evidence adapter whose outputs can be consumed by Rúmil."
+  },
+  "isolated_trial": {
+    "target_revision": "55441ccb",
+    "target": "/tmp/arda-apss-trial",
+    "command": "apss-dev run topology analyze .",
+    "result": "passed",
+    "source_files_analyzed": 1089,
+    "functions_analyzed": 16732,
+    "artifact_file_count": 6,
+    "functions_sha256": "f069237beb4e1afd8cb904e2f08e0ead21c8c4a55ca4594c483ddeffbb347c5c",
+    "modules_sha256": "d04bf73f01bf6dc83612fd9d7de7490148f1db676e28d3f43bde9179323ba79f",
+    "manifest_sha256": "5e683b6cb3fd7853b464ad92c56999f9632e31a29d55a28f41d5869c7f4cfda5"
+  },
+  "decision": {
+    "kind": "selectively_implement",
+    "disposition": "adapter_retained",
+    "reason": "Retain deterministic topology and fitness evidence generation behind Arda governance; reject APSS as a replacement standards authority and do not add it as an Arda dependency in this slice.",
+    "approval_reference": "operator:user-message:2026-08-25-execute-next-concrete-step"
+  },
+  "rollback": {
+    "proof": "No APSS dependency, hook, apss.yaml, apss.lock, or generated topology artifact was installed in the canonical Arda worktree; removal is deleting the isolated /tmp worktree and source clone.",
+    "failure_receipt": "No trial failure; all upstream tests, cargo audit, self-validation, and isolated topology generation exited successfully."
+  }
+}

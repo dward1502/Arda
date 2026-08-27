@@ -44,6 +44,28 @@ Run the static verifier independently with:
 scripts/verify_arda_user_units.sh
 ```
 
+## Governed work cycles
+
+- Enable `arda-aule-autopilot.timer` for the production governed admission
+  cycle. It may admit only governance-authorized reversible work; consequential
+  actions still require operator approval lineage.
+- `arda-aule-autopilot-read-only.timer` is the diagnostic alternative. Do not
+  enable it alongside the governed timer because both units inspect and project
+  the same operating-loop state.
+- Enable `arda-workbench-queue-executor.timer` to consume eligible canonical
+  queue work through the bounded Workbench adapter once per minute.
+
+Install the source-current CLI and all six automation unit templates atomically,
+then activate the governed admission and Workbench timers with:
+
+```bash
+scripts/install_arda_automation_units.sh
+```
+
+The installer records a timestamped rollback bundle under
+`~/.local/state/arda/rollback/`, disables the superseded read-only timer, and
+enables the governed admission and Workbench execution timers.
+
 ## Contents
 
 See `INDEX.md` for deterministic child listing.

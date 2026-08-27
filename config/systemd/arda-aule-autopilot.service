@@ -1,0 +1,32 @@
+[Unit]
+Description=Arda Aule governed CEO Autopilot Cycle
+Documentation=file:///var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/README.md
+After=network-online.target arda.service
+Wants=network-online.target
+Requires=arda.service
+ConditionPathExists=%h/Eregion/Arda/core/projects/tasks/queue.jsonl
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Eregion/Arda
+Environment=ARDA_ROOT=%h/Eregion/Arda
+Environment=ARDA_PROJECT_TASK_QUEUE_PATH=core/projects/tasks/queue.jsonl
+Environment=PATH=/usr/local/bin:/usr/bin
+ExecStart=%h/.local/bin/arda-cli prometheus autopilot once --root %h/Eregion/Arda --state-output %h/Eregion/Arda/data/ceo/autopilot.governed.state.json
+TimeoutStartSec=25min
+Nice=10
+
+# Governance inside Aule limits mutation to authorized reversible work.
+# Consequential actions continue to require operator approval lineage.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/Eregion/Arda
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+SystemCallArchitectures=native

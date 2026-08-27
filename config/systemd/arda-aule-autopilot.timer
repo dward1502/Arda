@@ -1,0 +1,13 @@
+[Unit]
+Description=Run Arda Aule governed CEO Autopilot Every 10 Minutes
+Conflicts=arda-aule-autopilot-read-only.timer
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+AccuracySec=30s
+Persistent=true
+Unit=arda-aule-autopilot.service
+
+[Install]
+WantedBy=timers.target

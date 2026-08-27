@@ -21,6 +21,8 @@ pub struct ExecutionOutcomeProjectionReceipt {
     pub task_id: String,
     pub recommendation_id: String,
     pub approval_packet_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub governance_authorization_id: Option<String>,
     pub workbench_run_id: String,
     pub status: String,
     pub result: String,
@@ -74,6 +76,11 @@ pub fn project_terminal_outcome(
             .and_then(Value::as_str)
             .unwrap_or("unknown-approval")
             .to_owned();
+        let governance_authorization_id = meta
+            .and_then(|value| value.get("governance_authorization_id"))
+            .and_then(Value::as_str)
+            .filter(|value| !value.trim().is_empty())
+            .map(str::to_owned);
         let task_type = meta
             .and_then(|value| value.get("action_class"))
             .and_then(Value::as_str)
@@ -88,6 +95,17 @@ pub fn project_terminal_outcome(
 
         let memory = MnemosyneService::new(root.join("data/mnemosyne"))?
             .with_contract_memory_root(root.join("core/state/memory"));
+        let mut memory_tags = vec![
+            "governed".into(),
+            "execution-receipt".into(),
+            format!("task_id:{}", task.id),
+            format!("recommendation_id:{recommendation_id}"),
+            format!("approval_packet_id:{approval_packet_id}"),
+            format!("workbench_run_id:{run_id}"),
+        ];
+        if let Some(authorization_id) = governance_authorization_id.as_deref() {
+            memory_tags.push(format!("governance_authorization_id:{authorization_id}"));
+        }
         let memory_entry = memory.encode(InformantEvent {
             informant_id: "arda_workbench.queue_executor".into(),
             crate_name: "arda-aule".into(),
@@ -100,14 +118,7 @@ pub fn project_terminal_outcome(
                 detail.unwrap_or("none")
             ),
             confidence_hint: Some(1.0),
-            tags: vec![
-                "governed".into(),
-                "execution-receipt".into(),
-                format!("task_id:{}", task.id),
-                format!("recommendation_id:{recommendation_id}"),
-                format!("approval_packet_id:{approval_packet_id}"),
-                format!("workbench_run_id:{run_id}"),
-            ],
+            tags: memory_tags,
         })?;
         let memory_id = memory_entry.map(|entry| entry.memory_id);
 
@@ -121,6 +132,7 @@ pub fn project_terminal_outcome(
                 "task_id": task.id,
                 "recommendation_id": recommendation_id,
                 "approval_packet_id": approval_packet_id,
+                "governance_authorization_id": governance_authorization_id,
                 "workbench_run_id": run_id,
                 "status": status,
                 "result": result,
@@ -139,6 +151,7 @@ pub fn project_terminal_outcome(
             task_id: task.id.clone(),
             recommendation_id,
             approval_packet_id,
+            governance_authorization_id,
             workbench_run_id: run_id.to_owned(),
             status: status.to_owned(),
             result: result.to_owned(),
@@ -301,5 +314,46 @@ mod tests {
             .join("audit/workbench-queue/queue-task-1/execution_receipt.json")
             .exists());
         assert!(first.memory_id.is_some());
+    }
+
+    #[test]
+    fn terminal_projection_preserves_governance_authorization_lineage() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut task = approved_task();
+        let meta = task
+            .extra
+            .get_mut("meta")
+            .and_then(Value::as_object_mut)
+            .unwrap();
+        meta.remove("approval_packet_id");
+        meta.insert(
+            "governance_authorization_id".into(),
+            Value::String("governance-1".into()),
+        );
+        meta.insert(
+            "mutation_risk".into(),
+            Value::String("governance-authorized-reversible".into()),
+        );
+
+        let receipt = project_terminal_outcome(
+            dir.path(),
+            &task,
+            "queue-task-governed",
+            "completed",
+            "completed",
+            Some("sha256:receipt"),
+            Some("done"),
+        )
+        .unwrap();
+        let receipt_json = serde_json::to_value(&receipt).unwrap();
+        assert_eq!(receipt_json["governance_authorization_id"], "governance-1");
+
+        let event = std::fs::read_to_string(
+            dir.path()
+                .join("data/governance/workbench_execution_outcomes.jsonl"),
+        )
+        .unwrap();
+        let event: Value = serde_json::from_str(event.trim()).unwrap();
+        assert_eq!(event["governance_authorization_id"], "governance-1");
     }
 }

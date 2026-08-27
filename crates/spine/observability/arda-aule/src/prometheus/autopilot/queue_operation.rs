@@ -4,6 +4,7 @@
 
 use super::decomposer::PlannedTask;
 use super::delegation::DelegationReport;
+use super::governance_policy::GovernanceGate;
 use super::planner::ObjectivePacket;
 use super::queue_writer::{append_plan_to_queue_with_gate_metadata, QueueGateMetadata};
 use serde::Serialize;
@@ -29,6 +30,7 @@ pub struct QueueOperation {
     pub operation_id: String,
     pub source_objective_packet_id: String,
     pub approval_packet_id: Option<String>,
+    pub governance_authorization_id: Option<String>,
     pub append_target: String,
     pub read_only: bool,
     pub mutation_authorized: bool,
@@ -58,6 +60,7 @@ impl QueueOperation {
             operation_id: operation_id.into(),
             source_objective_packet_id: packet.packet_id.clone(),
             approval_packet_id: packet.approval_packet_id.clone(),
+            governance_authorization_id: None,
             append_target: append_target.as_ref().to_string_lossy().to_string(),
             read_only,
             mutation_authorized: false,
@@ -82,6 +85,33 @@ pub fn append_approved_packet_plan(
     autonomy_readiness_reasons: &[String],
     read_only: bool,
 ) -> QueueOperation {
+    append_packet_plan_with_authority(
+        queue_path,
+        packet,
+        objective_id,
+        plan,
+        delegation,
+        oracle_conditions,
+        autonomy_readiness_decision,
+        autonomy_readiness_reasons,
+        None,
+        read_only,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(super) fn append_packet_plan_with_authority(
+    queue_path: impl AsRef<Path>,
+    packet: &ObjectivePacket,
+    objective_id: &str,
+    plan: &[PlannedTask],
+    delegation: Option<&DelegationReport>,
+    oracle_conditions: &[String],
+    autonomy_readiness_decision: &str,
+    autonomy_readiness_reasons: &[String],
+    governance_authorization_id: Option<&str>,
+    read_only: bool,
+) -> QueueOperation {
     let queue_path = queue_path.as_ref();
     let operation_id = format!("queue_operation:{}", packet.packet_id);
     if read_only {
@@ -104,7 +134,12 @@ pub fn append_approved_packet_plan(
             "objective_packet_not_selected",
         );
     }
-    if packet.approval_packet_id.is_none() {
+    let governance_authorized = governance_authorization_id.is_some_and(|id| !id.trim().is_empty())
+        && matches!(
+            packet.review_gate,
+            GovernanceGate::SafeAutonomous | GovernanceGate::TriadQuorumApproved
+        );
+    if packet.approval_packet_id.is_none() && !governance_authorized {
         return QueueOperation::blocked(
             operation_id,
             packet,
@@ -125,6 +160,13 @@ pub fn append_approved_packet_plan(
         );
     }
 
+    let governance_authorization_id = governance_authorization_id.map(str::to_owned);
+    let mutation_risk = if packet.approval_packet_id.is_some() {
+        "operator-approved"
+    } else {
+        "governance-authorized-reversible"
+    };
+
     match append_plan_to_queue_with_gate_metadata(
         queue_path,
         objective_id,
@@ -136,6 +178,8 @@ pub fn append_approved_packet_plan(
             autonomy_readiness_reasons,
             source_objective_packet_id: Some(&packet.packet_id),
             approval_packet_id: packet.approval_packet_id.as_deref(),
+            governance_authorization_id: governance_authorization_id.as_deref(),
+            mutation_risk,
         },
     ) {
         Ok(appended_task_ids) => QueueOperation {
@@ -143,6 +187,7 @@ pub fn append_approved_packet_plan(
             operation_id,
             source_objective_packet_id: packet.packet_id.clone(),
             approval_packet_id: packet.approval_packet_id.clone(),
+            governance_authorization_id,
             append_target: queue_path.to_string_lossy().to_string(),
             read_only: false,
             mutation_authorized: true,
@@ -208,6 +253,16 @@ mod tests {
         packet
     }
 
+    fn packet_with_gate(
+        selected: bool,
+        approval_packet_id: Option<String>,
+        review_gate: GovernanceGate,
+    ) -> ObjectivePacket {
+        let mut packet = packet(selected, approval_packet_id);
+        packet.review_gate = review_gate;
+        packet
+    }
+
     fn task() -> PlannedTask {
         PlannedTask {
             key: "step".into(),
@@ -251,12 +306,12 @@ mod tests {
     }
 
     #[test]
-    fn queue_operation_requires_explicit_approval_packet() {
+    fn queue_operation_requires_explicit_approval_packet_for_human_gate() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let queue_path = dir.path().join("queue.jsonl");
         let operation = append_approved_packet_plan(
             &queue_path,
-            &packet(true, None),
+            &packet_with_gate(true, None, GovernanceGate::HumanRequired),
             "candidate-1",
             &[task()],
             None,
@@ -275,6 +330,55 @@ mod tests {
             Some("operator_approval_packet_missing")
         );
         assert!(!queue_path.exists());
+    }
+
+    #[test]
+    fn safe_label_without_binding_authority_does_not_append() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let operation = append_approved_packet_plan(
+            &queue_path,
+            &packet(true, None),
+            "candidate-1",
+            &[task()],
+            None,
+            &[],
+            "allow",
+            &[],
+            false,
+        );
+
+        assert_eq!(
+            operation.result_status,
+            QueueOperationStatus::BlockedMissingApproval
+        );
+        assert!(!queue_path.exists());
+    }
+
+    #[test]
+    fn queue_operation_treats_safe_autonomous_governance_as_binding_authority() {
+        let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
+        let queue_path = dir.path().join("queue.jsonl");
+        let operation = append_packet_plan_with_authority(
+            &queue_path,
+            &packet(true, None),
+            "candidate-1",
+            &[task()],
+            None,
+            &[],
+            "allow",
+            &[],
+            Some("governance:objective_packet:candidate-1:safe_local"),
+            false,
+        );
+
+        assert_eq!(operation.result_status, QueueOperationStatus::Appended);
+        assert!(operation.mutation_authorized);
+        assert_eq!(operation.approval_packet_id, None);
+        let contents = std::fs::read_to_string(&queue_path)
+            .unwrap_or_else(|err| panic!("queue read failed: {err}"));
+        assert!(contents.contains("\"mutation_risk\":\"governance-authorized-reversible\""));
+        assert!(contents.contains("\"governance_authorization_id\""));
     }
 
     #[test]
@@ -308,7 +412,7 @@ mod tests {
         let operations = vec![
             append_approved_packet_plan(
                 &queue_path,
-                &packet(true, None),
+                &packet_with_gate(true, None, GovernanceGate::HumanRequired),
                 "candidate-1",
                 &[task()],
                 None,
@@ -319,7 +423,7 @@ mod tests {
             ),
             append_approved_packet_plan(
                 &queue_path,
-                &packet(true, None),
+                &packet_with_gate(true, None, GovernanceGate::HumanRequired),
                 "candidate-2",
                 &[task()],
                 None,

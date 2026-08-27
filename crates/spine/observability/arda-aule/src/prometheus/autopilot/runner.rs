@@ -28,7 +28,9 @@ use super::planner::{
     acceptance_criteria_from_report, source_contract_and_type_for_path, ObjectivePacket,
     ObjectivePacketInput, ObjectivePacketReport,
 };
-use super::queue_operation::{append_approved_packet_plan, QueueOperation, QueueOperationStatus};
+use super::queue_operation::{
+    append_packet_plan_with_authority, QueueOperation, QueueOperationStatus,
+};
 use super::queue_writer::append_apollo_dispatch_attempt_to_queue;
 use super::reporting::{write_daily_report, write_weekly_report};
 use super::service_health::{ServiceHealthMonitor, ServiceHealthReport, UserSystemd};
@@ -39,13 +41,68 @@ use super::validator::{PlanValidator, ValidationResult};
 use crate::prometheus::orders::{OrderStatus, OrderStore};
 use crate::prometheus::queue_authority::canonical_project_task_queue;
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
+use futures::{stream, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
+use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
+
+async fn map_bounded_concurrent<I, O, F, Fut>(items: Vec<I>, limit: usize, dispatch: F) -> Vec<O>
+where
+    F: Fn(I) -> Fut,
+    Fut: Future<Output = O>,
+{
+    stream::iter(items)
+        .map(dispatch)
+        .buffered(limit.max(1))
+        .collect()
+        .await
+}
+
+async fn run_bounded_retry_rounds<I, O, F, Fut, R, P>(
+    items: Vec<I>,
+    limit: usize,
+    max_attempts: u32,
+    dispatch: F,
+    retryable: R,
+    mut persist: P,
+) -> Vec<O>
+where
+    I: Clone,
+    F: Fn(I, u32) -> Fut,
+    Fut: Future<Output = O>,
+    R: Fn(&O) -> bool,
+    P: FnMut(&I, u32, &O) -> bool,
+{
+    let mut pending = items
+        .into_iter()
+        .map(|item| (item, 1_u32))
+        .collect::<Vec<_>>();
+    let mut outputs = Vec::new();
+
+    while !pending.is_empty() {
+        let round = map_bounded_concurrent(pending, limit, |(item, attempt)| {
+            let future = dispatch(item.clone(), attempt);
+            async move { (item, attempt, future.await) }
+        })
+        .await;
+        pending = Vec::new();
+
+        for (item, attempt, output) in round {
+            let persisted = persist(&item, attempt, &output);
+            if persisted && retryable(&output) && attempt < max_attempts {
+                pending.push((item, attempt + 1));
+            }
+            outputs.push(output);
+        }
+    }
+
+    outputs
+}
 
 #[derive(Debug, Clone)]
 pub struct AutopilotConfig {
@@ -634,6 +691,8 @@ fn project_executive_cycle(
         recommendation_id,
         approval_packet_id: queue_operation
             .and_then(|operation| operation.approval_packet_id.clone()),
+        governance_authorization_id: queue_operation
+            .and_then(|operation| operation.governance_authorization_id.clone()),
         proposed_action: selection.next_recommended_action.clone(),
         requested_roles,
         governance_receipt_ref: queue_operation
@@ -1603,13 +1662,21 @@ impl CeoAutopilot {
             }
 
             let plan_joules = plan.iter().map(|task| task.joule_cost).sum::<f64>();
+            let binding_governance_authorized = governance.allowed_to_delegate
+                && matches!(
+                    governance.gate,
+                    GovernanceGate::SafeAutonomous | GovernanceGate::TriadQuorumApproved
+                );
             if validation.ok
                 && gate.allows_delegation()
                 && (governance.allowed_to_delegate || cycle_obj.human_approved)
                 && !self.cfg.read_only
             {
                 let operator_approved = cycle_obj.objective_packet.approval_packet_id.is_some();
-                if !autonomy_readiness.task_promotion_allowed && !operator_approved {
+                if !autonomy_readiness.task_promotion_allowed
+                    && !operator_approved
+                    && !binding_governance_authorized
+                {
                     let mut queue_packet = cycle_obj.objective_packet.clone();
                     queue_packet.canonical_queue_mutation_allowed =
                         queue_packet.approval_packet_id.is_some();
@@ -1645,8 +1712,14 @@ impl CeoAutopilot {
                     };
                     let mut queue_packet = cycle_obj.objective_packet.clone();
                     queue_packet.canonical_queue_mutation_allowed =
-                        queue_packet.approval_packet_id.is_some();
-                    let operation = append_approved_packet_plan(
+                        queue_packet.approval_packet_id.is_some() || binding_governance_authorized;
+                    let governance_authorization_id = binding_governance_authorized.then(|| {
+                        format!(
+                            "governance:{}:{}",
+                            queue_packet.packet_id, governance.action_class
+                        )
+                    });
+                    let operation = append_packet_plan_with_authority(
                         &self.cfg.queue_path,
                         &queue_packet,
                         &obj.id,
@@ -1655,7 +1728,8 @@ impl CeoAutopilot {
                         oracle_conditions,
                         &autonomy_readiness.decision,
                         &autonomy_readiness.reasons,
-                        self.cfg.read_only,
+                        governance_authorization_id.as_deref(),
+                        false,
                     );
                     let ids = if operation.result_status == QueueOperationStatus::Appended {
                         operation.appended_task_ids.clone()
@@ -1679,17 +1753,19 @@ impl CeoAutopilot {
                                 oracle_conditions,
                             )
                             .await;
-                            let _ = append_apollo_dispatch_attempt_to_queue(
+                            let appended = append_apollo_dispatch_attempt_to_queue(
                                 &self.cfg.queue_path,
                                 &obj.id,
                                 pt,
                                 &dr,
                                 attempt,
                                 max_attempts,
-                            );
-                            let should_retry = dispatch_retryable(&dr) && attempt < max_attempts;
+                            )
+                            .unwrap_or(false);
+                            let should_retry =
+                                dispatch_attempt_should_retry(&dr, attempt, max_attempts, appended);
                             let final_failure = dispatch_retryable(&dr) && attempt == max_attempts;
-                            if final_failure {
+                            if !appended || final_failure {
                                 self.escalate_failed_apollo_dispatch(&attempt_qid, pt, &dr);
                             }
                             apollo_dispatches.push(dr);
@@ -1942,21 +2018,29 @@ impl CeoAutopilot {
 
     async fn execute_pending_plan_steps(&self) -> Vec<Dispatch> {
         let steps = load_pending_plan_steps(&self.cfg.queue_path);
-        let mut dispatches = Vec::new();
-        for step in steps {
-            let max_attempts = self.cfg.apollo_max_attempts.max(1);
-            for attempt in 1..=max_attempts {
-                let attempt_qid = if attempt == 1 {
-                    step.queue_id.clone()
-                } else {
-                    format!("{}__retry{}", step.queue_id, attempt)
-                };
-                let dispatch = executor_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await;
+        let worker_capacity = self
+            .registry
+            .agents()
+            .map(|agent| agent.max_concurrent.saturating_sub(agent.current_load))
+            .sum::<usize>()
+            .max(1);
+        let max_attempts = self.cfg.apollo_max_attempts.max(1);
+        run_bounded_retry_rounds(
+            steps,
+            worker_capacity,
+            max_attempts,
+            |step, attempt| async move {
+                let attempt_qid = plan_step_attempt_queue_id(&step.queue_id, attempt);
+                executor_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await
+            },
+            dispatch_retryable,
+            |step, attempt, dispatch| {
+                let attempt_qid = plan_step_attempt_queue_id(&step.queue_id, attempt);
                 let appended = append_apollo_dispatch_attempt_to_queue(
                     &self.cfg.queue_path,
                     &step.objective_id,
                     &step.plan,
-                    &dispatch,
+                    dispatch,
                     attempt,
                     max_attempts,
                 )
@@ -1964,24 +2048,20 @@ impl CeoAutopilot {
                 if !appended {
                     let _ = append_skipped_plan_step_to_queue(
                         &self.cfg.queue_path,
-                        &step,
-                        &dispatch,
+                        step,
+                        dispatch,
                         attempt,
                         max_attempts,
                     );
                 }
-                let should_retry = dispatch_retryable(&dispatch) && attempt < max_attempts;
-                let final_failure = dispatch_retryable(&dispatch) && attempt == max_attempts;
+                let final_failure = dispatch_retryable(dispatch) && attempt == max_attempts;
                 if final_failure || !appended {
-                    self.escalate_failed_apollo_dispatch(&attempt_qid, &step.plan, &dispatch);
+                    self.escalate_failed_apollo_dispatch(&attempt_qid, &step.plan, dispatch);
                 }
-                dispatches.push(dispatch);
-                if !should_retry {
-                    break;
-                }
-            }
-        }
-        dispatches
+                appended
+            },
+        )
+        .await
     }
 
     pub fn observe_outcome(
@@ -2263,25 +2343,6 @@ fn select_cycle_objectives(
                 } else {
                     "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection".into()
                 });
-            }
-            reports.push(candidate.report);
-            continue;
-        }
-
-        if candidate.report.governance_class == "arandur_recommendation"
-            && candidate.report.approval_packet_id.is_none()
-        {
-            candidate.report.review_gate = GovernanceGate::ReviewRequired;
-            candidate.report.blocked_reason_code = Some("operator_approval_packet_missing".into());
-            if selected.is_some() {
-                candidate.report.rejection_reason =
-                    Some("another higher-priority candidate was selected".into());
-            } else {
-                objectives_blocked_by_gate += 1;
-                candidate.report.rejection_reason = Some(
-                    "blocked_by_gate:ReviewRequired:Arandur recommendation requires an explicit operator approval packet before canonical selection"
-                        .into(),
-                );
             }
             reports.push(candidate.report);
             continue;
@@ -2959,6 +3020,14 @@ fn append_skipped_plan_step_to_queue(
     writeln!(f, "{}", record)
 }
 
+fn plan_step_attempt_queue_id(queue_id: &str, attempt: u32) -> String {
+    if attempt == 1 {
+        queue_id.to_owned()
+    } else {
+        format!("{queue_id}__retry{attempt}")
+    }
+}
+
 fn dispatch_retryable(dispatch: &Dispatch) -> bool {
     matches!(
         dispatch,
@@ -2967,6 +3036,15 @@ fn dispatch_retryable(dispatch: &Dispatch) -> bool {
             ..
         }
     )
+}
+
+fn dispatch_attempt_should_retry(
+    dispatch: &Dispatch,
+    attempt: u32,
+    max_attempts: u32,
+    attempt_persisted: bool,
+) -> bool {
+    attempt_persisted && dispatch_retryable(dispatch) && attempt < max_attempts
 }
 
 /// Resolve the Apollo IPC socket path used for autopilot dispatch.
@@ -3439,6 +3517,101 @@ default_policy = "ledger_before_task"
 
         let inbox = std::fs::read_to_string(&cfg.objectives_path).unwrap();
         assert!(inbox.trim().is_empty());
+    }
+
+    #[tokio::test]
+    async fn binding_safe_governance_activates_queue_while_readiness_is_held() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let cfg = AutopilotConfig::from_root(dir.path());
+        std::fs::create_dir_all(cfg.queue_path.parent().expect("queue parent")).expect("queue dir");
+        std::fs::write(&cfg.queue_path, "").expect("queue");
+        std::fs::create_dir_all(
+            cfg.arandur_recommendations_path
+                .parent()
+                .expect("recommendations parent"),
+        )
+        .expect("recommendations dir");
+        std::fs::write(
+            &cfg.arandur_recommendations_path,
+            r#"{"recommendation_id":"reco-governed-refactor","review_required":false,"candidate":{"id":"governed_refactor","owner":"prometheus","priority":"high","title":"Refactor module x"}}
+"#,
+        )
+        .expect("recommendation");
+
+        let mut autopilot = CeoAutopilot::new(cfg, AgentRegistry::new());
+        let report = autopilot.run_cycle().await;
+
+        assert_eq!(report.autonomy_readiness.decision, "hold");
+        let plan = report
+            .plans
+            .first()
+            .unwrap_or_else(|| panic!("governed objective was not planned: {report:#?}"));
+        let operation = plan.queue_operation.as_ref().expect("queue operation");
+        assert_eq!(operation.result_status, QueueOperationStatus::Appended);
+        assert!(operation.approval_packet_id.is_none());
+        assert!(operation
+            .governance_authorization_id
+            .as_deref()
+            .is_some_and(|id| id.starts_with("governance:")));
+    }
+
+    #[tokio::test]
+    async fn bounded_dispatch_runs_independent_items_concurrently() {
+        let active = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let peak = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let outputs = map_bounded_concurrent(vec![1_u8, 2, 3, 4], 2, {
+            let active = Arc::clone(&active);
+            let peak = Arc::clone(&peak);
+            move |item| {
+                let active = Arc::clone(&active);
+                let peak = Arc::clone(&peak);
+                async move {
+                    let now = active.fetch_add(1, Ordering::SeqCst) + 1;
+                    peak.fetch_max(now, Ordering::SeqCst);
+                    tokio::time::sleep(Duration::from_millis(20)).await;
+                    active.fetch_sub(1, Ordering::SeqCst);
+                    item
+                }
+            }
+        })
+        .await;
+
+        assert_eq!(peak.load(Ordering::SeqCst), 2);
+        assert_eq!(outputs.len(), 4);
+    }
+
+    #[tokio::test]
+    async fn retry_round_persists_each_attempt_before_dispatching_the_next() {
+        let persisted_attempt = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let outputs = run_bounded_retry_rounds(
+            vec!["task"],
+            1,
+            2,
+            {
+                let persisted_attempt = Arc::clone(&persisted_attempt);
+                move |_task, attempt| {
+                    let persisted_attempt = Arc::clone(&persisted_attempt);
+                    async move {
+                        if attempt == 2 {
+                            assert_eq!(persisted_attempt.load(Ordering::SeqCst), 1);
+                        }
+                        attempt
+                    }
+                }
+            },
+            |attempt| *attempt == 1,
+            {
+                let persisted_attempt = Arc::clone(&persisted_attempt);
+                move |_task, attempt, _output| {
+                    persisted_attempt.store(attempt as usize, Ordering::SeqCst);
+                    true
+                }
+            },
+        )
+        .await;
+
+        assert_eq!(outputs, vec![1, 2]);
+        assert_eq!(persisted_attempt.load(Ordering::SeqCst), 2);
     }
 
     #[tokio::test]
@@ -3930,7 +4103,7 @@ default_policy = "ledger_before_task"
     }
 
     #[test]
-    fn objective_selection_requires_approval_packet_for_cleared_arandur_recommendations() {
+    fn objective_selection_routes_cleared_arandur_recommendations_through_governance() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let cfg = AutopilotConfig::from_root(dir.path());
         std::fs::create_dir_all(
@@ -3954,20 +4127,22 @@ default_policy = "ledger_before_task"
             Vec::new(),
         );
 
-        assert!(objectives.is_empty());
-        assert_eq!(report.status, "blocked");
-        assert_eq!(report.objectives_blocked_by_gate, 1);
+        assert_eq!(objectives.len(), 1);
+        assert_eq!(objectives[0].objective.id, "safe_refactor");
+        assert_eq!(report.status, "selected");
+        assert_eq!(report.objectives_selected, 1);
+        assert_eq!(report.objectives_blocked_by_gate, 0);
+        assert!(!objectives[0].human_approved);
         assert_eq!(
-            report.candidates[0].blocked_reason_code.as_deref(),
-            Some("operator_approval_packet_missing")
+            report.candidates[0].review_gate,
+            GovernanceGate::SafeAutonomous
         );
-        assert!(report
-            .blocked_candidate_groups
-            .iter()
-            .any(
-                |group| group.reason_code == "operator_approval_packet_missing"
-                    && group.governance_class == "arandur_recommendation"
-            ));
+        assert!(report.candidates[0].blocked_reason_code.is_none());
+        assert!(
+            !report
+                .objective_packet_report
+                .canonical_queue_mutation_allowed
+        );
     }
 
     #[test]
@@ -4323,8 +4498,21 @@ default_policy = "ledger_before_task"
             transport: "in_process",
         }));
         assert!(!dispatch_retryable(&Dispatch::Skipped {
-            reason: "non-apollo".into(),
+            reason: "not operational".into(),
         }));
+    }
+
+    #[test]
+    fn retry_requires_a_durable_attempt_receipt() {
+        let failed = Dispatch::Submitted {
+            task_id: "failed".into(),
+            status: ExecutionStatus::Failed,
+            joules: 0.0,
+            transport: "in_process",
+        };
+
+        assert!(dispatch_attempt_should_retry(&failed, 1, 2, true));
+        assert!(!dispatch_attempt_should_retry(&failed, 1, 2, false));
     }
 
     #[test]

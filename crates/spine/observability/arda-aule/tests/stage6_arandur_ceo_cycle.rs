@@ -28,6 +28,7 @@ fn input(cycle_id: &str, phase: ExecutivePhase) -> ExecutiveCycleInput {
         context_receipt_ref: "data/mnemosyne/context/stage6.json#context-receipt".into(),
         recommendation_id: "arandur-stage6-recommendation".into(),
         approval_packet_id: Some("operator-approval-stage6".into()),
+        governance_authorization_id: None,
         proposed_action: "observe worker and collect completion evidence".into(),
         requested_roles: vec![role("observer", &["process_health", "receipt_read"])],
         governance_receipt_ref: Some("data/governance/stage6.json#allow".into()),
@@ -90,6 +91,29 @@ fn read_only_and_operator_stop_are_non_mutating_and_stoppable() {
     assert!(result.receipt.operator_can_stop);
     assert!(!result.receipt.queue_mutation_performed_by_arandur);
     assert!(!result.receipt.execution_performed_by_arandur);
+}
+
+#[test]
+fn governance_authorization_allows_handoff_without_operator_packet() {
+    let dir = tempfile::tempdir().unwrap();
+    let store = ExecutiveCycleStore::from_root(dir.path());
+    let mut governed = input("stage6-governed", ExecutivePhase::Execute);
+    governed.approval_packet_id = None;
+    governed.governance_authorization_id = Some("governance-auth-stage6".into());
+    governed.queue_handoff_receipt_refs = vec!["queue#governed-handoff".into()];
+
+    let result = store
+        .evaluate(
+            governed,
+            Utc.with_ymd_and_hms(2026, 8, 22, 12, 2, 0).unwrap(),
+        )
+        .unwrap();
+
+    assert_eq!(result.receipt.disposition, ExecutiveDisposition::HandedOff);
+    assert_eq!(
+        result.receipt.governance_authorization_id.as_deref(),
+        Some("governance-auth-stage6")
+    );
 }
 
 #[test]

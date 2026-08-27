@@ -564,17 +564,25 @@ fn approved_workbench_metadata(record: &QueueRecord) -> bool {
         .get("meta")
         .and_then(Value::as_object)
         .is_some_and(|meta| {
-            meta.get("mutation_risk").and_then(Value::as_str) == Some("operator-approved")
+            let operator_authorized = meta.get("mutation_risk").and_then(Value::as_str)
+                == Some("operator-approved")
+                && nonempty_meta_string(meta, "approval_packet_id");
+            let governance_authorized = meta.get("mutation_risk").and_then(Value::as_str)
+                == Some("governance-authorized-reversible")
+                && nonempty_meta_string(meta, "governance_authorization_id");
+            (operator_authorized || governance_authorized)
                 && meta.get("execution_authority").and_then(Value::as_str) == Some("arda_workbench")
-                && meta
-                    .get("approval_packet_id")
-                    .and_then(Value::as_str)
-                    .is_some_and(|id| !id.trim().is_empty())
                 && meta
                     .get("source_objective_packet_id")
                     .and_then(Value::as_str)
                     .is_some_and(|id| !id.trim().is_empty())
         })
+}
+
+fn nonempty_meta_string(meta: &serde_json::Map<String, Value>, key: &str) -> bool {
+    meta.get(key)
+        .and_then(Value::as_str)
+        .is_some_and(|value| !value.trim().is_empty())
 }
 
 fn claimable_status(record: &QueueRecord) -> bool {
@@ -683,7 +691,8 @@ fn resolve_claimed_run_id(task: &QueueRecord) -> std::io::Result<String> {
     if let Some(run_id) = meta_str("workbench_run_id") {
         return Ok(run_id.to_owned());
     }
-    if meta_str("approval_packet_id").is_some() {
+    if meta_str("approval_packet_id").is_some() || meta_str("governance_authorization_id").is_some()
+    {
         // Governed approval lineage without an explicit run id: use the same
         // canonical derivation as a fresh attempt so recovery targets the
         // same run namespace instead of inventing a parallel one.
@@ -1015,6 +1024,41 @@ mod tests {
             .expect("approved task");
 
         assert_eq!(selected.id, "approved-task");
+    }
+
+    #[test]
+    fn governed_selection_accepts_binding_reversible_authority() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let governed = QueueRecord {
+            id: "governed-task".into(),
+            status: Some("pending".into()),
+            extra: serde_json::Map::from_iter([(
+                "meta".into(),
+                json!({
+                    "action_class": "local_refactors",
+                    "mutation_risk": "governance-authorized-reversible",
+                    "execution_authority": "arda_workbench",
+                    "source_objective_packet_id": "objective-governed",
+                    "governance_authorization_id": "governance:objective-governed"
+                }),
+            )]),
+            ..blank("governed-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&governed).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+
+        let selected = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .select_next_approved()
+            .unwrap()
+            .expect("binding governance authority should be executable");
+
+        assert_eq!(selected.id, "governed-task");
     }
 
     #[test]

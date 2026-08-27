@@ -88,6 +88,8 @@ pub struct ExecutiveCycleInput {
     pub context_receipt_ref: String,
     pub recommendation_id: String,
     pub approval_packet_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub governance_authorization_id: Option<String>,
     pub proposed_action: String,
     pub requested_roles: Vec<RoleRequest>,
     pub governance_receipt_ref: Option<String>,
@@ -117,6 +119,8 @@ pub struct ExecutiveCycleReceipt {
     pub context_receipt_ref: String,
     pub recommendation_id: String,
     pub approval_packet_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub governance_authorization_id: Option<String>,
     pub input_digest: String,
     pub disposition: ExecutiveDisposition,
     pub reason: String,
@@ -361,10 +365,11 @@ fn build_receipt(
             ExecutiveDisposition::Stopped,
             "operator stop request suppressed queue handoff and execution".into(),
         )
-    } else if input.approval_packet_id.is_none() {
+    } else if input.approval_packet_id.is_none() && input.governance_authorization_id.is_none() {
         (
             ExecutiveDisposition::AwaitingReview,
-            "canonical operator review is required before handoff".into(),
+            "canonical operator review or binding governance authorization is required before handoff"
+                .into(),
         )
     } else if input.governance_receipt_ref.is_none() {
         (
@@ -454,6 +459,7 @@ fn build_receipt(
         context_receipt_ref: input.context_receipt_ref,
         recommendation_id: input.recommendation_id,
         approval_packet_id: input.approval_packet_id,
+        governance_authorization_id: input.governance_authorization_id,
         input_digest,
         disposition,
         reason,

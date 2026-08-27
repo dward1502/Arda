@@ -17,6 +17,8 @@ pub(super) struct QueueGateMetadata<'a> {
     pub autonomy_readiness_reasons: &'a [String],
     pub source_objective_packet_id: Option<&'a str>,
     pub approval_packet_id: Option<&'a str>,
+    pub governance_authorization_id: Option<&'a str>,
+    pub mutation_risk: &'a str,
 }
 
 pub fn task_id_for(objective_id: &str, plan_key: &str, ts: chrono::DateTime<Utc>) -> String {
@@ -55,6 +57,8 @@ pub fn append_plan_to_queue_with_conditions(
             autonomy_readiness_reasons: &[],
             source_objective_packet_id: None,
             approval_packet_id: None,
+            governance_authorization_id: None,
+            mutation_risk: "unclassified",
         },
     )
 }
@@ -99,10 +103,11 @@ pub(super) fn append_plan_to_queue_with_gate_metadata(
                 "objective_id": objective_id,
                 "plan_key": t.key,
                 "action_class": "approved_autopilot_plan_step",
-                "mutation_risk": "operator-approved",
+                "mutation_risk": gate.mutation_risk,
                 "execution_authority": "arda_workbench",
                 "source_objective_packet_id": gate.source_objective_packet_id,
                 "approval_packet_id": gate.approval_packet_id,
+                "governance_authorization_id": gate.governance_authorization_id,
                 "oracle_conditions": gate.oracle_conditions,
                 "autonomy_readiness_decision": gate.autonomy_readiness_decision,
                 "autonomy_readiness_reasons": gate.autonomy_readiness_reasons,

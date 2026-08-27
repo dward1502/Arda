@@ -818,7 +818,19 @@ fn approval_envelope(task: &QueueRecord, idempotency_key: &str) -> Result<Value>
         .get("meta")
         .and_then(Value::as_object)
         .ok_or_else(|| anyhow!("task `{}` omitted governed queue metadata", task.id))?;
-    let approval_id = required_meta(meta, "approval_packet_id", &task.id)?;
+    let mutation_risk = required_meta(meta, "mutation_risk", &task.id)?;
+    let approval_id = match mutation_risk {
+        "operator-approved" => required_meta(meta, "approval_packet_id", &task.id)?,
+        "governance-authorized-reversible" => {
+            required_meta(meta, "governance_authorization_id", &task.id)?
+        }
+        other => {
+            return Err(anyhow!(
+                "task `{}` has unsupported Workbench mutation authority `{other}`",
+                task.id
+            ));
+        }
+    };
     let proposal_id = required_meta(meta, "source_objective_packet_id", &task.id)?;
     Ok(json!({
         "approval": {
@@ -975,6 +987,28 @@ async fn response_error(response: reqwest::Response, action: &str) -> Result<Val
 mod tests {
     use super::*;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    #[test]
+    fn governance_authorization_builds_workbench_approval_envelope() {
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "governed-task",
+            "meta": {
+                "source_objective_packet_id": "packet-1",
+                "mutation_risk": "governance-authorized-reversible",
+                "governance_authorization_id": "governance:packet-1:safe_autonomous"
+            }
+        }))
+        .expect("queue record");
+
+        let envelope = approval_envelope(&task, "governed-task-attempt")
+            .expect("binding governance should authorize Workbench execution");
+
+        assert_eq!(
+            envelope["approval"]["approval_id"],
+            "governance:packet-1:safe_autonomous"
+        );
+        assert_eq!(envelope["approval"]["decision"], "policy_safe");
+    }
 
     fn approved_queue_fixture(root: &Path, task_id: &str) -> PathBuf {
         let queue_path = root.join("core/projects/tasks/queue.jsonl");

@@ -23,6 +23,7 @@ use std::path::{Path, PathBuf};
 
 pub const QUEUE_EXECUTION_RECEIPT_CONTRACT: &str = "arda.workbench.queue_execution_receipt.v1";
 const DEFAULT_PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
+const MAX_OBJECTIVE_PLAN_RECEIPT_BYTES: usize = 256 * 1024;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QueueExecutionReceipt {
@@ -267,20 +268,14 @@ impl WorkbenchQueueExecutor {
             .title
             .as_deref()
             .unwrap_or(claim.task.id.as_str());
-        let objective_plan = objective_plan_for_task(&self.root, &claim.task)?;
-        let validation = PlanValidator::default().validate_objective_plan(&objective_plan);
-        if !validation.ok {
-            return Err(anyhow!(
-                "refusing to dispatch invalid objective plan: {}",
-                validation.errors.join("; ")
-            ));
-        }
-        let graph = run_graph_with_objective_plan(
+        let (objective_plan, objective_plan_receipt) =
+            persisted_objective_plan_for_task(&self.root, run_id, &claim.task)?;
+        let graph = run_graph_with_objective_plan_receipt(
             run_id,
             &claim.task.id,
             objective,
             approval_id,
-            &objective_plan,
+            &objective_plan_receipt,
         );
         let mut run = if let Some(existing) = self.existing_run(run_id).await? {
             let outcome = classify_existing_run(&existing);
@@ -780,6 +775,115 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
     Ok(plan)
 }
 
+fn persisted_objective_plan_for_task(
+    root: &Path,
+    run_id: &str,
+    task: &QueueRecord,
+) -> Result<(ObjectivePlan, String)> {
+    if run_id.is_empty()
+        || run_id.len() > 200
+        || !run_id
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
+    {
+        return Err(anyhow!(
+            "workbench run ID must be a bounded safe path component"
+        ));
+    }
+    let receipt_path = root
+        .join("audit/workbench-queue")
+        .join(run_id)
+        .join("objective_plan_receipt.json");
+    if receipt_path.exists() {
+        let receipt_size = std::fs::metadata(&receipt_path)
+            .with_context(|| format!("stat objective-plan receipt `{}`", receipt_path.display()))?
+            .len();
+        if receipt_size > MAX_OBJECTIVE_PLAN_RECEIPT_BYTES as u64 {
+            return Err(anyhow!("objective-plan receipt exceeds size limit"));
+        }
+        let bytes = std::fs::read(&receipt_path)
+            .with_context(|| format!("read objective-plan receipt `{}`", receipt_path.display()))?;
+        let mut receipt: Value = serde_json::from_slice(&bytes).with_context(|| {
+            format!("parse objective-plan receipt `{}`", receipt_path.display())
+        })?;
+        let receipt_digest = receipt
+            .get("receipt_digest")
+            .and_then(Value::as_str)
+            .ok_or_else(|| anyhow!("objective-plan receipt omitted receipt_digest"))?
+            .to_owned();
+        receipt
+            .as_object_mut()
+            .ok_or_else(|| anyhow!("objective-plan receipt must be a JSON object"))?
+            .remove("receipt_digest");
+        let computed_digest = format!("sha256:{:x}", Sha256::digest(serde_json::to_vec(&receipt)?));
+        if computed_digest != receipt_digest {
+            return Err(anyhow!("objective-plan receipt digest mismatch"));
+        }
+        if receipt["contract"] != "arda.workbench.objective_plan_receipt.v1"
+            || receipt["run_id"] != run_id
+            || receipt["objective_id"] != task.id
+        {
+            return Err(anyhow!(
+                "objective-plan receipt identity does not match the claimed queue task"
+            ));
+        }
+        let plan: ObjectivePlan = serde_json::from_value(receipt["plan"].clone())
+            .context("decode persisted objective plan")?;
+        let validation = PlanValidator::default().validate_objective_plan(&plan);
+        if !validation.ok || serde_json::to_value(validation)? != receipt["validation"] {
+            return Err(anyhow!(
+                "persisted objective plan no longer matches its validation receipt"
+            ));
+        }
+        return Ok((plan, receipt_digest));
+    }
+
+    let plan = objective_plan_for_task(root, task)?;
+    let validation = PlanValidator::default().validate_objective_plan(&plan);
+    if !validation.ok {
+        return Err(anyhow!(
+            "refusing to persist invalid objective plan: {}",
+            validation.errors.join("; ")
+        ));
+    }
+    let mut receipt = json!({
+        "contract": "arda.workbench.objective_plan_receipt.v1",
+        "run_id": run_id,
+        "objective_id": task.id,
+        "plan": plan,
+        "validation": validation,
+    });
+    let receipt_payload = serde_json::to_vec(&receipt)?;
+    if receipt_payload.len() > MAX_OBJECTIVE_PLAN_RECEIPT_BYTES {
+        return Err(anyhow!("objective-plan receipt exceeds size limit"));
+    }
+    let receipt_digest = format!("sha256:{:x}", Sha256::digest(receipt_payload));
+    receipt["receipt_digest"] = Value::String(receipt_digest.clone());
+    let parent = receipt_path
+        .parent()
+        .ok_or_else(|| anyhow!("objective-plan receipt path has no parent"))?;
+    std::fs::create_dir_all(parent).with_context(|| {
+        format!(
+            "create objective-plan receipt directory `{}`",
+            parent.display()
+        )
+    })?;
+    let temporary_path = receipt_path.with_extension("json.tmp");
+    std::fs::write(&temporary_path, serde_json::to_vec_pretty(&receipt)?).with_context(|| {
+        format!(
+            "write objective-plan receipt `{}`",
+            temporary_path.display()
+        )
+    })?;
+    std::fs::rename(&temporary_path, &receipt_path).with_context(|| {
+        format!(
+            "install objective-plan receipt `{}`",
+            receipt_path.display()
+        )
+    })?;
+    Ok((plan, receipt_digest))
+}
+
 fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &QueueRecord) -> String {
     let sources = plan
         .context_sources
@@ -876,19 +980,19 @@ fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str) ->
     run_graph_value(run_id, task_id, objective, approval_id, None)
 }
 
-fn run_graph_with_objective_plan(
+fn run_graph_with_objective_plan_receipt(
     run_id: &str,
     task_id: &str,
     objective: &str,
     approval_id: &str,
-    objective_plan: &ObjectivePlan,
+    objective_plan_receipt: &str,
 ) -> Value {
     run_graph_value(
         run_id,
         task_id,
         objective,
         approval_id,
-        Some(objective_plan),
+        Some(objective_plan_receipt),
     )
 }
 
@@ -897,7 +1001,7 @@ fn run_graph_value(
     task_id: &str,
     objective: &str,
     approval_id: &str,
-    objective_plan: Option<&ObjectivePlan>,
+    objective_plan_receipt: Option<&str>,
 ) -> Value {
     let prompt_digest = format!("sha256:{:x}", Sha256::digest(objective.as_bytes()));
     let deadline = Utc::now().timestamp_millis().saturating_add(1_200_000) as u128;
@@ -918,7 +1022,11 @@ fn run_graph_value(
             "worker": worker,
         })
     };
-    let mut graph = json!({
+    let mut provenance_receipts = vec![approval_id];
+    if let Some(receipt) = objective_plan_receipt {
+        provenance_receipts.push(receipt);
+    }
+    json!({
         "schema_version": "arda.run-graph.v1",
         "run_id": run_id,
         "objective_id": task_id,
@@ -962,17 +1070,9 @@ fn run_graph_value(
         "provenance": {
             "project_contract_digest": format!("sha256:{}", "0".repeat(64)),
             "created_by": "arda_workbench.queue_executor",
-            "parent_receipts": [approval_id]
+            "parent_receipts": provenance_receipts
         }
-    });
-    if let Some(plan) = objective_plan {
-        let validation = PlanValidator::default().validate_objective_plan(plan);
-        graph["provenance"]["objective_plan"] =
-            serde_json::to_value(plan).expect("validated objective plan must serialize");
-        graph["provenance"]["objective_plan_validation"] =
-            serde_json::to_value(validation).expect("objective plan validation must serialize");
-    }
-    graph
+    })
 }
 
 fn workbench_run_id(task_id: &str) -> String {
@@ -1574,7 +1674,7 @@ mod tests {
     }
 
     #[test]
-    fn objective_plan_is_grounded_in_live_authorities_and_embedded_in_graph() {
+    fn objective_plan_is_grounded_persisted_and_digest_bound_outside_the_graph() {
         let dir = tempfile::tempdir().unwrap();
         for path in [
             "data/workbench/projects.json",
@@ -1604,25 +1704,61 @@ mod tests {
             .as_deref()
             .is_some_and(|value| value.starts_with("sha256:"))));
 
-        let graph = run_graph_with_objective_plan(
+        let (persisted_plan, receipt_digest) =
+            persisted_objective_plan_for_task(dir.path(), "queue-objective-1", &task).unwrap();
+        assert_eq!(persisted_plan.objective_id, "objective-1");
+        assert!(receipt_digest.starts_with("sha256:"));
+        let receipt_path = dir
+            .path()
+            .join("audit/workbench-queue/queue-objective-1/objective_plan_receipt.json");
+        assert!(receipt_path.is_file());
+
+        std::fs::write(
+            dir.path().join("ARDA_SYSTEM_STATUS_REPORT.md"),
+            "changed after the plan was accepted\n",
+        )
+        .unwrap();
+        let (reloaded_plan, reloaded_digest) =
+            persisted_objective_plan_for_task(dir.path(), "queue-objective-1", &task).unwrap();
+        assert_eq!(
+            serde_json::to_value(reloaded_plan).unwrap(),
+            serde_json::to_value(persisted_plan).unwrap()
+        );
+        assert_eq!(reloaded_digest, receipt_digest);
+
+        let graph = run_graph(
             "queue-objective-1",
             "objective-1",
             "Review Arda",
             "approval-1",
-            &plan,
         );
+        assert!(graph["provenance"].get("objective_plan").is_none());
+        assert!(graph["provenance"]
+            .get("objective_plan_validation")
+            .is_none());
         assert_eq!(
-            graph["provenance"]["objective_plan"]["objective_id"],
-            "objective-1"
+            graph["provenance"]["parent_receipts"],
+            json!(["approval-1"])
         );
-        assert_eq!(
-            graph["provenance"]["objective_plan_validation"]["topological_order"]
-                .as_array()
-                .unwrap()
-                .last()
-                .unwrap(),
-            "verify-acceptance"
+
+        assert!(
+            persisted_objective_plan_for_task(dir.path(), "../escape", &task)
+                .unwrap_err()
+                .to_string()
+                .contains("safe path component")
         );
+        assert!(!dir.path().join("audit/escape").exists());
+
+        let mut oversized_task = task;
+        oversized_task.title = Some("x".repeat(MAX_OBJECTIVE_PLAN_RECEIPT_BYTES));
+        assert!(persisted_objective_plan_for_task(
+            dir.path(),
+            "queue-objective-oversized",
+            &oversized_task,
+        )
+        .unwrap_err()
+        .to_string()
+        .contains("size limit"));
     }
 
     #[test]

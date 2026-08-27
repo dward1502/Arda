@@ -1,0 +1,16 @@
+{
+  "contract": "arda.workbench.execution_outcome.v1",
+  "task_id": "tsk_20260827T075204Z_arda-governed-audit-20260827__scope",
+  "recommendation_id": "objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827",
+  "approval_packet_id": "unknown-approval",
+  "governance_authorization_id": "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit",
+  "workbench_run_id": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__scope",
+  "status": "completed",
+  "result": "completed",
+  "execution_receipt_digest": "sha256:15582da8d069dd9c5298babc7fc61f8cd48bff13420212b5e7f9c062e8b5c7c6",
+  "evidence_path": "audit/workbench-queue/queue-tsk_20260827T075204Z_arda-governed-audit-20260827__scope/execution_receipt.json",
+  "learning_key": "arda_workbench::approved_autopilot_plan_step",
+  "memory_id": "mem_ab948258b0024c0898f730e0571ba2a9",
+  "governance_event_id": "workbench-outcome:queue-tsk_20260827T075204Z_arda-governed-audit-20260827__scope",
+  "projected_at_utc": "2026-08-27T08:03:09.373212792+00:00"
+}

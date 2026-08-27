@@ -3,7 +3,9 @@
 
 use super::decomposer::{Objective, ObjectiveContextSource, ObjectiveDecomposer, ObjectivePlan};
 use super::execution_outcome::project_terminal_outcome;
-use super::task_queue::{ActiveQueueExecutor, ApprovedQueueClaim, QueueRecord};
+use super::task_queue::{
+    governance_authorization_id, ActiveQueueExecutor, ApprovedQueueClaim, QueueRecord,
+};
 use super::validator::PlanValidator;
 use anyhow::{anyhow, Context, Result};
 use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
@@ -819,10 +821,23 @@ fn approval_envelope(task: &QueueRecord, idempotency_key: &str) -> Result<Value>
         .and_then(Value::as_object)
         .ok_or_else(|| anyhow!("task `{}` omitted governed queue metadata", task.id))?;
     let mutation_risk = required_meta(meta, "mutation_risk", &task.id)?;
+    if required_meta(meta, "execution_authority", &task.id)? != "arda_workbench"
+        || required_meta(meta, "action_class", &task.id)? != "approved_autopilot_plan_step"
+    {
+        return Err(anyhow!(
+            "task `{}` has invalid Workbench execution authority",
+            task.id
+        ));
+    }
     let approval_id = match mutation_risk {
         "operator-approved" => required_meta(meta, "approval_packet_id", &task.id)?,
         "governance-authorized-reversible" => {
-            required_meta(meta, "governance_authorization_id", &task.id)?
+            governance_authorization_id(meta).ok_or_else(|| {
+                anyhow!(
+                    "task `{}` has unbound governance authorization metadata",
+                    task.id
+                )
+            })?
         }
         other => {
             return Err(anyhow!(
@@ -993,9 +1008,13 @@ mod tests {
         let task: QueueRecord = serde_json::from_value(json!({
             "id": "governed-task",
             "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "execution_authority": "arda_workbench",
                 "source_objective_packet_id": "packet-1",
                 "mutation_risk": "governance-authorized-reversible",
-                "governance_authorization_id": "governance:packet-1:safe_autonomous"
+                "governance_action_class": "safe_local",
+                "governance_gate": "safe_autonomous",
+                "governance_authorization_id": "governance:packet-1:safe_local"
             }
         }))
         .expect("queue record");
@@ -1005,9 +1024,28 @@ mod tests {
 
         assert_eq!(
             envelope["approval"]["approval_id"],
-            "governance:packet-1:safe_autonomous"
+            "governance:packet-1:safe_local"
         );
         assert_eq!(envelope["approval"]["decision"], "policy_safe");
+    }
+
+    #[test]
+    fn mismatched_governance_authorization_is_rejected() {
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "forged-governed-task",
+            "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "packet-1",
+                "mutation_risk": "governance-authorized-reversible",
+                "governance_action_class": "safe_local",
+                "governance_gate": "safe_autonomous",
+                "governance_authorization_id": "governance:another-packet:safe_local"
+            }
+        }))
+        .expect("queue record");
+
+        assert!(approval_envelope(&task, "forged-attempt").is_err());
     }
 
     fn approved_queue_fixture(root: &Path, task_id: &str) -> PathBuf {

@@ -109,7 +109,7 @@ pub(super) fn append_packet_plan_with_authority(
     oracle_conditions: &[String],
     autonomy_readiness_decision: &str,
     autonomy_readiness_reasons: &[String],
-    governance_authorization_id: Option<&str>,
+    governance_action_class: Option<&str>,
     read_only: bool,
 ) -> QueueOperation {
     let queue_path = queue_path.as_ref();
@@ -134,11 +134,13 @@ pub(super) fn append_packet_plan_with_authority(
             "objective_packet_not_selected",
         );
     }
-    let governance_authorized = governance_authorization_id.is_some_and(|id| !id.trim().is_empty())
-        && matches!(
-            packet.review_gate,
-            GovernanceGate::SafeAutonomous | GovernanceGate::TriadQuorumApproved
-        );
+    let governance_action_class = governance_action_class.filter(|class| !class.trim().is_empty());
+    let governance_gate = match packet.review_gate {
+        GovernanceGate::SafeAutonomous => Some("safe_autonomous"),
+        GovernanceGate::TriadQuorumApproved => Some("triad_quorum_approved"),
+        _ => None,
+    };
+    let governance_authorized = governance_action_class.is_some() && governance_gate.is_some();
     if packet.approval_packet_id.is_none() && !governance_authorized {
         return QueueOperation::blocked(
             operation_id,
@@ -160,7 +162,12 @@ pub(super) fn append_packet_plan_with_authority(
         );
     }
 
-    let governance_authorization_id = governance_authorization_id.map(str::to_owned);
+    let governance_authorization_id = if packet.approval_packet_id.is_none() {
+        governance_action_class
+            .map(|action_class| format!("governance:{}:{action_class}", packet.packet_id))
+    } else {
+        None
+    };
     let mutation_risk = if packet.approval_packet_id.is_some() {
         "operator-approved"
     } else {
@@ -179,6 +186,8 @@ pub(super) fn append_packet_plan_with_authority(
             source_objective_packet_id: Some(&packet.packet_id),
             approval_packet_id: packet.approval_packet_id.as_deref(),
             governance_authorization_id: governance_authorization_id.as_deref(),
+            governance_action_class,
+            governance_gate,
             mutation_risk,
         },
     ) {
@@ -368,7 +377,7 @@ mod tests {
             &[],
             "allow",
             &[],
-            Some("governance:objective_packet:candidate-1:safe_local"),
+            Some("safe_local"),
             false,
         );
 
@@ -377,8 +386,30 @@ mod tests {
         assert_eq!(operation.approval_packet_id, None);
         let contents = std::fs::read_to_string(&queue_path)
             .unwrap_or_else(|err| panic!("queue read failed: {err}"));
-        assert!(contents.contains("\"mutation_risk\":\"governance-authorized-reversible\""));
-        assert!(contents.contains("\"governance_authorization_id\""));
+        let queued: serde_json::Value =
+            serde_json::from_str(contents.lines().next().expect("one appended queue record"))
+                .expect("valid queue record");
+        let meta = queued.get("meta").expect("queue metadata");
+        assert_eq!(
+            meta.get("mutation_risk")
+                .and_then(serde_json::Value::as_str),
+            Some("governance-authorized-reversible")
+        );
+        assert_eq!(
+            meta.get("governance_authorization_id")
+                .and_then(serde_json::Value::as_str),
+            operation.governance_authorization_id.as_deref()
+        );
+        assert_eq!(
+            meta.get("governance_action_class")
+                .and_then(serde_json::Value::as_str),
+            Some("safe_local")
+        );
+        assert_eq!(
+            meta.get("governance_gate")
+                .and_then(serde_json::Value::as_str),
+            Some("safe_autonomous")
+        );
     }
 
     #[test]

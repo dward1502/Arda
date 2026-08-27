@@ -18,6 +18,8 @@ pub(super) struct QueueGateMetadata<'a> {
     pub source_objective_packet_id: Option<&'a str>,
     pub approval_packet_id: Option<&'a str>,
     pub governance_authorization_id: Option<&'a str>,
+    pub governance_action_class: Option<&'a str>,
+    pub governance_gate: Option<&'a str>,
     pub mutation_risk: &'a str,
 }
 
@@ -58,6 +60,8 @@ pub fn append_plan_to_queue_with_conditions(
             source_objective_packet_id: None,
             approval_packet_id: None,
             governance_authorization_id: None,
+            governance_action_class: None,
+            governance_gate: None,
             mutation_risk: "unclassified",
         },
     )
@@ -108,6 +112,8 @@ pub(super) fn append_plan_to_queue_with_gate_metadata(
                 "source_objective_packet_id": gate.source_objective_packet_id,
                 "approval_packet_id": gate.approval_packet_id,
                 "governance_authorization_id": gate.governance_authorization_id,
+                "governance_action_class": gate.governance_action_class,
+                "governance_gate": gate.governance_gate,
                 "oracle_conditions": gate.oracle_conditions,
                 "autonomy_readiness_decision": gate.autonomy_readiness_decision,
                 "autonomy_readiness_reasons": gate.autonomy_readiness_reasons,

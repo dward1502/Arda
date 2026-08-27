@@ -569,7 +569,7 @@ fn approved_workbench_metadata(record: &QueueRecord) -> bool {
                 && nonempty_meta_string(meta, "approval_packet_id");
             let governance_authorized = meta.get("mutation_risk").and_then(Value::as_str)
                 == Some("governance-authorized-reversible")
-                && nonempty_meta_string(meta, "governance_authorization_id");
+                && governance_authorization_id(meta).is_some();
             (operator_authorized || governance_authorized)
                 && meta.get("execution_authority").and_then(Value::as_str) == Some("arda_workbench")
                 && meta
@@ -577,6 +577,31 @@ fn approved_workbench_metadata(record: &QueueRecord) -> bool {
                     .and_then(Value::as_str)
                     .is_some_and(|id| !id.trim().is_empty())
         })
+}
+
+pub(super) fn governance_authorization_id(meta: &serde_json::Map<String, Value>) -> Option<&str> {
+    if meta.get("execution_authority").and_then(Value::as_str) != Some("arda_workbench")
+        || meta.get("action_class").and_then(Value::as_str) != Some("approved_autopilot_plan_step")
+    {
+        return None;
+    }
+    match meta.get("governance_gate").and_then(Value::as_str) {
+        Some("safe_autonomous" | "triad_quorum_approved") => {}
+        _ => return None,
+    }
+    let packet_id = meta
+        .get("source_objective_packet_id")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())?;
+    let action_class = meta
+        .get("governance_action_class")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())?;
+    let authorization_id = meta
+        .get("governance_authorization_id")
+        .and_then(Value::as_str)?;
+    (authorization_id == format!("governance:{packet_id}:{action_class}"))
+        .then_some(authorization_id)
 }
 
 fn nonempty_meta_string(meta: &serde_json::Map<String, Value>, key: &str) -> bool {
@@ -1037,11 +1062,13 @@ mod tests {
             extra: serde_json::Map::from_iter([(
                 "meta".into(),
                 json!({
-                    "action_class": "local_refactors",
+                    "action_class": "approved_autopilot_plan_step",
                     "mutation_risk": "governance-authorized-reversible",
                     "execution_authority": "arda_workbench",
                     "source_objective_packet_id": "objective-governed",
-                    "governance_authorization_id": "governance:objective-governed"
+                    "governance_action_class": "local_refactors",
+                    "governance_gate": "safe_autonomous",
+                    "governance_authorization_id": "governance:objective-governed:local_refactors"
                 }),
             )]),
             ..blank("governed-task")
@@ -1496,6 +1523,38 @@ mod tests {
             }),
         );
         extra
+    }
+
+    #[test]
+    fn forged_governance_metadata_is_not_workbench_approved() {
+        let valid = json!({
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "governance-authorized-reversible",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "packet-1",
+                "governance_action_class": "safe_local",
+                "governance_gate": "safe_autonomous",
+                "governance_authorization_id": "governance:packet-1:safe_local"
+        });
+        for (field, replacement) in [
+            (
+                "governance_authorization_id",
+                json!("governance:another-packet:safe_local"),
+            ),
+            ("execution_authority", json!("untrusted_executor")),
+            ("action_class", json!("human_required")),
+            ("governance_gate", json!("review_required")),
+        ] {
+            let mut meta = valid.as_object().expect("metadata object").clone();
+            meta.insert(field.into(), replacement);
+            let mut task = blank("forged-governance-task");
+            task.extra.insert("meta".into(), Value::Object(meta));
+
+            assert!(
+                !approved_workbench_metadata(&task),
+                "accepted forged {field}"
+            );
+        }
     }
 
     fn l3_human_required_extra() -> serde_json::Map<String, serde_json::Value> {

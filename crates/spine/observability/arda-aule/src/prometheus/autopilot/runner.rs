@@ -1713,12 +1713,8 @@ impl CeoAutopilot {
                     let mut queue_packet = cycle_obj.objective_packet.clone();
                     queue_packet.canonical_queue_mutation_allowed =
                         queue_packet.approval_packet_id.is_some() || binding_governance_authorized;
-                    let governance_authorization_id = binding_governance_authorized.then(|| {
-                        format!(
-                            "governance:{}:{}",
-                            queue_packet.packet_id, governance.action_class
-                        )
-                    });
+                    let governance_action_class =
+                        binding_governance_authorized.then_some(governance.action_class.as_str());
                     let operation = append_packet_plan_with_authority(
                         &self.cfg.queue_path,
                         &queue_packet,
@@ -1728,7 +1724,7 @@ impl CeoAutopilot {
                         oracle_conditions,
                         &autonomy_readiness.decision,
                         &autonomy_readiness.reasons,
-                        governance_authorization_id.as_deref(),
+                        governance_action_class,
                         false,
                     );
                     let ids = if operation.result_status == QueueOperationStatus::Appended {

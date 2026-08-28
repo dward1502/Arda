@@ -737,7 +737,7 @@ fn claim_execution_with_available_target(
             excluded_task_ids.insert(task.id);
             continue;
         };
-        if let Some(claim) = queue.claim_approved_candidate(&task.id)? {
+        if let Some(claim) = queue.claim_approved_candidate(&task.id, &excluded_task_ids)? {
             return Ok(Some((claim, locks)));
         }
         excluded_task_ids.insert(task.id);
@@ -3778,8 +3778,12 @@ mod tests {
             json!({
                 "id": failed_leaf.id,
                 "source_record_id": failed_leaf.id,
+                "title": failed_leaf.title,
+                "owner": failed_leaf.owner,
+                "priority": failed_leaf.priority,
                 "status": "failed",
                 "result": "failed",
+                "workbench_run_id": "queue-objective-durable__verify-acceptance",
                 "meta": failed_leaf.extra["meta"],
             }),
         )

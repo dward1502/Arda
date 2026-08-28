@@ -127,3 +127,71 @@ fn autopilot_cli_pauses_and_resumes_canonical_schedule() {
     let raw = std::fs::read_to_string(schedule_path).expect("schedule ledger");
     assert_eq!(raw.lines().count(), 3);
 }
+
+#[test]
+fn autopilot_cli_reprioritizes_canonical_task() {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let queue_path = temp.path().join("core/projects/tasks/queue.jsonl");
+    std::fs::create_dir_all(queue_path.parent().unwrap()).expect("queue directory");
+    std::fs::write(
+        &queue_path,
+        format!(
+            "{}\n",
+            serde_json::json!({
+                "id": "task-1",
+                "title": "Operator-controlled task",
+                "owner": "prometheus",
+                "priority": "medium",
+                "status": "queued",
+                "meta": {
+                    "action_class": "approved_autopilot_plan_step",
+                    "mutation_risk": "operator-approved",
+                    "execution_authority": "arda_workbench",
+                    "source_objective_packet_id": "objective-1",
+                    "approval_packet_id": "approval-1"
+                }
+            })
+        ),
+    )
+    .expect("initial queue");
+
+    let output = arda_cli()
+        .args([
+            "prometheus",
+            "autopilot",
+            "reprioritize-task",
+            "task-1",
+            "--objective-id",
+            "objective-1",
+            "--priority",
+            "critical",
+            "--reason",
+            "operator escalation",
+            "--root",
+        ])
+        .arg(temp.path())
+        .output()
+        .expect("run reprioritize command");
+
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let record: Value = serde_json::from_slice(&output.stdout).expect("reprioritize JSON");
+    assert_eq!(record["id"], "task-1");
+    assert_eq!(record["title"], "Operator-controlled task");
+    assert_eq!(record["priority"], "critical");
+    assert_eq!(
+        record["contract"],
+        "arda.workbench.queue_reprioritization.v1"
+    );
+    assert_eq!(record["operator_reason"], "operator escalation");
+    assert_eq!(
+        std::fs::read_to_string(queue_path)
+            .expect("queue ledger")
+            .lines()
+            .count(),
+        2
+    );
+}

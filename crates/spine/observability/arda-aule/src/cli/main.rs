@@ -303,6 +303,18 @@ enum AutopilotCommands {
         #[arg(long)]
         root: Option<PathBuf>,
     },
+    /// Reprioritize a canonical task under its objective lineage.
+    ReprioritizeTask {
+        task_id: String,
+        #[arg(long)]
+        objective_id: String,
+        #[arg(long, value_parser = ["critical", "high", "medium", "low"])]
+        priority: String,
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
     /// Requeue a failed approved task with a distinct Workbench attempt id.
     RetryApprovedTask {
         task_id: String,
@@ -896,6 +908,18 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
                 root.join("core/projects/tasks/schedules.jsonl"),
             );
             let record = ledger.resume(&task_id, &objective_id, chrono::Utc::now(), &reason)?;
+            println!("{}", serde_json::to_string_pretty(&record)?);
+        }
+        AutopilotCommands::ReprioritizeTask {
+            task_id,
+            objective_id,
+            priority,
+            reason,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let record = arda_aule::prometheus::autopilot::ActiveQueueExecutor::new(&root)
+                .reprioritize(&task_id, &objective_id, &priority, &reason)?;
             println!("{}", serde_json::to_string_pretty(&record)?);
         }
         AutopilotCommands::CancelApprovedTask {

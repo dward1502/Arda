@@ -108,6 +108,9 @@ impl TaskQueueAnalyzer {
     }
 
     pub fn effective_records(records: Vec<QueueRecord>) -> Vec<QueueRecord> {
+        let authorized_reopens = (0..records.len())
+            .map(|index| record_authorizes_reopen(&records, index))
+            .collect::<Vec<_>>();
         let terminal_keys = records
             .iter()
             .filter(|record| {
@@ -121,15 +124,7 @@ impl TaskQueueAnalyzer {
         let mut seen_ids = BTreeSet::<String>::new();
         let mut effective = Vec::<(usize, QueueRecord)>::new();
         for (index, record) in records.into_iter().enumerate().rev() {
-            let authorized_reopen = matches!(
-                record.extra.get("contract").and_then(Value::as_str),
-                Some(
-                    "arda.workbench.queue_retry.v1"
-                        | "arda.workbench.queue_continuation.v1"
-                        | "arda.workbench.executable_continuation.v1"
-                        | "arda.schedule.queue_activation.v1"
-                )
-            );
+            let authorized_reopen = authorized_reopens[index];
             let nonterminal = !matches!(
                 record.status.as_deref().map(normalize_task_status),
                 Some("completed" | "failed" | "cancelled")
@@ -261,7 +256,7 @@ impl ActiveQueueExecutor {
 
     pub fn select_next_safe_local(&self) -> std::io::Result<Option<QueueRecord>> {
         let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
-        let effective = TaskQueueAnalyzer::effective_records(records);
+        let effective = dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
         let active_ids = self.load_active_projection_ids().unwrap_or_default();
         let schedules = ScheduleLedger::new(&self.schedule_path).effective()?;
         Ok(effective.into_iter().find(|record| {
@@ -287,7 +282,7 @@ impl ActiveQueueExecutor {
 
     pub fn select_next_approved(&self) -> std::io::Result<Option<QueueRecord>> {
         let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
-        let effective = TaskQueueAnalyzer::effective_records(records);
+        let effective = dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
         let schedules = ScheduleLedger::new(&self.schedule_path).effective()?;
         let now = Utc::now();
         Ok(effective
@@ -299,6 +294,107 @@ impl ActiveQueueExecutor {
                     && mutation_lease_available(record, &effective, now)
             })
             .cloned())
+    }
+
+    /// Append an operator-authored priority change to the canonical queue.
+    pub fn reprioritize(
+        &self,
+        task_id: &str,
+        objective_id: &str,
+        priority: &str,
+        reason: &str,
+    ) -> std::io::Result<QueueRecord> {
+        if !matches!(priority, "critical" | "high" | "medium" | "low") {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "priority must be one of critical, high, medium, or low",
+            ));
+        }
+        if reason.trim().is_empty() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "reprioritization requires a non-empty operator reason",
+            ));
+        }
+        if let Some(parent) = self.queue_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+            let current = effective
+                .into_iter()
+                .find(|record| record.id == task_id)
+                .ok_or_else(|| {
+                    std::io::Error::new(std::io::ErrorKind::NotFound, "queue task not found")
+                })?;
+            if queue_objective_id(&current) != Some(objective_id) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    "reprioritization objective does not match canonical task lineage",
+                ));
+            }
+            if matches!(
+                current.status.as_deref().map(normalize_task_status),
+                Some("completed" | "cancelled" | "failed")
+            ) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "terminal queue tasks cannot be reprioritized",
+                ));
+            }
+            if current.priority.as_deref() == Some(priority) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::AlreadyExists,
+                    "task already has the requested priority",
+                ));
+            }
+            let previous_priority = current.priority.clone();
+            let reopen_contract = current
+                .extra
+                .get("contract")
+                .and_then(Value::as_str)
+                .filter(|contract| is_authorized_reopen_contract(contract))
+                .map(str::to_owned);
+            let mut appended = current;
+            appended.priority = Some(priority.to_owned());
+            if let Some(reopen_contract) = reopen_contract {
+                appended.extra.insert(
+                    "reprioritized_from_contract".into(),
+                    Value::String(reopen_contract),
+                );
+            }
+            appended.extra.insert(
+                "contract".into(),
+                Value::String("arda.workbench.queue_reprioritization.v1".into()),
+            );
+            appended.extra.insert(
+                "previous_priority".into(),
+                previous_priority.map(Value::String).unwrap_or(Value::Null),
+            );
+            appended
+                .extra
+                .insert("operator_reason".into(), Value::String(reason.into()));
+            appended.extra.insert(
+                "reprioritized_at_utc".into(),
+                Value::String(Utc::now().to_rfc3339()),
+            );
+            serde_json::to_writer(&mut file, &appended)
+                .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+            writeln!(file)?;
+            file.sync_data()?;
+            Ok(appended)
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
     }
 
     pub fn reconcile_schedules(&self, now: DateTime<Utc>) -> std::io::Result<usize> {
@@ -442,7 +538,8 @@ impl ActiveQueueExecutor {
             file.lock_exclusive()?;
             let result = (|| {
                 let records = read_queue_records(&file)?;
-                let effective = TaskQueueAnalyzer::effective_records(records);
+                let effective =
+                    dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
                 let now = Utc::now();
                 let Some(task) = effective.iter().find(|record| {
                     claimable_status(record)
@@ -494,7 +591,8 @@ impl ActiveQueueExecutor {
             file.lock_exclusive()?;
             let result = (|| {
                 let records = read_queue_records(&file)?;
-                let effective = TaskQueueAnalyzer::effective_records(records);
+                let effective =
+                    dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
                 if let Some(task) = effective.iter().find(|record| {
                     !excluded_task_ids.contains(&record.id)
                         && record.status.as_deref().map(normalize_task_status)
@@ -541,7 +639,9 @@ impl ActiveQueueExecutor {
             let file = OpenOptions::new().read(true).open(&self.queue_path)?;
             file.lock_shared()?;
             let result = (|| {
-                let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+                let effective = dispatch_priority_order(TaskQueueAnalyzer::effective_records(
+                    read_queue_records(&file)?,
+                ));
                 if let Some(task) = effective.iter().find(|record| {
                     !excluded_task_ids.contains(&record.id)
                         && record.status.as_deref().map(normalize_task_status)
@@ -577,6 +677,7 @@ impl ActiveQueueExecutor {
     pub(super) fn claim_approved_candidate(
         &self,
         task_id: &str,
+        excluded_task_ids: &BTreeSet<String>,
     ) -> std::io::Result<Option<ApprovedQueueClaim>> {
         ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
             let mut file = OpenOptions::new()
@@ -585,11 +686,31 @@ impl ActiveQueueExecutor {
                 .open(&self.queue_path)?;
             file.lock_exclusive()?;
             let result = (|| {
-                let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
-                let Some(task) = effective.iter().find(|record| record.id == task_id) else {
+                let effective = dispatch_priority_order(TaskQueueAnalyzer::effective_records(
+                    read_queue_records(&file)?,
+                ));
+                let now = Utc::now();
+                let selected = effective
+                    .iter()
+                    .find(|record| {
+                        !excluded_task_ids.contains(&record.id)
+                            && record.status.as_deref().map(normalize_task_status)
+                                == Some("in_progress")
+                            && authoritative_schedule_eligible(record, schedules, now)
+                            && approved_workbench_metadata(record)
+                    })
+                    .or_else(|| {
+                        effective.iter().find(|record| {
+                            !excluded_task_ids.contains(&record.id)
+                                && claimable_status(record)
+                                && authoritative_schedule_eligible(record, schedules, now)
+                                && approved_workbench_metadata(record)
+                                && mutation_lease_available(record, &effective, now)
+                        })
+                    });
+                let Some(task) = selected.filter(|record| record.id == task_id) else {
                     return Ok(None);
                 };
-                let now = Utc::now();
                 if task.status.as_deref().map(normalize_task_status) == Some("in_progress")
                     && authoritative_schedule_eligible(task, schedules, now)
                     && approved_workbench_metadata(task)
@@ -1238,6 +1359,17 @@ fn append_continuation_if_current(
     unlock
 }
 
+fn dispatch_priority_order(mut records: Vec<QueueRecord>) -> Vec<QueueRecord> {
+    records.sort_by_key(|record| match record.priority.as_deref() {
+        Some("critical") => 0,
+        Some("high") => 1,
+        Some("medium") => 2,
+        Some("low") => 3,
+        _ => 4,
+    });
+    records
+}
+
 fn read_queue_records(file: &std::fs::File) -> std::io::Result<Vec<QueueRecord>> {
     let mut out = Vec::new();
     for (index, line) in BufReader::new(file.try_clone()?).lines().enumerate() {
@@ -1313,6 +1445,321 @@ fn normalize_task_status(status: &str) -> &str {
         "active" | "running" => "in_progress",
         other => other,
     }
+}
+
+fn is_authorized_reopen_contract(contract: &str) -> bool {
+    matches!(
+        contract,
+        "arda.workbench.queue_retry.v1"
+            | "arda.workbench.queue_continuation.v1"
+            | "arda.workbench.executable_continuation.v1"
+            | "arda.schedule.queue_activation.v1"
+    )
+}
+
+fn records_share_effective_alias(left: &QueueRecord, right: &QueueRecord) -> bool {
+    let left_source = TaskQueueAnalyzer::effective_record_key(left);
+    let right_source = TaskQueueAnalyzer::effective_record_key(right);
+    [left.id.as_str(), left_source.as_str()]
+        .iter()
+        .any(|left_alias| {
+            [right.id.as_str(), right_source.as_str()]
+                .iter()
+                .any(|right_alias| left_alias == right_alias)
+        })
+}
+
+fn prior_same_alias_index(records: &[QueueRecord], index: usize) -> Option<usize> {
+    (0..index)
+        .rev()
+        .find(|prior_index| records_share_effective_alias(&records[index], &records[*prior_index]))
+}
+
+fn same_reopen_identity(current: &QueueRecord, prior: &QueueRecord) -> bool {
+    current.id == prior.id
+        && TaskQueueAnalyzer::effective_record_key(current) == prior.id
+        && current.title == prior.title
+        && current.owner == prior.owner
+        && current.priority == prior.priority
+        && queue_objective_id(current) == queue_objective_id(prior)
+        && approved_workbench_metadata(current)
+}
+
+fn same_reopen_payload(current: &QueueRecord, prior: &QueueRecord) -> bool {
+    same_reopen_identity(current, prior) && current.extra.get("meta") == prior.extra.get("meta")
+}
+
+fn executable_continuation_meta_matches(current: &QueueRecord, prior: &QueueRecord) -> bool {
+    let Some(mut expected) = prior.extra.get("meta").and_then(Value::as_object).cloned() else {
+        return false;
+    };
+    for field in [
+        "continuation_decision",
+        "continuation_sequence",
+        "retry_sequence",
+        "revision_sequence",
+        "revision_directive",
+    ] {
+        let Some(value) = current.extra.get(field).cloned() else {
+            return false;
+        };
+        expected.insert(field.into(), value);
+    }
+    current.extra.get("meta") == Some(&Value::Object(expected))
+}
+
+fn extra_timestamp(record: &QueueRecord, field: &str) -> bool {
+    record
+        .extra
+        .get(field)
+        .and_then(Value::as_str)
+        .and_then(parse_utc)
+        .is_some()
+}
+
+fn sequence(record: &QueueRecord, field: &str) -> u64 {
+    record
+        .extra
+        .get(field)
+        .and_then(Value::as_u64)
+        .or_else(|| record.extra["meta"].get(field).and_then(Value::as_u64))
+        .unwrap_or(0)
+}
+
+fn validated_root_reopen_contract(records: &[QueueRecord], index: usize) -> Option<&str> {
+    let current = &records[index];
+    let contract = current.extra.get("contract").and_then(Value::as_str)?;
+    if !is_authorized_reopen_contract(contract) {
+        return None;
+    }
+    let prior_index = prior_same_alias_index(records, index)?;
+    let prior = &records[prior_index];
+    let current_status = current.status.as_deref().map(normalize_task_status);
+    let prior_status = prior.status.as_deref().map(normalize_task_status);
+    let valid = match contract {
+        "arda.workbench.queue_retry.v1" => {
+            same_reopen_payload(current, prior)
+                && prior_status == Some("failed")
+                && prior.result.as_deref() != Some("cancelled")
+                && current_status == Some("queued")
+                && current.result.is_none()
+                && current.extra.get("executor").and_then(Value::as_str)
+                    == Some("arda_workbench.queue_executor")
+                && current.extra.get("retry_sequence").and_then(Value::as_u64)
+                    == Some(sequence(prior, "retry_sequence") + 1)
+                && extra_timestamp(current, "retried_at_utc")
+        }
+        "arda.workbench.queue_continuation.v1" => {
+            same_reopen_payload(current, prior)
+                && prior_status == Some("in_progress")
+                && current_status == Some("in_progress")
+                && current.extra.get("executor").and_then(Value::as_str)
+                    == Some("arda_workbench.queue_executor")
+                && current
+                    .extra
+                    .get("workbench_run_id")
+                    .and_then(Value::as_str)
+                    .filter(|run_id| !run_id.trim().is_empty())
+                    == prior.extra.get("workbench_run_id").and_then(Value::as_str)
+                && current
+                    .extra
+                    .get("completed_stage")
+                    .and_then(Value::as_str)
+                    .is_some_and(|stage| !stage.trim().is_empty())
+                && current
+                    .extra
+                    .get("continuation_decision")
+                    .and_then(Value::as_str)
+                    .is_some_and(|decision| !decision.trim().is_empty())
+                && extra_timestamp(current, "recorded_at_utc")
+        }
+        "arda.workbench.executable_continuation.v1" => {
+            let decision = current
+                .extra
+                .get("continuation_decision")
+                .and_then(Value::as_str);
+            let queued_wait_activation = prior.extra.get("contract").and_then(Value::as_str)
+                == Some("arda.workbench.executable_continuation.v1")
+                && validated_root_reopen_contract(records, prior_index)
+                    == Some("arda.workbench.executable_continuation.v1")
+                && prior_status == Some("blocked")
+                && current_status == Some("queued")
+                && decision == Some("wait_until")
+                && same_reopen_identity(current, prior)
+                && current.extra == prior.extra;
+            queued_wait_activation
+                || (same_reopen_identity(current, prior)
+                    && matches!(prior_status, Some("failed" | "cancelled"))
+                    && matches!(current_status, Some("queued" | "blocked"))
+                    && matches!(
+                        decision,
+                        Some("retry_same_task" | "revise_task" | "wait_until")
+                    )
+                    && (decision == Some("wait_until")) == (current_status == Some("blocked"))
+                    && current
+                        .extra
+                        .get("parent_workbench_run_id")
+                        .and_then(Value::as_str)
+                        .filter(|run_id| !run_id.trim().is_empty())
+                        == prior.extra.get("workbench_run_id").and_then(Value::as_str)
+                    && current
+                        .extra
+                        .get("continuation_sequence")
+                        .and_then(Value::as_u64)
+                        == Some(sequence(prior, "continuation_sequence") + 1)
+                    && current.extra.get("retry_sequence").and_then(Value::as_u64)
+                        == Some(sequence(prior, "retry_sequence") + 1)
+                    && current
+                        .extra
+                        .get("revision_sequence")
+                        .and_then(Value::as_u64)
+                        == Some(
+                            sequence(prior, "revision_sequence")
+                                + u64::from(decision == Some("revise_task")),
+                        )
+                    && current
+                        .extra
+                        .get("revision_directive")
+                        .and_then(Value::as_str)
+                        .is_some()
+                    && executable_continuation_meta_matches(current, prior)
+                    && current
+                        .queued_at_utc
+                        .as_deref()
+                        .and_then(parse_utc)
+                        .is_some())
+        }
+        "arda.schedule.queue_activation.v1" => {
+            same_reopen_payload(current, prior)
+                && prior_status == Some("completed")
+                && prior.result.as_deref() == Some("completed")
+                && current_status == Some("queued")
+                && current.result.is_none()
+                && current
+                    .extra
+                    .get("scheduled_for_utc")
+                    .and_then(Value::as_str)
+                    .and_then(parse_utc)
+                    .is_some()
+                && current
+                    .extra
+                    .get("schedule_mode")
+                    .and_then(Value::as_str)
+                    .is_some_and(|mode| matches!(mode, "once" | "deferred" | "recurring"))
+                && extra_timestamp(current, "recorded_at_utc")
+        }
+        _ => false,
+    };
+    valid.then_some(contract)
+}
+
+fn reprioritization_preserves_predecessor(
+    current: &QueueRecord,
+    prior: &QueueRecord,
+    root_authority: &str,
+) -> bool {
+    let canonical_priority = matches!(
+        current.priority.as_deref(),
+        Some("critical" | "high" | "medium" | "low")
+    );
+    let previous_priority_matches =
+        current
+            .extra
+            .get("previous_priority")
+            .is_some_and(|previous| match prior.priority.as_deref() {
+                Some(priority) => previous.as_str() == Some(priority),
+                None => previous.is_null(),
+            });
+    let valid_reason = current
+        .extra
+        .get("operator_reason")
+        .and_then(Value::as_str)
+        .is_some_and(|reason| !reason.trim().is_empty());
+    let valid_timestamp = extra_timestamp(current, "reprioritized_at_utc");
+    let same_top_level_payload = current.id == prior.id
+        && TaskQueueAnalyzer::effective_record_key(current)
+            == TaskQueueAnalyzer::effective_record_key(prior)
+        && current.title == prior.title
+        && current.owner == prior.owner
+        && current.status == prior.status
+        && current.result == prior.result
+        && current.queued_at_utc == prior.queued_at_utc
+        && current.completed_at_utc == prior.completed_at_utc
+        && current.started_at_utc == prior.started_at_utc;
+    let mut current_extra = current.extra.clone();
+    let mut prior_extra = prior.extra.clone();
+    for field in [
+        "contract",
+        "reprioritized_from_contract",
+        "previous_priority",
+        "operator_reason",
+        "reprioritized_at_utc",
+    ] {
+        current_extra.remove(field);
+        prior_extra.remove(field);
+    }
+    canonical_priority
+        && current.priority != prior.priority
+        && previous_priority_matches
+        && valid_reason
+        && valid_timestamp
+        && same_top_level_payload
+        && current
+            .extra
+            .get("reprioritized_from_contract")
+            .and_then(Value::as_str)
+            == Some(root_authority)
+        && current_extra == prior_extra
+}
+
+fn record_authorizes_reopen(records: &[QueueRecord], index: usize) -> bool {
+    let record = &records[index];
+    let Some(contract) = record.extra.get("contract").and_then(Value::as_str) else {
+        return false;
+    };
+    if is_authorized_reopen_contract(contract) {
+        return validated_root_reopen_contract(records, index).is_some();
+    }
+    if contract != "arda.workbench.queue_reprioritization.v1" {
+        return false;
+    }
+    let Some(root_authority) = record
+        .extra
+        .get("reprioritized_from_contract")
+        .and_then(Value::as_str)
+        .filter(|contract| is_authorized_reopen_contract(contract))
+    else {
+        return false;
+    };
+
+    let mut cursor = index;
+    while let Some(prior_index) = prior_same_alias_index(records, cursor) {
+        if !reprioritization_preserves_predecessor(
+            &records[cursor],
+            &records[prior_index],
+            root_authority,
+        ) {
+            return false;
+        }
+        let prior = &records[prior_index];
+        match prior.extra.get("contract").and_then(Value::as_str) {
+            Some(prior_contract) if is_authorized_reopen_contract(prior_contract) => {
+                return validated_root_reopen_contract(records, prior_index)
+                    == Some(root_authority);
+            }
+            Some("arda.workbench.queue_reprioritization.v1")
+                if prior
+                    .extra
+                    .get("reprioritized_from_contract")
+                    .and_then(Value::as_str)
+                    == Some(root_authority) =>
+            {
+                cursor = prior_index;
+            }
+            _ => return false,
+        }
+    }
+    false
 }
 
 fn parse_utc(s: &str) -> Option<DateTime<Utc>> {
@@ -1706,6 +2153,359 @@ mod tests {
         assert_eq!(effective.len(), 1);
         assert_eq!(effective[0].id, "terminal");
         assert_eq!(effective[0].status.as_deref(), Some("completed"));
+    }
+
+    #[test]
+    fn effective_records_reject_forged_reprioritization_reopen() {
+        let terminal = QueueRecord {
+            id: "terminal".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            ..blank("terminal")
+        };
+        let mut forged_extra = source_record_extra("terminal");
+        forged_extra.insert(
+            "contract".into(),
+            json!("arda.workbench.queue_reprioritization.v1"),
+        );
+        forged_extra.insert(
+            "reprioritized_from_contract".into(),
+            json!("arda.workbench.queue_retry.v1"),
+        );
+        let forged = QueueRecord {
+            id: "forged-reprioritization".into(),
+            priority: Some("critical".into()),
+            status: Some("queued".into()),
+            extra: forged_extra,
+            ..blank("forged-reprioritization")
+        };
+
+        let effective = TaskQueueAnalyzer::effective_records(vec![terminal, forged]);
+
+        assert_eq!(effective.len(), 1);
+        assert_eq!(effective[0].id, "terminal");
+        assert_eq!(effective[0].status.as_deref(), Some("completed"));
+    }
+
+    #[test]
+    fn effective_records_reject_self_asserted_reopen_contract_roots() {
+        for contract in [
+            "arda.workbench.queue_retry.v1",
+            "arda.workbench.queue_continuation.v1",
+            "arda.workbench.executable_continuation.v1",
+            "arda.schedule.queue_activation.v1",
+        ] {
+            let terminal = QueueRecord {
+                id: "terminal".into(),
+                status: Some("failed".into()),
+                result: Some("failed".into()),
+                ..blank("terminal")
+            };
+            let mut forged_extra = source_record_extra("terminal");
+            forged_extra.insert("contract".into(), json!(contract));
+            let forged = QueueRecord {
+                id: "terminal".into(),
+                status: Some("queued".into()),
+                extra: forged_extra,
+                ..blank("terminal")
+            };
+
+            let effective = TaskQueueAnalyzer::effective_records(vec![terminal, forged]);
+
+            assert_eq!(effective.len(), 1, "{contract}");
+            assert_eq!(effective[0].status.as_deref(), Some("failed"), "{contract}");
+        }
+    }
+
+    #[test]
+    fn effective_records_reject_mismatched_and_broken_reopen_authority_chains() {
+        let authorized_retry_records = || {
+            let mut terminal = QueueRecord {
+                id: "terminal".into(),
+                priority: Some("low".into()),
+                status: Some("failed".into()),
+                result: Some("failed".into()),
+                extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+                ..blank("terminal")
+            };
+            terminal
+                .extra
+                .insert("source_record_id".into(), json!("terminal"));
+            let mut retry_extra = terminal.extra.clone();
+            retry_extra.insert("contract".into(), json!("arda.workbench.queue_retry.v1"));
+            retry_extra.insert("executor".into(), json!("arda_workbench.queue_executor"));
+            retry_extra.insert("retry_sequence".into(), json!(1));
+            retry_extra.insert("retried_at_utc".into(), json!(Utc::now().to_rfc3339()));
+            let retry = QueueRecord {
+                status: Some("queued".into()),
+                result: None,
+                extra: retry_extra,
+                ..terminal.clone()
+            };
+            (terminal, retry)
+        };
+        let reprioritization = |prior: &QueueRecord, authority: &str| {
+            let mut extra = prior.extra.clone();
+            extra.insert(
+                "contract".into(),
+                json!("arda.workbench.queue_reprioritization.v1"),
+            );
+            extra.insert("reprioritized_from_contract".into(), json!(authority));
+            QueueRecord {
+                priority: Some("critical".into()),
+                extra,
+                ..prior.clone()
+            }
+        };
+
+        let (terminal, retry) = authorized_retry_records();
+        let mismatched = reprioritization(&retry, "arda.workbench.executable_continuation.v1");
+        let effective =
+            TaskQueueAnalyzer::effective_records(vec![terminal.clone(), retry.clone(), mismatched]);
+        assert_eq!(effective[0].priority.as_deref(), Some("low"));
+        assert_eq!(
+            effective[0].extra.get("contract").and_then(Value::as_str),
+            Some("arda.workbench.queue_retry.v1")
+        );
+
+        let interrupted = QueueRecord {
+            extra: source_record_extra("terminal"),
+            ..retry.clone()
+        };
+        let after_interruption = reprioritization(&interrupted, "arda.workbench.queue_retry.v1");
+        let effective = TaskQueueAnalyzer::effective_records(vec![
+            terminal.clone(),
+            retry.clone(),
+            interrupted,
+            after_interruption,
+        ]);
+        assert_eq!(effective[0].priority.as_deref(), Some("low"));
+        assert_eq!(
+            effective[0].extra.get("contract").and_then(Value::as_str),
+            Some("arda.workbench.queue_retry.v1")
+        );
+
+        let mut forged_root = retry.clone();
+        forged_root.extra.remove("executor");
+        forged_root.extra.remove("retry_sequence");
+        forged_root.extra.remove("retried_at_utc");
+        let after_forgery = reprioritization(&forged_root, "arda.workbench.queue_retry.v1");
+        let effective =
+            TaskQueueAnalyzer::effective_records(vec![terminal, forged_root, after_forgery]);
+        assert_eq!(effective[0].status.as_deref(), Some("failed"));
+        assert_eq!(effective[0].priority.as_deref(), Some("low"));
+    }
+
+    #[test]
+    fn effective_records_reject_forged_repeated_reprioritization_transitions() {
+        let mut terminal = QueueRecord {
+            id: "terminal".into(),
+            title: Some("Canonical title".into()),
+            owner: Some("prometheus".into()),
+            priority: Some("low".into()),
+            status: Some("failed".into()),
+            result: Some("failed".into()),
+            queued_at_utc: Some("2026-08-28T12:00:00Z".into()),
+            completed_at_utc: Some("2026-08-28T12:01:00Z".into()),
+            started_at_utc: Some("2026-08-28T12:00:30Z".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+        };
+        terminal
+            .extra
+            .insert("source_record_id".into(), json!("terminal"));
+        let mut retry = QueueRecord {
+            status: Some("queued".into()),
+            result: None,
+            ..terminal.clone()
+        };
+        retry
+            .extra
+            .insert("contract".into(), json!("arda.workbench.queue_retry.v1"));
+        retry
+            .extra
+            .insert("executor".into(), json!("arda_workbench.queue_executor"));
+        retry.extra.insert("retry_sequence".into(), json!(1));
+        retry
+            .extra
+            .insert("retried_at_utc".into(), json!(Utc::now().to_rfc3339()));
+        let mut genuine = QueueRecord {
+            priority: Some("high".into()),
+            extra: retry.extra.clone(),
+            ..retry.clone()
+        };
+        genuine.extra.insert(
+            "contract".into(),
+            json!("arda.workbench.queue_reprioritization.v1"),
+        );
+        genuine.extra.insert(
+            "reprioritized_from_contract".into(),
+            json!("arda.workbench.queue_retry.v1"),
+        );
+        genuine
+            .extra
+            .insert("previous_priority".into(), json!("low"));
+        genuine
+            .extra
+            .insert("operator_reason".into(), json!("operator escalation"));
+        genuine.extra.insert(
+            "reprioritized_at_utc".into(),
+            json!(Utc::now().to_rfc3339()),
+        );
+        assert_eq!(
+            TaskQueueAnalyzer::effective_records(vec![
+                terminal.clone(),
+                retry.clone(),
+                genuine.clone()
+            ])[0]
+                .priority
+                .as_deref(),
+            Some("high")
+        );
+
+        let mut forged = Vec::new();
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.title = Some("Forged title".into());
+        forged.push(("title", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.owner = Some("forged-owner".into());
+        forged.push(("owner", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.status = Some("in_progress".into());
+        forged.push(("status", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.result = Some("forged-result".into());
+        forged.push(("result", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.queued_at_utc = Some("2026-08-28T13:00:00Z".into());
+        forged.push(("timestamp", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.extra["meta"]["approval_packet_id"] = json!("forged-approval");
+        forged.push(("approval lineage", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.extra["meta"]["source_objective_packet_id"] = json!("forged-objective");
+        forged.push(("objective lineage", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.extra.insert("previous_priority".into(), json!("low"));
+        forged.push(("previous priority", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.extra.insert("operator_reason".into(), json!("   "));
+        forged.push(("operator reason", row));
+        let mut row = genuine.clone();
+        row.priority = Some("critical".into());
+        row.extra
+            .insert("reprioritized_at_utc".into(), json!("not-a-timestamp"));
+        forged.push(("reprioritized timestamp", row));
+        let mut row = genuine.clone();
+        row.priority = Some("urgent".into());
+        row.extra.insert("previous_priority".into(), json!("high"));
+        forged.push(("canonical priority", row));
+
+        for (field, forged) in forged {
+            let effective = TaskQueueAnalyzer::effective_records(vec![
+                terminal.clone(),
+                retry.clone(),
+                genuine.clone(),
+                forged,
+            ]);
+            assert_eq!(effective.len(), 1, "{field}");
+            assert_eq!(effective[0].title, genuine.title, "{field}");
+            assert_eq!(effective[0].owner, genuine.owner, "{field}");
+            assert_eq!(effective[0].status, genuine.status, "{field}");
+            assert_eq!(effective[0].result, genuine.result, "{field}");
+            assert_eq!(effective[0].priority, genuine.priority, "{field}");
+            assert_eq!(effective[0].extra, genuine.extra, "{field}");
+        }
+    }
+
+    #[test]
+    fn effective_records_reject_executable_continuation_with_forged_meta_lineage() {
+        let mut terminal = QueueRecord {
+            id: "terminal".into(),
+            title: Some("Canonical title".into()),
+            owner: Some("prometheus".into()),
+            priority: Some("high".into()),
+            status: Some("failed".into()),
+            result: Some("failed".into()),
+            queued_at_utc: Some("2026-08-28T12:00:00Z".into()),
+            completed_at_utc: Some("2026-08-28T12:01:00Z".into()),
+            started_at_utc: Some("2026-08-28T12:00:30Z".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+        };
+        terminal
+            .extra
+            .insert("source_record_id".into(), json!("terminal"));
+        terminal
+            .extra
+            .insert("workbench_run_id".into(), json!("queue-terminal"));
+        let mut meta = terminal.extra["meta"].as_object().unwrap().clone();
+        meta.insert("continuation_decision".into(), json!("retry_same_task"));
+        meta.insert("continuation_sequence".into(), json!(1));
+        meta.insert("retry_sequence".into(), json!(1));
+        meta.insert("revision_sequence".into(), json!(0));
+        meta.insert("revision_directive".into(), json!("retry safely"));
+        meta.insert("approval_packet_id".into(), json!("forged-approval"));
+        let continuation = QueueRecord {
+            status: Some("queued".into()),
+            result: None,
+            queued_at_utc: Some("2026-08-28T12:02:00Z".into()),
+            completed_at_utc: None,
+            started_at_utc: None,
+            extra: serde_json::Map::from_iter([
+                (
+                    "contract".into(),
+                    json!("arda.workbench.executable_continuation.v1"),
+                ),
+                ("source_record_id".into(), json!("terminal")),
+                ("continuation_decision".into(), json!("retry_same_task")),
+                ("continuation_sequence".into(), json!(1)),
+                ("retry_sequence".into(), json!(1)),
+                ("revision_sequence".into(), json!(0)),
+                ("parent_workbench_run_id".into(), json!("queue-terminal")),
+                ("workbench_run_id".into(), json!("queue-terminal-attempt-1")),
+                ("revision_directive".into(), json!("retry safely")),
+                ("meta".into(), Value::Object(meta)),
+            ]),
+            ..terminal.clone()
+        };
+
+        let effective =
+            TaskQueueAnalyzer::effective_records(vec![terminal.clone(), continuation.clone()]);
+
+        assert_eq!(effective.len(), 1);
+        assert_eq!(effective[0].status, terminal.status);
+        assert_eq!(effective[0].result, terminal.result);
+        assert_eq!(effective[0].extra, terminal.extra);
+
+        for (decision, status, forged_revision) in [
+            ("retry_same_task", "queued", 1),
+            ("wait_until", "blocked", 1),
+            ("revise_task", "queued", 0),
+        ] {
+            let mut forged = continuation.clone();
+            forged.status = Some(status.into());
+            forged.extra["continuation_decision"] = json!(decision);
+            forged.extra["revision_sequence"] = json!(forged_revision);
+            forged.extra["meta"]["continuation_decision"] = json!(decision);
+            forged.extra["meta"]["revision_sequence"] = json!(forged_revision);
+            forged.extra["meta"]["approval_packet_id"] =
+                terminal.extra["meta"]["approval_packet_id"].clone();
+
+            let effective = TaskQueueAnalyzer::effective_records(vec![terminal.clone(), forged]);
+
+            assert_eq!(effective.len(), 1, "{decision}");
+            assert_eq!(effective[0].status, terminal.status, "{decision}");
+            assert_eq!(effective[0].result, terminal.result, "{decision}");
+            assert_eq!(effective[0].extra, terminal.extra, "{decision}");
+        }
     }
 
     #[test]
@@ -3279,6 +4079,772 @@ mod tests {
             TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
         );
         assert_eq!(effective[0].status.as_deref(), Some("failed"));
+    }
+
+    #[test]
+    fn operator_reprioritization_appends_and_changes_approved_selection_order() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let earlier = QueueRecord {
+            id: "earlier-medium".into(),
+            title: Some("Earlier medium task".into()),
+            owner: Some("prometheus".into()),
+            priority: Some("medium".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("earlier-medium")
+        };
+        let later = QueueRecord {
+            id: "later-medium".into(),
+            title: Some("Later medium task".into()),
+            owner: Some("prometheus".into()),
+            priority: Some("medium".into()),
+            status: Some("queued".into()),
+            result: Some("awaiting_dispatch".into()),
+            queued_at_utc: Some("2026-08-28T12:00:00Z".into()),
+            completed_at_utc: Some("2026-08-28T12:01:00Z".into()),
+            started_at_utc: Some("2026-08-28T12:00:30Z".into()),
+            extra: {
+                let mut extra = approved_workbench_extra_for_target("project-b", "/worktrees/b");
+                extra.insert("source_record_id".into(), json!("later-medium-source"));
+                extra.insert("objective_id".into(), json!("objective-1"));
+                extra
+            },
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&earlier).unwrap(),
+                serde_json::to_string(&later).unwrap()
+            ),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        for task in [&earlier, &later] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let appended = executor
+            .reprioritize(
+                "later-medium",
+                "objective-1",
+                "critical",
+                "operator raised urgency",
+            )
+            .expect("reprioritize canonical task");
+
+        assert_eq!(appended.id, later.id);
+        assert_eq!(appended.title, later.title);
+        assert_eq!(appended.owner, later.owner);
+        assert_eq!(appended.status, later.status);
+        assert_eq!(appended.result, later.result);
+        assert_eq!(appended.queued_at_utc, later.queued_at_utc);
+        assert_eq!(appended.completed_at_utc, later.completed_at_utc);
+        assert_eq!(appended.started_at_utc, later.started_at_utc);
+        assert_eq!(appended.priority.as_deref(), Some("critical"));
+        assert_eq!(appended.extra.get("meta"), later.extra.get("meta"));
+        assert_eq!(
+            appended.extra.get("source_record_id"),
+            later.extra.get("source_record_id")
+        );
+        assert_eq!(
+            appended.extra.get("objective_id"),
+            later.extra.get("objective_id")
+        );
+        assert_eq!(
+            appended.extra.get("contract").and_then(Value::as_str),
+            Some("arda.workbench.queue_reprioritization.v1")
+        );
+        assert_eq!(
+            appended
+                .extra
+                .get("operator_reason")
+                .and_then(Value::as_str),
+            Some("operator raised urgency")
+        );
+        assert_eq!(
+            appended
+                .extra
+                .get("previous_priority")
+                .and_then(Value::as_str),
+            Some("medium")
+        );
+        assert_eq!(
+            executor
+                .select_next_approved()
+                .unwrap()
+                .expect("approved selection")
+                .id,
+            later.id
+        );
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .unwrap()
+                .lines()
+                .count(),
+            3
+        );
+    }
+
+    #[test]
+    fn reprioritized_authorized_reopens_remain_effective_after_terminal_alias() {
+        let contracts = [
+            "arda.workbench.queue_retry.v1",
+            "arda.workbench.queue_continuation.v1",
+            "arda.workbench.executable_continuation.v1",
+            "arda.schedule.queue_activation.v1",
+        ];
+        for (index, contract) in contracts.into_iter().enumerate() {
+            let dir = tempfile::tempdir().expect("create tempdir");
+            let queue_path = dir.path().join("queue.jsonl");
+            let active_path = dir.path().join("queue_active.json");
+            let task_id = format!("reopened-task-{index}");
+            let mut predecessor = QueueRecord {
+                id: task_id.clone(),
+                priority: Some("low".into()),
+                status: Some("failed".into()),
+                result: Some("failed".into()),
+                extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+                ..blank(&task_id)
+            };
+            predecessor
+                .extra
+                .insert("source_record_id".into(), json!(predecessor.id));
+            let mut ledger_records = Vec::new();
+            let mut reopen_extra = predecessor.extra.clone();
+            reopen_extra.insert("contract".into(), json!(contract));
+            let mut reopened = QueueRecord {
+                status: Some("queued".into()),
+                result: None,
+                extra: reopen_extra,
+                ..predecessor.clone()
+            };
+            match contract {
+                "arda.workbench.queue_retry.v1" => {
+                    reopened
+                        .extra
+                        .insert("executor".into(), json!("arda_workbench.queue_executor"));
+                    reopened.extra.insert("retry_sequence".into(), json!(1));
+                    reopened
+                        .extra
+                        .insert("retried_at_utc".into(), json!(Utc::now().to_rfc3339()));
+                }
+                "arda.workbench.queue_continuation.v1" => {
+                    ledger_records.push(QueueRecord {
+                        status: Some("completed".into()),
+                        result: Some("completed".into()),
+                        ..predecessor.clone()
+                    });
+                    predecessor.status = Some("in_progress".into());
+                    predecessor.result = None;
+                    predecessor
+                        .extra
+                        .insert("workbench_run_id".into(), json!("queue-reopened-task"));
+                    reopened.status = Some("in_progress".into());
+                    reopened.extra = predecessor.extra.clone();
+                    reopened.extra.insert("contract".into(), json!(contract));
+                    reopened
+                        .extra
+                        .insert("executor".into(), json!("arda_workbench.queue_executor"));
+                    reopened
+                        .extra
+                        .insert("completed_stage".into(), json!("provider_dispatch"));
+                    reopened
+                        .extra
+                        .insert("continuation_decision".into(), json!("continue"));
+                    reopened
+                        .extra
+                        .insert("recorded_at_utc".into(), json!(Utc::now().to_rfc3339()));
+                }
+                "arda.workbench.executable_continuation.v1" => {
+                    predecessor
+                        .extra
+                        .insert("workbench_run_id".into(), json!("queue-reopened-task"));
+                    reopened.queued_at_utc = Some(Utc::now().to_rfc3339());
+                    reopened.extra.insert(
+                        "parent_workbench_run_id".into(),
+                        json!("queue-reopened-task"),
+                    );
+                    reopened
+                        .extra
+                        .insert("continuation_decision".into(), json!("retry_same_task"));
+                    reopened
+                        .extra
+                        .insert("continuation_sequence".into(), json!(1));
+                    reopened.extra.insert("retry_sequence".into(), json!(1));
+                    reopened.extra.insert("revision_sequence".into(), json!(0));
+                    reopened
+                        .extra
+                        .insert("revision_directive".into(), json!("retry safely"));
+                    reopened.extra.insert(
+                        "workbench_run_id".into(),
+                        json!("queue-reopened-task-attempt-1"),
+                    );
+                    reopened.extra["meta"]["continuation_decision"] = json!("retry_same_task");
+                    reopened.extra["meta"]["continuation_sequence"] = json!(1);
+                    reopened.extra["meta"]["retry_sequence"] = json!(1);
+                    reopened.extra["meta"]["revision_sequence"] = json!(0);
+                    reopened.extra["meta"]["revision_directive"] = json!("retry safely");
+                }
+                "arda.schedule.queue_activation.v1" => {
+                    predecessor.status = Some("completed".into());
+                    predecessor.result = Some("completed".into());
+                    reopened
+                        .extra
+                        .insert("scheduled_for_utc".into(), json!(Utc::now().to_rfc3339()));
+                    reopened
+                        .extra
+                        .insert("schedule_mode".into(), json!("recurring"));
+                    reopened
+                        .extra
+                        .insert("recorded_at_utc".into(), json!(Utc::now().to_rfc3339()));
+                }
+                _ => unreachable!(),
+            }
+            ledger_records.push(predecessor);
+            ledger_records.push(reopened.clone());
+            std::fs::write(
+                &queue_path,
+                ledger_records
+                    .iter()
+                    .map(|record| serde_json::to_string(record).unwrap())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+                    + "\n",
+            )
+            .expect("write queue fixture");
+            std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+            append_test_schedule(
+                &queue_path,
+                &reopened.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+            let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+            executor
+                .reprioritize(
+                    &reopened.id,
+                    "objective-1",
+                    "critical",
+                    "reopened work now blocks the objective",
+                )
+                .expect("reprioritize authorized reopen");
+            executor
+                .reprioritize(
+                    &reopened.id,
+                    "objective-1",
+                    "high",
+                    "repeated operator priority adjustment",
+                )
+                .expect("reprioritize authorized reopen again");
+            let effective = TaskQueueAnalyzer::effective_records(
+                TaskQueueAnalyzer::new(&queue_path)
+                    .load()
+                    .expect("load queue"),
+            );
+            let current = effective
+                .iter()
+                .find(|record| record.id == reopened.id)
+                .expect("reopened task remains effective");
+
+            assert_eq!(current.priority.as_deref(), Some("high"), "{contract}");
+            assert_eq!(
+                current.extra.get("contract").and_then(Value::as_str),
+                Some("arda.workbench.queue_reprioritization.v1"),
+                "{contract}"
+            );
+            assert_eq!(
+                current
+                    .extra
+                    .get("reprioritized_from_contract")
+                    .and_then(Value::as_str),
+                Some(contract),
+                "{contract}"
+            );
+        }
+    }
+
+    #[test]
+    fn dispatch_priority_order_covers_all_buckets_and_legacy_tail() {
+        let records = vec![
+            QueueRecord {
+                id: "missing".into(),
+                ..blank("missing")
+            },
+            QueueRecord {
+                id: "low".into(),
+                priority: Some("low".into()),
+                ..blank("low")
+            },
+            QueueRecord {
+                id: "medium".into(),
+                priority: Some("medium".into()),
+                ..blank("medium")
+            },
+            QueueRecord {
+                id: "unknown".into(),
+                priority: Some("urgent".into()),
+                ..blank("unknown")
+            },
+            QueueRecord {
+                id: "high".into(),
+                priority: Some("high".into()),
+                ..blank("high")
+            },
+            QueueRecord {
+                id: "critical".into(),
+                priority: Some("critical".into()),
+                ..blank("critical")
+            },
+        ];
+
+        let ids = dispatch_priority_order(records)
+            .into_iter()
+            .map(|record| record.id)
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            ids,
+            vec!["critical", "high", "medium", "low", "missing", "unknown"]
+        );
+    }
+
+    #[test]
+    fn equal_priority_selection_and_claim_preserve_effective_ledger_order() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "equal-first".into(),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("equal-first")
+        };
+        let second = QueueRecord {
+            id: "equal-second".into(),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/b"),
+            ..blank("equal-second")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        for task in [&first, &second] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        assert_eq!(
+            executor
+                .select_next_approved()
+                .unwrap()
+                .expect("approved selection")
+                .id,
+            first.id
+        );
+        assert_eq!(
+            executor
+                .claim_next_approved()
+                .unwrap()
+                .expect("approved claim")
+                .task
+                .id,
+            first.id
+        );
+    }
+
+    #[test]
+    fn candidate_claim_rejects_stale_priority_selection_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "stale-first".into(),
+            priority: Some("medium".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("stale-first")
+        };
+        let second = QueueRecord {
+            id: "fresh-critical".into(),
+            priority: Some("medium".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/b"),
+            ..blank("fresh-critical")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        for task in [&first, &second] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        let stale = executor
+            .next_approved_reconciling_orphans_excluding(&BTreeSet::new())
+            .unwrap()
+            .expect("initial candidate");
+        assert_eq!(stale.id, first.id);
+        executor
+            .reprioritize(
+                &second.id,
+                "objective-1",
+                "critical",
+                "priority changed while target lock was acquired",
+            )
+            .expect("reprioritize competing candidate");
+        let before_claim = std::fs::read(&queue_path).expect("read queue before stale claim");
+
+        assert!(executor
+            .claim_approved_candidate(&stale.id, &BTreeSet::new())
+            .unwrap()
+            .is_none());
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before_claim);
+    }
+
+    #[test]
+    fn approved_atomic_claim_uses_priority_order() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let low = QueueRecord {
+            id: "earlier-low".into(),
+            priority: Some("low".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("earlier-low")
+        };
+        let high = QueueRecord {
+            id: "later-high".into(),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/b"),
+            ..blank("later-high")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&low).unwrap(),
+                serde_json::to_string(&high).unwrap()
+            ),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        for task in [&low, &high] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let claim = executor
+            .claim_next_approved()
+            .unwrap()
+            .expect("approved claim");
+
+        assert_eq!(claim.task.id, high.id);
+    }
+
+    #[test]
+    fn orphan_aware_selection_uses_priority_order() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let low = QueueRecord {
+            id: "orphan-earlier-low".into(),
+            priority: Some("low".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("orphan-earlier-low")
+        };
+        let high = QueueRecord {
+            id: "orphan-later-high".into(),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/b"),
+            ..blank("orphan-later-high")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&low).unwrap(),
+                serde_json::to_string(&high).unwrap()
+            ),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        for task in [&low, &high] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let selected = executor
+            .next_approved_reconciling_orphans_excluding(&BTreeSet::new())
+            .unwrap()
+            .expect("approved candidate");
+
+        assert_eq!(selected.id, high.id);
+    }
+
+    #[test]
+    fn orphan_aware_atomic_claim_uses_priority_order() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let low = QueueRecord {
+            id: "orphan-claim-earlier-low".into(),
+            priority: Some("low".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("orphan-claim-earlier-low")
+        };
+        let high = QueueRecord {
+            id: "orphan-claim-later-high".into(),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/b"),
+            ..blank("orphan-claim-later-high")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&low).unwrap(),
+                serde_json::to_string(&high).unwrap()
+            ),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        for task in [&low, &high] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let claim = executor
+            .claim_next_approved_reconciling_orphans_excluding(&BTreeSet::new())
+            .unwrap()
+            .expect("approved claim");
+
+        assert_eq!(claim.task.id, high.id);
+    }
+
+    #[test]
+    fn operator_reprioritization_rejects_wrong_objective_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "objective-bound-task".into(),
+            priority: Some("medium".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("objective-bound-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        let before = std::fs::read(&queue_path).expect("read original ledger");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let error = executor
+            .reprioritize(
+                &task.id,
+                "wrong-objective",
+                "critical",
+                "unauthorized priority change",
+            )
+            .unwrap_err();
+
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
+    }
+
+    #[test]
+    fn operator_reprioritization_rejects_unknown_priority_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "priority-bound-task".into(),
+            priority: Some("medium".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("priority-bound-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        let before = std::fs::read(&queue_path).expect("read original ledger");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let error = executor
+            .reprioritize(&task.id, "objective-1", "urgent", "unknown priority")
+            .unwrap_err();
+
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
+    }
+
+    #[test]
+    fn operator_reprioritization_rejects_terminal_task_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "completed-priority-task".into(),
+            priority: Some("medium".into()),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            extra: approved_workbench_extra(),
+            ..blank("completed-priority-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        let before = std::fs::read(&queue_path).expect("read original ledger");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let error = executor
+            .reprioritize(
+                &task.id,
+                "objective-1",
+                "critical",
+                "terminal task must remain immutable",
+            )
+            .unwrap_err();
+
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
+    }
+
+    #[test]
+    fn operator_reprioritization_requires_reason_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "reason-bound-task".into(),
+            priority: Some("medium".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("reason-bound-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        let before = std::fs::read(&queue_path).expect("read original ledger");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let error = executor
+            .reprioritize(&task.id, "objective-1", "critical", "   ")
+            .unwrap_err();
+
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
+    }
+
+    #[test]
+    fn operator_reprioritization_rejects_existing_priority_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "already-critical-task".into(),
+            priority: Some("critical".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("already-critical-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        let before = std::fs::read(&queue_path).expect("read original ledger");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let error = executor
+            .reprioritize(
+                &task.id,
+                "objective-1",
+                "critical",
+                "priority is already critical",
+            )
+            .unwrap_err();
+
+        assert_eq!(error.kind(), std::io::ErrorKind::AlreadyExists);
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
     fn l3_safe_local_extra() -> serde_json::Map<String, serde_json::Value> {

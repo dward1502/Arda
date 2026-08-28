@@ -3,6 +3,7 @@ use arda_engine::harness::{
     DEFAULT_MANWE_PROXY_TIMEOUT, DEFAULT_WARDEN_SCOUT_TIMEOUT,
 };
 use serde_json::{json, Value};
+use std::fs;
 use std::sync::Arc;
 use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
@@ -176,6 +177,101 @@ async fn plan(
         .send()
         .await
         .expect("plan request")
+}
+
+#[tokio::test]
+async fn plan_rejects_a_stale_expected_project_contract_digest() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let response = client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "expected_project_contract_digest": format!("sha256:{}", "0".repeat(64)),
+            "graph": graph("run-stale-project-contract", "plan", "plan"),
+            "envelope": envelope("plan-stale-project-contract")
+        }))
+        .send()
+        .await
+        .expect("plan request");
+
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn provider_contract_replacement_is_rejected_without_journal_mutation() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let planned = client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": completion_graph("run-provider-replacement"),
+            "envelope": envelope("provider-replacement-plan")
+        }))
+        .send()
+        .await
+        .expect("plan request");
+    assert_eq!(planned.status(), reqwest::StatusCode::CREATED);
+
+    let approved = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-provider-replacement/approve"
+        ))
+        .json(&json!({
+            "node_id": "approval",
+            "envelope": envelope("provider-replacement-approval")
+        }))
+        .send()
+        .await
+        .expect("approval request");
+    assert_eq!(approved.status(), reqwest::StatusCode::OK);
+
+    let journal_path = root
+        .path()
+        .join("data/runs/run-provider-replacement/events.jsonl");
+    let before = fs::read(&journal_path).expect("journal before replacement");
+    let registry_path = root.path().join("data/workbench/projects.json");
+    let mut registry: Value = serde_json::from_slice(
+        &fs::read(&registry_path).expect("project registry before replacement"),
+    )
+    .expect("registry json");
+    registry["projects"][0]["contract"]["workspace"]["root"] =
+        Value::String("other-workspace".into());
+    fs::create_dir(root.path().join("other-workspace")).expect("replacement workspace");
+    fs::write(
+        &registry_path,
+        serde_json::to_vec_pretty(&registry).expect("replacement registry json"),
+    )
+    .expect("replace project registry");
+
+    let execute = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-provider-replacement/nodes/execute/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("provider-replacement-execute"),
+            "objective": "must not execute after contract replacement"
+        }))
+        .send()
+        .await
+        .expect("execute request");
+    assert_eq!(execute.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replacement"),
+        before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
 }
 
 #[tokio::test]

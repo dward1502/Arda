@@ -11,6 +11,7 @@ use super::task_queue::{
 };
 use super::validator::PlanValidator;
 use anyhow::{anyhow, Context, Result};
+use arda_core::project_contract::ProjectContract;
 use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
 use arda_vaire::{
     ContextDisposition, ContextOutcomeInput, ContextOutcomeReceipt, MnemosyneService,
@@ -21,6 +22,7 @@ use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
+use std::collections::BTreeSet;
 use std::fs::{File, OpenOptions};
 use std::path::{Path, PathBuf};
 
@@ -45,7 +47,6 @@ pub struct QueueExecutionReceipt {
 pub struct WorkbenchQueueExecutor {
     root: PathBuf,
     harness_url: String,
-    project_id: String,
     client: reqwest::Client,
 }
 
@@ -53,28 +54,26 @@ impl WorkbenchQueueExecutor {
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
         let harness_url =
             std::env::var("ARDA_HARNESS_URL").unwrap_or_else(|_| "http://127.0.0.1:7878".into());
-        let project_id = std::env::var("ARDA_WORKBENCH_PROJECT_ID")
-            .unwrap_or_else(|_| DEFAULT_PROJECT_ID.into());
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(1_200))
             .build()?;
         Ok(Self {
             root: root.as_ref().to_path_buf(),
             harness_url: harness_url.trim_end_matches('/').to_owned(),
-            project_id,
             client,
         })
     }
 
     pub async fn execute_once(&self) -> Result<QueueExecutionReceipt> {
-        // Hold one root-scoped process lock through claim reconciliation and
-        // dispatch. A crash releases it, so the next invocation can recover an
-        // unexpired claim without mistaking a live executor for an orphan.
-        let _executor_lock = acquire_executor_lock(&self.root)?;
+        // Serialize only canonical reconciliation and claim selection. The
+        // target locks then preserve project/worktree exclusion for dispatch.
+        let executor_coordinator_lock = acquire_executor_lock(&self.root)?;
         reconcile_terminal_objective_leaves(&self.root)?;
         let queue = ActiveQueueExecutor::new(&self.root);
         queue.reconcile_schedules(Utc::now())?;
-        let Some(claim) = queue.claim_next_approved_reconciling_orphans()? else {
+        let Some((claim, target_locks)) =
+            claim_execution_with_available_target(&self.root, &queue)?
+        else {
             return Ok(QueueExecutionReceipt {
                 contract: QUEUE_EXECUTION_RECEIPT_CONTRACT.into(),
                 task_id: None,
@@ -87,6 +86,7 @@ impl WorkbenchQueueExecutor {
                 recorded_at_utc: Utc::now().to_rfc3339(),
             });
         };
+        drop(executor_coordinator_lock);
         let run_id = claim.attempt.workbench_run_id.clone();
         if is_decomposable_objective(&claim.task) {
             let (plan, plan_receipt) =
@@ -107,7 +107,7 @@ impl WorkbenchQueueExecutor {
                 recorded_at_utc: Utc::now().to_rfc3339(),
             });
         }
-        match self.dispatch_claim(&claim).await {
+        match self.dispatch_claim(&claim, &target_locks.binding).await {
             Ok((mut status, digest, mut detail)) => {
                 if status == "in_progress" {
                     return Ok(QueueExecutionReceipt {
@@ -346,6 +346,7 @@ impl WorkbenchQueueExecutor {
     async fn dispatch_claim(
         &self,
         claim: &ApprovedQueueClaim,
+        execution_target: &ExecutionTargetBinding,
     ) -> Result<(String, Option<String>, Option<String>)> {
         let run_id = &claim.attempt.workbench_run_id;
         let envelope = approval_envelope(&claim.task, &format!("plan-{run_id}"))?;
@@ -385,12 +386,12 @@ impl WorkbenchQueueExecutor {
             }
             existing
         } else {
-            let project_id = task_project_id(&claim.task).unwrap_or(&self.project_id);
             let response = self
                 .client
                 .post(format!("{}/v1/runs/plan", self.harness_url))
                 .json(&json!({
-                    "project_id": project_id,
+                    "project_id": execution_target.project_id,
+                    "expected_project_contract_digest": execution_target.project_contract_digest,
                     "graph": graph,
                     "envelope": envelope,
                 }))
@@ -551,6 +552,198 @@ fn acquire_executor_lock(root: &Path) -> Result<File> {
     Ok(lock)
 }
 
+#[derive(Debug)]
+struct ExecutionTargetLocks {
+    _files: Vec<File>,
+    binding: ExecutionTargetBinding,
+}
+
+#[derive(Debug)]
+struct ExecutionTargetBinding {
+    project_id: String,
+    project_contract_digest: String,
+    workspace_root: PathBuf,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ExecutionProjectRegistry {
+    schema_version: String,
+    projects: Vec<ExecutionAttachedProject>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ExecutionAttachedProject {
+    contract: ProjectContract,
+    #[serde(rename = "approval_id")]
+    _approval_id: String,
+    #[serde(rename = "proposal_id")]
+    _proposal_id: String,
+    #[serde(rename = "idempotency_key")]
+    _idempotency_key: String,
+}
+
+fn resolve_execution_target(root: &Path, task: &QueueRecord) -> Result<ExecutionTargetBinding> {
+    let project_id = task_project_id(task)
+        .ok_or_else(|| anyhow!("task `{}` omitted `meta.project_id`", task.id))?;
+    let registry_path = root.join("data/workbench/projects.json");
+    const MAX_PROJECT_REGISTRY_BYTES: u64 = 1024 * 1024;
+    let registry_metadata = std::fs::metadata(&registry_path).with_context(|| {
+        format!(
+            "read Workbench project registry metadata `{}`",
+            registry_path.display()
+        )
+    })?;
+    if registry_metadata.len() > MAX_PROJECT_REGISTRY_BYTES {
+        return Err(anyhow!(
+            "Workbench project registry `{}` exceeds maximum size of {} bytes",
+            registry_path.display(),
+            MAX_PROJECT_REGISTRY_BYTES
+        ));
+    }
+    let raw = std::fs::read_to_string(&registry_path).with_context(|| {
+        format!(
+            "read Workbench project registry `{}`",
+            registry_path.display()
+        )
+    })?;
+    let registry: ExecutionProjectRegistry = serde_json::from_str(&raw).with_context(|| {
+        format!(
+            "parse Workbench project registry `{}`",
+            registry_path.display()
+        )
+    })?;
+    if registry.schema_version != "arda.workbench.project-registry.v1" {
+        return Err(anyhow!(
+            "unsupported Workbench project registry version `{}`",
+            registry.schema_version
+        ));
+    }
+    let mut matches = registry
+        .projects
+        .into_iter()
+        .filter(|attached| attached.contract.identity.project_id.to_string() == project_id);
+    let attached = matches
+        .next()
+        .ok_or_else(|| anyhow!("project `{project_id}` is not attached"))?;
+    if matches.next().is_some() {
+        return Err(anyhow!("project `{project_id}` is attached more than once"));
+    }
+    attached
+        .contract
+        .validate()
+        .map_err(|error| anyhow!("invalid project contract for `{project_id}`: {error}"))?;
+
+    let canonical_root = root
+        .canonicalize()
+        .with_context(|| format!("canonicalize Workbench root `{}`", root.display()))?;
+    let workspace_root = canonical_root
+        .join(attached.contract.workspace.root.as_str())
+        .canonicalize()
+        .with_context(|| format!("canonicalize registered workspace for project `{project_id}`"))?;
+    if !workspace_root.starts_with(&canonical_root) {
+        return Err(anyhow!(
+            "registered workspace for project `{project_id}` escapes Workbench root"
+        ));
+    }
+    if let Some(declared_worktree) = task_worktree_path(task) {
+        let declared = Path::new(declared_worktree);
+        let declared = if declared.is_absolute() {
+            declared.to_path_buf()
+        } else {
+            canonical_root.join(declared)
+        };
+        let declared = declared.canonicalize().with_context(|| {
+            format!(
+                "canonicalize task `{}` metadata worktree `{declared_worktree}`",
+                task.id
+            )
+        })?;
+        if declared != workspace_root {
+            return Err(anyhow!(
+                "task `{}` metadata worktree `{}` disagrees with registered workspace `{}`",
+                task.id,
+                declared.display(),
+                workspace_root.display()
+            ));
+        }
+    }
+    let contract_bytes = serde_json::to_vec(&attached.contract)
+        .context("serialize resolved Workbench project contract")?;
+    Ok(ExecutionTargetBinding {
+        project_id: project_id.to_owned(),
+        project_contract_digest: format!("sha256:{:x}", Sha256::digest(contract_bytes)),
+        workspace_root,
+    })
+}
+
+#[cfg(test)]
+fn try_acquire_execution_target_locks(
+    root: &Path,
+    task: &QueueRecord,
+) -> Result<Option<ExecutionTargetLocks>> {
+    let binding = resolve_execution_target(root, task)?;
+    try_acquire_execution_target_locks_for_binding(root, binding)
+}
+
+fn try_acquire_execution_target_locks_for_binding(
+    root: &Path,
+    binding: ExecutionTargetBinding,
+) -> Result<Option<ExecutionTargetLocks>> {
+    let lock_dir = root.join("core/projects/tasks/.workbench-executor-locks");
+    std::fs::create_dir_all(&lock_dir)
+        .with_context(|| format!("create executor lock directory `{}`", lock_dir.display()))?;
+    let key = format!("workspace:{}", binding.workspace_root.display());
+    let digest = format!("{:x}", Sha256::digest(key.as_bytes()));
+    let lock_path = lock_dir.join(format!("target-{digest}.lock"));
+    let lock = OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .open(&lock_path)
+        .with_context(|| format!("open execution target lock `{}`", lock_path.display()))?;
+    match FileExt::try_lock_exclusive(&lock) {
+        Ok(()) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => return Ok(None),
+        Err(error) => return Err(error).context("acquire execution target lock"),
+    }
+    Ok(Some(ExecutionTargetLocks {
+        _files: vec![lock],
+        binding,
+    }))
+}
+
+fn claim_execution_with_available_target(
+    root: &Path,
+    queue: &ActiveQueueExecutor,
+) -> Result<Option<(ApprovedQueueClaim, ExecutionTargetLocks)>> {
+    let mut excluded_task_ids = BTreeSet::new();
+    let mut excluded_workspace_roots = BTreeSet::new();
+    loop {
+        let Some(task) = queue.next_approved_reconciling_orphans_excluding(&excluded_task_ids)?
+        else {
+            return Ok(None);
+        };
+        let binding = resolve_execution_target(root, &task)?;
+        if excluded_workspace_roots.contains(&binding.workspace_root) {
+            excluded_task_ids.insert(task.id);
+            continue;
+        }
+        let workspace_root = binding.workspace_root.clone();
+        let Some(locks) = try_acquire_execution_target_locks_for_binding(root, binding)? else {
+            excluded_workspace_roots.insert(workspace_root);
+            excluded_task_ids.insert(task.id);
+            continue;
+        };
+        if let Some(claim) = queue.claim_approved_candidate(&task.id)? {
+            return Ok(Some((claim, locks)));
+        }
+        excluded_task_ids.insert(task.id);
+    }
+}
+
 fn classify_existing_run(value: &Value) -> (String, Option<String>, Option<String>) {
     let nodes = value["graph"]["nodes"]
         .as_array()
@@ -633,7 +826,18 @@ fn task_project_id(task: &QueueRecord) -> Option<&str> {
         .and_then(Value::as_object)
         .and_then(|meta| meta.get("project_id"))
         .and_then(Value::as_str)
-        .filter(|id| !id.trim().is_empty())
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+}
+
+fn task_worktree_path(task: &QueueRecord) -> Option<&str> {
+    task.extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get("worktree_path"))
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|path| !path.is_empty())
 }
 
 fn is_objective_leaf(task: &QueueRecord) -> bool {
@@ -2017,6 +2221,7 @@ async fn response_error(response: reqwest::Response, action: &str) -> Result<Val
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::prometheus::autopilot::TaskQueueAnalyzer;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
     #[test]
@@ -2064,6 +2269,356 @@ mod tests {
         assert!(approval_envelope(&task, "forged-attempt").is_err());
     }
 
+    fn execution_target_task(
+        id: &str,
+        project_id: Option<&str>,
+        worktree_path: Option<&str>,
+    ) -> QueueRecord {
+        serde_json::from_value(json!({
+            "id": id,
+            "status": "in_progress",
+            "meta": {
+                "project_id": project_id,
+                "worktree_path": worktree_path
+            }
+        }))
+        .expect("execution target task")
+    }
+
+    fn write_execution_project_registry(root: &Path, projects: &[(&str, &str)]) {
+        let entries = projects
+            .iter()
+            .map(|(project_id, workspace_root)| {
+                json!({
+                    "contract": {
+                        "schema_version": "arda.project-contract.v1",
+                        "identity": {
+                            "project_id": project_id,
+                            "name": format!("fixture-{project_id}"),
+                            "kind": "rust"
+                        },
+                        "workspace": {"root": workspace_root},
+                        "runtime": {"adapter": "cargo"},
+                        "commands": [],
+                        "checks": [],
+                        "artifacts": [],
+                        "permissions": {},
+                        "rollback": {"strategy": "git_revert"},
+                        "memory": {"scope": "project"},
+                        "provenance": {
+                            "declared_by": "execution-lock-test",
+                            "declared_at": "2026-08-28T00:00:00Z"
+                        }
+                    },
+                    "approval_id": format!("approval-{project_id}"),
+                    "proposal_id": format!("proposal-{project_id}"),
+                    "idempotency_key": format!("attach-{project_id}")
+                })
+            })
+            .collect::<Vec<_>>();
+        for (_, workspace_root) in projects {
+            std::fs::create_dir_all(root.join(workspace_root)).unwrap();
+        }
+        let path = root.join("data/workbench/projects.json");
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(
+            path,
+            serde_json::to_vec_pretty(&json!({
+                "schema_version": "arda.workbench.project-registry.v1",
+                "projects": entries
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn execution_target_locks_block_distinct_projects_with_the_same_registered_workspace() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project_a = "550e8400-e29b-41d4-a716-446655440001";
+        let project_b = "550e8400-e29b-41d4-a716-446655440002";
+        write_execution_project_registry(dir.path(), &[(project_a, "."), (project_b, ".")]);
+        let first_task = execution_target_task("first", Some(project_a), None);
+        let second_task = execution_target_task("second", Some(project_b), None);
+        let first = try_acquire_execution_target_locks(dir.path(), &first_task)
+            .unwrap()
+            .expect("first physical workspace lock");
+
+        assert!(
+            try_acquire_execution_target_locks(dir.path(), &second_task)
+                .unwrap()
+                .is_none(),
+            "different metadata must not bypass a shared registered workspace lock"
+        );
+        drop(first);
+    }
+
+    #[test]
+    fn execution_target_locks_reject_unknown_registered_project_identity() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        write_execution_project_registry(
+            dir.path(),
+            &[("550e8400-e29b-41d4-a716-446655440001", ".")],
+        );
+        let task = execution_target_task(
+            "unknown",
+            Some("550e8400-e29b-41d4-a716-446655440099"),
+            None,
+        );
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &task).is_err());
+    }
+
+    #[test]
+    fn execution_target_locks_reject_oversized_project_registry_before_parsing() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let registry_path = dir.path().join("data/workbench/projects.json");
+        std::fs::create_dir_all(registry_path.parent().unwrap()).unwrap();
+        std::fs::write(&registry_path, vec![b' '; 1_048_577]).unwrap();
+        let task = execution_target_task(
+            "oversized-registry",
+            Some("550e8400-e29b-41d4-a716-446655440001"),
+            None,
+        );
+
+        let error = try_acquire_execution_target_locks(dir.path(), &task)
+            .expect_err("oversized registry must fail closed");
+        assert!(
+            error.to_string().contains("exceeds maximum size"),
+            "registry must be rejected before unbounded parsing: {error:#}"
+        );
+    }
+
+    #[test]
+    fn execution_target_locks_reject_duplicate_registered_project_ids() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, "."), (project, ".")]);
+        let task = execution_target_task("duplicate-project", Some(project), None);
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &task).is_err());
+    }
+
+    #[test]
+    fn execution_target_locks_reject_unknown_registry_fields() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, ".")]);
+        let registry_path = dir.path().join("data/workbench/projects.json");
+        let mut registry: Value =
+            serde_json::from_slice(&std::fs::read(&registry_path).unwrap()).unwrap();
+        registry["unexpected"] = json!(true);
+        std::fs::write(&registry_path, serde_json::to_vec(&registry).unwrap()).unwrap();
+        let task = execution_target_task("unknown-field", Some(project), None);
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &task).is_err());
+    }
+
+    #[test]
+    fn execution_target_locks_reject_unsupported_registry_schema() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, ".")]);
+        let registry_path = dir.path().join("data/workbench/projects.json");
+        let mut registry: Value =
+            serde_json::from_slice(&std::fs::read(&registry_path).unwrap()).unwrap();
+        registry["schema_version"] = json!("arda.workbench.project-registry.v2");
+        std::fs::write(&registry_path, serde_json::to_vec(&registry).unwrap()).unwrap();
+        let task = execution_target_task("unsupported-schema", Some(project), None);
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &task).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn execution_target_locks_reject_registered_workspace_escaping_root() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let outside = tempfile::tempdir().expect("create external workspace");
+        std::os::unix::fs::symlink(outside.path(), dir.path().join("escape")).unwrap();
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, "escape")]);
+        let task = execution_target_task("escaping-root", Some(project), None);
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &task).is_err());
+    }
+
+    #[test]
+    fn execution_target_locks_allow_distinct_registered_workspace_roots() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project_a = "550e8400-e29b-41d4-a716-446655440001";
+        let project_b = "550e8400-e29b-41d4-a716-446655440002";
+        write_execution_project_registry(
+            dir.path(),
+            &[
+                (project_a, "worktrees/first"),
+                (project_b, "worktrees/second"),
+            ],
+        );
+        let first = execution_target_task("first-project-task", Some(project_a), None);
+        let second = execution_target_task("second-project-task", Some(project_b), None);
+
+        let _first_locks = try_acquire_execution_target_locks(dir.path(), &first)
+            .expect("acquire first target locks")
+            .expect("first target should be available");
+        let second_locks = try_acquire_execution_target_locks(dir.path(), &second)
+            .expect("inspect second target locks");
+
+        assert!(
+            second_locks.is_some(),
+            "distinct registered physical workspaces must execute concurrently"
+        );
+    }
+
+    #[test]
+    fn execution_target_locks_trim_project_identity() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, ".")]);
+        let first_task = execution_target_task("first", Some(project), None);
+        let second_task = execution_target_task("second", Some(&format!(" {project} ")), None);
+        let first = try_acquire_execution_target_locks(dir.path(), &first_task)
+            .unwrap()
+            .expect("first project lock");
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &second_task)
+            .unwrap()
+            .is_none());
+        drop(first);
+    }
+
+    #[test]
+    fn execution_target_locks_reject_metadata_worktree_mismatch() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, "registered")]);
+        std::fs::create_dir_all(dir.path().join("claimed")).unwrap();
+        let task = execution_target_task("mismatch", Some(project), Some("claimed"));
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &task).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn execution_target_locks_block_symlink_aliases_of_the_same_workspace() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project_a = "550e8400-e29b-41d4-a716-446655440001";
+        let project_b = "550e8400-e29b-41d4-a716-446655440002";
+        std::fs::create_dir_all(dir.path().join("physical")).unwrap();
+        std::os::unix::fs::symlink("physical", dir.path().join("alias")).unwrap();
+        write_execution_project_registry(
+            dir.path(),
+            &[(project_a, "physical"), (project_b, "alias")],
+        );
+        let first_task = execution_target_task("first", Some(project_a), None);
+        let second_task = execution_target_task("second", Some(project_b), None);
+        let first = try_acquire_execution_target_locks(dir.path(), &first_task)
+            .unwrap()
+            .expect("first worktree lock");
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &second_task)
+            .unwrap()
+            .is_none());
+        drop(first);
+    }
+
+    #[test]
+    fn execution_target_locks_fail_closed_without_project_identity() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let legacy = execution_target_task("legacy", None, None);
+
+        assert!(try_acquire_execution_target_locks(dir.path(), &legacy).is_err());
+    }
+
+    #[test]
+    fn coordinator_skips_busy_orphan_and_claims_distinct_project() {
+        let dir = tempfile::tempdir().expect("create coordinator root");
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        let record = |id: &str, project_id: &str, worktree_path: &str| -> QueueRecord {
+            serde_json::from_value(json!({
+                "id": id,
+                "status": "queued",
+                "meta": {
+                    "action_class": "approved_autopilot_plan_step",
+                    "mutation_risk": "operator-approved",
+                    "execution_authority": "arda_workbench",
+                    "source_objective_packet_id": format!("objective-{id}"),
+                    "approval_packet_id": format!("approval-{id}"),
+                    "project_id": project_id,
+                    "worktree_path": worktree_path
+                }
+            }))
+            .expect("queue record")
+        };
+        let project_a = "550e8400-e29b-41d4-a716-446655440001";
+        let project_b = "550e8400-e29b-41d4-a716-446655440002";
+        let project_c = "550e8400-e29b-41d4-a716-446655440003";
+        write_execution_project_registry(
+            dir.path(),
+            &[
+                (project_a, "worktrees/first"),
+                (project_b, "worktrees/second"),
+                (project_c, "worktrees/first"),
+            ],
+        );
+        std::os::unix::fs::symlink("first", dir.path().join("worktrees/metadata-alias"))
+            .expect("metadata symlink alias");
+        let first = record("busy-orphan", project_a, "worktrees/first");
+        let same_root = record("same-root-queued", project_c, "worktrees/metadata-alias");
+        let second = record("available-project", project_b, "worktrees/second");
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&same_root).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .unwrap();
+        for task in [&first, &same_root, &second] {
+            super::super::schedule::ScheduleLedger::new(
+                dir.path().join("core/projects/tasks/schedules.jsonl"),
+            )
+            .append(&super::super::schedule::ScheduleRecord {
+                contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: format!("objective-{}", task.id),
+                mode: super::super::schedule::ScheduleMode::Immediate,
+                state: super::super::schedule::ScheduleState::Scheduled,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: Some("coordinator lock test".into()),
+            })
+            .unwrap();
+        }
+        let queue = ActiveQueueExecutor::new(dir.path());
+        let first_claim = queue
+            .claim_next_approved()
+            .unwrap()
+            .expect("claim first project");
+        let _busy_locks = try_acquire_execution_target_locks(dir.path(), &first_claim.task)
+            .unwrap()
+            .expect("hold first project locks");
+
+        let (next, _next_locks) = claim_execution_with_available_target(dir.path(), &queue)
+            .unwrap()
+            .expect("claim distinct available project");
+
+        assert_eq!(next.task.id, second.id);
+        assert_eq!(next.attempt.task_id, second.id);
+        let same_root_effective = TaskQueueAnalyzer::effective_records(
+            TaskQueueAnalyzer::new(&queue_path)
+                .load()
+                .expect("queue records"),
+        )
+        .into_iter()
+        .find(|record| record.id == same_root.id)
+        .expect("same-root task remains present");
+        assert_eq!(same_root_effective.status.as_deref(), Some("queued"));
+    }
+
     fn approved_queue_fixture(root: &Path, task_id: &str) -> PathBuf {
         let queue_path = root.join("core/projects/tasks/queue.jsonl");
         let active_path = root.join("core/state/queue_active.json");
@@ -2082,6 +2637,7 @@ mod tests {
                         "action_class": "approved_autopilot_plan_step",
                         "mutation_risk": "operator-approved",
                         "execution_authority": "arda_workbench",
+                        "project_id": DEFAULT_PROJECT_ID,
                         "source_objective_packet_id": "objective-reconciliation",
                         "approval_packet_id": "approval-reconciliation"
                     }
@@ -2109,8 +2665,8 @@ mod tests {
             reason: Some("approved queue test fixture".into()),
         })
         .unwrap();
+        write_execution_project_registry(root, &[(DEFAULT_PROJECT_ID, ".")]);
         for relative_path in [
-            "data/workbench/projects.json",
             "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md",
             "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
             "ARDA_SYSTEM_STATUS_REPORT.md",
@@ -2128,7 +2684,6 @@ mod tests {
         WorkbenchQueueExecutor {
             root: root.to_path_buf(),
             harness_url,
-            project_id: DEFAULT_PROJECT_ID.into(),
             client: reqwest::Client::builder()
                 .timeout(std::time::Duration::from_secs(2))
                 .build()
@@ -2445,8 +3000,9 @@ mod tests {
         ))])
         .await;
 
+        let binding = resolve_execution_target(dir.path(), &claim.task).unwrap();
         let outcome = test_executor(dir.path(), harness_url)
-            .dispatch_claim(&claim)
+            .dispatch_claim(&claim, &binding)
             .await
             .unwrap();
         server.await.unwrap();

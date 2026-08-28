@@ -466,11 +466,21 @@ impl ActiveQueueExecutor {
         })
     }
 
-    /// Claim new work or recover a claim whose executor process no longer owns
-    /// the executor-lifetime lock. The caller must hold that root-scoped lock
-    /// for the full reconciliation and dispatch operation.
+    #[cfg(test)]
     pub(super) fn claim_next_approved_reconciling_orphans(
         &self,
+    ) -> std::io::Result<Option<ApprovedQueueClaim>> {
+        self.claim_next_approved_reconciling_orphans_excluding(&BTreeSet::new())
+    }
+
+    /// Recover an orphan or atomically claim new work while excluding tasks
+    /// whose project/worktree execution locks are currently held elsewhere.
+    /// The caller holds the short root-scoped coordinator lock for selection,
+    /// then retains the returned target locks through dispatch.
+    #[cfg(test)]
+    pub(super) fn claim_next_approved_reconciling_orphans_excluding(
+        &self,
+        excluded_task_ids: &BTreeSet<String>,
     ) -> std::io::Result<Option<ApprovedQueueClaim>> {
         ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
             if let Some(parent) = self.queue_path.parent() {
@@ -486,7 +496,9 @@ impl ActiveQueueExecutor {
                 let records = read_queue_records(&file)?;
                 let effective = TaskQueueAnalyzer::effective_records(records);
                 if let Some(task) = effective.iter().find(|record| {
-                    record.status.as_deref().map(normalize_task_status) == Some("in_progress")
+                    !excluded_task_ids.contains(&record.id)
+                        && record.status.as_deref().map(normalize_task_status)
+                            == Some("in_progress")
                         && authoritative_schedule_eligible(record, schedules, Utc::now())
                         && approved_workbench_metadata(record)
                 }) {
@@ -497,13 +509,103 @@ impl ActiveQueueExecutor {
                 }
                 let now = Utc::now();
                 let Some(task) = effective.iter().find(|record| {
-                    claimable_status(record)
+                    !excluded_task_ids.contains(&record.id)
+                        && claimable_status(record)
                         && authoritative_schedule_eligible(record, schedules, now)
                         && approved_workbench_metadata(record)
                         && mutation_lease_available(record, &effective, now)
                 }) else {
                     return Ok(None);
                 };
+                let task = task.clone();
+                let attempt = execution_attempt(&task);
+                append_attempt_to_writer(&mut file, &task, &attempt)?;
+                file.sync_data()?;
+                Ok(Some(ApprovedQueueClaim { task, attempt }))
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(value), Ok(())) => Ok(value),
+                (Err(error), _) | (_, Err(error)) => Err(error),
+            }
+        })
+    }
+
+    /// Select eligible work without mutating the queue so the caller can
+    /// acquire the physical execution-target lock before appending a claim.
+    pub(super) fn next_approved_reconciling_orphans_excluding(
+        &self,
+        excluded_task_ids: &BTreeSet<String>,
+    ) -> std::io::Result<Option<QueueRecord>> {
+        ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
+            let file = OpenOptions::new().read(true).open(&self.queue_path)?;
+            file.lock_shared()?;
+            let result = (|| {
+                let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+                if let Some(task) = effective.iter().find(|record| {
+                    !excluded_task_ids.contains(&record.id)
+                        && record.status.as_deref().map(normalize_task_status)
+                            == Some("in_progress")
+                        && authoritative_schedule_eligible(record, schedules, Utc::now())
+                        && approved_workbench_metadata(record)
+                }) {
+                    return Ok(Some(task.clone()));
+                }
+                let now = Utc::now();
+                Ok(effective
+                    .iter()
+                    .find(|record| {
+                        !excluded_task_ids.contains(&record.id)
+                            && claimable_status(record)
+                            && authoritative_schedule_eligible(record, schedules, now)
+                            && approved_workbench_metadata(record)
+                            && mutation_lease_available(record, &effective, now)
+                    })
+                    .cloned())
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(value), Ok(())) => Ok(value),
+                (Err(error), _) | (_, Err(error)) => Err(error),
+            }
+        })
+    }
+
+    /// Atomically revalidate and claim one previously selected exact task.
+    /// Returning `None` means the candidate changed before the target lock was
+    /// acquired; no queue record is appended in that case.
+    pub(super) fn claim_approved_candidate(
+        &self,
+        task_id: &str,
+    ) -> std::io::Result<Option<ApprovedQueueClaim>> {
+        ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
+            let mut file = OpenOptions::new()
+                .read(true)
+                .append(true)
+                .open(&self.queue_path)?;
+            file.lock_exclusive()?;
+            let result = (|| {
+                let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+                let Some(task) = effective.iter().find(|record| record.id == task_id) else {
+                    return Ok(None);
+                };
+                let now = Utc::now();
+                if task.status.as_deref().map(normalize_task_status) == Some("in_progress")
+                    && authoritative_schedule_eligible(task, schedules, now)
+                    && approved_workbench_metadata(task)
+                {
+                    return Ok(Some(ApprovedQueueClaim {
+                        task: task.clone(),
+                        attempt: attempt_from_claimed_task(task)?,
+                    }));
+                }
+                if !claimable_status(task)
+                    || !authoritative_schedule_eligible(task, schedules, now)
+                    || !approved_workbench_metadata(task)
+                    || !mutation_lease_available(task, &effective, now)
+                {
+                    return Ok(None);
+                }
                 let task = task.clone();
                 let attempt = execution_attempt(&task);
                 append_attempt_to_writer(&mut file, &task, &attempt)?;
@@ -2268,6 +2370,59 @@ mod tests {
             .expect("independent project claim");
         assert_eq!(first_claim.task.id, first.id);
         assert_eq!(second_claim.task.id, second.id);
+    }
+
+    #[test]
+    fn orphan_reconciliation_can_exclude_a_busy_target_and_claim_distinct_work() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "busy-orphan".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/project-a"),
+            ..blank("busy-orphan")
+        };
+        let second = QueueRecord {
+            id: "available-project".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/project-b"),
+            ..blank("available-project")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        for task in [&first, &second] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        let first_claim = executor
+            .claim_next_approved()
+            .unwrap()
+            .expect("first project claim");
+        let excluded = BTreeSet::from([first_claim.task.id]);
+
+        let next = executor
+            .claim_next_approved_reconciling_orphans_excluding(&excluded)
+            .unwrap()
+            .expect("distinct project claim");
+
+        assert_eq!(next.task.id, second.id);
+        assert_eq!(next.attempt.task_id, second.id);
     }
 
     #[test]

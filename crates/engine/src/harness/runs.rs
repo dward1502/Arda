@@ -52,6 +52,8 @@ static ACTIVE_PROVIDER_ROUTES: LazyLock<Mutex<HashMap<String, WorkerRouteClass>>
 #[serde(deny_unknown_fields)]
 pub struct PlanRunRequest {
     project_id: String,
+    #[serde(default)]
+    expected_project_contract_digest: Option<String>,
     graph: RunGraph,
     envelope: MutationEnvelope,
 }
@@ -252,6 +254,17 @@ pub(super) async fn plan_run(
         .id
         .clone();
     let attached = find_attached_project(&state.workbench_root, &request.project_id)?;
+    let attached_digest = contract_digest(&attached.contract)?;
+    if request
+        .expected_project_contract_digest
+        .as_deref()
+        .is_some_and(|expected| expected != attached_digest)
+    {
+        return Err(ApiError::conflict(format!(
+            "project `{}` contract changed before run planning",
+            request.project_id
+        )));
+    }
 
     let store =
         RunStore::open(&state.workbench_root, request.graph.run_id.clone()).map_err(store_error)?;
@@ -271,7 +284,7 @@ pub(super) async fn plan_run(
     }
 
     let mut graph = request.graph;
-    graph.provenance.project_contract_digest = contract_digest(&attached.contract)?;
+    graph.provenance.project_contract_digest = attached_digest;
     let plan_node_id = graph
         .nodes
         .iter()
@@ -700,6 +713,26 @@ pub(super) async fn execute_provider_node(
         }
         receipt
     } else {
+        let recovered = store.recover().map_err(store_error)?;
+        let project_id = recovered
+            .events
+            .iter()
+            .find_map(|event| match &event.kind {
+                RunEventKind::Planned { project_id, .. } => Some(project_id.clone()),
+                _ => None,
+            })
+            .ok_or_else(|| ApiError::internal("run journal has no planned project identity"))?;
+        let attached = find_attached_project(&state.workbench_root, &project_id)?;
+        let attached_digest = contract_digest(&attached.contract)?;
+        require_current_project_contract(
+            &project_id,
+            &graph.provenance.project_contract_digest,
+            &attached_digest,
+        )?;
+        let project_root = state
+            .workbench_root
+            .join(attached.contract.workspace.root.as_str());
+
         let cancellation_key = format!("{id}/{}", node_id.as_str());
         if node.state == NodeState::Running {
             if ACTIVE_PROVIDER_CANCELLATIONS
@@ -778,19 +811,6 @@ pub(super) async fn execute_provider_node(
             .map_err(store_error)?;
         }
 
-        let recovered = store.recover().map_err(store_error)?;
-        let project_id = recovered
-            .events
-            .iter()
-            .find_map(|event| match &event.kind {
-                RunEventKind::Planned { project_id, .. } => Some(project_id.clone()),
-                _ => None,
-            })
-            .ok_or_else(|| ApiError::internal("run journal has no planned project identity"))?;
-        let attached = find_attached_project(&state.workbench_root, &project_id)?;
-        let project_root = state
-            .workbench_root
-            .join(attached.contract.workspace.root.as_str());
         let config_path = provider_config_path(&state.workbench_root);
         let environment = std::env::vars().collect::<BTreeMap<_, _>>();
         let adapter = HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
@@ -1114,6 +1134,31 @@ mod active_provider_cancellation_tests {
             .lock()
             .await
             .remove("run-live/execute");
+    }
+
+    #[test]
+    fn provider_execution_rejects_project_contract_replacement_after_planning() {
+        let result = require_current_project_contract(
+            "550e8400-e29b-41d4-a716-446655440000",
+            "sha256:planned",
+            "sha256:replacement",
+        );
+
+        assert!(result.is_err());
+    }
+}
+
+fn require_current_project_contract(
+    project_id: &str,
+    planned_digest: &str,
+    live_digest: &str,
+) -> Result<(), ApiError> {
+    if live_digest == planned_digest {
+        Ok(())
+    } else {
+        Err(ApiError::conflict(format!(
+            "project `{project_id}` contract changed after run planning"
+        )))
     }
 }
 

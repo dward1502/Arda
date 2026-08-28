@@ -24,6 +24,7 @@ pub mod queue_operation;
 pub mod queue_writer;
 pub mod reporting;
 pub mod runner;
+pub mod schedule;
 pub mod service_health;
 pub mod source_registry;
 pub mod task_queue;
@@ -87,6 +88,7 @@ pub use runner::{
     ceo_loop, inspect_autonomy_preflight, write_autonomy_preflight, AutonomyPreflightReport,
     AutonomyPreflightSummary, AutopilotConfig, CeoAutopilot, CycleReport, PlanCycle,
 };
+pub use schedule::{ScheduleLedger, ScheduleMode, ScheduleRecord, ScheduleState};
 pub use service_health::{
     ServiceHealth, ServiceHealthMonitor, ServiceHealthReport, SystemdQuery, UserSystemd,
 };

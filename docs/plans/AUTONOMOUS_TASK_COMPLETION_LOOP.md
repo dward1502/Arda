@@ -6,11 +6,11 @@ soterion:
   role: "implementation_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-27"
+  reviewed: "2026-08-28"
   tags: ["task-loop", "scheduler", "verification", "review", "continuation"]
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-27
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-28
 
 # Autonomous Task Completion Loop
 
@@ -33,7 +33,7 @@ A task created from operator intent or system discovery is scheduled, executed, 
 
 The installed `WorkbenchQueueExecutor` resolves the selected task's project contract and runs `plan → approval → execute → verify → review → close` through the durable Engine graph. It also materializes a validated objective as independently durable canonical queue leaves. Each leaf carries project, authority, checks, evidence, dependency, budget, and digest-bound plan metadata; eligible successors and executable retry/revision/replan records are consumed on later invocations without chat context. Terminal-leaf reconciliation converges after a crash between terminal append and successor/continuation append, and retry claims receive attempt-qualified Workbench run IDs.
 
-The T2/T5 source slice is test-verified, but its final installed-timer acceptance is still open. A live installed-timer run proved objective decomposition, five durable leaves, dependency blocking, and first-leaf dispatch; the user systemd bus then became unavailable before restart, forced-failure correction, unattended closure, and artifact-bound terminal acceptance could be observed. Durable recurrence, `wait_until`, pause/cancel scheduling, multi-project objectives, independent critic selection beyond the verifier role, and operator-facing continuation control also remain open.
+The T2/T5 source slice is test-verified, but its final installed-timer acceptance is still open. A live installed-timer run proved objective decomposition, five durable leaves, dependency blocking, and first-leaf dispatch; the user systemd bus then became unavailable before restart, forced-failure correction, unattended closure, and artifact-bound terminal acceptance could be observed. T6 now has source-verified canonical schedule authority for immediate, one-shot, recurring, deferred, paused, cancelled, and completed states, including timer-tick reconciliation, append-only recurring reactivation, fail-closed objective-linked claims, retries, and terminal transitions, locked and synced queue appends, strict malformed-record rejection, immutable terminal schedules, and continuation-to-deferred-schedule `wait_until` materialization. Installed recurrence and `wait_until` proof, multi-project objectives, independent critic selection beyond the verifier role, and operator-facing continuation control remain open.
 
 ## Task contract additions
 
@@ -143,6 +143,14 @@ This closes the bounded installed-executor/restart slice, not the complete plan'
 - Bounded live evidence: installed-timer objective `operator-objective-t2-t5-live-20260827-v2` reached root `waiting`, produced five durable leaves, kept four dependency-blocked, and claimed the eligible `recover-context` leaf without another instruction. It was append-only retired after the acceptance environment stopped before terminal proof.
 - Blocker: `systemctl --user` returns `Failed to connect to user scope bus via local transport: Connection refused`. Therefore this slice does not yet claim real restart between leaves, installed-timer correction after forced verification failure, unattended terminal closure, or live artifact/evidence-bound acceptance. Those gates remain required before T2/T5 are marked workflow-proven.
 
+### 2026-08-28 canonical schedule-ledger slice
+
+- Schedule authority: `schedule.rs` owns a canonical append-only JSONL ledger keyed by stable task and objective lineage. Replay folds the latest record per task and rejects lineage reassignment, reversal of terminal cancelled/completed states, or recurring schedules without a positive interval.
+- Eligibility and integrity: immediate work is eligible now; deferred and recurring work become eligible at their due timestamp; paused, cancelled, and completed schedules are ineligible. Selection, ordinary claims, legacy safe-local claims, orphan-recovery claims, retries, continuations, cancellation dispatch, terminal completion, and restart reconciliation consult objective-linked canonical schedule authority. Queue replay rejects malformed non-empty records instead of skipping them, protects terminal records across both raw IDs and effective source aliases, and requires an authorized continuation/retry/activation contract before reopening them. Queue mutation paths participate in the same exclusive file lock and sync their append before returning. Objective leaves and deferred continuations use append-only blocked preparation, schedule publication, and activation phases; restart reconciliation repairs an interrupted publication without exposing queue work before its matching schedule authority.
+- Completion and restart: successful one-shot work appends a completed schedule state, while recurring work advances by whole cadence intervals to a timestamp strictly after completion. Each timer invocation reconciles the crash window after queue-terminal append, then append-only reactivates a due recurring task before claiming it. Cancellation retries also repair a missing queue terminal when the matching cancelled schedule transition was already persisted, without repeating the external cancellation request.
+- Verification: `cargo test -p arda-aule --features full-cli -- --test-threads=1` passed 269 library tests, 8 CLI tests, 22 integration tests, and 2 doc tests after fail-closed cancellation authority, idempotent cancellation crash recovery, continuation authority, alias-safe terminal immutability, and append-only queue/schedule publication recovery. The telemetry integration test that failed intermittently under parallel package execution passed both in isolation and in the deterministic single-thread complete package rerun. `cargo clippy -p arda-aule --features full-cli --all-targets -- -D warnings`, `cargo fmt --all -- --check`, the queue append-only guard, and `git diff --check` passed.
+- Evidence boundary: this is source/package proof only. Installed recurrence, `wait_until`, pause/cancel control, and restart behavior remain unproven because the user systemd bus is unavailable.
+
 ### 2026-08-26 first non-trivial operator objective
 
 - Operator objective `operator-objective-78370a00190fd9b8` asked Arda to review itself comprehensively against the operator vision. The operator-approved validated task `operator-objective-78370a00190fd9b8-validated-plan-v1` executed as deterministic run `queue-operator-objective-78370a00190fd9b8-validated-plan-v1`.
@@ -155,4 +163,4 @@ This closes the bounded installed-executor/restart slice, not the complete plan'
 
 ## Done
 
-The first-objective acceptance gate is complete: a real non-trivial task entered through normal intake and reached verified close without the operator manually issuing its intermediate tasks. The plan remains active until the open T5/T6 recurrence, independent-review, multi-project, operator-burden, and live Vairë-receipt gates are complete or explicitly retired.
+The first-objective acceptance gate is complete: a real non-trivial task entered through normal intake and reached verified close without the operator manually issuing its intermediate tasks. T6 canonical scheduling and `wait_until` materialization are source-verified but not installed-runtime proven. The plan remains active until installed recurrence/`wait_until`/restart behavior, independent review, multi-project execution, operator control/burden, and live Vairë-receipt gates are complete or explicitly retired.

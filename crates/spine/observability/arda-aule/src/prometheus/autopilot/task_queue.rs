@@ -11,6 +11,7 @@ use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 
+use super::schedule::{ScheduleLedger, ScheduleMode, ScheduleRecord, ScheduleState};
 use crate::prometheus::queue_authority::canonical_project_task_queue;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -81,6 +82,7 @@ pub struct ApprovedQueueClaim {
 pub struct ActiveQueueExecutor {
     queue_path: PathBuf,
     active_projection_path: PathBuf,
+    schedule_path: PathBuf,
 }
 
 impl TaskQueueAnalyzer {
@@ -96,18 +98,7 @@ impl TaskQueueAnalyzer {
 
     pub fn load(&self) -> std::io::Result<Vec<QueueRecord>> {
         let f = std::fs::File::open(&self.queue_path)?;
-        let mut out = Vec::new();
-        for line in BufReader::new(f).lines() {
-            let line = line?;
-            let trimmed = line.trim();
-            if trimmed.is_empty() {
-                continue;
-            }
-            if let Ok(rec) = serde_json::from_str::<QueueRecord>(trimmed) {
-                out.push(rec);
-            }
-        }
-        Ok(out)
+        read_queue_records(&f)
     }
 
     pub fn analyze(&self) -> TaskQueueMetrics {
@@ -117,11 +108,40 @@ impl TaskQueueAnalyzer {
     }
 
     pub fn effective_records(records: Vec<QueueRecord>) -> Vec<QueueRecord> {
+        let terminal_keys = records
+            .iter()
+            .filter(|record| {
+                matches!(
+                    record.status.as_deref().map(normalize_task_status),
+                    Some("completed" | "failed" | "cancelled")
+                )
+            })
+            .flat_map(|record| [record.id.clone(), Self::effective_record_key(record)])
+            .collect::<BTreeSet<_>>();
         let mut seen_ids = BTreeSet::<String>::new();
         let mut effective = Vec::<(usize, QueueRecord)>::new();
         for (index, record) in records.into_iter().enumerate().rev() {
+            let authorized_reopen = matches!(
+                record.extra.get("contract").and_then(Value::as_str),
+                Some(
+                    "arda.workbench.queue_retry.v1"
+                        | "arda.workbench.queue_continuation.v1"
+                        | "arda.workbench.executable_continuation.v1"
+                        | "arda.schedule.queue_activation.v1"
+                )
+            );
+            let nonterminal = !matches!(
+                record.status.as_deref().map(normalize_task_status),
+                Some("completed" | "failed" | "cancelled")
+            );
             let source_record_id = Self::effective_record_key(&record);
             let aliases = [record.id.clone(), source_record_id];
+            if nonterminal
+                && aliases.iter().any(|alias| terminal_keys.contains(alias))
+                && !authorized_reopen
+            {
+                continue;
+            }
             let already_superseded = aliases.iter().any(|alias| seen_ids.contains(alias));
             seen_ids.extend(aliases);
             if !already_superseded {
@@ -219,6 +239,7 @@ impl ActiveQueueExecutor {
         Self {
             queue_path: canonical_project_task_queue(root),
             active_projection_path: root.join("core/state/queue_active.json"),
+            schedule_path: root.join("core/projects/tasks/schedules.jsonl"),
         }
     }
 
@@ -226,9 +247,15 @@ impl ActiveQueueExecutor {
         queue_path: impl AsRef<Path>,
         active_projection_path: impl AsRef<Path>,
     ) -> Self {
+        let queue_path = queue_path.as_ref().to_path_buf();
+        let schedule_path = queue_path
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .join("schedules.jsonl");
         Self {
-            queue_path: queue_path.as_ref().to_path_buf(),
+            queue_path,
             active_projection_path: active_projection_path.as_ref().to_path_buf(),
+            schedule_path,
         }
     }
 
@@ -236,9 +263,11 @@ impl ActiveQueueExecutor {
         let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
         let effective = TaskQueueAnalyzer::effective_records(records);
         let active_ids = self.load_active_projection_ids().unwrap_or_default();
+        let schedules = ScheduleLedger::new(&self.schedule_path).effective()?;
         Ok(effective.into_iter().find(|record| {
             is_open_queue_status(record.status.as_deref())
                 && (active_ids.is_empty() || active_ids.contains(&record.id))
+                && authoritative_schedule_eligible(record, &schedules, Utc::now())
                 && record
                     .extra
                     .get("meta")
@@ -259,42 +288,174 @@ impl ActiveQueueExecutor {
     pub fn select_next_approved(&self) -> std::io::Result<Option<QueueRecord>> {
         let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
         let effective = TaskQueueAnalyzer::effective_records(records);
-        Ok(effective
-            .into_iter()
-            .find(|record| claimable_status(record) && approved_workbench_metadata(record)))
+        let schedules = ScheduleLedger::new(&self.schedule_path).effective()?;
+        Ok(effective.into_iter().find(|record| {
+            claimable_status(record)
+                && authoritative_schedule_eligible(record, &schedules, Utc::now())
+                && approved_workbench_metadata(record)
+        }))
+    }
+
+    pub fn reconcile_schedules(&self, now: DateTime<Utc>) -> std::io::Result<usize> {
+        let ledger = ScheduleLedger::new(&self.schedule_path);
+        let effective =
+            TaskQueueAnalyzer::effective_records(TaskQueueAnalyzer::new(&self.queue_path).load()?);
+        let schedules = ledger.effective()?;
+        for task in &effective {
+            let Some(schedule) = schedules.get(&task.id) else {
+                continue;
+            };
+            if !schedule_matches_queue_objective(task, schedule) {
+                continue;
+            }
+            let completed_at = task.completed_at_utc.as_deref().and_then(parse_utc);
+            let schedule_precedes_completion = match schedule.mode {
+                ScheduleMode::Immediate => completed_at.is_some(),
+                ScheduleMode::Once | ScheduleMode::Deferred | ScheduleMode::Recurring => schedule
+                    .not_before_utc
+                    .zip(completed_at)
+                    .is_some_and(|(due, completed)| due <= completed),
+            };
+            if task.status.as_deref().map(normalize_task_status) == Some("completed")
+                && task.result.as_deref() == Some("completed")
+                && schedule.state == ScheduleState::Scheduled
+                && schedule_precedes_completion
+            {
+                let completed_at = completed_at.expect("checked above");
+                ledger.advance_after_completion_when(
+                    &task.id,
+                    completed_at,
+                    |current_schedule| {
+                        if let Some(parent) = self.queue_path.parent() {
+                            std::fs::create_dir_all(parent)?;
+                        }
+                        let file = OpenOptions::new()
+                            .create(true)
+                            .read(true)
+                            .write(true)
+                            .truncate(false)
+                            .open(&self.queue_path)?;
+                        file.lock_shared()?;
+                        let result = (|| {
+                            let current =
+                                TaskQueueAnalyzer::effective_records(read_queue_records(&file)?)
+                                    .into_iter()
+                                    .find(|record| record.id == task.id);
+                            Ok(current.is_some_and(|current| {
+                                current.status.as_deref().map(normalize_task_status)
+                                    == Some("completed")
+                                    && current.result.as_deref() == Some("completed")
+                                    && current.completed_at_utc.as_deref().and_then(parse_utc)
+                                        == Some(completed_at)
+                                    && schedule_matches_queue_objective(&current, current_schedule)
+                            }))
+                        })();
+                        let unlock = FileExt::unlock(&file);
+                        match (result, unlock) {
+                            (Ok(current), Ok(())) => Ok(current),
+                            (Err(error), _) | (_, Err(error)) => Err(error),
+                        }
+                    },
+                )?;
+            }
+        }
+
+        ledger.with_effective(|schedules| {
+            if let Some(parent) = self.queue_path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            let mut file = OpenOptions::new()
+                .create(true)
+                .read(true)
+                .append(true)
+                .open(&self.queue_path)?;
+            file.lock_exclusive()?;
+            let result = (|| {
+                let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+                let mut activated = 0;
+                for task in effective {
+                    let Some(schedule) = schedules.get(&task.id) else {
+                        continue;
+                    };
+                    if !schedule_matches_queue_objective(&task, schedule) {
+                        continue;
+                    }
+                    if task.status.as_deref().map(normalize_task_status) != Some("completed")
+                        || task.result.as_deref() != Some("completed")
+                        || schedule.state != ScheduleState::Scheduled
+                        || !schedule
+                            .not_before_utc
+                            .is_some_and(|not_before| not_before <= now)
+                    {
+                        continue;
+                    }
+                    serde_json::to_writer(
+                        &mut file,
+                        &json!({
+                            "contract": "arda.schedule.queue_activation.v1",
+                            "id": task.id,
+                            "source_record_id": task.id,
+                            "title": task.title,
+                            "owner": task.owner,
+                            "priority": task.priority,
+                            "status": "queued",
+                            "result": Value::Null,
+                            "scheduled_for_utc": schedule.not_before_utc,
+                            "schedule_mode": schedule.mode,
+                            "source_objective_packet_id": schedule.objective_id,
+                            "recorded_at_utc": now.to_rfc3339(),
+                            "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
+                        }),
+                    )
+                    .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+                    writeln!(file)?;
+                    activated += 1;
+                }
+                file.sync_data()?;
+                Ok(activated)
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(count), Ok(())) => Ok(count),
+                (Err(error), _) | (_, Err(error)) => Err(error),
+            }
+        })
     }
 
     /// Atomically claim one approved task by appending its in-progress state
     /// while holding an exclusive lock on the canonical append-only ledger.
     pub fn claim_next_approved(&self) -> std::io::Result<Option<ApprovedQueueClaim>> {
-        if let Some(parent) = self.queue_path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        let mut file = OpenOptions::new()
-            .create(true)
-            .read(true)
-            .append(true)
-            .open(&self.queue_path)?;
-        file.lock_exclusive()?;
-        let result = (|| {
-            let records = read_queue_records(&file)?;
-            let effective = TaskQueueAnalyzer::effective_records(records);
-            let Some(task) = effective
-                .into_iter()
-                .find(|record| claimable_status(record) && approved_workbench_metadata(record))
-            else {
-                return Ok(None);
-            };
-            let attempt = execution_attempt(&task);
-            append_attempt_to_writer(&mut file, &task, &attempt)?;
-            file.sync_data()?;
-            Ok(Some(ApprovedQueueClaim { task, attempt }))
-        })();
-        let unlock = FileExt::unlock(&file);
-        match (result, unlock) {
-            (Ok(value), Ok(())) => Ok(value),
-            (Err(error), _) | (_, Err(error)) => Err(error),
-        }
+        ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
+            if let Some(parent) = self.queue_path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            let mut file = OpenOptions::new()
+                .create(true)
+                .read(true)
+                .append(true)
+                .open(&self.queue_path)?;
+            file.lock_exclusive()?;
+            let result = (|| {
+                let records = read_queue_records(&file)?;
+                let effective = TaskQueueAnalyzer::effective_records(records);
+                let Some(task) = effective.into_iter().find(|record| {
+                    claimable_status(record)
+                        && authoritative_schedule_eligible(record, schedules, Utc::now())
+                        && approved_workbench_metadata(record)
+                }) else {
+                    return Ok(None);
+                };
+                let attempt = execution_attempt(&task);
+                append_attempt_to_writer(&mut file, &task, &attempt)?;
+                file.sync_data()?;
+                Ok(Some(ApprovedQueueClaim { task, attempt }))
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(value), Ok(())) => Ok(value),
+                (Err(error), _) | (_, Err(error)) => Err(error),
+            }
+        })
     }
 
     /// Claim new work or recover a claim whose executor process no longer owns
@@ -303,115 +464,151 @@ impl ActiveQueueExecutor {
     pub(super) fn claim_next_approved_reconciling_orphans(
         &self,
     ) -> std::io::Result<Option<ApprovedQueueClaim>> {
-        if let Some(parent) = self.queue_path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        let mut file = OpenOptions::new()
-            .create(true)
-            .read(true)
-            .append(true)
-            .open(&self.queue_path)?;
-        file.lock_exclusive()?;
-        let result = (|| {
-            let records = read_queue_records(&file)?;
-            let effective = TaskQueueAnalyzer::effective_records(records);
-            if let Some(task) = effective.iter().find(|record| {
-                record.status.as_deref().map(normalize_task_status) == Some("in_progress")
-                    && approved_workbench_metadata(record)
-            }) {
-                return Ok(Some(ApprovedQueueClaim {
-                    task: task.clone(),
-                    attempt: attempt_from_claimed_task(task)?,
-                }));
+        ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
+            if let Some(parent) = self.queue_path.parent() {
+                std::fs::create_dir_all(parent)?;
             }
-            let Some(task) = effective
-                .into_iter()
-                .find(|record| claimable_status(record) && approved_workbench_metadata(record))
-            else {
-                return Ok(None);
-            };
-            let attempt = execution_attempt(&task);
-            append_attempt_to_writer(&mut file, &task, &attempt)?;
-            file.sync_data()?;
-            Ok(Some(ApprovedQueueClaim { task, attempt }))
-        })();
-        let unlock = FileExt::unlock(&file);
-        match (result, unlock) {
-            (Ok(value), Ok(())) => Ok(value),
-            (Err(error), _) | (_, Err(error)) => Err(error),
-        }
+            let mut file = OpenOptions::new()
+                .create(true)
+                .read(true)
+                .append(true)
+                .open(&self.queue_path)?;
+            file.lock_exclusive()?;
+            let result = (|| {
+                let records = read_queue_records(&file)?;
+                let effective = TaskQueueAnalyzer::effective_records(records);
+                if let Some(task) = effective.iter().find(|record| {
+                    record.status.as_deref().map(normalize_task_status) == Some("in_progress")
+                        && authoritative_schedule_eligible(record, schedules, Utc::now())
+                        && approved_workbench_metadata(record)
+                }) {
+                    return Ok(Some(ApprovedQueueClaim {
+                        task: task.clone(),
+                        attempt: attempt_from_claimed_task(task)?,
+                    }));
+                }
+                let Some(task) = effective.into_iter().find(|record| {
+                    claimable_status(record)
+                        && authoritative_schedule_eligible(record, schedules, Utc::now())
+                        && approved_workbench_metadata(record)
+                }) else {
+                    return Ok(None);
+                };
+                let attempt = execution_attempt(&task);
+                append_attempt_to_writer(&mut file, &task, &attempt)?;
+                file.sync_data()?;
+                Ok(Some(ApprovedQueueClaim { task, attempt }))
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(value), Ok(())) => Ok(value),
+                (Err(error), _) | (_, Err(error)) => Err(error),
+            }
+        })
     }
 
     pub fn append_attempt(
         &self,
         task: &QueueRecord,
     ) -> std::io::Result<ActiveQueueExecutionAttempt> {
-        let attempt = execution_attempt(task);
-        let mut file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&self.queue_path)?;
-        append_attempt_to_writer(&mut file, task, &attempt)?;
-        Ok(attempt)
+        ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
+            let mut file = OpenOptions::new()
+                .create(true)
+                .read(true)
+                .append(true)
+                .open(&self.queue_path)?;
+            file.lock_exclusive()?;
+            let result = (|| {
+                let current = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?)
+                    .into_iter()
+                    .find(|record| record.id == task.id)
+                    .ok_or_else(|| {
+                        std::io::Error::new(std::io::ErrorKind::NotFound, "task not found")
+                    })?;
+                if !claimable_status(&current)
+                    || !authoritative_schedule_eligible(&current, schedules, Utc::now())
+                    || (!approved_workbench_metadata(&current) && !safe_local_metadata(&current))
+                {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::PermissionDenied,
+                        "task is not eligible for an atomic governed claim",
+                    ));
+                }
+                let attempt = execution_attempt(&current);
+                append_attempt_to_writer(&mut file, &current, &attempt)?;
+                file.sync_data()?;
+                Ok(attempt)
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(value), Ok(())) => Ok(value),
+                (Err(error), _) | (_, Err(error)) => Err(error),
+            }
+        })
     }
 
     /// Requeue one failed approved task while preserving its approval lineage.
     pub fn retry_failed(&self, task_id: &str) -> std::io::Result<QueueRecord> {
-        let mut file = OpenOptions::new()
-            .create(true)
-            .read(true)
-            .append(true)
-            .open(&self.queue_path)?;
-        file.lock_exclusive()?;
-        let result = (|| {
-            let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
-            let task = effective
-                .into_iter()
-                .find(|record| record.id == task_id)
-                .ok_or_else(|| {
-                    std::io::Error::new(std::io::ErrorKind::NotFound, "task not found")
-                })?;
-            if task.status.as_deref().map(normalize_task_status) != Some("failed") {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::InvalidInput,
-                    "only failed tasks may be retried",
-                ));
+        ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
+            let mut file = OpenOptions::new()
+                .create(true)
+                .read(true)
+                .append(true)
+                .open(&self.queue_path)?;
+            file.lock_exclusive()?;
+            let result = (|| {
+                let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+                let task = effective
+                    .into_iter()
+                    .find(|record| record.id == task_id)
+                    .ok_or_else(|| {
+                        std::io::Error::new(std::io::ErrorKind::NotFound, "task not found")
+                    })?;
+                if task.status.as_deref().map(normalize_task_status) != Some("failed") {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "only failed tasks may be retried",
+                    ));
+                }
+                if task.result.as_deref() == Some("cancelled")
+                    || !approved_workbench_metadata(&task)
+                    || !authoritative_schedule_eligible(&task, schedules, Utc::now())
+                {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::PermissionDenied,
+                        "cancelled, unapproved, or ineligible tasks require a new operator decision",
+                    ));
+                }
+                let retry_sequence = task
+                    .extra
+                    .get("retry_sequence")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(0)
+                    + 1;
+                let value = json!({
+                    "id": task.id,
+                    "source_record_id": task.id,
+                    "title": task.title,
+                    "owner": task.owner,
+                    "priority": task.priority,
+                    "status": "queued",
+                    "retry_sequence": retry_sequence,
+                    "retried_at_utc": Utc::now().to_rfc3339(),
+                    "contract": "arda.workbench.queue_retry.v1",
+                    "executor": "arda_workbench.queue_executor",
+                    "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
+                });
+                writeln!(file, "{value}")?;
+                file.sync_data()?;
+                serde_json::from_value(value)
+                    .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(value), Ok(())) => Ok(value),
+                (Err(error), _) | (_, Err(error)) => Err(error),
             }
-            if task.result.as_deref() == Some("cancelled") || !approved_workbench_metadata(&task) {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::PermissionDenied,
-                    "cancelled or unapproved tasks require a new operator decision",
-                ));
-            }
-            let retry_sequence = task
-                .extra
-                .get("retry_sequence")
-                .and_then(Value::as_u64)
-                .unwrap_or(0)
-                + 1;
-            let value = json!({
-                "id": task.id,
-                "source_record_id": task.id,
-                "title": task.title,
-                "owner": task.owner,
-                "priority": task.priority,
-                "status": "queued",
-                "retry_sequence": retry_sequence,
-                "retried_at_utc": Utc::now().to_rfc3339(),
-                "contract": "arda.workbench.queue_retry.v1",
-                "executor": "arda_workbench.queue_executor",
-                "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
-            });
-            writeln!(file, "{value}")?;
-            file.sync_data()?;
-            serde_json::from_value(value)
-                .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))
-        })();
-        let unlock = FileExt::unlock(&file);
-        match (result, unlock) {
-            (Ok(value), Ok(())) => Ok(value),
-            (Err(error), _) | (_, Err(error)) => Err(error),
-        }
+        })
     }
 
     pub fn append_terminal_completion(
@@ -419,21 +616,25 @@ impl ActiveQueueExecutor {
         task: &QueueRecord,
         result: &str,
     ) -> std::io::Result<()> {
-        append_jsonl_value(
-            &self.queue_path,
-            &json!({
-                "id": task.id,
-                "source_record_id": task.id,
-                "title": task.title,
-                "owner": task.owner,
-                "priority": task.priority,
-                "status": "completed",
-                "result": result,
-                "completed_at_utc": Utc::now().to_rfc3339(),
-                "contract": "arda.prometheus.active_queue_terminal_record.v1",
-                "executor": "prometheus.active_queue_executor",
-                "hades_projection_repair": true,
-            }),
+        let completed_at = Utc::now();
+        let terminal = json!({
+            "id": task.id,
+            "source_record_id": task.id,
+            "title": task.title,
+            "owner": task.owner,
+            "priority": task.priority,
+            "status": "completed",
+            "result": result,
+            "completed_at_utc": completed_at.to_rfc3339(),
+            "contract": "arda.prometheus.active_queue_terminal_record.v1",
+            "executor": "prometheus.active_queue_executor",
+            "hades_projection_repair": true,
+        });
+        ScheduleLedger::new(&self.schedule_path).with_completion_transition(
+            &task.id,
+            queue_objective_id(task).unwrap_or_default(),
+            completed_at,
+            || append_jsonl_value(&self.queue_path, &terminal),
         )
     }
 
@@ -468,28 +669,50 @@ impl ActiveQueueExecutor {
         detail: Option<&str>,
         continuation_decision: Option<&str>,
     ) -> std::io::Result<()> {
-        append_jsonl_value(
-            &self.queue_path,
-            &json!({
-                "id": task.id,
-                "source_record_id": task.id,
-                "title": task.title,
-                "owner": task.owner,
-                "priority": task.priority,
-                "status": status,
-                "result": result,
-                "completed_at_utc": Utc::now().to_rfc3339(),
-                "contract": "arda.workbench.queue_terminal.v1",
-                "executor": "arda_workbench.queue_executor",
-                "workbench_run_id": run_id,
-                "execution_receipt_digest": receipt_digest,
-                "closure_receipt_digest": receipt_digest,
-                "continuation_decision": continuation_decision,
-                "source_objective_packet_id": task.extra.get("meta").and_then(Value::as_object).and_then(|meta| meta.get("source_objective_packet_id")),
-                "detail": detail,
-                "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
-            }),
-        )
+        let completed_at = Utc::now();
+        let terminal = json!({
+            "id": task.id,
+            "source_record_id": task.id,
+            "title": task.title,
+            "owner": task.owner,
+            "priority": task.priority,
+            "status": status,
+            "result": result,
+            "completed_at_utc": completed_at.to_rfc3339(),
+            "contract": "arda.workbench.queue_terminal.v1",
+            "executor": "arda_workbench.queue_executor",
+            "workbench_run_id": run_id,
+            "execution_receipt_digest": receipt_digest,
+            "closure_receipt_digest": receipt_digest,
+            "continuation_decision": continuation_decision,
+            "source_objective_packet_id": task.extra.get("meta").and_then(Value::as_object).and_then(|meta| meta.get("source_objective_packet_id")),
+            "detail": detail,
+            "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
+        });
+        let objective_id = queue_objective_id(task).unwrap_or_default();
+        if normalize_task_status(status) == "completed" {
+            ScheduleLedger::new(&self.schedule_path).with_completion_transition(
+                &task.id,
+                objective_id,
+                completed_at,
+                || append_jsonl_value(&self.queue_path, &terminal),
+            )?;
+        } else if result.eq_ignore_ascii_case("cancelled") {
+            ScheduleLedger::new(&self.schedule_path).with_cancellation_transition(
+                &task.id,
+                objective_id,
+                completed_at,
+                detail,
+                || append_jsonl_value(&self.queue_path, &terminal),
+            )?;
+        } else {
+            ScheduleLedger::new(&self.schedule_path).with_active_authority(
+                &task.id,
+                objective_id,
+                || append_jsonl_value(&self.queue_path, &terminal),
+            )?;
+        }
+        Ok(())
     }
 
     pub fn append_workbench_continuation(
@@ -500,25 +723,28 @@ impl ActiveQueueExecutor {
         receipt_digest: Option<&str>,
         continuation_decision: &str,
     ) -> std::io::Result<()> {
-        append_jsonl_value(
-            &self.queue_path,
-            &json!({
-                "contract": "arda.workbench.queue_continuation.v1",
-                "id": task.id,
-                "source_record_id": task.id,
-                "title": task.title,
-                "owner": task.owner,
-                "priority": task.priority,
-                "status": "in_progress",
-                "executor": "arda_workbench.queue_executor",
-                "workbench_run_id": run_id,
-                "completed_stage": completed_stage,
-                "execution_receipt_digest": receipt_digest,
-                "continuation_decision": continuation_decision,
-                "source_objective_packet_id": task.extra.get("meta").and_then(Value::as_object).and_then(|meta| meta.get("source_objective_packet_id")),
-                "recorded_at_utc": Utc::now().to_rfc3339(),
-                "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
-            }),
+        let objective_id = queue_objective_id(task).unwrap_or_default();
+        let continuation = json!({
+            "contract": "arda.workbench.queue_continuation.v1",
+            "id": task.id,
+            "source_record_id": task.id,
+            "title": task.title,
+            "owner": task.owner,
+            "priority": task.priority,
+            "status": "in_progress",
+            "executor": "arda_workbench.queue_executor",
+            "workbench_run_id": run_id,
+            "completed_stage": completed_stage,
+            "execution_receipt_digest": receipt_digest,
+            "continuation_decision": continuation_decision,
+            "source_objective_packet_id": task.extra.get("meta").and_then(Value::as_object).and_then(|meta| meta.get("source_objective_packet_id")),
+            "recorded_at_utc": Utc::now().to_rfc3339(),
+            "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
+        });
+        ScheduleLedger::new(&self.schedule_path).with_active_authority(
+            &task.id,
+            objective_id,
+            || append_continuation_if_current(&self.queue_path, &task.id, run_id, &continuation),
         )
     }
 
@@ -621,6 +847,47 @@ fn claimable_status(record: &QueueRecord) -> bool {
             .is_some_and(|deadline| deadline <= Utc::now()),
         _ => false,
     }
+}
+
+fn authoritative_schedule_eligible(
+    record: &QueueRecord,
+    schedules: &BTreeMap<String, ScheduleRecord>,
+    now: DateTime<Utc>,
+) -> bool {
+    let Some(schedule) = schedules.get(&record.id) else {
+        return false;
+    };
+    if !schedule_matches_queue_objective(record, schedule) {
+        return false;
+    }
+    match schedule.state {
+        ScheduleState::Paused | ScheduleState::Cancelled | ScheduleState::Completed => false,
+        ScheduleState::Scheduled => match schedule.mode {
+            ScheduleMode::Immediate => true,
+            ScheduleMode::Once | ScheduleMode::Deferred | ScheduleMode::Recurring => schedule
+                .not_before_utc
+                .is_some_and(|not_before| not_before <= now),
+        },
+    }
+}
+
+fn schedule_matches_queue_objective(record: &QueueRecord, schedule: &ScheduleRecord) -> bool {
+    queue_objective_id(record) == Some(schedule.objective_id.as_str())
+}
+
+pub(super) fn queue_objective_id(record: &QueueRecord) -> Option<&str> {
+    record
+        .extra
+        .get("source_objective_packet_id")
+        .and_then(Value::as_str)
+        .or_else(|| {
+            record
+                .extra
+                .get("meta")
+                .and_then(Value::as_object)
+                .and_then(|meta| meta.get("source_objective_packet_id"))
+                .and_then(Value::as_str)
+        })
 }
 
 fn execution_attempt(task: &QueueRecord) -> ActiveQueueExecutionAttempt {
@@ -764,13 +1031,60 @@ fn append_attempt_to_writer(
     )
 }
 
+fn append_continuation_if_current(
+    queue_path: &Path,
+    task_id: &str,
+    run_id: &str,
+    continuation: &Value,
+) -> std::io::Result<()> {
+    let mut file = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .append(true)
+        .open(queue_path)?;
+    file.lock_exclusive()?;
+    let result = (|| {
+        let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+        let current = effective
+            .iter()
+            .find(|record| record.id == task_id)
+            .ok_or_else(|| {
+                std::io::Error::new(std::io::ErrorKind::NotFound, "queue task not found")
+            })?;
+        if current.status.as_deref().map(normalize_task_status) != Some("in_progress")
+            || current
+                .extra
+                .get("workbench_run_id")
+                .and_then(Value::as_str)
+                != Some(run_id)
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "queue continuation requires the current claimed Workbench run",
+            ));
+        }
+        writeln!(file, "{continuation}")?;
+        file.sync_data()
+    })();
+    let unlock = FileExt::unlock(&file);
+    result?;
+    unlock
+}
+
 fn read_queue_records(file: &std::fs::File) -> std::io::Result<Vec<QueueRecord>> {
     let mut out = Vec::new();
-    for line in BufReader::new(file.try_clone()?).lines() {
+    for (index, line) in BufReader::new(file.try_clone()?).lines().enumerate() {
         let line = line?;
-        if let Ok(record) = serde_json::from_str::<QueueRecord>(line.trim()) {
-            out.push(record);
+        if line.trim().is_empty() {
+            continue;
         }
+        let record = serde_json::from_str::<QueueRecord>(line.trim()).map_err(|error| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("invalid queue record on line {}: {error}", index + 1),
+            )
+        })?;
+        out.push(record);
     }
     Ok(out)
 }
@@ -794,8 +1108,29 @@ pub(super) fn workbench_run_id(task_id: &str, retry_sequence: u64) -> String {
 }
 
 fn append_jsonl_value(path: &Path, value: &Value) -> std::io::Result<()> {
-    let mut file = OpenOptions::new().create(true).append(true).open(path)?;
-    writeln!(file, "{}", value)
+    let mut file = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .append(true)
+        .open(path)?;
+    file.lock_exclusive()?;
+    let result = writeln!(file, "{}", value).and_then(|()| file.sync_data());
+    let unlock = FileExt::unlock(&file);
+    match (result, unlock) {
+        (Ok(()), Ok(())) => Ok(()),
+        (Err(error), _) | (_, Err(error)) => Err(error),
+    }
+}
+
+fn safe_local_metadata(record: &QueueRecord) -> bool {
+    let meta = record.extra.get("meta").and_then(Value::as_object);
+    meta.and_then(|meta| meta.get("action_class"))
+        .and_then(Value::as_str)
+        == Some("l3_local_doc_fixture_patch")
+        && meta
+            .and_then(|meta| meta.get("mutation_risk"))
+            .and_then(Value::as_str)
+            == Some("safe-local")
 }
 
 fn is_open_queue_status(status: Option<&str>) -> bool {
@@ -822,6 +1157,224 @@ fn parse_utc(s: &str) -> Option<DateTime<Utc>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT;
+
+    #[test]
+    fn locked_queue_replay_rejects_malformed_records() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        std::fs::write(
+            &queue_path,
+            "{\"id\":\"task-a\",\"status\":\"queued\"}\n{malformed}\n",
+        )
+        .expect("write queue fixture");
+        let file = OpenOptions::new()
+            .read(true)
+            .open(&queue_path)
+            .expect("open queue");
+
+        let error = read_queue_records(&file).expect_err("malformed queue must fail closed");
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+    }
+
+    #[test]
+    fn analyzer_replay_rejects_malformed_records() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        std::fs::write(
+            &queue_path,
+            "{\"id\":\"valid\",\"status\":\"queued\"}\n{not-json}\n",
+        )
+        .expect("write malformed fixture");
+
+        let error = TaskQueueAnalyzer::new(&queue_path)
+            .load()
+            .expect_err("canonical analyzer replay must fail closed");
+
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+        assert!(error.to_string().contains("line 2"));
+    }
+
+    #[test]
+    fn queue_append_waits_for_the_canonical_file_lock() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let locked = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&queue_path)
+            .expect("open queue");
+        locked.lock_exclusive().expect("lock queue");
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let append_path = queue_path.clone();
+        let worker = std::thread::spawn(move || {
+            sender
+                .send(append_jsonl_value(
+                    &append_path,
+                    &json!({"id": "task-a", "status": "completed"}),
+                ))
+                .expect("send append result");
+        });
+
+        assert!(receiver
+            .recv_timeout(std::time::Duration::from_millis(100))
+            .is_err());
+        FileExt::unlock(&locked).expect("unlock queue");
+        receiver
+            .recv_timeout(std::time::Duration::from_secs(2))
+            .expect("append completed after unlock")
+            .expect("append queue record");
+        worker.join().expect("join append worker");
+    }
+
+    #[test]
+    fn schedule_objective_must_match_queue_objective_lineage() {
+        let task = QueueRecord {
+            id: "lineage-task".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("lineage-task")
+        };
+        let schedules = BTreeMap::from([(
+            task.id.clone(),
+            ScheduleRecord {
+                contract: SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "different-objective".into(),
+                mode: ScheduleMode::Immediate,
+                state: ScheduleState::Scheduled,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: None,
+            },
+        )]);
+
+        assert!(!authoritative_schedule_eligible(
+            &task,
+            &schedules,
+            Utc::now()
+        ));
+    }
+
+    #[test]
+    fn schedule_reconciliation_ignores_mismatched_objective_lineage() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let completed_at = Utc::now() - Duration::minutes(1);
+        let task = QueueRecord {
+            id: "mismatched-recurrence".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            completed_at_utc: Some(completed_at.to_rfc3339()),
+            extra: approved_workbench_extra(),
+            ..blank("mismatched-recurrence")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let due = completed_at - Duration::minutes(1);
+        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
+        ledger
+            .append(&ScheduleRecord {
+                contract: SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "different-objective".into(),
+                mode: ScheduleMode::Recurring,
+                state: ScheduleState::Scheduled,
+                not_before_utc: Some(due),
+                interval_seconds: Some(60),
+                recorded_at_utc: due,
+                reason: None,
+            })
+            .expect("append schedule");
+
+        let activated = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .reconcile_schedules(Utc::now())
+            .expect("reconcile schedules");
+
+        assert_eq!(activated, 0);
+        assert_eq!(
+            ledger.effective().unwrap()[&task.id].not_before_utc,
+            Some(due)
+        );
+    }
+
+    #[test]
+    fn append_attempt_rejects_future_schedule_authority() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "future-task".into(),
+            status: Some("queued".into()),
+            extra: l3_safe_local_extra(),
+            ..blank("future-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        ScheduleLedger::new(dir.path().join("schedules.jsonl"))
+            .append(&ScheduleRecord {
+                contract: SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-future".into(),
+                mode: ScheduleMode::Deferred,
+                state: ScheduleState::Scheduled,
+                not_before_utc: Some(Utc::now() + Duration::hours(1)),
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: None,
+            })
+            .expect("append future schedule");
+
+        let error = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .append_attempt(&task)
+            .expect_err("future task must not be claimed");
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+    }
+
+    #[test]
+    fn governed_retry_rejects_paused_schedule_authority() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "paused-retry".into(),
+            status: Some("failed".into()),
+            result: Some("verification_failed".into()),
+            extra: approved_workbench_extra(),
+            ..blank("paused-retry")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Paused,
+            None,
+        );
+
+        let error = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .retry_failed(&task.id)
+            .expect_err("paused schedule must block retry");
+
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+    }
     #[test]
     fn summarize_buckets_records() {
         let recs = vec![
@@ -918,7 +1471,7 @@ mod tests {
         let recs = vec![
             QueueRecord {
                 id: "objective".into(),
-                status: Some("completed".into()),
+                status: Some("queued".into()),
                 ..blank("objective")
             },
             QueueRecord {
@@ -940,6 +1493,52 @@ mod tests {
         assert_eq!(effective.len(), 1);
         assert_eq!(effective[0].id, "revised");
         assert_eq!(effective[0].status.as_deref(), Some("queued"));
+    }
+
+    #[test]
+    fn effective_records_do_not_reopen_terminal_tasks_without_authorized_continuation() {
+        let records = vec![
+            QueueRecord {
+                id: "terminal".into(),
+                status: Some("completed".into()),
+                result: Some("completed".into()),
+                ..blank("terminal")
+            },
+            QueueRecord {
+                id: "terminal".into(),
+                status: Some("queued".into()),
+                ..blank("terminal")
+            },
+        ];
+
+        let effective = TaskQueueAnalyzer::effective_records(records);
+
+        assert_eq!(effective.len(), 1);
+        assert_eq!(effective[0].status.as_deref(), Some("completed"));
+    }
+
+    #[test]
+    fn effective_records_do_not_reopen_terminal_tasks_through_source_aliases() {
+        let records = vec![
+            QueueRecord {
+                id: "terminal".into(),
+                status: Some("completed".into()),
+                result: Some("completed".into()),
+                ..blank("terminal")
+            },
+            QueueRecord {
+                id: "forged-reopen".into(),
+                status: Some("queued".into()),
+                extra: source_record_extra("terminal"),
+                ..blank("forged-reopen")
+            },
+        ];
+
+        let effective = TaskQueueAnalyzer::effective_records(records);
+
+        assert_eq!(effective.len(), 1);
+        assert_eq!(effective[0].id, "terminal");
+        assert_eq!(effective[0].status.as_deref(), Some("completed"));
     }
 
     #[test]
@@ -1010,6 +1609,14 @@ mod tests {
             .expect("serialize active projection"),
         )
         .expect("write active projection");
+        append_test_schedule(
+            &queue_path,
+            &safe_task.id,
+            "objective-l3",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
 
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         let selected = executor
@@ -1018,6 +1625,43 @@ mod tests {
             .expect("safe-local task");
 
         assert_eq!(selected.id, safe_task.id);
+    }
+
+    #[test]
+    fn safe_local_selection_obeys_paused_schedule_authority() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "paused-safe-local".into(),
+            status: Some("pending".into()),
+            extra: l3_safe_local_extra(),
+            ..blank("paused-safe-local")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(
+            &active_path,
+            "{\"active\":[{\"id\":\"paused-safe-local\"}]}",
+        )
+        .unwrap();
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-l3",
+            ScheduleMode::Immediate,
+            ScheduleState::Paused,
+            None,
+        );
+
+        let selected = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .select_next_safe_local()
+            .expect("select safely");
+
+        assert!(selected.is_none());
     }
 
     #[test]
@@ -1048,6 +1692,15 @@ mod tests {
         )
         .unwrap();
         std::fs::write(&active_path, "{\"active\":[{\"id\":\"stale-task\"}]}\n").unwrap();
+
+        append_test_schedule(
+            &queue_path,
+            &approved.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
 
         let selected = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
             .select_next_approved()
@@ -1085,6 +1738,14 @@ mod tests {
         )
         .unwrap();
         std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        append_test_schedule(
+            &queue_path,
+            &governed.id,
+            "objective-governed",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
 
         let selected = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
             .select_next_approved()
@@ -1092,6 +1753,258 @@ mod tests {
             .expect("binding governance authority should be executable");
 
         assert_eq!(selected.id, "governed-task");
+    }
+
+    #[test]
+    fn approved_selection_skips_work_deferred_until_a_future_tick() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let future = QueueRecord {
+            id: "future-task".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("future-task")
+        };
+        let due = QueueRecord {
+            id: "due-task".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("due-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&future).unwrap(),
+                serde_json::to_string(&due).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        append_test_schedule(
+            &queue_path,
+            &future.id,
+            "objective-1",
+            ScheduleMode::Deferred,
+            ScheduleState::Scheduled,
+            Some(Utc::now() + Duration::hours(1)),
+        );
+        append_test_schedule(
+            &queue_path,
+            &due.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+
+        let selected = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .select_next_approved()
+            .unwrap()
+            .expect("due task");
+
+        assert_eq!(selected.id, "due-task");
+    }
+
+    #[test]
+    fn approved_selection_skips_paused_scheduled_work() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let mut extra = approved_workbench_extra();
+        extra
+            .get_mut("meta")
+            .and_then(Value::as_object_mut)
+            .expect("approved metadata")
+            .insert("schedule".into(), json!({"state": "paused"}));
+        let task = QueueRecord {
+            id: "paused-task".into(),
+            status: Some("queued".into()),
+            extra,
+            ..blank("paused-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+
+        assert!(ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .select_next_approved()
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn approved_selection_obeys_canonical_schedule_ledger() {
+        use crate::prometheus::autopilot::schedule::{
+            ScheduleLedger, ScheduleMode, ScheduleRecord, ScheduleState, SCHEDULE_RECORD_CONTRACT,
+        };
+
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "paused-by-ledger".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("paused-by-ledger")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        ScheduleLedger::new(dir.path().join("schedules.jsonl"))
+            .append(&ScheduleRecord {
+                contract: SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-1".into(),
+                mode: ScheduleMode::Deferred,
+                state: ScheduleState::Paused,
+                not_before_utc: Some(Utc::now() - Duration::minutes(1)),
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: Some("operator pause".into()),
+            })
+            .expect("append schedule");
+
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        assert!(executor.select_next_approved().unwrap().is_none());
+        assert!(executor.claim_next_approved().unwrap().is_none());
+        assert!(executor
+            .claim_next_approved_reconciling_orphans()
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn canonical_schedule_states_gate_selection_and_claims() {
+        let now = Utc::now();
+        let cases = [
+            (
+                "immediate",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+                None,
+                true,
+            ),
+            (
+                "due-once",
+                ScheduleMode::Once,
+                ScheduleState::Scheduled,
+                Some(now - Duration::minutes(1)),
+                None,
+                true,
+            ),
+            (
+                "due-deferred",
+                ScheduleMode::Deferred,
+                ScheduleState::Scheduled,
+                Some(now - Duration::minutes(1)),
+                None,
+                true,
+            ),
+            (
+                "future-recurring",
+                ScheduleMode::Recurring,
+                ScheduleState::Scheduled,
+                Some(now + Duration::minutes(1)),
+                Some(60),
+                false,
+            ),
+            (
+                "cancelled",
+                ScheduleMode::Immediate,
+                ScheduleState::Cancelled,
+                None,
+                None,
+                false,
+            ),
+            (
+                "completed",
+                ScheduleMode::Immediate,
+                ScheduleState::Completed,
+                None,
+                None,
+                false,
+            ),
+        ];
+
+        for (name, mode, state, not_before_utc, interval_seconds, expected) in cases {
+            let dir = tempfile::tempdir().expect("create tempdir");
+            let queue_path = dir.path().join("queue.jsonl");
+            let active_path = dir.path().join("queue_active.json");
+            let task_id = format!("schedule-state-{name}");
+            let task = QueueRecord {
+                id: task_id.clone(),
+                status: Some("queued".into()),
+                extra: approved_workbench_extra(),
+                ..blank(&task_id)
+            };
+            std::fs::write(
+                &queue_path,
+                format!("{}\n", serde_json::to_string(&task).unwrap()),
+            )
+            .unwrap();
+            std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+            ScheduleLedger::new(dir.path().join("schedules.jsonl"))
+                .append(&ScheduleRecord {
+                    contract: SCHEDULE_RECORD_CONTRACT.into(),
+                    task_id,
+                    objective_id: "objective-1".into(),
+                    mode,
+                    state,
+                    not_before_utc,
+                    interval_seconds,
+                    recorded_at_utc: now,
+                    reason: Some(format!("schedule state fixture: {name}")),
+                })
+                .unwrap();
+
+            let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+            assert_eq!(
+                executor.select_next_approved().unwrap().is_some(),
+                expected,
+                "selection eligibility mismatch for {name}"
+            );
+            assert_eq!(
+                executor.claim_next_approved().unwrap().is_some(),
+                expected,
+                "claim eligibility mismatch for {name}"
+            );
+        }
+    }
+
+    #[test]
+    fn approved_claim_requires_canonical_schedule_authority() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "unscheduled-task".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("unscheduled-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        assert!(executor.select_next_approved().unwrap().is_none());
+        assert!(executor.claim_next_approved().unwrap().is_none());
+        assert!(executor
+            .claim_next_approved_reconciling_orphans()
+            .unwrap()
+            .is_none());
     }
 
     #[test]
@@ -1112,6 +2025,14 @@ mod tests {
         )
         .unwrap();
         std::fs::write(&active_path, "{\"active\":[{\"id\":\"approved-task\"}]}\n").unwrap();
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
         let before = std::fs::read(&queue_path).unwrap();
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
 
@@ -1176,6 +2097,15 @@ mod tests {
         std::fs::write(&queue_path, format!("{queued}\n{claimed}\n")).unwrap();
         std::fs::write(&active_path, "{\"active\":[{\"id\":\"expired-task\"}]}\n").unwrap();
 
+        append_test_schedule(
+            &queue_path,
+            "expired-task",
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+
         let claim = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
             .claim_next_approved()
             .unwrap()
@@ -1217,6 +2147,14 @@ mod tests {
             "{\"active\":[{\"id\":\"digital-organism-s7-living-mesh-proof\"}]}\n",
         )
         .unwrap();
+        append_test_schedule(
+            &queue_path,
+            "digital-organism-s7-living-mesh-proof",
+            "objective_packet:digital-organism-s7-living-mesh-proof:digital-organism-s7-living-mesh-proof",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
         let before = std::fs::read(&queue_path).unwrap();
 
         let claim = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
@@ -1262,6 +2200,14 @@ mod tests {
         });
         std::fs::write(&queue_path, format!("{queued}\n{claimed}\n")).unwrap();
         std::fs::write(&active_path, "{\"active\":[{\"id\":\"orphaned-task\"}]}\n").unwrap();
+        append_test_schedule(
+            &queue_path,
+            "orphaned-task",
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
         let before = std::fs::read(&queue_path).unwrap();
 
         let claim = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
@@ -1296,6 +2242,14 @@ mod tests {
         )
         .unwrap();
         std::fs::write(&active_path, "{\"active\":[{\"id\":\"retry-task\"}]}\n").unwrap();
+        append_test_schedule(
+            &queue_path,
+            "retry-task",
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
 
         let retried = executor
@@ -1372,6 +2326,14 @@ mod tests {
             "{\"active\":[{\"id\":\"safe-local-task\"}]}\n",
         )
         .expect("write active projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-l3",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
 
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         let selected = executor
@@ -1401,6 +2363,293 @@ mod tests {
                 .get("hades_projection_repair")
                 .and_then(serde_json::Value::as_bool),
             Some(true)
+        );
+        assert_eq!(
+            ScheduleLedger::new(dir.path().join("schedules.jsonl"))
+                .effective()
+                .unwrap()[&task.id]
+                .state,
+            ScheduleState::Completed
+        );
+    }
+
+    #[test]
+    fn terminal_completion_advances_the_authoritative_schedule() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "scheduled-task".into(),
+            status: Some("in_progress".into()),
+            extra: approved_workbench_extra(),
+            ..blank("scheduled-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
+        ledger
+            .append(&ScheduleRecord {
+                contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-1".into(),
+                mode: ScheduleMode::Once,
+                state: ScheduleState::Scheduled,
+                not_before_utc: Some(Utc::now() - Duration::minutes(1)),
+                interval_seconds: None,
+                recorded_at_utc: Utc::now() - Duration::minutes(1),
+                reason: None,
+            })
+            .expect("append schedule");
+
+        ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .append_workbench_terminal(&task, "completed", "completed", "run-1", None, None)
+            .expect("append terminal");
+
+        assert_eq!(
+            ledger.effective().unwrap()["scheduled-task"].state,
+            ScheduleState::Completed
+        );
+    }
+
+    #[test]
+    fn terminal_completion_rejects_mismatched_schedule_lineage_before_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "terminal-lineage".into(),
+            status: Some("in_progress".into()),
+            extra: approved_workbench_extra(),
+            ..blank("terminal-lineage")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let due = Utc::now() - chrono::Duration::minutes(1);
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "different-objective",
+            ScheduleMode::Once,
+            ScheduleState::Scheduled,
+            Some(due),
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        let before = std::fs::read_to_string(&queue_path).expect("read queue before");
+
+        let error = executor
+            .append_workbench_terminal(&task, "completed", "ok", "run-1", None, None)
+            .expect_err("mismatched objective must reject terminal completion");
+
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert_eq!(std::fs::read_to_string(&queue_path).unwrap(), before);
+        assert_eq!(
+            ScheduleLedger::new(dir.path().join("schedules.jsonl"))
+                .effective()
+                .unwrap()[&task.id]
+                .not_before_utc,
+            Some(due)
+        );
+    }
+
+    #[test]
+    fn terminal_cancellation_requires_canonical_schedule_authority() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "cancel-without-authority".into(),
+            status: Some("in_progress".into()),
+            extra: approved_workbench_extra(),
+            ..blank("cancel-without-authority")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let before = std::fs::read_to_string(&queue_path).expect("read queue before");
+
+        let error = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .append_workbench_terminal(
+                &task,
+                "failed",
+                "cancelled",
+                "run-cancel",
+                None,
+                Some("operator cancelled"),
+            )
+            .expect_err("missing schedule must reject cancellation");
+
+        assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+        assert_eq!(std::fs::read_to_string(&queue_path).unwrap(), before);
+    }
+
+    #[test]
+    fn terminal_cancellation_blocks_later_completion() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "cancel-before-completion".into(),
+            status: Some("in_progress".into()),
+            extra: approved_workbench_extra(),
+            ..blank("cancel-before-completion")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        executor
+            .append_workbench_terminal(
+                &task,
+                "failed",
+                "cancelled",
+                "run-cancel",
+                None,
+                Some("operator cancelled"),
+            )
+            .expect("append governed cancellation");
+
+        assert_eq!(
+            ScheduleLedger::new(dir.path().join("schedules.jsonl"))
+                .effective()
+                .unwrap()[&task.id]
+                .state,
+            ScheduleState::Cancelled
+        );
+        let before_completion = std::fs::read_to_string(&queue_path).unwrap();
+        let error = executor
+            .append_workbench_terminal(
+                &task,
+                "completed",
+                "completed",
+                "run-cancel",
+                Some("sha256:late"),
+                None,
+            )
+            .expect_err("completion cannot overwrite cancellation");
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(
+            std::fs::read_to_string(&queue_path).unwrap(),
+            before_completion
+        );
+        let effective = TaskQueueAnalyzer::effective_records(
+            TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
+        );
+        assert_eq!(effective[0].result.as_deref(), Some("cancelled"));
+    }
+
+    #[test]
+    fn schedule_reconciliation_repairs_terminal_immediate_schedule() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let completed_at = Utc::now() - Duration::minutes(1);
+        let task = QueueRecord {
+            id: "immediate-task".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            completed_at_utc: Some(completed_at.to_rfc3339()),
+            extra: approved_workbench_extra(),
+            ..blank("immediate-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
+        ledger
+            .append(&ScheduleRecord {
+                contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-1".into(),
+                mode: ScheduleMode::Immediate,
+                state: ScheduleState::Scheduled,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: completed_at - Duration::minutes(1),
+                reason: None,
+            })
+            .expect("append schedule");
+
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        assert_eq!(executor.reconcile_schedules(Utc::now()).unwrap(), 0);
+
+        assert_eq!(
+            ledger.effective().unwrap()["immediate-task"].state,
+            ScheduleState::Completed
+        );
+    }
+
+    #[test]
+    fn schedule_reconciliation_repairs_terminal_then_reactivates_due_recurrence() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let now = Utc::now();
+        let completed_at = now - Duration::minutes(2);
+        let task = QueueRecord {
+            id: "recurring-task".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            completed_at_utc: Some(completed_at.to_rfc3339()),
+            extra: approved_workbench_extra(),
+            ..blank("recurring-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
+        ledger
+            .append(&ScheduleRecord {
+                contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-1".into(),
+                mode: ScheduleMode::Recurring,
+                state: ScheduleState::Scheduled,
+                not_before_utc: Some(now - Duration::minutes(3)),
+                interval_seconds: Some(60),
+                recorded_at_utc: now - Duration::minutes(3),
+                reason: None,
+            })
+            .expect("append schedule");
+
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        assert_eq!(executor.reconcile_schedules(now).unwrap(), 1);
+
+        let effective = TaskQueueAnalyzer::effective_records(
+            TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("queued"));
+        assert_eq!(
+            ledger.effective().unwrap()["recurring-task"].not_before_utc,
+            Some(now - Duration::minutes(1))
         );
     }
 
@@ -1442,6 +2691,14 @@ mod tests {
             "{\"tasks\":[{\"id\":\"tsk_plan_l3c_p6_ded5b63c05\"}]}\n",
         )
         .expect("write active projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-l3",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
 
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         let selected = executor
@@ -1513,13 +2770,94 @@ mod tests {
         );
     }
 
+    #[test]
+    fn workbench_continuation_requires_canonical_schedule_authority() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "continuation-without-schedule",
+            "title": "Do not reopen without schedule authority",
+            "status": "in_progress",
+            "meta": approved_workbench_extra()["meta"]
+        }))
+        .unwrap();
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_value(&task).unwrap()),
+        )
+        .unwrap();
+
+        let error = ActiveQueueExecutor::new(dir.path())
+            .append_workbench_continuation(
+                &task,
+                "run-without-schedule",
+                "execute",
+                None,
+                "continue_test",
+            )
+            .unwrap_err();
+
+        assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+        assert_eq!(TaskQueueAnalyzer::new(&queue_path).load().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn workbench_continuation_cannot_reopen_terminal_current_state() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "terminal-before-continuation",
+            "title": "Do not reopen terminal work",
+            "status": "in_progress",
+            "meta": approved_workbench_extra()["meta"]
+        }))
+        .unwrap();
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_value(&task).unwrap()),
+        )
+        .unwrap();
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::new(dir.path());
+        executor
+            .append_workbench_terminal(
+                &task,
+                "failed",
+                "verification_failed",
+                "terminal-run",
+                None,
+                Some("terminal before continuation"),
+            )
+            .unwrap();
+
+        let error = executor
+            .append_workbench_continuation(&task, "terminal-run", "review", None, "continue_close")
+            .unwrap_err();
+
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        let effective = TaskQueueAnalyzer::effective_records(
+            TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("failed"));
+    }
+
     fn l3_safe_local_extra() -> serde_json::Map<String, serde_json::Value> {
         let mut extra = serde_json::Map::new();
         extra.insert(
             "meta".into(),
             json!({
                 "action_class": "l3_local_doc_fixture_patch",
-                "mutation_risk": "safe-local"
+                "mutation_risk": "safe-local",
+                "source_objective_packet_id": "objective-l3"
             }),
         );
         extra
@@ -1538,6 +2876,29 @@ mod tests {
             }),
         );
         extra
+    }
+
+    fn append_test_schedule(
+        queue_path: &Path,
+        task_id: &str,
+        objective_id: &str,
+        mode: ScheduleMode,
+        state: ScheduleState,
+        not_before_utc: Option<DateTime<Utc>>,
+    ) {
+        ScheduleLedger::new(queue_path.with_file_name("schedules.jsonl"))
+            .append(&ScheduleRecord {
+                contract: SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task_id.into(),
+                objective_id: objective_id.into(),
+                mode,
+                state,
+                not_before_utc,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: Some("test fixture schedule authority".into()),
+            })
+            .expect("append test schedule");
     }
 
     #[test]

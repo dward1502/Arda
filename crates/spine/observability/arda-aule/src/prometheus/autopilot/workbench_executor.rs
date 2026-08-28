@@ -16,7 +16,7 @@ use arda_vaire::{
     ContextDisposition, ContextOutcomeInput, ContextOutcomeReceipt, MnemosyneService,
     OrganismContext,
 };
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -73,6 +73,7 @@ impl WorkbenchQueueExecutor {
         let _executor_lock = acquire_executor_lock(&self.root)?;
         reconcile_terminal_objective_leaves(&self.root)?;
         let queue = ActiveQueueExecutor::new(&self.root);
+        queue.reconcile_schedules(Utc::now())?;
         let Some(claim) = queue.claim_next_approved_reconciling_orphans()? else {
             return Ok(QueueExecutionReceipt {
                 contract: QUEUE_EXECUTION_RECEIPT_CONTRACT.into(),
@@ -163,7 +164,7 @@ impl WorkbenchQueueExecutor {
                         advance_objective_after_leaf(&self.root, &claim.task)?;
                     } else if matches!(
                         decision,
-                        "retry_same_task" | "revise_task" | "replan_objective"
+                        "retry_same_task" | "revise_task" | "replan_objective" | "wait_until"
                     ) {
                         materialize_continuation(
                             &self.root,
@@ -247,15 +248,60 @@ impl WorkbenchQueueExecutor {
     }
 
     pub async fn cancel_task(&self, task_id: &str, reason: &str) -> Result<Value> {
+        let _executor_lock = acquire_executor_lock(&self.root)?;
         let task = self
             .effective_task(task_id)?
             .ok_or_else(|| anyhow!("queue task `{task_id}` was not found"))?;
+        if matches!(
+            task.status.as_deref(),
+            Some("completed" | "failed" | "cancelled")
+        ) {
+            return Err(anyhow!("queue task `{task_id}` is already terminal"));
+        }
         let run_id = task
             .extra
             .get("workbench_run_id")
             .and_then(Value::as_str)
             .map(str::to_owned)
             .unwrap_or_else(|| workbench_run_id(task_id));
+        let objective_id = super::task_queue::queue_objective_id(&task)
+            .ok_or_else(|| anyhow!("queue task `{task_id}` omitted objective lineage"))?;
+        let schedule_ledger = super::schedule::ScheduleLedger::new(
+            self.root.join("core/projects/tasks/schedules.jsonl"),
+        );
+        let cancellation_already_persisted = schedule_ledger
+            .effective()?
+            .get(&task.id)
+            .is_some_and(|schedule| {
+                schedule.objective_id == objective_id
+                    && schedule.state == super::schedule::ScheduleState::Cancelled
+            });
+        if cancellation_already_persisted {
+            ActiveQueueExecutor::new(&self.root).append_workbench_terminal(
+                &task,
+                "failed",
+                "cancelled",
+                &run_id,
+                None,
+                Some(reason),
+            )?;
+            project_terminal_outcome(
+                &self.root,
+                &task,
+                &run_id,
+                "failed",
+                "cancelled",
+                None,
+                Some(reason),
+            )?;
+            return Ok(json!({
+                "status": "cancelled",
+                "reconciled": true,
+                "task_id": task.id,
+                "workbench_run_id": run_id,
+            }));
+        }
+        schedule_ledger.with_active_authority(&task.id, objective_id, || Ok(()))?;
         let envelope = approval_envelope(&task, &format!("cancel-{run_id}"))?;
         let response = self
             .client
@@ -836,6 +882,16 @@ fn continuation_decision_for_task(
         .or_else(|| task.extra["meta"]["retry_sequence"].as_u64())
         .unwrap_or(0)
         + 1;
+    if queue_status != "completed"
+        && result != "cancelled"
+        && task.extra["meta"]["wait_until_utc"]
+            .as_str()
+            .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
+            .map(|value| value.with_timezone(&Utc))
+            .is_some_and(|not_before| not_before > Utc::now())
+    {
+        return "wait_until";
+    }
     if queue_status != "completed" && result != "cancelled" && attempts_used >= max_attempts {
         return "replan_objective";
     }
@@ -1176,6 +1232,9 @@ fn materialize_objective_leaves(
         .iter()
         .map(serde_json::to_value)
         .collect::<std::result::Result<Vec<_>, _>>()?;
+    for value in &mut values {
+        value["status"] = Value::String("blocked".into());
+    }
     values.push(json!({
         "contract": "arda.workbench.objective_waiting.v1",
         "id": objective.id,
@@ -1191,6 +1250,28 @@ fn materialize_objective_leaves(
         "meta": root_meta,
     }));
     append_queue_values(root, &values)?;
+    let schedule_ledger =
+        super::schedule::ScheduleLedger::new(root.join("core/projects/tasks/schedules.jsonl"));
+    for leaf in &leaves {
+        let objective_id = super::task_queue::queue_objective_id(leaf)
+            .ok_or_else(|| anyhow!("objective leaf `{}` omitted objective lineage", leaf.id))?;
+        schedule_ledger.append(&super::schedule::ScheduleRecord {
+            contract: super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: leaf.id.clone(),
+            objective_id: objective_id.into(),
+            mode: super::schedule::ScheduleMode::Immediate,
+            state: super::schedule::ScheduleState::Scheduled,
+            not_before_utc: None,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: Some("governed objective leaf materialized".into()),
+        })?;
+    }
+    let activations = leaves
+        .iter()
+        .map(serde_json::to_value)
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    append_queue_values(root, &activations)?;
     Ok(leaves)
 }
 
@@ -1216,8 +1297,9 @@ fn materialize_continuation(
         .or_else(|| task.extra["meta"]["revision_sequence"].as_u64())
         .unwrap_or(0)
         + u64::from(decision == "revise_task");
+    let mut deferred_schedule = None;
     let value = match decision {
-        "retry_same_task" | "revise_task" => {
+        "retry_same_task" | "revise_task" | "wait_until" => {
             let mut meta = task
                 .extra
                 .get("meta")
@@ -1232,6 +1314,35 @@ fn materialize_continuation(
             meta.insert("retry_sequence".into(), Value::from(retry));
             meta.insert("revision_sequence".into(), Value::from(revision));
             meta.insert("revision_directive".into(), Value::String(detail.into()));
+            if decision == "wait_until" {
+                let objective_id =
+                    super::task_queue::queue_objective_id(task).ok_or_else(|| {
+                        anyhow!("objective leaf `{}` omitted objective lineage", task.id)
+                    })?;
+                let not_before_utc = meta
+                    .get("wait_until_utc")
+                    .and_then(Value::as_str)
+                    .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
+                    .map(|value| value.with_timezone(&Utc))
+                    .filter(|value| *value > Utc::now())
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "objective leaf `{}` omitted a future wait_until_utc",
+                            task.id
+                        )
+                    })?;
+                deferred_schedule = Some(super::schedule::ScheduleRecord {
+                    contract: super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                    task_id: task.id.clone(),
+                    objective_id: objective_id.to_owned(),
+                    mode: super::schedule::ScheduleMode::Deferred,
+                    state: super::schedule::ScheduleState::Scheduled,
+                    not_before_utc: Some(not_before_utc),
+                    interval_seconds: None,
+                    recorded_at_utc: Utc::now(),
+                    reason: Some(detail.to_owned()),
+                });
+            }
             json!({
                 "contract": "arda.workbench.executable_continuation.v1",
                 "id": task.id,
@@ -1239,7 +1350,7 @@ fn materialize_continuation(
                 "title": task.title,
                 "owner": task.owner,
                 "priority": task.priority,
-                "status": "queued",
+                "status": if decision == "wait_until" { "blocked" } else { "queued" },
                 "queued_at_utc": Utc::now().to_rfc3339(),
                 "continuation_decision": decision,
                 "continuation_sequence": continuation,
@@ -1291,7 +1402,16 @@ fn materialize_continuation(
         }
         other => return Err(anyhow!("continuation decision `{other}` is not executable")),
     };
-    append_queue_value(root, value)
+    append_queue_value(root, value.clone())?;
+    if let Some(schedule) = deferred_schedule {
+        super::schedule::ScheduleLedger::new(root.join("core/projects/tasks/schedules.jsonl"))
+            .append(&schedule)?;
+        let mut activation = value;
+        activation["status"] = Value::String("queued".into());
+        activation["queued_at_utc"] = Value::String(Utc::now().to_rfc3339());
+        append_queue_value(root, activation)?;
+    }
+    Ok(())
 }
 
 fn reconcile_terminal_objective_leaves(root: &Path) -> Result<()> {
@@ -1307,12 +1427,90 @@ fn reconcile_terminal_objective_leaves(root: &Path) -> Result<()> {
         })
         .map(|record| record.id.clone())
         .collect::<std::collections::BTreeSet<_>>();
+    let schedule_ledger =
+        super::schedule::ScheduleLedger::new(root.join("core/projects/tasks/schedules.jsonl"));
+    let mut schedules = schedule_ledger.effective()?;
+    let mut prepared_objectives = std::collections::BTreeMap::new();
     for leaf in effective.into_iter().filter(is_objective_leaf) {
         if leaf.extra["meta"]["objective_id"]
             .as_str()
             .is_some_and(|id| terminal_objectives.contains(id))
         {
             continue;
+        }
+        if leaf.status.as_deref() == Some("blocked")
+            && leaf.extra.get("contract").and_then(Value::as_str)
+                == Some("arda.workbench.executable_continuation.v1")
+            && leaf
+                .extra
+                .get("continuation_decision")
+                .and_then(Value::as_str)
+                == Some("wait_until")
+        {
+            let objective_id = super::task_queue::queue_objective_id(&leaf).ok_or_else(|| {
+                anyhow!(
+                    "prepared wait continuation `{}` omitted objective lineage",
+                    leaf.id
+                )
+            })?;
+            let due = DateTime::parse_from_rfc3339(
+                leaf.extra["meta"]["wait_until_utc"]
+                    .as_str()
+                    .ok_or_else(|| anyhow!("prepared wait continuation omitted wait_until_utc"))?,
+            )?
+            .with_timezone(&Utc);
+            let authority_matches = schedules.get(&leaf.id).is_some_and(|schedule| {
+                schedule.objective_id == objective_id
+                    && schedule.mode == super::schedule::ScheduleMode::Deferred
+                    && schedule.state == super::schedule::ScheduleState::Scheduled
+                    && schedule.not_before_utc == Some(due)
+            });
+            if !authority_matches {
+                let schedule = super::schedule::ScheduleRecord {
+                    contract: super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                    task_id: leaf.id.clone(),
+                    objective_id: objective_id.to_owned(),
+                    mode: super::schedule::ScheduleMode::Deferred,
+                    state: super::schedule::ScheduleState::Scheduled,
+                    not_before_utc: Some(due),
+                    interval_seconds: None,
+                    recorded_at_utc: Utc::now(),
+                    reason: Some("reconciled prepared wait_until continuation".into()),
+                };
+                schedule_ledger.append(&schedule)?;
+                schedules.insert(leaf.id.clone(), schedule);
+            }
+            let mut activation = serde_json::to_value(&leaf)?;
+            activation["status"] = Value::String("queued".into());
+            activation["queued_at_utc"] = Value::String(Utc::now().to_rfc3339());
+            append_queue_value(root, activation)?;
+            continue;
+        }
+        if leaf.extra.get("contract").and_then(Value::as_str)
+            == Some("arda.workbench.objective_leaf.v1")
+        {
+            let objective_id = super::task_queue::queue_objective_id(&leaf)
+                .ok_or_else(|| anyhow!("objective leaf `{}` omitted objective lineage", leaf.id))?;
+            if !schedules.contains_key(&leaf.id) {
+                let schedule = super::schedule::ScheduleRecord {
+                    contract: super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                    task_id: leaf.id.clone(),
+                    objective_id: objective_id.to_owned(),
+                    mode: super::schedule::ScheduleMode::Immediate,
+                    state: super::schedule::ScheduleState::Scheduled,
+                    not_before_utc: None,
+                    interval_seconds: None,
+                    recorded_at_utc: Utc::now(),
+                    reason: Some("reconciled prepared objective leaf".into()),
+                };
+                schedule_ledger.append(&schedule)?;
+                schedules.insert(leaf.id.clone(), schedule);
+            }
+            if leaf.status.as_deref() == Some("blocked") {
+                prepared_objectives
+                    .entry(objective_id.to_owned())
+                    .or_insert_with(|| leaf.clone());
+            }
         }
         match leaf.status.as_deref() {
             Some("completed") => advance_objective_after_leaf(root, &leaf)?,
@@ -1321,8 +1519,10 @@ fn reconcile_terminal_objective_leaves(root: &Path) -> Result<()> {
                     .extra
                     .get("continuation_decision")
                     .and_then(Value::as_str);
-                if let Some(decision @ ("retry_same_task" | "revise_task" | "replan_objective")) =
-                    decision
+                if let Some(
+                    decision @ ("retry_same_task" | "revise_task" | "replan_objective"
+                    | "wait_until"),
+                ) = decision
                 {
                     let run_id = leaf
                         .extra
@@ -1339,6 +1539,9 @@ fn reconcile_terminal_objective_leaves(root: &Path) -> Result<()> {
             }
             _ => {}
         }
+    }
+    for leaf in prepared_objectives.into_values() {
+        advance_objective_after_leaf(root, &leaf)?;
     }
     Ok(())
 }
@@ -1891,6 +2094,21 @@ mod tests {
             format!("{{\"active\":[{{\"id\":\"{task_id}\"}}]}}\n"),
         )
         .unwrap();
+        super::super::schedule::ScheduleLedger::new(
+            root.join("core/projects/tasks/schedules.jsonl"),
+        )
+        .append(&super::super::schedule::ScheduleRecord {
+            contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: task_id.into(),
+            objective_id: "objective-reconciliation".into(),
+            mode: super::super::schedule::ScheduleMode::Immediate,
+            state: super::super::schedule::ScheduleState::Scheduled,
+            not_before_utc: None,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: Some("approved queue test fixture".into()),
+        })
+        .unwrap();
         for relative_path in [
             "data/workbench/projects.json",
             "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md",
@@ -1959,6 +2177,33 @@ mod tests {
                 .count(),
             5
         );
+        let schedules = super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .effective()
+        .expect("replay materialized leaf schedules");
+        let leaves = effective
+            .iter()
+            .filter(|record| record.extra["meta"]["objective_leaf"] == true)
+            .collect::<Vec<_>>();
+        assert_eq!(schedules.len(), leaves.len() + 1);
+        for leaf in leaves {
+            let schedule = schedules
+                .get(&leaf.id)
+                .expect("objective leaf schedule authority");
+            assert_eq!(
+                schedule.mode,
+                super::super::schedule::ScheduleMode::Immediate
+            );
+            assert_eq!(
+                schedule.state,
+                super::super::schedule::ScheduleState::Scheduled
+            );
+            assert_eq!(
+                Some(schedule.objective_id.as_str()),
+                super::super::task_queue::queue_objective_id(leaf)
+            );
+        }
         assert_eq!(
             effective
                 .iter()
@@ -1966,6 +2211,52 @@ mod tests {
                 .and_then(|record| record.status.as_deref()),
             Some("waiting")
         );
+    }
+
+    #[tokio::test]
+    async fn timer_tick_reconciles_due_recurring_objective_before_claim() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "recurring-objective");
+        let now = Utc::now();
+        let mut root: Value = serde_json::from_str(
+            std::fs::read_to_string(&queue_path)
+                .unwrap()
+                .lines()
+                .next()
+                .unwrap(),
+        )
+        .unwrap();
+        root["status"] = Value::String("completed".into());
+        root["result"] = Value::String("completed".into());
+        root["completed_at_utc"] = Value::String((now - chrono::Duration::minutes(2)).to_rfc3339());
+        root["meta"]["acceptance_artifact"] =
+            Value::String("docs/audits/recurring-acceptance.md".into());
+        root["meta"]["acceptance_markers"] = json!(["recurring evidence"]);
+        root["meta"]["project_id"] = Value::String(DEFAULT_PROJECT_ID.into());
+        std::fs::write(&queue_path, format!("{root}\n")).unwrap();
+        super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .append(&super::super::schedule::ScheduleRecord {
+            contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: "recurring-objective".into(),
+            objective_id: "objective-reconciliation".into(),
+            mode: super::super::schedule::ScheduleMode::Recurring,
+            state: super::super::schedule::ScheduleState::Scheduled,
+            not_before_utc: Some(now - chrono::Duration::minutes(3)),
+            interval_seconds: Some(60),
+            recorded_at_utc: now - chrono::Duration::minutes(3),
+            reason: None,
+        })
+        .unwrap();
+
+        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+            .execute_once()
+            .await
+            .unwrap();
+
+        assert_eq!(receipt.status, "waiting");
+        assert_eq!(receipt.result, "objective_decomposed");
     }
 
     async fn scripted_harness(
@@ -2169,6 +2460,100 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn execute_once_materializes_future_wait_until_after_terminal_failure() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "waiting-objective");
+        let due = Utc::now() + chrono::Duration::minutes(30);
+        let mut objective: Value = serde_json::from_str(
+            std::fs::read_to_string(&queue_path)
+                .unwrap()
+                .lines()
+                .next()
+                .unwrap(),
+        )
+        .unwrap();
+        objective["meta"]["acceptance_artifact"] =
+            Value::String("docs/audits/waiting-acceptance.md".into());
+        objective["meta"]["acceptance_markers"] = json!(["waiting evidence"]);
+        objective["meta"]["project_id"] = Value::String(DEFAULT_PROJECT_ID.into());
+        std::fs::write(&queue_path, format!("{objective}\n")).unwrap();
+        let decomposition = test_executor(dir.path(), "http://127.0.0.1:9".into())
+            .execute_once()
+            .await
+            .unwrap();
+        assert_eq!(decomposition.result, "objective_decomposed");
+        let mut waiting_leaf = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(&queue_path)
+                .load()
+                .unwrap(),
+        )
+        .into_iter()
+        .find(|record| record.extra["meta"]["objective_leaf"] == true)
+        .expect("durable objective leaf");
+        waiting_leaf.extra["meta"]["wait_until_utc"] = Value::String(due.to_rfc3339());
+        waiting_leaf.extra["meta"]["budget"] = json!({"max_attempts": 2});
+        let waiting_leaf_id = waiting_leaf.id.clone();
+        let mut queue_file = std::fs::OpenOptions::new()
+            .append(true)
+            .open(&queue_path)
+            .unwrap();
+        serde_json::to_writer(&mut queue_file, &waiting_leaf).unwrap();
+        std::io::Write::write_all(&mut queue_file, b"\n").unwrap();
+        queue_file.sync_data().unwrap();
+        let (harness_url, server) = scripted_harness(vec![Some((
+            200,
+            json!({
+                "graph": {"nodes": [
+                    {"id": "execute", "state": "failed"},
+                    {"id": "verify", "state": "blocked"},
+                    {"id": "review", "state": "blocked"},
+                    {"id": "close", "state": "failed", "output_digest": "sha256:failed"}
+                ]},
+                "review": {"provider_receipt": null}
+            })
+            .to_string(),
+        ))])
+        .await;
+
+        let receipt = test_executor(dir.path(), harness_url)
+            .execute_once()
+            .await
+            .unwrap();
+        server.await.unwrap();
+
+        assert_eq!(
+            receipt.continuation_decision.as_deref(),
+            Some("wait_until"),
+            "unexpected executor receipt: {receipt:?}"
+        );
+        assert_eq!(receipt.task_id.as_deref(), Some(waiting_leaf_id.as_str()));
+        let schedule = super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .effective()
+        .unwrap()
+        .remove(&waiting_leaf_id)
+        .expect("deferred schedule authority");
+        assert_eq!(
+            schedule.mode,
+            super::super::schedule::ScheduleMode::Deferred
+        );
+        assert_eq!(schedule.not_before_utc, Some(due));
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        assert_eq!(
+            effective
+                .iter()
+                .find(|record| record.id == waiting_leaf_id)
+                .and_then(|record| record.status.as_deref()),
+            Some("queued")
+        );
+    }
+
+    #[tokio::test]
     async fn restart_after_execute_resumes_verify_review_close_and_persists_decision() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "restart-completion-task");
@@ -2332,6 +2717,21 @@ mod tests {
             &active_path,
             "{\"active\":[{\"id\":\"pre-dispatch-crash-task\"}]}\n",
         )
+        .unwrap();
+        super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .append(&super::super::schedule::ScheduleRecord {
+            contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: "pre-dispatch-crash-task".into(),
+            objective_id: "objective-crash-proof".into(),
+            mode: super::super::schedule::ScheduleMode::Immediate,
+            state: super::super::schedule::ScheduleState::Scheduled,
+            not_before_utc: None,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: Some("process restart fixture schedule authority".into()),
+        })
         .unwrap();
 
         let child = std::process::Command::new(std::env::current_exe().unwrap())
@@ -2566,6 +2966,71 @@ mod tests {
     }
 
     #[test]
+    fn future_wait_until_materializes_deferred_schedule_authority() {
+        let dir = tempfile::tempdir().unwrap();
+        let due = Utc::now() + chrono::Duration::minutes(30);
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "waiting-leaf",
+            "title": "Wait for an external dependency",
+            "status": "failed",
+            "meta": {
+                "objective_leaf": true,
+                "objective_id": "objective-wait",
+                "source_objective_packet_id": "objective-wait",
+                "wait_until_utc": due.to_rfc3339(),
+                "budget": {"max_attempts": 2}
+            }
+        }))
+        .unwrap();
+
+        let decision = continuation_decision_for_task(
+            &task,
+            "failed",
+            "failed",
+            Some("external dependency unavailable"),
+            0,
+        );
+        assert_eq!(decision, "wait_until");
+        materialize_continuation(
+            dir.path(),
+            &task,
+            "queue-waiting-leaf",
+            decision,
+            "external dependency unavailable",
+        )
+        .unwrap();
+
+        let schedule = super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .effective()
+        .unwrap()
+        .remove("waiting-leaf")
+        .expect("deferred schedule");
+        assert_eq!(
+            schedule.mode,
+            super::super::schedule::ScheduleMode::Deferred
+        );
+        assert_eq!(
+            schedule.state,
+            super::super::schedule::ScheduleState::Scheduled
+        );
+        assert_eq!(schedule.not_before_utc, Some(due));
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(
+                dir.path().join("core/projects/tasks/queue.jsonl"),
+            )
+            .load()
+            .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("queued"));
+        assert_eq!(
+            effective[0].extra["continuation_decision"].as_str(),
+            Some("wait_until")
+        );
+    }
+
+    #[test]
     fn restart_reconciles_terminal_leaf_successor_activation() {
         let dir = tempfile::tempdir().unwrap();
         let first_id = objective_leaf_id("objective-crash", "first");
@@ -2643,7 +3108,12 @@ mod tests {
         ] {
             let path = dir.path().join(path);
             std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-            std::fs::write(path, "authoritative fixture\n").unwrap();
+            let contents = if path.ends_with("core/projects/tasks/queue.jsonl") {
+                ""
+            } else {
+                "authoritative fixture\n"
+            };
+            std::fs::write(path, contents).unwrap();
         }
         let task: QueueRecord = serde_json::from_value(json!({
             "id": "objective-durable",
@@ -2978,6 +3448,236 @@ mod tests {
                 .len(),
             1
         );
+    }
+
+    #[tokio::test]
+    async fn cancellation_rejects_missing_schedule_before_network_dispatch() {
+        let dir = tempfile::tempdir().unwrap();
+        approved_queue_fixture(dir.path(), "cancel-without-schedule");
+        std::fs::remove_file(dir.path().join("core/projects/tasks/schedules.jsonl")).unwrap();
+
+        let error = test_executor(dir.path(), "http://127.0.0.1:9".into())
+            .cancel_task("cancel-without-schedule", "operator cancellation")
+            .await
+            .unwrap_err();
+
+        assert!(
+            error.to_string().contains("schedule not found"),
+            "authority must fail before network dispatch: {error:#}"
+        );
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(
+                dir.path().join("core/projects/tasks/queue.jsonl"),
+            )
+            .load()
+            .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("queued"));
+    }
+
+    #[tokio::test]
+    async fn cancellation_retry_repairs_queue_terminal_without_network_dispatch() {
+        let dir = tempfile::tempdir().unwrap();
+        approved_queue_fixture(dir.path(), "cancel-after-schedule");
+        let schedule_path = dir.path().join("core/projects/tasks/schedules.jsonl");
+        let ledger = super::super::schedule::ScheduleLedger::new(&schedule_path);
+        let append_error = ledger
+            .with_cancellation_transition(
+                "cancel-after-schedule",
+                "objective-reconciliation",
+                Utc::now(),
+                Some("operator cancellation"),
+                || Err::<(), _>(std::io::Error::other("simulated queue append failure")),
+            )
+            .unwrap_err();
+        assert_eq!(append_error.kind(), std::io::ErrorKind::Other);
+        assert_eq!(
+            ledger.effective().unwrap()["cancel-after-schedule"].state,
+            super::super::schedule::ScheduleState::Cancelled
+        );
+
+        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+            .cancel_task("cancel-after-schedule", "operator cancellation")
+            .await
+            .unwrap();
+
+        assert_eq!(receipt["status"], "cancelled");
+        assert_eq!(receipt["reconciled"], true);
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(
+                dir.path().join("core/projects/tasks/queue.jsonl"),
+            )
+            .load()
+            .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("failed"));
+        assert_eq!(effective[0].result.as_deref(), Some("cancelled"));
+    }
+
+    #[test]
+    fn wait_until_queue_failure_does_not_publish_deferred_schedule() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(&queue_path).unwrap();
+        let wait_until = Utc::now() + chrono::Duration::hours(1);
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "wait-queue-failure",
+            "title": "Wait without orphaning authority",
+            "status": "failed",
+            "workbench_run_id": "wait-run",
+            "continuation_sequence": 0,
+            "retry_sequence": 0,
+            "revision_sequence": 0,
+            "meta": {
+                "objective_leaf": true,
+                "objective_id": "objective-wait",
+                "source_objective_packet_id": "objective-wait",
+                "wait_until_utc": wait_until.to_rfc3339()
+            }
+        }))
+        .unwrap();
+        let ledger = super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        );
+        ledger
+            .append(&super::super::schedule::ScheduleRecord {
+                contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-wait".into(),
+                mode: super::super::schedule::ScheduleMode::Immediate,
+                state: super::super::schedule::ScheduleState::Scheduled,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: Some("initial authority".into()),
+            })
+            .unwrap();
+
+        assert!(materialize_continuation(
+            dir.path(),
+            &task,
+            "wait-run",
+            "wait_until",
+            "retry later"
+        )
+        .is_err());
+
+        let effective = ledger.effective().unwrap();
+        assert_eq!(
+            effective[&task.id].mode,
+            super::super::schedule::ScheduleMode::Immediate
+        );
+        assert!(effective[&task.id].not_before_utc.is_none());
+    }
+
+    #[test]
+    fn objective_queue_failure_does_not_publish_leaf_schedules() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(&queue_path).unwrap();
+        let mut plan = ObjectiveDecomposer::default().decompose_grounded(
+            &Objective {
+                id: "atomic-objective".into(),
+                statement: "Improve reliability with verified acceptance".into(),
+                constraints: vec!["Preserve unrelated changes".into()],
+                deadline: None,
+                success_criteria: vec!["Verified acceptance evidence exists".into()],
+                tags: vec!["reliability".into()],
+            },
+            vec![ObjectiveContextSource::new("plan", "docs/plans/test.md")],
+        );
+        for contract in plan.leaf_contracts.values_mut() {
+            contract.project_id = DEFAULT_PROJECT_ID.into();
+        }
+        let objective: QueueRecord = serde_json::from_value(json!({
+            "id": "atomic-objective",
+            "title": "Atomic objective",
+            "owner": "prometheus",
+            "priority": "high",
+            "status": "in_progress",
+            "meta": {
+                "objective_id": "atomic-objective",
+                "source_objective_packet_id": "atomic-objective",
+                "project_id": DEFAULT_PROJECT_ID
+            }
+        }))
+        .unwrap();
+
+        let error = materialize_objective_leaves(
+            dir.path(),
+            &objective,
+            &plan,
+            "sha256:plan-receipt",
+            "plan-run",
+        )
+        .unwrap_err();
+        assert!(
+            error.to_string().contains("directory") || error.to_string().contains("queue.jsonl"),
+            "expected queue publication failure, got: {error:#}"
+        );
+
+        let schedule_path = dir.path().join("core/projects/tasks/schedules.jsonl");
+        assert!(
+            !schedule_path.exists()
+                || super::super::schedule::ScheduleLedger::new(&schedule_path)
+                    .effective()
+                    .unwrap()
+                    .is_empty(),
+            "queue publication failure must not publish canonical leaf schedules"
+        );
+    }
+
+    #[test]
+    fn restart_reconciles_prepared_wait_until_continuation() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        let due = Utc::now() + chrono::Duration::minutes(30);
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n",
+                json!({
+                    "contract": "arda.workbench.executable_continuation.v1",
+                    "id": "prepared-wait",
+                    "source_record_id": "prepared-wait",
+                    "title": "Prepared wait continuation",
+                    "owner": "prometheus",
+                    "priority": "high",
+                    "status": "blocked",
+                    "continuation_decision": "wait_until",
+                    "meta": {
+                        "objective_leaf": true,
+                        "objective_id": "objective-wait",
+                        "source_objective_packet_id": "objective-wait",
+                        "wait_until_utc": due.to_rfc3339(),
+                        "depends_on": []
+                    }
+                })
+            ),
+        )
+        .unwrap();
+
+        reconcile_terminal_objective_leaves(dir.path()).unwrap();
+
+        let schedule = super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .effective()
+        .unwrap()
+        .remove("prepared-wait")
+        .expect("reconciled deferred schedule");
+        assert_eq!(
+            schedule.mode,
+            super::super::schedule::ScheduleMode::Deferred
+        );
+        assert_eq!(schedule.not_before_utc, Some(due));
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("queued"));
     }
 
     #[test]

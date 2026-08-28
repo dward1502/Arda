@@ -283,6 +283,26 @@ enum AutopilotCommands {
         #[arg(long)]
         root: Option<PathBuf>,
     },
+    /// Pause a canonical schedule under its objective lineage.
+    PauseSchedule {
+        task_id: String,
+        #[arg(long)]
+        objective_id: String,
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    /// Resume a paused canonical schedule under its objective lineage.
+    ResumeSchedule {
+        task_id: String,
+        #[arg(long)]
+        objective_id: String,
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
     /// Requeue a failed approved task with a distinct Workbench attempt id.
     RetryApprovedTask {
         task_id: String,
@@ -851,6 +871,32 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
                 .build()?;
             let receipt = runtime.block_on(executor.execute_once())?;
             println!("{}", serde_json::to_string_pretty(&receipt)?);
+        }
+        AutopilotCommands::PauseSchedule {
+            task_id,
+            objective_id,
+            reason,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let ledger = arda_aule::prometheus::autopilot::ScheduleLedger::new(
+                root.join("core/projects/tasks/schedules.jsonl"),
+            );
+            let record = ledger.pause(&task_id, &objective_id, chrono::Utc::now(), &reason)?;
+            println!("{}", serde_json::to_string_pretty(&record)?);
+        }
+        AutopilotCommands::ResumeSchedule {
+            task_id,
+            objective_id,
+            reason,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let ledger = arda_aule::prometheus::autopilot::ScheduleLedger::new(
+                root.join("core/projects/tasks/schedules.jsonl"),
+            );
+            let record = ledger.resume(&task_id, &objective_id, chrono::Utc::now(), &reason)?;
+            println!("{}", serde_json::to_string_pretty(&record)?);
         }
         AutopilotCommands::CancelApprovedTask {
             task_id,

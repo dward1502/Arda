@@ -100,6 +100,104 @@ impl ScheduleLedger {
         }
     }
 
+    pub fn pause(
+        &self,
+        task_id: &str,
+        objective_id: &str,
+        recorded_at_utc: DateTime<Utc>,
+        reason: &str,
+    ) -> io::Result<ScheduleRecord> {
+        self.transition_operator_state(
+            task_id,
+            objective_id,
+            ScheduleState::Scheduled,
+            ScheduleState::Paused,
+            recorded_at_utc,
+            reason,
+        )
+    }
+
+    pub fn resume(
+        &self,
+        task_id: &str,
+        objective_id: &str,
+        recorded_at_utc: DateTime<Utc>,
+        reason: &str,
+    ) -> io::Result<ScheduleRecord> {
+        self.transition_operator_state(
+            task_id,
+            objective_id,
+            ScheduleState::Paused,
+            ScheduleState::Scheduled,
+            recorded_at_utc,
+            reason,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn transition_operator_state(
+        &self,
+        task_id: &str,
+        objective_id: &str,
+        expected_state: ScheduleState,
+        next_state: ScheduleState,
+        recorded_at_utc: DateTime<Utc>,
+        reason: &str,
+    ) -> io::Result<ScheduleRecord> {
+        let reason = reason.trim();
+        if reason.is_empty() {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "operator schedule transition requires a non-empty reason",
+            ));
+        }
+        if let Some(parent) = self.path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let mut record = read_effective(&file)?
+                .remove(task_id)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "schedule not found"))?;
+            if record.objective_id != objective_id {
+                return Err(io::Error::new(
+                    io::ErrorKind::PermissionDenied,
+                    "schedule objective lineage does not match operator request",
+                ));
+            }
+            if record.state != expected_state {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    format!(
+                        "operator schedule transition requires state {expected_state:?}, found {:?}",
+                        record.state
+                    ),
+                ));
+            }
+            let previous = record.clone();
+            record.state = next_state;
+            record.recorded_at_utc = recorded_at_utc;
+            record.reason = Some(reason.to_owned());
+            validate_record(&record)?;
+            validate_transition(&previous, &record, io::ErrorKind::InvalidInput)?;
+            serde_json::to_writer(&mut file, &record)
+                .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+            writeln!(file)?;
+            file.sync_data()?;
+            Ok(record)
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(record), Ok(())) => Ok(record),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
+    }
+
     pub fn with_effective<T>(
         &self,
         operation: impl FnOnce(&BTreeMap<String, ScheduleRecord>) -> io::Result<T>,
@@ -319,10 +417,13 @@ impl ScheduleLedger {
             if record.state == ScheduleState::Cancelled {
                 return append_queue_terminal();
             }
-            if record.state != ScheduleState::Scheduled {
+            if !matches!(
+                record.state,
+                ScheduleState::Scheduled | ScheduleState::Paused
+            ) {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidInput,
-                    "only active schedules may be cancelled",
+                    "only scheduled or paused schedules may be cancelled",
                 ));
             }
             let previous = record.clone();
@@ -519,6 +620,142 @@ mod tests {
         assert_eq!(raw.lines().count(), 2);
         let effective = ledger.effective().expect("replay schedules");
         assert_eq!(effective["task-1"], paused);
+    }
+
+    #[test]
+    fn operator_pause_and_resume_append_transitions_without_changing_schedule_contract() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let path = dir.path().join("schedules.jsonl");
+        let ledger = ScheduleLedger::new(&path);
+        let due = Utc::now() + Duration::hours(1);
+        let scheduled = ScheduleRecord {
+            contract: SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: "task-1".into(),
+            objective_id: "objective-1".into(),
+            mode: ScheduleMode::Deferred,
+            state: ScheduleState::Scheduled,
+            not_before_utc: Some(due),
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: None,
+        };
+        ledger.append(&scheduled).expect("append schedule");
+
+        let paused_at = Utc::now();
+        let paused = ledger
+            .pause("task-1", "objective-1", paused_at, "operator maintenance")
+            .expect("pause schedule");
+        assert_eq!(paused.state, ScheduleState::Paused);
+        assert_eq!(paused.reason.as_deref(), Some("operator maintenance"));
+        assert_eq!(paused.recorded_at_utc, paused_at);
+        assert_eq!(paused.mode, scheduled.mode);
+        assert_eq!(paused.not_before_utc, scheduled.not_before_utc);
+        assert_eq!(paused.interval_seconds, scheduled.interval_seconds);
+
+        let resumed_at = Utc::now();
+        let resumed = ledger
+            .resume("task-1", "objective-1", resumed_at, "operator resumed")
+            .expect("resume schedule");
+        assert_eq!(resumed.state, ScheduleState::Scheduled);
+        assert_eq!(resumed.reason.as_deref(), Some("operator resumed"));
+        assert_eq!(resumed.recorded_at_utc, resumed_at);
+        assert_eq!(resumed.mode, scheduled.mode);
+        assert_eq!(resumed.not_before_utc, scheduled.not_before_utc);
+        assert_eq!(resumed.interval_seconds, scheduled.interval_seconds);
+
+        let raw = std::fs::read_to_string(path).expect("read schedule ledger");
+        assert_eq!(raw.lines().count(), 3);
+        assert_eq!(ledger.effective().unwrap()["task-1"], resumed);
+    }
+
+    #[test]
+    fn operator_schedule_control_rejects_invalid_authority_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let path = dir.path().join("schedules.jsonl");
+        let ledger = ScheduleLedger::new(&path);
+        let scheduled = ScheduleRecord {
+            contract: SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: "task-1".into(),
+            objective_id: "objective-1".into(),
+            mode: ScheduleMode::Immediate,
+            state: ScheduleState::Scheduled,
+            not_before_utc: None,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: None,
+        };
+        ledger.append(&scheduled).expect("append schedule");
+        let original = std::fs::read(&path).expect("read original ledger");
+
+        let wrong_objective = ledger
+            .pause("task-1", "objective-2", Utc::now(), "operator pause")
+            .expect_err("wrong objective must fail closed");
+        assert_eq!(wrong_objective.kind(), io::ErrorKind::PermissionDenied);
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+
+        let empty_reason = ledger
+            .pause("task-1", "objective-1", Utc::now(), "  ")
+            .expect_err("empty reason must fail closed");
+        assert_eq!(empty_reason.kind(), io::ErrorKind::InvalidInput);
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+
+        let missing = ledger
+            .resume("missing", "objective-1", Utc::now(), "operator resume")
+            .expect_err("missing schedule must fail closed");
+        assert_eq!(missing.kind(), io::ErrorKind::NotFound);
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+
+        let invalid_source = ledger
+            .resume("task-1", "objective-1", Utc::now(), "operator resume")
+            .expect_err("scheduled record cannot be resumed");
+        assert_eq!(invalid_source.kind(), io::ErrorKind::InvalidInput);
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+    }
+
+    #[test]
+    fn paused_schedule_remains_cancellable_under_same_objective_authority() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let path = dir.path().join("schedules.jsonl");
+        let ledger = ScheduleLedger::new(&path);
+        ledger
+            .append(&ScheduleRecord {
+                contract: SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: "task-1".into(),
+                objective_id: "objective-1".into(),
+                mode: ScheduleMode::Immediate,
+                state: ScheduleState::Scheduled,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: None,
+            })
+            .expect("append schedule");
+        ledger
+            .pause("task-1", "objective-1", Utc::now(), "operator maintenance")
+            .expect("pause schedule");
+        let queue_appends = std::cell::Cell::new(0);
+
+        ledger
+            .with_cancellation_transition(
+                "task-1",
+                "objective-1",
+                Utc::now(),
+                Some("operator cancelled paused work"),
+                || {
+                    queue_appends.set(queue_appends.get() + 1);
+                    Ok(())
+                },
+            )
+            .expect("cancel paused schedule");
+
+        assert_eq!(queue_appends.get(), 1);
+        let effective = ledger.effective().expect("effective schedules");
+        assert_eq!(effective["task-1"].state, ScheduleState::Cancelled);
+        assert_eq!(
+            effective["task-1"].reason.as_deref(),
+            Some("operator cancelled paused work")
+        );
+        assert_eq!(std::fs::read_to_string(path).unwrap().lines().count(), 3);
     }
 
     #[test]

@@ -289,11 +289,16 @@ impl ActiveQueueExecutor {
         let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
         let effective = TaskQueueAnalyzer::effective_records(records);
         let schedules = ScheduleLedger::new(&self.schedule_path).effective()?;
-        Ok(effective.into_iter().find(|record| {
-            claimable_status(record)
-                && authoritative_schedule_eligible(record, &schedules, Utc::now())
-                && approved_workbench_metadata(record)
-        }))
+        let now = Utc::now();
+        Ok(effective
+            .iter()
+            .find(|record| {
+                claimable_status(record)
+                    && authoritative_schedule_eligible(record, &schedules, now)
+                    && approved_workbench_metadata(record)
+                    && mutation_lease_available(record, &effective, now)
+            })
+            .cloned())
     }
 
     pub fn reconcile_schedules(&self, now: DateTime<Utc>) -> std::io::Result<usize> {
@@ -438,13 +443,16 @@ impl ActiveQueueExecutor {
             let result = (|| {
                 let records = read_queue_records(&file)?;
                 let effective = TaskQueueAnalyzer::effective_records(records);
-                let Some(task) = effective.into_iter().find(|record| {
+                let now = Utc::now();
+                let Some(task) = effective.iter().find(|record| {
                     claimable_status(record)
-                        && authoritative_schedule_eligible(record, schedules, Utc::now())
+                        && authoritative_schedule_eligible(record, schedules, now)
                         && approved_workbench_metadata(record)
+                        && mutation_lease_available(record, &effective, now)
                 }) else {
                     return Ok(None);
                 };
+                let task = task.clone();
                 let attempt = execution_attempt(&task);
                 append_attempt_to_writer(&mut file, &task, &attempt)?;
                 file.sync_data()?;
@@ -487,13 +495,16 @@ impl ActiveQueueExecutor {
                         attempt: attempt_from_claimed_task(task)?,
                     }));
                 }
-                let Some(task) = effective.into_iter().find(|record| {
+                let now = Utc::now();
+                let Some(task) = effective.iter().find(|record| {
                     claimable_status(record)
-                        && authoritative_schedule_eligible(record, schedules, Utc::now())
+                        && authoritative_schedule_eligible(record, schedules, now)
                         && approved_workbench_metadata(record)
+                        && mutation_lease_available(record, &effective, now)
                 }) else {
                     return Ok(None);
                 };
+                let task = task.clone();
                 let attempt = execution_attempt(&task);
                 append_attempt_to_writer(&mut file, &task, &attempt)?;
                 file.sync_data()?;
@@ -519,15 +530,19 @@ impl ActiveQueueExecutor {
                 .open(&self.queue_path)?;
             file.lock_exclusive()?;
             let result = (|| {
-                let current = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?)
-                    .into_iter()
+                let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+                let current = effective
+                    .iter()
                     .find(|record| record.id == task.id)
+                    .cloned()
                     .ok_or_else(|| {
                         std::io::Error::new(std::io::ErrorKind::NotFound, "task not found")
                     })?;
+                let now = Utc::now();
                 if !claimable_status(&current)
-                    || !authoritative_schedule_eligible(&current, schedules, Utc::now())
+                    || !authoritative_schedule_eligible(&current, schedules, now)
                     || (!approved_workbench_metadata(&current) && !safe_local_metadata(&current))
+                    || !mutation_lease_available(&current, &effective, now)
                 {
                     return Err(std::io::Error::new(
                         std::io::ErrorKind::PermissionDenied,
@@ -834,6 +849,56 @@ fn nonempty_meta_string(meta: &serde_json::Map<String, Value>, key: &str) -> boo
     meta.get(key)
         .and_then(Value::as_str)
         .is_some_and(|value| !value.trim().is_empty())
+}
+
+fn mutation_lease_available(
+    candidate: &QueueRecord,
+    effective: &[QueueRecord],
+    now: DateTime<Utc>,
+) -> bool {
+    !effective.iter().any(|active| {
+        active.id != candidate.id
+            && holds_active_mutation_lease(active, now)
+            && mutation_targets_conflict(candidate, active)
+    })
+}
+
+fn holds_active_mutation_lease(record: &QueueRecord, now: DateTime<Utc>) -> bool {
+    if record.status.as_deref().map(normalize_task_status) != Some("in_progress") {
+        return false;
+    }
+    record
+        .extra
+        .get("lease_expires_at_utc")
+        .and_then(Value::as_str)
+        .and_then(parse_utc)
+        .is_none_or(|deadline| deadline > now)
+}
+
+fn mutation_targets_conflict(left: &QueueRecord, right: &QueueRecord) -> bool {
+    let left_project = mutation_target_field(left, "project_id");
+    let right_project = mutation_target_field(right, "project_id");
+    let project_conflict = match (left_project, right_project) {
+        (Some(left), Some(right)) => left == right,
+        // Legacy tasks without a durable project identity share one
+        // conservative default lease rather than bypassing mutual exclusion.
+        _ => true,
+    };
+    let worktree_conflict = mutation_target_field(left, "worktree_path")
+        .zip(mutation_target_field(right, "worktree_path"))
+        .is_some_and(|(left, right)| Path::new(left) == Path::new(right));
+    project_conflict || worktree_conflict
+}
+
+fn mutation_target_field<'a>(record: &'a QueueRecord, key: &str) -> Option<&'a str> {
+    record
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get(key))
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
 }
 
 fn claimable_status(record: &QueueRecord) -> bool {
@@ -2054,6 +2119,217 @@ mod tests {
     }
 
     #[test]
+    fn approved_claim_blocks_a_second_active_mutation_for_the_same_project() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "project-a-first".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/project-a"),
+            ..blank("project-a-first")
+        };
+        let second = QueueRecord {
+            id: "project-a-second".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/project-a-next"),
+            ..blank("project-a-second")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        for task in [&first, &second] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        assert_eq!(
+            executor
+                .claim_next_approved()
+                .unwrap()
+                .expect("first project claim")
+                .task
+                .id,
+            first.id
+        );
+        assert!(executor.claim_next_approved().unwrap().is_none());
+        assert_eq!(
+            executor.append_attempt(&second).unwrap_err().kind(),
+            std::io::ErrorKind::PermissionDenied
+        );
+    }
+
+    #[test]
+    fn approved_claim_blocks_a_second_active_mutation_for_the_same_worktree() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "worktree-first".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/shared/worktree"),
+            ..blank("worktree-first")
+        };
+        let second = QueueRecord {
+            id: "worktree-second".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/shared/worktree"),
+            ..blank("worktree-second")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        for task in [&first, &second] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        executor
+            .claim_next_approved()
+            .unwrap()
+            .expect("first worktree claim");
+        assert!(executor.claim_next_approved().unwrap().is_none());
+    }
+
+    #[test]
+    fn approved_claim_allows_distinct_projects_on_distinct_worktrees() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "parallel-first".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/project-a"),
+            ..blank("parallel-first")
+        };
+        let second = QueueRecord {
+            id: "parallel-second".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/project-b"),
+            ..blank("parallel-second")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        for task in [&first, &second] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let first_claim = executor
+            .claim_next_approved()
+            .unwrap()
+            .expect("first project claim");
+        let second_claim = executor
+            .claim_next_approved()
+            .unwrap()
+            .expect("independent project claim");
+        assert_eq!(first_claim.task.id, first.id);
+        assert_eq!(second_claim.task.id, second.id);
+    }
+
+    #[test]
+    fn concurrent_approved_claims_serialize_the_same_project_lease() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "concurrent-first".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/first"),
+            ..blank("concurrent-first")
+        };
+        let second = QueueRecord {
+            id: "concurrent-second".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/second"),
+            ..blank("concurrent-second")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        for task in [&first, &second] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
+        let mut workers = Vec::new();
+        for _ in 0..2 {
+            let queue_path = queue_path.clone();
+            let active_path = active_path.clone();
+            let barrier = barrier.clone();
+            workers.push(std::thread::spawn(move || {
+                let executor = ActiveQueueExecutor::with_paths(queue_path, active_path);
+                barrier.wait();
+                executor.claim_next_approved().unwrap()
+            }));
+        }
+        barrier.wait();
+        let claims = workers
+            .into_iter()
+            .map(|worker| worker.join().expect("claim worker"))
+            .collect::<Vec<_>>();
+
+        assert_eq!(claims.iter().filter(|claim| claim.is_some()).count(), 1);
+        assert_eq!(claims.iter().filter(|claim| claim.is_none()).count(), 1);
+    }
+
+    #[test]
     fn approved_claim_rejects_missing_approval_lineage() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -2875,6 +3151,20 @@ mod tests {
                 "approval_packet_id": "approval-1"
             }),
         );
+        extra
+    }
+
+    fn approved_workbench_extra_for_target(
+        project_id: &str,
+        worktree_path: &str,
+    ) -> serde_json::Map<String, serde_json::Value> {
+        let mut extra = approved_workbench_extra();
+        let meta = extra
+            .get_mut("meta")
+            .and_then(Value::as_object_mut)
+            .expect("approved metadata object");
+        meta.insert("project_id".into(), json!(project_id));
+        meta.insert("worktree_path".into(), json!(worktree_path));
         extra
     }
 

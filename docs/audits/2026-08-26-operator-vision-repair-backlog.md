@@ -6,11 +6,11 @@ soterion:
   role: "current_state_audit"
   owner: "RUMIL"
   status: "active"
-  reviewed: "2026-08-26"
+  reviewed: "2026-08-27"
   tags: ["operator-vision", "repair-backlog", "autonomy", "composition", "acceptance"]
 ---
 
-> 🜏 Soterion: 📜 current_state_audit | owner: RUMIL | status: active | reviewed: 2026-08-26
+> 🜏 Soterion: 📜 current_state_audit | owner: RUMIL | status: active | reviewed: 2026-08-27
 
 # Operator-Vision Review and Prioritized Repair Backlog
 
@@ -33,12 +33,12 @@ The repair order below optimizes for reduced operator management burden. Downstr
 | Capability | Capability truth level | Evidence | Human-visible behavior now | Required next level |
 |---|---|---|---|---|
 | Durable Workbench execution graph | Workflow-proven, bounded single-project slice | `docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md`; `workbench_executor.rs` constructs plan/approval/execute/verify/review/close and records continuation stages | One approved task can survive executor restart and close after a project check | General multi-task continuation with real revision/retry and non-trivial acceptance |
-| General objective decomposition | Implemented as a static planning shape; not operationally decomposed | `decomposer.rs:144-217` always emits the same five analysis stages; `workbench_executor.rs:780-811` folds them into one provider prompt | A broad objective still becomes one opaque worker job | Durable dependency tasks with individual scope, project, authority, checks, and successor eligibility |
+| General objective decomposition | Source-verified durable-leaf slice; installed terminal proof pending | `decomposer.rs` emits executable leaf contracts; `workbench_executor.rs` materializes validated leaves with dependencies and digest-bound plan lineage | A broad objective becomes independently durable queue leaves; one live timer run proved five leaves and first-leaf eligibility | Restore the user timer and prove forced-failure correction, restart between leaves, and unattended artifact-bound closure |
 | Verification | Workflow-proven for declared project checks | `workbench_executor.rs:320-373,515-529`; installed acceptance evidence in the active task-loop plan | A task is not closed without at least one passing attached-project check | Acceptance coverage beyond command success, artifact/runtime checks, and failure-driven revision |
 | Independent review | Specified in graph, not independently workflow-proven | `workbench_executor.rs:912-925` assigns verifier to the same fixed hosted route; review is completed locally at `373-412` without a critic execution | “Review” can appear complete without an independently generated challenge | Distinct eligible failure profile, review findings, reject/revise path, and retained review receipt |
 | Connected projects | Contract mechanism implemented; production portfolio not connected | `data/workbench/projects.json` contains three proof/stage records, all rooted at `.`; `CONNECTED_PROJECT_FABRIC.md` lists the unattached portfolio | Arda cannot safely plan or execute across the operator's actual repositories | Approved truthful Arda contract first, then classified portfolio waves and cross-project proof |
 | Provider placement | Implemented/tested elsewhere; bypassed by canonical queue execution | `workbench_executor.rs:900-923` hard-codes `hosted:hermes-workbench`; `PROVIDER_WORKER_CONVERGENCE.md` records live Manwë capacity | Queue work uses the Hermes default rather than a receipted local/hosted policy choice | Manwë requirement request, selected/actual route receipt, explicit fallback, separate reviewer placement |
-| Continuation and scheduling | Stage continuation implemented; objective continuation not root-composed | `workbench_executor.rs:588-610` classifies failure but no successor/retry task is scheduled; `AUTONOMOUS_TASK_COMPLETION_LOOP.md:T5-T6` remains open | A failed terminal row tells why it stopped but does not reliably create the next bounded action | Canonical continuation/schedule ledger consumed on later ticks with budgets and pause/cancel semantics |
+| Continuation and scheduling | Retry/revision/replan materialization implemented and restart-reconciled; full scheduling remains open | `workbench_executor.rs` appends executable same-lineage continuations, enforces attempts, activates eligible successors, and repairs terminal fan-out on startup; package tests pass | Later invocations can claim a fresh attempt without chat context | Live forced-failure proof plus `wait_until`, pause, cancellation, recurrence, and canonical next-wake projection |
 | Vairë context continuity | Workflow-proven in bounded organism tests; weakly consumed here | `workbench_executor.rs:613-709` creates a system-only fallback context with no memory refs when no receipt is supplied | Worker context can omit relevant conversations, project memory, corrections, and unresolved failures | Retrieval plan bound to authorized personal/business/system scopes and a context-use receipt |
 | Operator projection and controls | Root-composed read projection; incomplete and partly misleading | `core/state/operator_projection.json` uses IDs as titles, reports empty capabilities/communications/councils, fallback Joules, and explicitly lacks approval expiry | Operator can see runs but not a trustworthy outcome, next decision, route, budget, or full control state | One source-truth objective view with pause/reprioritize/revise/approve/reject/cancel controls |
 | Daily research and improvement | Specified; not installed end to end | `DAILY_RESEARCH_IMPROVEMENT_LOOP.md` records absent timers, wrong survey root, and no governed research-to-change bridge | Research can create evidence or reports but does not reliably land verified improvements | Seven-day installed cycle with one improvement, one no-change, one rejected idea, and continuation |
@@ -51,7 +51,7 @@ The repair order below optimizes for reduced operator management burden. Downstr
 
 ### P0.1 — Turn validated plans into durable executable task graphs
 
-Evidence: `ObjectiveDecomposer::decompose_grounded` emits a fixed five-step shape for every objective (`decomposer.rs:144-217`), while `objective_execution_prompt` serializes those steps into one Execute-node prompt (`workbench_executor.rs:780-811`). The run graph therefore preserves a plan as provenance but does not execute its leaves as independently schedulable tasks. Task budgets are also fixed at 5,000 joules/$2 and two attempts (`workbench_executor.rs:874-885`) rather than derived from the objective.
+Current evidence: the 2026-08-27 source slice materializes each validated plan leaf as a canonical queue record with full dependency IDs and project/authority/check/evidence/budget metadata. Plan receipts are persisted outside the graph and re-verified before leaf dispatch. A bounded installed-timer run created five leaves and claimed only the eligible first leaf. The environment lost its user systemd bus before corrected-revision, restart-between-leaves, and terminal artifact acceptance could be observed, so P0.1 remains open at the workflow-proof gate.
 
 Human-visible behavior: after stating a broad outcome once, the operator sees a bounded dependency plan whose leaves advance independently. Failed verification revises only the affected task; eligible successors start without a new instruction.
 
@@ -89,7 +89,7 @@ Acceptance: execute all seven proofs in `PROVIDER_WORKER_CONVERGENCE.md`, includ
 
 ### P0.4 — Make continuation decisions executable and scheduled
 
-Evidence: `continuation_decision` returns `retry_same_task`, `revise_task`, `replan_objective`, or `request_operator_decision` (`workbench_executor.rs:588-610`), but `execute_once` writes a failed terminal queue record and does not materialize or schedule the decision. The second failure is classified as replan solely from a continuation counter, without a typed failure policy. No canonical recurrence ledger is root-composed.
+Current evidence: `execute_once` now materializes `retry_same_task`, `revise_task`, and `replan_objective` as append-only executable work. Retry/revision records preserve objective authority and lineage, increment continuation/attempt state, and claim a fresh deterministic run ID; persisted attempt budgets force replan when exhausted. Startup reconciliation repairs a crash after terminal append. Full T5/T6 remains open because live forced-failure correction has not reached terminal acceptance, failure classes remain text-derived, and `wait_until`, pause/cancel scheduling, recurrence, and a canonical next-wake ledger are not implemented.
 
 Human-visible behavior: every open objective shows exactly one next action and next wake time. Transient failures retry within budget; defects revise; changed assumptions replan; genuine gates ask one concrete question. Pause/cancel prevents later wakeups.
 

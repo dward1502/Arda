@@ -82,6 +82,29 @@ impl PlanValidator {
 
     pub fn validate_objective_plan(&self, plan: &ObjectivePlan) -> ValidationResult {
         let mut result = self.validate(&plan.tasks);
+        for task in &plan.tasks {
+            let Some(contract) = plan.leaf_contracts.get(&task.key) else {
+                result.errors.push(format!(
+                    "task '{}' has no executable leaf contract",
+                    task.key
+                ));
+                continue;
+            };
+            if contract.project_id.is_empty()
+                || contract.authority_class.is_empty()
+                || contract.verification_checks.is_empty()
+                || contract.evidence_requirements.is_empty()
+                || contract.max_joules <= 0.0
+                || contract.max_cost_usd <= 0.0
+                || contract.max_attempts == 0
+                || contract.timeout_seconds == 0
+            {
+                result.errors.push(format!(
+                    "task '{}' has an incomplete executable leaf contract",
+                    task.key
+                ));
+            }
+        }
         if plan.acceptance_criteria.is_empty() {
             result
                 .errors

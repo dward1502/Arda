@@ -1,10 +1,13 @@
 #![cfg(feature = "full-cli")]
 //! Bounded adapter from operator-approved canonical queue work into Workbench.
 
-use super::decomposer::{Objective, ObjectiveContextSource, ObjectiveDecomposer, ObjectivePlan};
+use super::decomposer::{
+    ExecutableLeafContract, Objective, ObjectiveContextSource, ObjectiveDecomposer, ObjectivePlan,
+};
 use super::execution_outcome::project_terminal_outcome;
 use super::task_queue::{
-    governance_authorization_id, ActiveQueueExecutor, ApprovedQueueClaim, QueueRecord,
+    governance_authorization_id, workbench_run_id as attempt_workbench_run_id, ActiveQueueExecutor,
+    ApprovedQueueClaim, QueueRecord,
 };
 use super::validator::PlanValidator;
 use anyhow::{anyhow, Context, Result};
@@ -68,6 +71,7 @@ impl WorkbenchQueueExecutor {
         // dispatch. A crash releases it, so the next invocation can recover an
         // unexpired claim without mistaking a live executor for an orphan.
         let _executor_lock = acquire_executor_lock(&self.root)?;
+        reconcile_terminal_objective_leaves(&self.root)?;
         let queue = ActiveQueueExecutor::new(&self.root);
         let Some(claim) = queue.claim_next_approved_reconciling_orphans()? else {
             return Ok(QueueExecutionReceipt {
@@ -83,6 +87,25 @@ impl WorkbenchQueueExecutor {
             });
         };
         let run_id = claim.attempt.workbench_run_id.clone();
+        if is_decomposable_objective(&claim.task) {
+            let (plan, plan_receipt) =
+                persisted_objective_plan_for_task(&self.root, &run_id, &claim.task)?;
+            materialize_objective_leaves(&self.root, &claim.task, &plan, &plan_receipt, &run_id)?;
+            return Ok(QueueExecutionReceipt {
+                contract: QUEUE_EXECUTION_RECEIPT_CONTRACT.into(),
+                task_id: Some(claim.task.id),
+                workbench_run_id: Some(run_id),
+                status: "waiting".into(),
+                result: "objective_decomposed".into(),
+                execution_receipt_digest: Some(plan_receipt),
+                continuation_decision: Some("continue_next_task".into()),
+                detail: Some(format!(
+                    "materialized {} independently durable objective leaves",
+                    plan.tasks.len()
+                )),
+                recorded_at_utc: Utc::now().to_rfc3339(),
+            });
+        }
         match self.dispatch_claim(&claim).await {
             Ok((mut status, digest, mut detail)) => {
                 if status == "in_progress" {
@@ -109,7 +132,8 @@ impl WorkbenchQueueExecutor {
                     "cancelled" => ("failed", "cancelled"),
                     _ => ("failed", "failed"),
                 };
-                let decision = continuation_decision(
+                let decision = continuation_decision_for_task(
+                    &claim.task,
                     queue_status,
                     result,
                     detail.as_deref(),
@@ -134,6 +158,24 @@ impl WorkbenchQueueExecutor {
                     detail.as_deref(),
                     Some(decision),
                 )?;
+                if is_objective_leaf(&claim.task) {
+                    if queue_status == "completed" {
+                        advance_objective_after_leaf(&self.root, &claim.task)?;
+                    } else if matches!(
+                        decision,
+                        "retry_same_task" | "revise_task" | "replan_objective"
+                    ) {
+                        materialize_continuation(
+                            &self.root,
+                            &claim.task,
+                            &run_id,
+                            decision,
+                            detail
+                                .as_deref()
+                                .unwrap_or("terminal leaf verification failed"),
+                        )?;
+                    }
+                }
                 project_terminal_outcome(
                     &self.root,
                     &claim.task,
@@ -158,7 +200,8 @@ impl WorkbenchQueueExecutor {
             Err(error) => {
                 let detail = format!("{error:#}");
                 if detail.contains("was cancelled while provider execution was active") {
-                    let decision = continuation_decision(
+                    let decision = continuation_decision_for_task(
+                        &claim.task,
                         "failed",
                         "cancelled",
                         Some(&detail),
@@ -268,14 +311,23 @@ impl WorkbenchQueueExecutor {
             .title
             .as_deref()
             .unwrap_or(claim.task.id.as_str());
-        let (objective_plan, objective_plan_receipt) =
-            persisted_objective_plan_for_task(&self.root, run_id, &claim.task)?;
+        let (objective_plan, objective_plan_receipt) = if is_objective_leaf(&claim.task) {
+            objective_plan_for_claim(&self.root, &claim.task)?
+        } else {
+            persisted_objective_plan_for_task(&self.root, run_id, &claim.task)?
+        };
+        let leaf_contract = if is_objective_leaf(&claim.task) {
+            Some(objective_leaf_contract(&objective_plan, &claim.task)?)
+        } else {
+            None
+        };
         let graph = run_graph_with_objective_plan_receipt(
             run_id,
             &claim.task.id,
             objective,
             approval_id,
             &objective_plan_receipt,
+            leaf_contract,
         );
         let mut run = if let Some(existing) = self.existing_run(run_id).await? {
             let outcome = classify_existing_run(&existing);
@@ -319,13 +371,7 @@ impl WorkbenchQueueExecutor {
                 "execute",
                 objective_execution_prompt(&objective_plan, objective, &claim.task),
             ),
-            (
-                "verify",
-                format!(
-                    "Verify task {} by running every project-native check from the attached project contract; do not modify project files.",
-                    claim.task.id
-                ),
-            ),
+            ("verify", verification_prompt(&claim.task, leaf_contract)),
         ] {
             if node_state(&run, node_id) == Some("succeeded") {
                 continue;
@@ -348,7 +394,9 @@ impl WorkbenchQueueExecutor {
                         .as_str()
                         .unwrap_or("failed")
                         .to_owned(),
-                    value["receipt"]["receipt_digest"].as_str().map(str::to_owned),
+                    value["receipt"]["receipt_digest"]
+                        .as_str()
+                        .map(str::to_owned),
                     value["receipt"]["summary"].as_str().map(str::to_owned),
                 ));
             }
@@ -542,6 +590,144 @@ fn task_project_id(task: &QueueRecord) -> Option<&str> {
         .filter(|id| !id.trim().is_empty())
 }
 
+fn is_objective_leaf(task: &QueueRecord) -> bool {
+    task.extra["meta"]["objective_leaf"].as_bool() == Some(true)
+}
+
+fn is_decomposable_objective(task: &QueueRecord) -> bool {
+    !is_objective_leaf(task)
+        && task.extra["meta"]["acceptance_artifact"]
+            .as_str()
+            .is_some_and(|path| !path.trim().is_empty())
+        && task.extra["meta"]["acceptance_markers"]
+            .as_array()
+            .is_some_and(|markers| !markers.is_empty())
+}
+
+fn objective_plan_for_claim(root: &Path, task: &QueueRecord) -> Result<(ObjectivePlan, String)> {
+    let meta = task
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .ok_or_else(|| anyhow!("objective leaf `{}` omitted metadata", task.id))?;
+    let plan = serde_json::from_value(
+        meta.get("objective_plan")
+            .cloned()
+            .ok_or_else(|| anyhow!("objective leaf `{}` omitted its durable plan", task.id))?,
+    )
+    .context("decode durable objective plan from queue leaf")?;
+    let receipt = meta
+        .get("objective_plan_receipt")
+        .and_then(Value::as_str)
+        .filter(|value| value.starts_with("sha256:"))
+        .ok_or_else(|| anyhow!("objective leaf `{}` omitted its plan receipt", task.id))?;
+    let plan_run_id = meta
+        .get("objective_plan_run_id")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .ok_or_else(|| anyhow!("objective leaf `{}` omitted its plan run ID", task.id))?;
+    if plan_run_id.len() > 200
+        || !plan_run_id
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
+    {
+        return Err(anyhow!(
+            "objective leaf `{}` has an unsafe plan run ID",
+            task.id
+        ));
+    }
+    let objective_id = meta
+        .get("objective_id")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .ok_or_else(|| anyhow!("objective leaf `{}` omitted objective_id", task.id))?;
+    let validation = PlanValidator::default().validate_objective_plan(&plan);
+    if !validation.ok {
+        return Err(anyhow!(
+            "objective leaf `{}` embeds an invalid plan: {}",
+            task.id,
+            validation.errors.join("; ")
+        ));
+    }
+    let persisted_path = root
+        .join("audit/workbench-queue")
+        .join(plan_run_id)
+        .join("objective_plan_receipt.json");
+    let persisted_metadata = std::fs::metadata(&persisted_path).with_context(|| {
+        format!(
+            "inspect objective-plan receipt `{}`",
+            persisted_path.display()
+        )
+    })?;
+    if persisted_metadata.len() > MAX_OBJECTIVE_PLAN_RECEIPT_BYTES as u64 {
+        return Err(anyhow!(
+            "objective-plan receipt `{}` exceeds {} bytes",
+            persisted_path.display(),
+            MAX_OBJECTIVE_PLAN_RECEIPT_BYTES
+        ));
+    }
+    let mut persisted: Value =
+        serde_json::from_slice(&std::fs::read(&persisted_path).with_context(|| {
+            format!("read objective-plan receipt `{}`", persisted_path.display())
+        })?)
+        .with_context(|| {
+            format!(
+                "parse objective-plan receipt `{}`",
+                persisted_path.display()
+            )
+        })?;
+    if persisted["receipt_digest"] != receipt
+        || persisted["run_id"] != plan_run_id
+        || persisted["objective_id"] != objective_id
+        || persisted["plan"] != serde_json::to_value(&plan)?
+        || persisted["validation"] != serde_json::to_value(&validation)?
+    {
+        return Err(anyhow!(
+            "objective leaf `{}` does not match its persisted plan receipt",
+            task.id
+        ));
+    }
+    persisted
+        .as_object_mut()
+        .ok_or_else(|| anyhow!("objective-plan receipt must be a JSON object"))?
+        .remove("receipt_digest");
+    let computed = format!(
+        "sha256:{:x}",
+        Sha256::digest(serde_json::to_vec(&persisted)?)
+    );
+    if computed != receipt {
+        return Err(anyhow!("objective-plan receipt digest mismatch"));
+    }
+    Ok((plan, receipt.to_owned()))
+}
+
+fn objective_leaf_contract<'a>(
+    plan: &'a ObjectivePlan,
+    task: &QueueRecord,
+) -> Result<&'a ExecutableLeafContract> {
+    let leaf_key = task.extra["meta"]["objective_leaf_key"]
+        .as_str()
+        .filter(|value| !value.trim().is_empty())
+        .ok_or_else(|| anyhow!("objective leaf `{}` omitted objective_leaf_key", task.id))?;
+    plan.leaf_contracts.get(leaf_key).ok_or_else(|| {
+        anyhow!(
+            "objective leaf `{}` omitted its executable contract",
+            task.id
+        )
+    })
+}
+
+fn verification_prompt(task: &QueueRecord, contract: Option<&ExecutableLeafContract>) -> String {
+    let checks = contract
+        .map(|contract| contract.verification_checks.join(", "))
+        .filter(|checks| !checks.is_empty())
+        .unwrap_or_else(|| "every check declared by the attached project contract".into());
+    format!(
+        "Verify task {} by running these project-native checks: {checks}; do not modify project files.",
+        task.id
+    )
+}
+
 fn continuation_sequence(task: &QueueRecord) -> u64 {
     task.extra
         .get("continuation_sequence")
@@ -556,7 +742,32 @@ fn validate_task_acceptance_artifact(root: &Path, task: &QueueRecord) -> Result<
     let Some(relative_path) = meta.get("acceptance_artifact").and_then(Value::as_str) else {
         return Ok(());
     };
-    let content = std::fs::read_to_string(root.join(relative_path))
+    let relative = Path::new(relative_path);
+    if relative.is_absolute()
+        || relative.components().any(|component| {
+            !matches!(
+                component,
+                std::path::Component::Normal(_) | std::path::Component::CurDir
+            )
+        })
+    {
+        return Err(anyhow!(
+            "required acceptance artifact `{relative_path}` is not a safe repository-relative path"
+        ));
+    }
+    let canonical_root = root
+        .canonicalize()
+        .context("canonicalize repository root for acceptance validation")?;
+    let artifact_path = root
+        .join(relative)
+        .canonicalize()
+        .with_context(|| format!("resolve required acceptance artifact `{relative_path}`"))?;
+    if !artifact_path.starts_with(&canonical_root) {
+        return Err(anyhow!(
+            "required acceptance artifact `{relative_path}` escapes the repository root"
+        ));
+    }
+    let content = std::fs::read_to_string(&artifact_path)
         .with_context(|| format!("read required acceptance artifact `{relative_path}`"))?;
     if content.trim().is_empty() {
         return Err(anyhow!(
@@ -605,6 +816,30 @@ fn continuation_decision(
     } else {
         "retry_same_task"
     }
+}
+
+fn continuation_decision_for_task(
+    task: &QueueRecord,
+    queue_status: &str,
+    result: &str,
+    detail: Option<&str>,
+    prior_continuations: u64,
+) -> &'static str {
+    let max_attempts = task.extra["meta"]["budget"]["max_attempts"]
+        .as_u64()
+        .unwrap_or(2)
+        .max(1);
+    let attempts_used = task
+        .extra
+        .get("retry_sequence")
+        .and_then(Value::as_u64)
+        .or_else(|| task.extra["meta"]["retry_sequence"].as_u64())
+        .unwrap_or(0)
+        + 1;
+    if queue_status != "completed" && result != "cancelled" && attempts_used >= max_attempts {
+        return "replan_objective";
+    }
+    continuation_decision(queue_status, result, detail, prior_continuations)
 }
 
 fn record_context_outcome(
@@ -750,7 +985,7 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
         digest: Some(format!("sha256:{:x}", Sha256::digest(repository_state))),
     });
 
-    let plan = ObjectiveDecomposer::default().decompose_grounded(
+    let mut plan = ObjectiveDecomposer::default().decompose_grounded(
         &Objective {
             id: task.id.clone(),
             statement: objective.into(),
@@ -765,6 +1000,10 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
         },
         sources,
     );
+    let project_id = task_project_id(task).unwrap_or(DEFAULT_PROJECT_ID);
+    for contract in plan.leaf_contracts.values_mut() {
+        contract.project_id = project_id.to_owned();
+    }
     let validation = PlanValidator::default().validate_objective_plan(&plan);
     if !validation.ok {
         return Err(anyhow!(
@@ -773,6 +1012,436 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
         ));
     }
     Ok(plan)
+}
+
+fn objective_leaf_id(objective_id: &str, leaf_key: &str) -> String {
+    let raw = format!("{objective_id}__{leaf_key}");
+    let normalized = raw
+        .chars()
+        .map(|ch| {
+            if ch.is_ascii_alphanumeric() || matches!(ch, '-' | '_') {
+                ch
+            } else {
+                '-'
+            }
+        })
+        .collect::<String>();
+    let prefix = normalized.chars().take(96).collect::<String>();
+    let digest = format!("{:x}", Sha256::digest(raw.as_bytes()));
+    format!("{prefix}--{}", &digest[..16])
+}
+
+fn append_queue_values(root: &Path, values: &[Value]) -> Result<()> {
+    let path = root.join("core/projects/tasks/queue.jsonl");
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    let mut file = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .append(true)
+        .open(path)?;
+    file.lock_exclusive()?;
+    let write_result = (|| -> Result<()> {
+        use std::io::Write;
+        for value in values {
+            writeln!(file, "{value}")?;
+        }
+        file.sync_data()?;
+        Ok(())
+    })();
+    let unlock_result = FileExt::unlock(&file);
+    write_result?;
+    unlock_result?;
+    Ok(())
+}
+
+fn append_queue_value(root: &Path, value: Value) -> Result<()> {
+    append_queue_values(root, &[value])
+}
+
+fn materialize_objective_leaves(
+    root: &Path,
+    objective: &QueueRecord,
+    plan: &ObjectivePlan,
+    plan_receipt: &str,
+    plan_run_id: &str,
+) -> Result<Vec<QueueRecord>> {
+    let validation = PlanValidator::default().validate_objective_plan(plan);
+    if !validation.ok {
+        return Err(anyhow!(
+            "refusing to materialize invalid objective plan: {}",
+            validation.errors.join("; ")
+        ));
+    }
+    let root_meta = objective
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .cloned()
+        .ok_or_else(|| anyhow!("objective `{}` omitted governed metadata", objective.id))?;
+    let mut leaves: Vec<QueueRecord> = Vec::with_capacity(plan.tasks.len());
+    for planned in &plan.tasks {
+        let contract = plan
+            .leaf_contracts
+            .get(&planned.key)
+            .ok_or_else(|| anyhow!("plan leaf `{}` omitted executable contract", planned.key))?;
+        let id = objective_leaf_id(&objective.id, &planned.key);
+        let dependencies = planned
+            .depends_on
+            .iter()
+            .map(|key| objective_leaf_id(&objective.id, key))
+            .collect::<Vec<_>>();
+        let mut meta = root_meta.clone();
+        if !matches!(
+            planned.key.as_str(),
+            "produce-outcome" | "verify-acceptance"
+        ) {
+            meta.remove("acceptance_artifact");
+            meta.remove("acceptance_markers");
+        }
+        meta.insert("objective_leaf".into(), Value::Bool(true));
+        meta.insert("objective_id".into(), Value::String(objective.id.clone()));
+        meta.insert(
+            "objective_title".into(),
+            Value::String(
+                objective
+                    .title
+                    .as_deref()
+                    .unwrap_or(objective.id.as_str())
+                    .to_owned(),
+            ),
+        );
+        meta.insert(
+            "objective_leaf_key".into(),
+            Value::String(planned.key.clone()),
+        );
+        meta.insert("objective_plan".into(), serde_json::to_value(plan)?);
+        meta.insert(
+            "objective_plan_receipt".into(),
+            Value::String(plan_receipt.to_owned()),
+        );
+        meta.insert(
+            "objective_plan_run_id".into(),
+            Value::String(plan_run_id.to_owned()),
+        );
+        meta.insert(
+            "objective_root_meta".into(),
+            Value::Object(root_meta.clone()),
+        );
+        meta.insert(
+            "project_id".into(),
+            Value::String(contract.project_id.clone()),
+        );
+        meta.insert(
+            "authority_class".into(),
+            Value::String(contract.authority_class.clone()),
+        );
+        meta.insert(
+            "verification_checks".into(),
+            serde_json::to_value(&contract.verification_checks)?,
+        );
+        meta.insert(
+            "evidence_requirements".into(),
+            serde_json::to_value(&contract.evidence_requirements)?,
+        );
+        meta.insert(
+            "budget".into(),
+            json!({
+                "max_joules": contract.max_joules,
+                "max_cost_usd": contract.max_cost_usd,
+                "max_attempts": contract.max_attempts,
+                "timeout_seconds": contract.timeout_seconds,
+            }),
+        );
+        meta.insert("depends_on".into(), serde_json::to_value(&dependencies)?);
+        leaves.push(serde_json::from_value(json!({
+            "contract": "arda.workbench.objective_leaf.v1",
+            "id": id,
+            "source_record_id": id,
+            "title": planned.title,
+            "owner": objective.owner,
+            "priority": planned.priority,
+            "status": if dependencies.is_empty() { "queued" } else { "blocked" },
+            "queued_at_utc": Utc::now().to_rfc3339(),
+            "objective_id": objective.id,
+            "objective_leaf_key": planned.key,
+            "depends_on": dependencies,
+            "revision_sequence": 0,
+            "continuation_sequence": 0,
+            "meta": meta,
+        }))?);
+    }
+    let mut values = leaves
+        .iter()
+        .map(serde_json::to_value)
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    values.push(json!({
+        "contract": "arda.workbench.objective_waiting.v1",
+        "id": objective.id,
+        "source_record_id": objective.id,
+        "title": objective.title,
+        "owner": objective.owner,
+        "priority": objective.priority,
+        "status": "waiting",
+        "continuation_decision": "continue_next_task",
+        "objective_plan_receipt": plan_receipt,
+        "objective_plan_run_id": plan_run_id,
+        "materialized_leaf_ids": leaves.iter().map(|leaf| leaf.id.as_str()).collect::<Vec<_>>(),
+        "meta": root_meta,
+    }));
+    append_queue_values(root, &values)?;
+    Ok(leaves)
+}
+
+fn materialize_continuation(
+    root: &Path,
+    task: &QueueRecord,
+    run_id: &str,
+    decision: &str,
+    detail: &str,
+) -> Result<()> {
+    let continuation = continuation_sequence(task) + 1;
+    let retry = task
+        .extra
+        .get("retry_sequence")
+        .and_then(Value::as_u64)
+        .or_else(|| task.extra["meta"]["retry_sequence"].as_u64())
+        .unwrap_or(0)
+        + 1;
+    let revision = task
+        .extra
+        .get("revision_sequence")
+        .and_then(Value::as_u64)
+        .or_else(|| task.extra["meta"]["revision_sequence"].as_u64())
+        .unwrap_or(0)
+        + u64::from(decision == "revise_task");
+    let value = match decision {
+        "retry_same_task" | "revise_task" => {
+            let mut meta = task
+                .extra
+                .get("meta")
+                .and_then(Value::as_object)
+                .cloned()
+                .ok_or_else(|| anyhow!("objective leaf `{}` omitted metadata", task.id))?;
+            meta.insert(
+                "continuation_decision".into(),
+                Value::String(decision.into()),
+            );
+            meta.insert("continuation_sequence".into(), Value::from(continuation));
+            meta.insert("retry_sequence".into(), Value::from(retry));
+            meta.insert("revision_sequence".into(), Value::from(revision));
+            meta.insert("revision_directive".into(), Value::String(detail.into()));
+            json!({
+                "contract": "arda.workbench.executable_continuation.v1",
+                "id": task.id,
+                "source_record_id": task.id,
+                "title": task.title,
+                "owner": task.owner,
+                "priority": task.priority,
+                "status": "queued",
+                "queued_at_utc": Utc::now().to_rfc3339(),
+                "continuation_decision": decision,
+                "continuation_sequence": continuation,
+                "retry_sequence": retry,
+                "revision_sequence": revision,
+                "parent_workbench_run_id": run_id,
+                "workbench_run_id": attempt_workbench_run_id(&task.id, retry),
+                "revision_directive": detail,
+                "meta": meta,
+            })
+        }
+        "replan_objective" => {
+            let meta = task
+                .extra
+                .get("meta")
+                .and_then(Value::as_object)
+                .ok_or_else(|| anyhow!("objective leaf `{}` omitted metadata", task.id))?;
+            let objective_id = meta
+                .get("objective_id")
+                .and_then(Value::as_str)
+                .filter(|value| !value.trim().is_empty())
+                .ok_or_else(|| anyhow!("objective leaf `{}` omitted objective_id", task.id))?;
+            let objective_title = meta
+                .get("objective_title")
+                .and_then(Value::as_str)
+                .filter(|value| !value.trim().is_empty())
+                .ok_or_else(|| anyhow!("objective leaf `{}` omitted objective_title", task.id))?;
+            let objective_root_meta = meta
+                .get("objective_root_meta")
+                .and_then(Value::as_object)
+                .cloned()
+                .ok_or_else(|| {
+                    anyhow!("objective leaf `{}` omitted objective_root_meta", task.id)
+                })?;
+            json!({
+                "contract": "arda.workbench.executable_continuation.v1",
+                "id": objective_id,
+                "source_record_id": objective_id,
+                "title": objective_title,
+                "status": "queued",
+                "queued_at_utc": Utc::now().to_rfc3339(),
+                "continuation_decision": decision,
+                "continuation_sequence": continuation,
+                "retry_sequence": retry,
+                "parent_workbench_run_id": run_id,
+                "revision_directive": detail,
+                "meta": objective_root_meta,
+            })
+        }
+        other => return Err(anyhow!("continuation decision `{other}` is not executable")),
+    };
+    append_queue_value(root, value)
+}
+
+fn reconcile_terminal_objective_leaves(root: &Path) -> Result<()> {
+    let records =
+        super::task_queue::TaskQueueAnalyzer::new(root.join("core/projects/tasks/queue.jsonl"))
+            .load()?;
+    let effective = super::task_queue::TaskQueueAnalyzer::effective_records(records);
+    let terminal_objectives = effective
+        .iter()
+        .filter(|record| {
+            !is_objective_leaf(record)
+                && matches!(record.status.as_deref(), Some("completed" | "cancelled"))
+        })
+        .map(|record| record.id.clone())
+        .collect::<std::collections::BTreeSet<_>>();
+    for leaf in effective.into_iter().filter(is_objective_leaf) {
+        if leaf.extra["meta"]["objective_id"]
+            .as_str()
+            .is_some_and(|id| terminal_objectives.contains(id))
+        {
+            continue;
+        }
+        match leaf.status.as_deref() {
+            Some("completed") => advance_objective_after_leaf(root, &leaf)?,
+            Some("failed") => {
+                let decision = leaf
+                    .extra
+                    .get("continuation_decision")
+                    .and_then(Value::as_str);
+                if let Some(decision @ ("retry_same_task" | "revise_task" | "replan_objective")) =
+                    decision
+                {
+                    let run_id = leaf
+                        .extra
+                        .get("workbench_run_id")
+                        .and_then(Value::as_str)
+                        .unwrap_or("reconciled-terminal-leaf");
+                    let detail = leaf
+                        .extra
+                        .get("detail")
+                        .and_then(Value::as_str)
+                        .unwrap_or("reconciled terminal leaf continuation");
+                    materialize_continuation(root, &leaf, run_id, decision, detail)?;
+                }
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn advance_objective_after_leaf(root: &Path, completed_leaf: &QueueRecord) -> Result<()> {
+    let objective_id = completed_leaf.extra["meta"]["objective_id"]
+        .as_str()
+        .filter(|value| !value.trim().is_empty())
+        .ok_or_else(|| {
+            anyhow!(
+                "objective leaf `{}` omitted objective_id",
+                completed_leaf.id
+            )
+        })?;
+    let records =
+        super::task_queue::TaskQueueAnalyzer::new(root.join("core/projects/tasks/queue.jsonl"))
+            .load()?;
+    let effective = super::task_queue::TaskQueueAnalyzer::effective_records(records);
+    let leaves = effective
+        .iter()
+        .filter(|record| {
+            record.extra["meta"]["objective_leaf"].as_bool() == Some(true)
+                && record.extra["meta"]["objective_id"].as_str() == Some(objective_id)
+        })
+        .collect::<Vec<_>>();
+    if leaves.is_empty() {
+        return Err(anyhow!("objective `{objective_id}` has no durable leaves"));
+    }
+    let completed_ids = leaves
+        .iter()
+        .filter(|leaf| leaf.status.as_deref() == Some("completed"))
+        .map(|leaf| leaf.id.as_str())
+        .collect::<std::collections::BTreeSet<_>>();
+    if completed_ids.len() == leaves.len() {
+        let mut evidence = leaves
+            .iter()
+            .map(|leaf| {
+                leaf.extra
+                    .get("execution_receipt_digest")
+                    .and_then(Value::as_str)
+                    .filter(|digest| digest.starts_with("sha256:"))
+                    .map(str::to_owned)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "objective leaf `{}` cannot close without an execution receipt",
+                            leaf.id
+                        )
+                    })
+            })
+            .collect::<Result<Vec<_>>>()?;
+        evidence.sort();
+        let acceptance_leaf = leaves
+            .iter()
+            .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "verify-acceptance")
+            .ok_or_else(|| anyhow!("objective `{objective_id}` omitted acceptance leaf"))?;
+        validate_task_acceptance_artifact(root, acceptance_leaf)?;
+        let artifact = acceptance_leaf.extra["meta"]["acceptance_artifact"]
+            .as_str()
+            .filter(|value| !value.trim().is_empty())
+            .ok_or_else(|| anyhow!("objective `{objective_id}` omitted acceptance artifact"))?;
+        let root_meta = acceptance_leaf.extra["meta"]["objective_root_meta"].clone();
+        return append_queue_value(
+            root,
+            json!({
+                "contract": "arda.workbench.objective_terminal.v1",
+                "id": objective_id,
+                "source_record_id": objective_id,
+                "title": acceptance_leaf.extra["meta"]["objective_title"],
+                "status": "completed",
+                "result": "completed",
+                "completed_at_utc": Utc::now().to_rfc3339(),
+                "continuation_decision": "close_complete",
+                "acceptance_artifact": artifact,
+                "acceptance_leaf_id": acceptance_leaf.id,
+                "closure_evidence_receipts": evidence,
+                "meta": root_meta,
+            }),
+        );
+    }
+
+    let mut activated = Vec::new();
+    for leaf in leaves {
+        if leaf.status.as_deref() != Some("blocked") {
+            continue;
+        }
+        let dependencies = leaf.extra["meta"]["depends_on"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+            .collect::<Vec<_>>();
+        if dependencies
+            .iter()
+            .all(|dependency| completed_ids.contains(dependency))
+        {
+            let mut value = serde_json::to_value(leaf)?;
+            value["status"] = Value::String("queued".into());
+            value["queued_at_utc"] = Value::String(Utc::now().to_rfc3339());
+            value["continuation_decision"] = Value::String("continue_next_task".into());
+            activated.push(value);
+        }
+    }
+    append_queue_values(root, &activated)
 }
 
 fn persisted_objective_plan_for_task(
@@ -901,6 +1570,11 @@ fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &Queu
     let tasks = plan
         .tasks
         .iter()
+        .filter(|planned| {
+            task.extra["meta"]["objective_leaf_key"]
+                .as_str()
+                .is_none_or(|key| key == planned.key)
+        })
         .map(|task| format!("- {}: {}", task.key, task.title))
         .collect::<Vec<_>>()
         .join("\n");
@@ -912,9 +1586,25 @@ fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &Queu
         .and_then(Value::as_str)
         .map(|path| format!(" Write the final accepted backlog to `{path}`."))
         .unwrap_or_default();
+    let contract = objective_leaf_contract(plan, task).ok();
+    let checks = contract
+        .map(|contract| contract.verification_checks.join(", "))
+        .filter(|checks| !checks.is_empty())
+        .map(|checks| format!(" Required project-native checks: {checks}."))
+        .unwrap_or_default();
+    let revision_directive = task
+        .extra
+        .get("revision_directive")
+        .and_then(Value::as_str)
+        .or_else(|| task.extra["meta"]["revision_directive"].as_str())
+        .filter(|directive| !directive.trim().is_empty())
+        .map(|directive| {
+            format!(" Correct the prior failed attempt before proceeding: {directive}.")
+        })
+        .unwrap_or_default();
     format!(
-        "{}\n\nExecute this validated objective plan in dependency order:\n{}\n\nRead and cite these live authorities before changing anything:\n{}\n\nFinal output must be a concrete prioritized repair backlog with evidence, human-visible behavior, and the smallest authoritative implementation surface.{} Preserve unrelated dirty work and do not edit generated queue projections.",
-        objective, tasks, sources, artifact_requirement
+        "{}\n\nExecute this validated objective plan in dependency order:\n{}\n\nRead and cite these live authorities before changing anything:\n{}\n\nFinal output must be a concrete prioritized repair backlog with evidence, human-visible behavior, and the smallest authoritative implementation surface.{}{}{} Preserve unrelated dirty work and do not edit generated queue projections.",
+        objective, tasks, sources, artifact_requirement, checks, revision_directive
     )
 }
 
@@ -977,7 +1667,7 @@ fn required_meta<'a>(
 
 #[cfg(test)]
 fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str) -> Value {
-    run_graph_value(run_id, task_id, objective, approval_id, None)
+    run_graph_value(run_id, task_id, objective, approval_id, None, None)
 }
 
 fn run_graph_with_objective_plan_receipt(
@@ -986,6 +1676,7 @@ fn run_graph_with_objective_plan_receipt(
     objective: &str,
     approval_id: &str,
     objective_plan_receipt: &str,
+    leaf_contract: Option<&ExecutableLeafContract>,
 ) -> Value {
     run_graph_value(
         run_id,
@@ -993,6 +1684,7 @@ fn run_graph_with_objective_plan_receipt(
         objective,
         approval_id,
         Some(objective_plan_receipt),
+        leaf_contract,
     )
 }
 
@@ -1002,18 +1694,39 @@ fn run_graph_value(
     objective: &str,
     approval_id: &str,
     objective_plan_receipt: Option<&str>,
+    leaf_contract: Option<&ExecutableLeafContract>,
 ) -> Value {
     let prompt_digest = format!("sha256:{:x}", Sha256::digest(objective.as_bytes()));
     let deadline = Utc::now().timestamp_millis().saturating_add(1_200_000) as u128;
+    let execute_authority = leaf_contract
+        .map(|contract| contract.authority_class.as_str())
+        .unwrap_or("execute_with_approval");
     let node = |id: &str, kind: &str, authority: &str, parents: Vec<&str>, worker: Value| {
+        let governed = matches!(id, "execute" | "verify");
+        let max_joules = leaf_contract
+            .filter(|_| governed)
+            .map(|contract| contract.max_joules)
+            .unwrap_or(5000.0);
+        let max_cost_usd = leaf_contract
+            .filter(|_| governed)
+            .map(|contract| contract.max_cost_usd)
+            .unwrap_or(2.0);
+        let max_attempts = leaf_contract
+            .filter(|_| governed)
+            .map(|contract| contract.max_attempts)
+            .unwrap_or(2);
+        let timeout_ms = leaf_contract
+            .filter(|_| governed)
+            .map(|contract| contract.timeout_seconds.saturating_mul(1_000))
+            .unwrap_or(900_000);
         json!({
             "id": id,
             "kind": kind,
             "state": "pending",
             "authority": authority,
-            "budget": {"max_joules": 5000.0, "max_cost_usd": 2.0},
-            "retry": {"max_attempts": 2},
-            "timeout_ms": 900000,
+            "budget": {"max_joules": max_joules, "max_cost_usd": max_cost_usd},
+            "retry": {"max_attempts": max_attempts},
+            "timeout_ms": timeout_ms,
             "idempotency_key": format!("queue-{task_id}-{id}"),
             "input_digest": null,
             "output_digest": null,
@@ -1033,7 +1746,7 @@ fn run_graph_value(
         "nodes": [
             node("plan", "plan", "read_only", vec![], Value::Null),
             node("approval", "approval", "human_approval", vec![approval_id], Value::Null),
-            node("execute", "execute", "execute_with_approval", vec![approval_id], json!({
+            node("execute", "execute", execute_authority, vec![approval_id], json!({
                 "role": "implementer",
                 "worker_id": format!("hermes:queue:{task_id}"),
                 "route_id": "hosted:hermes-workbench",
@@ -1203,6 +1916,56 @@ mod tests {
                 .build()
                 .unwrap(),
         }
+    }
+
+    #[tokio::test]
+    async fn timer_execution_materializes_governed_objective_before_provider_dispatch() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "timer-objective");
+        let mut root: Value = serde_json::from_str(
+            std::fs::read_to_string(&queue_path)
+                .unwrap()
+                .lines()
+                .next()
+                .unwrap(),
+        )
+        .unwrap();
+        root["meta"]["acceptance_artifact"] =
+            Value::String("docs/audits/timer-acceptance.md".into());
+        root["meta"]["acceptance_markers"] = json!(["timer evidence"]);
+        root["meta"]["project_id"] = Value::String(DEFAULT_PROJECT_ID.into());
+        std::fs::write(&queue_path, format!("{root}\n")).unwrap();
+
+        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+            .execute_once()
+            .await
+            .unwrap();
+
+        assert_eq!(receipt.status, "waiting");
+        assert_eq!(receipt.result, "objective_decomposed");
+        assert_eq!(
+            receipt.continuation_decision.as_deref(),
+            Some("continue_next_task")
+        );
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        assert_eq!(
+            effective
+                .iter()
+                .filter(|record| record.extra["meta"]["objective_leaf"] == true)
+                .count(),
+            5
+        );
+        assert_eq!(
+            effective
+                .iter()
+                .find(|record| record.id == "timer-objective")
+                .and_then(|record| record.status.as_deref()),
+            Some("waiting")
+        );
     }
 
     async fn scripted_harness(
@@ -1784,6 +2547,347 @@ mod tests {
             continuation_decision("completed", "completed", None, 0),
             "close_complete"
         );
+
+        let one_attempt: QueueRecord = serde_json::from_value(json!({
+            "id": "bounded-leaf",
+            "meta": {"budget": {"max_attempts": 1}}
+        }))
+        .unwrap();
+        assert_eq!(
+            continuation_decision_for_task(
+                &one_attempt,
+                "failed",
+                "failed",
+                Some("provider timeout"),
+                0,
+            ),
+            "replan_objective"
+        );
+    }
+
+    #[test]
+    fn restart_reconciles_terminal_leaf_successor_activation() {
+        let dir = tempfile::tempdir().unwrap();
+        let first_id = objective_leaf_id("objective-crash", "first");
+        let second_id = objective_leaf_id("objective-crash", "second");
+        append_queue_values(
+            dir.path(),
+            &[
+                json!({
+                    "id": first_id,
+                    "source_record_id": first_id,
+                    "status": "completed",
+                    "execution_receipt_digest": "sha256:first",
+                    "meta": {
+                        "objective_leaf": true,
+                        "objective_id": "objective-crash",
+                        "objective_leaf_key": "first",
+                        "depends_on": []
+                    }
+                }),
+                json!({
+                    "id": second_id,
+                    "source_record_id": second_id,
+                    "status": "blocked",
+                    "meta": {
+                        "objective_leaf": true,
+                        "objective_id": "objective-crash",
+                        "objective_leaf_key": "second",
+                        "depends_on": [first_id]
+                    }
+                }),
+            ],
+        )
+        .unwrap();
+
+        reconcile_terminal_objective_leaves(dir.path()).unwrap();
+
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(
+                dir.path().join("core/projects/tasks/queue.jsonl"),
+            )
+            .load()
+            .unwrap(),
+        );
+        assert_eq!(
+            effective
+                .iter()
+                .find(|record| record.id == second_id)
+                .unwrap()
+                .status
+                .as_deref(),
+            Some("queued")
+        );
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        let records_after_repair = std::fs::read_to_string(&queue_path)
+            .unwrap()
+            .lines()
+            .count();
+        reconcile_terminal_objective_leaves(dir.path()).unwrap();
+        assert_eq!(
+            std::fs::read_to_string(queue_path).unwrap().lines().count(),
+            records_after_repair,
+            "restart reconciliation must not append duplicate successor records"
+        );
+    }
+
+    #[test]
+    fn objective_leaves_and_corrected_revision_survive_executor_restart() {
+        let dir = tempfile::tempdir().unwrap();
+        for path in [
+            "data/workbench/projects.json",
+            "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md",
+            "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
+            "ARDA_SYSTEM_STATUS_REPORT.md",
+            "core/projects/tasks/queue.jsonl",
+        ] {
+            let path = dir.path().join(path);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, "authoritative fixture\n").unwrap();
+        }
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "objective-durable",
+            "title": "Produce the required acceptance artifact",
+            "status": "in_progress",
+            "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "packet-durable",
+                "approval_packet_id": "approval-durable",
+                "project_id": DEFAULT_PROJECT_ID,
+                "acceptance_artifact": "docs/audits/acceptance.md",
+                "acceptance_markers": ["evidence"]
+            }
+        }))
+        .unwrap();
+        let (plan, plan_receipt) =
+            persisted_objective_plan_for_task(dir.path(), "queue-objective-durable", &task)
+                .unwrap();
+
+        let leaves = materialize_objective_leaves(
+            dir.path(),
+            &task,
+            &plan,
+            &plan_receipt,
+            "queue-objective-durable",
+        )
+        .unwrap();
+        assert_eq!(leaves.len(), 5);
+
+        let restarted = super::super::task_queue::TaskQueueAnalyzer::new(
+            dir.path().join("core/projects/tasks/queue.jsonl"),
+        );
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            restarted.load().unwrap(),
+        );
+        assert_eq!(
+            effective
+                .iter()
+                .filter(|record| record.extra["meta"]["objective_leaf"] == true)
+                .count(),
+            5
+        );
+        assert_eq!(
+            effective
+                .iter()
+                .filter(|record| record.status.as_deref() == Some("queued"))
+                .count(),
+            1
+        );
+        assert!(leaves.iter().all(|leaf| {
+            let meta = &leaf.extra["meta"];
+            meta["objective_id"] == "objective-durable"
+                && meta["project_id"] == DEFAULT_PROJECT_ID
+                && meta["authority_class"].is_string()
+                && meta["verification_checks"]
+                    .as_array()
+                    .is_some_and(|v| !v.is_empty())
+                && meta["evidence_requirements"]
+                    .as_array()
+                    .is_some_and(|v| !v.is_empty())
+                && meta["budget"]["max_joules"]
+                    .as_f64()
+                    .is_some_and(|v| v > 0.0)
+        }));
+        let producer = leaves
+            .iter()
+            .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "produce-outcome")
+            .unwrap();
+        assert_eq!(
+            producer.extra["meta"]["authority_class"],
+            "execute_with_approval"
+        );
+        assert_eq!(
+            producer.extra["meta"]["acceptance_artifact"],
+            "docs/audits/acceptance.md"
+        );
+        let acceptance = leaves
+            .iter()
+            .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "verify-acceptance")
+            .unwrap();
+        assert_eq!(acceptance.extra["meta"]["authority_class"], "read_only");
+        assert_eq!(
+            acceptance.extra["meta"]["acceptance_artifact"],
+            "docs/audits/acceptance.md"
+        );
+        assert_eq!(
+            objective_plan_for_claim(dir.path(), acceptance).unwrap().1,
+            plan_receipt
+        );
+        let mut tampered = acceptance.clone();
+        tampered.extra["meta"]["objective_plan"]["tasks"][0]["title"] =
+            Value::String("tampered task".into());
+        assert!(objective_plan_for_claim(dir.path(), &tampered)
+            .unwrap_err()
+            .to_string()
+            .contains("does not match its persisted plan receipt"));
+
+        let failed_leaf = leaves
+            .iter()
+            .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "verify-acceptance")
+            .unwrap();
+        append_queue_value(
+            dir.path(),
+            json!({
+                "id": failed_leaf.id,
+                "source_record_id": failed_leaf.id,
+                "status": "failed",
+                "result": "failed",
+                "meta": failed_leaf.extra["meta"],
+            }),
+        )
+        .unwrap();
+        materialize_continuation(
+            dir.path(),
+            failed_leaf,
+            "queue-objective-durable__verify-acceptance",
+            "revise_task",
+            "acceptance criteria were not satisfied",
+        )
+        .unwrap();
+
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            restarted.load().unwrap(),
+        );
+        let revised = effective
+            .iter()
+            .find(|record| record.id == failed_leaf.id)
+            .unwrap();
+        assert_eq!(revised.status.as_deref(), Some("queued"));
+        assert_eq!(revised.extra["continuation_decision"], "revise_task");
+        assert_eq!(revised.extra["revision_sequence"], 1);
+        assert_eq!(
+            revised.extra["workbench_run_id"],
+            attempt_workbench_run_id(&failed_leaf.id, 1)
+        );
+        assert_eq!(revised.extra["meta"]["objective_id"], "objective-durable");
+        assert!(revised.extra["revision_directive"]
+            .as_str()
+            .unwrap()
+            .contains("acceptance criteria"));
+        assert!(revised.extra["meta"]["revision_directive"]
+            .as_str()
+            .unwrap()
+            .contains("acceptance criteria"));
+        let revised_prompt =
+            objective_execution_prompt(&plan, revised.title.as_deref().unwrap(), revised);
+        assert!(revised_prompt.contains("Correct the prior failed attempt"));
+        assert!(revised_prompt.contains("acceptance criteria were not satisfied"));
+        assert!(revised_prompt.contains("Required project-native checks: test"));
+
+        let revised_contract = objective_leaf_contract(&plan, revised).unwrap();
+        let revised_graph = run_graph_with_objective_plan_receipt(
+            "queue-objective-durable__verify-acceptance-attempt-2",
+            &revised.id,
+            revised.title.as_deref().unwrap(),
+            "approval-durable",
+            &plan_receipt,
+            Some(revised_contract),
+        );
+        let execute = revised_graph["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|node| node["id"] == "execute")
+            .unwrap();
+        assert_eq!(
+            execute["budget"]["max_joules"],
+            revised.extra["meta"]["budget"]["max_joules"]
+        );
+        assert_eq!(
+            execute["budget"]["max_cost_usd"],
+            revised.extra["meta"]["budget"]["max_cost_usd"]
+        );
+        assert_eq!(
+            execute["retry"]["max_attempts"],
+            revised.extra["meta"]["budget"]["max_attempts"]
+        );
+        assert_eq!(
+            execute["timeout_ms"].as_u64(),
+            revised.extra["meta"]["budget"]["timeout_seconds"]
+                .as_u64()
+                .map(|seconds| seconds * 1_000)
+        );
+
+        for (index, planned) in plan.tasks.iter().enumerate() {
+            let leaf = leaves
+                .iter()
+                .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == planned.key)
+                .unwrap();
+            if planned.key == "verify-acceptance" {
+                let artifact = dir.path().join("docs/audits/acceptance.md");
+                std::fs::create_dir_all(artifact.parent().unwrap()).unwrap();
+                std::fs::write(artifact, "evidence: structurally bound\n").unwrap();
+            }
+            append_queue_value(
+                dir.path(),
+                json!({
+                    "id": leaf.id,
+                    "source_record_id": leaf.id,
+                    "title": leaf.title,
+                    "status": "completed",
+                    "result": "completed",
+                    "execution_receipt_digest": format!("sha256:leaf-{index}"),
+                    "meta": leaf.extra["meta"],
+                }),
+            )
+            .unwrap();
+            advance_objective_after_leaf(dir.path(), leaf).unwrap();
+            if let Some(next) = plan.tasks.get(index + 1) {
+                let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+                    restarted.load().unwrap(),
+                );
+                let next_id = objective_leaf_id("objective-durable", &next.key);
+                assert_eq!(
+                    effective
+                        .iter()
+                        .find(|record| record.id == next_id)
+                        .and_then(|record| record.status.as_deref()),
+                    Some("queued")
+                );
+            }
+        }
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            restarted.load().unwrap(),
+        );
+        let closed = effective
+            .iter()
+            .find(|record| record.id == "objective-durable")
+            .unwrap();
+        assert_eq!(closed.status.as_deref(), Some("completed"));
+        assert_eq!(closed.extra["continuation_decision"], "close_complete");
+        assert_eq!(
+            closed.extra["closure_evidence_receipts"]
+                .as_array()
+                .unwrap()
+                .len(),
+            5
+        );
+        assert_eq!(
+            closed.extra["acceptance_artifact"],
+            "docs/audits/acceptance.md"
+        );
     }
 
     #[test]
@@ -1806,6 +2910,19 @@ mod tests {
         )
         .unwrap();
         validate_task_acceptance_artifact(dir.path(), &task).unwrap();
+
+        let mut traversal = task.clone();
+        traversal.extra["meta"]["acceptance_artifact"] = Value::String("../outside.md".into());
+        assert!(validate_task_acceptance_artifact(dir.path(), &traversal)
+            .unwrap_err()
+            .to_string()
+            .contains("safe repository-relative path"));
+        let mut absolute = task;
+        absolute.extra["meta"]["acceptance_artifact"] = Value::String("/etc/passwd".into());
+        assert!(validate_task_acceptance_artifact(dir.path(), &absolute)
+            .unwrap_err()
+            .to_string()
+            .contains("safe repository-relative path"));
     }
 
     #[test]

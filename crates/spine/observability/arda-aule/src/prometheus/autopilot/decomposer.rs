@@ -32,6 +32,18 @@ pub struct PlannedTask {
     pub assigned_agent: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExecutableLeafContract {
+    pub project_id: String,
+    pub authority_class: String,
+    pub verification_checks: Vec<String>,
+    pub evidence_requirements: Vec<String>,
+    pub max_joules: f64,
+    pub max_cost_usd: f64,
+    pub max_attempts: u32,
+    pub timeout_seconds: u64,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ObjectiveContextSource {
     pub kind: String,
@@ -57,6 +69,8 @@ pub struct ObjectivePlan {
     pub context_sources: Vec<ObjectiveContextSource>,
     pub acceptance_criteria: Vec<String>,
     pub approval_required: bool,
+    #[serde(default)]
+    pub leaf_contracts: BTreeMap<String, ExecutableLeafContract>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -207,12 +221,22 @@ impl ObjectiveDecomposer {
                 .copied()
                 .unwrap_or(self.default_cost);
         }
+        let leaf_contracts = tasks
+            .iter()
+            .map(|planned| {
+                (
+                    planned.key.clone(),
+                    executable_leaf_contract(planned, "arda", &["test"]),
+                )
+            })
+            .collect();
         ObjectivePlan {
             objective_id: obj.id.clone(),
             tasks,
             context_sources,
             acceptance_criteria: obj.success_criteria.clone(),
             approval_required: true,
+            leaf_contracts,
         }
     }
 }
@@ -394,6 +418,41 @@ fn task(
     }
 }
 
+pub fn executable_leaf_contract(
+    task: &PlannedTask,
+    project_id: &str,
+    checks: &[&str],
+) -> ExecutableLeafContract {
+    let authority_class = if matches!(task.task_type.as_str(), "ops" | "build") {
+        "execute_with_approval"
+    } else {
+        "read_only"
+    };
+    let evidence_requirements = match task.task_type.as_str() {
+        "context_recovery" => vec!["context_source_digests".into()],
+        "monitor" => vec![
+            "project_check_receipts".into(),
+            "acceptance_observations".into(),
+        ],
+        "ops" | "build" => vec!["changed_paths".into(), "artifact_identities".into()],
+        _ => vec!["source_evidence".into()],
+    };
+    ExecutableLeafContract {
+        project_id: project_id.to_owned(),
+        authority_class: authority_class.into(),
+        verification_checks: checks.iter().map(|check| (*check).to_owned()).collect(),
+        evidence_requirements,
+        max_joules: (task.joule_cost * (task.eta_seconds.max(30) as f64 / 30.0)).max(1.0),
+        max_cost_usd: (task.joule_cost / 2_500.0).max(0.01),
+        max_attempts: if task.priority >= Priority::High {
+            2
+        } else {
+            1
+        },
+        timeout_seconds: task.eta_seconds.max(30),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -452,6 +511,20 @@ mod tests {
             .unwrap()
             .depends_on
             .contains(&"produce-outcome".to_string()));
+        assert!(plan.tasks.iter().all(|task| {
+            let contract = &plan.leaf_contracts[&task.key];
+            contract.project_id == "arda"
+                && !contract.authority_class.is_empty()
+                && !contract.verification_checks.is_empty()
+                && !contract.evidence_requirements.is_empty()
+                && contract.max_joules > 0.0
+                && contract.max_cost_usd > 0.0
+                && contract.max_attempts > 0
+        }));
+        assert_ne!(
+            plan.leaf_contracts[&plan.tasks[0].key].max_joules,
+            plan.leaf_contracts[&plan.tasks[3].key].max_joules
+        );
     }
 
     #[test]

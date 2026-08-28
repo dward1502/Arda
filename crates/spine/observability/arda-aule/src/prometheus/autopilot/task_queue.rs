@@ -713,7 +713,13 @@ fn resolve_claimed_run_id(task: &QueueRecord) -> std::io::Result<String> {
             .and_then(Value::as_str)
             .filter(|value| !value.trim().is_empty())
     };
-    if let Some(run_id) = meta_str("workbench_run_id") {
+    if let Some(run_id) = task
+        .extra
+        .get("workbench_run_id")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| meta_str("workbench_run_id"))
+    {
         return Ok(run_id.to_owned());
     }
     if meta_str("approval_packet_id").is_some() || meta_str("governance_authorization_id").is_some()
@@ -769,7 +775,7 @@ fn read_queue_records(file: &std::fs::File) -> std::io::Result<Vec<QueueRecord>>
     Ok(out)
 }
 
-fn workbench_run_id(task_id: &str, retry_sequence: u64) -> String {
+pub(super) fn workbench_run_id(task_id: &str, retry_sequence: u64) -> String {
     let normalized = task_id
         .chars()
         .map(|character| {
@@ -1303,6 +1309,15 @@ mod tests {
             .expect("retried task");
         assert_eq!(claim.attempt.workbench_run_id, "queue-retry-task-attempt-2");
         assert!(claim.task.extra["meta"]["approval_packet_id"].is_string());
+
+        let recovered = executor
+            .claim_next_approved_reconciling_orphans()
+            .expect("recover claimed retry")
+            .expect("claimed retry remains recoverable");
+        assert_eq!(
+            recovered.attempt.workbench_run_id,
+            "queue-retry-task-attempt-2"
+        );
     }
 
     #[test]

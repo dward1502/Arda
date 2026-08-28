@@ -6,11 +6,11 @@ soterion:
   role: "implementation_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-26"
+  reviewed: "2026-08-27"
   tags: ["task-loop", "scheduler", "verification", "review", "continuation"]
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-26
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-27
 
 # Autonomous Task Completion Loop
 
@@ -31,9 +31,9 @@ A task created from operator intent or system discovery is scheduled, executed, 
 
 ## Current production state
 
-The installed `WorkbenchQueueExecutor` now resolves the selected task's project contract and runs `plan → approval → execute → verify → review → close` through the durable Engine graph. It persists `continue_verify`, `continue_review`, `continue_close`, and `close_complete` decisions in the canonical queue, resumes by deterministic run identity, and refuses successful terminal projection unless close carries provider and passing project-check evidence.
+The installed `WorkbenchQueueExecutor` resolves the selected task's project contract and runs `plan → approval → execute → verify → review → close` through the durable Engine graph. It also materializes a validated objective as independently durable canonical queue leaves. Each leaf carries project, authority, checks, evidence, dependency, budget, and digest-bound plan metadata; eligible successors and executable retry/revision/replan records are consumed on later invocations without chat context. Terminal-leaf reconciliation converges after a crash between terminal append and successor/continuation append, and retry claims receive attempt-qualified Workbench run IDs.
 
-Remaining work is broader than this executor slice: general objective decomposition, retry/revision/replan decisions, durable recurrence, multi-project objectives, independent critic selection beyond the verifier role, and operator-facing continuation control remain open.
+The T2/T5 source slice is test-verified, but its final installed-timer acceptance is still open. A live installed-timer run proved objective decomposition, five durable leaves, dependency blocking, and first-leaf dispatch; the user systemd bus then became unavailable before restart, forced-failure correction, unattended closure, and artifact-bound terminal acceptance could be observed. Durable recurrence, `wait_until`, pause/cancel scheduling, multi-project objectives, independent critic selection beyond the verifier role, and operator-facing continuation control also remain open.
 
 ## Task contract additions
 
@@ -133,6 +133,15 @@ Expose objective state, current task, evidence, next continuation decision, sche
 - Final code gates after formatting: the focused executor suite passed 11 tests; `cargo test -p arda-aule --features full-cli` passed 204 library, 8 CLI, 21 integration, and 2 doc tests; and `cargo check --workspace --all-targets` passed. Scoped `git diff --check` passed. Repository-wide `cargo fmt --all -- --check` remains blocked by pre-existing formatting drift in Engine tests, Oromë, and `autopilot/runner.rs`; strict package Clippy remains blocked by pre-existing warnings in `company_ops`, `execution_outcome.rs`, `queue_writer.rs`, and `learning_consumer.rs`. The task-owned Rust files pass direct `rustfmt --check`, and their Clippy findings were resolved before the final package test.
 
 This closes the bounded installed-executor/restart slice, not the complete plan's general decomposition, recurrence, overnight, multi-project, or operator-burden gates.
+
+### 2026-08-27 durable-leaf and executable-continuation slice
+
+- Source behavior: validated objectives materialize as five independently durable append-only queue leaves. Leaf records retain stable objective lineage, full dependency IDs, project/authority/check/evidence contracts, derived budgets, acceptance metadata, an objective-plan run ID, and a receipt digest that is recomputed and checked against the persisted receipt before dispatch.
+- Continuation behavior: `retry_same_task` and `revise_task` append same-lineage executable records with incremented sequences and fresh attempt-qualified Workbench run identity; `replan_objective` validates root identity and metadata before append. Persisted `max_attempts` bounds retries. Startup reconciliation repairs a crash after a terminal leaf append by activating successors or materializing the recorded continuation idempotently on the next invocation.
+- Closure behavior: an objective closes only after every leaf has a digest-shaped execution receipt and the terminal acceptance leaf's declared artifact exists with every required marker.
+- Verification: `cargo test -p arda-aule --features full-cli` passed 227 library tests, 8 CLI tests, 22 integration tests, and 2 doc tests. `cargo clippy -p arda-aule --features full-cli --all-targets -- -D warnings` passed. The installed release binary and `target/release/arda-cli` match at SHA-256 `3f66032b89fcceda8fba70937cb930ee57cb77dd762bef978193c6092ea60443`.
+- Bounded live evidence: installed-timer objective `operator-objective-t2-t5-live-20260827-v2` reached root `waiting`, produced five durable leaves, kept four dependency-blocked, and claimed the eligible `recover-context` leaf without another instruction. It was append-only retired after the acceptance environment stopped before terminal proof.
+- Blocker: `systemctl --user` returns `Failed to connect to user scope bus via local transport: Connection refused`. Therefore this slice does not yet claim real restart between leaves, installed-timer correction after forced verification failure, unattended terminal closure, or live artifact/evidence-bound acceptance. Those gates remain required before T2/T5 are marked workflow-proven.
 
 ### 2026-08-26 first non-trivial operator objective
 

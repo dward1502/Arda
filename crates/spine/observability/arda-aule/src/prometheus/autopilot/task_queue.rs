@@ -278,6 +278,33 @@ impl ActiveQueueExecutor {
         }
     }
 
+    pub(super) fn is_exact_persisted_workbench_attempt(
+        &self,
+        expected: &QueueRecord,
+    ) -> std::io::Result<bool> {
+        let file = OpenOptions::new().read(true).open(&self.queue_path)?;
+        file.lock_shared()?;
+        let result = (|| {
+            let records = read_queue_records(&file)?;
+            let current_matches = TaskQueueAnalyzer::effective_records(records.clone())
+                .iter()
+                .any(|record| record == expected);
+            let replay_valid = records
+                .iter()
+                .enumerate()
+                .rfind(|(_, record)| *record == expected)
+                .is_some_and(|(index, _)| {
+                    record_is_exact_persisted_workbench_attempt(&records, index)
+                });
+            Ok(current_matches && replay_valid)
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
+    }
+
     pub fn select_next_safe_local(&self) -> std::io::Result<Option<QueueRecord>> {
         let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
         let effective = dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
@@ -1044,6 +1071,30 @@ impl ActiveQueueExecutor {
         })
     }
 
+    #[cfg(test)]
+    pub(super) fn append_attempt_fixture(
+        &self,
+        task: &QueueRecord,
+    ) -> std::io::Result<ActiveQueueExecutionAttempt> {
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let attempt = execution_attempt(task);
+            append_attempt_to_writer(&mut file, task, &attempt)?;
+            file.sync_data()?;
+            Ok(attempt)
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
+    }
+
     /// Requeue one failed approved task while preserving its approval lineage.
     pub fn retry_failed(&self, task_id: &str) -> std::io::Result<QueueRecord> {
         ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
@@ -1486,6 +1537,7 @@ fn execution_attempt(task: &QueueRecord) -> ActiveQueueExecutionAttempt {
         .and_then(Value::as_str)
         .unwrap_or("approved_autopilot_plan_step")
         .to_owned();
+    let appended_at_utc = Utc::now();
     ActiveQueueExecutionAttempt {
         contract: "arda.prometheus.active_queue_execution_attempt.v1".to_owned(),
         executor: "arda_workbench.queue_executor".to_owned(),
@@ -1493,7 +1545,7 @@ fn execution_attempt(task: &QueueRecord) -> ActiveQueueExecutionAttempt {
         status: "claimed".to_owned(),
         action_class,
         hades_projection_repair: false,
-        appended_at_utc: Utc::now(),
+        appended_at_utc,
         workbench_run_id: workbench_run_id(
             &task.id,
             task.extra
@@ -1501,7 +1553,7 @@ fn execution_attempt(task: &QueueRecord) -> ActiveQueueExecutionAttempt {
                 .and_then(Value::as_u64)
                 .unwrap_or(0),
         ),
-        lease_expires_at_utc: Utc::now() + Duration::minutes(20),
+        lease_expires_at_utc: appended_at_utc + Duration::minutes(20),
     }
 }
 
@@ -1556,6 +1608,52 @@ fn attempt_from_claimed_task(task: &QueueRecord) -> std::io::Result<ActiveQueueE
         workbench_run_id: resolve_claimed_run_id(task)?,
         lease_expires_at_utc: lease_expires_at,
     })
+}
+
+fn record_is_exact_persisted_workbench_attempt(records: &[QueueRecord], index: usize) -> bool {
+    let Some(current) = records.get(index) else {
+        return false;
+    };
+    let Some(started_at) = current.started_at_utc.as_deref().and_then(parse_utc) else {
+        return false;
+    };
+    let Some(predecessor) = TaskQueueAnalyzer::effective_records(records[..index].to_vec())
+        .into_iter()
+        .find(|record| record.id == current.id)
+    else {
+        return false;
+    };
+    let action_class = predecessor
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get("action_class"))
+        .and_then(Value::as_str)
+        .unwrap_or("approved_autopilot_plan_step")
+        .to_owned();
+    let attempt = ActiveQueueExecutionAttempt {
+        contract: "arda.prometheus.active_queue_execution_attempt.v1".into(),
+        executor: "arda_workbench.queue_executor".into(),
+        task_id: predecessor.id.clone(),
+        status: "claimed".into(),
+        action_class,
+        hades_projection_repair: false,
+        appended_at_utc: started_at,
+        workbench_run_id: workbench_run_id(
+            &predecessor.id,
+            predecessor
+                .extra
+                .get("retry_sequence")
+                .and_then(Value::as_u64)
+                .unwrap_or(0),
+        ),
+        lease_expires_at_utc: started_at + Duration::minutes(20),
+    };
+    let mut encoded = Vec::new();
+    if append_attempt_to_writer(&mut encoded, &predecessor, &attempt).is_err() {
+        return false;
+    }
+    serde_json::from_slice::<QueueRecord>(&encoded).is_ok_and(|expected| expected == *current)
 }
 
 /// Resolve the Workbench run id for a claimed task from its executor attempt
@@ -2344,6 +2442,88 @@ fn previous_same_task_record_index(records: &[QueueRecord], index: usize) -> Opt
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn persisted_workbench_attempt_requires_exact_writer_replay() {
+        let mut meta = serde_json::Map::new();
+        meta.insert(
+            "approval_packet_id".into(),
+            Value::String("approval-exact-replay".into()),
+        );
+        meta.insert(
+            "action_class".into(),
+            Value::String("approved_autopilot_plan_step".into()),
+        );
+        meta.insert("protected_marker".into(), Value::String("original".into()));
+        let mut extra = serde_json::Map::new();
+        extra.insert("meta".into(), Value::Object(meta));
+        let predecessor = QueueRecord {
+            id: "exact-replay-task".into(),
+            title: Some("Original title".into()),
+            owner: Some("prometheus".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            result: None,
+            queued_at_utc: Some("2026-08-28T23:00:00Z".into()),
+            completed_at_utc: None,
+            started_at_utc: None,
+            extra,
+        };
+        let started_at = parse_utc("2026-08-28T23:10:00Z").unwrap();
+        let attempt = ActiveQueueExecutionAttempt {
+            contract: "arda.prometheus.active_queue_execution_attempt.v1".into(),
+            executor: "arda_workbench.queue_executor".into(),
+            task_id: predecessor.id.clone(),
+            status: "claimed".into(),
+            action_class: "approved_autopilot_plan_step".into(),
+            hades_projection_repair: false,
+            appended_at_utc: started_at,
+            workbench_run_id: workbench_run_id(&predecessor.id, 0),
+            lease_expires_at_utc: started_at + Duration::minutes(20),
+        };
+        let mut encoded = Vec::new();
+        append_attempt_to_writer(&mut encoded, &predecessor, &attempt).unwrap();
+        let persisted: QueueRecord = serde_json::from_slice(&encoded).unwrap();
+
+        assert!(record_is_exact_persisted_workbench_attempt(
+            &[predecessor.clone(), persisted.clone()],
+            1,
+        ));
+
+        let mut noncanonical_run_id = persisted.clone();
+        noncanonical_run_id.extra.insert(
+            "workbench_run_id".into(),
+            Value::String("queue-exact-replay-task-attempt-0002".into()),
+        );
+        assert!(!record_is_exact_persisted_workbench_attempt(
+            &[predecessor.clone(), noncanonical_run_id],
+            1,
+        ));
+
+        let mut forged = persisted;
+        forged.title = Some("Forged title".into());
+        assert!(!record_is_exact_persisted_workbench_attempt(
+            &[predecessor, forged],
+            1,
+        ));
+    }
+
+    #[test]
+    fn execution_attempt_lease_is_exactly_twenty_minutes() {
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "canonical-lease-task",
+            "status": "queued",
+            "meta": {"action_class": "approved_autopilot_plan_step"}
+        }))
+        .unwrap();
+
+        let attempt = execution_attempt(&task);
+
+        assert_eq!(
+            attempt.lease_expires_at_utc,
+            attempt.appended_at_utc + Duration::minutes(20),
+        );
+    }
     use crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT;
 
     #[test]

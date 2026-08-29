@@ -26,6 +26,7 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::fs::{File, OpenOptions};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 pub const QUEUE_EXECUTION_RECEIPT_CONTRACT: &str = "arda.workbench.queue_execution_receipt.v1";
 const DEFAULT_PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
@@ -707,7 +708,11 @@ fn try_acquire_execution_target_locks(
     task: &QueueRecord,
 ) -> Result<Option<ExecutionTargetLocks>> {
     let binding = resolve_execution_target(root, task)?;
-    try_acquire_execution_target_locks_for_binding(root, binding)
+    let locks = try_acquire_execution_target_locks_for_binding(root, binding)?;
+    if let Some(locks) = locks.as_ref() {
+        ensure_fresh_mutation_workspace_clean(&locks.binding, false)?;
+    }
+    Ok(locks)
 }
 
 fn try_acquire_execution_target_locks_for_binding(
@@ -772,6 +777,78 @@ fn try_acquire_execution_target_locks_for_binding(
     }))
 }
 
+fn ensure_fresh_mutation_workspace_clean(
+    binding: &ExecutionTargetBinding,
+    exact_persisted_attempt: bool,
+) -> Result<()> {
+    if binding.read_only || exact_persisted_attempt {
+        return Ok(());
+    }
+    let output = Command::new("git")
+        .args([
+            "-c",
+            "core.fsmonitor=false",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+            "--ignore-submodules=none",
+        ])
+        .current_dir(&binding.workspace_root)
+        .env("LC_ALL", "C")
+        .env_remove("GIT_DIR")
+        .env_remove("GIT_WORK_TREE")
+        .env_remove("GIT_INDEX_FILE")
+        .env_remove("GIT_OBJECT_DIRECTORY")
+        .env_remove("GIT_ALTERNATE_OBJECT_DIRECTORIES")
+        .env_remove("GIT_CONFIG")
+        .env_remove("GIT_CONFIG_GLOBAL")
+        .env_remove("GIT_CONFIG_SYSTEM")
+        .env_remove("GIT_CONFIG_COUNT")
+        .output()
+        .with_context(|| {
+            format!(
+                "inspect Git worktree `{}` before mutation admission",
+                binding.workspace_root.display()
+            )
+        })?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        if !has_git_control_marker(&binding.workspace_root)? {
+            return Ok(());
+        }
+        return Err(anyhow!(
+            "could not inspect Git worktree `{}` before mutation admission: {}",
+            binding.workspace_root.display(),
+            stderr.trim()
+        ));
+    }
+    if !output.stdout.is_empty() {
+        return Err(anyhow!(
+            "refusing mutation in dirty Git worktree `{}`; preserve unrelated local changes in a clean registered worktree",
+            binding.workspace_root.display()
+        ));
+    }
+    Ok(())
+}
+
+fn has_git_control_marker(workspace_root: &Path) -> Result<bool> {
+    for ancestor in workspace_root.ancestors() {
+        match std::fs::symlink_metadata(ancestor.join(".git")) {
+            Ok(_) => return Ok(true),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => {
+                return Err(error).with_context(|| {
+                    format!(
+                        "inspect Git control metadata above `{}`",
+                        workspace_root.display()
+                    )
+                });
+            }
+        }
+    }
+    Ok(false)
+}
+
 fn try_acquire_task_execution_lock(root: &Path, task_id: &str) -> Result<Option<File>> {
     let lock_dir = root.join("core/projects/tasks/.workbench-executor-locks");
     std::fs::create_dir_all(&lock_dir)
@@ -819,6 +896,8 @@ fn claim_execution_with_available_target(
             excluded_task_ids.insert(task.id);
             continue;
         };
+        let exact_persisted_attempt = queue.is_exact_persisted_workbench_attempt(&task)?;
+        ensure_fresh_mutation_workspace_clean(&locks.binding, exact_persisted_attempt)?;
         locks._files.push(task_lock);
         if let Some(claim) = queue.claim_approved_candidate(&task, &excluded_task_ids)? {
             return Ok(Some((claim, locks)));
@@ -2455,6 +2534,182 @@ mod tests {
             .unwrap(),
         )
         .unwrap();
+    }
+
+    fn initialize_git_workspace(workspace: &Path) {
+        let git = |args: &[&str]| {
+            let output = std::process::Command::new("git")
+                .args(args)
+                .current_dir(workspace)
+                .output()
+                .expect("run git fixture command");
+            assert!(
+                output.status.success(),
+                "git fixture command failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        };
+        git(&["init", "--quiet"]);
+        std::fs::write(workspace.join("owned.txt"), "baseline\n").unwrap();
+        git(&["add", "owned.txt"]);
+        git(&[
+            "-c",
+            "user.name=Arda Test",
+            "-c",
+            "user.email=arda-test@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture baseline",
+        ]);
+    }
+
+    #[test]
+    fn execution_target_admission_rejects_dirty_mutation_but_allows_read_only() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        let workspace_path = "worktrees/dirty";
+        write_execution_project_registry(dir.path(), &[(project, workspace_path)]);
+        let workspace = dir.path().join(workspace_path);
+        initialize_git_workspace(&workspace);
+        std::fs::write(workspace.join("owned.txt"), "unrelated local edit\n").unwrap();
+        let mut mutation =
+            execution_target_task_with_authority("mutation", project, "execute_with_approval");
+        mutation.status = Some("queued".into());
+        let read_only = execution_target_task_with_authority("review", project, "read_only");
+        let mut orphan_predecessor =
+            execution_target_task_with_authority("orphan", project, "execute_with_approval");
+        orphan_predecessor.status = Some("queued".into());
+        orphan_predecessor
+            .extra
+            .get_mut("meta")
+            .and_then(Value::as_object_mut)
+            .unwrap()
+            .extend([
+                ("mutation_risk".into(), json!("operator-approved")),
+                ("approval_packet_id".into(), json!("approval-orphan")),
+                ("execution_authority".into(), json!("arda_workbench")),
+                (
+                    "source_objective_packet_id".into(),
+                    json!("objective-orphan"),
+                ),
+                ("action_class".into(), json!("approved_autopilot_plan_step")),
+            ]);
+        let forged_orphan =
+            execution_target_task_with_authority("forged-orphan", project, "execute_with_approval");
+
+        let error = try_acquire_execution_target_locks(dir.path(), &mutation)
+            .expect_err("mutation must not enter an already-dirty worktree");
+        assert!(
+            error.to_string().contains("dirty Git worktree"),
+            "dirty-worktree rejection should be explicit: {error:#}"
+        );
+        assert!(
+            try_acquire_execution_target_locks(dir.path(), &read_only)
+                .expect("read-only admission should inspect the same workspace")
+                .is_some(),
+            "byte-exact read-only work must remain eligible in a dirty worktree"
+        );
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&orphan_predecessor).unwrap()),
+        )
+        .unwrap();
+        let queue = ActiveQueueExecutor::new(dir.path());
+        queue
+            .append_attempt_fixture(&orphan_predecessor)
+            .expect("canonical writer should append persisted attempt fixture");
+        crate::prometheus::autopilot::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .append(&crate::prometheus::autopilot::schedule::ScheduleRecord {
+            contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: orphan_predecessor.id.clone(),
+            objective_id: "objective-orphan".into(),
+            mode: crate::prometheus::autopilot::schedule::ScheduleMode::Immediate,
+            state: crate::prometheus::autopilot::schedule::ScheduleState::Scheduled,
+            not_before_utc: None,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: Some("persisted recovery fixture".into()),
+        })
+        .expect("append authoritative immediate schedule");
+        let persisted: QueueRecord = std::fs::read_to_string(&queue_path)
+            .unwrap()
+            .lines()
+            .last()
+            .map(serde_json::from_str)
+            .transpose()
+            .unwrap()
+            .expect("persisted attempt row");
+        let binding = resolve_execution_target(dir.path(), &persisted).unwrap();
+        let _locks = try_acquire_execution_target_locks_for_binding(dir.path(), binding)
+            .unwrap()
+            .expect("persisted mutation attempt target lock");
+        assert!(queue
+            .is_exact_persisted_workbench_attempt(&persisted)
+            .unwrap());
+        drop(_locks);
+        let queue_rows_before_recovery = std::fs::read_to_string(&queue_path)
+            .unwrap()
+            .lines()
+            .count();
+        assert_eq!(
+            queue
+                .next_approved_reconciling_orphans_excluding(&BTreeSet::new())
+                .expect("production selector should read persisted recovery candidate"),
+            Some(persisted.clone()),
+            "the exact persisted attempt must survive effective-record selection"
+        );
+        let (recovered, recovery_locks) = claim_execution_with_available_target(dir.path(), &queue)
+            .expect("production claim path should evaluate persisted recovery authority")
+            .expect("exact persisted mutation attempt should remain eligible in a dirty worktree");
+        assert_eq!(recovered.task, persisted);
+        assert_eq!(
+            recovered.attempt.workbench_run_id,
+            persisted
+                .extra
+                .get("workbench_run_id")
+                .and_then(Value::as_str)
+                .expect("persisted attempt run id")
+        );
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .unwrap()
+                .lines()
+                .count(),
+            queue_rows_before_recovery,
+            "persisted recovery must not append a duplicate execution attempt"
+        );
+        drop(recovery_locks);
+        let error = try_acquire_execution_target_locks(dir.path(), &forged_orphan)
+            .expect_err("status alone must not grant dirty-worktree recovery authority");
+        assert!(
+            error.to_string().contains("dirty Git worktree"),
+            "forged in-progress status must follow fresh mutation admission: {error:#}"
+        );
+    }
+
+    #[test]
+    fn execution_target_admission_fails_closed_for_broken_git_control_file() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440002";
+        let workspace_path = "worktrees/broken-git";
+        write_execution_project_registry(dir.path(), &[(project, workspace_path)]);
+        let workspace = dir.path().join(workspace_path);
+        std::fs::write(workspace.join(".git"), "gitdir: /missing/arda-git-dir\n").unwrap();
+        let mut mutation =
+            execution_target_task_with_authority("broken-git", project, "execute_with_approval");
+        mutation.status = Some("queued".into());
+
+        let error = try_acquire_execution_target_locks(dir.path(), &mutation)
+            .expect_err("broken Git control metadata must fail closed");
+        assert!(
+            error.to_string().contains("could not inspect Git worktree"),
+            "broken Git control metadata must not be classified as a non-Git root: {error:#}"
+        );
     }
 
     #[test]

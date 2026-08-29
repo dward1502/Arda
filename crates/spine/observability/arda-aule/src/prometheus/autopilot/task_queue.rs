@@ -111,20 +111,42 @@ impl TaskQueueAnalyzer {
         let authorized_reopens = (0..records.len())
             .map(|index| record_authorizes_reopen(&records, index))
             .collect::<Vec<_>>();
+        let valid_objective_revisions = (0..records.len())
+            .map(|index| record_is_valid_objective_revision(&records, index))
+            .collect::<Vec<_>>();
+        let (valid_revision_approvals, blocked_by_pending_revision) =
+            objective_revision_approval_authority(&records, &valid_objective_revisions);
         let terminal_keys = records
             .iter()
-            .filter(|record| {
-                matches!(
-                    record.status.as_deref().map(normalize_task_status),
-                    Some("completed" | "failed" | "cancelled")
-                )
+            .enumerate()
+            .filter(|(index, record)| {
+                let ignored_pending_successor = !valid_revision_approvals[*index]
+                    && !valid_objective_revisions[*index]
+                    && blocked_by_pending_revision[*index];
+                !ignored_pending_successor
+                    && matches!(
+                        record.status.as_deref().map(normalize_task_status),
+                        Some("completed" | "failed" | "cancelled")
+                    )
             })
-            .flat_map(|record| [record.id.clone(), Self::effective_record_key(record)])
+            .flat_map(|(_, record)| [record.id.clone(), Self::effective_record_key(record)])
             .collect::<BTreeSet<_>>();
         let mut seen_ids = BTreeSet::<String>::new();
         let mut effective = Vec::<(usize, QueueRecord)>::new();
-        for (index, record) in records.into_iter().enumerate().rev() {
+        for (index, mut record) in records.into_iter().enumerate().rev() {
             let authorized_reopen = authorized_reopens[index];
+            if !valid_revision_approvals[index] && !valid_objective_revisions[index] {
+                if blocked_by_pending_revision[index] {
+                    continue;
+                }
+                if let Some(meta) = record.extra.get_mut("meta").and_then(Value::as_object_mut) {
+                    meta.remove("approval_packet_id");
+                    meta.insert(
+                        "mutation_risk".into(),
+                        Value::String("invalid-objective-revision-approval".into()),
+                    );
+                }
+            }
             let nonterminal = !matches!(
                 record.status.as_deref().map(normalize_task_status),
                 Some("completed" | "failed" | "cancelled")
@@ -382,6 +404,242 @@ impl ActiveQueueExecutor {
                 .insert("operator_reason".into(), Value::String(reason.into()));
             appended.extra.insert(
                 "reprioritized_at_utc".into(),
+                Value::String(Utc::now().to_rfc3339()),
+            );
+            serde_json::to_writer(&mut file, &appended)
+                .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+            writeln!(file)?;
+            file.sync_data()?;
+            Ok(appended)
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
+    }
+
+    /// Append an operator-authored objective correction pending fresh approval.
+    pub fn revise_objective(
+        &self,
+        task_id: &str,
+        objective_id: &str,
+        revised_objective: &str,
+        reason: &str,
+    ) -> std::io::Result<QueueRecord> {
+        let revised_objective = revised_objective.trim();
+        if revised_objective.is_empty() || reason.trim().is_empty() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "objective revision requires a non-empty objective and operator reason",
+            ));
+        }
+        if let Some(parent) = self.queue_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+            let current = effective
+                .into_iter()
+                .find(|record| record.id == task_id)
+                .ok_or_else(|| {
+                    std::io::Error::new(std::io::ErrorKind::NotFound, "queue task not found")
+                })?;
+            if queue_objective_id(&current) != Some(objective_id) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    "objective revision does not match canonical task lineage",
+                ));
+            }
+            if matches!(
+                current.status.as_deref().map(normalize_task_status),
+                Some("completed" | "failed" | "cancelled")
+            ) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "terminal queue tasks cannot be revised",
+                ));
+            }
+            let previous_objective = current.title.clone().ok_or_else(|| {
+                std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "canonical task omitted its operator objective",
+                )
+            })?;
+            if previous_objective == revised_objective {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::AlreadyExists,
+                    "task already has the requested objective",
+                ));
+            }
+            let mut appended = current;
+            appended.title = Some(revised_objective.to_owned());
+            let meta = appended
+                .extra
+                .get_mut("meta")
+                .and_then(Value::as_object_mut)
+                .ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        "canonical task omitted governed queue metadata",
+                    )
+                })?;
+            meta.insert(
+                "mutation_risk".into(),
+                Value::String("operator-revision-pending".into()),
+            );
+            meta.insert(
+                "action_class".into(),
+                Value::String("objective_revision_pending_approval".into()),
+            );
+            for field in [
+                "approval_packet_id",
+                "governance_authorization_id",
+                "governance_gate",
+            ] {
+                meta.remove(field);
+            }
+            appended.extra.insert(
+                "contract".into(),
+                Value::String("arda.workbench.objective_revision.v1".into()),
+            );
+            appended.extra.insert(
+                "previous_objective".into(),
+                Value::String(previous_objective),
+            );
+            appended.extra.insert(
+                "operator_reason".into(),
+                Value::String(reason.trim().to_owned()),
+            );
+            appended.extra.insert(
+                "objective_revised_at_utc".into(),
+                Value::String(Utc::now().to_rfc3339()),
+            );
+            serde_json::to_writer(&mut file, &appended)
+                .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+            writeln!(file)?;
+            file.sync_data()?;
+            Ok(appended)
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
+    }
+
+    /// Append fresh operator approval for the current revised objective.
+    pub fn approve_revised_objective(
+        &self,
+        task_id: &str,
+        objective_id: &str,
+        approval_packet_id: &str,
+        reviewed_by: &str,
+        reason: &str,
+    ) -> std::io::Result<QueueRecord> {
+        let approval_packet_id = approval_packet_id.trim();
+        let reviewed_by = reviewed_by.trim();
+        let reason = reason.trim();
+        if approval_packet_id.is_empty() || reviewed_by.is_empty() || reason.is_empty() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "approval packet id, reviewer, and reason must be non-empty",
+            ));
+        }
+        if let Some(parent) = self.queue_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let records = read_queue_records(&file)?;
+            let valid_objective_revisions = (0..records.len())
+                .map(|index| record_is_valid_objective_revision(&records, index))
+                .collect::<Vec<_>>();
+            let effective = TaskQueueAnalyzer::effective_records(records.clone());
+            let mut appended = effective
+                .into_iter()
+                .find(|record| {
+                    record.id == task_id && queue_objective_id(record) == Some(objective_id)
+                })
+                .ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::NotFound,
+                        "revised queue task not found",
+                    )
+                })?;
+            if appended.extra.get("contract").and_then(Value::as_str)
+                != Some("arda.workbench.objective_revision.v1")
+            {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "task is not pending objective revision approval",
+                ));
+            }
+            records
+                .iter()
+                .enumerate()
+                .rposition(|(index, record)| {
+                    valid_objective_revisions[index]
+                        && record.id == task_id
+                        && queue_objective_id(record) == Some(objective_id)
+                })
+                .ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "task is not pending a structurally valid objective revision",
+                    )
+                })?;
+            if approval_packet_precedes_index(&records, records.len(), approval_packet_id) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "approval packet was already used in the canonical queue ledger",
+                ));
+            }
+            let meta = appended
+                .extra
+                .get_mut("meta")
+                .and_then(Value::as_object_mut)
+                .ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        "revised task omitted governed queue metadata",
+                    )
+                })?;
+            meta.insert(
+                "mutation_risk".into(),
+                Value::String("operator-approved".into()),
+            );
+            meta.insert(
+                "action_class".into(),
+                Value::String("approved_autopilot_plan_step".into()),
+            );
+            meta.insert(
+                "approval_packet_id".into(),
+                Value::String(approval_packet_id.into()),
+            );
+            appended.extra.insert(
+                "contract".into(),
+                Value::String("arda.workbench.objective_revision_approval.v1".into()),
+            );
+            appended
+                .extra
+                .insert("reviewed_by".into(), Value::String(reviewed_by.into()));
+            appended
+                .extra
+                .insert("operator_reason".into(), Value::String(reason.into()));
+            appended.extra.insert(
+                "objective_approved_at_utc".into(),
                 Value::String(Utc::now().to_rfc3339()),
             );
             serde_json::to_writer(&mut file, &appended)
@@ -1023,6 +1281,11 @@ fn collect_projection_ids(value: &Value, ids: &mut BTreeSet<String>) {
 }
 
 fn approved_workbench_metadata(record: &QueueRecord) -> bool {
+    if record.extra.get("contract").and_then(Value::as_str)
+        == Some("arda.workbench.objective_revision.v1")
+    {
+        return false;
+    }
     record
         .extra
         .get("meta")
@@ -1766,6 +2029,279 @@ fn parse_utc(s: &str) -> Option<DateTime<Utc>> {
     DateTime::parse_from_rfc3339(s)
         .ok()
         .map(|t| t.with_timezone(&Utc))
+}
+
+fn record_is_valid_objective_revision(records: &[QueueRecord], index: usize) -> bool {
+    let Some(current) = records.get(index) else {
+        return false;
+    };
+    if current.extra.get("contract").and_then(Value::as_str)
+        != Some("arda.workbench.objective_revision.v1")
+    {
+        return false;
+    }
+    let Some(prior_index) = previous_same_task_record_index(records, index) else {
+        return false;
+    };
+    let prior = &records[prior_index];
+    let Some(revised_objective) = current
+        .title
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    else {
+        return false;
+    };
+    let previous_objective = prior.title.as_deref().unwrap_or_default();
+    if current.id != prior.id
+        || revised_objective == previous_objective
+        || current
+            .extra
+            .get("previous_objective")
+            .and_then(Value::as_str)
+            != Some(previous_objective)
+    {
+        return false;
+    }
+    let Some(reason) = current
+        .extra
+        .get("operator_reason")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return false;
+    };
+    let Some(revised_at) = current
+        .extra
+        .get("objective_revised_at_utc")
+        .and_then(Value::as_str)
+        .filter(|value| parse_utc(value).is_some())
+    else {
+        return false;
+    };
+    let mut expected = prior.clone();
+    expected.title = Some(revised_objective.to_string());
+    let Some(meta) = expected
+        .extra
+        .get_mut("meta")
+        .and_then(Value::as_object_mut)
+    else {
+        return false;
+    };
+    meta.insert(
+        "mutation_risk".into(),
+        Value::String("operator-revision-pending".into()),
+    );
+    meta.insert(
+        "action_class".into(),
+        Value::String("objective_revision_pending_approval".into()),
+    );
+    for field in [
+        "approval_packet_id",
+        "governance_authorization_id",
+        "governance_gate",
+    ] {
+        meta.remove(field);
+    }
+    expected.extra.insert(
+        "contract".into(),
+        Value::String("arda.workbench.objective_revision.v1".into()),
+    );
+    expected.extra.insert(
+        "previous_objective".into(),
+        Value::String(previous_objective.into()),
+    );
+    expected
+        .extra
+        .insert("operator_reason".into(), Value::String(reason.into()));
+    expected.extra.insert(
+        "objective_revised_at_utc".into(),
+        Value::String(revised_at.into()),
+    );
+    serde_json::to_value(expected).ok() == serde_json::to_value(current).ok()
+}
+
+fn record_is_valid_objective_revision_approval(
+    records: &[QueueRecord],
+    valid_objective_revisions: &[bool],
+    prior_index: usize,
+    index: usize,
+) -> bool {
+    let Some(current) = records.get(index) else {
+        return false;
+    };
+    if current.extra.get("contract").and_then(Value::as_str)
+        != Some("arda.workbench.objective_revision_approval.v1")
+    {
+        return false;
+    }
+    if !valid_objective_revisions
+        .get(prior_index)
+        .copied()
+        .unwrap_or(false)
+    {
+        return false;
+    }
+    let prior = &records[prior_index];
+    let Some(meta) = current.extra.get("meta").and_then(Value::as_object) else {
+        return false;
+    };
+    let Some(approval_packet_id) = meta
+        .get("approval_packet_id")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return false;
+    };
+    if approval_packet_id.trim() != approval_packet_id {
+        return false;
+    }
+    if approval_packet_precedes_index(records, index, approval_packet_id) {
+        return false;
+    }
+    let Some(reviewed_by) = current
+        .extra
+        .get("reviewed_by")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return false;
+    };
+    let Some(reason) = current
+        .extra
+        .get("operator_reason")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return false;
+    };
+    let Some(approved_at) = current
+        .extra
+        .get("objective_approved_at_utc")
+        .and_then(Value::as_str)
+        .filter(|value| parse_utc(value).is_some())
+    else {
+        return false;
+    };
+    let mut expected = prior.clone();
+    let Some(expected_meta) = expected
+        .extra
+        .get_mut("meta")
+        .and_then(Value::as_object_mut)
+    else {
+        return false;
+    };
+    expected_meta.insert(
+        "mutation_risk".into(),
+        Value::String("operator-approved".into()),
+    );
+    expected_meta.insert(
+        "action_class".into(),
+        Value::String("approved_autopilot_plan_step".into()),
+    );
+    expected_meta.insert(
+        "approval_packet_id".into(),
+        Value::String(approval_packet_id.into()),
+    );
+    expected.extra.insert(
+        "contract".into(),
+        Value::String("arda.workbench.objective_revision_approval.v1".into()),
+    );
+    expected
+        .extra
+        .insert("reviewed_by".into(), Value::String(reviewed_by.into()));
+    expected
+        .extra
+        .insert("operator_reason".into(), Value::String(reason.into()));
+    expected.extra.insert(
+        "objective_approved_at_utc".into(),
+        Value::String(approved_at.into()),
+    );
+    serde_json::to_value(expected).ok() == serde_json::to_value(current).ok()
+}
+
+fn approval_packet_precedes_index(
+    records: &[QueueRecord],
+    exclusive_end: usize,
+    approval_packet_id: &str,
+) -> bool {
+    if exclusive_end > records.len() {
+        return false;
+    }
+    records[..exclusive_end].iter().any(|candidate| {
+        candidate
+            .extra
+            .get("meta")
+            .and_then(Value::as_object)
+            .and_then(|meta| meta.get("approval_packet_id"))
+            .and_then(Value::as_str)
+            .map(str::trim)
+            == Some(approval_packet_id.trim())
+    })
+}
+
+fn objective_revision_approval_authority(
+    records: &[QueueRecord],
+    valid_objective_revisions: &[bool],
+) -> (Vec<bool>, Vec<bool>) {
+    let mut pending_revisions = Vec::<usize>::new();
+    let mut authority = Vec::with_capacity(records.len());
+    let mut blocked_by_pending_revision = Vec::with_capacity(records.len());
+    for index in 0..records.len() {
+        if valid_objective_revisions
+            .get(index)
+            .copied()
+            .unwrap_or(false)
+        {
+            pending_revisions.retain(|pending| {
+                !records_share_effective_alias(&records[index], &records[*pending])
+            });
+            pending_revisions.push(index);
+            authority.push(false);
+            blocked_by_pending_revision.push(false);
+            continue;
+        }
+        let is_revision_approval = records[index].extra.get("contract").and_then(Value::as_str)
+            == Some("arda.workbench.objective_revision_approval.v1");
+        if is_revision_approval {
+            let pending_revision =
+                pending_revisions.iter().rev().copied().find(|pending| {
+                    records_share_effective_alias(&records[index], &records[*pending])
+                });
+            let valid = pending_revision
+                .map(|prior_index| {
+                    record_is_valid_objective_revision_approval(
+                        records,
+                        valid_objective_revisions,
+                        prior_index,
+                        index,
+                    )
+                })
+                .unwrap_or(false);
+            blocked_by_pending_revision.push(pending_revision.is_some() && !valid);
+            if valid {
+                pending_revisions.retain(|pending| {
+                    !records_share_effective_alias(&records[index], &records[*pending])
+                });
+            }
+            authority.push(valid);
+            continue;
+        }
+        let blocked = pending_revisions
+            .iter()
+            .any(|pending| records_share_effective_alias(&records[index], &records[*pending]));
+        authority.push(!blocked);
+        blocked_by_pending_revision.push(blocked);
+    }
+    (authority, blocked_by_pending_revision)
+}
+
+fn previous_same_task_record_index(records: &[QueueRecord], index: usize) -> Option<usize> {
+    let current = records.get(index)?;
+    records[..index].iter().rposition(|candidate| {
+        candidate.id == current.id
+            || TaskQueueAnalyzer::effective_record_key(candidate) == current.id
+    })
 }
 
 #[cfg(test)]
@@ -4942,6 +5478,1109 @@ mod tests {
                 "accepted forged {field}"
             );
         }
+    }
+
+    #[test]
+    fn operator_objective_revision_invalidates_stale_approval_before_dispatch() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let mut task = QueueRecord {
+            id: "revision-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("revision-task")
+        };
+        task.extra
+            .insert("source_record_id".into(), json!("revision-task"));
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        assert!(executor.select_next_approved().unwrap().is_some());
+
+        let revised = executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the intended outcome",
+            )
+            .expect("append objective revision");
+
+        assert_eq!(revised.title.as_deref(), Some("Revised operator objective"));
+        assert_eq!(
+            revised.extra.get("contract").and_then(Value::as_str),
+            Some("arda.workbench.objective_revision.v1")
+        );
+        assert_eq!(
+            revised
+                .extra
+                .get("previous_objective")
+                .and_then(Value::as_str),
+            Some("Original operator objective")
+        );
+        let meta = revised.extra["meta"].as_object().expect("revision meta");
+        assert_eq!(
+            meta.get("mutation_risk").and_then(Value::as_str),
+            Some("operator-revision-pending")
+        );
+        assert!(meta.get("approval_packet_id").is_none());
+        assert!(executor.select_next_approved().unwrap().is_none());
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .expect("queue ledger")
+                .lines()
+                .count(),
+            2
+        );
+    }
+
+    #[test]
+    fn ordinary_record_after_objective_revision_cannot_restore_or_block_fresh_approval() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "stale-approval-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("stale-approval-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the intended outcome",
+            )
+            .expect("append objective revision");
+
+        let mut stale = task;
+        stale.title = Some("Revised operator objective".into());
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(&queue_path)
+            .expect("open queue");
+        serde_json::to_writer(&mut file, &stale).expect("write stale approval copy");
+        writeln!(file).expect("terminate stale approval record");
+
+        assert!(
+            executor
+                .select_next_approved()
+                .expect("select approved task")
+                .is_none(),
+            "ordinary post-revision record restored stale approval"
+        );
+        executor
+            .approve_revised_objective(
+                "stale-approval-task",
+                "objective-1",
+                "approval-2",
+                "operator@example.test",
+                "fresh approval after ignored stale successor",
+            )
+            .expect("ordinary stale successor must not block fresh approval");
+        let approved = executor
+            .select_next_approved()
+            .expect("select freshly approved revision")
+            .expect("freshly approved revision dispatches");
+        assert_eq!(
+            approved.title.as_deref(),
+            Some("Revised operator objective")
+        );
+    }
+
+    #[test]
+    fn terminal_record_after_objective_revision_cannot_block_fresh_approval() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "terminal-successor-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("terminal-successor-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the intended outcome",
+            )
+            .expect("append objective revision");
+
+        let mut terminal = task;
+        terminal.status = Some("completed".into());
+        terminal.result = Some("completed".into());
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(&queue_path)
+            .expect("open queue");
+        serde_json::to_writer(&mut file, &terminal).expect("write stale terminal successor");
+        writeln!(file).expect("terminate stale terminal successor");
+
+        executor
+            .approve_revised_objective(
+                "terminal-successor-task",
+                "objective-1",
+                "approval-2",
+                "operator@example.test",
+                "fresh approval after ignored terminal successor",
+            )
+            .expect("terminal successor must not block fresh approval");
+        let approved = executor
+            .select_next_approved()
+            .expect("select freshly approved revision")
+            .expect("freshly approved revision dispatches");
+        assert_eq!(
+            approved.title.as_deref(),
+            Some("Revised operator objective")
+        );
+    }
+
+    #[test]
+    fn invalid_operator_objective_revision_rejects_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "revision-task".into(),
+            title: Some("Original operator objective".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("revision-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        for (objective_id, revised_objective, reason) in [
+            (
+                "wrong-objective",
+                "Revised objective",
+                "operator correction",
+            ),
+            ("objective-1", "", "operator correction"),
+            ("objective-1", "Revised objective", ""),
+            (
+                "objective-1",
+                "Original operator objective",
+                "operator correction",
+            ),
+        ] {
+            assert!(
+                executor
+                    .revise_objective(&task.id, objective_id, revised_objective, reason,)
+                    .is_err(),
+                "accepted invalid revision ({objective_id:?}, {revised_objective:?}, {reason:?})"
+            );
+            assert_eq!(
+                std::fs::read_to_string(&queue_path)
+                    .expect("queue ledger")
+                    .lines()
+                    .count(),
+                1,
+                "invalid revision appended a queue record"
+            );
+        }
+    }
+
+    #[test]
+    fn terminal_task_objective_revision_rejects_without_append() {
+        for status in ["completed", "failed", "cancelled"] {
+            let dir = tempfile::tempdir().expect("create tempdir");
+            let queue_path = dir.path().join("queue.jsonl");
+            let active_path = dir.path().join("queue_active.json");
+            let task = QueueRecord {
+                id: format!("revision-{status}"),
+                title: Some("Original operator objective".into()),
+                status: Some(status.into()),
+                result: Some(status.into()),
+                extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+                ..blank("terminal-revision-task")
+            };
+            std::fs::write(
+                &queue_path,
+                format!("{}\n", serde_json::to_string(&task).unwrap()),
+            )
+            .expect("write queue fixture");
+            std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+            let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+            assert!(
+                executor
+                    .revise_objective(
+                        &task.id,
+                        "objective-1",
+                        "Revised operator objective",
+                        "operator correction",
+                    )
+                    .is_err(),
+                "accepted terminal {status} revision"
+            );
+            assert_eq!(
+                std::fs::read_to_string(&queue_path)
+                    .expect("queue ledger")
+                    .lines()
+                    .count(),
+                1,
+                "terminal {status} revision appended"
+            );
+        }
+    }
+
+    #[test]
+    fn forged_objective_revision_cannot_reuse_prior_approval() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "forged-revision-task".into(),
+            title: Some("Approved operator objective".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("forged-revision-task")
+        };
+        let mut forged = task.clone();
+        forged.title = Some("Unapproved forged objective".into());
+        forged.extra.insert(
+            "contract".into(),
+            json!("arda.workbench.objective_revision.v1"),
+        );
+        forged.extra.insert(
+            "previous_objective".into(),
+            json!("Approved operator objective"),
+        );
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&task).unwrap(),
+                serde_json::to_string(&forged).unwrap()
+            ),
+        )
+        .expect("write forged queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+
+        assert!(
+            ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+                .select_next_approved()
+                .expect("select approved task")
+                .is_none(),
+            "forged objective revision reused stale approval"
+        );
+    }
+
+    #[test]
+    fn fresh_operator_approval_releases_revised_objective_for_dispatch() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "approval-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("approval-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the outcome",
+            )
+            .expect("revise objective");
+        assert!(executor.select_next_approved().unwrap().is_none());
+
+        let approved = executor
+            .approve_revised_objective(
+                &task.id,
+                "objective-1",
+                "revision-approval-2",
+                "operator@example.test",
+                "revised objective accepted",
+            )
+            .expect("approve revision");
+
+        assert_eq!(
+            approved.title.as_deref(),
+            Some("Revised operator objective")
+        );
+        assert_eq!(
+            approved.extra.get("contract").and_then(Value::as_str),
+            Some("arda.workbench.objective_revision_approval.v1")
+        );
+        assert_eq!(
+            approved.extra["meta"]["approval_packet_id"].as_str(),
+            Some("revision-approval-2")
+        );
+        let selected = executor
+            .select_next_approved()
+            .expect("select approved task")
+            .expect("revised task is dispatchable");
+        assert_eq!(selected.id, task.id);
+        assert_eq!(selected.title, approved.title);
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .expect("queue ledger")
+                .lines()
+                .count(),
+            3
+        );
+    }
+
+    #[test]
+    fn stale_approval_packet_cannot_approve_revised_objective() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "stale-revision-approval-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("stale-revision-approval-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the outcome",
+            )
+            .expect("revise objective");
+
+        assert!(
+            executor
+                .approve_revised_objective(
+                    &task.id,
+                    "objective-1",
+                    "approval-1",
+                    "operator@example.test",
+                    "attempted stale approval reuse",
+                )
+                .is_err(),
+            "pre-revision approval packet authorized the revised objective"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .expect("queue ledger")
+                .lines()
+                .count(),
+            2,
+            "stale approval rejection appended a queue record"
+        );
+        assert!(executor.select_next_approved().unwrap().is_none());
+    }
+
+    #[test]
+    fn approval_packet_must_be_globally_fresh_across_tasks() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let mut unrelated_extra = approved_workbench_extra_for_target("project-a", "/worktrees/a");
+        unrelated_extra["meta"]["approval_packet_id"] = Value::String("approval-global".into());
+        let unrelated = QueueRecord {
+            id: "unrelated-task".into(),
+            title: Some("Unrelated approved objective".into()),
+            status: Some("queued".into()),
+            extra: unrelated_extra,
+            ..blank("unrelated-task")
+        };
+        let mut task_extra = approved_workbench_extra_for_target("project-b", "/worktrees/b");
+        task_extra["meta"]["approval_packet_id"] = Value::String("approval-b".into());
+        let task = QueueRecord {
+            id: "global-packet-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: task_extra,
+            ..blank("global-packet-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&unrelated).unwrap(),
+                serde_json::to_string(&task).unwrap()
+            ),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the outcome",
+            )
+            .expect("revise objective");
+
+        assert!(
+            executor
+                .approve_revised_objective(
+                    &task.id,
+                    "objective-1",
+                    " approval-global ",
+                    "operator@example.test",
+                    "attempted cross-task packet reuse",
+                )
+                .is_err(),
+            "approval packet reused by another task authorized the revision"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .expect("queue ledger")
+                .lines()
+                .count(),
+            3,
+            "globally stale approval rejection appended a queue record"
+        );
+    }
+
+    #[test]
+    fn objective_revision_approval_packet_used_by_another_task_after_revision_is_rejected() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "interleaved-packet-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("interleaved-packet-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the outcome",
+            )
+            .expect("revise objective");
+        let mut unrelated_extra = approved_workbench_extra_for_target("project-b", "/worktrees/b");
+        unrelated_extra["meta"]["approval_packet_id"] =
+            Value::String("approval-interleaved".into());
+        let unrelated = QueueRecord {
+            id: "interleaved-unrelated-task".into(),
+            title: Some("Unrelated approved objective".into()),
+            status: Some("queued".into()),
+            extra: unrelated_extra,
+            ..blank("interleaved-unrelated-task")
+        };
+        let mut ledger = std::fs::read_to_string(&queue_path).expect("queue ledger");
+        ledger.push_str(&serde_json::to_string(&unrelated).unwrap());
+        ledger.push('\n');
+        std::fs::write(&queue_path, ledger).expect("append unrelated approval");
+
+        assert!(
+            executor
+                .approve_revised_objective(
+                    &task.id,
+                    "objective-1",
+                    " approval-interleaved ",
+                    "operator@example.test",
+                    "attempted interleaved packet reuse",
+                )
+                .is_err(),
+            "approval packet used after revision by another task authorized the revision"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .expect("queue ledger")
+                .lines()
+                .count(),
+            3,
+            "interleaved stale approval rejection appended a queue record"
+        );
+    }
+
+    #[test]
+    fn objective_revision_replay_rejects_packet_used_after_revision_before_approval() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "interleaved-replay-task".into(),
+            title: Some("Original operator objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("interleaved-replay-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        let revision = executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised operator objective",
+                "operator corrected the outcome",
+            )
+            .expect("revise objective");
+        let mut unrelated_extra = approved_workbench_extra_for_target("project-b", "/worktrees/b");
+        unrelated_extra["meta"]["approval_packet_id"] =
+            Value::String("approval-interleaved".into());
+        let unrelated = QueueRecord {
+            id: "interleaved-replay-unrelated".into(),
+            title: Some("Unrelated approved objective".into()),
+            status: Some("queued".into()),
+            extra: unrelated_extra,
+            ..blank("interleaved-replay-unrelated")
+        };
+        let mut forged_approval = revision.clone();
+        forged_approval.extra["meta"]["mutation_risk"] = Value::String("operator-approved".into());
+        forged_approval.extra["meta"]["action_class"] =
+            Value::String("approved_autopilot_plan_step".into());
+        forged_approval.extra["meta"]["approval_packet_id"] =
+            Value::String("approval-interleaved".into());
+        forged_approval.extra.insert(
+            "contract".into(),
+            Value::String("arda.workbench.objective_revision_approval.v1".into()),
+        );
+        forged_approval.extra.insert(
+            "reviewed_by".into(),
+            Value::String("operator@example.test".into()),
+        );
+        forged_approval.extra.insert(
+            "operator_reason".into(),
+            Value::String("forged interleaved approval".into()),
+        );
+        forged_approval.extra.insert(
+            "objective_approved_at_utc".into(),
+            Value::String("2030-01-01T00:01:00Z".into()),
+        );
+        let mut ledger = std::fs::read_to_string(&queue_path).expect("queue ledger");
+        ledger.push_str(&serde_json::to_string(&unrelated).unwrap());
+        ledger.push('\n');
+        ledger.push_str(&serde_json::to_string(&forged_approval).unwrap());
+        ledger.push('\n');
+        std::fs::write(&queue_path, ledger).expect("append forged approval chain");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+
+        assert!(
+            executor
+                .select_next_approved()
+                .expect("select task")
+                .is_none(),
+            "replay accepted packet used after revision before its approval"
+        );
+    }
+
+    #[test]
+    fn non_revision_task_approval_rejects_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "invalid-approval-task".into(),
+            title: Some("Already approved objective".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("invalid-approval-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        assert!(
+            executor
+                .approve_revised_objective(
+                    &task.id,
+                    "objective-1",
+                    "approval-2",
+                    "operator@example.test",
+                    "fresh approval",
+                )
+                .is_err(),
+            "approved a task that was not revision-pending"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&queue_path)
+                .expect("queue ledger")
+                .lines()
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn blank_revision_approval_fields_reject_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "blank-approval-task".into(),
+            title: Some("Original objective".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("blank-approval-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised objective",
+                "operator correction",
+            )
+            .expect("revise objective");
+
+        for (approval, reviewer, reason) in [
+            ("", "operator@example.test", "fresh approval"),
+            ("approval-2", "", "fresh approval"),
+            ("approval-2", "operator@example.test", ""),
+        ] {
+            assert!(
+                executor
+                    .approve_revised_objective(&task.id, "objective-1", approval, reviewer, reason,)
+                    .is_err(),
+                "accepted blank revision approval field"
+            );
+            assert_eq!(
+                std::fs::read_to_string(&queue_path)
+                    .expect("queue ledger")
+                    .lines()
+                    .count(),
+                2
+            );
+        }
+    }
+
+    #[test]
+    fn forged_revision_approval_without_pending_predecessor_is_not_dispatchable() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "forged-approval-task".into(),
+            title: Some("Original approved objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("forged-approval-task")
+        };
+        let mut forged = task.clone();
+        forged.title = Some("Forged revised objective".into());
+        forged.extra.insert(
+            "contract".into(),
+            Value::String("arda.workbench.objective_revision_approval.v1".into()),
+        );
+        forged.extra.insert(
+            "reviewed_by".into(),
+            Value::String("attacker@example.test".into()),
+        );
+        forged.extra.insert(
+            "operator_reason".into(),
+            Value::String("forged approval".into()),
+        );
+        forged.extra.insert(
+            "objective_approved_at_utc".into(),
+            Value::String("2030-01-01T00:00:00Z".into()),
+        );
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&task).unwrap(),
+                serde_json::to_string(&forged).unwrap()
+            ),
+        )
+        .expect("write forged queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+
+        assert!(
+            ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+                .select_next_approved()
+                .expect("select task")
+                .is_none(),
+            "forged revision approval was dispatchable"
+        );
+    }
+
+    #[test]
+    fn approval_after_forged_revision_metadata_is_not_dispatchable() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "forged-revision-task".into(),
+            title: Some("Original approved objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("forged-revision-task")
+        };
+        let mut forged_revision = task.clone();
+        forged_revision.title = Some("Forged revised objective".into());
+        forged_revision.status = Some("pending".into());
+        forged_revision.extra["meta"]["mutation_risk"] =
+            Value::String("operator-revision-pending".into());
+        forged_revision.extra["meta"]["physical_root"] =
+            Value::String("/worktrees/attacker".into());
+        forged_revision.extra["meta"]
+            .as_object_mut()
+            .unwrap()
+            .remove("action_class");
+        forged_revision.extra["meta"]
+            .as_object_mut()
+            .unwrap()
+            .remove("approval_packet_id");
+        forged_revision.extra.insert(
+            "contract".into(),
+            Value::String("arda.workbench.objective_revision.v1".into()),
+        );
+        forged_revision.extra.insert(
+            "previous_objective".into(),
+            Value::String("Original approved objective".into()),
+        );
+        forged_revision.extra.insert(
+            "operator_reason".into(),
+            Value::String("forged revision".into()),
+        );
+        forged_revision.extra.insert(
+            "objective_revised_at_utc".into(),
+            Value::String("2030-01-01T00:00:00Z".into()),
+        );
+        let mut forged_approval = forged_revision.clone();
+        forged_approval.extra["meta"]["mutation_risk"] = Value::String("operator-approved".into());
+        forged_approval.extra["meta"]["action_class"] =
+            Value::String("approved_autopilot_plan_step".into());
+        forged_approval.extra["meta"]["approval_packet_id"] = Value::String("approval-2".into());
+        forged_approval.extra.insert(
+            "contract".into(),
+            Value::String("arda.workbench.objective_revision_approval.v1".into()),
+        );
+        forged_approval.extra.insert(
+            "reviewed_by".into(),
+            Value::String("operator@example.test".into()),
+        );
+        forged_approval
+            .extra
+            .insert("operator_reason".into(), Value::String("accepted".into()));
+        forged_approval.extra.insert(
+            "objective_approved_at_utc".into(),
+            Value::String("2030-01-01T00:01:00Z".into()),
+        );
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n{}\n",
+                serde_json::to_string(&task).unwrap(),
+                serde_json::to_string(&forged_revision).unwrap(),
+                serde_json::to_string(&forged_approval).unwrap()
+            ),
+        )
+        .expect("write forged revision chain");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+
+        assert!(
+            ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+                .select_next_approved()
+                .expect("select task")
+                .is_none(),
+            "approval after forged revision metadata was dispatchable"
+        );
+    }
+
+    #[test]
+    fn forged_approval_metadata_after_valid_revision_is_not_dispatchable() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "forged-approval-meta-task".into(),
+            title: Some("Original approved objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("forged-approval-meta-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write approved task");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let revision = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Valid revised objective",
+                "operator correction",
+            )
+            .expect("append valid revision");
+        let mut forged_approval = revision;
+        forged_approval.extra["meta"]["mutation_risk"] = Value::String("operator-approved".into());
+        forged_approval.extra["meta"]["action_class"] =
+            Value::String("approved_autopilot_plan_step".into());
+        forged_approval.extra["meta"]["approval_packet_id"] = Value::String("approval-2".into());
+        forged_approval.extra["meta"]["physical_root"] =
+            Value::String("/worktrees/attacker".into());
+        forged_approval.extra.insert(
+            "contract".into(),
+            Value::String("arda.workbench.objective_revision_approval.v1".into()),
+        );
+        forged_approval.extra.insert(
+            "reviewed_by".into(),
+            Value::String("operator@example.test".into()),
+        );
+        forged_approval
+            .extra
+            .insert("operator_reason".into(), Value::String("accepted".into()));
+        forged_approval.extra.insert(
+            "objective_approved_at_utc".into(),
+            Value::String(Utc::now().to_rfc3339()),
+        );
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(&queue_path)
+            .expect("open queue");
+        serde_json::to_writer(&mut file, &forged_approval).expect("write forged approval");
+        writeln!(file).expect("terminate forged approval");
+
+        assert!(
+            ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+                .select_next_approved()
+                .expect("select task")
+                .is_none(),
+            "approval forged protected metadata after a valid revision"
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .approve_revised_objective(
+                &task.id,
+                "objective-1",
+                "approval-3",
+                "operator@example.test",
+                "fresh approval after ignored forged successor",
+            )
+            .expect("forged successor must not block fresh approval");
+        let approved = executor
+            .select_next_approved()
+            .expect("select freshly approved revision")
+            .expect("freshly approved revision dispatches");
+        assert_eq!(approved.title.as_deref(), Some("Valid revised objective"));
+    }
+
+    #[test]
+    fn replay_rejects_whitespace_disguised_stale_approval_packet() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "whitespace-stale-approval-task".into(),
+            title: Some("Original approved objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("whitespace-stale-approval-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write approved task");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let revision = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Valid revised objective",
+                "operator correction",
+            )
+            .expect("append valid revision");
+        let mut forged_approval = revision;
+        forged_approval.extra["meta"]["mutation_risk"] = Value::String("operator-approved".into());
+        forged_approval.extra["meta"]["action_class"] =
+            Value::String("approved_autopilot_plan_step".into());
+        forged_approval.extra["meta"]["approval_packet_id"] = Value::String(" approval-1 ".into());
+        forged_approval.extra.insert(
+            "contract".into(),
+            Value::String("arda.workbench.objective_revision_approval.v1".into()),
+        );
+        forged_approval.extra.insert(
+            "reviewed_by".into(),
+            Value::String("operator@example.test".into()),
+        );
+        forged_approval
+            .extra
+            .insert("operator_reason".into(), Value::String("accepted".into()));
+        forged_approval.extra.insert(
+            "objective_approved_at_utc".into(),
+            Value::String(Utc::now().to_rfc3339()),
+        );
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(&queue_path)
+            .expect("open queue");
+        serde_json::to_writer(&mut file, &forged_approval).expect("write forged approval");
+        writeln!(file).expect("terminate forged approval");
+
+        assert!(
+            ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+                .select_next_approved()
+                .expect("select task")
+                .is_none(),
+            "whitespace-disguised stale approval packet was dispatchable"
+        );
     }
 
     fn l3_human_required_extra() -> serde_json::Map<String, serde_json::Value> {

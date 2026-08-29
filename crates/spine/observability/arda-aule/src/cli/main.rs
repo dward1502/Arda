@@ -315,6 +315,32 @@ enum AutopilotCommands {
         #[arg(long)]
         root: Option<PathBuf>,
     },
+    /// Revise a canonical task objective and require fresh approval.
+    ReviseObjective {
+        task_id: String,
+        #[arg(long)]
+        objective_id: String,
+        #[arg(long)]
+        objective: String,
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    /// Freshly approve a pending operator-authored objective revision.
+    ApproveRevisedObjective {
+        task_id: String,
+        #[arg(long)]
+        objective_id: String,
+        #[arg(long)]
+        approval_packet_id: String,
+        #[arg(long)]
+        reviewed_by: String,
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
     /// Requeue a failed approved task with a distinct Workbench attempt id.
     RetryApprovedTask {
         task_id: String,
@@ -920,6 +946,37 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
             let root = resolve_root(root);
             let record = arda_aule::prometheus::autopilot::ActiveQueueExecutor::new(&root)
                 .reprioritize(&task_id, &objective_id, &priority, &reason)?;
+            println!("{}", serde_json::to_string_pretty(&record)?);
+        }
+        AutopilotCommands::ReviseObjective {
+            task_id,
+            objective_id,
+            objective,
+            reason,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let record = arda_aule::prometheus::autopilot::ActiveQueueExecutor::new(&root)
+                .revise_objective(&task_id, &objective_id, &objective, &reason)?;
+            println!("{}", serde_json::to_string_pretty(&record)?);
+        }
+        AutopilotCommands::ApproveRevisedObjective {
+            task_id,
+            objective_id,
+            approval_packet_id,
+            reviewed_by,
+            reason,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let record = arda_aule::prometheus::autopilot::ActiveQueueExecutor::new(&root)
+                .approve_revised_objective(
+                    &task_id,
+                    &objective_id,
+                    &approval_packet_id,
+                    &reviewed_by,
+                    &reason,
+                )?;
             println!("{}", serde_json::to_string_pretty(&record)?);
         }
         AutopilotCommands::CancelApprovedTask {

@@ -195,3 +195,159 @@ fn autopilot_cli_reprioritizes_canonical_task() {
         2
     );
 }
+
+#[test]
+fn autopilot_cli_revises_objective_pending_fresh_approval() {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let queue_path = temp.path().join("core/projects/tasks/queue.jsonl");
+    std::fs::create_dir_all(queue_path.parent().unwrap()).expect("queue directory");
+    std::fs::write(
+        &queue_path,
+        format!(
+            "{}\n",
+            serde_json::json!({
+                "id": "task-1",
+                "title": "Original operator objective",
+                "owner": "prometheus",
+                "priority": "high",
+                "status": "queued",
+                "meta": {
+                    "action_class": "approved_autopilot_plan_step",
+                    "mutation_risk": "operator-approved",
+                    "execution_authority": "arda_workbench",
+                    "source_objective_packet_id": "objective-1",
+                    "approval_packet_id": "approval-1"
+                }
+            })
+        ),
+    )
+    .expect("initial queue");
+
+    let output = arda_cli()
+        .args([
+            "prometheus",
+            "autopilot",
+            "revise-objective",
+            "task-1",
+            "--objective-id",
+            "objective-1",
+            "--objective",
+            "Revised operator objective",
+            "--reason",
+            "operator corrected the outcome",
+            "--root",
+        ])
+        .arg(temp.path())
+        .output()
+        .expect("run revise objective command");
+
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let revised: Value = serde_json::from_slice(&output.stdout).expect("revision JSON");
+    assert_eq!(revised["id"], "task-1");
+    assert_eq!(revised["title"], "Revised operator objective");
+    assert_eq!(revised["contract"], "arda.workbench.objective_revision.v1");
+    assert_eq!(
+        revised["meta"]["mutation_risk"],
+        "operator-revision-pending"
+    );
+    assert!(revised["meta"].get("approval_packet_id").is_none());
+    assert_eq!(
+        std::fs::read_to_string(queue_path)
+            .expect("queue ledger")
+            .lines()
+            .count(),
+        2
+    );
+}
+
+#[test]
+fn autopilot_cli_approves_revised_objective() {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let queue_path = temp.path().join("core/projects/tasks/queue.jsonl");
+    std::fs::create_dir_all(queue_path.parent().unwrap()).expect("queue directory");
+    std::fs::write(
+        &queue_path,
+        format!(
+            "{}\n",
+            serde_json::json!({
+                "id": "task-approve",
+                "title": "Original objective",
+                "priority": "high",
+                "status": "queued",
+                "meta": {
+                    "action_class": "approved_autopilot_plan_step",
+                    "mutation_risk": "operator-approved",
+                    "execution_authority": "arda_workbench",
+                    "source_objective_packet_id": "objective-1",
+                    "approval_packet_id": "approval-1"
+                }
+            })
+        ),
+    )
+    .expect("initial queue");
+    let revision = arda_cli()
+        .args([
+            "prometheus",
+            "autopilot",
+            "revise-objective",
+            "task-approve",
+            "--objective-id",
+            "objective-1",
+            "--objective",
+            "Revised approved objective",
+            "--reason",
+            "operator correction",
+            "--root",
+        ])
+        .arg(temp.path())
+        .output()
+        .expect("run revise objective command");
+    assert!(
+        revision.status.success(),
+        "{}",
+        String::from_utf8_lossy(&revision.stderr)
+    );
+
+    let output = arda_cli()
+        .args([
+            "prometheus",
+            "autopilot",
+            "approve-revised-objective",
+            "task-approve",
+            "--objective-id",
+            "objective-1",
+            "--approval-packet-id",
+            "approval-2",
+            "--reviewed-by",
+            "operator@example.test",
+            "--reason",
+            "revision accepted",
+            "--root",
+        ])
+        .arg(temp.path())
+        .output()
+        .expect("run approval command");
+
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let approved: Value = serde_json::from_slice(&output.stdout).expect("approval JSON");
+    assert_eq!(
+        approved["contract"],
+        "arda.workbench.objective_revision_approval.v1"
+    );
+    assert_eq!(approved["meta"]["approval_packet_id"], "approval-2");
+    assert_eq!(
+        std::fs::read_to_string(queue_path)
+            .expect("queue ledger")
+            .lines()
+            .count(),
+        3
+    );
+}

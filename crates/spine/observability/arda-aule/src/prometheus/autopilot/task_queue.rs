@@ -14,7 +14,9 @@ use std::path::{Path, PathBuf};
 use super::schedule::{ScheduleLedger, ScheduleMode, ScheduleRecord, ScheduleState};
 use crate::prometheus::queue_authority::canonical_project_task_queue;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(super) const MAX_PARALLEL_READ_ONLY_PER_WORKSPACE: usize = 2;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct QueueRecord {
     pub id: String,
     #[serde(default)]
@@ -783,7 +785,8 @@ impl ActiveQueueExecutor {
 
     /// Atomically claim one approved task by appending its in-progress state
     /// while holding an exclusive lock on the canonical append-only ledger.
-    pub fn claim_next_approved(&self) -> std::io::Result<Option<ApprovedQueueClaim>> {
+    #[cfg(test)]
+    pub(super) fn claim_next_approved(&self) -> std::io::Result<Option<ApprovedQueueClaim>> {
         ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
             if let Some(parent) = self.queue_path.parent() {
                 std::fs::create_dir_all(parent)?;
@@ -934,7 +937,7 @@ impl ActiveQueueExecutor {
     /// acquired; no queue record is appended in that case.
     pub(super) fn claim_approved_candidate(
         &self,
-        task_id: &str,
+        expected: &QueueRecord,
         excluded_task_ids: &BTreeSet<String>,
     ) -> std::io::Result<Option<ApprovedQueueClaim>> {
         ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
@@ -966,7 +969,7 @@ impl ActiveQueueExecutor {
                                 && mutation_lease_available(record, &effective, now)
                         })
                     });
-                let Some(task) = selected.filter(|record| record.id == task_id) else {
+                let Some(task) = selected.filter(|record| *record == expected) else {
                     return Ok(None);
                 };
                 if task.status.as_deref().map(normalize_task_status) == Some("in_progress")
@@ -999,10 +1002,8 @@ impl ActiveQueueExecutor {
         })
     }
 
-    pub fn append_attempt(
-        &self,
-        task: &QueueRecord,
-    ) -> std::io::Result<ActiveQueueExecutionAttempt> {
+    #[cfg(test)]
+    fn append_attempt(&self, task: &QueueRecord) -> std::io::Result<ActiveQueueExecutionAttempt> {
         ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
             let mut file = OpenOptions::new()
                 .create(true)
@@ -1342,11 +1343,46 @@ fn mutation_lease_available(
     effective: &[QueueRecord],
     now: DateTime<Utc>,
 ) -> bool {
-    !effective.iter().any(|active| {
+    let mut conflicting_active = effective.iter().filter(|active| {
         active.id != candidate.id
             && holds_active_mutation_lease(active, now)
             && mutation_targets_conflict(candidate, active)
-    })
+    });
+    if !has_read_only_execution_authority(candidate) {
+        return conflicting_active.next().is_none();
+    }
+
+    let mut active_readers = 0;
+    for active in conflicting_active {
+        if !has_read_only_execution_authority(active) {
+            return false;
+        }
+        active_readers += 1;
+        if active_readers >= MAX_PARALLEL_READ_ONLY_PER_WORKSPACE {
+            return false;
+        }
+    }
+    true
+}
+
+pub(super) fn has_read_only_execution_authority(record: &QueueRecord) -> bool {
+    let Some(meta) = record.extra.get("meta").and_then(Value::as_object) else {
+        return false;
+    };
+    if meta.get("authority_class").and_then(Value::as_str) != Some("read_only") {
+        return false;
+    }
+
+    let decomposable_objective = meta.get("objective_leaf").and_then(Value::as_bool) != Some(true)
+        && meta
+            .get("acceptance_artifact")
+            .and_then(Value::as_str)
+            .is_some_and(|path| !path.trim().is_empty())
+        && meta
+            .get("acceptance_markers")
+            .and_then(Value::as_array)
+            .is_some_and(|markers| !markers.is_empty());
+    !decomposable_objective
 }
 
 fn holds_active_mutation_lease(record: &QueueRecord, now: DateTime<Utc>) -> bool {
@@ -1684,6 +1720,7 @@ fn append_jsonl_value(path: &Path, value: &Value) -> std::io::Result<()> {
     }
 }
 
+#[cfg(test)]
 fn safe_local_metadata(record: &QueueRecord) -> bool {
     let meta = record.extra.get("meta").and_then(Value::as_object);
     meta.and_then(|meta| meta.get("action_class"))
@@ -3612,6 +3649,197 @@ mod tests {
     }
 
     #[test]
+    fn approved_claim_allows_two_read_only_tasks_for_the_same_project() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let first = QueueRecord {
+            id: "project-a-read-first".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                "read_only",
+            ),
+            ..blank("project-a-read-first")
+        };
+        let second = QueueRecord {
+            id: "project-a-read-second".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                "read_only",
+            ),
+            ..blank("project-a-read-second")
+        };
+        let third = QueueRecord {
+            id: "project-a-read-third".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                "read_only",
+            ),
+            ..blank("project-a-read-third")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap(),
+                serde_json::to_string(&third).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        for task in [&first, &second, &third] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        assert_eq!(
+            executor
+                .claim_next_approved()
+                .unwrap()
+                .expect("first read-only claim")
+                .task
+                .id,
+            first.id
+        );
+        assert_eq!(
+            executor
+                .claim_next_approved()
+                .unwrap()
+                .expect("second read-only claim")
+                .task
+                .id,
+            second.id
+        );
+        assert!(
+            executor.claim_next_approved().unwrap().is_none(),
+            "the queue layer must enforce the same two-reader bound as workspace slots"
+        );
+        assert_eq!(
+            executor.append_attempt(&third).unwrap_err().kind(),
+            std::io::ErrorKind::PermissionDenied,
+            "direct append must not bypass the queue-layer reader bound"
+        );
+    }
+
+    #[test]
+    fn read_only_execution_authority_is_byte_exact() {
+        let canonical = QueueRecord {
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                "read_only",
+            ),
+            ..blank("canonical-read-only")
+        };
+        let padded = QueueRecord {
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                " read_only ",
+            ),
+            ..blank("padded-read-only")
+        };
+
+        assert!(has_read_only_execution_authority(&canonical));
+        assert!(
+            !has_read_only_execution_authority(&padded),
+            "non-canonical authority values must remain mutation-exclusive"
+        );
+    }
+
+    #[test]
+    fn decomposable_objective_is_never_read_only_execution_authority() {
+        let mut objective = QueueRecord {
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                "read_only",
+            ),
+            ..blank("decomposable-objective")
+        };
+        let meta = objective
+            .extra
+            .get_mut("meta")
+            .and_then(Value::as_object_mut)
+            .expect("approved metadata object");
+        meta.insert("acceptance_artifact".into(), json!("artifact.json"));
+        meta.insert("acceptance_markers".into(), json!(["complete"]));
+
+        assert!(
+            !has_read_only_execution_authority(&objective),
+            "objective decomposition materializes queue rows and must remain mutation-exclusive"
+        );
+    }
+
+    #[test]
+    fn approved_claim_blocks_mutation_while_read_only_task_is_active() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let read_only = QueueRecord {
+            id: "project-a-read".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                "read_only",
+            ),
+            ..blank("project-a-read")
+        };
+        let mutation = QueueRecord {
+            id: "project-a-mutation".into(),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target_with_authority(
+                "project-a",
+                "/worktrees/project-a",
+                "execute_with_approval",
+            ),
+            ..blank("project-a-mutation")
+        };
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&read_only).unwrap(),
+                serde_json::to_string(&mutation).unwrap()
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        for task in [&read_only, &mutation] {
+            append_test_schedule(
+                &queue_path,
+                &task.id,
+                "objective-1",
+                ScheduleMode::Immediate,
+                ScheduleState::Scheduled,
+                None,
+            );
+        }
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        executor
+            .claim_next_approved()
+            .unwrap()
+            .expect("read-only claim");
+        assert!(executor.claim_next_approved().unwrap().is_none());
+    }
+
+    #[test]
     fn approved_claim_blocks_a_second_active_mutation_for_the_same_worktree() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -5074,7 +5302,59 @@ mod tests {
         let before_claim = std::fs::read(&queue_path).expect("read queue before stale claim");
 
         assert!(executor
-            .claim_approved_candidate(&stale.id, &BTreeSet::new())
+            .claim_approved_candidate(&stale, &BTreeSet::new())
+            .unwrap()
+            .is_none());
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before_claim);
+    }
+
+    #[test]
+    fn candidate_claim_rejects_same_id_target_replacement_without_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let original = QueueRecord {
+            id: "same-id-replaced-target".into(),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("same-id-replaced-target")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&original).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        append_test_schedule(
+            &queue_path,
+            &original.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        let selected = executor
+            .next_approved_reconciling_orphans_excluding(&BTreeSet::new())
+            .unwrap()
+            .expect("initial candidate");
+        assert_eq!(
+            serde_json::to_value(&selected).unwrap(),
+            serde_json::to_value(&original).unwrap()
+        );
+
+        let replacement = QueueRecord {
+            extra: approved_workbench_extra_for_target("project-b", "/worktrees/b"),
+            ..original.clone()
+        };
+        let mut queue = OpenOptions::new().append(true).open(&queue_path).unwrap();
+        writeln!(queue, "{}", serde_json::to_string(&replacement).unwrap()).unwrap();
+        queue.sync_data().unwrap();
+        let before_claim = std::fs::read(&queue_path).expect("read queue before stale claim");
+
+        assert!(executor
+            .claim_approved_candidate(&selected, &BTreeSet::new())
             .unwrap()
             .is_none());
         assert_eq!(std::fs::read(&queue_path).unwrap(), before_claim);
@@ -5422,6 +5702,20 @@ mod tests {
             .expect("approved metadata object");
         meta.insert("project_id".into(), json!(project_id));
         meta.insert("worktree_path".into(), json!(worktree_path));
+        extra
+    }
+
+    fn approved_workbench_extra_for_target_with_authority(
+        project_id: &str,
+        worktree_path: &str,
+        authority_class: &str,
+    ) -> serde_json::Map<String, serde_json::Value> {
+        let mut extra = approved_workbench_extra_for_target(project_id, worktree_path);
+        extra
+            .get_mut("meta")
+            .and_then(Value::as_object_mut)
+            .expect("approved metadata object")
+            .insert("authority_class".into(), json!(authority_class));
         extra
     }
 

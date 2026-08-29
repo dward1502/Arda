@@ -6,8 +6,9 @@ use super::decomposer::{
 };
 use super::execution_outcome::project_terminal_outcome;
 use super::task_queue::{
-    governance_authorization_id, workbench_run_id as attempt_workbench_run_id, ActiveQueueExecutor,
-    ApprovedQueueClaim, QueueRecord,
+    governance_authorization_id, has_read_only_execution_authority,
+    workbench_run_id as attempt_workbench_run_id, ActiveQueueExecutor, ApprovedQueueClaim,
+    QueueRecord, MAX_PARALLEL_READ_ONLY_PER_WORKSPACE,
 };
 use super::validator::PlanValidator;
 use anyhow::{anyhow, Context, Result};
@@ -583,6 +584,7 @@ struct ExecutionTargetBinding {
     project_id: String,
     project_contract_digest: String,
     workspace_root: PathBuf,
+    read_only: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -695,6 +697,7 @@ fn resolve_execution_target(root: &Path, task: &QueueRecord) -> Result<Execution
         project_id: project_id.to_owned(),
         project_contract_digest: format!("sha256:{:x}", Sha256::digest(contract_bytes)),
         workspace_root,
+        read_only: has_read_only_execution_authority(task),
     })
 }
 
@@ -724,15 +727,70 @@ fn try_acquire_execution_target_locks_for_binding(
         .write(true)
         .open(&lock_path)
         .with_context(|| format!("open execution target lock `{}`", lock_path.display()))?;
-    match FileExt::try_lock_exclusive(&lock) {
+    let target_lock_result = if binding.read_only {
+        FileExt::try_lock_shared(&lock)
+    } else {
+        FileExt::try_lock_exclusive(&lock)
+    };
+    match target_lock_result {
         Ok(()) => {}
         Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => return Ok(None),
         Err(error) => return Err(error).context("acquire execution target lock"),
     }
+
+    let mut files = vec![lock];
+    if binding.read_only {
+        let mut slot = None;
+        for index in 0..MAX_PARALLEL_READ_ONLY_PER_WORKSPACE {
+            let slot_path = lock_dir.join(format!("read-slot-{digest}-{index}.lock"));
+            let slot_file = OpenOptions::new()
+                .create(true)
+                .truncate(false)
+                .read(true)
+                .write(true)
+                .open(&slot_path)
+                .with_context(|| {
+                    format!("open read-only execution slot `{}`", slot_path.display())
+                })?;
+            match FileExt::try_lock_exclusive(&slot_file) {
+                Ok(()) => {
+                    slot = Some(slot_file);
+                    break;
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => continue,
+                Err(error) => return Err(error).context("acquire read-only execution slot"),
+            }
+        }
+        let Some(slot) = slot else {
+            return Ok(None);
+        };
+        files.push(slot);
+    }
     Ok(Some(ExecutionTargetLocks {
-        _files: vec![lock],
+        _files: files,
         binding,
     }))
+}
+
+fn try_acquire_task_execution_lock(root: &Path, task_id: &str) -> Result<Option<File>> {
+    let lock_dir = root.join("core/projects/tasks/.workbench-executor-locks");
+    std::fs::create_dir_all(&lock_dir)
+        .with_context(|| format!("create executor lock directory `{}`", lock_dir.display()))?;
+    let key = format!("task:{task_id}");
+    let digest = format!("{:x}", Sha256::digest(key.as_bytes()));
+    let lock_path = lock_dir.join(format!("task-{digest}.lock"));
+    let lock = OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .open(&lock_path)
+        .with_context(|| format!("open execution task lock `{}`", lock_path.display()))?;
+    match FileExt::try_lock_exclusive(&lock) {
+        Ok(()) => Ok(Some(lock)),
+        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => Ok(None),
+        Err(error) => Err(error).context("acquire execution task lock"),
+    }
 }
 
 fn claim_execution_with_available_target(
@@ -746,18 +804,23 @@ fn claim_execution_with_available_target(
         else {
             return Ok(None);
         };
+        let Some(task_lock) = try_acquire_task_execution_lock(root, &task.id)? else {
+            excluded_task_ids.insert(task.id);
+            continue;
+        };
         let binding = resolve_execution_target(root, &task)?;
         if excluded_workspace_roots.contains(&binding.workspace_root) {
             excluded_task_ids.insert(task.id);
             continue;
         }
         let workspace_root = binding.workspace_root.clone();
-        let Some(locks) = try_acquire_execution_target_locks_for_binding(root, binding)? else {
+        let Some(mut locks) = try_acquire_execution_target_locks_for_binding(root, binding)? else {
             excluded_workspace_roots.insert(workspace_root);
             excluded_task_ids.insert(task.id);
             continue;
         };
-        if let Some(claim) = queue.claim_approved_candidate(&task.id, &excluded_task_ids)? {
+        locks._files.push(task_lock);
+        if let Some(claim) = queue.claim_approved_candidate(&task, &excluded_task_ids)? {
             return Ok(Some((claim, locks)));
         }
         excluded_task_ids.insert(task.id);
@@ -2333,6 +2396,20 @@ mod tests {
         .expect("execution target task")
     }
 
+    fn execution_target_task_with_authority(
+        id: &str,
+        project_id: &str,
+        authority_class: &str,
+    ) -> QueueRecord {
+        let mut task = execution_target_task(id, Some(project_id), None);
+        task.extra
+            .get_mut("meta")
+            .and_then(Value::as_object_mut)
+            .expect("execution target metadata")
+            .insert("authority_class".into(), json!(authority_class));
+        task
+    }
+
     fn write_execution_project_registry(root: &Path, projects: &[(&str, &str)]) {
         let entries = projects
             .iter()
@@ -2399,6 +2476,51 @@ mod tests {
             "different metadata must not bypass a shared registered workspace lock"
         );
         drop(first);
+    }
+
+    #[test]
+    fn execution_target_locks_allow_bounded_read_only_access_to_one_workspace() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, ".")]);
+        let first_task = execution_target_task_with_authority("read-first", project, "read_only");
+        let second_task = execution_target_task_with_authority("read-second", project, "read_only");
+        let third_task = execution_target_task_with_authority("read-third", project, "read_only");
+        let first = try_acquire_execution_target_locks(dir.path(), &first_task)
+            .unwrap()
+            .expect("first read-only slot");
+        let second = try_acquire_execution_target_locks(dir.path(), &second_task)
+            .unwrap()
+            .expect("second read-only slot");
+
+        assert!(
+            try_acquire_execution_target_locks(dir.path(), &third_task)
+                .unwrap()
+                .is_none(),
+            "read-only overlap must stop at the configured slot bound"
+        );
+        drop((first, second));
+    }
+
+    #[test]
+    fn execution_target_locks_block_mutation_while_read_only_access_is_active() {
+        let dir = tempfile::tempdir().expect("create lock root");
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, ".")]);
+        let read_only = execution_target_task_with_authority("read", project, "read_only");
+        let mutation =
+            execution_target_task_with_authority("mutation", project, "execute_with_approval");
+        let read_lock = try_acquire_execution_target_locks(dir.path(), &read_only)
+            .unwrap()
+            .expect("read-only lock");
+
+        assert!(
+            try_acquire_execution_target_locks(dir.path(), &mutation)
+                .unwrap()
+                .is_none(),
+            "mutation must remain exclusive against active read-only work"
+        );
+        drop(read_lock);
     }
 
     #[test]
@@ -2665,6 +2787,76 @@ mod tests {
         .find(|record| record.id == same_root.id)
         .expect("same-root task remains present");
         assert_eq!(same_root_effective.status.as_deref(), Some("queued"));
+    }
+
+    #[test]
+    fn concurrent_read_only_executors_claim_distinct_tasks_in_one_workspace() {
+        let dir = tempfile::tempdir().expect("create coordinator root");
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, ".")]);
+        let record = |id: &str| -> QueueRecord {
+            serde_json::from_value(json!({
+                "id": id,
+                "status": "queued",
+                "meta": {
+                    "action_class": "approved_autopilot_plan_step",
+                    "mutation_risk": "operator-approved",
+                    "execution_authority": "arda_workbench",
+                    "authority_class": "read_only",
+                    "source_objective_packet_id": format!("objective-{id}"),
+                    "approval_packet_id": format!("approval-{id}"),
+                    "project_id": project,
+                    "worktree_path": "."
+                }
+            }))
+            .expect("queue record")
+        };
+        let first = record("read-first");
+        let second = record("read-second");
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n{}\n",
+                serde_json::to_string(&first).unwrap(),
+                serde_json::to_string(&second).unwrap()
+            ),
+        )
+        .unwrap();
+        for task in [&first, &second] {
+            super::super::schedule::ScheduleLedger::new(
+                dir.path().join("core/projects/tasks/schedules.jsonl"),
+            )
+            .append(&super::super::schedule::ScheduleRecord {
+                contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: format!("objective-{}", task.id),
+                mode: super::super::schedule::ScheduleMode::Immediate,
+                state: super::super::schedule::ScheduleState::Scheduled,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: Some("read-only claim ownership test".into()),
+            })
+            .unwrap();
+        }
+        let queue = ActiveQueueExecutor::new(dir.path());
+
+        let (first_claim, _first_locks) = claim_execution_with_available_target(dir.path(), &queue)
+            .unwrap()
+            .expect("first read-only claim");
+        let (second_claim, _second_locks) =
+            claim_execution_with_available_target(dir.path(), &queue)
+                .unwrap()
+                .expect("second read-only claim");
+
+        assert_eq!(first_claim.task.id, first.id);
+        assert_eq!(second_claim.task.id, second.id);
+        assert_ne!(
+            first_claim.attempt.workbench_run_id, second_claim.attempt.workbench_run_id,
+            "concurrent executors must not replay one live Workbench run"
+        );
     }
 
     fn approved_queue_fixture(root: &Path, task_id: &str) -> PathBuf {
@@ -3318,12 +3510,13 @@ mod tests {
         };
         let root = PathBuf::from(root);
         let _executor_lock = acquire_executor_lock(&root).expect("acquire child executor lock");
-        let claim = ActiveQueueExecutor::new(&root)
-            .claim_next_approved_reconciling_orphans()
-            .expect("claim fixture task")
-            .expect("approved fixture claim");
+        let (claim, _execution_locks) =
+            claim_execution_with_available_target(&root, &ActiveQueueExecutor::new(&root))
+                .expect("claim fixture task")
+                .expect("approved fixture claim");
         assert_eq!(claim.task.id, "pre-dispatch-crash-task");
-        std::process::exit(86);
+        std::fs::write(root.join("claim-ready"), b"ready\n").expect("signal held claim");
+        std::thread::sleep(std::time::Duration::from_secs(30));
     }
 
     #[test]
@@ -3336,7 +3529,7 @@ mod tests {
         std::fs::write(
             &queue_path,
             format!(
-                "{}\n",
+                "{}\n{}\n",
                 json!({
                     "id": "pre-dispatch-crash-task",
                     "title": "Recover before lease expiry",
@@ -3345,8 +3538,26 @@ mod tests {
                         "action_class": "approved_autopilot_plan_step",
                         "mutation_risk": "operator-approved",
                         "execution_authority": "arda_workbench",
+                        "authority_class": "read_only",
+                        "project_id": DEFAULT_PROJECT_ID,
+                        "worktree_path": ".",
                         "source_objective_packet_id": "objective-crash-proof",
                         "approval_packet_id": "approval-crash-proof"
+                    }
+                }),
+                json!({
+                    "id": "post-crash-distinct-task",
+                    "title": "Run beside the held task",
+                    "status": "queued",
+                    "meta": {
+                        "action_class": "approved_autopilot_plan_step",
+                        "mutation_risk": "operator-approved",
+                        "execution_authority": "arda_workbench",
+                        "authority_class": "read_only",
+                        "project_id": DEFAULT_PROJECT_ID,
+                        "worktree_path": ".",
+                        "source_objective_packet_id": "objective-distinct-proof",
+                        "approval_packet_id": "approval-distinct-proof"
                     }
                 })
             ),
@@ -3354,7 +3565,7 @@ mod tests {
         .unwrap();
         std::fs::write(
             &active_path,
-            "{\"active\":[{\"id\":\"pre-dispatch-crash-task\"}]}\n",
+            "{\"active\":[{\"id\":\"pre-dispatch-crash-task\"},{\"id\":\"post-crash-distinct-task\"}]}\n",
         )
         .unwrap();
         super::super::schedule::ScheduleLedger::new(
@@ -3372,15 +3583,62 @@ mod tests {
             reason: Some("process restart fixture schedule authority".into()),
         })
         .unwrap();
+        super::super::schedule::ScheduleLedger::new(
+            dir.path().join("core/projects/tasks/schedules.jsonl"),
+        )
+        .append(&super::super::schedule::ScheduleRecord {
+            contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: "post-crash-distinct-task".into(),
+            objective_id: "objective-distinct-proof".into(),
+            mode: super::super::schedule::ScheduleMode::Immediate,
+            state: super::super::schedule::ScheduleState::Scheduled,
+            not_before_utc: None,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: Some("distinct process fixture schedule authority".into()),
+        })
+        .unwrap();
+        write_execution_project_registry(dir.path(), &[(DEFAULT_PROJECT_ID, ".")]);
 
-        let child = std::process::Command::new(std::env::current_exe().unwrap())
+        let mut child = std::process::Command::new(std::env::current_exe().unwrap())
             .arg("--exact")
             .arg("prometheus::autopilot::workbench_executor::tests::claim_before_dispatch_crash_child")
             .arg("--nocapture")
             .env("ARDA_CLAIM_CRASH_FIXTURE_ROOT", dir.path())
-            .status()
+            .spawn()
             .expect("run crash child");
-        assert_eq!(child.code(), Some(86));
+        let ready_path = dir.path().join("claim-ready");
+        for _ in 0..100 {
+            if ready_path.exists() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(25));
+        }
+        assert!(ready_path.exists(), "child did not acquire execution locks");
+
+        let queue = ActiveQueueExecutor::new(dir.path());
+        let (distinct, _distinct_locks) = claim_execution_with_available_target(dir.path(), &queue)
+            .expect("claim beside live owner")
+            .expect("second read-only slot");
+        assert_eq!(
+            distinct.task.id, "post-crash-distinct-task",
+            "a live task owner must force the next executor onto a distinct task"
+        );
+        assert!(
+            try_acquire_task_execution_lock(dir.path(), "pre-dispatch-crash-task")
+                .expect("probe live task ownership")
+                .is_none(),
+            "the child must retain its task lock through execution"
+        );
+
+        child.kill().expect("terminate lock owner");
+        let child = child.wait().expect("reap lock owner");
+        assert!(!child.success());
+        let released_task_lock =
+            try_acquire_task_execution_lock(dir.path(), "pre-dispatch-crash-task")
+                .expect("probe released task ownership")
+                .expect("process exit must release the task lock");
+        drop(released_task_lock);
 
         let claimed_bytes = std::fs::read(&queue_path).unwrap();
         let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
@@ -3398,10 +3656,10 @@ mod tests {
 
         let _executor_lock =
             acquire_executor_lock(dir.path()).expect("crash released executor lock");
-        let recovered = ActiveQueueExecutor::new(dir.path())
-            .claim_next_approved_reconciling_orphans()
-            .expect("recover claimed task")
-            .expect("unexpired claim recovered");
+        let (recovered, _execution_locks) =
+            claim_execution_with_available_target(dir.path(), &queue)
+                .expect("recover claimed task")
+                .expect("unexpired claim recovered");
         assert_eq!(recovered.task.id, "pre-dispatch-crash-task");
         assert_eq!(
             recovered.attempt.workbench_run_id,

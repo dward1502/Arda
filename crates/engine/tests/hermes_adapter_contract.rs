@@ -8,7 +8,7 @@ use arda_core::run_graph::{
 };
 use arda_engine::adapters::{
     AdapterCancellation, CostMeasurement, HermesAdapter, HermesAdapterConfig, HermesAdapterError,
-    HermesNodeTask, HermesReceiptStatus,
+    HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus,
 };
 use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
 use arda_vaire::{
@@ -106,9 +106,33 @@ session = {
         },
     ],
 }
+if mode == "review_file":
+    session["messages"] = [
+        {
+            "role": "assistant",
+            "content": None,
+            "tool_calls": [{
+                "id": "call-review-1",
+                "type": "function",
+                "function": {
+                    "name": "read_file",
+                    "arguments": json.dumps({"path": "src/lib.rs"}),
+                },
+            }],
+        },
+        {
+            "role": "tool",
+            "tool_call_id": "call-review-1",
+            "tool_name": "read_file",
+            "content": "reviewed source",
+        },
+    ]
 if mode == "unknown_cost":
     session.pop("estimated_cost_usd")
     session.pop("actual_cost_usd")
+if mode == "missing_provenance":
+    session.pop("model")
+    session.pop("billing_provider")
 transcript_path.write_text(json.dumps(session), encoding="utf-8")
 result = {
     "schema_version": "arda.hermes-job-result.v1",
@@ -123,6 +147,10 @@ result = {
     }],
     "artifacts": [],
 }
+if mode == "review_file":
+    result["summary"] = "Independent file-only review found no blocking defects."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
 if mode == "leak":
     result["session_id"] = "vendor-session-must-not-escape"
 if mode == "forged":
@@ -313,6 +341,30 @@ fn worker_contract(toolsets: &[&str], deadline_unix_ms: u128) -> WorkerExecution
     }
 }
 
+fn review_task() -> HermesNodeTask {
+    let mut task = task(800);
+    task.node.id = NodeId::new("review-hermes").unwrap();
+    task.node.kind = NodeKind::Review;
+    task.node.authority = AuthorityClass::ReadOnly;
+    task.node.parent_receipts = vec!["sha256:verification-receipt".into()];
+    task.node.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::SecurityPrivacyCritic,
+        worker_id: "hermes:critic-1".into(),
+        route_id: "hosted:review".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "e".repeat(64)),
+        allowed_toolsets: ["file".into()].into_iter().collect(),
+        dependencies: Vec::new(),
+        deadline_unix_ms: 4_000_000_000_000,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::WorkerReport,
+    });
+    task.instructions = "Inspect source and durable verification evidence without rerunning the declared check. Declared check: python-smoke".into();
+    task.checks.clear();
+    task.check_commands.clear();
+    task
+}
+
 fn adapter(root: &TempDir, mode: &str) -> HermesAdapter {
     write_fake_hermes(root.path());
     let config = write_config(root.path());
@@ -445,6 +497,83 @@ async fn graph_node_becomes_bounded_hermes_job_and_canonical_receipt() {
         assert!(environment.contains(&serde_json::json!(expected)));
     }
     assert!(!environment.contains(&serde_json::json!("HOME")));
+}
+
+#[tokio::test]
+async fn provider_receipt_without_provider_and_model_provenance_is_rejected() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "missing_provenance");
+
+    let error = adapter
+        .execute(&task(800), AdapterCancellation::new())
+        .await
+        .expect_err("missing provider/model provenance must fail closed");
+
+    assert!(matches!(error, HermesAdapterError::InvalidResult(_)));
+    assert!(error.to_string().contains("provider and model provenance"));
+}
+
+#[tokio::test]
+async fn legacy_v1_receipt_without_authority_binding_reaches_explicit_schema_rejection() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let task = task(800);
+    let receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .expect("execute graph node");
+    let mut legacy = serde_json::to_value(receipt).expect("serialize receipt");
+    legacy["schema_version"] = serde_json::json!("arda.execution-receipt.v1");
+    legacy
+        .as_object_mut()
+        .expect("receipt object")
+        .remove("authority_binding_digest");
+
+    let legacy: HermesExecutionReceipt =
+        serde_json::from_value(legacy).expect("legacy receipt remains parseable for rejection");
+    let error = adapter
+        .validate_stored_receipt_authority(&task, &legacy)
+        .expect_err("legacy receipt schema must fail closed");
+    assert!(error
+        .to_string()
+        .contains("unsupported execution receipt schema arda.execution-receipt.v1"));
+}
+
+#[tokio::test]
+async fn stored_receipt_is_rejected_when_the_current_objective_drifts() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let original_task = task(800);
+    let receipt = adapter
+        .execute(&original_task, AdapterCancellation::new())
+        .await
+        .expect("execute graph node");
+    let mut changed_task = original_task;
+    changed_task.objective = "A substituted objective must not reuse this receipt.".into();
+
+    let error = adapter
+        .validate_stored_receipt_authority(&changed_task, &receipt)
+        .expect_err("objective drift must fail current task authority binding");
+    assert!(error.to_string().contains("current admitted task"));
+}
+
+#[tokio::test]
+async fn legacy_v2_node_only_authority_binding_reaches_explicit_schema_rejection() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let task = task(800);
+    let mut receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .expect("execute graph node");
+    receipt.schema_version = "arda.execution-receipt.v2".into();
+
+    let error = adapter
+        .validate_stored_receipt_authority(&task, &receipt)
+        .expect_err("legacy v2 receipt schema must fail closed");
+    assert!(error
+        .to_string()
+        .contains("unsupported execution receipt schema arda.execution-receipt.v2"));
 }
 
 #[tokio::test]
@@ -587,6 +716,36 @@ async fn persisted_worker_toolsets_cannot_escalate_beyond_authority() {
         adapter.execute(&task, AdapterCancellation::new()).await,
         Err(HermesAdapterError::WorkerToolsetEscalation)
     ));
+}
+
+#[tokio::test]
+async fn file_only_review_produces_inspection_evidence_without_terminal_checks() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_file");
+
+    let receipt = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect("file-only critic receipt");
+
+    assert_eq!(receipt.status, HermesReceiptStatus::Succeeded);
+    assert_eq!(receipt.tool_evidence.len(), 1);
+    assert_eq!(receipt.tool_evidence[0].tool, "read_file");
+    assert!(receipt.test_evidence.is_empty());
+    let capture: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join("capture.json")).expect("captured invocation"),
+    )
+    .unwrap();
+    assert!(capture["args"]
+        .as_array()
+        .unwrap()
+        .contains(&serde_json::json!("file")));
+    assert!(!capture["args"]
+        .as_array()
+        .unwrap()
+        .contains(&serde_json::json!("terminal")));
 }
 
 #[tokio::test]

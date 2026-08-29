@@ -1,4 +1,6 @@
-use arda_core::run_graph::{NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRouteClass};
+use arda_core::run_graph::{
+    NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRole, WorkerRouteClass,
+};
 use arda_vaire::ContextAssembly;
 use axum::{
     extract::{ConnectInfo, Path, State},
@@ -510,6 +512,16 @@ pub(super) async fn complete_run_node(
 
     let _guard = WORKBENCH_MUTATIONS.lock().await;
     let (store, mut graph) = load_run(&state, &id)?;
+    if graph
+        .nodes
+        .iter()
+        .find(|node| node.id.as_str() == node_id)
+        .is_some_and(|node| node.worker.is_some())
+    {
+        return Err(ApiError::conflict(format!(
+            "provider-owned node `{node_id}` must complete through provider execution"
+        )));
+    }
     let recovered = store.recover().map_err(store_error)?;
     if recovered
         .applied_idempotency_keys
@@ -671,13 +683,127 @@ pub(super) async fn execute_provider_node(
         .find(|node| node.id == node_id)
         .ok_or_else(|| ApiError::not_found(format!("node `{}` was not found", node_id.as_str())))?
         .clone();
-    if !matches!(node.kind, NodeKind::Execute | NodeKind::Verify) {
+    if !matches!(
+        node.kind,
+        NodeKind::Execute | NodeKind::Verify | NodeKind::Review
+    ) {
         return Err(ApiError::conflict(format!(
-            "node `{}` is not an execute or verify provider worker",
+            "node `{}` is not an execute, verify, or review provider worker",
+            node_id.as_str()
+        )));
+    }
+    if node.kind == NodeKind::Review
+        && !node.worker.as_ref().is_some_and(|worker| {
+            matches!(
+                worker.role,
+                WorkerRole::SecurityPrivacyCritic | WorkerRole::ImplementationRiskCritic
+            )
+        })
+    {
+        return Err(ApiError::conflict(format!(
+            "review node `{}` requires an independent critic worker",
             node_id.as_str()
         )));
     }
 
+    let recovered = store.recover().map_err(store_error)?;
+    let project_id = recovered
+        .events
+        .iter()
+        .find_map(|event| match &event.kind {
+            RunEventKind::Planned { project_id, .. } => Some(project_id.clone()),
+            _ => None,
+        })
+        .ok_or_else(|| ApiError::internal("run journal has no planned project identity"))?;
+    let attached = find_attached_project(&state.workbench_root, &project_id)?;
+    let attached_digest = contract_digest(&attached.contract)?;
+    require_current_project_contract(
+        &project_id,
+        &graph.provenance.project_contract_digest,
+        &attached_digest,
+    )?;
+    let project_root = state
+        .workbench_root
+        .join(attached.contract.workspace.root.as_str());
+
+    require_succeeded_dependencies(&graph, &node_id)?;
+    enforce_worker_admission(&state, &store, &graph, &node_id).await?;
+    let approval_receipt = node
+        .parent_receipts
+        .first()
+        .cloned()
+        .ok_or_else(|| ApiError::conflict("provider execution requires an approval receipt"))?;
+    let config_path = provider_config_path(&state.workbench_root);
+    let environment = std::env::vars().collect::<BTreeMap<_, _>>();
+    let adapter = HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
+        .map_err(|error| {
+            ApiError::internal(format!(
+                "failed to load Workbench provider adapter at {}: {error}",
+                config_path.display()
+            ))
+        })?;
+    let mut ready_node = graph
+        .nodes
+        .iter()
+        .find(|candidate| candidate.id == node_id)
+        .expect("provider node remains present")
+        .clone();
+    ready_node.state = NodeState::Ready;
+    let check_commands = attached
+        .contract
+        .checks
+        .iter()
+        .map(|check| {
+            let command = attached.contract.command(&check.command);
+            let invocation = command
+                .map(|command| {
+                    std::iter::once(command.program.as_str())
+                        .chain(command.args.iter().map(String::as_str))
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                })
+                .unwrap_or_else(|| check.command.clone());
+            (check.id.clone(), invocation)
+        })
+        .collect::<BTreeMap<_, _>>();
+    let declared_checks = check_commands
+        .iter()
+        .map(|(id, command)| format!("{id}: {command}"))
+        .collect::<Vec<_>>();
+    let instructions = if ready_node.kind == NodeKind::Review {
+        format!(
+            "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks, and report named defects. Fail rather than approve unsupported completion. Declared checks already covered by the verification receipt: {}",
+            declared_checks.join("; ")
+        )
+    } else {
+        format!(
+            "Work only inside the attached project root. Do not commit. Execute every declared check exactly as printed before any optional exploratory command, and make no changes outside the objective. In test_evidence, reference the terminal tool call that ran the exact declared command; never reference an exploratory command. If a declared check succeeds, do not substitute ls, pwd, or inspection output for its evidence. Declared checks: {}",
+            declared_checks.join("; ")
+        )
+    };
+    let task = HermesNodeTask {
+        run_id: graph.run_id.clone(),
+        node: ready_node,
+        objective: request.objective.trim().to_string(),
+        instructions,
+        checks: if node.kind == NodeKind::Review {
+            Vec::new()
+        } else {
+            attached
+                .contract
+                .checks
+                .iter()
+                .map(|check| check.id.clone())
+                .collect()
+        },
+        check_commands: if node.kind == NodeKind::Review {
+            BTreeMap::new()
+        } else {
+            check_commands
+        },
+        project_contract_digest: graph.provenance.project_contract_digest.clone(),
+        context_assembly: request.context_assembly.clone(),
+    };
     let receipt = if let Some(value) = store
         .read_execution_receipt(&node_id)
         .map_err(store_error)?
@@ -702,37 +828,55 @@ pub(super) async fn execute_provider_node(
                 "stored provider receipt failed canonical digest verification",
             ));
         }
-        if let Some(assembly) = &request.context_assembly {
-            if receipt.context_capsule_digest.as_deref()
-                != Some(assembly.capsule.capsule_digest.as_str())
-            {
+        if receipt.project_contract_digest != task.project_contract_digest
+            || receipt.parent_receipts != task.node.parent_receipts
+        {
+            return Err(ApiError::conflict(
+                "stored provider receipt does not match current contract and parent authority",
+            ));
+        }
+        let requested_context = request.context_assembly.as_ref().map(|assembly| {
+            (
+                assembly.capsule.capsule_id.as_str(),
+                assembly.capsule.capsule_digest.as_str(),
+                assembly.use_receipt.receipt_ref(),
+            )
+        });
+        let receipt_context = match (
+            receipt.context_capsule_id.as_deref(),
+            receipt.context_capsule_digest.as_deref(),
+            receipt.context_use_receipt_ref.as_deref(),
+        ) {
+            (None, None, None) => None,
+            (Some(id), Some(digest), Some(use_receipt_ref)) => {
+                Some((id, digest, use_receipt_ref.to_string()))
+            }
+            _ => {
                 return Err(ApiError::conflict(
-                    "stored provider receipt does not match the requested context capsule",
+                    "stored provider receipt has incomplete context authority",
                 ));
             }
+        };
+        if requested_context != receipt_context {
+            return Err(ApiError::conflict(
+                "stored provider receipt does not match the requested context capsule authority",
+            ));
         }
+        adapter
+            .validate_stored_receipt_authority(&task, &receipt)
+            .map_err(|error| {
+                ApiError::conflict(format!(
+                    "stored provider receipt failed current authority binding: {error}"
+                ))
+            })?;
+        adapter.preflight(&task).map_err(|error| {
+            ApiError::conflict(format!("provider task failed bounded preflight: {error}"))
+        })?;
         receipt
     } else {
-        let recovered = store.recover().map_err(store_error)?;
-        let project_id = recovered
-            .events
-            .iter()
-            .find_map(|event| match &event.kind {
-                RunEventKind::Planned { project_id, .. } => Some(project_id.clone()),
-                _ => None,
-            })
-            .ok_or_else(|| ApiError::internal("run journal has no planned project identity"))?;
-        let attached = find_attached_project(&state.workbench_root, &project_id)?;
-        let attached_digest = contract_digest(&attached.contract)?;
-        require_current_project_contract(
-            &project_id,
-            &graph.provenance.project_contract_digest,
-            &attached_digest,
-        )?;
-        let project_root = state
-            .workbench_root
-            .join(attached.contract.workspace.root.as_str());
-
+        adapter.preflight(&task).map_err(|error| {
+            ApiError::conflict(format!("provider task failed bounded preflight: {error}"))
+        })?;
         let cancellation_key = format!("{id}/{}", node_id.as_str());
         if node.state == NodeState::Running {
             if ACTIVE_PROVIDER_CANCELLATIONS
@@ -793,12 +937,6 @@ pub(super) async fn execute_provider_node(
                 node.state
             )));
         }
-        require_succeeded_dependencies(&graph, &node_id)?;
-        enforce_worker_admission(&state, &store, &graph, &node_id).await?;
-        let approval_receipt =
-            node.parent_receipts.first().cloned().ok_or_else(|| {
-                ApiError::conflict("provider execution requires an approval receipt")
-            })?;
         if node.state != NodeState::Ready {
             apply_transition_once(
                 &store,
@@ -810,61 +948,6 @@ pub(super) async fn execute_provider_node(
             )
             .map_err(store_error)?;
         }
-
-        let config_path = provider_config_path(&state.workbench_root);
-        let environment = std::env::vars().collect::<BTreeMap<_, _>>();
-        let adapter = HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
-            .map_err(|error| {
-                ApiError::internal(format!(
-                    "failed to load Workbench provider adapter at {}: {error}",
-                    config_path.display()
-                ))
-            })?;
-        let ready_node = graph
-            .nodes
-            .iter()
-            .find(|candidate| candidate.id == node_id)
-            .expect("provider node remains present")
-            .clone();
-        let check_commands = attached
-            .contract
-            .checks
-            .iter()
-            .map(|check| {
-                let command = attached.contract.command(&check.command);
-                let invocation = command
-                    .map(|command| {
-                        std::iter::once(command.program.as_str())
-                            .chain(command.args.iter().map(String::as_str))
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                    })
-                    .unwrap_or_else(|| check.command.clone());
-                (check.id.clone(), invocation)
-            })
-            .collect::<BTreeMap<_, _>>();
-        let declared_checks = check_commands
-            .iter()
-            .map(|(id, command)| format!("{id}: {command}"))
-            .collect::<Vec<_>>();
-        let task = HermesNodeTask {
-            run_id: graph.run_id.clone(),
-            node: ready_node,
-            objective: request.objective.trim().to_string(),
-            instructions: format!(
-                "Work only inside the attached project root. Do not commit. Execute every declared check exactly as printed before any optional exploratory command, and make no changes outside the objective. In test_evidence, reference the terminal tool call that ran the exact declared command; never reference an exploratory command. If a declared check succeeds, do not substitute ls, pwd, or inspection output for its evidence. Declared checks: {}",
-                declared_checks.join("; ")
-            ),
-            checks: attached
-                .contract
-                .checks
-                .iter()
-                .map(|check| check.id.clone())
-                .collect(),
-            check_commands,
-            project_contract_digest: graph.provenance.project_contract_digest.clone(),
-            context_assembly: request.context_assembly,
-        };
         let attempt = graph
             .nodes
             .iter()

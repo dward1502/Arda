@@ -245,3 +245,74 @@ fn independent_verifier_requires_native_project_evidence() {
         Err(RunGraphError::WorkerRoleMismatch(_))
     ));
 }
+
+#[test]
+fn independent_critic_cannot_reuse_verifier_identity() {
+    let worker = |role, dependencies| WorkerExecutionSpec {
+        role,
+        worker_id: "hermes:shared-reviewer".into(),
+        route_id: "hosted:review".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "d".repeat(64)),
+        allowed_toolsets: BTreeSet::from(["terminal".into()]),
+        dependencies,
+        deadline_unix_ms: 1_800_000_000_000,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::WorkerReport,
+    };
+    let mut verify = node(
+        "verify",
+        NodeKind::Verify,
+        AuthorityClass::Verify,
+        "verify-worker",
+    );
+    verify.worker = Some(WorkerExecutionSpec {
+        evidence_policy: EvidencePolicy::ProjectNativeChecks,
+        ..worker(WorkerRole::IndependentVerifier, Vec::new())
+    });
+    let mut review = node(
+        "review",
+        NodeKind::Review,
+        AuthorityClass::ReadOnly,
+        "review-worker",
+    );
+    review.worker = Some(worker(
+        WorkerRole::SecurityPrivacyCritic,
+        vec![NodeId::new("verify").unwrap()],
+    ));
+
+    let result = graph(
+        vec![verify, review],
+        vec![RunEdge::new("verify-review", "verify", "review").unwrap()],
+    )
+    .validate();
+
+    assert!(result.is_err(), "critic identity reuse must fail closed");
+}
+
+#[test]
+fn independent_critic_requires_worker_report_evidence() {
+    let mut review = node(
+        "review",
+        NodeKind::Review,
+        AuthorityClass::ReadOnly,
+        "review-worker",
+    );
+    review.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::SecurityPrivacyCritic,
+        worker_id: "hermes:critic-1".into(),
+        route_id: "hosted:review".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "e".repeat(64)),
+        allowed_toolsets: BTreeSet::from(["file".into()]),
+        dependencies: Vec::new(),
+        deadline_unix_ms: 1_800_000_000_000,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::DeterministicReceipt,
+    });
+
+    assert!(matches!(
+        graph(vec![review], vec![]).validate(),
+        Err(RunGraphError::WorkerRoleMismatch(_))
+    ));
+}

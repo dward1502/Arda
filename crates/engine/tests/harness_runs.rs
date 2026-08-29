@@ -1,3 +1,7 @@
+use arda_engine::adapters::{
+    CostMeasurement, HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus,
+    HermesToolEvidence, NormalizedHermesUsage,
+};
 use arda_engine::harness::{
     presence::HarnessPresenceState, serve, HarnessState, DEFAULT_HARNESS_ADDR,
     DEFAULT_MANWE_PROXY_TIMEOUT, DEFAULT_WARDEN_SCOUT_TIMEOUT,
@@ -103,6 +107,128 @@ fn graph(run_id: &str, node_id: &str, kind: &str) -> Value {
             "parent_receipts": []
         }
     })
+}
+
+fn provider_review_graph(run_id: &str) -> Value {
+    let mut graph = graph(run_id, "review", "review");
+    graph["nodes"][0]["worker"] = json!({
+        "role": "security_privacy_critic",
+        "worker_id": "critic-review-0",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": format!("sha256:{}", "1".repeat(64)),
+        "allowed_toolsets": ["file"],
+        "dependencies": [],
+        "deadline_unix_ms": 4_000_000_000_000_u64,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+    });
+    graph
+}
+
+fn stored_review_receipt(
+    run_id: &str,
+    project_contract_digest: &str,
+    parent_receipts: Vec<String>,
+    objective: &str,
+) -> HermesExecutionReceipt {
+    let mut node: arda_core::run_graph::RunNode =
+        serde_json::from_value(provider_review_graph(run_id)["nodes"][0].clone())
+            .expect("provider review node");
+    node.parent_receipts = parent_receipts.clone();
+    let task = HermesNodeTask {
+        run_id: arda_core::run_graph::RunId::new(run_id).expect("run id"),
+        node,
+        objective: objective.into(),
+        instructions: "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks, and report named defects. Fail rather than approve unsupported completion. Declared checks already covered by the verification receipt: test: cargo test -p arda-core".into(),
+        checks: Vec::new(),
+        check_commands: Default::default(),
+        project_contract_digest: project_contract_digest.into(),
+        context_assembly: None,
+    };
+    let mut receipt = HermesExecutionReceipt {
+        schema_version: "arda.execution-receipt.v3".into(),
+        receipt_digest: String::new(),
+        authority_binding_digest: task
+            .authority_binding_digest()
+            .expect("authority binding digest"),
+        run_id: run_id.into(),
+        node_id: "review".into(),
+        idempotency_key: format!("node-{run_id}"),
+        status: HermesReceiptStatus::Succeeded,
+        summary: "Stored independent review completed.".into(),
+        tool_evidence: vec![HermesToolEvidence {
+            tool: "read_file".into(),
+            action: "inspect".into(),
+            exit_code: Some(0),
+            output_digest: format!("sha256:{}", "7".repeat(64)),
+        }],
+        test_evidence: Vec::new(),
+        artifacts: Vec::new(),
+        usage: NormalizedHermesUsage {
+            provider: Some("nous".into()),
+            model: Some("fixture-model".into()),
+            api_calls: 1,
+            input_tokens: 10,
+            output_tokens: 10,
+            total_tokens: 20,
+            estimated_cost_usd: 0.0,
+            cost_measurement: CostMeasurement::Observed,
+            completed: true,
+            failed: false,
+        },
+        adapter: "hermes-workbench".into(),
+        adapter_version: "1".into(),
+        project_contract_digest: project_contract_digest.into(),
+        parent_receipts,
+        context_capsule_id: None,
+        context_capsule_digest: None,
+        context_use_receipt_ref: None,
+        context_handoff: None,
+        recorded_at_unix_ms: 1,
+    };
+    receipt.receipt_digest = receipt.computed_digest().expect("receipt digest");
+    receipt
+}
+
+fn write_stored_review_receipt(root: &TempDir, receipt: &HermesExecutionReceipt) {
+    let receipt_path = root.path().join(format!(
+        "data/runs/{}/execution-receipts/review.json",
+        receipt.run_id
+    ));
+    fs::create_dir_all(receipt_path.parent().expect("receipt directory"))
+        .expect("create receipt directory");
+    fs::write(
+        receipt_path,
+        serde_json::to_vec_pretty(receipt).expect("receipt json"),
+    )
+    .expect("write stored receipt");
+}
+
+fn write_file_only_hermes_config(root: &TempDir) {
+    let config_dir = root.path().join("config/adapters");
+    fs::create_dir_all(&config_dir).expect("adapter config directory");
+    fs::write(
+        config_dir.join("hermes-workbench.toml"),
+        r#"schema_version = "arda.hermes-adapter.v1"
+adapter_version = "1"
+executable = "/bin/true"
+max_timeout_ms = 1000
+cancellation_grace_ms = 100
+max_turns = 8
+max_prompt_bytes = 32768
+max_output_bytes = 65536
+inherit_environment = ["PATH"]
+
+[toolsets]
+read_only = ["file"]
+human_approval = []
+execute_with_approval = ["file", "terminal"]
+verify = ["file", "terminal"]
+compensate_with_approval = ["file", "terminal"]
+"#,
+    )
+    .expect("adapter config");
 }
 
 fn completion_graph(run_id: &str) -> Value {
@@ -268,6 +394,658 @@ async fn provider_contract_replacement_is_rejected_without_journal_mutation() {
     assert_eq!(
         fs::read(&journal_path).expect("journal after replacement"),
         before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_revalidates_contract_without_journal_mutation() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-contract";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-contract")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:verify".into()],
+        "must not replay after contract replacement",
+    );
+    write_stored_review_receipt(&root, &receipt);
+
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let before = fs::read(&journal_path).expect("journal before replacement");
+    let registry_path = root.path().join("data/workbench/projects.json");
+    let mut registry: Value = serde_json::from_slice(
+        &fs::read(&registry_path).expect("project registry before replacement"),
+    )
+    .expect("registry json");
+    registry["projects"][0]["contract"]["workspace"]["root"] =
+        Value::String("other-workspace".into());
+    fs::create_dir(root.path().join("other-workspace")).expect("replacement workspace");
+    fs::write(
+        &registry_path,
+        serde_json::to_vec_pretty(&registry).expect("replacement registry json"),
+    )
+    .expect("replace project registry");
+
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-contract"),
+            "objective": "must not replay after contract replacement"
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replacement"),
+        before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_revalidates_parent_lineage_without_journal_mutation() {
+    let root = TempDir::new().expect("temp root");
+    let config_dir = root.path().join("config/adapters");
+    fs::create_dir_all(&config_dir).expect("adapter config directory");
+    fs::write(
+        config_dir.join("hermes-workbench.toml"),
+        r#"schema_version = "arda.hermes-adapter.v1"
+adapter_version = "1"
+executable = "/bin/true"
+max_timeout_ms = 1000
+cancellation_grace_ms = 100
+max_turns = 8
+max_prompt_bytes = 32768
+max_output_bytes = 65536
+inherit_environment = ["PATH"]
+
+[toolsets]
+read_only = ["file"]
+human_approval = []
+execute_with_approval = ["file", "terminal"]
+verify = ["file", "terminal"]
+compensate_with_approval = ["file", "terminal"]
+"#,
+    )
+    .expect("adapter config");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-parent";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-parent")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:other-verification".into()],
+        "must not replay with stale parent lineage",
+    );
+    write_stored_review_receipt(&root, &receipt);
+
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let before = fs::read(&journal_path).expect("journal before replay");
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-parent"),
+            "objective": "must not replay with stale parent lineage"
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replay"),
+        before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_revalidates_toolsets_without_journal_mutation() {
+    let root = TempDir::new().expect("temp root");
+    let config_dir = root.path().join("config/adapters");
+    fs::create_dir_all(&config_dir).expect("adapter config directory");
+    fs::write(
+        config_dir.join("hermes-workbench.toml"),
+        r#"schema_version = "arda.hermes-adapter.v1"
+adapter_version = "1"
+executable = "/bin/true"
+max_timeout_ms = 1000
+cancellation_grace_ms = 100
+max_turns = 8
+max_prompt_bytes = 32768
+max_output_bytes = 65536
+inherit_environment = ["PATH"]
+
+[toolsets]
+read_only = ["file"]
+human_approval = []
+execute_with_approval = ["file", "terminal"]
+verify = ["file", "terminal"]
+compensate_with_approval = ["file", "terminal"]
+"#,
+    )
+    .expect("adapter config");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-toolset";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["worker"]["allowed_toolsets"] = json!(["file", "terminal"]);
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-toolset")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:verify".into()],
+        "must not replay after critic authority broadens",
+    );
+    write_stored_review_receipt(&root, &receipt);
+
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let before = fs::read(&journal_path).expect("journal before replay");
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-toolset"),
+            "objective": "must not replay after critic authority broadens"
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replay"),
+        before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_rejects_omitted_context_without_journal_mutation() {
+    let root = TempDir::new().expect("temp root");
+    write_file_only_hermes_config(&root);
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-context-omission";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-context-omission")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let mut receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:verify".into()],
+        "must not replay when required context is omitted",
+    );
+    receipt.context_capsule_id = Some("capsule:stored-review".into());
+    receipt.context_capsule_digest = Some(format!("sha256:{}", "8".repeat(64)));
+    receipt.context_use_receipt_ref = Some("context-use:stored-review".into());
+    receipt.receipt_digest = receipt.computed_digest().expect("receipt digest");
+    write_stored_review_receipt(&root, &receipt);
+
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let before = fs::read(&journal_path).expect("journal before replay");
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-context-omission"),
+            "objective": "must not replay when required context is omitted"
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replay"),
+        before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_rejects_adapter_route_drift_without_journal_mutation() {
+    let root = TempDir::new().expect("temp root");
+    write_file_only_hermes_config(&root);
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-adapter-drift";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-adapter-drift")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let mut receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:verify".into()],
+        "must not replay through an unadmitted adapter route",
+    );
+    receipt.adapter = "unadmitted-adapter".into();
+    receipt.usage.provider = Some("unadmitted-provider".into());
+    receipt.usage.model = Some("unadmitted-model".into());
+    receipt.receipt_digest = receipt.computed_digest().expect("receipt digest");
+    write_stored_review_receipt(&root, &receipt);
+
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let before = fs::read(&journal_path).expect("journal before replay");
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-adapter-drift"),
+            "objective": "must not replay through an unadmitted adapter route"
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replay"),
+        before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_rejects_cross_run_identity_without_journal_mutation() {
+    let root = TempDir::new().expect("temp root");
+    write_file_only_hermes_config(&root);
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-cross-run";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-cross-run")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let mut receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:verify".into()],
+        "must not replay a receipt issued for another run",
+    );
+    receipt.run_id = "run-from-another-authority".into();
+    receipt.receipt_digest = receipt.computed_digest().expect("receipt digest");
+    let receipt_path = root
+        .path()
+        .join(format!("data/runs/{run_id}/execution-receipts/review.json"));
+    fs::create_dir_all(receipt_path.parent().expect("receipt directory"))
+        .expect("create receipt directory");
+    fs::write(
+        receipt_path,
+        serde_json::to_vec_pretty(&receipt).expect("receipt json"),
+    )
+    .expect("write cross-run stored receipt");
+
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let before = fs::read(&journal_path).expect("journal before replay");
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-cross-run"),
+            "objective": "must not replay a receipt issued for another run"
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replay"),
+        before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_rejects_worker_authority_drift_without_journal_mutation() {
+    let root = TempDir::new().expect("tempdir");
+    write_file_only_hermes_config(&root);
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-worker-drift";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    graph["nodes"][0]["worker"]["worker_id"] = json!("critic-review-replacement");
+    graph["nodes"][0]["worker"]["prompt_digest"] = json!(format!("sha256:{}", "9".repeat(64)));
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-worker-drift")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan response");
+
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:verify".into()],
+        "Resume the independent review under changed worker authority.",
+    );
+    write_stored_review_receipt(&root, &receipt);
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let journal_before = fs::read(&journal_path).expect("journal before replay");
+
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-worker-drift"),
+            "objective": "Resume the independent review under changed worker authority."
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after replay"),
+        journal_before
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn stored_provider_receipt_rejects_objective_drift_then_replays_once() {
+    let root = TempDir::new().expect("tempdir");
+    write_file_only_hermes_config(&root);
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    let run_id = "run-stored-receipt-current-authority";
+    let mut graph = provider_review_graph(run_id);
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-stored-receipt-current-authority")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan response");
+
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/{run_id}"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let receipt = stored_review_receipt(
+        run_id,
+        planned["graph"]["provenance"]["project_contract_digest"]
+            .as_str()
+            .expect("planned project contract digest"),
+        vec!["receipt:verify".into()],
+        "Resume the independent review with current authority.",
+    );
+    write_stored_review_receipt(&root, &receipt);
+
+    let journal_path = root.path().join(format!("data/runs/{run_id}/events.jsonl"));
+    let journal_before_drift = fs::read(&journal_path).expect("journal before objective drift");
+    let drift = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("reject-stored-receipt-objective-drift"),
+            "objective": "A substituted objective must not reuse this receipt."
+        }))
+        .send()
+        .await
+        .expect("objective drift request");
+    assert_eq!(drift.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after objective drift"),
+        journal_before_drift
+    );
+
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-current-authority"),
+            "objective": "Resume the independent review with current authority."
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::OK);
+    let body: serde_json::Value = response.json().await.expect("provider response");
+    assert_eq!(body["run"]["graph"]["nodes"][0]["state"], "succeeded");
+    assert_eq!(body["receipt"]["receipt_digest"], receipt.receipt_digest);
+
+    let journal_after_completion = fs::read(&journal_path).expect("completed journal");
+    let replay = client
+        .post(format!(
+            "http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("replay-stored-receipt-current-authority"),
+            "objective": "Resume the independent review with current authority."
+        }))
+        .send()
+        .await
+        .expect("idempotent replay");
+    assert_eq!(replay.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read(&journal_path).expect("journal after duplicate replay"),
+        journal_after_completion
     );
 
     shutdown.notify_waiters();
@@ -480,6 +1258,134 @@ async fn operator_rejection_is_durable_and_cannot_authorize_execution() {
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn operator_receipt_cannot_complete_provider_owned_review() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": provider_review_graph("run-provider-review"),
+            "envelope": envelope("plan-provider-review")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-provider-review/nodes/review/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("bypass-provider-review"),
+            "receipt_digest": receipt_digest("review")
+        }))
+        .send()
+        .await
+        .expect("operator completion request");
+
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+    let body: Value = response.json().await.expect("conflict body");
+    assert!(body.to_string().contains("provider execution"));
+
+    let run: Value = client
+        .get(format!("http://{bound}/v1/runs/run-provider-review"))
+        .send()
+        .await
+        .expect("get run")
+        .error_for_status()
+        .expect("get run status")
+        .json()
+        .await
+        .expect("get run body");
+    assert_eq!(run["graph"]["nodes"][0]["state"], "pending");
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+}
+
+#[tokio::test]
+async fn provider_review_toolset_escalation_is_rejected_without_state_mutation() {
+    let root = TempDir::new().expect("temp root");
+    let config_dir = root.path().join("config/adapters");
+    fs::create_dir_all(&config_dir).expect("adapter config directory");
+    fs::write(
+        config_dir.join("hermes-workbench.toml"),
+        r#"schema_version = "arda.hermes-adapter.v1"
+adapter_version = "1"
+executable = "/bin/true"
+max_timeout_ms = 1000
+cancellation_grace_ms = 100
+max_turns = 8
+max_prompt_bytes = 32768
+max_output_bytes = 65536
+inherit_environment = ["PATH"]
+
+[toolsets]
+read_only = ["file"]
+human_approval = []
+execute_with_approval = ["file", "terminal"]
+verify = ["file", "terminal"]
+compensate_with_approval = ["file", "terminal"]
+"#,
+    )
+    .expect("adapter config");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+    let mut graph = provider_review_graph("run-review-escalation");
+    graph["nodes"][0]["worker"]["allowed_toolsets"] = json!(["file", "terminal"]);
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": graph,
+            "envelope": envelope("plan-review-escalation")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+
+    let response = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-review-escalation/nodes/review/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("execute-review-escalation"),
+            "objective": "independently review the verified change"
+        }))
+        .send()
+        .await
+        .expect("execute provider request");
+    assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+
+    let run: Value = client
+        .get(format!("http://{bound}/v1/runs/run-review-escalation"))
+        .send()
+        .await
+        .expect("get run")
+        .error_for_status()
+        .expect("get run status")
+        .json()
+        .await
+        .expect("get run body");
+    assert_eq!(run["graph"]["nodes"][0]["state"], "pending");
+    assert_eq!(run["graph"]["nodes"][0]["checkpoint"]["sequence"], 0);
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
 }
 
 #[tokio::test]

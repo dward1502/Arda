@@ -27,7 +27,7 @@ use tokio::time::timeout;
 
 const CONFIG_SCHEMA_VERSION: &str = "arda.hermes-adapter.v1";
 const RESULT_SCHEMA_VERSION: &str = "arda.hermes-job-result.v1";
-const RECEIPT_SCHEMA_VERSION: &str = "arda.execution-receipt.v1";
+const RECEIPT_SCHEMA_VERSION: &str = "arda.execution-receipt.v3";
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -131,6 +131,18 @@ pub struct HermesNodeTask {
     pub context_assembly: Option<ContextAssembly>,
 }
 
+impl HermesNodeTask {
+    /// Bind a provider receipt to the complete admitted task while excluding
+    /// node fields that record mutable execution progress.
+    pub fn authority_binding_digest(&self) -> Result<String, HermesAdapterError> {
+        let mut admitted = self.clone();
+        admitted.node.state = NodeState::Ready;
+        admitted.node.output_digest = None;
+        admitted.node.checkpoint = Default::default();
+        digest_serializable(&admitted)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HermesReceiptStatus {
@@ -195,6 +207,8 @@ pub enum CostMeasurement {
 pub struct HermesExecutionReceipt {
     pub schema_version: String,
     pub receipt_digest: String,
+    #[serde(default)]
+    pub authority_binding_digest: String,
     pub run_id: String,
     pub node_id: String,
     pub idempotency_key: String,
@@ -398,12 +412,8 @@ impl HermesAdapter {
         })
     }
 
-    pub async fn execute(
-        &self,
-        task: &HermesNodeTask,
-        cancellation: AdapterCancellation,
-    ) -> Result<HermesExecutionReceipt, HermesAdapterError> {
-        let toolsets = self.validate_task(task)?;
+    pub fn preflight(&self, task: &HermesNodeTask) -> Result<(), HermesAdapterError> {
+        self.validate_task(task)?;
         let prompt = self.build_prompt(task)?;
         if prompt.len() > self.config.max_prompt_bytes {
             return Err(HermesAdapterError::PromptTooLarge {
@@ -411,6 +421,50 @@ impl HermesAdapter {
                 limit: self.config.max_prompt_bytes,
             });
         }
+        Ok(())
+    }
+
+    pub fn validate_stored_receipt_authority(
+        &self,
+        task: &HermesNodeTask,
+        receipt: &HermesExecutionReceipt,
+    ) -> Result<(), HermesAdapterError> {
+        if receipt.schema_version != RECEIPT_SCHEMA_VERSION {
+            return Err(HermesAdapterError::InvalidResult(format!(
+                "unsupported execution receipt schema {}",
+                receipt.schema_version
+            )));
+        }
+        if receipt.authority_binding_digest != task.authority_binding_digest()? {
+            return Err(HermesAdapterError::InvalidResult(
+                "stored provider receipt does not match the current admitted task".into(),
+            ));
+        }
+        if receipt.adapter != "hermes-workbench"
+            || receipt.adapter_version != self.config.adapter_version
+        {
+            return Err(HermesAdapterError::InvalidResult(
+                "stored provider receipt does not match the configured adapter route".into(),
+            ));
+        }
+        if receipt.usage.provider.as_deref().is_none_or(str::is_empty)
+            || receipt.usage.model.as_deref().is_none_or(str::is_empty)
+        {
+            return Err(HermesAdapterError::InvalidResult(
+                "stored provider receipt requires observed provider and model identity".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub async fn execute(
+        &self,
+        task: &HermesNodeTask,
+        cancellation: AdapterCancellation,
+    ) -> Result<HermesExecutionReceipt, HermesAdapterError> {
+        self.preflight(task)?;
+        let toolsets = self.validate_task(task)?;
+        let prompt = self.build_prompt(task)?;
         if *cancellation.subscribe().borrow() {
             return Err(HermesAdapterError::Cancelled);
         }
@@ -505,6 +559,19 @@ impl HermesAdapter {
             ));
         }
         let usage = NormalizedHermesUsage::from(&session);
+        if usage
+            .provider
+            .as_deref()
+            .is_none_or(|provider| provider.trim().is_empty())
+            || usage
+                .model
+                .as_deref()
+                .is_none_or(|model| model.trim().is_empty())
+        {
+            return Err(HermesAdapterError::InvalidResult(
+                "provider receipt requires provider and model provenance".into(),
+            ));
+        }
         if !usage.estimated_cost_usd.is_finite()
             || usage.estimated_cost_usd < 0.0
             || usage.estimated_cost_usd > task.node.budget.max_cost_usd
@@ -539,6 +606,7 @@ impl HermesAdapter {
         let mut receipt = HermesExecutionReceipt {
             schema_version: RECEIPT_SCHEMA_VERSION.into(),
             receipt_digest: String::new(),
+            authority_binding_digest: task.authority_binding_digest()?,
             run_id: task.run_id.as_str().into(),
             node_id: task.node.id.as_str().into(),
             idempotency_key: task.node.idempotency_key.clone(),
@@ -1004,10 +1072,11 @@ fn translate_actual_evidence(
         .iter()
         .filter(|call_id| {
             calls.get(*call_id).is_some_and(|(tool, _)| {
-                !matches!(
-                    tool.as_str(),
-                    "read_file" | "search_files" | "browser_snapshot" | "browser_vision"
-                )
+                task.node.kind == NodeKind::Review
+                    || !matches!(
+                        tool.as_str(),
+                        "read_file" | "search_files" | "browser_snapshot" | "browser_vision"
+                    )
             })
         })
         .cloned()

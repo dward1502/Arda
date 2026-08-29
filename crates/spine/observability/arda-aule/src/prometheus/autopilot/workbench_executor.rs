@@ -463,25 +463,54 @@ impl WorkbenchQueueExecutor {
         }
 
         require_closure_evidence(&run)?;
-        for node_id in ["review", "close"] {
-            if node_state(&run, node_id) == Some("succeeded") {
-                continue;
-            }
-            let parent = node_output_digest(
-                &run,
-                if node_id == "review" {
-                    "verify"
-                } else {
-                    "review"
-                },
-            )
-            .ok_or_else(|| anyhow!("{node_id} omitted its durable parent receipt"))?;
-            let receipt_digest = completion_digest(run_id, &claim.task.id, node_id, parent);
-            let envelope = approval_envelope(&claim.task, &format!("{node_id}-{run_id}"))?;
+        if node_state(&run, "review") != Some("succeeded") {
+            let envelope = approval_envelope(&claim.task, &format!("review-{run_id}"))?;
             let response = self
                 .client
                 .post(format!(
-                    "{}/v1/runs/{run_id}/nodes/{node_id}/complete",
+                    "{}/v1/runs/{run_id}/nodes/review/execute-provider",
+                    self.harness_url
+                ))
+                .json(&json!({
+                    "objective": review_prompt(&claim.task, leaf_contract),
+                    "envelope": envelope,
+                }))
+                .send()
+                .await
+                .context("dispatch independent Workbench review provider")?;
+            let value = response_error(response, "review approved queue task").await?;
+            if value["receipt"]["status"] != "succeeded" {
+                return Ok((
+                    value["receipt"]["status"]
+                        .as_str()
+                        .unwrap_or("failed")
+                        .to_owned(),
+                    value["receipt"]["receipt_digest"]
+                        .as_str()
+                        .map(str::to_owned),
+                    value["receipt"]["summary"].as_str().map(str::to_owned),
+                ));
+            }
+            run = value["run"].clone();
+            ActiveQueueExecutor::new(&self.root).append_workbench_continuation(
+                &claim.task,
+                run_id,
+                "review",
+                node_output_digest(&run, "review"),
+                "continue_close",
+            )?;
+            forced_restart_after_stage("review");
+        }
+
+        if node_state(&run, "close") != Some("succeeded") {
+            let parent = node_output_digest(&run, "review")
+                .ok_or_else(|| anyhow!("close omitted its durable parent receipt"))?;
+            let receipt_digest = completion_digest(run_id, &claim.task.id, "close", parent);
+            let envelope = approval_envelope(&claim.task, &format!("close-{run_id}"))?;
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/runs/{run_id}/nodes/close/complete",
                     self.harness_url
                 ))
                 .json(&json!({
@@ -490,17 +519,8 @@ impl WorkbenchQueueExecutor {
                 }))
                 .send()
                 .await
-                .with_context(|| format!("complete Workbench {node_id} node"))?;
-            run = response_error(response, &format!("complete queue {node_id}")).await?;
-            if node_id == "review" {
-                ActiveQueueExecutor::new(&self.root).append_workbench_continuation(
-                    &claim.task,
-                    run_id,
-                    node_id,
-                    node_output_digest(&run, node_id),
-                    "continue_close",
-                )?;
-            }
+                .context("complete Workbench close node")?;
+            run = response_error(response, "complete queue close").await?;
         }
         Ok(classify_existing_run(&run))
     }
@@ -975,6 +995,23 @@ fn verification_prompt(task: &QueueRecord, contract: Option<&ExecutableLeafContr
     format!(
         "Verify task {} by running these project-native checks: {checks}; do not modify project files.",
         task.id
+    )
+}
+
+fn review_prompt(task: &QueueRecord, contract: Option<&ExecutableLeafContract>) -> String {
+    let evidence = contract
+        .map(|contract| contract.evidence_requirements.join("; "))
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or_else(|| "the canonical execution and verification receipts".to_string());
+    let checks = contract
+        .map(|contract| contract.verification_checks.join(", "))
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or_else(|| "the attached project contract checks".to_string());
+    format!(
+        "Independently review task `{}` after execution and verification. Inspect the changed project state and durable receipts against these evidence requirements: {}. Confirm that the prior verification receipt covers these declared checks: {}. Do not rerun checks or modify files. Name any concrete defect, unsupported completion claim, security issue, or missing evidence. Return success only when the objective is satisfied and the evidence is sufficient.",
+        task.title.as_deref().unwrap_or(task.id.as_str()),
+        evidence,
+        checks
     )
 }
 
@@ -2177,7 +2214,18 @@ fn run_graph_value(
                 "output_contract": "arda.hermes-job-result.v1",
                 "evidence_policy": "project_native_checks"
             })),
-            node("review", "review", "read_only", vec![], Value::Null),
+            node("review", "review", "read_only", vec![], json!({
+                "role": "security_privacy_critic",
+                "worker_id": format!("hermes:queue:{task_id}:critic"),
+                "route_id": "hosted:hermes-workbench",
+                "route_class": "hosted",
+                "prompt_digest": prompt_digest,
+                "allowed_toolsets": ["file"],
+                "dependencies": ["verify"],
+                "deadline_unix_ms": deadline,
+                "output_contract": "arda.hermes-job-result.v1",
+                "evidence_policy": "worker_report"
+            })),
             node("close", "close", "read_only", vec![], Value::Null)
         ],
         "edges": [
@@ -3151,15 +3199,22 @@ mod tests {
             Some((
                 200,
                 json!({
-                    "graph": {"nodes": [
-                        {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
-                        {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
-                        {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
-                        {"id": "close", "state": "ready"}
-                    ]},
-                    "review": {
-                        "tests": [{"name": "cargo test", "status": "passed"}],
-                        "provider_receipt": {"receipt_digest": "sha256:verify", "summary": "verified"}
+                    "receipt": {
+                        "status": "succeeded",
+                        "receipt_digest": "sha256:review",
+                        "summary": "independent critic passed"
+                    },
+                    "run": {
+                        "graph": {"nodes": [
+                            {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                            {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                            {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
+                            {"id": "close", "state": "ready"}
+                        ]},
+                        "review": {
+                            "tests": [{"name": "cargo test", "status": "passed"}],
+                            "provider_receipt": {"receipt_digest": "sha256:review", "summary": "independent critic passed"}
+                        }
                     }
                 })
                 .to_string(),
@@ -3199,7 +3254,7 @@ mod tests {
             Some("close_complete")
         );
         assert!(requests[1].contains("/nodes/verify/execute-provider"));
-        assert!(requests[2].contains("/nodes/review/complete"));
+        assert!(requests[2].contains("/nodes/review/execute-provider"));
         assert!(requests[3].contains("/nodes/close/complete"));
         let records = super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
             .load()
@@ -3226,6 +3281,34 @@ mod tests {
         assert_eq!(terminal.status.as_deref(), Some("completed"));
         assert_eq!(terminal.extra["continuation_decision"], "close_complete");
         assert_eq!(terminal.extra["closure_receipt_digest"], "sha256:close");
+    }
+
+    #[test]
+    fn run_graph_assigns_review_to_a_distinct_independent_critic() {
+        let graph = run_graph(
+            "queue-critic-task",
+            "critic-task",
+            "Review me",
+            "approval-1",
+        );
+        let nodes = graph["nodes"].as_array().expect("run nodes");
+        let execute = nodes.iter().find(|node| node["id"] == "execute").unwrap();
+        let verify = nodes.iter().find(|node| node["id"] == "verify").unwrap();
+        let review = nodes.iter().find(|node| node["id"] == "review").unwrap();
+
+        assert_eq!(review["worker"]["role"], "security_privacy_critic");
+        assert_eq!(review["worker"]["evidence_policy"], "worker_report");
+        assert_eq!(review["worker"]["dependencies"], json!(["verify"]));
+        assert_eq!(
+            review["worker"]["allowed_toolsets"],
+            json!(["file"]),
+            "read-only critics must fit the configured read_only capability set"
+        );
+        assert_ne!(
+            review["worker"]["worker_id"],
+            execute["worker"]["worker_id"]
+        );
+        assert_ne!(review["worker"]["worker_id"], verify["worker"]["worker_id"]);
     }
 
     #[test]

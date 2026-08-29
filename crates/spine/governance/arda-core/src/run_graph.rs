@@ -305,10 +305,12 @@ impl RunGraph {
                     WorkerRole::SecurityPrivacyCritic => {
                         matches!(node.kind, NodeKind::Inspect | NodeKind::Review)
                             && node.authority == AuthorityClass::ReadOnly
+                            && worker.evidence_policy == EvidencePolicy::WorkerReport
                     }
                     WorkerRole::ImplementationRiskCritic => {
                         matches!(node.kind, NodeKind::Inspect | NodeKind::Review)
                             && node.authority == AuthorityClass::ReadOnly
+                            && worker.evidence_policy == EvidencePolicy::WorkerReport
                     }
                     WorkerRole::LocalSummaryClassification => {
                         matches!(node.kind, NodeKind::Inspect | NodeKind::Review)
@@ -331,6 +333,31 @@ impl RunGraph {
                 if !role_matches {
                     return Err(RunGraphError::WorkerRoleMismatch(node.id.clone()));
                 }
+            }
+        }
+
+        for critic in self.nodes.iter().filter(|node| {
+            node.worker.as_ref().is_some_and(|worker| {
+                matches!(
+                    worker.role,
+                    WorkerRole::SecurityPrivacyCritic | WorkerRole::ImplementationRiskCritic
+                )
+            })
+        }) {
+            let critic_worker = critic.worker.as_ref().expect("filtered critic worker");
+            if let Some(conflict) = self.nodes.iter().find(|candidate| {
+                candidate.id != critic.id
+                    && candidate.worker.as_ref().is_some_and(|worker| {
+                        matches!(
+                            worker.role,
+                            WorkerRole::Implementer | WorkerRole::IndependentVerifier
+                        ) && worker.worker_id == critic_worker.worker_id
+                    })
+            }) {
+                return Err(RunGraphError::IndependentCriticIdentityReuse {
+                    critic: critic.id.clone(),
+                    conflict: conflict.id.clone(),
+                });
             }
         }
 
@@ -856,6 +883,8 @@ pub enum RunGraphError {
     WorkerRoleMismatch(NodeId),
     #[error("node {0:?} worker dependencies do not match incoming run-graph edges")]
     WorkerDependencyMismatch(NodeId),
+    #[error("independent critic {critic:?} reuses the worker identity of {conflict:?}")]
+    IndependentCriticIdentityReuse { critic: NodeId, conflict: NodeId },
     #[error("node {node:?} requires an approval parent with a receipt")]
     MissingApprovalParent { node: NodeId },
     #[error("initial executable graph contains a cycle")]

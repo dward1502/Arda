@@ -22,7 +22,7 @@ thiserror = { workspace = true }
 sha2 = "0.10"
 libc = "0.2"
 reqwest = { workspace = true, features = ["blocking"] }
-arda-aule = { workspace = true }
+arda-aule = { workspace = true, features = ["full-cli"] }
 arda-outpost-protocol = { workspace = true }
 arda-mandos = { workspace = true }
 arda-rumil = { workspace = true }

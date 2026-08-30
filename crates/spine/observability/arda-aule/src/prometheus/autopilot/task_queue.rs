@@ -39,6 +39,37 @@ pub struct QueueRecord {
     pub extra: serde_json::Map<String, serde_json::Value>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum QueueRecordStatus {
+    Pending,
+    InProgress,
+    Blocked,
+    Completed,
+    Failed,
+    Cancelled,
+    Other,
+}
+
+impl QueueRecordStatus {
+    pub fn is_terminal(self) -> bool {
+        matches!(self, Self::Completed | Self::Failed | Self::Cancelled)
+    }
+}
+
+impl QueueRecord {
+    pub fn canonical_status(&self) -> QueueRecordStatus {
+        match self.status.as_deref().map(normalize_task_status) {
+            Some("pending" | "queued") => QueueRecordStatus::Pending,
+            Some("in_progress") => QueueRecordStatus::InProgress,
+            Some("blocked") => QueueRecordStatus::Blocked,
+            Some("completed") => QueueRecordStatus::Completed,
+            Some("failed") => QueueRecordStatus::Failed,
+            Some("cancelled") => QueueRecordStatus::Cancelled,
+            _ => QueueRecordStatus::Other,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct TaskQueueMetrics {
     pub total: usize,
@@ -125,11 +156,7 @@ impl TaskQueueAnalyzer {
                 let ignored_pending_successor = !valid_revision_approvals[*index]
                     && !valid_objective_revisions[*index]
                     && blocked_by_pending_revision[*index];
-                !ignored_pending_successor
-                    && matches!(
-                        record.status.as_deref().map(normalize_task_status),
-                        Some("completed" | "failed" | "cancelled")
-                    )
+                !ignored_pending_successor && record.canonical_status().is_terminal()
             })
             .flat_map(|(_, record)| [record.id.clone(), Self::effective_record_key(record)])
             .collect::<BTreeSet<_>>();
@@ -149,10 +176,7 @@ impl TaskQueueAnalyzer {
                     );
                 }
             }
-            let nonterminal = !matches!(
-                record.status.as_deref().map(normalize_task_status),
-                Some("completed" | "failed" | "cancelled")
-            );
+            let nonterminal = !record.canonical_status().is_terminal();
             let source_record_id = Self::effective_record_key(&record);
             let aliases = [record.id.clone(), source_record_id];
             if nonterminal
@@ -2442,6 +2466,22 @@ fn previous_same_task_record_index(records: &[QueueRecord], index: usize) -> Opt
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn canonical_queue_status_owns_alias_and_terminal_semantics() {
+        let status = |value: &str| {
+            serde_json::from_value::<QueueRecord>(json!({"id": "task", "status": value}))
+                .unwrap()
+                .canonical_status()
+        };
+
+        assert_eq!(status("queued"), QueueRecordStatus::Pending);
+        assert_eq!(status("running"), QueueRecordStatus::InProgress);
+        assert_eq!(status("done"), QueueRecordStatus::Completed);
+        assert!(status("done").is_terminal());
+        assert!(status("failed").is_terminal());
+        assert!(!status("blocked").is_terminal());
+    }
 
     #[test]
     fn persisted_workbench_attempt_requires_exact_writer_replay() {

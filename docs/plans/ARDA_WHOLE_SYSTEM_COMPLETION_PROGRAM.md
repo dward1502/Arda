@@ -6,11 +6,11 @@ soterion:
   role: "program_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-25"
+  reviewed: "2026-08-30"
   tags: ["whole-system", "autonomy", "completion", "projects", "daily-improvement"]
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-25
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
 
 # Arda Whole-System Completion Program
 
@@ -69,7 +69,7 @@ All work uses one lineage:
 
 Authority: [Autonomous Task Completion Loop](AUTONOMOUS_TASK_COMPLETION_LOOP.md)
 
-Replace the installed three-node queue execution path with the engine's full durable graph. Add outcome contracts, dependency-aware decomposition, verification-driven continuation, bounded retries, scheduled resumption, independent review, and exact closure semantics.
+Finish and prove the installed durable completion path. The source path now constructs `plan → approval → execute → verify → review → close`, materializes dependency-aware objective leaves, persists executable continuation and schedule authority, binds provider-backed critic receipts, isolates mutation targets, and admits at most two authority-declared read-only workers per physical workspace. Remaining work is installed/runtime proof of recurrence, deferred wake, forced-failure correction, independent critic revision, simultaneous real-provider execution across distinct projects, operator controls through Hermes/native surfaces, and burden-reduction acceptance.
 
 ### B. Provider and worker convergence
 
@@ -134,6 +134,8 @@ Status on 2026-08-26: the installed single-project executor slice is verified. C
 
 Follow-up on 2026-08-26: the first non-trivial operator objective, `operator-objective-78370a00190fd9b8`, reached approved close as `operator-objective-78370a00190fd9b8-validated-plan-v1` with receipt `sha256:33f3bd974006ad5b85c2ec39d430515e30de902b485ebf963e686570837aa15c`. It produced the concrete prioritized backlog `docs/audits/2026-08-26-operator-vision-repair-backlog.md` (SHA-256 `25fdd8bec37c840c0fbde5ded7abc0fb2f6fd9153d036685b3f8368dc47e9bbd`) after `cargo test -p arda-core` passed. This closes the requested review objective, not Phase 2: the run still serialized a validated dependency plan into one opaque worker job, and retry/revision materialization, recurrence, multi-project execution, independent review, and operator-burden acceptance remain open. The acceptance run also exposed and drove repairs for canonical-ledger selection under stale generated projections, duplicate source/ID alias folding, and required acceptance-artifact validation.
 
+Current source state on 2026-08-30: T2/T5 now materialize validated objectives as independently durable queue leaves and append executable retry, revision, replan, and deferred continuation records. T6 owns an append-only schedule ledger with immediate, one-shot, recurring, deferred, paused, cancelled, and completed states plus CLI pause/resume controls. T7 resolves registered physical workspaces, holds project/task locks through dispatch, bounds same-workspace read-only overlap at two, preserves restart recovery, and rejects fresh mutation against dirty Git worktrees. T8 has canonical CLI cancellation, reprioritization, objective revision, and fresh approval; provider-backed verification and a distinct critic are receipt-bound before close. The canonical read-only operator projection now joins the current task/run/node, queue title and continuation, schedule wake, worker route, node budget, evidence digests, and blocker into each active objective without minting mutation authority. These are source/package proofs unless the bounded evidence in the workstream plan explicitly says installed. Phase 2 remains open on installed recurrence/deferred/restart correction, real critic rejection-to-revision, real multi-project provider execution, Hermes/native control consumption, live Vairë binding, and operator-burden acceptance.
+
 ### Phase 3 — Route the actual workers
 
 1. Connect queue execution to Manwë adaptive placement.
@@ -195,6 +197,6 @@ The first code slice is not another UI demo or a larger queue silo. It is one ve
 
 `WorkbenchQueueExecutor` must be changed where it blocks this path, but it is one adapter inside the proof—not the new organism coordinator or owner of other crates' responsibilities.
 
-The 2026-08-26 vertical slice changed that adapter in place rather than adding another queue or coordinator. Its installed graph is `plan → approval → execute → verify → review → close`; canonical records preserve `obj_completion_loop_acceptance_v2`, `tsk_20260826T090051Z_completion_loop_acceptance_v2`, and `queue-tsk_20260826T090051Z_completion_loop_acceptance_v2`; the forced-restart receipt chain is recorded in `AUTONOMOUS_TASK_COMPLETION_LOOP.md`. The later `operator-objective-78370a00190fd9b8` run adds bounded evidence for steps 1–2 and 7: grounded source digests and a validated plan were retained, and a required concrete backlog was verified before close. Vairë context binding is implemented and package-tested after that run, but still requires a later live objective receipt. Those foundations are not the complete program behavior: plan leaves are not yet independently scheduled, continuation decisions do not yet materialize successor work, and whole-system Phase 6 remains open.
+The 2026-08-26 vertical slice changed that adapter in place rather than adding another queue or coordinator. Its installed graph is `plan → approval → execute → verify → review → close`; canonical records preserve `obj_completion_loop_acceptance_v2`, `tsk_20260826T090051Z_completion_loop_acceptance_v2`, and `queue-tsk_20260826T090051Z_completion_loop_acceptance_v2`; the forced-restart receipt chain is recorded in `AUTONOMOUS_TASK_COMPLETION_LOOP.md`. The later `operator-objective-78370a00190fd9b8` run adds bounded evidence for steps 1–2 and 7: grounded source digests and a validated plan were retained, and a required concrete backlog was verified before close. Since then, source/package slices independently schedule validated plan leaves, materialize successor and retry/revision/replan/deferred work, persist schedule authority, bind provider-backed verifier/critic receipts, and enforce bounded workspace concurrency plus dirty-worktree mutation admission. Vairë context binding is implemented and package-tested after the live objective but still requires a later live receipt. These foundations are not complete program behavior: installed recurrence/deferred/restart correction, real critic-driven revision, simultaneous real-provider multi-project execution, operator surfaces, and whole-system Phase 6 remain open.
 
 No Ambient Agent phase begins merely because this document exists. Embodiment remains downstream of a working, repeatedly useful completion loop.

@@ -269,6 +269,233 @@ async fn gateway_context_returns_the_canonical_cross_domain_next_action() {
 }
 
 #[tokio::test]
+async fn gateway_objectives_reads_the_canonical_operator_projection() {
+    let root = TempDir::new().expect("root");
+    fs::create_dir_all(root.path().join("data/runs")).unwrap();
+    let queue = root.path().join("core/projects/tasks/queue.jsonl");
+    fs::create_dir_all(queue.parent().unwrap()).unwrap();
+    fs::write(
+        &queue,
+        format!(
+            "{}\n",
+            json!({
+                "id": "task-deferred",
+                "title": "Resume deferred repair",
+                "status": "blocked",
+                "priority": "high",
+                "continuation_decision": "wait_until",
+                "detail": "waiting for the dependency window",
+                "meta": {
+                    "objective_id": "objective-deferred",
+                    "project_id": "project-deferred"
+                }
+            })
+        ),
+    )
+    .unwrap();
+    fs::write(
+        root.path().join("core/projects/tasks/schedules.jsonl"),
+        format!(
+            "{}\n",
+            json!({
+                "contract": "arda.workbench.schedule_record.v1",
+                "task_id": "task-deferred",
+                "objective_id": "objective-deferred",
+                "mode": "deferred",
+                "state": "scheduled",
+                "not_before_utc": "2030-01-01T00:00:00Z",
+                "recorded_at_utc": "2026-08-30T00:00:00Z"
+            })
+        ),
+    )
+    .unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+
+    let response: Value = reqwest::Client::new()
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message("discord-objectives-1", "arda objectives"))
+        .send()
+        .await
+        .expect("objectives")
+        .error_for_status()
+        .expect("objectives status")
+        .json()
+        .await
+        .expect("objectives body");
+
+    let summary = response["summary"].as_str().expect("summary");
+    assert!(summary.contains("Objectives: 1"));
+    assert!(summary.contains("objective-deferred [blocked]"));
+    assert!(summary.contains("task=task-deferred"));
+    assert!(summary.contains("next=wait_until"));
+    assert!(summary.contains("wake=2030-01-01T00:00:00Z"));
+    assert!(summary.contains("blocker=waiting for the dependency window"));
+    assert_eq!(response["evidence_refs"][1], "arda://operator-projection");
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn gateway_controls_mutate_only_canonical_queue_and_schedule_ledgers() {
+    let root = TempDir::new().expect("root");
+    fs::create_dir_all(root.path().join("data/runs")).unwrap();
+    let queue = root.path().join("core/projects/tasks/queue.jsonl");
+    fs::create_dir_all(queue.parent().unwrap()).unwrap();
+    fs::write(
+        &queue,
+        format!(
+            "{}\n",
+            json!({
+                "id": "task-control",
+                "title": "Original operator objective",
+                "owner": "prometheus",
+                "priority": "medium",
+                "status": "queued",
+                "meta": {
+                    "action_class": "approved_autopilot_plan_step",
+                    "mutation_risk": "operator-approved",
+                    "execution_authority": "arda_workbench",
+                    "source_objective_packet_id": "objective-control",
+                    "approval_packet_id": "approval-1"
+                }
+            })
+        ),
+    )
+    .unwrap();
+    let schedules = root.path().join("core/projects/tasks/schedules.jsonl");
+    fs::write(
+        &schedules,
+        format!(
+            "{}\n",
+            json!({
+                "contract": "arda.workbench.schedule_record.v1",
+                "task_id": "task-control",
+                "objective_id": "objective-control",
+                "mode": "once",
+                "state": "scheduled",
+                "not_before_utc": "2030-01-01T00:00:00Z",
+                "recorded_at_utc": "2026-08-30T00:00:00Z"
+            })
+        ),
+    )
+    .unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+
+    for (message_id, command, expected) in [
+        (
+            "discord-pause-task",
+            "arda pause-task task-control objective-control operator requested pause",
+            "Paused schedule for task-control.",
+        ),
+        (
+            "discord-resume-task",
+            "arda resume-task task-control objective-control operator requested resume",
+            "Resumed schedule for task-control.",
+        ),
+        (
+            "discord-reprioritize-task",
+            "arda reprioritize task-control objective-control critical urgent operator priority",
+            "Reprioritized task-control to critical.",
+        ),
+        (
+            "discord-revise-objective",
+            "arda revise-objective task-control objective-control Revised operator objective --reason operator corrected scope",
+            "Revised objective for task-control; fresh approval is required.",
+        ),
+        (
+            "discord-approve-objective",
+            "arda approve-objective task-control objective-control operator accepts revision",
+            "Approved revised objective for task-control.",
+        ),
+    ] {
+        let response = client
+            .post(format!("http://{bound}/v1/operator/messages"))
+            .json(&gateway_message(message_id, command))
+            .send()
+            .await
+            .expect("control");
+        let status = response.status();
+        let body = response.text().await.expect("control body");
+        assert!(status.is_success(), "{command}: {status} {body}");
+        let response: Value = serde_json::from_str(&body).expect("control JSON");
+        assert_eq!(response["summary"], expected);
+    }
+
+    let schedule_rows = fs::read_to_string(&schedules).unwrap();
+    assert_eq!(schedule_rows.lines().count(), 3);
+    let resumed: Value = serde_json::from_str(schedule_rows.lines().last().unwrap()).unwrap();
+    assert_eq!(resumed["state"], "scheduled");
+    let queue_rows = fs::read_to_string(&queue).unwrap();
+    assert_eq!(queue_rows.lines().count(), 4);
+    let approved: Value = serde_json::from_str(queue_rows.lines().last().unwrap()).unwrap();
+    assert_eq!(
+        approved["contract"],
+        "arda.workbench.objective_revision_approval.v1"
+    );
+    assert_eq!(approved["title"], "Revised operator objective");
+    assert_eq!(approved["priority"], "critical");
+    assert_eq!(approved["reviewed_by"], "discord-user-1");
+    assert_eq!(
+        approved["meta"]["approval_packet_id"],
+        "gateway:discord-approve-objective"
+    );
+    let operator_rows = fs::read_to_string(
+        root.path()
+            .join("core/state/orome/operator-session/operator_sessions.jsonl"),
+    )
+    .unwrap();
+    assert!(operator_rows
+        .lines()
+        .all(|row| { serde_json::from_str::<Value>(row).unwrap()["operation"] == "control" }));
+
+    attach_and_plan(&client, bound, "queue-task-control").await;
+    let cancelled: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-cancel-task",
+            "arda cancel-task task-control operator no longer wants this objective",
+        ))
+        .send()
+        .await
+        .expect("cancel task")
+        .error_for_status()
+        .expect("cancel task status")
+        .json()
+        .await
+        .expect("cancel task body");
+    assert_eq!(
+        cancelled["summary"],
+        "Cancelled canonical task task-control."
+    );
+    let cancelled_schedule: Value = serde_json::from_str(
+        fs::read_to_string(&schedules)
+            .unwrap()
+            .lines()
+            .last()
+            .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(cancelled_schedule["state"], "cancelled");
+    let cancelled_task: Value =
+        serde_json::from_str(fs::read_to_string(&queue).unwrap().lines().last().unwrap()).unwrap();
+    assert_eq!(cancelled_task["status"], "failed");
+    assert_eq!(cancelled_task["result"], "cancelled");
+    let operator_rows = fs::read_to_string(
+        root.path()
+            .join("core/state/orome/operator-session/operator_sessions.jsonl"),
+    )
+    .unwrap();
+    let last_operator_row: Value =
+        serde_json::from_str(operator_rows.lines().last().unwrap()).unwrap();
+    assert_eq!(last_operator_row["operation"], "cancel");
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
 async fn gateway_research_command_persists_question_without_creating_commitment() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;

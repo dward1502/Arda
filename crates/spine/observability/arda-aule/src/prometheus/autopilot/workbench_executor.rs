@@ -56,6 +56,14 @@ impl WorkbenchQueueExecutor {
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
         let harness_url =
             std::env::var("ARDA_HARNESS_URL").unwrap_or_else(|_| "http://127.0.0.1:7878".into());
+        Self::with_harness_url(root, harness_url)
+    }
+
+    pub fn with_harness_url(
+        root: impl AsRef<Path>,
+        harness_url: impl Into<String>,
+    ) -> Result<Self> {
+        let harness_url = harness_url.into();
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(1_200))
             .build()?;

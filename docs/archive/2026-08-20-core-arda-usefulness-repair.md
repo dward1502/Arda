@@ -5,13 +5,18 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "PROMETHEUS"
-  status: "active"
+  status: "superseded"
   reviewed: "2026-08-21"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: superseded | reviewed: 2026-08-25
 
 # Core Arda Usefulness Repair
+
+> **Superseded 2026-08-25:** The operator rejected this plan's reduction of Core
+> Arda to a short interface journey. It is retained as historical evidence only.
+> Active authority moved to
+> [`Arda Whole-System Completion Program`](../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md).
 
 ## Product promise
 

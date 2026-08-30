@@ -1,17 +1,17 @@
 {
-  "generated_at_utc": "2026-08-23T06:32:34.732511291+00:00",
+  "generated_at_utc": "2026-08-29T03:28:28.105673630+00:00",
   "metrics": {
     "compression_runs_total": 0,
     "compression_source_records_total": 0,
     "last_consolidation_depth": 0,
     "last_queue_latency_ms": null,
     "last_recall_fidelity": null,
-    "last_recall_latency_ms": 12,
+    "last_recall_latency_ms": 13,
     "promotion_receipts_total": 0,
     "quarantine_records_total": 0,
     "queue_observations_total": 0,
     "recall_requests_total": 1,
-    "recall_results_total": 2,
+    "recall_results_total": 8,
     "retention_decayed_total": 0,
     "retention_runs_total": 0,
     "revocation_receipts_total": 0

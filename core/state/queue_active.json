@@ -1,5 +1,5 @@
 {
-  "active_task_count": 3,
+  "active_task_count": 6,
   "agent_reading_policy": {
     "default_surface": "core/state/queue_active.json",
     "fallback_surface": "core/state/queue_summary.json",
@@ -7,25 +7,13 @@
     "raw_queue_policy": "Do not read the raw queue for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
   },
   "authority": "queue_active_projection",
-  "generated_at_utc": "2026-08-25T16:07:45.614003563+00:00",
-  "latest_task_ids_total": 15,
+  "generated_at_utc": "2026-08-30T10:31:35.480869244+00:00",
+  "latest_task_ids_total": 43,
   "mutation_policy": "read_only_latest_by_id_projection_no_queue_compaction",
-  "raw_ledger_rows_total": 33,
+  "raw_ledger_rows_total": 1540,
   "schema_version": "arda.queue_active.v1",
   "source": "core/projects/tasks/queue.jsonl",
   "tasks": [
-    {
-      "completed_at_utc": null,
-      "id": "operator-objective-78370a00190fd9b8",
-      "origin": null,
-      "owner": "operator:mythos",
-      "priority": "critical",
-      "queued_at_utc": "2026-08-21T00:27:57.584853Z",
-      "result": "pending",
-      "scope": null,
-      "status": "pending",
-      "title": "Review Arda comprehensively and introspectively against the operator vision"
-    },
     {
       "completed_at_utc": null,
       "id": "operator-objective-1463cc15ce0ff3cd",
@@ -40,6 +28,30 @@
     },
     {
       "completed_at_utc": null,
+      "id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+      "origin": "ceo_autopilot",
+      "owner": "ceo",
+      "priority": "high",
+      "queued_at_utc": "2026-08-30T10:21:34.533468817+00:00",
+      "result": "submitted",
+      "scope": null,
+      "status": "pending",
+      "title": "Execute: Recover authoritative project, plan, evidence, receipt, and repository context"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+      "origin": "ceo_autopilot",
+      "owner": "ceo",
+      "priority": "high",
+      "queued_at_utc": "2026-08-30T10:21:34.534452531+00:00",
+      "result": "submitted",
+      "scope": null,
+      "status": "pending",
+      "title": "Execute: Recover authoritative project, plan, evidence, receipt, and repository context"
+    },
+    {
+      "completed_at_utc": null,
       "id": "operator-objective-1b00e78b7eee3c3b",
       "origin": null,
       "owner": "operator:mythos",
@@ -49,6 +61,30 @@
       "scope": null,
       "status": "pending",
       "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+      "origin": "ceo_autopilot",
+      "owner": "warden",
+      "priority": "medium",
+      "queued_at_utc": "2026-08-30T10:21:34.534095496+00:00",
+      "result": "submitted",
+      "scope": null,
+      "status": "pending",
+      "title": "Verify outcome"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+      "origin": "ceo_autopilot",
+      "owner": "warden",
+      "priority": "medium",
+      "queued_at_utc": "2026-08-30T10:21:34.534812387+00:00",
+      "result": "submitted",
+      "scope": null,
+      "status": "pending",
+      "title": "Verify outcome"
     }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_5f056a239a1141529a5dec54d0830f47",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-objective-78370a00190fd9b8 for task operator-objective-78370a00190fd9b8 ended status=completed result=completed; receipt=sha256:2b76545c8cc2aa6f933766026bf7034fcb0d7e04960625bf78870b449cf63ca0; detail=The declared project-native check passed: cargo test -p arda-core.",
+  "salience": 0.731375,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-26T17:54:23.970198027Z",
+  "last_seen_at": "2026-08-26T17:54:23.970198027Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

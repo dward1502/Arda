@@ -110,6 +110,7 @@ pub enum ContentSensitivity {
 pub enum BridgeOperation {
     Capture,
     Query,
+    Control,
     Approve,
     Reject,
     Revise,

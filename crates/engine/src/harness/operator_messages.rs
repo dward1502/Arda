@@ -6,6 +6,9 @@
 //! invokes the existing Workbench mutation surfaces with event-derived
 //! idempotency keys.
 
+use arda_aule::prometheus::autopilot::{
+    ActiveQueueExecutor, ScheduleLedger, WorkbenchQueueExecutor,
+};
 use arda_orome::operator_bridge::{
     ApprovalBinding, ApprovalSingleUseState, Audience, BridgeApproval, BridgeLineage,
     BridgeOperation, BridgeRequest, ContentSensitivity, HermesMessageEvent, HermesPromptResponse,
@@ -60,6 +63,38 @@ enum Command {
         text: String,
     },
     Context,
+    Objectives,
+    PauseTask {
+        task_id: String,
+        objective_id: String,
+        reason: String,
+    },
+    ResumeTask {
+        task_id: String,
+        objective_id: String,
+        reason: String,
+    },
+    ReprioritizeTask {
+        task_id: String,
+        objective_id: String,
+        priority: String,
+        reason: String,
+    },
+    ReviseObjective {
+        task_id: String,
+        objective_id: String,
+        revised_objective: String,
+        reason: String,
+    },
+    ApproveObjective {
+        task_id: String,
+        objective_id: String,
+        reason: String,
+    },
+    CancelTask {
+        task_id: String,
+        reason: String,
+    },
     Status {
         run_id: Option<String>,
     },
@@ -122,6 +157,13 @@ pub(super) async fn ingest_operator_message(
             | Command::Research(_)
             | Command::Objective { .. }
             | Command::Context
+            | Command::Objectives
+            | Command::PauseTask { .. }
+            | Command::ResumeTask { .. }
+            | Command::ReprioritizeTask { .. }
+            | Command::ReviseObjective { .. }
+            | Command::ApproveObjective { .. }
+            | Command::CancelTask { .. }
             | Command::Acknowledge { .. }
             | Command::Defer { .. }
     ) && !matches!(audience, Audience::Direct | Audience::OperatorPrivate)
@@ -191,9 +233,9 @@ pub(super) async fn ingest_operator_message(
         operator: incoming.operator.clone(),
         lineage: BridgeLineage {
             session_id: session_id.clone(),
-            objective_id: None,
+            objective_id: command_objective_id(&command).map(str::to_owned),
             project_id: command_project_id(&command).map(str::to_owned),
-            task_id: None,
+            task_id: command_task_id(&command).map(str::to_owned),
             run_id: run_id.clone(),
         },
         adapter_id: incoming.adapter_id.clone(),
@@ -394,6 +436,143 @@ async fn apply_command(
                     .to_owned()
             };
             Ok((summary, vec!["arda://next-action".into()]))
+        }
+        Command::Objectives => {
+            let response = get_json(state, "/v1/operator-projection").await?;
+            let objectives = response["objectives"]
+                .as_array()
+                .map(Vec::as_slice)
+                .unwrap_or(&[]);
+            let authority = response["authority"].as_str().unwrap_or("unknown");
+            let freshness = response["freshness"].as_str().unwrap_or("unknown");
+            let mut lines = vec![format!(
+                "Objectives: {} (authority={authority}, freshness={freshness}).",
+                objectives.len()
+            )];
+            let mut evidence_refs = vec!["arda://operator-projection".into()];
+            for objective in objectives {
+                let objective_id = objective["objective_id"].as_str().unwrap_or("unknown");
+                let status = objective["status"].as_str().unwrap_or("unknown");
+                let mut fields = Vec::new();
+                for (label, key) in [
+                    ("task", "current_task_id"),
+                    ("run", "current_run_id"),
+                    ("node", "current_node_id"),
+                    ("next", "next_continuation"),
+                    ("wake", "next_wake_at"),
+                    ("route", "worker_route"),
+                    ("blocker", "blocker"),
+                ] {
+                    if let Some(value) = objective[key].as_str() {
+                        fields.push(format!("{label}={value}"));
+                    }
+                }
+                lines.push(format!(
+                    "{objective_id} [{status}]{}",
+                    if fields.is_empty() {
+                        String::new()
+                    } else {
+                        format!(" {}", fields.join(" "))
+                    }
+                ));
+                evidence_refs.push(format!("arda://objectives/{objective_id}"));
+            }
+            Ok((lines.join("\n"), evidence_refs))
+        }
+        Command::PauseTask {
+            task_id,
+            objective_id,
+            reason,
+        } => {
+            ScheduleLedger::new(
+                state
+                    .workbench_root
+                    .join("core/projects/tasks/schedules.jsonl"),
+            )
+            .pause(task_id, objective_id, Utc::now(), reason)
+            .map_err(canonical_io_error)?;
+            Ok((
+                format!("Paused schedule for {task_id}."),
+                vec![format!("arda://objectives/{objective_id}/tasks/{task_id}")],
+            ))
+        }
+        Command::ResumeTask {
+            task_id,
+            objective_id,
+            reason,
+        } => {
+            ScheduleLedger::new(
+                state
+                    .workbench_root
+                    .join("core/projects/tasks/schedules.jsonl"),
+            )
+            .resume(task_id, objective_id, Utc::now(), reason)
+            .map_err(canonical_io_error)?;
+            Ok((
+                format!("Resumed schedule for {task_id}."),
+                vec![format!("arda://objectives/{objective_id}/tasks/{task_id}")],
+            ))
+        }
+        Command::ReprioritizeTask {
+            task_id,
+            objective_id,
+            priority,
+            reason,
+        } => {
+            ActiveQueueExecutor::new(&state.workbench_root)
+                .reprioritize(task_id, objective_id, priority, reason)
+                .map_err(canonical_io_error)?;
+            Ok((
+                format!("Reprioritized {task_id} to {priority}."),
+                vec![format!("arda://objectives/{objective_id}/tasks/{task_id}")],
+            ))
+        }
+        Command::ReviseObjective {
+            task_id,
+            objective_id,
+            revised_objective,
+            reason,
+        } => {
+            ActiveQueueExecutor::new(&state.workbench_root)
+                .revise_objective(task_id, objective_id, revised_objective, reason)
+                .map_err(canonical_io_error)?;
+            Ok((
+                format!("Revised objective for {task_id}; fresh approval is required."),
+                vec![format!("arda://objectives/{objective_id}/tasks/{task_id}")],
+            ))
+        }
+        Command::ApproveObjective {
+            task_id,
+            objective_id,
+            reason,
+        } => {
+            ActiveQueueExecutor::new(&state.workbench_root)
+                .approve_revised_objective(
+                    task_id,
+                    objective_id,
+                    &format!("gateway:{message_id}"),
+                    &incoming.operator.operator_id,
+                    reason,
+                )
+                .map_err(canonical_io_error)?;
+            Ok((
+                format!("Approved revised objective for {task_id}."),
+                vec![format!("arda://objectives/{objective_id}/tasks/{task_id}")],
+            ))
+        }
+        Command::CancelTask { task_id, reason } => {
+            WorkbenchQueueExecutor::with_harness_url(
+                &state.workbench_root,
+                format!("http://{}", state.harness_addr),
+            )
+            .map_err(|error| ApiError::internal(format!("initialize task cancellation: {error}")))?
+            .cancel_task(task_id, reason)
+            .await
+            .map_err(|error| ApiError::conflict(error.to_string()))?;
+            Ok((
+                format!("Cancelled canonical task {task_id}."),
+                vec![format!("arda://tasks/{task_id}")],
+            ))
         }
         Command::Status { run_id: None } => {
             let response = get_json(state, "/v1/runs").await?;
@@ -713,6 +892,74 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
             })
         }
         "context" => require_no_args(args).map(|()| Command::Context),
+        "objectives" => require_no_args(args).map(|()| Command::Objectives),
+        "pause-task" | "resume-task" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, reason) = take_arg(rest, "objective_id")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing operator reason"));
+            }
+            if verb == "pause-task" {
+                Ok(Command::PauseTask {
+                    task_id,
+                    objective_id,
+                    reason: reason.to_owned(),
+                })
+            } else {
+                Ok(Command::ResumeTask {
+                    task_id,
+                    objective_id,
+                    reason: reason.to_owned(),
+                })
+            }
+        }
+        "reprioritize" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, rest) = take_arg(rest, "objective_id")?;
+            let (priority, reason) = take_arg(rest, "priority")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing reprioritization reason"));
+            }
+            Ok(Command::ReprioritizeTask {
+                task_id,
+                objective_id,
+                priority,
+                reason: reason.to_owned(),
+            })
+        }
+        "revise-objective" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, revision) = take_arg(rest, "objective_id")?;
+            let (revised_objective, reason) = split_reason(revision)?;
+            Ok(Command::ReviseObjective {
+                task_id,
+                objective_id,
+                revised_objective,
+                reason,
+            })
+        }
+        "approve-objective" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, reason) = take_arg(rest, "objective_id")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing approval reason"));
+            }
+            Ok(Command::ApproveObjective {
+                task_id,
+                objective_id,
+                reason: reason.to_owned(),
+            })
+        }
+        "cancel-task" => {
+            let (task_id, reason) = take_arg(args, "task_id")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing cancellation reason"));
+            }
+            Ok(Command::CancelTask {
+                task_id,
+                reason: reason.to_owned(),
+            })
+        }
         "approve" => {
             let (run_id, rest) = take_arg(args, "approve run_id")?;
             let node_id = only_arg(rest, "approve node_id")?;
@@ -773,7 +1020,7 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
             run_id: only_arg(args, "council run_id")?,
         }),
         _ => Err(ApiError::bad_request(
-            "unsupported operator command; use capture, research, objective, context, status, approve, reject, revise, cancel, acknowledge, defer, result, or council",
+            "unsupported operator command; use capture, research, objective, objectives, context, status, pause-task, resume-task, reprioritize, revise-objective, approve-objective, cancel-task, approve, reject, revise, cancel, acknowledge, defer, result, or council",
         )),
     }
 }
@@ -805,19 +1052,39 @@ fn require_no_args(input: &str) -> Result<(), ApiError> {
     }
 }
 
+fn split_reason(input: &str) -> Result<(String, String), ApiError> {
+    let (value, reason) = input
+        .split_once(" --reason ")
+        .ok_or_else(|| ApiError::bad_request("objective revision requires `--reason`"))?;
+    let value = value.trim();
+    let reason = reason.trim();
+    if value.is_empty() || reason.is_empty() {
+        return Err(ApiError::bad_request(
+            "objective revision and reason must be non-empty",
+        ));
+    }
+    Ok((value.to_owned(), reason.to_owned()))
+}
+
 fn command_operation(command: &Command) -> BridgeOperation {
     match command {
         Command::Capture(_) | Command::Research(_) | Command::Objective { .. } => {
             BridgeOperation::Capture
         }
         Command::Context
+        | Command::Objectives
         | Command::Status { .. }
         | Command::Result { .. }
         | Command::Council { .. } => BridgeOperation::Query,
         Command::Approve { .. } => BridgeOperation::Approve,
         Command::Reject { .. } => BridgeOperation::Reject,
         Command::Revise { .. } => BridgeOperation::Revise,
-        Command::Cancel { .. } => BridgeOperation::Cancel,
+        Command::PauseTask { .. }
+        | Command::ResumeTask { .. }
+        | Command::ReprioritizeTask { .. }
+        | Command::ReviseObjective { .. }
+        | Command::ApproveObjective { .. } => BridgeOperation::Control,
+        Command::Cancel { .. } | Command::CancelTask { .. } => BridgeOperation::Cancel,
         Command::Acknowledge { .. } => BridgeOperation::Acknowledge,
         Command::Defer { .. } => BridgeOperation::Defer,
     }
@@ -829,6 +1096,13 @@ fn command_run_id(command: &Command) -> Option<&str> {
         | Command::Research(_)
         | Command::Objective { .. }
         | Command::Context
+        | Command::Objectives
+        | Command::PauseTask { .. }
+        | Command::ResumeTask { .. }
+        | Command::ReprioritizeTask { .. }
+        | Command::ReviseObjective { .. }
+        | Command::ApproveObjective { .. }
+        | Command::CancelTask { .. }
         | Command::Status { run_id: None }
         | Command::Acknowledge { .. }
         | Command::Defer { .. } => None,
@@ -847,6 +1121,29 @@ fn command_run_id(command: &Command) -> Option<&str> {
 fn command_project_id(command: &Command) -> Option<&str> {
     match command {
         Command::Objective { project_id, .. } => Some(project_id),
+        _ => None,
+    }
+}
+
+fn command_task_id(command: &Command) -> Option<&str> {
+    match command {
+        Command::PauseTask { task_id, .. }
+        | Command::ResumeTask { task_id, .. }
+        | Command::ReprioritizeTask { task_id, .. }
+        | Command::ReviseObjective { task_id, .. }
+        | Command::ApproveObjective { task_id, .. }
+        | Command::CancelTask { task_id, .. } => Some(task_id),
+        _ => None,
+    }
+}
+
+fn command_objective_id(command: &Command) -> Option<&str> {
+    match command {
+        Command::PauseTask { objective_id, .. }
+        | Command::ResumeTask { objective_id, .. }
+        | Command::ReprioritizeTask { objective_id, .. }
+        | Command::ReviseObjective { objective_id, .. }
+        | Command::ApproveObjective { objective_id, .. } => Some(objective_id),
         _ => None,
     }
 }
@@ -998,5 +1295,16 @@ fn bridge_error(error: arda_orome::operator_bridge::BridgeError) -> ApiError {
         }
         BridgeError::Persistence(_) => ApiError::internal(error.to_string()),
         _ => ApiError::bad_request(error.to_string()),
+    }
+}
+
+fn canonical_io_error(error: std::io::Error) -> ApiError {
+    match error.kind() {
+        std::io::ErrorKind::NotFound => ApiError::not_found(error.to_string()),
+        std::io::ErrorKind::PermissionDenied => ApiError::forbidden(error.to_string()),
+        std::io::ErrorKind::InvalidInput | std::io::ErrorKind::AlreadyExists => {
+            ApiError::conflict(error.to_string())
+        }
+        _ => ApiError::internal(error.to_string()),
     }
 }

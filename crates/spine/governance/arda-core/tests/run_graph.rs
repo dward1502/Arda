@@ -49,6 +49,24 @@ fn graph(nodes: Vec<RunNode>, edges: Vec<RunEdge>) -> RunGraph {
 }
 
 #[test]
+fn legacy_objective_plan_provenance_replays_without_reemitting_retired_fields() {
+    let provenance: Provenance = serde_json::from_value(serde_json::json!({
+        "project_contract_digest": "sha256:project",
+        "created_by": "arda_workbench.queue_executor",
+        "parent_receipts": ["receipt:root"],
+        "objective_plan": {"tasks": [{"key": "inspect"}]},
+        "objective_plan_validation": {"validated": true}
+    }))
+    .expect("known legacy objective-plan provenance must replay");
+
+    assert_eq!(provenance.project_contract_digest, "sha256:project");
+    assert_eq!(provenance.parent_receipts, vec!["receipt:root"]);
+    let serialized = serde_json::to_value(provenance).unwrap();
+    assert!(serialized.get("objective_plan").is_none());
+    assert!(serialized.get("objective_plan_validation").is_none());
+}
+
+#[test]
 fn rejects_cycles_in_initial_executable_dag() {
     let nodes = vec![
         node(

@@ -1,0 +1,702 @@
+{
+  "timestamp": "2026-08-30T10:31:35.517575708+00:00",
+  "queue": {
+    "total": 43,
+    "by_status": {
+      "cancelled": 12,
+      "completed": 24,
+      "failed": 1,
+      "pending": 6
+    },
+    "by_owner": {
+      "arandur": 1,
+      "athena": 4,
+      "aule": 1,
+      "ceo": 3,
+      "hades": 1,
+      "hermes": 2,
+      "manwe": 1,
+      "operator:mythos": 5,
+      "prometheus": 14,
+      "vaire": 2,
+      "warden": 3
+    },
+    "by_priority": {
+      "critical": 9,
+      "high": 19,
+      "medium": 9
+    },
+    "pending": 6,
+    "in_progress": 0,
+    "completed": 24,
+    "failed": 1,
+    "aging_oldest_pending_secs": 813817,
+    "bottleneck_owner": "prometheus",
+    "recent_completions_1h": 0,
+    "recent_completions_24h": 0,
+    "recent_failures_24h": 0,
+    "completion_rate_24h": 1.0
+  },
+  "services": {
+    "services": [
+      {
+        "unit": "arda-aule-autopilot-read-only.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-aule-autopilot.service",
+        "load": "loaded",
+        "active": "activating",
+        "sub": "start",
+        "score": 0.85,
+        "note": "timer-backed oneshot running (start)"
+      },
+      {
+        "unit": "arda-crawl4ai.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-manwe-inference-probe.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-metrics-exporter.service",
+        "load": "loaded",
+        "active": "activating",
+        "sub": "auto-restart",
+        "score": 0.6,
+        "note": "activating (auto-restart)"
+      },
+      {
+        "unit": "arda-relic-bridge.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-varda-external-lane.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-varda.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-workbench-queue-executor.service",
+        "load": "loaded",
+        "active": "failed",
+        "sub": "failed",
+        "score": 0.0,
+        "note": "failed"
+      },
+      {
+        "unit": "arda-session.target",
+        "load": "loaded",
+        "active": "active",
+        "sub": "active",
+        "score": 0.5,
+        "note": "active/active"
+      },
+      {
+        "unit": "arda-aule-autopilot-read-only.timer",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.3,
+        "note": "timer inactive"
+      },
+      {
+        "unit": "arda-aule-autopilot.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "timer armed (running)"
+      },
+      {
+        "unit": "arda-manwe-inference-probe.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      },
+      {
+        "unit": "arda-varda-external-lane.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      },
+      {
+        "unit": "arda-workbench-queue-executor.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      }
+    ],
+    "healthy": 11,
+    "degraded": 2,
+    "failed": 2,
+    "overall_score": 0.7866666666666667
+  },
+  "dashboard": {
+    "task_completion_rate": 1.0,
+    "avg_aging_pending_secs": 813817.0,
+    "recent_completions_1h": 0,
+    "service_overall_score": 0.7866666666666667,
+    "services_failed": 2,
+    "alerts": [
+      {
+        "severity": "Critical",
+        "message": "2 arda service(s) failed",
+        "source": "systemd"
+      },
+      {
+        "severity": "Warning",
+        "message": "oldest pending task is over 24h old",
+        "source": "queue"
+      }
+    ]
+  },
+  "objective_selection": {
+    "contract": "arda.arandur.objective_selection.v1",
+    "mutation_policy": "supervised_single_objective",
+    "objectives_considered": 6,
+    "objectives_selected": 0,
+    "objectives_blocked_by_gate": 6,
+    "effective_queue_open_count": 6,
+    "stale_raw_queue_record_count": 1480,
+    "status": "blocked",
+    "no_selection_reason": "all_candidates_blocked_by_governance_gate",
+    "selected_objective_id": null,
+    "next_recommended_action": "resolve blocked governance gates or provide explicit operator approval",
+    "blocked_candidate_groups": [
+      {
+        "reason_code": "review_gated_candidate_requires_operator_review",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "ReviewRequired",
+        "count": 2
+      },
+      {
+        "reason_code": "stale_or_superseded_raw_queue_record",
+        "governance_class": "raw_queue_record",
+        "review_gate": "superseded",
+        "count": 1480
+      },
+      {
+        "reason_code": "unknown_action_class",
+        "governance_class": "review_required",
+        "review_gate": "ReviewRequired",
+        "count": 4
+      }
+    ],
+    "next_automation_gate_packet": null,
+    "objective_packet_report": {
+      "contract": "arda.arandur.objective_packet_report.v1",
+      "mutation_policy": "read_only_report_only",
+      "packet_count": 6,
+      "selected_packet_count": 0,
+      "selected_candidate_id": null,
+      "canonical_queue_mutation_allowed": false,
+      "packets": [
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:operator-objective-1463cc15ce0ff3cd:operator-objective-1463cc15ce0ff3cd",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+          "source_record_id": "operator-objective-1463cc15ce0ff3cd",
+          "candidate_id": "operator-objective-1463cc15ce0ff3cd",
+          "title": "Design governed economic-intelligence routines and a future budgeted agent account",
+          "owner": "operator:mythos",
+          "priority": "high",
+          "governance_class": "operator_authored_review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:review_gated_candidate_requires_operator_review",
+            "selection_status:blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:operator-objective-1b00e78b7eee3c3b:operator-objective-1b00e78b7eee3c3b",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+          "source_record_id": "operator-objective-1b00e78b7eee3c3b",
+          "candidate_id": "operator-objective-1b00e78b7eee3c3b",
+          "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post",
+          "owner": "operator:mythos",
+          "priority": "medium",
+          "governance_class": "operator_authored_review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:review_gated_candidate_requires_operator_review",
+            "selection_status:blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute:tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+          "source_record_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+          "candidate_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+          "title": "Execute: Recover authoritative project, plan, evidence, receipt, and repository context",
+          "owner": "ceo",
+          "priority": "high",
+          "governance_class": "review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:unknown_action_class",
+            "selection_status:blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "unknown_action_class",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify:tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+          "source_record_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+          "candidate_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+          "title": "Verify outcome",
+          "owner": "warden",
+          "priority": "medium",
+          "governance_class": "review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:unknown_action_class",
+            "selection_status:blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "unknown_action_class",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute:tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+          "source_record_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+          "candidate_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+          "title": "Execute: Recover authoritative project, plan, evidence, receipt, and repository context",
+          "owner": "ceo",
+          "priority": "high",
+          "governance_class": "review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:unknown_action_class",
+            "selection_status:blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "unknown_action_class",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify:tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+          "source_record_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+          "candidate_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+          "title": "Verify outcome",
+          "owner": "warden",
+          "priority": "medium",
+          "governance_class": "review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:unknown_action_class",
+            "selection_status:blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "unknown_action_class",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        }
+      ]
+    },
+    "candidates": [
+      {
+        "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+        "source_record_id": "operator-objective-1463cc15ce0ff3cd",
+        "candidate_id": "operator-objective-1463cc15ce0ff3cd",
+        "title": "Design governed economic-intelligence routines and a future budgeted agent account",
+        "effective_status": "pending",
+        "owner": "operator:mythos",
+        "priority": "high",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+      },
+      {
+        "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+        "source_record_id": "operator-objective-1b00e78b7eee3c3b",
+        "candidate_id": "operator-objective-1b00e78b7eee3c3b",
+        "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post",
+        "effective_status": "pending",
+        "owner": "operator:mythos",
+        "priority": "medium",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+      },
+      {
+        "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+        "source_record_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+        "candidate_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+        "title": "Execute: Recover authoritative project, plan, evidence, receipt, and repository context",
+        "effective_status": "pending",
+        "owner": "ceo",
+        "priority": "high",
+        "governance_class": "review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "unknown_action_class",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+      },
+      {
+        "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+        "source_record_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+        "candidate_id": "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+        "title": "Verify outcome",
+        "effective_status": "pending",
+        "owner": "warden",
+        "priority": "medium",
+        "governance_class": "review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "unknown_action_class",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+      },
+      {
+        "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+        "source_record_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+        "candidate_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__execute",
+        "title": "Execute: Recover authoritative project, plan, evidence, receipt, and repository context",
+        "effective_status": "pending",
+        "owner": "ceo",
+        "priority": "high",
+        "governance_class": "review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "unknown_action_class",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+      },
+      {
+        "source_path": "/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl",
+        "source_record_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+        "candidate_id": "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__verify",
+        "title": "Verify outcome",
+        "effective_status": "pending",
+        "owner": "warden",
+        "priority": "medium",
+        "governance_class": "review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "unknown_action_class",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:action_class 'review_required' is a configured review-only class and cannot delegate"
+      }
+    ]
+  },
+  "objectives_processed": 0,
+  "plans": [],
+  "outcomes_ingested": 0,
+  "h2a": {
+    "responses_processed": 0,
+    "objectives_resumed": 0,
+    "denials_recorded": 0
+  },
+  "hades_introspection": {
+    "contract": "arda.prometheus.hades_introspection_projection.v1",
+    "source_available": false,
+    "policy_report_path": "/var/home/mythos/Eregion/Arda/data/hades/lifecycle_policy_automation_report.json",
+    "review_queue_path": "/var/home/mythos/Eregion/Arda/data/hades/lifecycle_review_queue.jsonl",
+    "source_contract": null,
+    "generated_at_utc": null,
+    "source_findings_total": 0,
+    "consistency_holds_total": 0,
+    "review_queue_records": 0,
+    "review_queue_projection_recommended": false,
+    "cleanup_authorized": false,
+    "requires_operator_approval_for_mutation": true,
+    "no_file_moves_or_deletes_performed": true,
+    "error": null
+  },
+  "sovereign_adapters": {
+    "contract": "arda.prometheus.sovereign_adapter_projection.v1",
+    "config_path": "/var/home/mythos/Eregion/Arda/config/governance/autonomy_operating_loop.toml",
+    "source_available": true,
+    "adapter_count": 6,
+    "active_runtime_adapter_count": 5,
+    "evidence_only_adapter_count": 1,
+    "missing_required_adapter_count": 0,
+    "adapters": [
+      {
+        "id": "governance",
+        "crate_name": "arda-governance",
+        "status": "contract_required",
+        "loop_stages": [
+          "assess",
+          "deliberate",
+          "plan",
+          "task",
+          "audit",
+          "review",
+          "replan"
+        ],
+        "gate": "classify_action_and_required_authority_before_task_or_execute",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/governance_policy.rs",
+        "source_records": 0,
+        "cycle_receipts": 0,
+        "gate_effect": "task_promotion_gate",
+        "evidence_summary": [
+          "plans_classified=0",
+          "blocked=0",
+          "escalated=0",
+          "human_required=0"
+        ]
+      },
+      {
+        "id": "oracle",
+        "crate_name": "arda-oracle",
+        "status": "active_prototype",
+        "loop_stages": [
+          "assess",
+          "deliberate",
+          "plan",
+          "audit",
+          "review",
+          "confirm"
+        ],
+        "gate": "validate_before_high_risk_promotion_and_before_claiming_done",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/oracle_gate.rs",
+        "source_records": 0,
+        "cycle_receipts": 0,
+        "gate_effect": "validation_gate",
+        "evidence_summary": [
+          "oracle_gate_invoked=0",
+          "oracle_rejected=0"
+        ]
+      },
+      {
+        "id": "plutus",
+        "crate_name": "arda-economics",
+        "status": "contract_required",
+        "loop_stages": [
+          "assess",
+          "plan",
+          "task",
+          "execute",
+          "audit",
+          "review"
+        ],
+        "gate": "budget_receipt_before_delegation_and_review_after_execution",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/runner.rs",
+        "source_records": 0,
+        "cycle_receipts": 0,
+        "gate_effect": "budget_gate",
+        "evidence_summary": [
+          "cycle_limit=500.0",
+          "hourly_limit=2000.0",
+          "delegated_joules=0.0",
+          "joule_limited=0"
+        ]
+      },
+      {
+        "id": "ceo",
+        "crate_name": "",
+        "status": "prometheus_cea_autopilot_only",
+        "loop_stages": [
+          "plan",
+          "task",
+          "execute",
+          "audit",
+          "review",
+          "replan",
+          "confirm"
+        ],
+        "gate": "must_not_compete_with_prometheus_ceo_autopilot_until_promoted",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/runner.rs",
+        "source_records": 0,
+        "cycle_receipts": 0,
+        "gate_effect": "canonical_engine_guard",
+        "evidence_summary": [
+          "prometheus_ceo_autopilot_is_active_runtime_engine"
+        ]
+      },
+      {
+        "id": "human",
+        "crate_name": "arda-human",
+        "status": "contract_required",
+        "loop_stages": [
+          "info",
+          "ingest",
+          "deliberate",
+          "plan",
+          "task",
+          "review",
+          "confirm"
+        ],
+        "gate": "human_required_action_classes_need_explicit_human_approval",
+        "runtime_adapter": true,
+        "source_path": "data/comm/h2a.jsonl",
+        "source_records": 0,
+        "cycle_receipts": 0,
+        "gate_effect": "human_approval_gate",
+        "evidence_summary": [
+          "h2a_responses_processed=0",
+          "h2a_objectives_resumed=0",
+          "h2a_denials_recorded=0",
+          "a2h_emitted=0"
+        ]
+      },
+      {
+        "id": "council",
+        "crate_name": "arda-council",
+        "status": "active_subordinate",
+        "loop_stages": [
+          "deliberate",
+          "assess",
+          "plan",
+          "review",
+          "replan"
+        ],
+        "gate": "evidence_for_governance_not_approval_by_itself",
+        "runtime_adapter": true,
+        "source_path": "/var/home/mythos/Eregion/Arda/data/council/agent_conversations.jsonl",
+        "source_records": 448,
+        "cycle_receipts": 448,
+        "gate_effect": "evidence_only",
+        "evidence_summary": [
+          "conversation_records=448",
+          "council_output_does_not_approve_execution_by_itself"
+        ]
+      }
+    ],
+    "error": null
+  },
+  "council_runtime": {
+    "contract": "arda.prometheus.council_runtime_projection.v1",
+    "ledger_path": "/var/home/mythos/Eregion/Arda/data/council/agent_conversations.jsonl",
+    "source_available": true,
+    "existing_record_count": 449,
+    "appended_record_count": 1,
+    "latest_conversation_id": "ceo_autopilot_cycle_2026-08-30T10_31_35_517539377_00_00",
+    "task_promotion_allowed": false,
+    "evidence_only": true,
+    "error": null
+  },
+  "executive_cycle": {
+    "contract": "arda.arandur.executive_cycle_receipt.v1",
+    "status": "no_selected_objective",
+    "ledger_path": "/var/home/mythos/Eregion/Arda/data/arandur/executive_cycles.jsonl",
+    "receipt": null,
+    "replayed": false,
+    "ledger_appended": false,
+    "placement_pending": false,
+    "error": null
+  },
+  "autonomy_readiness": {
+    "contract": "arda.prometheus.autonomy_readiness_gate.v1",
+    "decision": "hold",
+    "task_promotion_allowed": false,
+    "human_required": false,
+    "preflight_path": "/var/home/mythos/Eregion/Arda/data/prometheus/autonomy_operating_loop_preflight.json",
+    "preflight_source_available": true,
+    "cleanup_approval_packets_path": "/var/home/mythos/Eregion/Arda/data/hades/autonomy_cleanup_approval_packets.json",
+    "cleanup_approval_packets_available": false,
+    "external_source_lane_ledger_path": "/var/home/mythos/Eregion/Arda/data/athena/external_source_lane_ledger.jsonl",
+    "external_source_lane_ledger_available": false,
+    "lane_count": 12,
+    "lane_incomplete_count": 0,
+    "cleanup_packet_count": 0,
+    "external_source_lane_count": 0,
+    "external_source_blocked_count": 0,
+    "sovereign_missing_required_adapter_count": 0,
+    "council_unresolved_escalation_count": 0,
+    "reasons": [
+      "autonomy_preflight_stale",
+      "hades_cleanup_approval_packets_missing",
+      "athena_external_source_lane_ledger_missing"
+    ],
+    "evidence_paths": [
+      "/var/home/mythos/Eregion/Arda/data/prometheus/autonomy_operating_loop_preflight.json",
+      "/var/home/mythos/Eregion/Arda/data/hades/autonomy_cleanup_approval_packets.json",
+      "/var/home/mythos/Eregion/Arda/data/athena/external_source_lane_ledger.jsonl",
+      "/var/home/mythos/Eregion/Arda/data/council/agent_conversations.jsonl",
+      "/var/home/mythos/Eregion/Arda/config/governance/autonomy_operating_loop.toml"
+    ]
+  },
+  "report_path": "/var/home/mythos/Eregion/Arda/data/ceo/reports/daily_2026-08-30.md",
+  "weekly_report_path": "/var/home/mythos/Eregion/Arda/data/ceo/reports/weekly_2026-W35.md"
+}

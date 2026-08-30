@@ -109,7 +109,12 @@ The latter two are `future-gated`, with no financial authority and no external-a
 
 ## Immediate plan
 
-The active execution plan is [`../plans/CORE_ARDA_USEFULNESS_REPAIR.md`](../plans/CORE_ARDA_USEFULNESS_REPAIR.md). Its order is deliberate:
+The execution plan created from this audit is retained as the superseded
+[`Core Arda Usefulness Repair`](../archive/2026-08-20-core-arda-usefulness-repair.md).
+The operator later rejected its reduced interface-journey framing; active
+authority is the
+[`Arda Whole-System Completion Program`](../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md).
+Its original order was:
 
 1. install and verify the already-tested core source repairs;
 2. make the three operator-authored objectives visible through generated projections;

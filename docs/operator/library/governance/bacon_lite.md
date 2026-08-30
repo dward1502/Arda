@@ -5800,3 +5800,7 @@
 - 2026-08-21T08:40:43.002017750+00:00 | crate=`athena` action=`ingest` passed=`true` confidence=`0.556` task_type=`ingest`
 - 2026-08-23T12:32:26.591337389+00:00 | crate=`athena` action=`ingest` passed=`true` confidence=`0.556` task_type=`ingest`
 - 2026-08-23T12:32:26.615152619+00:00 | crate=`athena` action=`ingest` passed=`true` confidence=`0.487` task_type=`ingest`
+- 2026-08-26T05:44:09.063235382+00:00 | crate=`athena` action=`ingest` passed=`true` confidence=`0.556` task_type=`ingest`
+- 2026-08-26T05:44:09.094688559+00:00 | crate=`athena` action=`deep_analyze` passed=`true` confidence=`0.896` task_type=`deep_analyze`
+- 2026-08-26T05:44:09.584898945+00:00 | crate=`athena` action=`ingest` passed=`true` confidence=`0.556` task_type=`ingest`
+- 2026-08-26T05:44:09.609945378+00:00 | crate=`athena` action=`deep_analyze` passed=`true` confidence=`0.896` task_type=`deep_analyze`

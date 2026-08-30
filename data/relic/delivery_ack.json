@@ -4,6 +4,6 @@
   "acknowledgement_method": "ssh_command_success",
   "remote_host": "citadel",
   "remote_state_path": "annunimas_embodied/relic/public/scene.json",
-  "scene_sha256": "0133d0160c4468d08c9fb022a8af5f95e53e69365d2bd63ee05c7dcf7c6ae2e6",
-  "acknowledged_at_utc": "2026-08-25T16:29:21.595754Z"
+  "scene_sha256": "d3e9cbd10902586e07e631f08cce1c30ff89c6ba79dcf8f85ab56e35358eda0e",
+  "acknowledged_at_utc": "2026-08-26T20:45:56.928912Z"
 }

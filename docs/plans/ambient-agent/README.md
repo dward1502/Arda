@@ -36,21 +36,23 @@ Hermes remains the primary conversational and worker runtime. The completed [Dig
 
 ## Core-Arda prerequisite
 
-The active composition and usefulness work is owned by
-[`../CORE_ARDA_USEFULNESS_REPAIR.md`](../CORE_ARDA_USEFULNESS_REPAIR.md), grounded
-in the current-state
-[`../../audits/2026-08-20-core-arda-usefulness-audit.md`](../../audits/2026-08-20-core-arda-usefulness-audit.md).
-The ambient plans remain on hold while that plan is active.
+The active completion work is owned by the
+[`Arda Whole-System Completion Program`](../ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md),
+grounded in the current
+[`Autonomous System Gap Audit`](../../audits/2026-08-25-autonomous-system-gap-audit.md).
+The ambient plans remain on hold while that program is active.
 
-No ambient phase may begin until the operator can use Arda itself to complete all of these without terminal intervention:
+No ambient phase may begin until Core Arda can take a real operator-authored
+outcome through context retrieval, decomposition, authorization, scheduling,
+provider placement, execution, verification, review, revision/retry, restart
+recovery, and accepted closure across real connected projects. It must also run
+the daily research/improvement loop long enough to prove that unfinished work
+continues and external findings become verified changes only when justified.
 
-1. capture a real thought, task, obligation, or question;
-2. see one trustworthy next action derived from real commitments;
-3. resume a project or personal context without re-explaining it;
-4. use a Personal Operations reminder/check-in and correct or defer it;
-5. request research and receive a source-grounded answer;
-6. inspect and approve or reject a consequential proposed action;
-7. restart and return to the same usable state.
+Capture, next-action, context-resume, reminders, cited research, approval, and
+restart interactions remain useful surface checks. They are not substitutes for
+the autonomous completion behavior above and must not be presented as the whole
+product goal.
 
 Prior launcher, continuity, contract, test, and packaging work remains technical foundation. It does not prove this prerequisite and must not be described as Arda product completion.
 
@@ -66,7 +68,7 @@ Prior launcher, continuity, contract, test, and packaging work remains technical
 
 | Order | Plan | What the human eventually receives | Start condition |
 |---|---|---|---|
-| 0 | Core-Arda prerequisite above | A genuinely useful personal agent relationship and daily workflow | Now; owned by core Arda product work, not an outpost implementation |
+| 0 | Whole-system completion prerequisite above | A governed system that owns bounded work through verified closure and daily improvement | Now; owned by core Arda product work, not an outpost implementation |
 | 1 | [Mirromere Embodied Assistant](03-mirromere-embodied-assistant.md) | An avatar that can converse by text/voice, present contextual help, and move among passive/avatar/HUD/private/offline scenes | Core-Arda prerequisite accepted |
 | 2 | [Presence, Identity, and Privacy](04-presence-identity-privacy.md) | Privacy-safe arrival/departure and optional personalization using real local signals | Mirromere monitor alpha accepted |
 | 3 | [RELIC Runtime Embodiment](05-relic-runtime-embodiment.md) | Physical visualization of genuine delegation, waits, approvals, failures, and handoffs | Core execution flows are real and repeatedly used |

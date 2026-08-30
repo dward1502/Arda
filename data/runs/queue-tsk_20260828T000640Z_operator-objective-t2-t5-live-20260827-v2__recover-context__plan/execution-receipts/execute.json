@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:de98f987c47fa0deec05e6d73be7f44705597022dee2bcdf4cc1b1702d9c2c5b",
+      "path": "docs/audits/2026-08-27-authoritative-context-recovery-backlog.md"
+    }
+  ],
+  "idempotency_key": "queue-tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "approval-operator-t2-t5-live-20260827-v2"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:4b91b1226d78a531fc73a2cebf3e303a1ff5bad2835c63638b1f634bccd80cb4",
+  "recorded_at_unix_ms": 1787875885221,
+  "run_id": "queue-tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Recovered and validated the declared authorities and repository context; confirmed the concrete prioritized repair backlog with evidence, human-visible behavior, and smallest authoritative implementation surfaces; declared project check passed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:3f91b5a781bad70638f5de3f9f8c97b5e24cf34ce7c39e2fc457b2511841c167",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:3f91b5a781bad70638f5de3f9f8c97b5e24cf34ce7c39e2fc457b2511841c167",
+      "tool": "terminal"
+    },
+    {
+      "action": "sha256sum data/workbench/projects.json docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md ARDA_SYSTEM_STATUS_REPORT.md core/projects/tasks/queue.jsonl && git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:a9344704bc126a47e1aac1a57fb21eb441dbfd24b64d6b4bbd498f2aac43209c",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c 'from pathlib import Path; import hashlib; p=Path(\"docs/audits/2026-08-27-authoritative-context-recovery-backlog.md\"); b=p.read_bytes(); s=b.decode(); required=[\"Prioritized Repair Backlog\",\"Evidence and truth levels\",\"Human-visible behavior\",\"Smallest authoritative implementation surface\",\"P0.1\",\"P0.2\",\"P0.3\",\"P0.4\",\"P1.1\",\"P1.2\"]; missing=[x for x in required if x not in s]; assert not missing, missing; print(\"artifact=\"+str(p)); print(\"sha256:\"+hashlib.sha256(b).hexdigest()); print(\"required_sections=ok\")'",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "sha256sum docs/audits/2026-08-27-authoritative-context-recovery-backlog.md",
+      "exit_code": 0,
+      "output_digest": "sha256:6c1cb1a4050d689e06df39a55b6ef58a7ff6dd92478dd1bf8ccca7e57a9e55f0",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 7,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 110854,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 3412,
+    "provider": "openai-codex",
+    "total_tokens": 114266
+  }
+}

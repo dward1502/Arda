@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6e5a099064444f9aa212b4b35435fb32",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope for task tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope ended status=completed result=completed; receipt=sha256:074673c59f5f065bcd965e9ee23c9019f93ec18bfca07409ad9e779481f5bec8; detail=Declared check passed: cargo test -p arda-core.",
+  "salience": 0.731375,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-27T15:53:43.086166365Z",
+  "last_seen_at": "2026-08-27T15:53:43.086166365Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

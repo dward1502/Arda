@@ -1,0 +1,30 @@
+{
+  "byte_offset": 1297850,
+  "seen_terminal_ids": [
+    "digital-organism-s0-authority-transport-map",
+    "digital-organism-s0-current-flow-trace",
+    "digital-organism-s0-foundation-matrix",
+    "digital-organism-s1-context-bootstrap",
+    "digital-organism-s1-organism-contracts",
+    "digital-organism-s2-node-mesh-a2a",
+    "digital-organism-s3-adaptive-placement",
+    "digital-organism-s4-memory-learning-context",
+    "digital-organism-s5-homeostasis-recovery",
+    "digital-organism-s6-arandur-ceo-cycle",
+    "digital-organism-s7-living-mesh-proof",
+    "digital-organism-s8-hardware-portability",
+    "operator-objective-78370a00190fd9b8",
+    "operator-objective-78370a00190fd9b8-validated-plan-v1",
+    "tsk_20260826T081230Z_completion_loop_acceptance",
+    "tsk_20260826T082300Z_completion_loop_restart_acceptance",
+    "tsk_20260826T090051Z_completion_loop_acceptance_v2",
+    "tsk_20260827T075204Z_arda-governed-audit-20260827__gather",
+    "tsk_20260827T075204Z_arda-governed-audit-20260827__scope",
+    "tsk_20260827T075204Z_arda-governed-audit-20260827__synthesize",
+    "tsk_20260827T154942Z_arda-receipt-acceptance-20260827__gather",
+    "tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope",
+    "tsk_20260827T154942Z_arda-receipt-acceptance-20260827__synthesize",
+    "tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan",
+    "tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan"
+  ]
+}

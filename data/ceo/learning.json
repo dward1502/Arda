@@ -1,9 +1,63 @@
 {
   "stats": {
-    "arda_workbench::approved_autopilot_plan_step": {
+    "arandur::ops": {
       "attempts": 1,
       "successes": 1,
       "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "arda_workbench::approved_autopilot_plan_step": {
+      "attempts": 14,
+      "successes": 14,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "athena::ops": {
+      "attempts": 4,
+      "successes": 4,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "aule::ops": {
+      "attempts": 1,
+      "successes": 1,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "hades::ops": {
+      "attempts": 1,
+      "successes": 1,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "hermes::ops": {
+      "attempts": 2,
+      "successes": 2,
+      "avg_duration_secs": 5917.5,
+      "avg_joules": 0.0
+    },
+    "manwe::ops": {
+      "attempts": 1,
+      "successes": 1,
+      "avg_duration_secs": -7.0,
+      "avg_joules": 0.0
+    },
+    "operator:mythos::ops": {
+      "attempts": 2,
+      "successes": 2,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "prometheus::ops": {
+      "attempts": 12,
+      "successes": 12,
+      "avg_duration_secs": -2257.1666666666665,
+      "avg_joules": 0.0
+    },
+    "vaire::ops": {
+      "attempts": 1,
+      "successes": 1,
+      "avg_duration_secs": -35199.0,
       "avg_joules": 0.0
     }
   }

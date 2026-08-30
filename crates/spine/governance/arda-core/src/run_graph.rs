@@ -5,7 +5,7 @@ use crate::service_registry::{
     CapabilityExecutionAdapter, CapabilityHealth, CapabilityMaturity, CapabilityRecord,
     CapabilityRegistry, CapabilityRemovalStatus,
 };
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
@@ -167,13 +167,39 @@ pub struct CheckpointMetadata {
     pub checkpoint_digest: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Provenance {
     pub project_contract_digest: String,
     pub created_by: String,
     #[serde(default)]
     pub parent_receipts: Vec<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ProvenanceWire {
+    project_contract_digest: String,
+    created_by: String,
+    #[serde(default)]
+    parent_receipts: Vec<String>,
+    #[serde(default, rename = "objective_plan")]
+    _objective_plan: Option<serde_json::Value>,
+    #[serde(default, rename = "objective_plan_validation")]
+    _objective_plan_validation: Option<serde_json::Value>,
+}
+
+impl<'de> Deserialize<'de> for Provenance {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = ProvenanceWire::deserialize(deserializer)?;
+        Ok(Self {
+            project_contract_digest: wire.project_contract_digest,
+            created_by: wire.created_by,
+            parent_receipts: wire.parent_receipts,
+        })
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

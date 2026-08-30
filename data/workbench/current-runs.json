@@ -1,6 +1,20 @@
 {
   "run_ids": [
     "phase5-economic-intelligence-eaeb4d61fb78",
+    "queue-operator-objective-78370a00190fd9b8",
+    "queue-operator-objective-78370a00190fd9b8-validated-plan-v1",
+    "queue-tsk_20260826T081230Z_completion_loop_acceptance",
+    "queue-tsk_20260826T082300Z_completion_loop_restart_acceptance",
+    "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2",
+    "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather",
+    "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__scope",
+    "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__synthesize",
+    "queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__gather",
+    "queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope",
+    "queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__synthesize",
+    "queue-tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan",
+    "queue-tsk_20260828T000640Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan",
+    "rust-standards-assimilation-20260825",
     "stage7-living-mesh-20260823"
   ],
   "schema_version": "arda.workbench.current-runs.v1"

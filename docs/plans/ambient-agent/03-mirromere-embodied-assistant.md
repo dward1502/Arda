@@ -45,15 +45,17 @@ The failed projection/dashboard work is retained only as a warning in [`../../ar
 
 ## Prerequisite: core Arda must be useful first
 
-Implementation is blocked until the operator can use Arda itself for representative daily work:
+Implementation is blocked by the active
+[`Arda Whole-System Completion Program`](../ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md).
+Core Arda must own a real outcome through context retrieval, decomposition,
+authorization, scheduling, provider placement, execution, verification, review,
+revision/retry, restart recovery, and accepted closure across connected projects.
+Its daily research/improvement cycle must also produce verified work and continue
+unfinished outcomes without repeated operator task assignment.
 
-1. capture a thought, obligation, or request without managing files or internal queues;
-2. receive one trustworthy next action based on real commitments;
-3. resume context without re-explaining the project or personal situation;
-4. use Personal Operations for reminders/check-ins that are genuinely helpful;
-5. ask for research and receive source-grounded results through the intended Arda/Hermes relationship;
-6. review and approve consequential work through a usable human surface;
-7. recover after restart without terminal intervention.
+Capture, next-action, context-resume, reminders, cited research, approval, and
+restart interactions remain useful surface checks; they are not the whole Core
+Arda gate.
 
 Mirromere must consume those working capabilities. It must not create visual stand-ins for capabilities Arda does not yet provide.
 

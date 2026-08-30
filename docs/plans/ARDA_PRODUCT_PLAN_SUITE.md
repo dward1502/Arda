@@ -6,7 +6,7 @@
 **Completed improvement record:** [Arda 0.9 Baseline and Improvement Plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
 **Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)<br>
 **Completed cohesion program (archived):** [Arda Digital Organism Program](../archive/digital-organism/README.md) — closeout [synopsis](../archive/digital-organism/SYNOPSIS.md)<br>
-**Active operator-path evidence:** [Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md)<br>
+**Active whole-system program:** [Arda Whole-System Completion Program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md)<br>
 **Downstream embodiment program on hold:** [Arda Ambient Agent Program](ambient-agent/README.md)
 
 ## Product decision
@@ -23,15 +23,18 @@ decision.
 ## Active planning authority
 
 `docs/plans/` contains this portfolio index, the
-[Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md) operator-path
-evidence track, and the downstream [`ambient-agent/`](ambient-agent/README.md)
-program. The Digital Organism Program completed all eight stages on 2026-08-25
+[Arda Whole-System Completion Program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md),
+its autonomous-task, provider, project-fabric, and daily-improvement workstreams,
+and the downstream [`ambient-agent/`](ambient-agent/README.md) program. The
+Digital Organism Program completed all eight stages on 2026-08-25
 and is archived under [`docs/archive/digital-organism/`](../archive/digital-organism/README.md)
 with its closeout synopsis; its architecture map remains live at
 `docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md`. The finite 0.9
 improvement plan completed its defect, dependency, documentation, measurement,
 and honest Personal Operations disposition work and is retained under
-`docs/archive/`. Further 0.9 implementation remains defect-driven.
+`docs/archive/`. The former Core Arda Usefulness Repair plan was rejected by the
+operator because it reduced the intended autonomous system to a short interface
+demonstration; it is retained only as history under `docs/archive/`.
 
 ## Digital-organism stages (completed — archived)
 

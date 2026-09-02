@@ -90,6 +90,7 @@ anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
 sysinfo = "0.30"
 tempfile = "3"
+rusqlite = { version = "0.32", features = ["bundled"] }
 # --- merged from Annunimas ---
 async-trait = "0.1"
 serde_yaml = "0.9"

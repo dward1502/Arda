@@ -13,6 +13,7 @@ use super::task_queue::{
 use super::validator::PlanValidator;
 use anyhow::{anyhow, Context, Result};
 use arda_core::project_contract::ProjectContract;
+use arda_orome::WorkerContextHandoffReceipt;
 use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
 use arda_vaire::{
     ContextDisposition, ContextOutcomeInput, ContextOutcomeReceipt, MnemosyneService,
@@ -25,12 +26,30 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::fs::{File, OpenOptions};
+use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 pub const QUEUE_EXECUTION_RECEIPT_CONTRACT: &str = "arda.workbench.queue_execution_receipt.v1";
 const DEFAULT_PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 const MAX_OBJECTIVE_PLAN_RECEIPT_BYTES: usize = 256 * 1024;
+const MAX_PARALLEL_QUEUE_EXECUTIONS: usize = 4;
+
+async fn execute_round<F>(futures: Vec<F>) -> Vec<F::Output>
+where
+    F: Future,
+{
+    futures::future::join_all(futures).await
+}
+
+async fn execute_prepared_round<P, F, T>(prepare: P, futures: Vec<F>) -> Result<Vec<T>>
+where
+    P: Future<Output = Result<()>>,
+    F: Future<Output = Result<T>>,
+{
+    prepare.await?;
+    execute_round(futures).await.into_iter().collect()
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QueueExecutionReceipt {
@@ -43,6 +62,562 @@ pub struct QueueExecutionReceipt {
     pub continuation_decision: Option<String>,
     pub detail: Option<String>,
     pub recorded_at_utc: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExplicitWorkbenchWorkItem {
+    pub objective_id: String,
+    pub leaf_id: String,
+    pub run_id: String,
+    pub objective: String,
+    pub execution_prompt: String,
+    pub verification_prompt: String,
+    pub review_prompt: String,
+    pub project_id: String,
+    pub project_contract_digest: String,
+    pub workspace_root: PathBuf,
+    pub approval_envelope: Value,
+    pub objective_plan_receipt: String,
+    #[serde(default)]
+    pub dependency_receipts: Vec<ExplicitReceiptReference>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ExplicitReceiptReference {
+    pub stage: String,
+    pub digest: String,
+    pub path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ExplicitExecutionOutcome {
+    pub run_id: String,
+    pub status: String,
+    pub root_receipt_digest: Option<String>,
+    pub receipts: Vec<ExplicitReceiptReference>,
+}
+
+#[derive(Debug, Clone)]
+pub struct WorkbenchExecutionAdapter {
+    root: PathBuf,
+    harness_url: String,
+    client: reqwest::Client,
+}
+
+impl WorkbenchExecutionAdapter {
+    pub fn new(root: impl AsRef<Path>) -> Result<Self> {
+        let harness_url =
+            std::env::var("ARDA_HARNESS_URL").unwrap_or_else(|_| "http://127.0.0.1:7878".into());
+        Self::with_harness_url(root, harness_url)
+    }
+
+    pub fn with_harness_url(
+        root: impl AsRef<Path>,
+        harness_url: impl Into<String>,
+    ) -> Result<Self> {
+        Ok(Self {
+            root: root.as_ref().to_path_buf(),
+            harness_url: harness_url.into().trim_end_matches('/').to_owned(),
+            client: reqwest::Client::builder()
+                .timeout(std::time::Duration::from_secs(1_200))
+                .build()?,
+        })
+    }
+
+    pub async fn execute(
+        &self,
+        item: &ExplicitWorkbenchWorkItem,
+    ) -> Result<ExplicitExecutionOutcome> {
+        validate_explicit_work_item(&self.root, item)?;
+        let response = self
+            .client
+            .get(format!("{}/v1/runs/{}", self.harness_url, item.run_id))
+            .send()
+            .await
+            .context("inspect explicit Workbench run")?;
+        let approval_id = item.approval_envelope["approval"]["approval_id"]
+            .as_str()
+            .ok_or_else(|| anyhow!("explicit Workbench approval id missing"))?;
+        let mut run = if response.status() == reqwest::StatusCode::NOT_FOUND {
+            let graph = run_graph_with_objective_plan_receipt(
+                &item.run_id,
+                &item.leaf_id,
+                &item.objective,
+                approval_id,
+                &item.objective_plan_receipt,
+                None,
+            );
+            let response = self
+                .client
+                .post(format!("{}/v1/runs/plan", self.harness_url))
+                .json(&json!({
+                    "project_id": item.project_id,
+                    "expected_project_contract_digest": item.project_contract_digest,
+                    "graph": graph,
+                    "envelope": explicit_stage_envelope(item, "plan")?,
+                }))
+                .send()
+                .await
+                .context("plan explicit Workbench run")?;
+            response_error(response, "plan explicit Workbench run").await?
+        } else {
+            response_error(response, "inspect explicit Workbench run").await?
+        };
+
+        if node_state(&run, "approval") != Some("succeeded") {
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/runs/{}/approve",
+                    self.harness_url, item.run_id
+                ))
+                .json(&json!({
+                    "node_id": "approval",
+                    "envelope": explicit_stage_envelope(item, "approve")?,
+                }))
+                .send()
+                .await
+                .context("approve explicit Workbench run")?;
+            run = response_error(response, "approve explicit Workbench run").await?;
+        }
+
+        for (stage, prompt) in [
+            ("execute", item.execution_prompt.as_str()),
+            ("verify", item.verification_prompt.as_str()),
+        ] {
+            if node_state(&run, stage) == Some("succeeded") {
+                continue;
+            }
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/runs/{}/nodes/{stage}/execute-provider",
+                    self.harness_url, item.run_id
+                ))
+                .json(&json!({
+                    "objective": prompt,
+                    "envelope": explicit_stage_envelope(item, stage)?,
+                }))
+                .send()
+                .await
+                .with_context(|| format!("execute explicit Workbench {stage} stage"))?;
+            let value = response_error(
+                response,
+                &format!("execute explicit Workbench {stage} stage"),
+            )
+            .await?;
+            if value["receipt"]["status"] != "succeeded" {
+                return explicit_failed_outcome(&self.root, item, &run, &value);
+            }
+            run = value["run"].clone();
+        }
+
+        if node_state(&run, "review") != Some("succeeded") {
+            let review_prompt = review_prompt_with_dependency_receipts(&self.root, item)?;
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/runs/{}/nodes/review/execute-provider",
+                    self.harness_url, item.run_id
+                ))
+                .json(&json!({
+                    "objective": review_prompt,
+                    "envelope": explicit_stage_envelope(item, "review")?,
+                }))
+                .send()
+                .await
+                .context("execute explicit Workbench review stage")?;
+            let value = response_error(response, "execute explicit Workbench review stage").await?;
+            if value["receipt"]["status"] != "succeeded" {
+                return explicit_failed_outcome(&self.root, item, &run, &value);
+            }
+            run = value["run"].clone();
+        }
+
+        if node_state(&run, "close") != Some("succeeded") {
+            let parent = node_output_digest(&run, "review")
+                .ok_or_else(|| anyhow!("explicit Workbench close omitted review receipt"))?;
+            let close_receipt = canonical_explicit_close_receipt(item, parent)?;
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/runs/{}/nodes/close/complete",
+                    self.harness_url, item.run_id
+                ))
+                .json(&json!({
+                    "envelope": explicit_stage_envelope(item, "close")?,
+                    "receipt_digest": close_receipt.receipt_digest,
+                }))
+                .send()
+                .await
+                .context("complete explicit Workbench close stage")?;
+            run = response_error(response, "complete explicit Workbench close stage").await?;
+            if node_output_digest(&run, "close") != Some(close_receipt.receipt_digest.as_str()) {
+                return Err(anyhow!(
+                    "explicit Workbench close node did not retain its canonical receipt digest"
+                ));
+            }
+            persist_explicit_close_receipt(&self.root, item, &close_receipt)?;
+        }
+        explicit_outcome_from_run(&self.root, item, &run)
+    }
+}
+
+fn review_prompt_with_dependency_receipts(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+) -> Result<String> {
+    if item.dependency_receipts.is_empty() {
+        return Ok(item.review_prompt.clone());
+    }
+    let mut receipts = Vec::with_capacity(item.dependency_receipts.len());
+    for reference in &item.dependency_receipts {
+        if reference.stage != "close" {
+            return Err(anyhow!(
+                "explicit dependency receipt `{}` is not a close receipt",
+                reference.path
+            ));
+        }
+        let path = root.join(&reference.path);
+        let bytes = std::fs::read(&path)
+            .with_context(|| format!("read explicit dependency receipt `{}`", path.display()))?;
+        let receipt: CanonicalHermesExecutionReceipt = serde_json::from_slice(&bytes)
+            .with_context(|| format!("decode explicit dependency receipt `{}`", path.display()))?;
+        if receipt.receipt_digest != reference.digest || !receipt.has_valid_digest()? {
+            return Err(anyhow!(
+                "explicit dependency receipt `{}` failed canonical digest validation",
+                path.display()
+            ));
+        }
+        if receipt.node_id != "close" || receipt.status != json!("succeeded") {
+            return Err(anyhow!(
+                "explicit dependency receipt `{}` is not a successful close receipt",
+                path.display()
+            ));
+        }
+        receipts.push(json!({
+            "run_id": receipt.run_id,
+            "node_id": receipt.node_id,
+            "receipt_digest": receipt.receipt_digest,
+            "status": receipt.status,
+            "summary": receipt.summary,
+            "project_contract_digest": receipt.project_contract_digest,
+            "parent_receipts": receipt.parent_receipts,
+        }));
+    }
+    Ok(format!(
+        "{} Canonical dependency close-receipt payloads (loaded from durable run paths and digest-validated before review): {}",
+        item.review_prompt,
+        serde_json::to_string(&receipts)?
+    ))
+}
+
+fn explicit_stage_envelope(item: &ExplicitWorkbenchWorkItem, stage: &str) -> Result<Value> {
+    let mut envelope = item.approval_envelope.clone();
+    let object = envelope
+        .as_object_mut()
+        .ok_or_else(|| anyhow!("explicit Workbench approval envelope must be an object"))?;
+    object.insert(
+        "idempotency_key".into(),
+        Value::String(format!("{}-{stage}", item.run_id)),
+    );
+    Ok(envelope)
+}
+
+fn canonical_explicit_close_receipt(
+    item: &ExplicitWorkbenchWorkItem,
+    parent: &str,
+) -> Result<CanonicalHermesExecutionReceipt> {
+    let authority_binding_digest = format!(
+        "sha256:{:x}",
+        Sha256::digest(serde_json::to_vec(&json!({
+            "objective_id": item.objective_id,
+            "leaf_id": item.leaf_id,
+            "project_id": item.project_id,
+            "project_contract_digest": item.project_contract_digest,
+            "approval": item.approval_envelope["approval"],
+        }))?)
+    );
+    let mut receipt = CanonicalHermesExecutionReceipt {
+        schema_version: "arda.execution-receipt.v3".into(),
+        receipt_digest: String::new(),
+        authority_binding_digest,
+        run_id: item.run_id.clone(),
+        node_id: "close".into(),
+        idempotency_key: format!("{}-close", item.run_id),
+        status: json!("succeeded"),
+        summary: "Workbench closed the reviewed objective leaf.".into(),
+        tool_evidence: Vec::new(),
+        test_evidence: Vec::new(),
+        artifacts: Vec::new(),
+        usage: CanonicalHermesUsage {
+            provider: Some("arda-workbench".into()),
+            model: Some("deterministic-close".into()),
+            api_calls: 0,
+            input_tokens: 0,
+            output_tokens: 0,
+            total_tokens: 0,
+            estimated_cost_usd: 0.0,
+            cost_measurement: json!("observed"),
+            completed: true,
+            failed: false,
+        },
+        adapter: "arda-workbench".into(),
+        adapter_version: "1".into(),
+        project_contract_digest: item.project_contract_digest.clone(),
+        parent_receipts: vec![parent.to_owned()],
+        context_capsule_id: None,
+        context_capsule_digest: None,
+        context_use_receipt_ref: None,
+        context_handoff: None,
+        recorded_at_unix_ms: u128::try_from(Utc::now().timestamp_millis()).unwrap_or_default(),
+    };
+    receipt.receipt_digest = receipt.computed_digest()?;
+    Ok(receipt)
+}
+
+fn persist_explicit_close_receipt(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+    receipt: &CanonicalHermesExecutionReceipt,
+) -> Result<()> {
+    let receipt_root = root
+        .join("data/runs")
+        .join(&item.run_id)
+        .join("execution-receipts");
+    std::fs::create_dir_all(&receipt_root).with_context(|| {
+        format!(
+            "create explicit close receipt directory `{}`",
+            receipt_root.display()
+        )
+    })?;
+    let path = receipt_root.join("close.json");
+    let temporary = receipt_root.join(format!(".close.json.tmp.{}", std::process::id()));
+    std::fs::write(&temporary, serde_json::to_vec_pretty(receipt)?)
+        .with_context(|| format!("write explicit close receipt `{}`", temporary.display()))?;
+    std::fs::rename(&temporary, &path)
+        .with_context(|| format!("install explicit close receipt `{}`", path.display()))?;
+    Ok(())
+}
+
+fn explicit_failed_outcome(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+    run: &Value,
+    response: &Value,
+) -> Result<ExplicitExecutionOutcome> {
+    let mut outcome = explicit_outcome_from_run(root, item, run)?;
+    outcome.status = response["receipt"]["status"]
+        .as_str()
+        .unwrap_or("failed")
+        .to_owned();
+    Ok(outcome)
+}
+
+fn validate_explicit_work_item(root: &Path, item: &ExplicitWorkbenchWorkItem) -> Result<()> {
+    for (name, value) in [
+        ("objective_id", item.objective_id.as_str()),
+        ("leaf_id", item.leaf_id.as_str()),
+        ("run_id", item.run_id.as_str()),
+        ("objective", item.objective.as_str()),
+        ("execution_prompt", item.execution_prompt.as_str()),
+        ("verification_prompt", item.verification_prompt.as_str()),
+        ("review_prompt", item.review_prompt.as_str()),
+        ("project_id", item.project_id.as_str()),
+    ] {
+        if value.trim().is_empty() {
+            return Err(anyhow!("explicit work item omitted `{name}`"));
+        }
+    }
+    for (name, digest) in [
+        (
+            "project_contract_digest",
+            item.project_contract_digest.as_str(),
+        ),
+        (
+            "objective_plan_receipt",
+            item.objective_plan_receipt.as_str(),
+        ),
+    ] {
+        if !digest.strip_prefix("sha256:").is_some_and(|value| {
+            value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+        }) {
+            return Err(anyhow!("explicit work item has invalid `{name}`"));
+        }
+    }
+    let approval = item
+        .approval_envelope
+        .get("approval")
+        .and_then(Value::as_object)
+        .ok_or_else(|| anyhow!("explicit work item omitted authenticated approval envelope"))?;
+    if approval.get("schema_version").and_then(Value::as_str) != Some("arda.orome.task_approval.v1")
+        || approval
+            .get("approval_id")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
+    {
+        return Err(anyhow!(
+            "explicit work item has invalid authenticated approval envelope"
+        ));
+    }
+    let ledger_writes = approval
+        .get("ledger_writes")
+        .and_then(Value::as_array)
+        .ok_or_else(|| anyhow!("explicit work item approval omitted ledger authority"))?;
+    if ledger_writes.iter().any(|path| {
+        path.as_str()
+            .is_some_and(|path| path.contains("core/projects/tasks"))
+    }) || !ledger_writes
+        .iter()
+        .any(|path| path.as_str() == Some("data/arda/objectives.sqlite3"))
+        || !ledger_writes
+            .iter()
+            .any(|path| path.as_str() == Some("data/runs"))
+    {
+        return Err(anyhow!(
+            "explicit work item approval does not authorize only resident Arda state"
+        ));
+    }
+    let canonical_root = root.canonicalize().context("canonicalize Arda root")?;
+    let workspace_root = item
+        .workspace_root
+        .canonicalize()
+        .context("canonicalize explicit work-item workspace")?;
+    if !workspace_root.starts_with(&canonical_root) {
+        return Err(anyhow!("explicit work-item workspace escapes Arda root"));
+    }
+    Ok(())
+}
+
+fn explicit_outcome_from_run(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+    run: &Value,
+) -> Result<ExplicitExecutionOutcome> {
+    let mut receipts = Vec::new();
+    for stage in ["execute", "verify", "review", "close"] {
+        if node_state(run, stage) != Some("succeeded") {
+            return Ok(ExplicitExecutionOutcome {
+                run_id: item.run_id.clone(),
+                status: "in_progress".into(),
+                root_receipt_digest: None,
+                receipts,
+            });
+        }
+        let digest = node_output_digest(run, stage)
+            .ok_or_else(|| anyhow!("explicit Workbench `{stage}` node omitted receipt digest"))?;
+        receipts.push(ExplicitReceiptReference {
+            stage: stage.into(),
+            digest: digest.to_owned(),
+            path: root
+                .join("data/runs")
+                .join(&item.run_id)
+                .join("execution-receipts")
+                .join(format!("{stage}.json"))
+                .display()
+                .to_string(),
+        });
+    }
+    Ok(ExplicitExecutionOutcome {
+        run_id: item.run_id.clone(),
+        status: "succeeded".into(),
+        root_receipt_digest: receipts.last().map(|receipt| receipt.digest.clone()),
+        receipts,
+    })
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CanonicalHermesToolEvidence {
+    tool: String,
+    action: String,
+    exit_code: Option<i32>,
+    output_digest: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CanonicalHermesTestEvidence {
+    check_id: String,
+    command: String,
+    status: String,
+    exit_code: i32,
+    output_digest: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CanonicalHermesArtifactEvidence {
+    path: String,
+    digest: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CanonicalHermesUsage {
+    provider: Option<String>,
+    model: Option<String>,
+    api_calls: u64,
+    input_tokens: u64,
+    output_tokens: u64,
+    total_tokens: u64,
+    estimated_cost_usd: f64,
+    #[serde(default)]
+    cost_measurement: Value,
+    completed: bool,
+    failed: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CanonicalHermesExecutionReceipt {
+    schema_version: String,
+    receipt_digest: String,
+    #[serde(default)]
+    authority_binding_digest: String,
+    run_id: String,
+    node_id: String,
+    idempotency_key: String,
+    status: Value,
+    summary: String,
+    tool_evidence: Vec<CanonicalHermesToolEvidence>,
+    test_evidence: Vec<CanonicalHermesTestEvidence>,
+    artifacts: Vec<CanonicalHermesArtifactEvidence>,
+    usage: CanonicalHermesUsage,
+    adapter: String,
+    adapter_version: String,
+    project_contract_digest: String,
+    parent_receipts: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    context_capsule_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    context_capsule_digest: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    context_use_receipt_ref: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    context_handoff: Option<WorkerContextHandoffReceipt>,
+    recorded_at_unix_ms: u128,
+}
+
+impl CanonicalHermesExecutionReceipt {
+    fn computed_digest(&self) -> Result<String> {
+        let mut unsigned = self.clone();
+        unsigned.receipt_digest.clear();
+        Ok(format!(
+            "sha256:{:x}",
+            Sha256::digest(serde_json::to_vec(&unsigned)?)
+        ))
+    }
+
+    fn has_valid_digest(&self) -> Result<bool> {
+        Ok(self
+            .receipt_digest
+            .strip_prefix("sha256:")
+            .is_some_and(|value| {
+                value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+            })
+            && self.computed_digest()? == self.receipt_digest)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -75,12 +650,24 @@ impl WorkbenchQueueExecutor {
     }
 
     pub async fn execute_once(&self) -> Result<QueueExecutionReceipt> {
+        self.prepare_execution_round()?;
+        self.execute_prepared_once().await
+    }
+
+    fn prepare_execution_round(&self) -> Result<()> {
         // Serialize only canonical reconciliation and claim selection. The
         // target locks then preserve project/worktree exclusion for dispatch.
         let executor_coordinator_lock = acquire_executor_lock(&self.root)?;
         reconcile_terminal_objective_leaves(&self.root)?;
         let queue = ActiveQueueExecutor::new(&self.root);
         queue.reconcile_schedules(Utc::now())?;
+        drop(executor_coordinator_lock);
+        Ok(())
+    }
+
+    async fn execute_prepared_once(&self) -> Result<QueueExecutionReceipt> {
+        let executor_coordinator_lock = acquire_executor_lock(&self.root)?;
+        let queue = ActiveQueueExecutor::new(&self.root);
         let Some((claim, target_locks)) =
             claim_execution_with_available_target(&self.root, &queue)?
         else {
@@ -169,23 +756,23 @@ impl WorkbenchQueueExecutor {
                     detail.as_deref(),
                     Some(decision),
                 )?;
-                if is_objective_leaf(&claim.task) {
-                    if queue_status == "completed" {
-                        advance_objective_after_leaf(&self.root, &claim.task)?;
-                    } else if matches!(
+                if is_objective_leaf(&claim.task) && queue_status == "completed" {
+                    advance_objective_after_leaf(&self.root, &claim.task)?;
+                } else if queue_status != "completed"
+                    && matches!(
                         decision,
                         "retry_same_task" | "revise_task" | "replan_objective" | "wait_until"
-                    ) {
-                        materialize_continuation(
-                            &self.root,
-                            &claim.task,
-                            &run_id,
-                            decision,
-                            detail
-                                .as_deref()
-                                .unwrap_or("terminal leaf verification failed"),
-                        )?;
-                    }
+                    )
+                {
+                    materialize_continuation(
+                        &self.root,
+                        &claim.task,
+                        &run_id,
+                        decision,
+                        detail
+                            .as_deref()
+                            .unwrap_or("terminal task verification failed"),
+                    )?;
                 }
                 project_terminal_outcome(
                     &self.root,
@@ -257,6 +844,16 @@ impl WorkbenchQueueExecutor {
         }
     }
 
+    pub async fn execute_available(&self) -> Result<Vec<QueueExecutionReceipt>> {
+        execute_prepared_round(
+            async { self.prepare_execution_round() },
+            (0..MAX_PARALLEL_QUEUE_EXECUTIONS)
+                .map(|_| self.execute_prepared_once())
+                .collect::<Vec<_>>(),
+        )
+        .await
+    }
+
     pub async fn cancel_task(&self, task_id: &str, reason: &str) -> Result<Value> {
         let _executor_lock = acquire_executor_lock(&self.root)?;
         let task = self
@@ -312,6 +909,34 @@ impl WorkbenchQueueExecutor {
             }));
         }
         schedule_ledger.with_active_authority(&task.id, objective_id, || Ok(()))?;
+        if self.existing_run(&run_id).await?.is_none() {
+            // This helper owns the schedule transition too: cancelled results
+            // are appended through ScheduleLedger::with_cancellation_transition.
+            ActiveQueueExecutor::new(&self.root).append_workbench_terminal(
+                &task,
+                "failed",
+                "cancelled",
+                &run_id,
+                None,
+                Some(reason),
+            )?;
+            project_terminal_outcome(
+                &self.root,
+                &task,
+                &run_id,
+                "failed",
+                "cancelled",
+                None,
+                Some(reason),
+            )?;
+            return Ok(json!({
+                "status": "cancelled",
+                "reconciled": false,
+                "task_id": task.id,
+                "workbench_run_id": run_id,
+                "run_existed": false,
+            }));
+        }
         let envelope = approval_envelope(&task, &format!("cancel-{run_id}"))?;
         let response = self
             .client
@@ -475,6 +1100,7 @@ impl WorkbenchQueueExecutor {
         require_closure_evidence(&run)?;
         if node_state(&run, "review") != Some("succeeded") {
             let envelope = approval_envelope(&claim.task, &format!("review-{run_id}"))?;
+            let review_evidence = pre_review_receipt_projection(&self.root, run_id, &run)?;
             let response = self
                 .client
                 .post(format!(
@@ -482,7 +1108,7 @@ impl WorkbenchQueueExecutor {
                     self.harness_url
                 ))
                 .json(&json!({
-                    "objective": review_prompt(&claim.task, leaf_contract),
+                    "objective": review_prompt(&claim.task, leaf_contract, &review_evidence),
                     "envelope": envelope,
                 }))
                 .send()
@@ -1000,6 +1626,31 @@ fn task_project_id(task: &QueueRecord) -> Option<&str> {
         .filter(|id| !id.is_empty())
 }
 
+fn task_project_ids(task: &QueueRecord) -> Vec<&str> {
+    let mut project_ids = task
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get("project_ids"))
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .collect::<Vec<_>>();
+    if project_ids.is_empty() {
+        project_ids.extend(task_project_id(task));
+    }
+    let mut unique = Vec::with_capacity(project_ids.len());
+    for project_id in project_ids {
+        if !unique.contains(&project_id) {
+            unique.push(project_id);
+        }
+    }
+    unique
+}
+
 fn task_worktree_path(task: &QueueRecord) -> Option<&str> {
     task.extra
         .get("meta")
@@ -1016,12 +1667,13 @@ fn is_objective_leaf(task: &QueueRecord) -> bool {
 
 fn is_decomposable_objective(task: &QueueRecord) -> bool {
     !is_objective_leaf(task)
-        && task.extra["meta"]["acceptance_artifact"]
-            .as_str()
-            .is_some_and(|path| !path.trim().is_empty())
-        && task.extra["meta"]["acceptance_markers"]
-            .as_array()
-            .is_some_and(|markers| !markers.is_empty())
+        && (task_project_ids(task).len() > 1
+            || (task.extra["meta"]["acceptance_artifact"]
+                .as_str()
+                .is_some_and(|path| !path.trim().is_empty())
+                && task.extra["meta"]["acceptance_markers"]
+                    .as_array()
+                    .is_some_and(|markers| !markers.is_empty())))
 }
 
 fn objective_plan_for_claim(root: &Path, task: &QueueRecord) -> Result<(ObjectivePlan, String)> {
@@ -1067,6 +1719,12 @@ fn objective_plan_for_claim(root: &Path, task: &QueueRecord) -> Result<(Objectiv
             "objective leaf `{}` embeds an invalid plan: {}",
             task.id,
             validation.errors.join("; ")
+        ));
+    }
+    if !is_canonical_workbench_run_id(plan_run_id) {
+        return Err(anyhow!(
+            "objective leaf `{}` used an invalid objective-plan run id",
+            task.id
         ));
     }
     let persisted_path = root
@@ -1148,7 +1806,11 @@ fn verification_prompt(task: &QueueRecord, contract: Option<&ExecutableLeafContr
     )
 }
 
-fn review_prompt(task: &QueueRecord, contract: Option<&ExecutableLeafContract>) -> String {
+fn review_prompt(
+    task: &QueueRecord,
+    contract: Option<&ExecutableLeafContract>,
+    receipt_projection: &Value,
+) -> String {
     let evidence = contract
         .map(|contract| contract.evidence_requirements.join("; "))
         .filter(|value| !value.trim().is_empty())
@@ -1157,12 +1819,114 @@ fn review_prompt(task: &QueueRecord, contract: Option<&ExecutableLeafContract>) 
         .map(|contract| contract.verification_checks.join(", "))
         .filter(|value| !value.trim().is_empty())
         .unwrap_or_else(|| "the attached project contract checks".to_string());
+    let receipt_projection = serde_json::to_string(receipt_projection)
+        .unwrap_or_else(|_| "{\"state\":\"unavailable\"}".into());
     format!(
-        "Independently review task `{}` after execution and verification. Inspect the changed project state and durable receipts against these evidence requirements: {}. Confirm that the prior verification receipt covers these declared checks: {}. Do not rerun checks or modify files. Name any concrete defect, unsupported completion claim, security issue, or missing evidence. Return success only when the objective is satisfied and the evidence is sufficient.",
+        "Independently review task `{}` after execution and verification. Inspect the changed project state and this canonical credential-free receipt projection: {}. Evaluate it against these evidence requirements: {}. Confirm that the prior verification receipt covers these declared checks: {}. Do not rerun checks or modify files. Name any concrete defect, unsupported completion claim, security issue, or missing evidence. Return success only when the objective is satisfied and the evidence is sufficient.",
         task.title.as_deref().unwrap_or(task.id.as_str()),
+        receipt_projection,
         evidence,
         checks
     )
+}
+
+fn pre_review_receipt_projection(root: &Path, run_id: &str, run: &Value) -> Result<Value> {
+    let receipt_root = root
+        .join("data/runs")
+        .join(run_id)
+        .join("execution-receipts");
+    let execute_digest = node_output_digest(run, "execute")
+        .ok_or_else(|| anyhow!("completed execute node omitted its output digest"))?;
+    let verify_digest = node_output_digest(run, "verify")
+        .ok_or_else(|| anyhow!("completed verify node omitted its output digest"))?;
+    let execute_receipt = exact_pre_review_receipt(
+        &receipt_root.join("execute.json"),
+        "execute",
+        execute_digest,
+    )?;
+    let verify_receipt =
+        exact_pre_review_receipt(&receipt_root.join("verify.json"), "verify", verify_digest)?;
+    Ok(json!({
+        "execute_output_digest": execute_digest,
+        "verify_output_digest": verify_digest,
+        "execute_receipt": execute_receipt,
+        "verify_receipt": verify_receipt,
+    }))
+}
+
+fn exact_pre_review_receipt(path: &Path, stage: &str, expected_digest: &str) -> Result<Value> {
+    let raw = std::fs::read_to_string(path)
+        .with_context(|| format!("read exact {stage} execution receipt `{}`", path.display()))?;
+    let receipt: Value = serde_json::from_str(&raw).with_context(|| {
+        format!(
+            "decode exact {stage} execution receipt `{}`",
+            path.display()
+        )
+    })?;
+    let canonical: CanonicalHermesExecutionReceipt =
+        serde_json::from_str(&raw).with_context(|| {
+            format!(
+                "decode canonical {stage} execution receipt `{}`",
+                path.display()
+            )
+        })?;
+    if canonical.schema_version != "arda.execution-receipt.v3" {
+        return Err(anyhow!(
+            "exact {stage} receipt uses unsupported schema `{}`",
+            canonical.schema_version
+        ));
+    }
+    if !canonical.has_valid_digest()? {
+        return Err(anyhow!(
+            "exact {stage} receipt has an invalid canonical digest"
+        ));
+    }
+    let expected_run_id = path
+        .parent()
+        .and_then(Path::parent)
+        .and_then(Path::file_name)
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| anyhow!("exact {stage} receipt path omitted its canonical run id"))?;
+    if canonical.run_id != expected_run_id || canonical.node_id != stage {
+        return Err(anyhow!(
+            "exact {stage} receipt run or node identity does not match its canonical path"
+        ));
+    }
+    if canonical.receipt_digest != expected_digest {
+        return Err(anyhow!(
+            "exact {stage} receipt digest does not match the completed node output"
+        ));
+    }
+    if canonical.status != "succeeded" {
+        return Err(anyhow!("exact {stage} receipt is not successful"));
+    }
+    for field in [
+        "authority_binding_digest",
+        "adapter",
+        "project_contract_digest",
+    ] {
+        if !receipt[field]
+            .as_str()
+            .is_some_and(|value| !value.trim().is_empty())
+        {
+            return Err(anyhow!("exact {stage} receipt omitted `{field}`"));
+        }
+    }
+    Ok(json!({
+        "receipt_digest": receipt["receipt_digest"],
+        "authority_binding_digest": receipt["authority_binding_digest"],
+        "status": receipt["status"],
+        "summary": receipt["summary"],
+        "usage": {
+            "provider": receipt["usage"]["provider"],
+            "model": receipt["usage"]["model"],
+        },
+        "adapter": receipt["adapter"],
+        "project_contract_digest": receipt["project_contract_digest"],
+        "tool_evidence": receipt["tool_evidence"],
+        "test_evidence": receipt["test_evidence"],
+        "artifacts": receipt["artifacts"],
+    }))
 }
 
 fn continuation_sequence(task: &QueueRecord) -> u64 {
@@ -1420,17 +2184,6 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
             digest: Some(format!("sha256:{:x}", Sha256::digest(bytes))),
         });
     }
-    let repository_state = std::process::Command::new("git")
-        .args(["status", "--short"])
-        .current_dir(root)
-        .output()
-        .map(|output| output.stdout)
-        .unwrap_or_else(|_| b"repository state unavailable".to_vec());
-    sources.push(ObjectiveContextSource {
-        kind: "repository_state".into(),
-        reference: "git status --short".into(),
-        digest: Some(format!("sha256:{:x}", Sha256::digest(repository_state))),
-    });
 
     let mut plan = ObjectiveDecomposer::default().decompose_grounded(
         &Objective {
@@ -1447,10 +2200,76 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
         },
         sources,
     );
-    let project_id = task_project_id(task).unwrap_or(DEFAULT_PROJECT_ID);
-    for contract in plan.leaf_contracts.values_mut() {
-        contract.project_id = project_id.to_owned();
+    let project_ids = task_project_ids(task);
+    let project_id = project_ids.first().copied().unwrap_or(DEFAULT_PROJECT_ID);
+    let read_only_template = plan
+        .leaf_contracts
+        .get("inspect-authorities")
+        .cloned()
+        .ok_or_else(|| anyhow!("objective decomposition omitted inspection contract"))?;
+    if project_ids.len() > 1 {
+        for contract in plan.leaf_contracts.values_mut() {
+            contract.project_id = DEFAULT_PROJECT_ID.to_owned();
+        }
+        let inspection_index = plan
+            .tasks
+            .iter()
+            .position(|planned| planned.key == "inspect-authorities")
+            .ok_or_else(|| anyhow!("objective decomposition omitted inspection leaf"))?;
+        let inspection = plan.tasks.remove(inspection_index);
+        let inspection_contract = plan
+            .leaf_contracts
+            .remove("inspect-authorities")
+            .ok_or_else(|| anyhow!("objective decomposition omitted inspection contract"))?;
+        let inspection_keys = project_ids
+            .iter()
+            .enumerate()
+            .map(|(index, _)| format!("inspect-authorities-project-{}", index + 1))
+            .collect::<Vec<_>>();
+        for planned in &mut plan.tasks {
+            if planned
+                .depends_on
+                .iter()
+                .any(|dependency| dependency == "inspect-authorities")
+            {
+                planned
+                    .depends_on
+                    .retain(|dependency| dependency != "inspect-authorities");
+                planned.depends_on.extend(inspection_keys.iter().cloned());
+            }
+        }
+        let mut inspections = Vec::with_capacity(project_ids.len());
+        for (project_id, key) in project_ids.iter().zip(&inspection_keys) {
+            let mut planned = inspection.clone();
+            planned.key = key.clone();
+            planned.title = format!(
+                "Inspect only bound project `{project_id}` for project-local evidence needed by: {objective}. Do not require sibling project files in this leaf; joined synthesis compares all project leaves."
+            );
+            inspections.push(planned);
+
+            let mut contract = inspection_contract.clone();
+            contract.project_id = (*project_id).to_owned();
+            contract.verification_checks = vec!["git status --short --branch".to_owned()];
+            plan.leaf_contracts.insert(key.clone(), contract);
+        }
+        plan.tasks
+            .splice(inspection_index..inspection_index, inspections);
+    } else {
+        for contract in plan.leaf_contracts.values_mut() {
+            contract.project_id = project_id.to_owned();
+        }
     }
+    let outcome = plan
+        .leaf_contracts
+        .get_mut("produce-outcome")
+        .expect("grounded decomposition always provides an outcome contract");
+    let project_id = outcome.project_id.clone();
+    let mut read_only_outcome = read_only_template;
+    read_only_outcome.project_id = project_id;
+    read_only_outcome.authority_class = "read_only".into();
+    read_only_outcome.verification_checks = vec!["git status --short --branch".into()];
+    read_only_outcome.evidence_requirements = vec!["worker_report".into()];
+    *outcome = read_only_outcome;
     let validation = PlanValidator::default().validate_objective_plan(&plan);
     if !validation.ok {
         return Err(anyhow!(
@@ -1505,6 +2324,54 @@ fn append_queue_values(root: &Path, values: &[Value]) -> Result<()> {
 
 fn append_queue_value(root: &Path, value: Value) -> Result<()> {
     append_queue_values(root, &[value])
+}
+
+fn is_canonical_workbench_run_id(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 200
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
+}
+
+fn append_objective_terminal_once(root: &Path, objective_id: &str, value: Value) -> Result<()> {
+    use std::io::{BufRead, BufReader, Write};
+
+    let path = root.join("core/projects/tasks/queue.jsonl");
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    let mut file = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .append(true)
+        .open(&path)?;
+    file.lock_exclusive()?;
+    let result = (|| -> Result<()> {
+        let mut terminal_exists = false;
+        for line in BufReader::new(File::open(&path)?).lines() {
+            let line = line?;
+            let record: Value = serde_json::from_str(&line).with_context(|| {
+                format!("parse locked canonical queue record for objective `{objective_id}`")
+            })?;
+            if record["id"] == objective_id
+                && record["contract"] == "arda.workbench.objective_terminal.v1"
+            {
+                terminal_exists = true;
+                break;
+            }
+        }
+        if terminal_exists {
+            return Ok(());
+        }
+        writeln!(file, "{value}")?;
+        file.sync_data()?;
+        Ok(())
+    })();
+    let unlock = FileExt::unlock(&file);
+    result?;
+    unlock?;
+    Ok(())
 }
 
 fn materialize_objective_leaves(
@@ -1810,6 +2677,60 @@ fn reconcile_terminal_objective_leaves(root: &Path) -> Result<()> {
         super::task_queue::TaskQueueAnalyzer::new(root.join("core/projects/tasks/queue.jsonl"))
             .load()?;
     let effective = super::task_queue::TaskQueueAnalyzer::effective_records(records);
+    for task in effective.iter().filter(|record| {
+        !is_objective_leaf(record)
+            && matches!(
+                record.status.as_deref(),
+                Some("completed" | "failed" | "cancelled")
+            )
+    }) {
+        let run_id = task
+            .extra
+            .get("workbench_run_id")
+            .and_then(Value::as_str)
+            .unwrap_or("reconciled-terminal-task");
+        if !is_canonical_workbench_run_id(run_id) {
+            return Err(anyhow!(
+                "terminal task `{}` used an invalid canonical run id",
+                task.id
+            ));
+        }
+        let outcome_path = root
+            .join("audit/workbench-queue")
+            .join(run_id)
+            .join("execution_receipt.json");
+        if !outcome_path.exists() {
+            project_terminal_outcome(
+                root,
+                task,
+                run_id,
+                task.status.as_deref().unwrap_or("failed"),
+                task.result.as_deref().unwrap_or("failed"),
+                task.extra
+                    .get("execution_receipt_digest")
+                    .and_then(Value::as_str),
+                task.extra.get("detail").and_then(Value::as_str),
+            )?;
+        }
+        if task.status.as_deref() == Some("failed") {
+            if let Some(decision @ ("retry_same_task" | "revise_task" | "wait_until")) = task
+                .extra
+                .get("continuation_decision")
+                .and_then(Value::as_str)
+            {
+                materialize_continuation(
+                    root,
+                    task,
+                    run_id,
+                    decision,
+                    task.extra
+                        .get("detail")
+                        .and_then(Value::as_str)
+                        .unwrap_or("reconciled terminal task continuation"),
+                )?;
+            }
+        }
+    }
     let terminal_objectives = effective
         .iter()
         .filter(|record| {
@@ -1951,6 +2872,15 @@ fn advance_objective_after_leaf(root: &Path, completed_leaf: &QueueRecord) -> Re
         super::task_queue::TaskQueueAnalyzer::new(root.join("core/projects/tasks/queue.jsonl"))
             .load()?;
     let effective = super::task_queue::TaskQueueAnalyzer::effective_records(records);
+    if effective.iter().any(|record| {
+        record.id == objective_id
+            && matches!(
+                record.status.as_deref(),
+                Some("completed" | "failed" | "cancelled")
+            )
+    }) {
+        return Ok(());
+    }
     let leaves = effective
         .iter()
         .filter(|record| {
@@ -1988,14 +2918,91 @@ fn advance_objective_after_leaf(root: &Path, completed_leaf: &QueueRecord) -> Re
             .iter()
             .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "verify-acceptance")
             .ok_or_else(|| anyhow!("objective `{objective_id}` omitted acceptance leaf"))?;
-        validate_task_acceptance_artifact(root, acceptance_leaf)?;
-        let artifact = acceptance_leaf.extra["meta"]["acceptance_artifact"]
-            .as_str()
+        let acceptance_run_id = acceptance_leaf
+            .extra
+            .get("workbench_run_id")
+            .and_then(Value::as_str)
             .filter(|value| !value.trim().is_empty())
-            .ok_or_else(|| anyhow!("objective `{objective_id}` omitted acceptance artifact"))?;
+            .ok_or_else(|| {
+                anyhow!("objective `{objective_id}` acceptance leaf omitted its run id")
+            })?;
+        if !is_canonical_workbench_run_id(acceptance_run_id) {
+            return Err(anyhow!(
+                "objective `{objective_id}` acceptance leaf used an invalid canonical run id"
+            ));
+        }
+        let artifact = format!("data/runs/{acceptance_run_id}/execution-receipts/review.json");
+        let artifact_path = root.join(&artifact);
+        if !artifact_path.is_file() {
+            return Err(anyhow!(
+                "objective `{objective_id}` acceptance receipt is missing at {}",
+                artifact_path.display()
+            ));
+        }
+        let artifact_bytes = std::fs::read(&artifact_path).with_context(|| {
+            format!(
+                "read objective acceptance receipt `{}`",
+                artifact_path.display()
+            )
+        })?;
+        let artifact_receipt: CanonicalHermesExecutionReceipt =
+            serde_json::from_slice(&artifact_bytes).with_context(|| {
+                format!(
+                    "parse objective acceptance receipt `{}`",
+                    artifact_path.display()
+                )
+            })?;
+        if artifact_receipt.schema_version != "arda.execution-receipt.v3"
+            || artifact_receipt.run_id != acceptance_run_id
+            || artifact_receipt.node_id != "review"
+            || artifact_receipt.status != "succeeded"
+            || !artifact_receipt.has_valid_digest()?
+        {
+            return Err(anyhow!(
+                "objective `{objective_id}` acceptance receipt is not a successful canonical review receipt"
+            ));
+        }
+        let run_root = root.join("data/runs").join(acceptance_run_id);
+        let result_path = run_root.join("result.json");
+        let result: Value =
+            serde_json::from_slice(&std::fs::read(&result_path).with_context(|| {
+                format!("read acceptance run result `{}`", result_path.display())
+            })?)
+            .with_context(|| format!("parse acceptance run result `{}`", result_path.display()))?;
+        if result["provider_receipt"]["receipt_digest"] != artifact_receipt.receipt_digest
+            || result["provider_receipt"]["authority_binding_digest"]
+                != artifact_receipt.authority_binding_digest
+        {
+            return Err(anyhow!(
+                "objective `{objective_id}` acceptance receipt digest mismatch"
+            ));
+        }
+        let checkpoint_path = run_root.join("checkpoint.json");
+        let checkpoint: Value =
+            serde_json::from_slice(&std::fs::read(&checkpoint_path).with_context(|| {
+                format!(
+                    "read acceptance run checkpoint `{}`",
+                    checkpoint_path.display()
+                )
+            })?)
+            .with_context(|| {
+                format!(
+                    "parse acceptance run checkpoint `{}`",
+                    checkpoint_path.display()
+                )
+            })?;
+        if checkpoint["run_id"] != acceptance_run_id
+            || checkpoint["objective_id"] != acceptance_leaf.id
+        {
+            return Err(anyhow!(
+                "objective `{objective_id}` acceptance receipt is not bound to its canonical run"
+            ));
+        }
+        let acceptance_artifact_digest = format!("sha256:{:x}", Sha256::digest(&artifact_bytes));
         let root_meta = acceptance_leaf.extra["meta"]["objective_root_meta"].clone();
-        return append_queue_value(
+        return append_objective_terminal_once(
             root,
+            objective_id,
             json!({
                 "contract": "arda.workbench.objective_terminal.v1",
                 "id": objective_id,
@@ -2006,6 +3013,7 @@ fn advance_objective_after_leaf(root: &Path, completed_leaf: &QueueRecord) -> Re
                 "completed_at_utc": Utc::now().to_rfc3339(),
                 "continuation_decision": "close_complete",
                 "acceptance_artifact": artifact,
+                "acceptance_artifact_digest": acceptance_artifact_digest,
                 "acceptance_leaf_id": acceptance_leaf.id,
                 "closure_evidence_receipts": evidence,
                 "meta": root_meta,
@@ -2196,9 +3204,41 @@ fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &Queu
             format!(" Correct the prior failed attempt before proceeding: {directive}.")
         })
         .unwrap_or_default();
+    let leaf_key = task.extra["meta"]["objective_leaf_key"].as_str();
+    let authority_instructions = if leaf_key
+        .is_some_and(|key| key.starts_with("inspect-authorities"))
+    {
+        "Inspect only the bound project and cite project-local material source evidence. Do not require root-level or sibling-project authority paths that are outside this worker boundary.".to_owned()
+    } else {
+        format!("Read and cite these live authorities before changing anything:\n{sources}")
+    };
+    let outcome_requirement = match leaf_key {
+        Some("recover-context") => {
+            "Final output must be an evidence-backed context summary sufficient for downstream objective leaves."
+        }
+        Some(key) if key.starts_with("inspect-authorities") => {
+            "Final output must be a project-scoped inspection report anchored to material source evidence."
+        }
+        Some("synthesize-findings") => {
+            "Final output must synthesize the completed project inspections into prioritized findings."
+        }
+        Some("produce-outcome") => {
+            "Final output must be the concrete operator-visible outcome required by the reviewed objective."
+        }
+        Some("verify-acceptance") => {
+            "Final output must be an evidence-backed acceptance verdict for the reviewed objective."
+        }
+        _ => "Final output must satisfy this validated objective-plan leaf with material evidence.",
+    };
     format!(
-        "{}\n\nExecute this validated objective plan in dependency order:\n{}\n\nRead and cite these live authorities before changing anything:\n{}\n\nFinal output must be a concrete prioritized repair backlog with evidence, human-visible behavior, and the smallest authoritative implementation surface.{}{}{} Preserve unrelated dirty work and do not edit generated queue projections.",
-        objective, tasks, sources, artifact_requirement, checks, revision_directive
+        "{}\n\nExecute this validated objective plan in dependency order:\n{}\n\n{}\n\n{}{}{}{} Preserve unrelated dirty work and do not edit generated queue projections.",
+        objective,
+        tasks,
+        authority_instructions,
+        outcome_requirement,
+        artifact_requirement,
+        checks,
+        revision_directive
     )
 }
 
@@ -2295,6 +3335,22 @@ fn run_graph_value(
     let execute_authority = leaf_contract
         .map(|contract| contract.authority_class.as_str())
         .unwrap_or("execute_with_approval");
+    let read_only_execute = execute_authority == "read_only";
+    let execute_kind = if read_only_execute {
+        "inspect"
+    } else {
+        "execute"
+    };
+    let execute_role = if read_only_execute {
+        "local_summary_classification"
+    } else {
+        "implementer"
+    };
+    let execute_toolsets = if read_only_execute {
+        json!(["file"])
+    } else {
+        json!(["file", "terminal"])
+    };
     let node = |id: &str, kind: &str, authority: &str, parents: Vec<&str>, worker: Value| {
         let governed = matches!(id, "execute" | "verify");
         let max_joules = leaf_contract
@@ -2340,13 +3396,13 @@ fn run_graph_value(
         "nodes": [
             node("plan", "plan", "read_only", vec![], Value::Null),
             node("approval", "approval", "human_approval", vec![approval_id], Value::Null),
-            node("execute", "execute", execute_authority, vec![approval_id], json!({
-                "role": "implementer",
+            node("execute", execute_kind, execute_authority, vec![approval_id], json!({
+                "role": execute_role,
                 "worker_id": format!("hermes:queue:{task_id}"),
                 "route_id": "hosted:hermes-workbench",
                 "route_class": "hosted",
                 "prompt_digest": prompt_digest,
-                "allowed_toolsets": ["file", "terminal"],
+                "allowed_toolsets": execute_toolsets,
                 "dependencies": ["approval"],
                 "deadline_unix_ms": deadline,
                 "output_contract": "arda.hermes-job-result.v1",
@@ -2420,7 +3476,380 @@ async fn response_error(response: reqwest::Response, action: &str) -> Result<Val
 mod tests {
     use super::*;
     use crate::prometheus::autopilot::TaskQueueAnalyzer;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    #[tokio::test]
+    async fn execution_round_polls_independent_claims_concurrently() {
+        let active = Arc::new(AtomicUsize::new(0));
+        let maximum = Arc::new(AtomicUsize::new(0));
+        let futures = (0..2)
+            .map(|_| {
+                let active = Arc::clone(&active);
+                let maximum = Arc::clone(&maximum);
+                async move {
+                    let current = active.fetch_add(1, Ordering::SeqCst) + 1;
+                    maximum.fetch_max(current, Ordering::SeqCst);
+                    tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+                    active.fetch_sub(1, Ordering::SeqCst);
+                }
+            })
+            .collect::<Vec<_>>();
+
+        execute_round(futures).await;
+
+        assert_eq!(maximum.load(Ordering::SeqCst), 2);
+    }
+
+    #[tokio::test]
+    async fn prepared_execution_round_runs_reconciliation_once_before_claims() {
+        let preparations = Arc::new(AtomicUsize::new(0));
+        let prepare_count = Arc::clone(&preparations);
+        let prepare = async move {
+            prepare_count.fetch_add(1, Ordering::SeqCst);
+            Ok(())
+        };
+        let claims = vec![
+            std::future::ready(Ok::<_, anyhow::Error>(1_u8)),
+            std::future::ready(Ok::<_, anyhow::Error>(2_u8)),
+        ];
+
+        let receipts = execute_prepared_round(prepare, claims).await.unwrap();
+
+        assert_eq!(preparations.load(Ordering::SeqCst), 1);
+        assert_eq!(receipts, vec![1, 2]);
+    }
+
+    #[test]
+    fn join_review_loads_and_validates_canonical_dependency_close_receipts() {
+        let root = tempfile::tempdir().unwrap();
+        let mut dependency = ExplicitWorkbenchWorkItem {
+            objective_id: "objective-1".into(),
+            leaf_id: "leaf-a".into(),
+            run_id: "run-a".into(),
+            objective: "dependency".into(),
+            execution_prompt: "execute".into(),
+            verification_prompt: "verify".into(),
+            review_prompt: "review".into(),
+            project_id: "project-a".into(),
+            project_contract_digest: format!("sha256:{}", "a".repeat(64)),
+            workspace_root: root.path().to_path_buf(),
+            approval_envelope: json!({"approval": {"approval_id": "approval-1"}}),
+            objective_plan_receipt: format!("sha256:{}", "b".repeat(64)),
+            dependency_receipts: Vec::new(),
+        };
+        let receipt =
+            canonical_explicit_close_receipt(&dependency, &format!("sha256:{}", "c".repeat(64)))
+                .unwrap();
+        let relative_path = "data/runs/run-a/execution-receipts/close.json";
+        let path = root.path().join(relative_path);
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(&path, serde_json::to_vec_pretty(&receipt).unwrap()).unwrap();
+
+        dependency.leaf_id = "join".into();
+        dependency.run_id = "join-run".into();
+        dependency.review_prompt = "review joined evidence".into();
+        dependency.dependency_receipts = vec![ExplicitReceiptReference {
+            stage: "close".into(),
+            digest: receipt.receipt_digest.clone(),
+            path: relative_path.into(),
+        }];
+
+        let prompt = review_prompt_with_dependency_receipts(root.path(), &dependency).unwrap();
+        assert!(prompt.contains("review joined evidence"));
+        assert!(prompt.contains("run-a"));
+        assert!(prompt.contains(&receipt.receipt_digest));
+
+        dependency.dependency_receipts[0].digest = format!("sha256:{}", "d".repeat(64));
+        assert!(
+            review_prompt_with_dependency_receipts(root.path(), &dependency)
+                .unwrap_err()
+                .to_string()
+                .contains("canonical digest validation")
+        );
+    }
+
+    #[tokio::test]
+    async fn explicit_work_item_recovers_receipts_without_reading_or_writing_queue() {
+        let dir = tempfile::tempdir().unwrap();
+        let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
+        let (harness_url, server) = scripted_harness(vec![Some((
+            200,
+            json!({
+                "graph": {"nodes": [
+                    {"id": "approval", "state": "succeeded", "output_digest": digest('a')},
+                    {"id": "execute", "state": "succeeded", "output_digest": digest('b')},
+                    {"id": "verify", "state": "succeeded", "output_digest": digest('c')},
+                    {"id": "review", "state": "succeeded", "output_digest": digest('d')},
+                    {"id": "close", "state": "succeeded", "output_digest": digest('e')}
+                ]}
+            })
+            .to_string(),
+        ))])
+        .await;
+        let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
+        let item = ExplicitWorkbenchWorkItem {
+            objective_id: "objective-1".into(),
+            leaf_id: "leaf-1".into(),
+            run_id: "objective-1-leaf-1-attempt-1".into(),
+            objective: "Inspect exact project authority".into(),
+            execution_prompt: "Inspect only the bound project.".into(),
+            verification_prompt: "Verify the inspection receipt.".into(),
+            review_prompt: "Independently review the evidence.".into(),
+            project_id: DEFAULT_PROJECT_ID.into(),
+            project_contract_digest: digest('f'),
+            workspace_root: dir.path().to_path_buf(),
+            approval_envelope: json!({
+                "approval": {
+                    "schema_version": "arda.orome.task_approval.v1",
+                    "proposal_id": "operator-objective-1",
+                    "approval_id": "operator-approval-1",
+                    "ledger_writes": ["data/arda/objectives.sqlite3", "data/runs"],
+                    "decision": "policy_safe",
+                    "created_at_utc": "2026-09-01T00:00:00Z"
+                },
+                "idempotency_key": "objective-1-leaf-1"
+            }),
+            objective_plan_receipt: digest('1'),
+            dependency_receipts: Vec::new(),
+        };
+
+        let outcome = adapter.execute(&item).await.unwrap();
+        let requests = server.await.unwrap();
+
+        assert_eq!(outcome.status, "succeeded");
+        assert_eq!(outcome.receipts.len(), 4);
+        assert_eq!(
+            outcome.root_receipt_digest.as_deref(),
+            Some(digest('e').as_str())
+        );
+        assert_eq!(requests.len(), 1);
+        assert!(requests[0].starts_with("GET /v1/runs/objective-1-leaf-1-attempt-1 "));
+        assert!(!dir.path().join("core/projects/tasks/queue.jsonl").exists());
+        assert!(!dir
+            .path()
+            .join("core/projects/tasks/schedules.jsonl")
+            .exists());
+    }
+
+    #[tokio::test]
+    async fn explicit_work_item_executes_all_stages_without_queue_continuations() {
+        let dir = tempfile::tempdir().unwrap();
+        let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
+        let run = |completed: &[&str]| {
+            let nodes = ["approval", "execute", "verify", "review", "close"]
+                .into_iter()
+                .map(|stage| {
+                    let state = if completed.contains(&stage) { "succeeded" } else { "pending" };
+                    json!({
+                        "id": stage,
+                        "state": state,
+                        "output_digest": if state == "succeeded" { Some(digest(stage.chars().next().unwrap())) } else { None }
+                    })
+                })
+                .collect::<Vec<_>>();
+            json!({"graph": {"nodes": nodes}})
+        };
+        let provider = |completed: &[&str], stage: &str| {
+            json!({
+                "receipt": {
+                    "status": "succeeded",
+                    "receipt_digest": digest(stage.chars().next().unwrap()),
+                    "summary": format!("{stage} completed")
+                },
+                "run": run(completed)
+            })
+        };
+        let (harness_url, server) = scripted_harness(vec![
+            Some((404, "{}".into())),
+            Some((200, run(&[]).to_string())),
+            Some((200, run(&["approval"]).to_string())),
+            Some((
+                200,
+                provider(&["approval", "execute"], "execute").to_string(),
+            )),
+            Some((
+                200,
+                provider(&["approval", "execute", "verify"], "verify").to_string(),
+            )),
+            Some((
+                200,
+                provider(&["approval", "execute", "verify", "review"], "review").to_string(),
+            )),
+            Some((
+                200,
+                run(&["approval", "execute", "verify", "review", "close"])
+                    .to_string()
+                    .replace(&digest('c'), "__REQUEST_RECEIPT_DIGEST__"),
+            )),
+        ])
+        .await;
+        let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
+        let item = ExplicitWorkbenchWorkItem {
+            objective_id: "objective-2".into(),
+            leaf_id: "leaf-2".into(),
+            run_id: "objective-2-leaf-2-attempt-1".into(),
+            objective: "Inspect exact project authority".into(),
+            execution_prompt: "Inspect only the bound project.".into(),
+            verification_prompt: "Verify the inspection receipt.".into(),
+            review_prompt: "Independently review the evidence.".into(),
+            project_id: DEFAULT_PROJECT_ID.into(),
+            project_contract_digest: digest('f'),
+            workspace_root: dir.path().to_path_buf(),
+            approval_envelope: json!({
+                "approval": {
+                    "schema_version": "arda.orome.task_approval.v1",
+                    "proposal_id": "operator-objective-2",
+                    "approval_id": "operator-approval-2",
+                    "ledger_writes": ["data/arda/objectives.sqlite3", "data/runs"],
+                    "decision": "policy_safe",
+                    "created_at_utc": "2026-09-01T00:00:00Z"
+                },
+                "idempotency_key": "objective-2-leaf-2"
+            }),
+            objective_plan_receipt: digest('1'),
+            dependency_receipts: Vec::new(),
+        };
+
+        let outcome = adapter.execute(&item).await.unwrap();
+        let requests = server.await.unwrap();
+
+        assert_eq!(outcome.status, "succeeded");
+        assert_eq!(requests.len(), 7);
+        assert!(requests[1].starts_with("POST /v1/runs/plan "));
+        assert!(requests[3].contains("/nodes/execute/execute-provider "));
+        assert!(requests[4].contains("/nodes/verify/execute-provider "));
+        assert!(requests[5].contains("/nodes/review/execute-provider "));
+        assert!(requests[6].contains("/nodes/close/complete "));
+        assert!(!dir.path().join("core/projects/tasks/queue.jsonl").exists());
+    }
+
+    #[test]
+    fn critic_projection_uses_exact_execute_and_verify_receipts() {
+        let root = tempfile::tempdir().expect("create run root");
+        let receipt_root = root.path().join("data/runs/run-review/execution-receipts");
+        std::fs::create_dir_all(&receipt_root).expect("create receipt directory");
+        let make_receipt =
+            |node_id: &str,
+             authority_binding_digest: &str,
+             provider: &str,
+             model: &str,
+             summary: &str,
+             test_evidence: Vec<CanonicalHermesTestEvidence>| {
+                let mut receipt = CanonicalHermesExecutionReceipt {
+                    schema_version: "arda.execution-receipt.v3".into(),
+                    receipt_digest: String::new(),
+                    authority_binding_digest: authority_binding_digest.into(),
+                    run_id: "run-review".into(),
+                    node_id: node_id.into(),
+                    idempotency_key: format!("run-review:{node_id}"),
+                    status: json!("succeeded"),
+                    summary: summary.into(),
+                    tool_evidence: vec![],
+                    test_evidence,
+                    artifacts: vec![],
+                    usage: CanonicalHermesUsage {
+                        api_calls: 1,
+                        input_tokens: 1,
+                        output_tokens: 1,
+                        total_tokens: 2,
+                        estimated_cost_usd: 0.0,
+                        cost_measurement: json!("provider_reported"),
+                        completed: true,
+                        failed: false,
+                        provider: Some(provider.into()),
+                        model: Some(model.into()),
+                    },
+                    adapter: "hermes".into(),
+                    adapter_version: "1".into(),
+                    project_contract_digest: "sha256:project".into(),
+                    parent_receipts: vec![],
+                    context_capsule_id: None,
+                    context_capsule_digest: None,
+                    context_use_receipt_ref: None,
+                    context_handoff: None,
+                    recorded_at_unix_ms: 1,
+                };
+                receipt.receipt_digest = receipt.computed_digest().expect("digest receipt");
+                receipt
+            };
+        let execute = make_receipt(
+            "execute",
+            "sha256:execute-authority",
+            "provider-a",
+            "model-a",
+            "Project-local inspection found bounded authority evidence.",
+            vec![],
+        );
+        let verify = make_receipt(
+            "verify",
+            "sha256:verify-authority",
+            "provider-b",
+            "model-b",
+            "Verification passed.",
+            vec![CanonicalHermesTestEvidence {
+                check_id: "tests".into(),
+                command: "cargo test".into(),
+                status: "passed".into(),
+                exit_code: 0,
+                output_digest: "sha256:test".into(),
+            }],
+        );
+        std::fs::write(
+            receipt_root.join("execute.json"),
+            serde_json::to_vec(&execute).expect("serialize execute receipt"),
+        )
+        .expect("write execute receipt");
+        std::fs::write(
+            receipt_root.join("verify.json"),
+            serde_json::to_vec(&verify).expect("serialize verify receipt"),
+        )
+        .expect("write verify receipt");
+        let run = json!({
+            "graph": {"nodes": [
+                {"id": "execute", "output_digest": execute.receipt_digest},
+                {"id": "verify", "output_digest": verify.receipt_digest}
+            ]},
+            "review": {"provider_receipt": null, "tests": []}
+        });
+
+        let projection = pre_review_receipt_projection(root.path(), "run-review", &run)
+            .expect("project exact receipts");
+        assert_eq!(
+            projection["execute_receipt"]["usage"]["provider"],
+            "provider-a"
+        );
+        assert_eq!(projection["execute_receipt"]["usage"]["model"], "model-a");
+        assert_eq!(
+            projection["execute_receipt"]["summary"],
+            "Project-local inspection found bounded authority evidence."
+        );
+        assert_eq!(
+            projection["execute_receipt"]["authority_binding_digest"],
+            "sha256:execute-authority"
+        );
+        assert_eq!(
+            projection["verify_receipt"]["receipt_digest"],
+            verify.receipt_digest
+        );
+        assert_eq!(
+            projection["verify_receipt"]["test_evidence"][0]["status"],
+            "passed"
+        );
+        assert_eq!(projection["verify_output_digest"], verify.receipt_digest);
+
+        let mut tampered = serde_json::to_value(&execute).expect("encode receipt for tamper");
+        tampered["summary"] = json!("forged summary retained the old receipt digest");
+        std::fs::write(
+            receipt_root.join("execute.json"),
+            serde_json::to_vec(&tampered).expect("serialize tampered receipt"),
+        )
+        .expect("write tampered receipt");
+        let error = pre_review_receipt_projection(root.path(), "run-review", &run)
+            .expect_err("tampered receipt must fail canonical digest validation");
+        assert!(error.to_string().contains("invalid canonical digest"));
+    }
 
     #[test]
     fn governance_authorization_builds_workbench_approval_envelope() {
@@ -3272,6 +4701,306 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn timer_execution_decomposes_multi_project_objective_without_artifact_markers() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "multi-project-objective");
+        let project_one = "550e8400-e29b-41d4-a716-446655440001";
+        let project_two = "550e8400-e29b-41d4-a716-446655440002";
+        let mut root: Value = serde_json::from_str(
+            std::fs::read_to_string(&queue_path)
+                .unwrap()
+                .lines()
+                .next()
+                .unwrap(),
+        )
+        .unwrap();
+        root["meta"]["project_ids"] = json!([project_one, project_two, project_one]);
+        root["meta"]["project_id"] = Value::String(project_one.into());
+        root["title"] = Value::String(
+            "Inspect both declared projects with project-bound read-only workers".into(),
+        );
+        std::fs::write(&queue_path, format!("{root}\n")).unwrap();
+        write_execution_project_registry(dir.path(), &[(project_one, "."), (project_two, ".")]);
+
+        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+            .execute_once()
+            .await
+            .expect("multi-project objective must decompose before provider dispatch");
+
+        assert_eq!(receipt.status, "waiting");
+        assert_eq!(receipt.result, "objective_decomposed");
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        let leaves = effective
+            .iter()
+            .filter(|record| record.extra["meta"]["objective_leaf"] == true)
+            .collect::<Vec<_>>();
+        assert_eq!(leaves.len(), 6);
+        assert_eq!(
+            leaves
+                .iter()
+                .filter(|leaf| leaf.id.contains("__inspect-authorities-project-"))
+                .filter_map(|leaf| leaf.extra["meta"]["project_id"].as_str())
+                .filter(|project_id| matches!(*project_id, value if value == project_one || value == project_two))
+                .count(),
+            2
+        );
+        assert_eq!(
+            leaves
+                .iter()
+                .filter(|leaf| !leaf.id.contains("__inspect-authorities-project-"))
+                .filter(|leaf| leaf.extra["meta"]["project_id"] == DEFAULT_PROJECT_ID)
+                .count(),
+            4
+        );
+        assert!(leaves
+            .iter()
+            .filter(|record| record.id.contains("__inspect-authorities-project-"))
+            .all(|record| record.extra["meta"]["verification_checks"]
+                .as_array()
+                .is_some_and(|checks| {
+                    checks
+                        .iter()
+                        .any(|check| check.as_str() == Some("git status --short --branch"))
+                        && checks
+                            .iter()
+                            .all(|check| check.as_str() != Some("cargo test -p arda-core"))
+                })));
+        let outcome = leaves
+            .iter()
+            .find(|record| record.id.contains("__produce-outcome--"))
+            .expect("outcome leaf");
+        assert_eq!(outcome.extra["meta"]["authority_class"], "read_only");
+        let recover = leaves
+            .iter()
+            .find(|record| record.id.contains("__recover-context--"))
+            .unwrap();
+        let plan: ObjectivePlan =
+            serde_json::from_value(recover.extra["meta"]["objective_plan"].clone()).unwrap();
+        let prompt = objective_execution_prompt(&plan, "reviewed objective", recover);
+        assert!(prompt.contains("evidence-backed context summary"));
+        assert!(!prompt.contains("prioritized repair backlog"));
+
+        let inspection_leaf = leaves
+            .iter()
+            .find(|record| record.id.contains("inspect-authorities-project-1"))
+            .unwrap();
+        let inspection_prompt =
+            objective_execution_prompt(&plan, "reviewed objective", inspection_leaf);
+        assert!(inspection_prompt.contains("Inspect only the bound project"));
+        assert!(!inspection_prompt.contains("Context sources:\n"));
+        assert!(!inspection_prompt.contains("data/workbench/projects.json=sha256:"));
+    }
+
+    #[tokio::test]
+    async fn joined_objective_uses_acceptance_leaf_receipt_without_synthetic_marker() {
+        assert!(is_canonical_workbench_run_id("queue-objective-run-1"));
+        assert!(!is_canonical_workbench_run_id("../escape"));
+        assert!(!is_canonical_workbench_run_id("/absolute"));
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "receipt-backed-join");
+        let mut root: Value = serde_json::from_str(
+            std::fs::read_to_string(&queue_path)
+                .unwrap()
+                .lines()
+                .next()
+                .unwrap(),
+        )
+        .unwrap();
+        let project_one = "550e8400-e29b-41d4-a716-446655440001";
+        let project_two = "550e8400-e29b-41d4-a716-446655440002";
+        root["meta"]["project_ids"] = json!([project_one, project_two]);
+        root["meta"]["project_id"] = Value::String(project_one.into());
+        std::fs::write(&queue_path, format!("{root}\n")).unwrap();
+        write_execution_project_registry(dir.path(), &[(project_one, "."), (project_two, ".")]);
+        test_executor(dir.path(), "http://127.0.0.1:9".into())
+            .execute_once()
+            .await
+            .expect("objective decomposition");
+        let leaves = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(&queue_path)
+                .load()
+                .unwrap(),
+        )
+        .into_iter()
+        .filter(|record| record.extra["meta"]["objective_leaf"] == true)
+        .collect::<Vec<_>>();
+        let mut acceptance_provider_digest = String::new();
+        let mut acceptance_authority_binding = String::new();
+        for (index, leaf) in leaves.iter().enumerate() {
+            let run_id = format!("joined-leaf-{index}");
+            let task_digest = format!("sha256:{:064x}", index + 101);
+            let receipt_path = dir
+                .path()
+                .join("data/runs")
+                .join(&run_id)
+                .join("execution-receipts/review.json");
+            std::fs::create_dir_all(receipt_path.parent().unwrap()).unwrap();
+            let mut receipt: CanonicalHermesExecutionReceipt = serde_json::from_value(json!({
+                "schema_version": "arda.execution-receipt.v3",
+                "run_id": run_id,
+                "node_id": "review",
+                "idempotency_key": format!("review-{index}"),
+                "status": "succeeded",
+                "receipt_digest": "",
+                "authority_binding_digest": task_digest,
+                "summary": "approved",
+                "tool_evidence": [],
+                "test_evidence": [],
+                "artifacts": [],
+                "usage": {
+                    "provider": null,
+                    "model": null,
+                    "api_calls": 0,
+                    "input_tokens": 0,
+                    "output_tokens": 0,
+                    "total_tokens": 0,
+                    "estimated_cost_usd": 0.0,
+                    "cost_measurement": "unknown",
+                    "completed": true,
+                    "failed": false
+                },
+                "adapter": "hermes",
+                "adapter_version": "test",
+                "project_contract_digest": format!("sha256:{:064x}", 777),
+                "parent_receipts": [],
+                "recorded_at_unix_ms": 1
+            }))
+            .unwrap();
+            receipt.receipt_digest = receipt.computed_digest().unwrap();
+            let provider_digest = receipt.receipt_digest.clone();
+            if leaf.id.contains("__verify-acceptance--") {
+                acceptance_provider_digest = provider_digest.clone();
+                acceptance_authority_binding = task_digest.clone();
+            }
+            std::fs::write(&receipt_path, serde_json::to_vec_pretty(&receipt).unwrap()).unwrap();
+            std::fs::write(
+                dir.path()
+                    .join("data/runs")
+                    .join(&run_id)
+                    .join("result.json"),
+                serde_json::to_vec_pretty(&json!({
+                    "provider_receipt": {
+                        "receipt_digest": provider_digest,
+                        "authority_binding_digest": task_digest
+                    }
+                }))
+                .unwrap(),
+            )
+            .unwrap();
+            std::fs::write(
+                dir.path()
+                    .join("data/runs")
+                    .join(&run_id)
+                    .join("checkpoint.json"),
+                serde_json::to_vec_pretty(&json!({
+                    "run_id": run_id,
+                    "objective_id": leaf.id
+                }))
+                .unwrap(),
+            )
+            .unwrap();
+            let mut value = serde_json::to_value(leaf).unwrap();
+            value["status"] = Value::String("completed".into());
+            value["result"] = Value::String("completed".into());
+            value["workbench_run_id"] = Value::String(run_id);
+            value["execution_receipt_digest"] = Value::String(format!(
+                "sha256:{:x}",
+                Sha256::digest(std::fs::read(&receipt_path).unwrap())
+            ));
+            append_queue_value(dir.path(), value).unwrap();
+        }
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(&queue_path)
+                .load()
+                .unwrap(),
+        );
+        let completed = effective
+            .iter()
+            .find(|record| record.id.contains("__verify-acceptance--"))
+            .unwrap();
+
+        let acceptance_result = dir.path().join("data/runs/joined-leaf-5/result.json");
+        std::fs::write(
+            &acceptance_result,
+            serde_json::to_vec_pretty(&json!({
+                "provider_receipt": {
+                    "receipt_digest": format!("sha256:{:064x}", 999),
+                    "authority_binding_digest": format!("sha256:{:064x}", 106)
+                }
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let error = advance_objective_after_leaf(dir.path(), completed).unwrap_err();
+        assert!(error.to_string().contains("receipt digest mismatch"));
+        std::fs::write(
+            &acceptance_result,
+            serde_json::to_vec_pretty(&json!({
+                "provider_receipt": {
+                    "receipt_digest": acceptance_provider_digest,
+                    "authority_binding_digest": acceptance_authority_binding
+                }
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        let barrier = std::sync::Arc::new(std::sync::Barrier::new(8));
+        let root_path = dir.path().to_path_buf();
+        std::thread::scope(|scope| {
+            let mut handles = Vec::new();
+            for _ in 0..8 {
+                let barrier = barrier.clone();
+                let root_path = &root_path;
+                handles.push(scope.spawn(move || {
+                    barrier.wait();
+                    advance_objective_after_leaf(root_path, completed)
+                }));
+            }
+            for handle in handles {
+                handle.join().unwrap().expect("receipt-backed join");
+            }
+        });
+
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        let root = effective
+            .iter()
+            .find(|record| record.id == "receipt-backed-join")
+            .unwrap();
+        assert_eq!(root.status.as_deref(), Some("completed"));
+        assert_eq!(
+            root.extra["acceptance_artifact"],
+            "data/runs/joined-leaf-5/execution-receipts/review.json"
+        );
+        for leaf in &leaves {
+            advance_objective_after_leaf(dir.path(), leaf).unwrap();
+        }
+        let terminal_roots = super::super::task_queue::TaskQueueAnalyzer::new(
+            dir.path().join("core/projects/tasks/queue.jsonl"),
+        )
+        .load()
+        .unwrap()
+        .into_iter()
+        .filter(|record| {
+            record.id == "receipt-backed-join"
+                && record
+                    .extra
+                    .get("contract")
+                    .is_some_and(|contract| contract == "arda.workbench.objective_terminal.v1")
+        })
+        .count();
+        assert_eq!(terminal_roots, 1);
+    }
+
+    #[tokio::test]
     async fn timer_tick_reconciles_due_recurring_objective_before_claim() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "recurring-objective");
@@ -3356,15 +5085,20 @@ mod tests {
                         break;
                     }
                 }
-                requests.push(
-                    String::from_utf8_lossy(&request)
-                        .lines()
-                        .next()
-                        .unwrap_or_default()
-                        .to_owned(),
-                );
+                let request = String::from_utf8_lossy(&request).into_owned();
+                requests.push(request.clone());
                 let Some((status, body)) = response else {
                     break;
+                };
+                let body = if body.contains("__REQUEST_RECEIPT_DIGEST__") {
+                    let digest = request
+                        .split_once("\r\n\r\n")
+                        .and_then(|(_, body)| serde_json::from_str::<Value>(body).ok())
+                        .and_then(|body| body["receipt_digest"].as_str().map(str::to_owned))
+                        .expect("scripted response requested the submitted receipt digest");
+                    body.replace("__REQUEST_RECEIPT_DIGEST__", &digest)
+                } else {
+                    body
                 };
                 let reason = if status == 200 { "OK" } else { "Not Found" };
                 stream
@@ -3616,6 +5350,70 @@ mod tests {
     async fn restart_after_execute_resumes_verify_review_close_and_persists_decision() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "restart-completion-task");
+        let receipt_root = dir
+            .path()
+            .join("data/runs/queue-restart-completion-task/execution-receipts");
+        std::fs::create_dir_all(&receipt_root).unwrap();
+        let mut receipt_digests = std::collections::BTreeMap::new();
+        for (stage, provider, model, tests) in [
+            ("execute", "provider-execute", "model-execute", vec![]),
+            (
+                "verify",
+                "provider-verify",
+                "model-verify",
+                vec![CanonicalHermesTestEvidence {
+                    check_id: "cargo-test".into(),
+                    command: "cargo test".into(),
+                    status: "passed".into(),
+                    exit_code: 0,
+                    output_digest: "sha256:test-output".into(),
+                }],
+            ),
+        ] {
+            let mut canonical = CanonicalHermesExecutionReceipt {
+                schema_version: "arda.execution-receipt.v3".into(),
+                receipt_digest: String::new(),
+                authority_binding_digest: format!("sha256:{stage}-authority"),
+                run_id: "queue-restart-completion-task".into(),
+                node_id: stage.into(),
+                idempotency_key: format!("queue-restart-completion-task:{stage}"),
+                status: json!("succeeded"),
+                summary: format!("{stage} completed"),
+                tool_evidence: vec![],
+                test_evidence: tests,
+                artifacts: vec![],
+                usage: CanonicalHermesUsage {
+                    provider: Some(provider.into()),
+                    model: Some(model.into()),
+                    api_calls: 1,
+                    input_tokens: 1,
+                    output_tokens: 1,
+                    total_tokens: 2,
+                    estimated_cost_usd: 0.0,
+                    cost_measurement: json!("provider_reported"),
+                    completed: true,
+                    failed: false,
+                },
+                adapter: "hermes".into(),
+                adapter_version: "1".into(),
+                project_contract_digest: "sha256:project-contract".into(),
+                parent_receipts: vec![],
+                context_capsule_id: None,
+                context_capsule_digest: None,
+                context_use_receipt_ref: None,
+                context_handoff: None,
+                recorded_at_unix_ms: 1,
+            };
+            canonical.receipt_digest = canonical.computed_digest().unwrap();
+            receipt_digests.insert(stage, canonical.receipt_digest.clone());
+            std::fs::write(
+                receipt_root.join(format!("{stage}.json")),
+                serde_json::to_vec(&canonical).unwrap(),
+            )
+            .unwrap();
+        }
+        let execute_digest = receipt_digests["execute"].clone();
+        let verify_digest = receipt_digests["verify"].clone();
         let (harness_url, server) = scripted_harness(vec![
             Some((
                 200,
@@ -3623,29 +5421,29 @@ mod tests {
                     "graph": {"nodes": [
                         {"id": "plan", "state": "succeeded"},
                         {"id": "approval", "state": "succeeded"},
-                        {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
+                        {"id": "execute", "state": "succeeded", "output_digest": execute_digest},
                         {"id": "verify", "state": "ready"},
                         {"id": "review", "state": "blocked"},
                         {"id": "close", "state": "blocked"}
                     ]},
-                    "review": {"provider_receipt": {"receipt_digest": "sha256:execute", "summary": "executed"}}
+                    "review": {"provider_receipt": {"receipt_digest": execute_digest, "summary": "executed"}}
                 })
                 .to_string(),
             )),
             Some((
                 200,
                 json!({
-                    "receipt": {"status": "succeeded", "receipt_digest": "sha256:verify", "summary": "verified"},
+                    "receipt": {"status": "succeeded", "receipt_digest": verify_digest, "summary": "verified"},
                     "run": {
                         "graph": {"nodes": [
-                            {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
-                            {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                            {"id": "execute", "state": "succeeded", "output_digest": execute_digest},
+                            {"id": "verify", "state": "succeeded", "output_digest": verify_digest},
                             {"id": "review", "state": "ready"},
                             {"id": "close", "state": "blocked"}
                         ]},
                         "review": {
                             "tests": [{"name": "cargo test", "status": "passed"}],
-                            "provider_receipt": {"receipt_digest": "sha256:verify", "summary": "verified"}
+                            "provider_receipt": {"receipt_digest": verify_digest, "summary": "verified"}
                         }
                     }
                 })
@@ -3661,8 +5459,8 @@ mod tests {
                     },
                     "run": {
                         "graph": {"nodes": [
-                            {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
-                            {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                            {"id": "execute", "state": "succeeded", "output_digest": execute_digest},
+                            {"id": "verify", "state": "succeeded", "output_digest": verify_digest},
                             {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
                             {"id": "close", "state": "ready"}
                         ]},
@@ -3678,14 +5476,14 @@ mod tests {
                 200,
                 json!({
                     "graph": {"nodes": [
-                        {"id": "execute", "state": "succeeded", "output_digest": "sha256:execute"},
-                        {"id": "verify", "state": "succeeded", "output_digest": "sha256:verify"},
+                        {"id": "execute", "state": "succeeded", "output_digest": execute_digest},
+                        {"id": "verify", "state": "succeeded", "output_digest": verify_digest},
                         {"id": "review", "state": "succeeded", "output_digest": "sha256:review"},
                         {"id": "close", "state": "succeeded", "output_digest": "sha256:close"}
                     ]},
                     "review": {
                         "tests": [{"name": "cargo test", "status": "passed"}],
-                        "provider_receipt": {"receipt_digest": "sha256:verify", "summary": "verified"}
+                        "provider_receipt": {"receipt_digest": verify_digest, "summary": "verified"}
                     }
                 })
                 .to_string(),
@@ -3710,6 +5508,12 @@ mod tests {
         );
         assert!(requests[1].contains("/nodes/verify/execute-provider"));
         assert!(requests[2].contains("/nodes/review/execute-provider"));
+        assert!(requests[2].contains("provider-execute"));
+        assert!(requests[2].contains("model-verify"));
+        assert!(requests[2].contains("sha256:execute-authority"));
+        assert!(requests[2].contains("sha256:verify"));
+        assert!(requests[2].contains("cargo-test"));
+        assert!(requests[2].contains("passed"));
         assert!(requests[3].contains("/nodes/close/complete"));
         let records = super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
             .load()
@@ -3764,6 +5568,43 @@ mod tests {
             execute["worker"]["worker_id"]
         );
         assert_ne!(review["worker"]["worker_id"], verify["worker"]["worker_id"]);
+    }
+
+    #[test]
+    fn read_only_leaf_uses_an_inspection_worker_contract() {
+        let contract = ExecutableLeafContract {
+            project_id: DEFAULT_PROJECT_ID.to_string(),
+            authority_class: "read_only".to_string(),
+            verification_checks: vec!["git status --short".to_string()],
+            evidence_requirements: vec!["worker_report".to_string()],
+            max_joules: 1000.0,
+            max_cost_usd: 1.0,
+            max_attempts: 2,
+            timeout_seconds: 300,
+        };
+        let graph = run_graph_with_objective_plan_receipt(
+            "queue-read-only-leaf",
+            "read-only-leaf",
+            "Inspect the bound project",
+            "approval-read-only-leaf",
+            "sha256:plan",
+            Some(&contract),
+        );
+        let execute = graph["nodes"]
+            .as_array()
+            .expect("run nodes")
+            .iter()
+            .find(|node| node["id"] == "execute")
+            .expect("execute node");
+
+        assert_eq!(execute["kind"], "inspect");
+        assert_eq!(execute["authority"], "read_only");
+        assert_eq!(execute["worker"]["role"], "local_summary_classification");
+        assert_eq!(
+            execute["worker"]["allowed_toolsets"],
+            json!(["file"]),
+            "read-only inspection must not request tools outside read_only authority"
+        );
     }
 
     #[test]
@@ -4021,11 +5862,17 @@ mod tests {
         let validation =
             super::super::validator::PlanValidator::default().validate_objective_plan(&plan);
         assert!(validation.ok, "{:?}", validation.errors);
-        assert_eq!(plan.context_sources.len(), 6);
-        assert!(plan.context_sources.iter().all(|source| source
-            .digest
-            .as_deref()
-            .is_some_and(|value| value.starts_with("sha256:"))));
+        assert_eq!(plan.context_sources.len(), 5);
+        assert!(!plan
+            .context_sources
+            .iter()
+            .any(|source| source.kind == "repository_state"));
+        assert!(plan.context_sources.iter().all(|source| {
+            source
+                .digest
+                .as_deref()
+                .is_some_and(|value| value.starts_with("sha256:"))
+        }));
 
         let (persisted_plan, receipt_digest) =
             persisted_objective_plan_for_task(dir.path(), "queue-objective-1", &task).unwrap();
@@ -4191,6 +6038,36 @@ mod tests {
     }
 
     #[test]
+    fn restart_does_not_materialize_leaf_replan_for_terminal_root_task() {
+        let dir = tempfile::tempdir().unwrap();
+        append_queue_value(
+            dir.path(),
+            json!({
+                "id": "terminal-root-objective",
+                "source_record_id": "terminal-root-objective",
+                "title": "Terminal root objective",
+                "status": "failed",
+                "result": "failed",
+                "continuation_decision": "replan_objective",
+                "workbench_run_id": "queue-terminal-root-objective",
+                "meta": {
+                    "action_class": "approved_autopilot_plan_step",
+                    "source_objective_packet_id": "objective-terminal-root",
+                    "approval_packet_id": "approval-terminal-root"
+                }
+            }),
+        )
+        .unwrap();
+
+        reconcile_terminal_objective_leaves(dir.path())
+            .expect("terminal root reconciliation must not require leaf-only metadata");
+
+        let queue =
+            std::fs::read_to_string(dir.path().join("core/projects/tasks/queue.jsonl")).unwrap();
+        assert_eq!(queue.lines().count(), 1);
+    }
+
+    #[test]
     fn restart_reconciles_terminal_leaf_successor_activation() {
         let dir = tempfile::tempdir().unwrap();
         let first_id = objective_leaf_id("objective-crash", "first");
@@ -4254,6 +6131,93 @@ mod tests {
             records_after_repair,
             "restart reconciliation must not append duplicate successor records"
         );
+    }
+
+    #[test]
+    fn multi_project_objective_creates_parallel_project_bound_inspection_leaves() {
+        let dir = tempfile::tempdir().unwrap();
+        for path in [
+            "data/workbench/projects.json",
+            "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md",
+            "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md",
+            "ARDA_SYSTEM_STATUS_REPORT.md",
+            "core/projects/tasks/queue.jsonl",
+        ] {
+            let path = dir.path().join(path);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, "authoritative fixture\n").unwrap();
+        }
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "objective-multi-project",
+            "title": "Inspect two real projects and join the evidence",
+            "status": "in_progress",
+            "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "packet-multi-project",
+                "approval_packet_id": "approval-multi-project",
+                "project_id": "project-one",
+                "project_ids": ["project-one", "project-two"]
+            }
+        }))
+        .unwrap();
+
+        let plan = objective_plan_for_task(dir.path(), &task).unwrap();
+        let inspections = plan
+            .tasks
+            .iter()
+            .filter(|task| task.key.starts_with("inspect-authorities-project-"))
+            .collect::<Vec<_>>();
+        assert_eq!(inspections.len(), 2);
+        assert!(inspections
+            .iter()
+            .all(|task| task.depends_on == ["recover-context"]));
+        assert_eq!(
+            inspections
+                .iter()
+                .map(|task| task.title.as_str())
+                .collect::<Vec<_>>(),
+            [
+                "Inspect only bound project `project-one` for project-local evidence needed by: Inspect two real projects and join the evidence. Do not require sibling project files in this leaf; joined synthesis compares all project leaves.",
+                "Inspect only bound project `project-two` for project-local evidence needed by: Inspect two real projects and join the evidence. Do not require sibling project files in this leaf; joined synthesis compares all project leaves."
+            ]
+        );
+        let project_ids = inspections
+            .iter()
+            .map(|task| plan.leaf_contracts[&task.key].project_id.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(project_ids, ["project-one", "project-two"]);
+        let synthesis = plan
+            .tasks
+            .iter()
+            .find(|task| task.key == "synthesize-findings")
+            .unwrap();
+        assert_eq!(
+            synthesis.depends_on,
+            [
+                "inspect-authorities-project-1",
+                "inspect-authorities-project-2"
+            ]
+        );
+        let leaves = materialize_objective_leaves(
+            dir.path(),
+            &task,
+            &plan,
+            "sha256:multi-project-plan",
+            "queue-objective-multi-project",
+        )
+        .unwrap();
+        let materialized_project_ids = leaves
+            .iter()
+            .filter(|leaf| {
+                leaf.extra["meta"]["objective_leaf_key"]
+                    .as_str()
+                    .is_some_and(|key| key.starts_with("inspect-authorities-project-"))
+            })
+            .map(|leaf| leaf.extra["meta"]["project_id"].as_str().unwrap())
+            .collect::<Vec<_>>();
+        assert_eq!(materialized_project_ids, ["project-one", "project-two"]);
     }
 
     #[test]
@@ -4344,10 +6308,7 @@ mod tests {
             .iter()
             .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "produce-outcome")
             .unwrap();
-        assert_eq!(
-            producer.extra["meta"]["authority_class"],
-            "execute_with_approval"
-        );
+        assert_eq!(producer.extra["meta"]["authority_class"], "read_only");
         assert_eq!(
             producer.extra["meta"]["acceptance_artifact"],
             "docs/audits/acceptance.md"
@@ -4469,10 +6430,83 @@ mod tests {
                 .iter()
                 .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == planned.key)
                 .unwrap();
+            let run_id = format!("durable-leaf-{index}");
+            let mut receipt_digest = format!("sha256:leaf-{index}");
             if planned.key == "verify-acceptance" {
-                let artifact = dir.path().join("docs/audits/acceptance.md");
-                std::fs::create_dir_all(artifact.parent().unwrap()).unwrap();
-                std::fs::write(artifact, "evidence: structurally bound\n").unwrap();
+                let receipt_path = dir
+                    .path()
+                    .join("data/runs")
+                    .join(&run_id)
+                    .join("execution-receipts/review.json");
+                std::fs::create_dir_all(receipt_path.parent().unwrap()).unwrap();
+                let authority_binding =
+                    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+                let mut receipt: CanonicalHermesExecutionReceipt =
+                    serde_json::from_value(json!({
+                        "schema_version": "arda.execution-receipt.v3",
+                        "run_id": run_id,
+                        "node_id": "review",
+                        "idempotency_key": "durable-review",
+                        "status": "succeeded",
+                        "receipt_digest": "",
+                        "authority_binding_digest": authority_binding,
+                        "summary": "approved",
+                        "tool_evidence": [],
+                        "test_evidence": [],
+                        "artifacts": [],
+                        "usage": {
+                            "provider": null,
+                            "model": null,
+                            "api_calls": 0,
+                            "input_tokens": 0,
+                            "output_tokens": 0,
+                            "total_tokens": 0,
+                            "estimated_cost_usd": 0.0,
+                            "cost_measurement": "unknown",
+                            "completed": true,
+                            "failed": false
+                        },
+                        "adapter": "hermes",
+                        "adapter_version": "test",
+                        "project_contract_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                        "parent_receipts": [],
+                        "recorded_at_unix_ms": 1
+                    }))
+                    .unwrap();
+                receipt.receipt_digest = receipt.computed_digest().unwrap();
+                let provider_digest = receipt.receipt_digest.clone();
+                std::fs::write(&receipt_path, serde_json::to_vec_pretty(&receipt).unwrap())
+                    .unwrap();
+                std::fs::write(
+                    dir.path()
+                        .join("data/runs")
+                        .join(&run_id)
+                        .join("result.json"),
+                    serde_json::to_vec_pretty(&json!({
+                        "provider_receipt": {
+                            "receipt_digest": provider_digest,
+                            "authority_binding_digest": authority_binding
+                        }
+                    }))
+                    .unwrap(),
+                )
+                .unwrap();
+                std::fs::write(
+                    dir.path()
+                        .join("data/runs")
+                        .join(&run_id)
+                        .join("checkpoint.json"),
+                    serde_json::to_vec_pretty(&json!({
+                        "run_id": run_id,
+                        "objective_id": leaf.id
+                    }))
+                    .unwrap(),
+                )
+                .unwrap();
+                receipt_digest = format!(
+                    "sha256:{:x}",
+                    Sha256::digest(std::fs::read(receipt_path).unwrap())
+                );
             }
             append_queue_value(
                 dir.path(),
@@ -4482,7 +6516,8 @@ mod tests {
                     "title": leaf.title,
                     "status": "completed",
                     "result": "completed",
-                    "execution_receipt_digest": format!("sha256:leaf-{index}"),
+                    "workbench_run_id": run_id,
+                    "execution_receipt_digest": receipt_digest,
                     "meta": leaf.extra["meta"],
                 }),
             )
@@ -4518,10 +6553,89 @@ mod tests {
                 .len(),
             5
         );
+        let acceptance_index = plan
+            .tasks
+            .iter()
+            .position(|task| task.key == "verify-acceptance")
+            .unwrap();
         assert_eq!(
             closed.extra["acceptance_artifact"],
-            "docs/audits/acceptance.md"
+            format!("data/runs/durable-leaf-{acceptance_index}/execution-receipts/review.json")
         );
+    }
+
+    #[test]
+    fn direct_task_critic_rejection_materializes_revise_continuation() {
+        let dir = tempfile::tempdir().unwrap();
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "direct-task",
+            "title": "Verify the attached project",
+            "status": "in_progress",
+            "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "direct-objective",
+                "approval_packet_id": "approval-direct"
+            }
+        }))
+        .unwrap();
+        append_queue_value(dir.path(), serde_json::to_value(&task).unwrap()).unwrap();
+        append_queue_value(
+            dir.path(),
+            json!({
+                "id": task.id,
+                "source_record_id": task.id,
+                "title": task.title,
+                "status": "failed",
+                "result": "failed",
+                "continuation_decision": "revise_task",
+                "workbench_run_id": "queue-direct-task",
+                "meta": task.extra["meta"],
+            }),
+        )
+        .unwrap();
+
+        reconcile_terminal_objective_leaves(dir.path()).unwrap();
+
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(
+                dir.path().join("core/projects/tasks/queue.jsonl"),
+            )
+            .load()
+            .unwrap(),
+        );
+        let revised = effective
+            .iter()
+            .find(|record| record.id == "direct-task")
+            .unwrap();
+        assert_eq!(revised.status.as_deref(), Some("queued"));
+        assert_eq!(revised.extra["continuation_decision"], "revise_task");
+        assert_eq!(revised.extra["revision_sequence"], 1);
+    }
+
+    #[test]
+    fn review_prompt_embeds_canonical_receipt_projection() {
+        let task: QueueRecord = serde_json::from_value(json!({
+            "id": "review-task",
+            "title": "Review the verified project"
+        }))
+        .unwrap();
+        let prompt = review_prompt(
+            &task,
+            None,
+            &json!({
+                "provider_receipt": {
+                    "receipt_digest": "sha256:execute-receipt",
+                    "summary": "execution completed"
+                },
+                "tests": [{"name": "test", "status": "passed"}]
+            }),
+        );
+
+        assert!(prompt.contains("sha256:execute-receipt"));
+        assert!(prompt.contains("\"name\":\"test\",\"status\":\"passed\""));
+        assert!(prompt.contains("credential-free receipt projection"));
     }
 
     #[test]

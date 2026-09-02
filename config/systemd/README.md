@@ -52,11 +52,8 @@ scripts/verify_arda_user_units.sh
 - `arda-aule-autopilot-read-only.timer` is the diagnostic alternative. Do not
   enable it alongside the governed timer because both units inspect and project
   the same operating-loop state.
-- Enable `arda-workbench-queue-executor.timer` to consume eligible canonical
-  queue work through the bounded Workbench adapter once per minute.
-
-Install the source-current CLI and all six automation unit templates atomically,
-then activate the governed admission and Workbench timers with:
+Install the source-current CLI and the governed admission unit templates atomically,
+then activate the governed admission timer with:
 
 ```bash
 scripts/install_arda_automation_units.sh
@@ -64,7 +61,9 @@ scripts/install_arda_automation_units.sh
 
 The installer records a timestamped rollback bundle under
 `~/.local/state/arda/rollback/`, disables the superseded read-only timer, and
-enables the governed admission and Workbench execution timers.
+enables the governed admission timer. It also disables and removes the retired
+Workbench queue-executor units; resident objective execution is owned by
+`arda.service`.
 
 ## Contents
 

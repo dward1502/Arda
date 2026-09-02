@@ -743,14 +743,14 @@ impl HermesAdapter {
             "context_use_receipt": task.context_assembly.as_ref().map(|assembly| &assembly.use_receipt),
         });
         Ok(format!(
-            "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Report only tool calls made during this job; Arda will resolve each tool_call_id against Hermes' redacted session export and derive command, exit status, and output digest itself. Include one test_evidence entry for every declared check. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[{{\"tool_call_id\":\"actual-call-id\"}}],\"test_evidence\":[{{\"check_id\":\"declared-check-id\",\"tool_call_id\":\"actual-terminal-call-id\"}}],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
+            "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Arda automatically derives tool and test evidence from Hermes' redacted session export, so leave tool_evidence and test_evidence empty and do not fail merely because opaque tool-call IDs are unavailable. Use status failed only when the governed work or evidence itself fails. Artifact entries are created outputs only: never list files merely read as artifacts, and use an empty artifacts array for read-only inspection or review work. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[],\"test_evidence\":[],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
             serde_json::to_string(&context)?
         ))
     }
 
     fn validate_result(
         &self,
-        task: &HermesNodeTask,
+        _task: &HermesNodeTask,
         result: &HermesJobResult,
     ) -> Result<(), HermesAdapterError> {
         if result.schema_version != RESULT_SCHEMA_VERSION {
@@ -762,13 +762,6 @@ impl HermesAdapter {
         if result.summary.trim().is_empty() {
             return Err(HermesAdapterError::InvalidResult(
                 "summary cannot be empty".into(),
-            ));
-        }
-        if matches!(task.node.kind, NodeKind::Execute | NodeKind::Verify)
-            && (result.tool_evidence.is_empty() || result.test_evidence.is_empty())
-        {
-            return Err(HermesAdapterError::InvalidResult(
-                "execute and verify nodes require actual tool and test evidence".into(),
             ));
         }
         let mut claimed_call_ids = std::collections::BTreeSet::new();
@@ -1072,7 +1065,7 @@ fn translate_actual_evidence(
         .iter()
         .filter(|call_id| {
             calls.get(*call_id).is_some_and(|(tool, _)| {
-                task.node.kind == NodeKind::Review
+                matches!(task.node.kind, NodeKind::Inspect | NodeKind::Review)
                     || !matches!(
                         tool.as_str(),
                         "read_file" | "search_files" | "browser_snapshot" | "browser_vision"
@@ -1131,24 +1124,44 @@ fn translate_actual_evidence(
         ));
     }
     let mut actual_checks = std::collections::BTreeSet::new();
-    let mut test_evidence = Vec::with_capacity(result.test_evidence.len());
-    for (index, claim) in result.test_evidence.iter().enumerate() {
-        if !actual_checks.insert(claim.check_id.clone()) {
+    let claimed_checks: Vec<_> = if result.test_evidence.is_empty() {
+        task.checks
+            .iter()
+            .enumerate()
+            .map(|(index, check_id)| {
+                let call_id = terminal_call_ids.get(index).copied().ok_or_else(|| {
+                    HermesAdapterError::InvalidResult(format!(
+                        "check {check_id} has no actual terminal result in Hermes export"
+                    ))
+                })?;
+                Ok((check_id.clone(), (*call_id).clone()))
+            })
+            .collect::<Result<Vec<_>, HermesAdapterError>>()?
+    } else {
+        result
+            .test_evidence
+            .iter()
+            .map(|claim| (claim.check_id.clone(), claim.tool_call_id.clone()))
+            .collect()
+    };
+    let mut test_evidence = Vec::with_capacity(claimed_checks.len());
+    for (index, (check_id, claimed_call_id)) in claimed_checks.iter().enumerate() {
+        if !actual_checks.insert(check_id.clone()) {
             return Err(HermesAdapterError::InvalidResult(format!(
                 "duplicate test evidence for {}",
-                claim.check_id
+                check_id
             )));
         }
         let call_id = if calls
-            .get(&claim.tool_call_id)
+            .get(claimed_call_id)
             .is_some_and(|(tool, _)| tool == "terminal")
         {
-            &claim.tool_call_id
+            claimed_call_id
         } else {
             terminal_call_ids.get(index).copied().ok_or_else(|| {
                 HermesAdapterError::InvalidResult(format!(
                     "check {} has no actual terminal result in Hermes export",
-                    claim.check_id
+                    check_id
                 ))
             })?
         };
@@ -1156,20 +1169,20 @@ fn translate_actual_evidence(
         if evidence.tool != "terminal" || evidence.exit_code.is_none() {
             return Err(HermesAdapterError::InvalidResult(format!(
                 "check {} does not reference an actual terminal result with an exit code",
-                claim.check_id
+                check_id
             )));
         }
         let exit_code = evidence.exit_code.expect("checked above");
-        if let Some(expected_command) = task.check_commands.get(&claim.check_id) {
+        if let Some(expected_command) = task.check_commands.get(check_id) {
             if !matches_declared_check_command(&evidence.action, expected_command, cwd) {
                 return Err(HermesAdapterError::InvalidResult(format!(
                     "check {} referenced terminal command `{}`, expected `{}`",
-                    claim.check_id, evidence.action, expected_command
+                    check_id, evidence.action, expected_command
                 )));
             }
         }
         test_evidence.push(HermesTestEvidence {
-            check_id: claim.check_id.clone(),
+            check_id: check_id.clone(),
             command: evidence.action,
             status: if exit_code == 0 { "passed" } else { "failed" }.into(),
             exit_code,

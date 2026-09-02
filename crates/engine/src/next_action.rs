@@ -7,11 +7,12 @@ use arda_core::personal_ops::EvidenceClass;
 use arda_core::run_graph::{NodeKind, NodeState, RunGraph};
 use chrono::{DateTime, Utc};
 use serde_json::Value;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
 
+use crate::objectives::{ObjectiveState, ObjectiveStore};
 use crate::personal_ops::{build_projection, PersonalOpsLogStore};
 
 pub const NEXT_ACTION_PROJECTION_PATH: &str = "core/state/next_action.json";
@@ -21,7 +22,7 @@ pub fn publish_next_action_projection(
     operator_id: &str,
     generated_at: DateTime<Utc>,
 ) -> Result<NextActionProjection> {
-    let mut candidates = queue_candidates(root, operator_id)?;
+    let mut candidates = objective_candidates(root, operator_id)?;
     candidates.extend(personal_operations_candidates(
         root,
         operator_id,
@@ -34,84 +35,50 @@ pub fn publish_next_action_projection(
     Ok(projection)
 }
 
-fn queue_candidates(root: &Path, operator_id: &str) -> Result<Vec<NextActionCandidate>> {
-    let path = root.join("core/projects/tasks/queue.jsonl");
-    let raw = match fs::read_to_string(&path) {
-        Ok(raw) => raw,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
-        Err(error) => return Err(error).with_context(|| format!("read {}", path.display())),
-    };
-    let mut effective = BTreeMap::<String, Value>::new();
-    for (index, line) in raw.lines().enumerate() {
-        if line.trim().is_empty() {
-            continue;
-        }
-        let value: Value = serde_json::from_str(line)
-            .with_context(|| format!("parse {} line {}", path.display(), index + 1))?;
-        let id = value
-            .get("source_record_id")
-            .and_then(Value::as_str)
-            .or_else(|| value.get("id").and_then(Value::as_str))
-            .context("queue record requires id")?;
-        effective.insert(id.to_string(), value);
+fn objective_candidates(root: &Path, operator_id: &str) -> Result<Vec<NextActionCandidate>> {
+    let path = root.join("data/arda/objectives.sqlite3");
+    if !path.is_file() {
+        return Ok(Vec::new());
     }
-    effective
-        .into_values()
-        .map(|value| queue_candidate(&path, operator_id, &value))
+    ObjectiveStore::open(&path)?
+        .list_objectives()?
+        .into_iter()
+        .map(|objective| {
+            let review_required = objective.state == ObjectiveState::PendingApproval;
+            Ok(NextActionCandidate {
+                id: objective.id.clone(),
+                title: objective.text,
+                source_kind: NextActionSourceKind::Objective,
+                source_ref: format!("data/arda/objectives.sqlite3#{}", objective.id),
+                reason: "Highest-priority resident operator objective.".to_string(),
+                freshness: NextActionFreshness::Fresh,
+                authority_state: match objective.state {
+                    ObjectiveState::PendingApproval => NextActionAuthorityState::ReviewRequired,
+                    ObjectiveState::Paused | ObjectiveState::Failed => {
+                        NextActionAuthorityState::Blocked
+                    }
+                    ObjectiveState::Approved
+                    | ObjectiveState::Running
+                    | ObjectiveState::Completed
+                    | ObjectiveState::Cancelled => NextActionAuthorityState::Ready,
+                },
+                next_operator_action: if review_required {
+                    "Review this objective and explicitly approve, revise, or cancel it."
+                        .to_string()
+                } else {
+                    "Open this objective and continue its smallest unfinished leaf.".to_string()
+                },
+                priority: objective.priority.clamp(0, u8::MAX.into()) as u8,
+                operator_authored: objective.operator_id == operator_id,
+                terminal: matches!(
+                    objective.state,
+                    ObjectiveState::Completed | ObjectiveState::Cancelled | ObjectiveState::Failed
+                ),
+                future_gated: false,
+                inferred_without_review: false,
+            })
+        })
         .collect()
-}
-
-fn queue_candidate(path: &Path, operator_id: &str, value: &Value) -> Result<NextActionCandidate> {
-    let id = value["id"]
-        .as_str()
-        .context("queue candidate requires id")?;
-    let title = value["title"]
-        .as_str()
-        .filter(|title| !title.trim().is_empty())
-        .unwrap_or(id);
-    let status = value["status"].as_str().unwrap_or("unknown");
-    let meta = value.get("meta").and_then(Value::as_object);
-    let meta_value = |key: &str| meta.and_then(|meta| meta.get(key)).and_then(Value::as_str);
-    let review_required = meta_value("mutation_risk") == Some("review_required")
-        || meta_value("execution_authority") == Some("none_until_review");
-    let operator_authored = value["owner"].as_str() == Some(operator_id)
-        || value["origin"]
-            .as_str()
-            .is_some_and(|origin| origin.starts_with("operator-authored"));
-    let approved = meta_value("approval_packet_id").is_some()
-        || value["approval_packet_id"].as_str().is_some();
-    Ok(NextActionCandidate {
-        id: id.to_string(),
-        title: title.to_string(),
-        source_kind: NextActionSourceKind::Queue,
-        source_ref: format!("{}#{id}", relative_path(path)),
-        reason: "Highest-priority current operator-authored commitment.".to_string(),
-        freshness: if value["stale"].as_bool() == Some(true) {
-            NextActionFreshness::Stale
-        } else {
-            NextActionFreshness::Fresh
-        },
-        authority_state: if status == "blocked" {
-            NextActionAuthorityState::Blocked
-        } else if review_required {
-            NextActionAuthorityState::ReviewRequired
-        } else {
-            NextActionAuthorityState::Ready
-        },
-        next_operator_action: if review_required {
-            "Review this objective and explicitly start, revise, or defer it.".to_string()
-        } else {
-            "Open this commitment and begin its smallest unfinished step.".to_string()
-        },
-        priority: queue_priority(value["priority"].as_str()),
-        operator_authored,
-        terminal: matches!(
-            status,
-            "completed" | "done" | "failed" | "cancelled" | "rejected"
-        ),
-        future_gated: meta_value("lifecycle_phase") == Some("future-gated"),
-        inferred_without_review: !operator_authored && !approved,
-    })
 }
 
 fn personal_operations_candidates(
@@ -347,16 +314,6 @@ fn research_candidates(
         });
     }
     Ok(candidates)
-}
-
-fn queue_priority(priority: Option<&str>) -> u8 {
-    match priority {
-        Some("critical") => 90,
-        Some("high") => 70,
-        Some("medium") => 50,
-        Some("low") => 30,
-        _ => 40,
-    }
 }
 
 fn relative_path(path: &Path) -> String {

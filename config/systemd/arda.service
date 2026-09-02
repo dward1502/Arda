@@ -14,6 +14,7 @@ Environment=ARDA_OTLP_ENDPOINT=http://100.103.125.88:3001/api/public/otel/v1/tra
 Environment=ARDA_OTLP_PROTOCOL=http/protobuf
 Environment=OTEL_SERVICE_NAME=arda
 LoadCredential=langfuse-otlp-authorization:%h/.local/share/arda/credentials/langfuse-otlp-authorization
+LoadCredential=arda-hermes-gateway-capability:%h/.config/arda/credentials/hermes-gateway-capability
 Environment=PATH=%h/.cargo/bin:%h/.local/bin:/usr/local/bin:/usr/bin
 ExecStart=%h/.local/bin/arda --no-ui
 Restart=on-failure

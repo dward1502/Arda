@@ -2,6 +2,7 @@ use arda_engine::harness::{
     presence::HarnessPresenceState, serve, HarnessState, DEFAULT_HARNESS_ADDR,
     DEFAULT_MANWE_PROXY_TIMEOUT, DEFAULT_WARDEN_SCOUT_TIMEOUT,
 };
+use arda_engine::objectives::{ObjectiveState, ObjectiveStore};
 use chrono::Utc;
 use serde_json::{json, Value};
 use std::fs;
@@ -10,6 +11,19 @@ use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
 
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
+const GATEWAY_CAPABILITY: &str = "test-hermes-gateway-capability";
+
+fn gateway_client() -> reqwest::Client {
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(
+        "x-arda-gateway-capability",
+        GATEWAY_CAPABILITY.parse().expect("test capability header"),
+    );
+    reqwest::Client::builder()
+        .default_headers(headers)
+        .build()
+        .expect("gateway client")
+}
 
 async fn start_harness(
     root: &TempDir,
@@ -18,6 +32,7 @@ async fn start_harness(
     Arc<Notify>,
     tokio::task::JoinHandle<()>,
 ) {
+    std::env::set_var("ARDA_HERMES_GATEWAY_CAPABILITY", GATEWAY_CAPABILITY);
     let shutdown = Arc::new(Notify::new());
     let state = HarnessState {
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
@@ -42,6 +57,17 @@ async fn start_harness(
     .await
     .expect("start harness");
     (bound, shutdown, handle)
+}
+
+async fn start_capability_harness(
+    root: &TempDir,
+) -> (
+    std::net::SocketAddr,
+    Arc<Notify>,
+    tokio::task::JoinHandle<()>,
+) {
+    std::env::set_var("ARDA_HERMES_GATEWAY_CAPABILITY", GATEWAY_CAPABILITY);
+    start_harness(root).await
 }
 
 fn mutation_envelope(key: &str) -> Value {
@@ -87,6 +113,49 @@ fn gateway_message(message_id: &str, text: &str) -> Value {
             "prompt_response": null
         }
     })
+}
+
+fn created_objective_id(response: &Value) -> &str {
+    response["evidence_refs"]
+        .as_array()
+        .expect("evidence refs")
+        .iter()
+        .filter_map(Value::as_str)
+        .filter_map(|reference| reference.strip_prefix("arda://objectives/"))
+        .find(|objective_id| !objective_id.contains('/'))
+        .expect("resident objective reference")
+}
+
+#[tokio::test]
+async fn gateway_capability_is_required_before_operator_ingestion() {
+    let root = TempDir::new().expect("root");
+    let (bound, shutdown, handle) = start_capability_harness(&root).await;
+    let endpoint = format!("http://{bound}/v1/operator/messages");
+    let body = gateway_message("discord-capability-rejection", "arda status");
+
+    let missing = reqwest::Client::new()
+        .post(&endpoint)
+        .json(&body)
+        .send()
+        .await
+        .expect("missing capability response");
+    assert_eq!(missing.status(), 403);
+
+    let wrong = reqwest::Client::new()
+        .post(&endpoint)
+        .header("x-arda-gateway-capability", "wrong-capability")
+        .json(&body)
+        .send()
+        .await
+        .expect("wrong capability response");
+    assert_eq!(wrong.status(), 403);
+    assert!(!root
+        .path()
+        .join("core/state/orome/operator-session/operator_sessions.jsonl")
+        .exists());
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
 }
 
 fn approval_graph(run_id: &str, node_id: &str) -> Value {
@@ -176,7 +245,7 @@ async fn attach_and_plan(client: &reqwest::Client, bound: std::net::SocketAddr, 
 async fn authenticated_gateway_capture_is_durable_and_duplicate_safe() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
     let body = gateway_message(
         "discord-capture-1",
         "arda capture buy transplant-safe groceries",
@@ -221,6 +290,29 @@ async fn authenticated_gateway_capture_is_durable_and_duplicate_safe() {
         .expect("duplicate");
     assert_eq!(duplicate.status(), 409);
 
+    let mut other_chat = body.clone();
+    other_chat["event"]["source"]["chat_id"] = json!("discord-dm-2");
+    client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&other_chat)
+        .send()
+        .await
+        .expect("same platform message id in another chat")
+        .error_for_status()
+        .expect("chat-scoped message id");
+    let inbox: Value = client
+        .get(format!("http://{bound}/v1/personal/inbox"))
+        .header("x-arda-operator-id", "discord-user-1")
+        .send()
+        .await
+        .expect("inbox after second chat")
+        .error_for_status()
+        .expect("inbox after second chat status")
+        .json()
+        .await
+        .expect("inbox after second chat body");
+    assert_eq!(inbox["inbox"].as_array().map(Vec::len), Some(2));
+
     shutdown.notify_waiters();
     handle.await.expect("harness join");
 }
@@ -228,26 +320,39 @@ async fn authenticated_gateway_capture_is_durable_and_duplicate_safe() {
 #[tokio::test]
 async fn gateway_context_returns_the_canonical_cross_domain_next_action() {
     let root = TempDir::new().expect("root");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        json!({
-            "id": "operator-next",
-            "title": "Review Arda against the operator vision",
-            "status": "pending",
-            "priority": "critical",
-            "owner": "discord-user-1",
-            "origin": "operator-authored-session-objective",
-            "meta": {"mutation_risk": "review_required", "execution_authority": "none_until_review", "lifecycle_phase": "current"}
-        })
-        .to_string()
-            + "\n",
-    )
-    .unwrap();
     let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = gateway_client();
+    let contract: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .expect("project fixture");
+    client
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(&json!({
+            "contract": contract,
+            "envelope": mutation_envelope("attach-context-objective")
+        }))
+        .send()
+        .await
+        .expect("attach")
+        .error_for_status()
+        .expect("attach status");
+    let objective: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-context-objective",
+            &format!("arda objective {PROJECT_ID} Review Arda against the operator vision"),
+        ))
+        .send()
+        .await
+        .expect("objective")
+        .error_for_status()
+        .expect("objective status")
+        .json()
+        .await
+        .expect("objective body");
 
-    let response: Value = reqwest::Client::new()
+    let response: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))
         .json(&gateway_message("discord-context-next", "arda context"))
         .send()
@@ -262,56 +367,52 @@ async fn gateway_context_returns_the_canonical_cross_domain_next_action() {
     assert!(response["summary"]
         .as_str()
         .is_some_and(|summary| summary.contains("Review Arda against the operator vision")));
-    assert_eq!(response["evidence_refs"][1], "arda://next-action");
+    assert_eq!(
+        response["evidence_refs"][1],
+        format!("arda://objectives/{}", created_objective_id(&objective))
+    );
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");
 }
 
 #[tokio::test]
-async fn gateway_objectives_reads_the_canonical_operator_projection() {
+async fn gateway_objectives_reads_the_resident_objective_store() {
     let root = TempDir::new().expect("root");
-    fs::create_dir_all(root.path().join("data/runs")).unwrap();
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        &queue,
-        format!(
-            "{}\n",
-            json!({
-                "id": "task-deferred",
-                "title": "Resume deferred repair",
-                "status": "blocked",
-                "priority": "high",
-                "continuation_decision": "wait_until",
-                "detail": "waiting for the dependency window",
-                "meta": {
-                    "objective_id": "objective-deferred",
-                    "project_id": "project-deferred"
-                }
-            })
-        ),
-    )
-    .unwrap();
-    fs::write(
-        root.path().join("core/projects/tasks/schedules.jsonl"),
-        format!(
-            "{}\n",
-            json!({
-                "contract": "arda.workbench.schedule_record.v1",
-                "task_id": "task-deferred",
-                "objective_id": "objective-deferred",
-                "mode": "deferred",
-                "state": "scheduled",
-                "not_before_utc": "2030-01-01T00:00:00Z",
-                "recorded_at_utc": "2026-08-30T00:00:00Z"
-            })
-        ),
-    )
-    .unwrap();
     let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = gateway_client();
+    let contract: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .expect("project fixture");
+    client
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(&json!({
+            "contract": contract,
+            "envelope": mutation_envelope("attach-objectives-list")
+        }))
+        .send()
+        .await
+        .expect("attach")
+        .error_for_status()
+        .expect("attach status");
+    let created: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-objectives-create",
+            &format!("arda objective {PROJECT_ID} Resume deferred repair"),
+        ))
+        .send()
+        .await
+        .expect("objective")
+        .error_for_status()
+        .expect("objective status")
+        .json()
+        .await
+        .expect("objective body");
 
-    let response: Value = reqwest::Client::new()
+    let response: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))
         .json(&gateway_message("discord-objectives-1", "arda objectives"))
         .send()
@@ -325,94 +426,98 @@ async fn gateway_objectives_reads_the_canonical_operator_projection() {
 
     let summary = response["summary"].as_str().expect("summary");
     assert!(summary.contains("Objectives: 1"));
-    assert!(summary.contains("objective-deferred [blocked]"));
-    assert!(summary.contains("task=task-deferred"));
-    assert!(summary.contains("next=wait_until"));
-    assert!(summary.contains("wake=2030-01-01T00:00:00Z"));
-    assert!(summary.contains("blocker=waiting for the dependency window"));
-    assert_eq!(response["evidence_refs"][1], "arda://operator-projection");
+    assert!(summary.contains("authority=resident_objective_store"));
+    assert!(summary.contains("[pending_approval]"));
+    assert!(summary.contains("text=Resume deferred repair"));
+    assert_eq!(
+        response["evidence_refs"][2],
+        format!("arda://objectives/{}", created_objective_id(&created))
+    );
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
+    assert!(!root
+        .path()
+        .join("core/projects/tasks/schedules.jsonl")
+        .exists());
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");
 }
 
 #[tokio::test]
-async fn gateway_controls_mutate_only_canonical_queue_and_schedule_ledgers() {
+async fn gateway_controls_mutate_only_resident_objective_store() {
     let root = TempDir::new().expect("root");
-    fs::create_dir_all(root.path().join("data/runs")).unwrap();
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        &queue,
-        format!(
-            "{}\n",
-            json!({
-                "id": "task-control",
-                "title": "Original operator objective",
-                "owner": "prometheus",
-                "priority": "medium",
-                "status": "queued",
-                "meta": {
-                    "action_class": "approved_autopilot_plan_step",
-                    "mutation_risk": "operator-approved",
-                    "execution_authority": "arda_workbench",
-                    "source_objective_packet_id": "objective-control",
-                    "approval_packet_id": "approval-1"
-                }
-            })
-        ),
-    )
-    .unwrap();
-    let schedules = root.path().join("core/projects/tasks/schedules.jsonl");
-    fs::write(
-        &schedules,
-        format!(
-            "{}\n",
-            json!({
-                "contract": "arda.workbench.schedule_record.v1",
-                "task_id": "task-control",
-                "objective_id": "objective-control",
-                "mode": "once",
-                "state": "scheduled",
-                "not_before_utc": "2030-01-01T00:00:00Z",
-                "recorded_at_utc": "2026-08-30T00:00:00Z"
-            })
-        ),
-    )
-    .unwrap();
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
+    let contract: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .expect("project fixture");
+    client
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(&json!({
+            "contract": contract,
+            "envelope": mutation_envelope("attach-resident-controls")
+        }))
+        .send()
+        .await
+        .expect("attach")
+        .error_for_status()
+        .expect("attach status");
+    let created: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-controls-objective",
+            &format!("arda objective {PROJECT_ID} Original operator objective"),
+        ))
+        .send()
+        .await
+        .expect("objective")
+        .error_for_status()
+        .expect("objective status")
+        .json()
+        .await
+        .expect("objective response");
+    let objective_id = created_objective_id(&created).to_owned();
+    let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3"))
+        .expect("resident objective store");
+    let task_id = store.list_leaves(&objective_id).expect("objective leaves")[0]
+        .id
+        .clone();
 
     for (message_id, command, expected) in [
         (
             "discord-pause-task",
-            "arda pause-task task-control objective-control operator requested pause",
-            "Paused schedule for task-control.",
+            format!("arda pause-task {task_id} {objective_id} operator requested pause"),
+            format!("Paused resident objective {objective_id}: operator requested pause"),
         ),
         (
             "discord-resume-task",
-            "arda resume-task task-control objective-control operator requested resume",
-            "Resumed schedule for task-control.",
+            format!("arda resume-task {task_id} {objective_id} operator requested resume"),
+            format!("Resumed resident objective {objective_id}: operator requested resume"),
         ),
         (
             "discord-reprioritize-task",
-            "arda reprioritize task-control objective-control critical urgent operator priority",
-            "Reprioritized task-control to critical.",
+            format!("arda reprioritize {task_id} {objective_id} critical urgent operator priority"),
+            format!("Reprioritized {task_id} to 100: urgent operator priority"),
         ),
         (
             "discord-revise-objective",
-            "arda revise-objective task-control objective-control Revised operator objective --reason operator corrected scope",
-            "Revised objective for task-control; fresh approval is required.",
+            format!(
+                "arda revise-objective {task_id} {objective_id} Revised operator objective --reason operator corrected scope"
+            ),
+            format!(
+                "Revised resident objective {objective_id}; fresh approval is required: operator corrected scope"
+            ),
         ),
         (
             "discord-approve-objective",
-            "arda approve-objective task-control objective-control operator accepts revision",
-            "Approved revised objective for task-control.",
+            format!("arda approve-objective {task_id} {objective_id} operator accepts revision"),
+            format!("Approved resident objective {objective_id}: operator accepts revision"),
         ),
     ] {
         let response = client
             .post(format!("http://{bound}/v1/operator/messages"))
-            .json(&gateway_message(message_id, command))
+            .json(&gateway_message(message_id, &command))
             .send()
             .await
             .expect("control");
@@ -423,39 +528,80 @@ async fn gateway_controls_mutate_only_canonical_queue_and_schedule_ledgers() {
         assert_eq!(response["summary"], expected);
     }
 
-    let schedule_rows = fs::read_to_string(&schedules).unwrap();
-    assert_eq!(schedule_rows.lines().count(), 3);
-    let resumed: Value = serde_json::from_str(schedule_rows.lines().last().unwrap()).unwrap();
-    assert_eq!(resumed["state"], "scheduled");
-    let queue_rows = fs::read_to_string(&queue).unwrap();
-    assert_eq!(queue_rows.lines().count(), 4);
-    let approved: Value = serde_json::from_str(queue_rows.lines().last().unwrap()).unwrap();
-    assert_eq!(
-        approved["contract"],
-        "arda.workbench.objective_revision_approval.v1"
-    );
-    assert_eq!(approved["title"], "Revised operator objective");
-    assert_eq!(approved["priority"], "critical");
-    assert_eq!(approved["reviewed_by"], "discord-user-1");
-    assert_eq!(
-        approved["meta"]["approval_packet_id"],
-        "gateway:discord-approve-objective"
-    );
+    let approved = store
+        .objective(&objective_id)
+        .expect("read controlled objective")
+        .expect("controlled objective");
+    assert_eq!(approved.state, ObjectiveState::Approved);
+    assert_eq!(approved.text, "Revised operator objective");
+    assert_eq!(approved.priority, 100);
+    assert_eq!(approved.revision, 2);
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
+    assert!(!root
+        .path()
+        .join("core/projects/tasks/schedules.jsonl")
+        .exists());
     let operator_rows = fs::read_to_string(
         root.path()
             .join("core/state/orome/operator-session/operator_sessions.jsonl"),
     )
     .unwrap();
-    assert!(operator_rows
-        .lines()
-        .all(|row| { serde_json::from_str::<Value>(row).unwrap()["operation"] == "control" }));
+    let operator_event_count = operator_rows.lines().count();
 
-    attach_and_plan(&client, bound, "queue-task-control").await;
+    let rejected_reapproval = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-reapprove-objective",
+            &format!(
+                "arda approve-objective {task_id} {objective_id} duplicate approval must fail"
+            ),
+        ))
+        .send()
+        .await
+        .expect("rejected reapproval");
+    assert_eq!(rejected_reapproval.status(), reqwest::StatusCode::CONFLICT);
+    assert_eq!(
+        fs::read_to_string(
+            root.path()
+                .join("core/state/orome/operator-session/operator_sessions.jsonl"),
+        )
+        .unwrap()
+        .lines()
+        .count(),
+        operator_event_count,
+        "rejected resident mutation must not append an operator session event"
+    );
+
+    let wrong_lineage_command =
+        format!("arda cancel-task {task_id} wrong-objective must not cancel");
+    let wrong_lineage = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-cancel-task-wrong-objective",
+            &wrong_lineage_command,
+        ))
+        .send()
+        .await
+        .expect("wrong-lineage cancellation");
+    assert_eq!(wrong_lineage.status(), reqwest::StatusCode::FORBIDDEN);
+    assert_eq!(
+        fs::read_to_string(
+            root.path()
+                .join("core/state/orome/operator-session/operator_sessions.jsonl"),
+        )
+        .unwrap()
+        .lines()
+        .count(),
+        operator_event_count,
+        "rejected canonical preflight must not append an operator session event"
+    );
     let cancelled: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))
         .json(&gateway_message(
             "discord-cancel-task",
-            "arda cancel-task task-control operator no longer wants this objective",
+            &format!(
+                "arda cancel-task {task_id} {objective_id} operator no longer wants this objective"
+            ),
         ))
         .send()
         .await
@@ -467,21 +613,18 @@ async fn gateway_controls_mutate_only_canonical_queue_and_schedule_ledgers() {
         .expect("cancel task body");
     assert_eq!(
         cancelled["summary"],
-        "Cancelled canonical task task-control."
+        format!(
+            "Cancelled resident objective {objective_id}: operator no longer wants this objective"
+        )
     );
-    let cancelled_schedule: Value = serde_json::from_str(
-        fs::read_to_string(&schedules)
-            .unwrap()
-            .lines()
-            .last()
-            .unwrap(),
-    )
-    .unwrap();
-    assert_eq!(cancelled_schedule["state"], "cancelled");
-    let cancelled_task: Value =
-        serde_json::from_str(fs::read_to_string(&queue).unwrap().lines().last().unwrap()).unwrap();
-    assert_eq!(cancelled_task["status"], "failed");
-    assert_eq!(cancelled_task["result"], "cancelled");
+    assert_eq!(
+        store
+            .objective(&objective_id)
+            .expect("read cancelled objective")
+            .expect("cancelled objective")
+            .state,
+        ObjectiveState::Cancelled
+    );
     let operator_rows = fs::read_to_string(
         root.path()
             .join("core/state/orome/operator-session/operator_sessions.jsonl"),
@@ -496,10 +639,183 @@ async fn gateway_controls_mutate_only_canonical_queue_and_schedule_ledgers() {
 }
 
 #[tokio::test]
+async fn gateway_multi_project_objective_preserves_all_attached_project_authorities() {
+    let root = TempDir::new().expect("root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = gateway_client();
+    let first: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .expect("project fixture");
+    let mut second = first.clone();
+    let second_id = "550e8400-e29b-41d4-a716-446655440001";
+    second["identity"]["project_id"] = Value::String(second_id.into());
+    second["identity"]["name"] = Value::String("second-real-project".into());
+    for (contract, key) in [
+        (first, "attach-multi-objective-first"),
+        (second, "attach-multi-objective-second"),
+    ] {
+        client
+            .post(format!("http://{bound}/v1/projects/attach"))
+            .json(&json!({
+                "contract": contract,
+                "envelope": mutation_envelope(key)
+            }))
+            .send()
+            .await
+            .expect("attach")
+            .error_for_status()
+            .expect("attach status");
+    }
+
+    let created: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-multi-project-objective",
+            &format!(
+                "arda objective {PROJECT_ID},{second_id} inspect both real projects and join the evidence"
+            ),
+        ))
+        .send()
+        .await
+        .expect("objective")
+        .error_for_status()
+        .expect("multi-project objective status")
+        .json()
+        .await
+        .expect("objective response");
+    let objective_id = created_objective_id(&created);
+    let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3"))
+        .expect("resident objective store");
+    let objective = store
+        .objective(objective_id)
+        .expect("read objective")
+        .expect("created objective");
+    assert_eq!(objective.project_ids, vec![PROJECT_ID, second_id]);
+    let leaves = store.list_leaves(objective_id).expect("objective leaves");
+    assert_eq!(leaves.len(), 3, "two leaves plus dependent join");
+    assert!(leaves.iter().any(|leaf| leaf.id.ends_with("-join")));
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn gateway_objective_approval_schedules_and_can_cancel_before_first_claim() {
+    let root = TempDir::new().expect("root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = gateway_client();
+    let contract: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .expect("project fixture");
+    client
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(&json!({
+            "contract": contract,
+            "envelope": mutation_envelope("attach-objective-control")
+        }))
+        .send()
+        .await
+        .expect("attach")
+        .error_for_status()
+        .expect("attach status");
+
+    let created: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-objective-control",
+            &format!("arda objective {PROJECT_ID} create a disposable acceptance artifact"),
+        ))
+        .send()
+        .await
+        .expect("objective")
+        .error_for_status()
+        .expect("objective status")
+        .json()
+        .await
+        .expect("objective response");
+    let objective_id = created_objective_id(&created).to_owned();
+    let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3"))
+        .expect("resident objective store");
+    let task_id = store.list_leaves(&objective_id).expect("objective leaves")[0]
+        .id
+        .clone();
+
+    for (message_id, command) in [
+        (
+            "discord-objective-control-revise",
+            format!(
+                "arda revise-objective {task_id} {objective_id} create only a disposable acceptance artifact --reason bound the acceptance scope"
+            ),
+        ),
+        (
+            "discord-objective-control-approve",
+            format!(
+                "arda approve-objective {task_id} {objective_id} approve bounded disposable acceptance"
+            ),
+        ),
+    ] {
+        client
+            .post(format!("http://{bound}/v1/operator/messages"))
+            .json(&gateway_message(message_id, &command))
+            .send()
+            .await
+            .expect("objective control")
+            .error_for_status()
+            .expect("objective control status");
+    }
+
+    let approved = store
+        .objective(&objective_id)
+        .expect("read approved objective")
+        .expect("approved objective");
+    assert_eq!(approved.state, ObjectiveState::Approved);
+    assert_eq!(approved.revision, 2);
+    assert_eq!(
+        approved.text,
+        "create only a disposable acceptance artifact"
+    );
+
+    let cancelled: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-objective-control-cancel",
+            &format!("arda cancel-task {task_id} {objective_id} acceptance scenario cleanup"),
+        ))
+        .send()
+        .await
+        .expect("cancel unclaimed task")
+        .error_for_status()
+        .expect("cancel unclaimed task status")
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(
+        cancelled["summary"],
+        format!("Cancelled resident objective {objective_id}: acceptance scenario cleanup")
+    );
+    let terminal = store
+        .objective(&objective_id)
+        .expect("read cancelled objective")
+        .expect("cancelled objective");
+    assert_eq!(terminal.state, ObjectiveState::Cancelled);
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
+    assert!(!root
+        .path()
+        .join("core/projects/tasks/schedules.jsonl")
+        .exists());
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
 async fn gateway_research_command_persists_question_without_creating_commitment() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
     let body = gateway_message(
         "discord-research-1",
         "arda research practical x402 earning opportunities",
@@ -548,7 +864,7 @@ async fn gateway_research_command_persists_question_without_creating_commitment(
 async fn authenticated_gateway_approval_cancel_and_resume_use_canonical_runs() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
 
     attach_and_plan(&client, bound, "phone-approve").await;
     let approved: Value = client
@@ -616,7 +932,7 @@ async fn authenticated_gateway_approval_cancel_and_resume_use_canonical_runs() {
 async fn gateway_objective_context_status_and_result_use_canonical_state() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
     attach_and_plan(&client, bound, "phone-status").await;
 
     let objective: Value = client
@@ -639,13 +955,21 @@ async fn gateway_objective_context_status_and_result_use_canonical_state() {
     let personal_ledger = std::fs::read_to_string(root.path().join("data/personal/events.jsonl"))
         .expect("personal ledger");
     assert!(personal_ledger.contains(PROJECT_ID));
-    let task_ledger = std::fs::read_to_string(root.path().join("core/projects/tasks/queue.jsonl"))
-        .expect("canonical project task ledger");
-    let task: Value = serde_json::from_str(task_ledger.trim()).expect("project task record");
-    assert_eq!(task["project_id"], PROJECT_ID);
-    assert_eq!(task["title"], "finish the operator bridge");
-    assert_eq!(task["status"], "pending");
-    assert_eq!(task["meta"]["execution_authority"], "none_until_review");
+    let objective_id = created_objective_id(&objective);
+    let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3"))
+        .expect("resident objective store");
+    let resident = store
+        .objective(objective_id)
+        .expect("read resident objective")
+        .expect("resident objective");
+    assert_eq!(resident.text, "finish the operator bridge");
+    assert_eq!(resident.state, ObjectiveState::PendingApproval);
+    assert_eq!(resident.project_ids, vec![PROJECT_ID.to_owned()]);
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
+    assert!(!root
+        .path()
+        .join("core/projects/tasks/schedules.jsonl")
+        .exists());
     assert!(objective["summary"]
         .as_str()
         .is_some_and(|summary| summary.contains("Execution still requires review")));
@@ -663,7 +987,7 @@ async fn gateway_objective_context_status_and_result_use_canonical_state() {
         .expect("context body");
     assert!(context["summary"]
         .as_str()
-        .is_some_and(|summary| summary.contains("Next action: objective-phone-status")));
+        .is_some_and(|summary| summary.contains("finish the operator bridge")));
 
     let status: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))
@@ -748,7 +1072,7 @@ async fn gateway_objective_context_status_and_result_use_canonical_state() {
 async fn gateway_reject_and_revise_consume_scoped_decisions() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
 
     for (run_id, message_id, command, expected_operation) in [
         (
@@ -803,7 +1127,7 @@ async fn gateway_reject_and_revise_consume_scoped_decisions() {
 async fn gateway_reminder_acknowledgement_requires_a_delivered_attempt() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
     let capture: Value = client
         .post(format!("http://{bound}/v1/personal/captures"))
         .header("x-arda-operator-id", "discord-user-1")
@@ -925,7 +1249,7 @@ async fn gateway_reminder_acknowledgement_requires_a_delivered_attempt() {
 async fn gateway_private_capture_rejects_group_audience_without_mutation() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
     let mut message = gateway_message("group-private-capture", "arda capture private medical note");
     message["event"]["source"]["chat_type"] = json!("group");
 
@@ -956,7 +1280,7 @@ async fn gateway_private_capture_rejects_group_audience_without_mutation() {
 async fn gateway_operator_endpoint_rejects_unauthenticated_identity() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
     let mut body = gateway_message("discord-denied-1", "arda capture denied");
     body["operator"]["authenticated"] = json!(false);
 
@@ -966,6 +1290,37 @@ async fn gateway_operator_endpoint_rejects_unauthenticated_identity() {
         .send()
         .await
         .expect("denied");
+    assert_eq!(denied.status(), 403);
+
+    let mut forged = gateway_message("discord-forged-1", "arda objectives");
+    forged["operator"]["operator_id"] = json!("forged-operator");
+    forged["event"]["user_id"] = json!("forged-operator");
+    let denied = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&forged)
+        .send()
+        .await
+        .expect("forged identity");
+    assert_eq!(denied.status(), 403);
+
+    let mut stale = gateway_message("discord-stale-auth", "arda objectives");
+    stale["operator"]["authenticated_at"] = json!("1970-01-01T00:00:00Z");
+    let denied = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&stale)
+        .send()
+        .await
+        .expect("stale authentication");
+    assert_eq!(denied.status(), 403);
+
+    let mut malformed = gateway_message("discord-malformed-auth", "arda objectives");
+    malformed["operator"]["authenticated_at"] = json!("not-a-timestamp");
+    let denied = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&malformed)
+        .send()
+        .await
+        .expect("malformed authentication");
     assert_eq!(denied.status(), 403);
 
     shutdown.notify_waiters();
@@ -983,7 +1338,7 @@ async fn gateway_council_query_projects_tension_and_decision_without_approval() 
     )
     .expect("council fixture");
     let (bound, shutdown, handle) = start_harness(&root).await;
-    let client = reqwest::Client::new();
+    let client = gateway_client();
 
     let response: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))

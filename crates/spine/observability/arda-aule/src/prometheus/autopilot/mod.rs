@@ -98,4 +98,7 @@ pub use task_queue::{
 };
 pub use taxonomy::{canonical, is_apollo_dispatchable, CANONICAL_TYPES};
 pub use validator::{PlanValidator, ValidationResult};
-pub use workbench_executor::{QueueExecutionReceipt, WorkbenchQueueExecutor};
+pub use workbench_executor::{
+    ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
+    QueueExecutionReceipt, WorkbenchExecutionAdapter, WorkbenchQueueExecutor,
+};

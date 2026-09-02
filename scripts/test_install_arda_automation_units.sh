@@ -11,6 +11,8 @@ chmod 0755 "$SANDBOX/source/arda-cli"
 mkdir -p "$SANDBOX/home/.config/systemd/user"
 cp "$ROOT_DIR/config/systemd/arda.service" \
   "$SANDBOX/home/.config/systemd/user/arda.service"
+printf 'legacy service\n' > "$SANDBOX/home/.config/systemd/user/arda-workbench-queue-executor.service"
+printf 'legacy timer\n' > "$SANDBOX/home/.config/systemd/user/arda-workbench-queue-executor.timer"
 
 HOME="$SANDBOX/home" \
 XDG_CONFIG_HOME="$SANDBOX/home/.config" \
@@ -27,11 +29,11 @@ for unit in \
   arda-aule-autopilot.service \
   arda-aule-autopilot.timer \
   arda-aule-autopilot-read-only.service \
-  arda-aule-autopilot-read-only.timer \
-  arda-workbench-queue-executor.service \
-  arda-workbench-queue-executor.timer; do
+  arda-aule-autopilot-read-only.timer; do
   cmp "$ROOT_DIR/config/systemd/$unit" "$SANDBOX/home/.config/systemd/user/$unit"
 done
+test ! -e "$SANDBOX/home/.config/systemd/user/arda-workbench-queue-executor.service"
+test ! -e "$SANDBOX/home/.config/systemd/user/arda-workbench-queue-executor.timer"
 
 # A failed live cutover must restore both bytes and timer state.
 ROLLBACK_SANDBOX="$SANDBOX/rollback"
@@ -57,6 +59,7 @@ cp "$ROOT_DIR/config/systemd/arda.service" \
   "$ROLLBACK_SANDBOX/home/.config/systemd/user/arda.service"
 printf 'masked inactive\n' > "$ROLLBACK_SANDBOX/state/arda-aule-autopilot-read-only.timer"
 printf 'disabled inactive\n' > "$ROLLBACK_SANDBOX/state/arda-aule-autopilot.timer"
+printf 'disabled inactive\n' > "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.service"
 printf 'disabled inactive\n' > "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.timer"
 cat > "$ROLLBACK_SANDBOX/bin/systemctl" <<'EOF'
 #!/usr/bin/env bash
@@ -67,9 +70,11 @@ case "$command" in
   daemon-reload) exit 0 ;;
   show)
     unit="$1"; shift
-    if [[ "$unit" == arda-workbench-queue-executor.timer && "$*" == *LoadState* && ! -e "$ARDA_TEST_STATE/failed" ]]; then
+    if [[ "$unit" == arda-aule-autopilot.timer && "$*" == *LoadState* && ! -e "$ARDA_TEST_STATE/failed" ]]; then
       cmp "$ARDA_TEST_CLI_SOURCE" "$ARDA_TEST_CLI_DEST"
       grep -F '[Unit]' "$ARDA_TEST_UNIT_DIR/arda-aule-autopilot.service" >/dev/null
+      test ! -e "$ARDA_TEST_UNIT_DIR/arda-workbench-queue-executor.service"
+      test ! -e "$ARDA_TEST_UNIT_DIR/arda-workbench-queue-executor.timer"
       touch "$ARDA_TEST_STATE/mutation-observed"
       touch "$ARDA_TEST_STATE/failed"
       exit 1
@@ -129,6 +134,7 @@ test -L "$ROLLBACK_SANDBOX/home/.config/systemd/user/arda-aule-autopilot-read-on
 test "$(readlink "$ROLLBACK_SANDBOX/home/.config/systemd/user/arda-aule-autopilot-read-only.timer")" = /dev/null
 grep -Fx 'masked inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot-read-only.timer"
 grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot.timer"
+grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.service"
 grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.timer"
 
 printf 'arda automation installer test: pass\n'

@@ -21,8 +21,6 @@ soterion:
 - `arda-aule-autopilot.timer` (10-minute governed admission cadence)
 - `arda-aule-autopilot-read-only.service`
 - `arda-aule-autopilot-read-only.timer`
-- `arda-workbench-queue-executor.service` (bounded canonical queue consumer)
-- `arda-workbench-queue-executor.timer` (one-minute execution cadence)
 - `arda-manwe-inference-probe.service`
 - `arda-manwe-inference-probe.timer`
 - `arda-metrics-exporter.service`

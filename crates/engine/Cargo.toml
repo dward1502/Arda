@@ -33,6 +33,8 @@ futures-core = "0.3"
 chrono = { workspace = true }
 uuid = { workspace = true }
 fs2 = { workspace = true }
+futures = { workspace = true }
+rusqlite.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true }
@@ -40,5 +42,5 @@ tracing-subscriber = { workspace = true }
 reqwest = { workspace = true }
 axum = "=0.7.9"
 serde_json = { workspace = true }
-tempfile = { workspace = true }
+tempfile.workspace = true
 uuid = { workspace = true }

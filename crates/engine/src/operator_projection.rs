@@ -1,7 +1,3 @@
-use arda_aule::prometheus::autopilot::{
-    QueueRecord, QueueRecordStatus, ScheduleLedger, ScheduleRecord, ScheduleState,
-    TaskQueueAnalyzer,
-};
 use arda_core::operator_projection::{
     CapabilityProjection, CommunicationProjection, CouncilProjection, DependencyHealth,
     DependencyProjection, EvidenceProjection, JouleWorkProjection, MeasurementSource,
@@ -18,6 +14,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
+use crate::objectives::{LeafRecord, LeafStage, ObjectiveRecord, ObjectiveState, ObjectiveStore};
 use crate::personal_ops::{build_projection, PersonalOpsLogStore};
 use crate::runs::RunStore;
 
@@ -95,9 +92,8 @@ pub fn publish_operator_projection(
     let run_directories = current_directories;
 
     let runs = graphs.iter().map(project_run).collect::<Vec<_>>();
-    let queue_records = load_effective_queue_records(root)?;
-    let schedules = load_effective_schedules(root)?;
-    let objectives = project_objectives(&graphs, &runs, &queue_records, &schedules);
+    let resident_objectives = load_resident_objectives(root)?;
+    let objectives = project_objectives(&graphs, &runs, &resident_objectives);
     let capabilities = project_capabilities(&run_directories)?;
     let councils = project_councils(&run_directories, &graphs)?;
     let personal_operations = project_personal_operations(root, generated_at)?;
@@ -262,107 +258,58 @@ fn derive_run_status(graph: &RunGraph) -> RunStatus {
 fn project_objectives(
     graphs: &[RunGraph],
     runs: &[RunProjection],
-    queue_records: &[QueueRecord],
-    schedules: &BTreeMap<String, ScheduleRecord>,
+    resident: &[(ObjectiveRecord, Vec<LeafRecord>)],
 ) -> Vec<ObjectiveProjection> {
-    let mut grouped = BTreeMap::<String, (Option<String>, Vec<RunStatus>, Vec<usize>)>::new();
-    for (graph, run) in graphs.iter().zip(runs) {
-        let project_id = graph
-            .provenance
-            .project_contract_digest
-            .strip_prefix("project:")
-            .map(ToOwned::to_owned);
-        let entry = grouped
-            .entry(graph.objective_id.as_str().to_string())
-            .or_insert_with(|| (project_id, Vec::new(), Vec::new()));
-        entry.1.push(run.status);
-        entry.2.push(
-            runs.iter()
-                .position(|candidate| candidate.run_id == run.run_id)
-                .expect("run projection belongs to current graph set"),
-        );
-    }
-    let mut objectives = grouped
-        .into_iter()
-        .map(|(objective_id, (project_id, statuses, run_indexes))| {
-            let preferred_queue =
-                select_queue_control_for_runs(queue_records, &objective_id, runs, &run_indexes);
-            let queue_bound_run_index =
-                preferred_queue
-                    .and_then(queue_workbench_run_id)
-                    .and_then(|queue_run_id| {
-                        run_indexes.iter().copied().find(|index| {
-                            runs[*index].run_id == queue_run_id
-                                && !matches!(
-                                    runs[*index].status,
-                                    RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
-                                )
-                        })
-                    });
-            let run_index = queue_bound_run_index.or_else(|| {
-                run_indexes
-                    .iter()
-                    .copied()
-                    .find(|index| {
-                        !matches!(
-                            runs[*index].status,
+    let mut projected = resident
+        .iter()
+        .map(|(objective, leaves)| {
+            let run_index = runs
+                .iter()
+                .position(|run| {
+                    run.objective_id == objective.id
+                        && !matches!(
+                            run.status,
                             RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
                         )
-                    })
-                    .or_else(|| run_indexes.last().copied())
-            });
+                })
+                .or_else(|| {
+                    runs.iter()
+                        .rposition(|run| run.objective_id == objective.id)
+                });
             let graph = run_index.map(|index| &graphs[index]);
             let run = run_index.map(|index| &runs[index]);
-            let queue = preferred_queue.filter(|record| match queue_workbench_run_id(record) {
-                Some(queue_run_id) => run.is_some_and(|run| run.run_id == queue_run_id),
-                None => true,
-            });
             let current_node = graph.and_then(current_node);
+            let current_leaf = leaves
+                .iter()
+                .find(|leaf| {
+                    !matches!(
+                        leaf.stage,
+                        LeafStage::Complete | LeafStage::Cancelled | LeafStage::Failed
+                    )
+                })
+                .or_else(|| leaves.last());
             let mut evidence = graph
                 .into_iter()
                 .flat_map(|graph| graph.nodes.iter())
                 .filter_map(|node| node.output_digest.clone())
                 .collect::<Vec<_>>();
-            let mut seen_evidence = BTreeSet::new();
-            evidence.retain(|digest| seen_evidence.insert(digest.clone()));
-            if let Some(digest) = queue.and_then(|record| {
-                record
-                    .extra
-                    .get("execution_receipt_digest")
-                    .and_then(serde_json::Value::as_str)
-            }) {
-                if !evidence.iter().any(|item| item == digest) {
-                    evidence.push(digest.to_string());
-                }
+            if let Some(digest) = objective.terminal_receipt_digest.clone() {
+                evidence.push(digest);
             }
-            let schedule = queue
-                .and_then(|record| schedules.get(&record.id))
-                .filter(|schedule| schedule.objective_id == objective_id);
+            evidence.sort();
+            evidence.dedup();
             ObjectiveProjection {
-                title: queue
-                    .and_then(|record| record.title.clone())
-                    .unwrap_or_else(|| objective_id.clone()),
-                objective_id,
-                project_id,
-                status: queue
-                    .map(objective_status_from_queue)
-                    .unwrap_or_else(|| derive_objective_status(&statuses)),
-                current_task_id: queue.map(|record| record.id.clone()),
+                objective_id: objective.id.clone(),
+                project_id: (objective.project_ids.len() == 1)
+                    .then(|| objective.project_ids[0].clone()),
+                title: objective.text.clone(),
+                status: resident_objective_status(objective.state),
+                current_task_id: current_leaf.map(|leaf| leaf.id.clone()),
                 current_run_id: run.map(|run| run.run_id.clone()),
                 current_node_id: current_node.map(|node| node.id.as_str().to_string()),
                 evidence,
-                next_continuation: queue.and_then(|record| {
-                    record
-                        .extra
-                        .get("continuation_decision")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned)
-                }),
-                next_wake_at: schedule.and_then(|schedule| {
-                    (schedule.state == ScheduleState::Scheduled)
-                        .then_some(schedule.not_before_utc)
-                        .flatten()
-                }),
+                next_continuation: None,
+                next_wake_at: None,
                 provider_route: current_node
                     .and_then(|node| node.worker.as_ref())
                     .map(|worker| worker.route_id.clone()),
@@ -370,91 +317,101 @@ fn project_objectives(
                     max_joules: node.budget.max_joules,
                     max_cost_usd: node.budget.max_cost_usd,
                 }),
-                blocker: queue.and_then(|record| {
-                    record
-                        .extra
-                        .get("detail")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned)
-                }),
+                blocker: matches!(
+                    objective.state,
+                    ObjectiveState::Paused | ObjectiveState::Failed
+                )
+                .then(|| format!("resident objective is {:?}", objective.state).to_lowercase()),
             }
         })
         .collect::<Vec<_>>();
-    let projected_ids = objectives
+    let resident_ids = resident
         .iter()
-        .map(|objective| objective.objective_id.as_str())
+        .map(|(objective, _)| objective.id.as_str())
         .collect::<BTreeSet<_>>();
-    let mut queue_only = BTreeMap::<String, Vec<&QueueRecord>>::new();
-    for record in queue_records {
-        let Some(objective_id) = queue_objective_id(record) else {
-            continue;
-        };
-        if projected_ids.contains(objective_id) || queue_status_is_terminal(record) {
-            continue;
+    let mut grouped = BTreeMap::<String, Vec<usize>>::new();
+    for (index, run) in runs.iter().enumerate() {
+        if !resident_ids.contains(run.objective_id.as_str()) {
+            grouped
+                .entry(run.objective_id.clone())
+                .or_default()
+                .push(index);
         }
-        queue_only
-            .entry(objective_id.to_string())
-            .or_default()
-            .push(record);
     }
-    objectives.extend(
-        queue_only
-            .into_iter()
-            .filter_map(|(objective_id, records)| {
-                let record = records
-                    .into_iter()
-                    .min_by_key(|record| queue_control_priority(record))?;
-                let schedule = schedules
-                    .get(&record.id)
-                    .filter(|schedule| schedule.objective_id == objective_id);
-                let evidence = record
-                    .extra
-                    .get("execution_receipt_digest")
-                    .and_then(serde_json::Value::as_str)
-                    .map(|digest| vec![digest.to_string()])
-                    .unwrap_or_default();
-                Some(ObjectiveProjection {
-                    objective_id,
-                    project_id: queue_project_id(record).map(str::to_owned),
-                    title: record.title.clone().unwrap_or_else(|| record.id.clone()),
-                    status: objective_status_from_queue(record),
-                    current_task_id: Some(record.id.clone()),
-                    current_run_id: None,
-                    current_node_id: None,
-                    evidence,
-                    next_continuation: record
-                        .extra
-                        .get("continuation_decision")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned),
-                    next_wake_at: schedule.and_then(|schedule| {
-                        (schedule.state == ScheduleState::Scheduled)
-                            .then_some(schedule.not_before_utc)
-                            .flatten()
-                    }),
-                    provider_route: None,
-                    budget: None,
-                    blocker: record
-                        .extra
-                        .get("detail")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned),
-                })
+    projected.extend(grouped.into_iter().map(|(objective_id, indexes)| {
+        let index = indexes
+            .iter()
+            .copied()
+            .find(|index| {
+                !matches!(
+                    runs[*index].status,
+                    RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
+                )
+            })
+            .or_else(|| indexes.last().copied())
+            .expect("grouped run indexes are non-empty");
+        let graph = &graphs[index];
+        let run = &runs[index];
+        let node = current_node(graph);
+        let mut evidence = graph
+            .nodes
+            .iter()
+            .filter_map(|node| node.output_digest.clone())
+            .collect::<Vec<_>>();
+        evidence.sort();
+        evidence.dedup();
+        ObjectiveProjection {
+            objective_id: objective_id.clone(),
+            project_id: graph
+                .provenance
+                .project_contract_digest
+                .strip_prefix("project:")
+                .map(str::to_owned),
+            title: objective_id,
+            status: derive_objective_status(indexes.iter().map(|index| runs[*index].status)),
+            current_task_id: None,
+            current_run_id: Some(run.run_id.clone()),
+            current_node_id: node.map(|node| node.id.as_str().to_string()),
+            evidence,
+            next_continuation: None,
+            next_wake_at: None,
+            provider_route: node
+                .and_then(|node| node.worker.as_ref())
+                .map(|worker| worker.route_id.clone()),
+            budget: node.map(|node| ObjectiveBudgetProjection {
+                max_joules: node.budget.max_joules,
+                max_cost_usd: node.budget.max_cost_usd,
             }),
-    );
-    objectives
+            blocker: None,
+        }
+    }));
+    projected
 }
 
-fn load_effective_queue_records(
+fn load_resident_objectives(
     root: &Path,
-) -> Result<Vec<QueueRecord>, OperatorProjectionPublishError> {
-    let path = root.join("core/projects/tasks/queue.jsonl");
+) -> Result<Vec<(ObjectiveRecord, Vec<LeafRecord>)>, OperatorProjectionPublishError> {
+    let path = root.join("data/arda/objectives.sqlite3");
     if !path.is_file() {
         return Ok(Vec::new());
     }
-    TaskQueueAnalyzer::new(&path)
-        .load()
-        .map(TaskQueueAnalyzer::effective_records)
+    let store = ObjectiveStore::open(&path).map_err(|error| {
+        OperatorProjectionPublishError::InvalidCanonicalInput {
+            path: path.clone(),
+            error: error.to_string(),
+        }
+    })?;
+    store
+        .list_objectives()
+        .and_then(|objectives| {
+            objectives
+                .into_iter()
+                .map(|objective| {
+                    let leaves = store.list_leaves(&objective.id)?;
+                    Ok((objective, leaves))
+                })
+                .collect()
+        })
         .map_err(
             |error| OperatorProjectionPublishError::InvalidCanonicalInput {
                 path,
@@ -463,102 +420,37 @@ fn load_effective_queue_records(
         )
 }
 
-fn load_effective_schedules(
-    root: &Path,
-) -> Result<BTreeMap<String, ScheduleRecord>, OperatorProjectionPublishError> {
-    let path = root.join("core/projects/tasks/schedules.jsonl");
-    ScheduleLedger::new(&path).effective().map_err(|error| {
-        OperatorProjectionPublishError::InvalidCanonicalInput {
-            path,
-            error: error.to_string(),
-        }
-    })
-}
-
-fn queue_objective_id(record: &QueueRecord) -> Option<&str> {
-    record
-        .extra
-        .get("meta")
-        .and_then(serde_json::Value::as_object)
-        .and_then(|meta| meta.get("objective_id"))
-        .and_then(serde_json::Value::as_str)
-        .or_else(|| {
-            record
-                .extra
-                .get("source_objective_packet_id")
-                .and_then(serde_json::Value::as_str)
-        })
-}
-
-fn queue_workbench_run_id(record: &QueueRecord) -> Option<&str> {
-    record
-        .extra
-        .get("workbench_run_id")
-        .and_then(serde_json::Value::as_str)
-}
-
-fn queue_project_id(record: &QueueRecord) -> Option<&str> {
-    record
-        .extra
-        .get("meta")
-        .and_then(serde_json::Value::as_object)
-        .and_then(|meta| meta.get("project_id"))
-        .and_then(serde_json::Value::as_str)
-}
-
-fn queue_status_is_terminal(record: &QueueRecord) -> bool {
-    record.canonical_status().is_terminal()
-}
-
-fn queue_control_priority(record: &QueueRecord) -> u8 {
-    match record.canonical_status() {
-        QueueRecordStatus::InProgress => 0,
-        QueueRecordStatus::Pending => 1,
-        QueueRecordStatus::Blocked => 2,
-        QueueRecordStatus::Completed
-        | QueueRecordStatus::Failed
-        | QueueRecordStatus::Cancelled
-        | QueueRecordStatus::Other => 3,
+fn resident_objective_status(state: ObjectiveState) -> ObjectiveStatus {
+    match state {
+        ObjectiveState::PendingApproval | ObjectiveState::Approved => ObjectiveStatus::Pending,
+        ObjectiveState::Running => ObjectiveStatus::Active,
+        ObjectiveState::Paused => ObjectiveStatus::Blocked,
+        ObjectiveState::Completed => ObjectiveStatus::Succeeded,
+        ObjectiveState::Cancelled => ObjectiveStatus::Cancelled,
+        ObjectiveState::Failed => ObjectiveStatus::Failed,
     }
 }
 
-fn select_queue_control_for_runs<'a>(
-    records: &'a [QueueRecord],
-    objective_id: &str,
-    runs: &[RunProjection],
-    run_indexes: &[usize],
-) -> Option<&'a QueueRecord> {
-    records
+fn derive_objective_status(statuses: impl Iterator<Item = RunStatus>) -> ObjectiveStatus {
+    let statuses = statuses.collect::<Vec<_>>();
+    if statuses.iter().any(|status| {
+        matches!(
+            status,
+            RunStatus::Running | RunStatus::AwaitingApproval | RunStatus::Pending
+        )
+    }) {
+        ObjectiveStatus::Active
+    } else if statuses.contains(&RunStatus::Blocked) {
+        ObjectiveStatus::Blocked
+    } else if statuses
         .iter()
-        .filter(|record| {
-            !queue_status_is_terminal(record)
-                && queue_objective_id(record) == Some(objective_id)
-                && queue_workbench_run_id(record).is_none_or(|queue_run_id| {
-                    run_indexes.iter().copied().any(|index| {
-                        runs[index].run_id == queue_run_id
-                            && !matches!(
-                                runs[index].status,
-                                RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
-                            )
-                    })
-                })
-        })
-        .min_by_key(|record| {
-            (
-                queue_control_priority(record),
-                u8::from(queue_workbench_run_id(record).is_none()),
-            )
-        })
-}
-
-fn objective_status_from_queue(record: &QueueRecord) -> ObjectiveStatus {
-    match record.canonical_status() {
-        QueueRecordStatus::InProgress => ObjectiveStatus::Active,
-        QueueRecordStatus::Blocked => ObjectiveStatus::Blocked,
-        QueueRecordStatus::Failed => ObjectiveStatus::Failed,
-        QueueRecordStatus::Cancelled => ObjectiveStatus::Cancelled,
-        QueueRecordStatus::Completed => ObjectiveStatus::Succeeded,
-        QueueRecordStatus::Pending | QueueRecordStatus::Other => ObjectiveStatus::Pending,
+        .all(|status| *status == RunStatus::Succeeded)
+    {
+        ObjectiveStatus::Succeeded
+    } else if statuses.contains(&RunStatus::Failed) {
+        ObjectiveStatus::Failed
+    } else {
+        ObjectiveStatus::Cancelled
     }
 }
 
@@ -576,31 +468,6 @@ fn current_node(graph: &RunGraph) -> Option<&arda_core::run_graph::RunNode> {
             })
         })
         .or_else(|| graph.nodes.last())
-}
-
-fn derive_objective_status(statuses: &[RunStatus]) -> ObjectiveStatus {
-    if statuses.iter().any(|status| {
-        matches!(
-            status,
-            RunStatus::Running | RunStatus::AwaitingApproval | RunStatus::Pending
-        )
-    }) {
-        ObjectiveStatus::Active
-    } else if statuses.contains(&RunStatus::Blocked) {
-        ObjectiveStatus::Blocked
-    } else if !statuses.is_empty()
-        && statuses
-            .iter()
-            .all(|status| *status == RunStatus::Succeeded)
-    {
-        ObjectiveStatus::Succeeded
-    } else if statuses.contains(&RunStatus::Failed) {
-        ObjectiveStatus::Failed
-    } else if statuses.contains(&RunStatus::Cancelled) {
-        ObjectiveStatus::Cancelled
-    } else {
-        ObjectiveStatus::Pending
-    }
 }
 
 fn project_capabilities(

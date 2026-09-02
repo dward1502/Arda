@@ -194,6 +194,10 @@ scout_url = "http://fleet.example:8092"
     })
     .await
     .expect("harness startup timeout");
+    assert!(
+        root.join("data/arda/objectives.sqlite3").exists(),
+        "resident daemon must open the canonical ObjectiveStore"
+    );
     assert_eq!(
         status_json["warden_scout_url"], "http://env.example:8092",
         "environment override must take precedence over fleet discovery"

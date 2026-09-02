@@ -17,6 +17,10 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 use arda_engine::registry::Registry;
 use arda_engine::supervisor::{Shutdown, Supervisor};
 
+const OBJECTIVE_RUNTIME_POLL_INTERVAL: std::time::Duration = std::time::Duration::from_secs(1);
+const OBJECTIVE_RUNTIME_CAPACITY: usize = 4;
+const OBJECTIVE_RUNTIME_LEASE_DURATION_MS: i64 = 300_000;
+
 #[derive(Parser, Debug)]
 #[command(name = "arda", version, about = "Arda system daemon")]
 struct Cli {
@@ -173,20 +177,78 @@ async fn main() -> anyhow::Result<()> {
     let (_bound, _harness_handle) =
         arda_engine::harness::serve(harness_addr, harness_state, harness_shutdown.clone()).await?;
 
+    let objective_store =
+        arda_engine::objectives::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))?;
+    let objective_executor = arda_engine::objectives::WorkbenchLeafExecution::new(&root)?;
+    let objective_runtime = arda_engine::objectives::ObjectiveRuntime::new(
+        objective_store,
+        objective_executor,
+        "arda-resident-objective-runtime",
+        OBJECTIVE_RUNTIME_CAPACITY,
+        OBJECTIVE_RUNTIME_LEASE_DURATION_MS,
+    );
+    let (objective_shutdown, mut objective_shutdown_rx) = tokio::sync::watch::channel(false);
+    let objective_runtime_handle = tokio::spawn(async move {
+        info!(
+            capacity = OBJECTIVE_RUNTIME_CAPACITY,
+            lease_duration_ms = OBJECTIVE_RUNTIME_LEASE_DURATION_MS,
+            "arda daemon: resident objective runtime started"
+        );
+        loop {
+            if *objective_shutdown_rx.borrow() {
+                break;
+            }
+            tokio::select! {
+                result = objective_runtime.run_round(unix_now_ms()) => {
+                    if let Err(error) = result {
+                        warn!("arda daemon: resident objective round failed: {error:#}");
+                    }
+                }
+                result = objective_shutdown_rx.changed() => {
+                    if result.is_err() || *objective_shutdown_rx.borrow() {
+                        break;
+                    }
+                }
+            }
+            tokio::select! {
+                result = objective_shutdown_rx.changed() => {
+                    if result.is_err() || *objective_shutdown_rx.borrow() {
+                        break;
+                    }
+                }
+                _ = tokio::time::sleep(OBJECTIVE_RUNTIME_POLL_INTERVAL) => {}
+            }
+        }
+        info!("arda daemon: resident objective runtime stopped");
+    });
+
     // Fire shutdown on ctrl-c.
     let shutdown_on_signal = shutdown.clone();
     let harness_shutdown_on_signal = harness_shutdown.clone();
+    let objective_shutdown_on_signal = objective_shutdown.clone();
     tokio::spawn(async move {
         if tokio::signal::ctrl_c().await.is_ok() {
             info!("arda daemon: ctrl-c received, shutting down");
             shutdown_on_signal.trigger();
             harness_shutdown_on_signal.notify_waiters();
+            let _ = objective_shutdown_on_signal.send(true);
         }
     });
 
     supervisor.run().await;
+    let _ = objective_shutdown.send(true);
+    objective_runtime_handle.await?;
     info!("arda daemon: stopped");
     Ok(())
+}
+
+fn unix_now_ms() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis()
+        .try_into()
+        .unwrap_or(i64::MAX)
 }
 
 fn configured_operator_id(cli_value: Option<&str>) -> anyhow::Result<String> {

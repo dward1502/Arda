@@ -140,7 +140,7 @@ fn stored_review_receipt(
         run_id: arda_core::run_graph::RunId::new(run_id).expect("run id"),
         node,
         objective: objective.into(),
-        instructions: "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks, and report named defects. Fail rather than approve unsupported completion. Declared checks already covered by the verification receipt: test: cargo test -p arda-core".into(),
+        instructions: "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks, and report named defects. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: test: cargo test -p arda-core".into(),
         checks: Vec::new(),
         check_commands: Default::default(),
         project_contract_digest: project_contract_digest.into(),
@@ -1025,8 +1025,10 @@ async fn stored_provider_receipt_rejects_objective_drift_then_replays_once() {
         .send()
         .await
         .expect("execute provider request");
-    assert_eq!(response.status(), reqwest::StatusCode::OK);
-    let body: serde_json::Value = response.json().await.expect("provider response");
+    let status = response.status();
+    let response_text = response.text().await.expect("provider response text");
+    assert_eq!(status, reqwest::StatusCode::OK, "{response_text}");
+    let body: serde_json::Value = serde_json::from_str(&response_text).expect("provider response");
     assert_eq!(body["run"]["graph"]["nodes"][0]["state"], "succeeded");
     assert_eq!(body["receipt"]["receipt_digest"], receipt.receipt_digest);
 
@@ -1559,6 +1561,27 @@ async fn operator_receipts_complete_execute_verify_review_and_close_in_order() {
     assert_eq!(recovered["review"]["changes"][0]["path"], "src/lib.rs");
     assert_eq!(recovered["review"]["tests"][0]["status"], "passed");
     assert_eq!(recovered["review"]["provider_receipt"]["provider"], "nous");
+
+    let evidence_changing_retry = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-complete/nodes/close/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("complete-close"),
+            "receipt_digest": receipt_digest("close"),
+            "evidence": {
+                "changes": [{
+                    "path": "src/forged.rs",
+                    "status": "modified",
+                    "additions": 1,
+                    "deletions": 0
+                }]
+            }
+        }))
+        .send()
+        .await
+        .expect("evidence-changing complete retry");
+    assert_eq!(evidence_changing_retry.status(), 409);
 
     let retry = client
         .post(format!(

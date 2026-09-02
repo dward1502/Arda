@@ -20,6 +20,7 @@ declare -A TIMER_ACTIVE_STATES=()
 TIMERS=(
   arda-aule-autopilot-read-only.timer
   arda-aule-autopilot.timer
+  arda-workbench-queue-executor.service
   arda-workbench-queue-executor.timer
 )
 
@@ -28,6 +29,9 @@ UNITS=(
   arda-aule-autopilot.timer
   arda-aule-autopilot-read-only.service
   arda-aule-autopilot-read-only.timer
+)
+
+RETIRED_UNITS=(
   arda-workbench-queue-executor.service
   arda-workbench-queue-executor.timer
 )
@@ -122,6 +126,9 @@ rollback() {
   for unit in "${UNITS[@]}"; do
     restore_path "$USER_UNIT_DIR/$unit" "$unit" 0644 || true
   done
+  for unit in "${RETIRED_UNITS[@]}"; do
+    restore_path "$USER_UNIT_DIR/$unit" "$unit" 0644 || true
+  done
   if [[ "$SKIP_RELOAD" != "true" ]]; then
     systemctl_user daemon-reload >/dev/null 2>&1 || true
     restore_timer_states
@@ -153,6 +160,9 @@ backup_path "$CLI_DEST" arda-cli
 for unit in "${UNITS[@]}"; do
   backup_path "$USER_UNIT_DIR/$unit" "$unit"
 done
+for unit in "${RETIRED_UNITS[@]}"; do
+  backup_path "$USER_UNIT_DIR/$unit" "$unit"
+done
 printf 'cli_destination=%s\nunit_directory=%s\n' "$CLI_DEST" "$USER_UNIT_DIR" > "$ROLLBACK_DIR/manifest"
 CLI_SOURCE_SHA256="$(sha256sum "$CLI_SOURCE" | cut -d' ' -f1)"
 printf 'cli_source_sha256=%s\n' "$CLI_SOURCE_SHA256" >> "$ROLLBACK_DIR/manifest"
@@ -162,6 +172,10 @@ fi
 
 trap on_exit EXIT
 TRANSACTION_ACTIVE=true
+if [[ "$SKIP_RELOAD" != "true" ]]; then
+  systemctl_user disable --now arda-workbench-queue-executor.timer
+  systemctl_user disable --now arda-workbench-queue-executor.service
+fi
 atomic_install "$CLI_SOURCE" "$CLI_DEST" 0755
 CLI_INSTALLED_SHA256="$(sha256sum "$CLI_DEST" | cut -d' ' -f1)"
 printf 'cli_installed_sha256=%s\n' "$CLI_INSTALLED_SHA256" >> "$ROLLBACK_DIR/manifest"
@@ -173,15 +187,15 @@ fi
 for unit in "${UNITS[@]}"; do
   atomic_install "$SOURCE_UNIT_DIR/$unit" "$USER_UNIT_DIR/$unit" 0644
 done
+rm -f "${RETIRED_UNITS[@]/#/$USER_UNIT_DIR/}"
 
 systemd-analyze --user verify "${UNITS[@]/#/$USER_UNIT_DIR/}"
 
 if [[ "$SKIP_RELOAD" != "true" ]]; then
   systemctl_user daemon-reload
   systemctl_user disable --now arda-aule-autopilot-read-only.timer
-  systemctl_user enable --now arda-aule-autopilot.timer arda-workbench-queue-executor.timer
+  systemctl_user enable --now arda-aule-autopilot.timer
   [[ "$(systemctl_user show arda-aule-autopilot.timer --property=LoadState --value)" == "loaded" ]]
-  [[ "$(systemctl_user show arda-workbench-queue-executor.timer --property=LoadState --value)" == "loaded" ]]
 fi
 
 TRANSACTION_ACTIVE=false

@@ -7,8 +7,20 @@
       "avg_joules": 0.0
     },
     "arda_workbench::approved_autopilot_plan_step": {
-      "attempts": 14,
-      "successes": 14,
+      "attempts": 108,
+      "successes": 29,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "arda_workbench::objective_revision_pending_approval": {
+      "attempts": 1,
+      "successes": 0,
+      "avg_duration_secs": 0.0,
+      "avg_joules": 0.0
+    },
+    "arda_workbench::operator_authorized_plan_task": {
+      "attempts": 1,
+      "successes": 0,
       "avg_duration_secs": 0.0,
       "avg_joules": 0.0
     },
@@ -43,8 +55,8 @@
       "avg_joules": 0.0
     },
     "operator:mythos::ops": {
-      "attempts": 2,
-      "successes": 2,
+      "attempts": 61,
+      "successes": 15,
       "avg_duration_secs": 0.0,
       "avg_joules": 0.0
     },
@@ -52,6 +64,12 @@
       "attempts": 12,
       "successes": 12,
       "avg_duration_secs": -2257.1666666666665,
+      "avg_joules": 0.0
+    },
+    "unknown::ops": {
+      "attempts": 11,
+      "successes": 1,
+      "avg_duration_secs": 0.0,
       "avg_joules": 0.0
     },
     "vaire::ops": {

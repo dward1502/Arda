@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:92b95d323aa3c5f12e6b4acda51d6ce1104ce9d47f6d95f471b39b731108410a",
+    "summary": "Review rejected unsupported completion. The verification receipt covers the declared test check: `cargo test -p arda-core` passed with exit code 0. However, required `context_source_digests` evidence is absent: the execution receipt contains read-tool output digests, but does not bind them to or demonstrate equality with the six canonical context-source digests declared by the leaf, and `context_use_receipt` is null. It also lacks before-and-after repository-state evidence supporting the no-project-file-modification claim. Successful file reads alone do not prove recovery of the exact digest-pinned context."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:b7faa590ac461c8984b7d321196e6b35d2cdfd9b2b38b83da34fe11c1c9b99e7",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

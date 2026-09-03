@@ -112,7 +112,7 @@ fn corrupt_runtime_input_does_not_replace_last_valid_projection() {
 }
 
 #[test]
-fn corrupt_legacy_queue_input_is_ignored_by_resident_projection() {
+fn corrupt_queue_input_does_not_replace_last_valid_projection() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-live", "pending");
     let queue = root.path().join("core/projects/tasks/queue.jsonl");
@@ -128,7 +128,7 @@ fn corrupt_legacy_queue_input_is_ignored_by_resident_projection() {
     let before = fs::read(&output_path).unwrap();
 
     fs::write(queue, "{not-json\n").unwrap();
-    publish_operator_projection(root.path(), generated_at).unwrap();
+    assert!(publish_operator_projection(root.path(), generated_at).is_err());
     assert_eq!(fs::read(output_path).unwrap(), before);
 }
 
@@ -253,7 +253,7 @@ fn historical_terminal_runs_remain_stored_but_are_excluded_from_current_projecti
 }
 
 #[test]
-fn legacy_queue_does_not_override_run_projection_state() {
+fn objective_projection_exposes_canonical_control_state() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-live", "running");
     let checkpoint = root.path().join("data/runs/run-live/checkpoint.json");
@@ -312,22 +312,26 @@ fn legacy_queue_does_not_override_run_projection_state() {
     let value = serde_json::to_value(projection).unwrap();
     let objective = &value["objectives"][0];
 
-    assert_eq!(objective["title"], "objective-live");
-    assert!(objective.get("current_task_id").is_none());
+    assert_eq!(objective["title"], "Repair live objective");
+    assert_eq!(objective["current_task_id"], "task-live");
     assert_eq!(objective["current_run_id"], "run-live");
     assert_eq!(objective["current_node_id"], "plan");
-    assert!(objective.get("next_continuation").is_none());
-    assert!(objective.get("next_wake_at").is_none());
+    assert_eq!(objective["next_continuation"], "continue_verify");
+    assert_eq!(objective["next_wake_at"], "2026-08-10T19:00:00Z");
     assert_eq!(objective["provider_route"], "hosted:hermes-workbench");
     assert_eq!(objective["budget"]["max_joules"], 40.0);
     assert_eq!(objective["budget"]["max_cost_usd"], 0.0);
     assert_eq!(
         objective["evidence"],
         serde_json::json!([
-            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
         ])
     );
-    assert!(objective.get("blocker").is_none());
+    assert_eq!(
+        objective["blocker"],
+        "verification is the next required stage"
+    );
 }
 
 #[test]
@@ -358,7 +362,7 @@ fn objective_projection_rejects_cross_objective_schedule_lineage() {
 }
 
 #[test]
-fn scheduled_legacy_queue_objective_is_not_projected_without_resident_authority() {
+fn scheduled_queue_objective_remains_visible_without_a_current_run() {
     let root = tempfile::tempdir().unwrap();
     fs::create_dir_all(root.path().join("data/runs")).unwrap();
     let queue = root.path().join("core/projects/tasks/queue.jsonl");
@@ -391,11 +395,25 @@ fn scheduled_legacy_queue_objective_is_not_projected_without_resident_authority(
         Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
     )
     .unwrap();
-    assert!(projection.objectives.is_empty());
+    let value = serde_json::to_value(projection).unwrap();
+    let objective = &value["objectives"][0];
+
+    assert_eq!(objective["objective_id"], "objective-deferred");
+    assert_eq!(objective["project_id"], "project-deferred");
+    assert_eq!(objective["title"], "Resume deferred repair");
+    assert_eq!(objective["status"], "blocked");
+    assert_eq!(objective["current_task_id"], "task-deferred");
+    assert!(objective.get("current_run_id").is_none());
+    assert_eq!(objective["next_continuation"], "wait_until");
+    assert_eq!(objective["next_wake_at"], "2026-08-11T08:00:00Z");
+    assert_eq!(
+        objective["blocker"],
+        "waiting for the declared dependency window"
+    );
 }
 
 #[test]
-fn run_backed_objective_ignores_nonterminal_legacy_queue_leaf() {
+fn run_backed_objective_falls_back_to_its_nonterminal_queue_leaf() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-live", "running");
     let queue = root.path().join("core/projects/tasks/queue.jsonl");
@@ -433,13 +451,13 @@ fn run_backed_objective_ignores_nonterminal_legacy_queue_leaf() {
     let objective = &value["objectives"][0];
 
     assert_eq!(objective["current_run_id"], "run-live");
-    assert!(objective.get("current_task_id").is_none());
-    assert!(objective.get("next_continuation").is_none());
-    assert!(objective.get("next_wake_at").is_none());
+    assert_eq!(objective["current_task_id"], "task-next");
+    assert_eq!(objective["next_continuation"], "wait_until");
+    assert_eq!(objective["next_wake_at"], "2026-08-11T08:00:00Z");
 }
 
 #[test]
-fn legacy_queue_cannot_select_a_current_run() {
+fn queue_bound_run_selects_the_same_current_run() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-first", "running");
     write_run(root.path(), "run-selected", "running");
@@ -458,12 +476,12 @@ fn legacy_queue_cannot_select_a_current_run() {
     .unwrap();
     let objective = &projection.objectives[0];
 
-    assert_eq!(objective.current_run_id.as_deref(), Some("run-first"));
-    assert!(objective.current_task_id.is_none());
+    assert_eq!(objective.current_run_id.as_deref(), Some("run-selected"));
+    assert_eq!(objective.current_task_id.as_deref(), Some("task-selected"));
 }
 
 #[test]
-fn legacy_bound_and_unbound_leaves_do_not_control_current_run() {
+fn exact_run_bound_leaf_precedes_an_unbound_same_priority_leaf() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-first", "running");
     write_run(root.path(), "run-selected", "running");
@@ -488,12 +506,12 @@ fn legacy_bound_and_unbound_leaves_do_not_control_current_run() {
     .unwrap();
     let objective = &projection.objectives[0];
 
-    assert_eq!(objective.current_run_id.as_deref(), Some("run-first"));
-    assert!(objective.current_task_id.is_none());
+    assert_eq!(objective.current_run_id.as_deref(), Some("run-selected"));
+    assert_eq!(objective.current_task_id.as_deref(), Some("task-bound"));
 }
 
 #[test]
-fn nonterminal_legacy_queue_status_does_not_override_run_status() {
+fn nonterminal_queue_status_overrides_a_run_derived_status() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-live", "running");
     let queue = root.path().join("core/projects/tasks/queue.jsonl");
@@ -511,8 +529,8 @@ fn nonterminal_legacy_queue_status_does_not_override_run_status() {
     .unwrap();
     let objective = &projection.objectives[0];
 
-    assert_eq!(objective.status, ObjectiveStatus::Active);
-    assert!(objective.current_task_id.is_none());
+    assert_eq!(objective.status, ObjectiveStatus::Blocked);
+    assert_eq!(objective.current_task_id.as_deref(), Some("task-blocked"));
 }
 
 #[test]
@@ -537,7 +555,7 @@ fn canonical_completed_alias_is_not_projected_as_current_work() {
 }
 
 #[test]
-fn stale_legacy_bound_leaf_does_not_supply_current_task() {
+fn stale_bound_leaf_falls_back_to_a_valid_unbound_leaf() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-live", "running");
     let queue = root.path().join("core/projects/tasks/queue.jsonl");
@@ -563,12 +581,15 @@ fn stale_legacy_bound_leaf_does_not_supply_current_task() {
     let objective = &projection.objectives[0];
 
     assert_eq!(objective.current_run_id.as_deref(), Some("run-live"));
-    assert!(objective.current_task_id.is_none());
-    assert!(objective.next_continuation.is_none());
+    assert_eq!(objective.current_task_id.as_deref(), Some("task-valid"));
+    assert_eq!(
+        objective.next_continuation.as_deref(),
+        Some("continue_execute")
+    );
 }
 
 #[test]
-fn nonterminal_legacy_continuation_does_not_revive_historical_run() {
+fn nonterminal_continuation_prevents_historical_run_from_closing_objective() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-history", "succeeded");
     let queue = root.path().join("core/projects/tasks/queue.jsonl");
@@ -584,7 +605,10 @@ fn nonterminal_legacy_continuation_does_not_revive_historical_run() {
         Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
     )
     .unwrap();
-    assert!(projection.objectives.is_empty());
+    let objective = &projection.objectives[0];
+
+    assert_eq!(objective.status, ObjectiveStatus::Blocked);
+    assert_eq!(objective.current_task_id.as_deref(), Some("task-next"));
 }
 
 #[test]

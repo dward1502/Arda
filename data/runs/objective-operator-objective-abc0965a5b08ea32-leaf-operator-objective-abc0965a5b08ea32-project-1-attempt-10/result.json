@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:5f1100957ce7a7314233456e2645ba1898161f99c0238bca6962cb6d042a4442",
+    "summary": "Unsupported completion: the project contains only README.acceptance with the statement “isolated installed resident runtime acceptance”; no implementation or durable verification evidence supports that claim. The parent receipt authenticates only a successful `pwd` check in the project root, which establishes location but does not verify installed-runtime isolation or residency. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

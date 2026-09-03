@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:e0dd7e57c02f310c92c2838fd8e5cc117b9bcf2d2553ab39656be4f1aed80d33",
+  "idempotency_key": "queue-operator-task-020fddb7c36065cf__recover-context--af03d0ca216e1949-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:cli-m4-approve-16f0bcf148b849f79fd9822e1ed8c51f"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:426766e3eb17896e6d161acb3def1cff5f75ef930404baf0e61d050d23d588c6",
+  "recorded_at_unix_ms": 1788298065849,
+  "run_id": "queue-operator-task-020fddb7c36065cf__recover-context--af03d0ca216e1949",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Recovered the bounded live context without modifying project files or running the verifier-owned check. Project authority: data/workbench/projects.json:5-68 registers the root Rust project as arda-rust-example (project 550e8400-e29b-41d4-a716-446655440000), workspace root '.', Cargo adapter, and declared test command cargo test -p arda-core; the registry also contains proof, acceptance, and reviewed read-only project contracts. Program authority: docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:23-37 says only a bounded installed objective has completed and full acceptance still requires Hermes objective control, restart-safe scheduling, critic-driven revision, real multi-project execution, Vairë continuity, and explicit operator acceptance. docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:17-47 defines the canonical observe-to-close loop; lines 49-97 order autonomous-loop completion before real-worker routing, project-fabric connection, daily improvement, external assimilation, and whole-system acceptance; lines 99-108 prohibit treating tests, timers, reports, queue records, or projections as product completion and require dirty repositories to remain read-only. Status evidence: ARDA_SYSTEM_STATUS_REPORT.md:31-34 identifies core/projects/tasks/queue.jsonl as canonical and queue_active/queue_summary as generated projections; lines 47-55 classify autonomous completion, connected projects, retrieval, daily improvement, and operator integration as incomplete or open; lines 119-131 prioritize restart continuation, real-project attachment, Manwë routing, daily improvement, Vairë/Soterion integration, and an operator-burden verdict. The status report is dated 2026-08-25 and is older than the 2026-08-30 plans, so downstream work should prefer those plans and live receipts when they conflict. Recent canonical queue evidence materially tightens the backlog: core/projects/tasks/queue.jsonl:82715-82726 records repeated replans and critic rejection for insufficient source binding, missing repository-state evidence in prior runs, duplicate pending execute/verify materialization, stale status claims, and an apparent P0 fail-open governance defect where work was submitted despite autonomy_readiness_decision='hold', unmet readiness reasons, and null governance authorization. Lines 82727-82779 independently show continued duplicate pending execute/verify submissions. Downstream priority is therefore: P0 investigate and fail closed the hold-without-authorization path and stop duplicate leaf materialization; P0 expose one canonical objective through Hermes controls and prove same-objective restart plus critic correction; P1 route admitted workers through Manwë and close a joined real multi-project objective; P1 replace proof fixtures with reviewed real-project contracts; P1 bind Vairë context-use and Soterion retrieval to the same objective; P2 activate the seven-cycle daily-improvement gate; P3 govern one external capability through adoption or justified rejection. Preserve the append-only queue authority and do not edit generated queue projections.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:760e5b87bafee864d803736030bbc86e064db788b608e67efb2d769c23fc05aa",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":82680,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:312f4e960ca2b018cbef9e92397c6897d1ab2879e507235b6f5d8f8d09ee76ec",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 67881,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1274,
+    "provider": "openai-codex",
+    "total_tokens": 69155
+  }
+}

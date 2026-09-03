@@ -1,27 +1,27 @@
 # CEO Autopilot Weekly Summary
 
-Generated: 2026-08-30T10:31:35.517575708+00:00
+Generated: 2026-08-30T23:53:13.877891831+00:00
 Window: last 7 days
 
 ## Throughput
-- cycles: 448
-- objectives processed: 4
-- outcomes ingested: 25
-- plans queued: 12
-- Apollo dispatches: 4
-- Pipeline submissions: 4
-- delegated Joules: 120.0
+- cycles: 528
+- objectives processed: 24
+- outcomes ingested: 32
+- plans queued: 72
+- Apollo dispatches: 44
+- Pipeline submissions: 24
+- delegated Joules: 720.0
 
 ## H2A / A2H
 - responses processed: 0
 - objectives resumed: 0
 - denials recorded: 0
-- escalations emitted: 2
+- escalations emitted: 6
 
 ## Governance
-- held objectives: 2
-- escalated objectives: 2
-- human required: 2
+- held objectives: 6
+- escalated objectives: 6
+- human required: 6
 - triad quorum required: 0
 - triad quorum approved: 0
 - HADES review required: 0
@@ -34,19 +34,20 @@ Window: last 7 days
 - missing required: 0
 
 ## Council Runtime
-- latest ledger records: 448
-- records appended: 448
+- latest ledger records: 475
+- records appended: 475
 
 ## Health
-- average service score: 0.87
-- minimum service score: 0.81
-- latest queue pending: 6
+- average service score: 0.86
+- minimum service score: 0.79
+- latest queue pending: 0
 - latest completion rate 24h: 1.00
-- latest alerts: 2
+- latest alerts: 1
 
 ## Learning
-- arda_workbench / approved_autopilot_plan_step: attempts=14, success_rate=1.00, avg_joules=0.0
+- arda_workbench / approved_autopilot_plan_step: attempts=21, success_rate=0.81, avg_joules=0.0
 - athena / ops: attempts=4, success_rate=1.00, avg_joules=0.0
+- operator:mythos / ops: attempts=9, success_rate=0.44, avg_joules=0.0
 - prometheus / ops: attempts=12, success_rate=1.00, avg_joules=0.0
 
 ## Current Cycle

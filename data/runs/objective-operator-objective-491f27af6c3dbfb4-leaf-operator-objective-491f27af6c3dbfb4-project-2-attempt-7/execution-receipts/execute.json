@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:59ef3708775aa59ad84eaa2aee3fe0b27881ce3a1b651905851331be5e893549",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:hermes-m4-5b9547697f1f4693"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:47e044d535ff376caab1067eccf5a7a2ed359b206e4ba4bd344e82deed9d3664",
+  "recorded_at_unix_ms": 1788408294117,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-project-2-attempt-7",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Two-project integration brief: Tool Gate is a Rust library/CLI that evaluates caller-supplied tool metadata and invocation envelopes, producing deterministic allow, deny, or review-required receipts without executing tools (README.md:5-13). Agent Loop proposes autonomous work and tool invocations, while Tool Gate supplies the pre-execution policy decision (README.md:51-56). Their shared safety boundary is the transition from agent intent to runtime permission: no side effect should occur until Tool Gate returns allow, and review-required decisions must reach an operator (README.md:17-20,35-49). Actionable integration: make Agent Loop submit every proposed invocation to Tool Gate and require the execution runtime to verify and persist the resulting receipt before dispatch; deny or review on every non-allow result. Tool Gate risk: it trusts caller-supplied metadata and is not a sandbox, authentication layer, or execution runtime, so false risk, mutation, idempotency, or target declarations can yield unsafe decisions unless metadata is independently trusted (README.md:5-13,156-158; src/types.rs:22-40). Agent Loop risk: any direct runtime path that bypasses receipt enforcement turns proposals into ungoverned side effects; production systems are explicitly warned not to permit this bypass (README.md:31-33). Declared clean-tree check passed; inspection was read-only and created no artifacts.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 9,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 26106,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1337,
+    "provider": "openai-codex",
+    "total_tokens": 27443
+  }
+}

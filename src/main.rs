@@ -198,17 +198,8 @@ async fn main() -> anyhow::Result<()> {
             if *objective_shutdown_rx.borrow() {
                 break;
             }
-            tokio::select! {
-                result = objective_runtime.run_round(unix_now_ms()) => {
-                    if let Err(error) = result {
-                        warn!("arda daemon: resident objective round failed: {error:#}");
-                    }
-                }
-                result = objective_shutdown_rx.changed() => {
-                    if result.is_err() || *objective_shutdown_rx.borrow() {
-                        break;
-                    }
-                }
+            if let Err(error) = objective_runtime.run_round(unix_now_ms()).await {
+                warn!("arda daemon: resident objective round failed: {error:#}");
             }
             tokio::select! {
                 result = objective_shutdown_rx.changed() => {

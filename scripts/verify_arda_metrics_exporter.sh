@@ -26,7 +26,9 @@ required = (
     "ExecStart=%h/.local/bin/arda-cli metrics serve",
     "--bind 127.0.0.1",
     "--port 9101",
-    "Restart=always",
+    "StartLimitIntervalSec=5min",
+    "StartLimitBurst=5",
+    "Restart=on-failure",
 )
 for needle in required:
     if needle not in text:
@@ -42,7 +44,7 @@ PY
 "$BINARY_PATH" metrics snapshot --root "$ROOT_DIR" >/dev/null
 
 if command -v systemd-analyze >/dev/null 2>&1; then
-  systemd-analyze --user verify "$UNIT_PATH"
+  "$ROOT_DIR/scripts/systemd_user_verify.sh" "$UNIT_PATH"
 fi
 
 if [[ "$RUNTIME_CHECK" == "true" ]]; then

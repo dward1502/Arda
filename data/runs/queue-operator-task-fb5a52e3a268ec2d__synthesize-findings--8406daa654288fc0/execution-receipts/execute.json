@@ -1,0 +1,99 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:edf3eeccbb303f38800fce9406b65d07d430559dd3434047d4e50e665c169f2d",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-e572b27c0d924dd6be9b52b42b1b2768"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:f785c3005cd1d75572da77bb382ba6304a7a31d9f2e7f2c0ae0a944c4f0264fe",
+  "recorded_at_unix_ms": 1788260322996,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only synthesis completed with no files modified and no checks run. Prioritized findings: P0 security—project 1 permits absolute/traversal wikilinks outside the private vault and leaks filesystem existence; confine canonicalized targets to the vault before probing or returning backlinks (queue.jsonl:51610). P0 governance—project 2 can classify critical actions as review-required without enforcing the configured trace requirement; derive trace enforcement from the final review decision and add critical-risk/no-trace coverage (queue.jsonl:52040). P0 execution control—work marked autonomy hold is still materialized and submitted, while repeated execute/verify leaves accumulate for one objective; fail closed before materialization/Apollo submission and enforce one idempotent active leaf per objective and plan key (queue.jsonl:52370-52456). P1 correctness—project 1 frontmatter types conflict with its documented ingestion contract, serialized memory is discarded instead of persisted, and scan errors are silently dropped; align the parser with the authority/privacy/review contract, persist through the canonical memory owner, and propagate traversal errors (queue.jsonl:51610). P1 project authority—the registry mixes fixtures, target acceptance projects, and reviewed projects, while current plans require real bounded multi-project execution; separate proof records from production authority, validate roots and Cargo workspace compatibility, and bind runs to exact contract digests (projects.json:1-584; queue.jsonl:52465). P1 product completion—the implemented kernel and bounded installed proofs remain short of same-objective deferred/recurring restart, critic-driven correction, joined real-project closure, Vairë context-use, truthful Hermes controls, and explicit operator acceptance (AUTONOMOUS_TASK_COMPLETION_LOOP.md:23-37; ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:49-97). P2 status and improvement—reconcile stale status claims against live receipts, then activate the seven-cycle daily improvement gate; tests and queue records remain supporting evidence rather than product completion (ARDA_SYSTEM_STATUS_REPORT.md:47-50,119-131; ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:75-83,99-108).",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e0b869b57485236e63a3e2755fa1cfa629bfeb4dfa5a46331cd6282ded95f9e1",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":52370,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:222fb2966615dc4ce9b1610526ea6f7aa075f85d57d9d3c1059fafe169f45e71",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"*.md\",\"limit\":50,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/docs\",\"pattern\":\"same-objective|multi-project joined|proof/demo|operator acceptance|daily improvement\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d71c52cf4aa322ea53a2576c096f2961b0995c849cab02b2c425cd9ede433f33",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":0,\"file_glob\":\"queue.jsonl\",\"limit\":30,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"operator-task-fb5a52e3a268ec2d__inspect-authorities-project-[12]\"}",
+      "exit_code": null,
+      "output_digest": "sha256:5f9760498f24e1e2098b30ecaf004b296ccadac5ea6ee4b413d33d0cc235282d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":51610,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:50feb0758f622101f14e7055ee1f18fc5c190c6c40c39388427765452a2e0abc",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":52040,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f366e009ee29069b88f576dff1dc809371da03af6c73512f5f4cf77e5d2ceb96",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 80790,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1730,
+    "provider": "openai-codex",
+    "total_tokens": 82520
+  }
+}

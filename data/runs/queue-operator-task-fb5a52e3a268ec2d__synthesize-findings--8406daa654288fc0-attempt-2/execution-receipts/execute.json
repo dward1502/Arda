@@ -1,0 +1,153 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:da0775039213136cefed181a2ef0a8a3a2ba80f36b5bbf82cc83a3f4a019b22c",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-e572b27c0d924dd6be9b52b42b1b2768"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:daddbde9f9027af659e658d84841350895ab61c7ba97b612721fd731695faf04",
+  "recorded_at_unix_ms": 1788260921135,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Prioritized synthesis: P0—preserve the designed readiness-hold bypass but require every bypass to match an explicit action-class policy and a durable, scoped operator or governance waiver; fail closed only when the relevant hold lacks that authority. queue.jsonl:52452-52456 carries an approval packet and safe_autonomous metadata, while runner.rs:1665-1729 and tests at runner.rs:3518-3552 and 3867-3897 establish that approved or binding-governance-authorized work may proceed during a global hold. The smallest repair surface is readiness-bypass authorization and its durable receipt, not unconditional pre-materialization blocking. P0—deduplicate objective materialization/reconciliation so one objective leaf has one canonical active attempt and Apollo submission; repeated pending execute/verify records at queue.jsonl:52440-52456 show live ledger duplication. P1—repair reviewed-project defects at their owning sources: enforce vault containment and contract-compatible ingestion/persistence/error handling in the human project, as recorded at queue.jsonl:51610; enforce trace evidence whenever policy independently produces review_required in the tool-gate project, as recorded at queue.jsonl:52040. P1—replace mixed proof/demo and reviewed-real entries in data/workbench/projects.json with reviewed production contracts and prove one shared-objective joined close across two real projects; current implementation/configuration exists, but docs/plans/autonomous-task-completion/04-real-multi-project-execution.md:14-37 says live proof remains partial. P1—expose the canonical Workbench objective through Hermes with projects, current leaf, route, evidence, schedule, blocker, and controls; engineering and loopback behavior exist, but the genuine external-message gate remains open. P2—complete same-objective scheduled wake across restart, bind live Vairë context-use across sessions, and obtain the operator-burden verdict; installed components have bounded proofs, while the product gates remain open per the active plans and ARDA_SYSTEM_STATUS_REPORT.md:47-52,119-131. P2—activate the daily research/project-audit loop and demonstrate verified improvement, justified no-change, and correct rejection. No files were modified, no artifacts were created, and the verifier-owned cargo test was not rerun.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:20516dab72eafc1ce29fc7660bcc6647a8ab4136c3457d161e4026ea8457995a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":30,\"offset\":52440,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:456854fe4e1380dce3dece5623ad3348ef330c5ffb93d8255bea11e4686f2d3f",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*runner.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"readiness|operator.approv|binding.governance|safe_autonomous|autonomy\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6461a68707ce7aad31ac4f5033bfdd2004eb3c3b373e24cc7bcafec7196a9d1c",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":90,\"offset\":1645,\"path\":\"crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:85679c75215947d0942525e6c3bf5c8ac578b0792c39b935af1bbbe99736b46f",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":60,\"offset\":3495,\"path\":\"crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f50aa38bb58d84c0431f24f2efa935f0ae6c1697e59028a851555c71c0f3bba7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":60,\"offset\":3850,\"path\":\"crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:5586e7f303bc7888c907c28d99d172d3c69395467964373cd6de00d702838a91",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"queue.jsonl\",\"limit\":30,\"output_mode\":\"content\",\"path\":\"core/projects/tasks\",\"pattern\":\"operator-task-fb5a52e3a268ec2d|src/lib.rs:184-192|duplicate active leaves|mixed registry authority\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ed98e461a7141d575b4c08333da466a8cf8331808fc339964efdf41d00a6aabc",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":485,\"path\":\"data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6e6dd46af1f15344e7fb439462c5f127233505026d8411cda15ff1c5e8f8a7af",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.md\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"docs/plans/autonomous-task-completion\",\"pattern\":\"open|incomplete|remaining|Exit|Acceptance|critic|restart|multi-project|Hermes|Vair\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b88f6dd0a7b230686aa9fbcad62bd025bb19ac859845d9484478092962357a5f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":0,\"file_glob\":\"queue.jsonl\",\"limit\":50,\"output_mode\":\"content\",\"path\":\"core/projects/tasks\",\"pattern\":\"operator-task-fb5a52e3a268ec2d__inspect-authorities-project-[12]|c0bd75351425b508|a3d067604f2755dd\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:66ed5c96e2dd4ec25d5e7af50d0be6a879ef3466fdc45b17337762fb23fca37b",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"queue.jsonl\",\"limit\":50,\"output_mode\":\"content\",\"path\":\"core/projects/tasks\",\"pattern\":\"tool-gate|tool gate|allowlist|path traversal|durable storage|serializes and discards\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b167d92e924c4b18325375dd36868ebc2c389ea83aef7dece3b2f703ada46cf",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":80,\"offset\":1,\"path\":\"docs/plans/autonomous-task-completion/03-live-critic-revision.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ead414beb69f12f458be94c21a9dafa91133a6bbfe8a9f49b9c9bbcdd9352c5c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":80,\"offset\":1,\"path\":\"docs/plans/autonomous-task-completion/04-real-multi-project-execution.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e3b48ddee70b43414d59d27dacd6152a701b6b4bf297f25ed9d9f7e96706316e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":51610,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:183a215aebf891b43e4313e0ff6af09bf2f510286c00f682b4b19d73e8d4d2f9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":52040,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:aebc6b2da6c747b3cb4ea868d542c380dd617f975f225f07fd8675342275f4d1",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":4,\"offset\":52470,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f42ce55fa3b4a2b15fed72ffb4f97770047d4f6010672a609ccea0f513145cda",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 75507,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1915,
+    "provider": "openai-codex",
+    "total_tokens": 77422
+  }
+}

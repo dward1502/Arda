@@ -7,14 +7,17 @@ UNIT_DIR="${1:-$ROOT_DIR/config/systemd}"
 TARGET_UNIT="$UNIT_DIR/arda-session.target"
 HUD_UNIT="$UNIT_DIR/arda-hud.service"
 MIRROMERE_UNIT="$UNIT_DIR/arda-mirromere.service"
+MANWE_PROVIDER_CONFIG="$ROOT_DIR/config/manwe.providers.toml"
 
-python3 - "$TARGET_UNIT" "$HUD_UNIT" "$MIRROMERE_UNIT" <<'PY'
+python3 - "$TARGET_UNIT" "$HUD_UNIT" "$MIRROMERE_UNIT" "$MANWE_PROVIDER_CONFIG" <<'PY'
 from pathlib import Path
 import sys
+import tomllib
 
 target_path = Path(sys.argv[1])
 hud_path = Path(sys.argv[2])
 mirromere_path = Path(sys.argv[3])
+manwe_provider_path = Path(sys.argv[4])
 for path in (target_path, hud_path, mirromere_path):
     if not path.is_file():
         raise SystemExit(f"missing unit: {path}")
@@ -46,6 +49,17 @@ forbid(target, "arda-mirromere.service", "session target")
 root_runtime_path = target_path.parent / "arda.service"
 if root_runtime_path.is_file():
     root_runtime = unit_text(root_runtime_path)
+    require(root_runtime, "EnvironmentFile=%h/Eregion/Arda/config/.env", "Arda runtime")
+    require(
+        root_runtime,
+        "Environment=ARDA_MANWE_PROVIDER_CONFIG=%h/Eregion/Arda/config/manwe.providers.toml",
+        "Arda runtime",
+    )
+    require(
+        root_runtime,
+        "LoadCredential=arda-manwe-mutation:%h/.config/arda/credentials/hermes-gateway-capability",
+        "Arda runtime",
+    )
     require(root_runtime, "Environment=ARDA_OPERATOR_ID=operator:mythos", "Arda runtime")
 
 require(hud, "Wants=arda-session.target", "HUD service")
@@ -75,12 +89,32 @@ require(mirromere, "Restart=no", "Mirromere service")
 forbid(mirromere, "Wants=arda-session.target", "Mirromere service")
 if "[Install]" in mirromere:
     raise SystemExit("Mirromere service must remain explicit-only")
+
+with manwe_provider_path.open("rb") as provider_file:
+    provider_config = tomllib.load(provider_file)
+google = next(
+    (provider for provider in provider_config.get("provider", []) if provider.get("id") == "google"),
+    None,
+)
+if google is None:
+    raise SystemExit("Manwe provider config: missing Google provider")
+if google.get("probe_model") != "gemini-2.5-flash":
+    raise SystemExit("Manwe provider config: Google probe must use gemini-2.5-flash")
+model = next(
+    (model for model in google.get("model", []) if model.get("id") == "gemini-2.5-flash"),
+    None,
+)
+if model is None or not model.get("is_default"):
+    raise SystemExit("Manwe provider config: gemini-2.5-flash must be the default")
+capabilities = model.get("capabilities", {})
+if not capabilities.get("tools") or not capabilities.get("structured_output"):
+    raise SystemExit("Manwe provider config: gemini-2.5-flash must support tools and structured output")
 PY
 
 if command -v systemd-analyze >/dev/null 2>&1 \
   && [[ -x "$HOME/.local/lib/arda/hud/arda_hud" ]] \
   && [[ -x "$HOME/.local/lib/arda/mirromere/arda_mirromere" ]]; then
-  systemd-analyze --user verify "$TARGET_UNIT" "$HUD_UNIT" "$MIRROMERE_UNIT"
+  "$ROOT_DIR/scripts/systemd_user_verify.sh" "$TARGET_UNIT" "$HUD_UNIT" "$MIRROMERE_UNIT"
 fi
 
 printf 'arda user unit verification: pass unit_dir=%s\n' "$UNIT_DIR"

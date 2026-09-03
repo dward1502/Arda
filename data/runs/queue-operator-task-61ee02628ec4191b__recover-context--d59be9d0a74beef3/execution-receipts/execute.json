@@ -1,0 +1,63 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f822fcef14ae1f23199857a7d7ad22a348d6e33c0e2277568364b1a74cc5dfc5",
+  "idempotency_key": "queue-operator-task-61ee02628ec4191b__recover-context--d59be9d0a74beef3-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-b6c92342be4e4117aaff5c56dcddc0ac"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:b1feeddfdf68e8a905e019d9e9acb6675ee45dbab9adba3f496496d49ec2a011",
+  "recorded_at_unix_ms": 1788230237225,
+  "run_id": "queue-operator-task-61ee02628ec4191b__recover-context--d59be9d0a74beef3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Prioritized repair backlog: P0 expose conversational inspection and control of one canonical objective; P0 prove installed deferred/recurring continuation across restart; P1 prove real critic rejection and durable corrected revision; P1 replace proof/demo project contracts with two truthful real-project contracts and route their canonical work through Manwë; P1 bind Vairë context-use receipts and obtain operator-burden acceptance; P2 activate the daily research/project-audit loop. Preserve the canonical queue ledger and keep generated projections read-only. Smallest authoritative surfaces are the existing autonomous-completion program, Workbench execution authority, project registry, Manwë placement, Vairë receipts, and Hermes/HUD projections.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:12f871843c0e52cd6329e5e7933e1bbd01aff25ecea36756f8c05eeea69266b5",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 39898,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1523,
+    "provider": "openai-codex",
+    "total_tokens": 41421
+  }
+}

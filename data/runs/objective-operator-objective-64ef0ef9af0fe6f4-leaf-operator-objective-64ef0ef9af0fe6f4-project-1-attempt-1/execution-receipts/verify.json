@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:c0a1c0f7f9591d82a31f0c76ab8368755e1a71454195979df6f8f0b0bf4b3d5a",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:728c9db3f459e0f0fae53cad39067580335896c2af9e849f47e9ec1208498e57"
+  ],
+  "project_contract_digest": "sha256:af7d3dae3197a59caa74189bcde6418a4e9ba08c4fdcbf29d83dba043d8a98a6",
+  "receipt_digest": "sha256:793cd88567eb31c2616b6a0232b567dbd7c544b2870004b4bcafc5af1924313a",
+  "recorded_at_unix_ms": 1788329609577,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared verify check passed: README.acceptance contains the exact line resident-objective-acceptance-fixture-ok. No files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5348,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 262,
+    "provider": "openai-codex",
+    "total_tokens": 5610
+  }
+}

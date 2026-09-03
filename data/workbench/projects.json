@@ -136,6 +136,648 @@
       "contract": {
         "schema_version": "arda.project-contract.v1",
         "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a401",
+          "name": "m4-acceptance-a",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-a"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "test",
+            "args": [
+              "-f",
+              "acceptance.txt"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "acceptance.txt"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T05:35:07.543305Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a401",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a401",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a401"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a402",
+          "name": "m4-acceptance-b",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-b"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "test",
+            "args": [
+              "-f",
+              "acceptance.txt"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "acceptance.txt"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T05:35:07.555653Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a402",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a402",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a402"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a411",
+          "name": "m4-acceptance-a-v2",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-a-v2"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "pwd",
+            "args": [],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T05:37:42.030419Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a411",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a411",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a411"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a412",
+          "name": "m4-acceptance-b-v2",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-b-v2"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "pwd",
+            "args": [],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T05:37:42.040153Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a412",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a412",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a412"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a421",
+          "name": "m4-acceptance-a-v3",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-a-v3"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "pwd",
+            "args": [],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T05:51:19.639850Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a421",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a421",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a421"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a422",
+          "name": "m4-acceptance-b-v3",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-b-v3"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "pwd",
+            "args": [],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T05:51:19.654440Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a422",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a422",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a422"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a431",
+          "name": "m4-acceptance-a-v4",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-a-v4"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "grep",
+            "args": [
+              "-Fx",
+              "resident objective acceptance fixture: canonical source inspection required",
+              "README.acceptance"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T06:04:15.341453Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a431",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a431",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a431"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a432",
+          "name": "m4-acceptance-b-v4",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-b-v4"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "grep",
+            "args": [
+              "-Fx",
+              "resident objective acceptance fixture: canonical source inspection required",
+              "README.acceptance"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T06:04:15.350919Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a432",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a432",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a432"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a441",
+          "name": "m4-acceptance-a-v5",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-a-v5"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "grep",
+            "args": [
+              "-Fx",
+              "resident-objective-acceptance-fixture-ok",
+              "README.acceptance"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T06:12:31.608874Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a441",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a441",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a441"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-44665544a442",
+          "name": "m4-acceptance-b-v5",
+          "kind": "acceptance"
+        },
+        "workspace": {
+          "root": "data/arda/acceptance/m4/project-b-v5"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "verify",
+            "program": "grep",
+            "args": [
+              "-Fx",
+              "resident-objective-acceptance-fixture-ok",
+              "README.acceptance"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "verify",
+            "command": "verify"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance",
+            "path": "README.acceptance"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "delete_generated"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-09-02T06:12:31.635525Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a442",
+      "proposal_id": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a442",
+      "idempotency_key": "m4-installed-attach-550e8400-e29b-41d4-a716-44665544a442"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
           "project_id": "7a7e8400-e29b-41d4-a716-446655447007",
           "name": "digital-organism-stage7-living-mesh",
           "kind": "rust"
@@ -194,6 +836,392 @@
       "approval_id": "approval-stage7-operator-session",
       "proposal_id": "proposal-stage7-living-mesh",
       "idempotency_key": "stage7-attach"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "9b8e8400-e29b-41d4-a716-446655440099",
+          "name": "arda-autonomous-acceptance",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "target/arda-autonomous-acceptance-project"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance-marker",
+            "path": "acceptance.txt"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-08-30T00:00:00Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "installed-autonomous-acceptance-project",
+      "proposal_id": "installed-autonomous-acceptance-project",
+      "idempotency_key": "installed-autonomous-acceptance-project"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "9b8e8400-e29b-41d4-a716-446655440100",
+          "name": "arda-autonomous-acceptance-b",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "target/arda-autonomous-acceptance-project-b"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "acceptance-marker",
+            "path": "acceptance.txt"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda-installed-acceptance",
+          "declared_at": "2026-08-30T00:00:00Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "installed-autonomous-acceptance-project:9b8e8400-e29b-41d4-a716-446655440100",
+      "proposal_id": "installed-autonomous-acceptance-project:9b8e8400-e29b-41d4-a716-446655440100",
+      "idempotency_key": "installed-autonomous-acceptance-project:9b8e8400-e29b-41d4-a716-446655440100"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "a11c0000-e29b-41d4-a716-446655440001",
+          "name": "arda-agent-loop-contract",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "target/arda-real-projects/agent-loop-contract"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test",
+              "--",
+              "--test-threads=1"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test"
+          }
+        ],
+        "artifacts": [],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "operator:mythos",
+          "declared_at": "2026-08-31T03:53:38.056511+00:00",
+          "stage": 4
+        }
+      },
+      "approval_id": "approval-live-multi-project-acceptance",
+      "proposal_id": "proposal-live-multi-project-acceptance",
+      "idempotency_key": "live-multi-project-acceptance-a11c0000-e29b-41d4-a716-446655440001-v1"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "a11c0000-e29b-41d4-a716-446655440002",
+          "name": "arda-service-registry",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "target/arda-real-projects/service-registry"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test",
+              "--",
+              "--test-threads=1"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test"
+          }
+        ],
+        "artifacts": [],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "operator:mythos",
+          "declared_at": "2026-08-31T03:53:38.056511+00:00",
+          "stage": 4
+        }
+      },
+      "approval_id": "approval-live-multi-project-acceptance",
+      "proposal_id": "proposal-live-multi-project-acceptance",
+      "idempotency_key": "live-multi-project-acceptance-a11c0000-e29b-41d4-a716-446655440002-v1"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "b22c0000-e29b-41d4-a716-446655440002",
+          "name": "arda-human-reviewed",
+          "kind": "git-documentation"
+        },
+        "workspace": {
+          "root": "target/arda-real-projects/human"
+        },
+        "runtime": {
+          "adapter": "git"
+        },
+        "commands": [
+          {
+            "id": "verify-clean-tree",
+            "program": "git",
+            "args": [
+              "diff",
+              "--exit-code",
+              "HEAD",
+              "--"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "clean-tree",
+            "command": "verify-clean-tree"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "project-readme",
+            "path": "README.md"
+          }
+        ],
+        "permissions": {
+          "authority": "read_only",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "none_read_only"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "operator:mythos",
+          "declared_at": "2026-08-31T04:06:54.363290+00:00",
+          "review_status": "clean_detached_worktree",
+          "source_commit": "ecb6861415779fab704d60660c5e245bad1f1a7c"
+        }
+      },
+      "approval_id": "approval-arda-human-reviewed",
+      "proposal_id": "proposal-arda-human-reviewed",
+      "idempotency_key": "attach-arda-human-reviewed-2026-08-31T040654.3632900000"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "c33d0000-e29b-41d4-a716-446655440003",
+          "name": "arda-tool-gate-reviewed",
+          "kind": "git-documentation"
+        },
+        "workspace": {
+          "root": "target/arda-real-projects/tool-gate"
+        },
+        "runtime": {
+          "adapter": "git"
+        },
+        "commands": [
+          {
+            "id": "verify-clean-tree",
+            "program": "git",
+            "args": [
+              "diff",
+              "--exit-code",
+              "HEAD",
+              "--"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "clean-tree",
+            "command": "verify-clean-tree"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "project-readme",
+            "path": "README.md"
+          }
+        ],
+        "permissions": {
+          "authority": "read_only",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "none_read_only"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "operator:mythos",
+          "declared_at": "2026-08-31T04:06:54.363290+00:00",
+          "review_status": "clean_detached_worktree",
+          "source_commit": "12d3999703485cab8b604d8c10f300c9f7f3428c"
+        }
+      },
+      "approval_id": "approval-arda-tool-gate-reviewed",
+      "proposal_id": "proposal-arda-tool-gate-reviewed",
+      "idempotency_key": "attach-arda-tool-gate-reviewed-2026-08-31T040654.3632900000"
     }
   ]
 }

@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:29769203f6145a76f50b65dd074d6299fbee5baeb869b54eb1a9b06bbea6dfe7",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-e572b27c0d924dd6be9b52b42b1b2768"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:6e25d43caf022c6664d2290e5e4704e6797dc870c527cbdb0b5319b9aff33882",
+  "recorded_at_unix_ms": 1788261488675,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only authority inspection completed without modifying project files or generated queue projections. Operator-visible outcome: P0 investigate and fail closed the authorization path because core/projects/tasks/queue.jsonl:53323-53327 records autonomy_readiness_decision=hold, unmet readiness reasons, and null governance authorization while execute/verify leaves are still pending and submitted; P0 stop duplicate materialization because core/projects/tasks/queue.jsonl:53281-53322 repeatedly creates execute/verify leaves for the same objective; P0 expose canonical Workbench objective inspection and controls through Hermes, the open human-visible gate in docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:25-33; P1 prove restart-safe deferred continuation, critic-driven correction, and joined execution across the reviewed read-only project contracts declared in data/workbench/projects.json:448-582; P1 route real admitted workers with receipts and connect production project contracts, as required by docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:51-73; P1 bind Vaire context-use and Soterion retrieval to the same objective; P2 activate the daily improvement loop with verified improvement, justified no-change, and rejection outcomes. Capability truth: the autonomous graph and bounded installed proofs are implemented, but full operator acceptance, same-objective continuation, joined multi-project closure, real-worker routing, and daily improvement remain open per docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:23-37, docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:21-32, and ARDA_SYSTEM_STATUS_REPORT.md:47-55. The smallest authoritative repair surfaces are Workbench objective authorization/materialization, the canonical queue ledger, Manwe placement receipts, Vaire context-use receipts, and Hermes projections; no parallel authority should be introduced. Reserved project-native checks were not run because independent verification owns them.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:711d332f06b86adc47595e7789406947336641bad3ef21811a16f110fdbfdbb3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":53280,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d963f118fd76b747cc9fcb21b06fdb46d45e6a467ccfd8d3125667d80e7c39ab",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 61488,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1257,
+    "provider": "openai-codex",
+    "total_tokens": 62745
+  }
+}

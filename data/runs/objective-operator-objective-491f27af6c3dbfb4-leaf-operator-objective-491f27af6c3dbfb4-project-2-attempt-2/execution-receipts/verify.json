@@ -1,0 +1,71 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:834d5ed29a5c88356b8e46ed4c7822497d18b520f5abb66b90803f43c787dcd9",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:400b4642e518a4dd5e6fb1fab5cca88f962d5e9f07b17bc4003cd15ad7940d16"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:cb5b91aef8ddc2f20d3d3b6032c03eaa6b752e3dc4a165bfc7122b5a5d5053a2",
+  "recorded_at_unix_ms": 1788406820705,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the parent result against README.md: Tool Gate is a deterministic pre-execution policy boundary for Agent Loop proposals, emits allow/deny/review_required receipts without executing tools, relies on caller-supplied metadata, and is not a sandbox or authorization system. The declared clean-tree check passed, and no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path\np=Path('README.md')\nlines=p.read_text().splitlines()\nfor a,b in [(1,20),(48,58),(150,162)]:\n print(f'--- README.md:{a}-{b} ---')\n for i in range(a,min(b,len(lines))+1): print(f'{i}: {lines[i-1]}')\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git blame -L 1,20 -- README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:67c2a23e97b49ea047ca3c98fca9b04f0b69750b8d2f32499c4c6c24c83b5f53",
+      "tool": "terminal"
+    },
+    {
+      "action": "git blame -L 48,58 -- README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:1d4802ef881e8fe92e27fd1c06749b4d89ec28a9f82f5c6323b59d5376d6e040",
+      "tool": "terminal"
+    },
+    {
+      "action": "git blame -L 150,162 -- README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:66858439274bf80ed82bb2cb91b2069b578af4f58cddb900a06d1d5ff2ecb67b",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12497,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 783,
+    "provider": "openai-codex",
+    "total_tokens": 13280
+  }
+}

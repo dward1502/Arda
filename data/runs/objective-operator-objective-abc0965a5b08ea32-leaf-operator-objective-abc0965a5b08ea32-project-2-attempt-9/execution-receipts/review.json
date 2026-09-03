@@ -1,0 +1,81 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2a0f5d3cd4c073659ca11714903fdbf19b713a5820336d8448ff93df15cfc64b",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:b44e6a1b1c3dc4577f1d5841c7f8eb987110f3a42e947eaa3c81402b9357545e"
+  ],
+  "project_contract_digest": "sha256:a7aab82586ca55905d73ff90dd6fa31d7f08a8b217bc04f6400b340071b0fe2b",
+  "receipt_digest": "sha256:faddfea00025abd0230baabff23129876cbbe0093e72d713e90be28aded08b1c",
+  "recorded_at_unix_ms": 1788330035759,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-2-attempt-9",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only review completed. Named defects: the project contains no implementation or durable runtime-verification evidence beyond README.acceptance, whose single-line acceptance assertion is unsupported; the parent receipt proves only that `pwd` succeeded in the expected directory and does not verify an isolated, installed, or resident runtime. The receipt is internally consistent for its declared `pwd` check, but it cannot support broader completion claims. No project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"**/*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\".*/*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"**/.*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*\",\"limit\":200,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"(?i)(runtime|acceptance|verify|receipt|installed|resident)\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:119e10d3a301e5b4f71df4c5a64332ce5140190d184e6b528ca254d5b491c7dd",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 11885,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 680,
+    "provider": "openai-codex",
+    "total_tokens": 12565
+  }
+}

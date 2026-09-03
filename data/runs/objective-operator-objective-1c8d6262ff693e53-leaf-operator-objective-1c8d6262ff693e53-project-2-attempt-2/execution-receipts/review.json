@@ -1,0 +1,57 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:b531294fc6f56e082128be722772280373001e6760632ff486ad075a5f345da6",
+  "idempotency_key": "queue-operator-objective-1c8d6262ff693e53-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:0bf22ad99daa4bd39dd4249d0220af97d17668e1e36c814d92f951b7f735c1d8"
+  ],
+  "project_contract_digest": "sha256:e77fc25e9e87310b96c880be1ec1656e832472b5b786b322d1db0a81a45cf4e8",
+  "receipt_digest": "sha256:0d286e898c35bf17266e775ce0d7df664dc0ba9ffd0925423870293812bade4d",
+  "recorded_at_unix_ms": 1788327662400,
+  "run_id": "objective-operator-objective-1c8d6262ff693e53-leaf-operator-objective-1c8d6262ff693e53-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Defect: acceptance.txt contains only the unsupported assertion “resident objective runtime accepted this project.” The supplied receipt covers file existence only; no implementation or durable evidence supports the asserted runtime acceptance, so correctness cannot be independently approved. Scope was read-only and no files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7e524e424beae22f52f5c42573b01a53b2f14530f073353a755bd05432fd5945",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7e524e424beae22f52f5c42573b01a53b2f14530f073353a755bd05432fd5945",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ba942d13e4367efc797dc7060812a36b3f051d71797e2f9ead27f20bd229eecc",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9946,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 487,
+    "provider": "openai-codex",
+    "total_tokens": 10433
+  }
+}

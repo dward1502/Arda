@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:af741a2899be14887665be36a2e4d147661df8857abc78bcc6be5e503a242c02",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-two-project-v2"
+  ],
+  "project_contract_digest": "sha256:a7aab82586ca55905d73ff90dd6fa31d7f08a8b217bc04f6400b340071b0fe2b",
+  "receipt_digest": "sha256:f25e30f982436877ab13a5e8fd83090b7a0531b2ad789d7aca17cc2120a61662",
+  "recorded_at_unix_ms": 1788328381859,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-2-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the exact project workspace and confirmed README.acceptance contains the bounded acceptance fixture: \"isolated installed resident runtime acceptance\". No files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9527,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 233,
+    "provider": "openai-codex",
+    "total_tokens": 9760
+  }
+}

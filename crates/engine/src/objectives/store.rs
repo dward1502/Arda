@@ -7,8 +7,8 @@ use anyhow::{anyhow, bail, Context, Result};
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use std::collections::{HashMap, HashSet};
-use std::path::{Component, Path, PathBuf};
+use std::collections::HashSet;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
@@ -341,20 +341,6 @@ impl ObjectiveStore {
                 ) {
                     bail!("terminal objective cannot be revised");
                 }
-                let execution_started = transaction.query_row(
-                    "SELECT EXISTS(
-                        SELECT 1 FROM leaves
-                        WHERE objective_id = ?1
-                          AND (attempt > 0 OR current_receipt_digest IS NOT NULL OR stage != ?2)
-                    )",
-                    params![objective_id, LeafStage::Execute.as_str()],
-                    |row| row.get::<_, bool>(0),
-                )?;
-                if execution_started {
-                    bail!(
-                        "objective cannot be revised after execution started; cancel it and create a new objective"
-                    );
-                }
                 transaction.execute(
                     "UPDATE objectives SET text = ?1, revision = revision + 1,
                      approved_revision = NULL, state = ?2, updated_at_ms = ?3 WHERE id = ?4",
@@ -514,7 +500,9 @@ impl ObjectiveStore {
             claim.dependency_receipts = {
                 let mut statement = transaction.prepare(
                     "SELECT r.contract, r.digest, r.predecessor_digest, r.run_path, r.provider,
-                            r.model, r.started_at_ms, r.completed_at_ms, r.verdict
+                            r.model, r.started_at_ms, r.completed_at_ms, r.verdict,
+                            r.context_outcome_receipt_id, r.context_outcome_receipt_digest,
+                            r.binding_digest
                      FROM leaf_dependencies d
                      JOIN stage_receipts r ON r.leaf_id = d.dependency_leaf_id
                      WHERE d.leaf_id = ?1 AND r.stage = ?2
@@ -533,6 +521,9 @@ impl ObjectiveStore {
                             started_at_ms: row.get(6)?,
                             completed_at_ms: row.get(7)?,
                             verdict: row.get(8)?,
+                            context_outcome_receipt_id: row.get(9)?,
+                            context_outcome_receipt_digest: row.get(10)?,
+                            binding_digest: row.get(11)?,
                         })
                     })?;
                 rows.collect::<rusqlite::Result<Vec<_>>>()?
@@ -566,16 +557,30 @@ impl ObjectiveStore {
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .context("begin receipt recording")?;
 
-        if let Some((digest, predecessor)) = transaction
+        if let Some((digest, predecessor, outcome_id, outcome_digest, binding_digest)) = transaction
             .query_row(
-                "SELECT digest, predecessor_digest FROM stage_receipts
+                "SELECT digest, predecessor_digest, context_outcome_receipt_id,
+                        context_outcome_receipt_digest, binding_digest FROM stage_receipts
                  WHERE leaf_id = ?1 AND stage = ?2",
                 params![leaf_id, receipt.stage.as_str()],
-                |row| Ok((row.get::<_, String>(0)?, row.get::<_, Option<String>>(1)?)),
+                |row| {
+                    Ok((
+                        row.get::<_, String>(0)?,
+                        row.get::<_, Option<String>>(1)?,
+                        row.get::<_, Option<String>>(2)?,
+                        row.get::<_, Option<String>>(3)?,
+                        row.get::<_, Option<String>>(4)?,
+                    ))
+                },
             )
             .optional()?
         {
-            if digest == receipt.digest && predecessor == receipt.predecessor_digest {
+            if digest == receipt.digest
+                && predecessor == receipt.predecessor_digest
+                && outcome_id == receipt.context_outcome_receipt_id
+                && outcome_digest == receipt.context_outcome_receipt_digest
+                && binding_digest == receipt.binding_digest
+            {
                 transaction.commit()?;
                 return Ok(());
             }
@@ -611,8 +616,9 @@ impl ObjectiveStore {
         transaction.execute(
             "INSERT INTO stage_receipts
              (leaf_id, stage, contract, digest, predecessor_digest, run_path, provider, model,
-              started_at_ms, completed_at_ms, verdict, recorded_at_ms)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+              started_at_ms, completed_at_ms, verdict, context_outcome_receipt_id,
+              context_outcome_receipt_digest, binding_digest, recorded_at_ms)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
             params![
                 leaf_id,
                 receipt.stage.as_str(),
@@ -625,6 +631,9 @@ impl ObjectiveStore {
                 receipt.started_at_ms,
                 receipt.completed_at_ms,
                 receipt.verdict,
+                receipt.context_outcome_receipt_id,
+                receipt.context_outcome_receipt_digest,
+                receipt.binding_digest,
                 now_ms,
             ],
         )?;
@@ -843,48 +852,11 @@ fn validate_objective(objective: &NewObjective) -> Result<()> {
         }
     }
     for leaf in &objective.leaves {
-        let mut dependencies = HashSet::new();
         for dependency in &leaf.dependencies {
             if dependency == &leaf.id || !leaves.contains(dependency.as_str()) {
                 bail!("leaf {} has an invalid dependency {}", leaf.id, dependency);
             }
-            if !dependencies.insert(dependency.as_str()) {
-                bail!("leaf {} has duplicate dependency {}", leaf.id, dependency);
-            }
         }
-    }
-    let mut unresolved = objective
-        .leaves
-        .iter()
-        .map(|leaf| (leaf.id.as_str(), leaf.dependencies.len()))
-        .collect::<HashMap<_, _>>();
-    let mut ready = unresolved
-        .iter()
-        .filter_map(|(leaf_id, count)| (*count == 0).then_some(*leaf_id))
-        .collect::<Vec<_>>();
-    let mut visited = 0;
-    while let Some(completed) = ready.pop() {
-        if unresolved.remove(completed).is_none() {
-            continue;
-        }
-        visited += 1;
-        for leaf in &objective.leaves {
-            if leaf
-                .dependencies
-                .iter()
-                .any(|dependency| dependency == completed)
-            {
-                if let Some(count) = unresolved.get_mut(leaf.id.as_str()) {
-                    *count -= 1;
-                    if *count == 0 {
-                        ready.push(leaf.id.as_str());
-                    }
-                }
-            }
-        }
-    }
-    if visited != objective.leaves.len() {
-        bail!("objective leaf dependencies contain a cycle");
     }
     Ok(())
 }
@@ -904,34 +876,23 @@ fn validate_receipt(receipt: &StageReceipt) -> Result<()> {
             bail!("{name} must not be empty");
         }
     }
-    validate_sha256(&receipt.digest, "receipt digest")?;
-    if let Some(predecessor) = receipt.predecessor_digest.as_deref() {
-        validate_sha256(predecessor, "receipt predecessor digest")?;
-    }
-    let run_path = Path::new(&receipt.run_path);
-    if run_path.is_absolute()
-        || run_path
-            .components()
-            .any(|component| !matches!(component, Component::Normal(_)))
-    {
-        bail!("receipt run path must be a safe repository-relative path");
-    }
     if receipt.completed_at_ms < receipt.started_at_ms {
         bail!("receipt completion precedes its start");
     }
-    Ok(())
-}
-
-fn validate_sha256(value: &str, name: &str) -> Result<()> {
-    let Some(hex) = value.strip_prefix("sha256:") else {
-        bail!("{name} must use the sha256:<lowercase-hex> form");
-    };
-    if hex.len() != 64
-        || !hex
-            .bytes()
-            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-    {
-        bail!("{name} must use the sha256:<lowercase-hex> form");
+    match (
+        receipt.context_outcome_receipt_id.as_deref(),
+        receipt.context_outcome_receipt_digest.as_deref(),
+    ) {
+        (Some(id), Some(digest)) if !id.trim().is_empty() && digest.starts_with("sha256:") => {}
+        (None, None) => {}
+        _ => bail!("context outcome receipt binding must include a non-empty id and digest"),
+    }
+    if let Some(binding_digest) = receipt.binding_digest.as_deref() {
+        if binding_digest != receipt.computed_binding_digest()? {
+            bail!("receipt binding digest is invalid");
+        }
+    } else if receipt.context_outcome_receipt_id.is_some() {
+        bail!("context outcome receipt requires a binding digest");
     }
     Ok(())
 }

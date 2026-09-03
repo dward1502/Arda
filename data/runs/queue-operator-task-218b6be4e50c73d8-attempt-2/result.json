@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:c44b00f8d731c44909d2f0db47aa216e1fdb42580b209ff9f9c2ca2ef3d5c685",
+    "summary": "No defects found. Independent read-only inspection confirmed acceptance.txt contains exactly the required line with a trailing newline, and the Rust test implementation is consistent with the canonical verification receipt showing cargo test passed. No checks were rerun and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "duration_ms": null,
+      "name": "cargo test",
+      "status": "passed"
+    }
+  ]
+}

@@ -164,8 +164,7 @@ impl ObjectiveDecomposer {
         obj: &Objective,
         context_sources: Vec<ObjectiveContextSource>,
     ) -> ObjectivePlan {
-        let mut tasks =
-            vec![
+        let mut tasks = vec![
             task(
                 "recover-context",
                 "Recover authoritative project, plan, evidence, receipt, and repository context",
@@ -177,7 +176,10 @@ impl ObjectiveDecomposer {
             ),
             task(
                 "inspect-authorities",
-                &format!("Inspect live behavior and authorities for: {}", obj.statement),
+                &format!(
+                    "Inspect live behavior and authorities for: {}",
+                    obj.statement
+                ),
                 "analysis",
                 &["recover-context"],
                 Priority::High,
@@ -195,7 +197,10 @@ impl ObjectiveDecomposer {
             ),
             task(
                 "produce-outcome",
-                &format!("Produce the concrete operator-visible outcome for: {}", obj.statement),
+                &format!(
+                    "Produce the concrete operator-visible outcome for: {}",
+                    obj.statement
+                ),
                 "ops",
                 &["synthesize-findings"],
                 Priority::Critical,
@@ -429,7 +434,7 @@ pub fn executable_leaf_contract(
         "read_only"
     };
     let evidence_requirements = match task.task_type.as_str() {
-        "context_recovery" => vec!["context_source_digests".into()],
+        "context_recovery" => vec!["source_evidence".into()],
         "monitor" => vec![
             "project_check_receipts".into(),
             "acceptance_observations".into(),
@@ -449,7 +454,7 @@ pub fn executable_leaf_contract(
         } else {
             1
         },
-        timeout_seconds: task.eta_seconds.max(30),
+        timeout_seconds: task.eta_seconds.max(300),
     }
 }
 
@@ -520,7 +525,17 @@ mod tests {
                 && contract.max_joules > 0.0
                 && contract.max_cost_usd > 0.0
                 && contract.max_attempts > 0
+                && contract.timeout_seconds >= 300
         }));
+        let recover = plan
+            .tasks
+            .iter()
+            .find(|task| task.task_type == "context_recovery")
+            .unwrap();
+        assert_eq!(
+            plan.leaf_contracts[&recover.key].evidence_requirements,
+            vec!["source_evidence"]
+        );
         assert_ne!(
             plan.leaf_contracts[&plan.tasks[0].key].max_joules,
             plan.leaf_contracts[&plan.tasks[3].key].max_joules

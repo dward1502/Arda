@@ -20,7 +20,6 @@ declare -A TIMER_ACTIVE_STATES=()
 TIMERS=(
   arda-aule-autopilot-read-only.timer
   arda-aule-autopilot.timer
-  arda-workbench-queue-executor.service
   arda-workbench-queue-executor.timer
 )
 
@@ -172,10 +171,6 @@ fi
 
 trap on_exit EXIT
 TRANSACTION_ACTIVE=true
-if [[ "$SKIP_RELOAD" != "true" ]]; then
-  systemctl_user disable --now arda-workbench-queue-executor.timer
-  systemctl_user disable --now arda-workbench-queue-executor.service
-fi
 atomic_install "$CLI_SOURCE" "$CLI_DEST" 0755
 CLI_INSTALLED_SHA256="$(sha256sum "$CLI_DEST" | cut -d' ' -f1)"
 printf 'cli_installed_sha256=%s\n' "$CLI_INSTALLED_SHA256" >> "$ROLLBACK_DIR/manifest"
@@ -189,11 +184,12 @@ for unit in "${UNITS[@]}"; do
 done
 rm -f "${RETIRED_UNITS[@]/#/$USER_UNIT_DIR/}"
 
-systemd-analyze --user verify "${UNITS[@]/#/$USER_UNIT_DIR/}"
+"$ROOT_DIR/scripts/systemd_user_verify.sh" "${UNITS[@]/#/$USER_UNIT_DIR/}"
 
 if [[ "$SKIP_RELOAD" != "true" ]]; then
   systemctl_user daemon-reload
   systemctl_user disable --now arda-aule-autopilot-read-only.timer
+  systemctl_user disable --now arda-workbench-queue-executor.timer
   systemctl_user enable --now arda-aule-autopilot.timer
   [[ "$(systemctl_user show arda-aule-autopilot.timer --property=LoadState --value)" == "loaded" ]]
 fi

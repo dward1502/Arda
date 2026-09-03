@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a6fc01ff91a04a2380041f85c3fc0459",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0-attempt-2 for task operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0 ended status=completed result=completed; receipt=sha256:8efa35083a7a54f95af4f0c7e337541599177e5367b5d8c20d17f3573a1fe799; detail=Independent review accepted the revised prioritized synthesis. Source evidence corroborates the named defects: runner.rs:1675-1678 treats any present approval_packet_id as sufficient to bypass a readiness hold, while workbench_executor.rs:2484-2527 validates only nonempty authority metadata rather than a durable approval packet’s status and scope; queue.jsonl:52440-52456 shows repeated pending execute/verify materialization for one objective; the human project permits vault traversal at src/lib.rs:184-192, discards serialized memory at src/lib.rs:56-89, and ingests Markdown without enforcing the documented authority/privacy contract at src/lib.rs:107-125; the tool-gate project checks trace evidence only for metadata.requires_review at src/policy.rs:89-102 even though critical risk independently produces ReviewRequired at src/policy.rs:129-143. The synthesis now preserves the designed readiness-hold bypass while identifying the smallest repair as policy-bound, durable, scoped authorization rather than unconditional blocking. Registry and plan evidence supports the remaining mixed proof/real project, joined-close, Hermes control, restart, Vairë, operator-acceptance, and daily-loop gaps without claiming those downstream gates are complete. The prior verification receipt exactly covers the declared test check cargo test -p arda-core with exit code 0. Exported read-output digests provide source evidence and appropriately differ from source-content digests; no context_use_receipt was required because no governed capsule supplied one. No mutating tool calls are present under read-only authority, no files were modified, no checks were rerun, and no artifacts were created.",
+  "salience": 0.6017250000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T11:10:32.762850998Z",
+  "last_seen_at": "2026-09-01T11:10:32.762850998Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

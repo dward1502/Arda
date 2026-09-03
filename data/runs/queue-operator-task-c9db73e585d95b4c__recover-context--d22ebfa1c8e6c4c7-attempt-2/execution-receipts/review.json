@@ -1,0 +1,81 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3d5f889e7c0ad1db1cfcd814624fcd90e57b3a5b0e99635d2767fcbad891e985",
+  "idempotency_key": "queue-operator-task-c9db73e585d95b4c__recover-context--d22ebfa1c8e6c4c7-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:bbb4dfd48c968ee56ddcc6433c4fb0710892fe0c39819c5861895770ae708793"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:92b95d323aa3c5f12e6b4acda51d6ce1104ce9d47f6d95f471b39b731108410a",
+  "recorded_at_unix_ms": 1788235923899,
+  "run_id": "queue-operator-task-c9db73e585d95b4c__recover-context--d22ebfa1c8e6c4c7-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Review rejected unsupported completion. The verification receipt covers the declared test check: `cargo test -p arda-core` passed with exit code 0. However, required `context_source_digests` evidence is absent: the execution receipt contains read-tool output digests, but does not bind them to or demonstrate equality with the six canonical context-source digests declared by the leaf, and `context_use_receipt` is null. It also lacks before-and-after repository-state evidence supporting the no-project-file-modification claim. Successful file reads alone do not prove recovery of the exact digest-pinned context.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":50,\"offset\":34370,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd221351a0b4bb6d1ad7cd0afdbf81b7071173c3167c357ca23d2be9d82693e7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda\",\"pattern\":\"Recover authoritative project, plan, evidence, receipt, and repository context|recover-context|context_source_digests\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:04cefeb66af7eb84885b8e03dbeec70279820c0b03573f4e73df3a460bfb33e1",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 57128,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 962,
+    "provider": "openai-codex",
+    "total_tokens": 58090
+  }
+}

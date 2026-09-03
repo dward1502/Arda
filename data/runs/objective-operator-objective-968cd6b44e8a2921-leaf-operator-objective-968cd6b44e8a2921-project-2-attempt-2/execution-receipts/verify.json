@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:89f6994a4a3d889d853208b297dcec493e9547f76742869c2fc67b74d9d65be2",
+  "idempotency_key": "queue-operator-objective-968cd6b44e8a2921-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:d8602d5114cabb67863ff0b8ad191d89fbf9d05c9ffe53378256d54f95573b2a"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:6f9636e26feee24ca94e309224b567668e85ea2ed76bd4ca12d255ea841ea8f8",
+  "recorded_at_unix_ms": 1788413367220,
+  "run_id": "objective-operator-objective-968cd6b44e8a2921-leaf-operator-objective-968cd6b44e8a2921-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified project c33d0000-e29b-41d4-a716-446655440003. The declared clean-tree check `git diff --exit-code HEAD --` exited 0 with no output; no changes or artifacts were created.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10256,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 278,
+    "provider": "openai-codex",
+    "total_tokens": 10534
+  }
+}

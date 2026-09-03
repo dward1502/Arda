@@ -1,0 +1,64 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:2b6d0d5702bbe69615b540be9eba02d2f75973b92d52c03fbdc9924f50b9d854",
+      "path": "acceptance.txt"
+    }
+  ],
+  "authority_binding_digest": "sha256:b0a3787c6db761c3348ee9d0117df2686259132205371b4ebe8e7ad497c8a8d6",
+  "idempotency_key": "queue-operator-task-218b6be4e50c73d8-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:installed-unattended-1788093213-approve"
+  ],
+  "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+  "receipt_digest": "sha256:e2e15f61998e02073ae21ec9011e3837d2c406f076e984bdd1c398fd096ee313",
+  "recorded_at_unix_ms": 1788093437407,
+  "run_id": "queue-operator-task-218b6be4e50c73d8-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "cargo test passed; acceptance.txt exactly matches arda-autonomous-loop-accepted followed by one newline.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path; import hashlib; p=Path('acceptance.txt'); b=p.read_bytes(); assert b == b'arda-autonomous-loop-accepted\\n', repr(b); print('acceptance.txt exact bytes verified'); print('sha256:'+hashlib.sha256(b).hexdigest())\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "printf 'arda-autonomous-loop-accepted\\n' | cmp - acceptance.txt && sha256sum acceptance.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:8a28256f129296c27522061d9e3830cb1e46193e8f7004e5cf08532274e01d9c",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 7506,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1704,
+    "provider": "openai-codex",
+    "total_tokens": 9210
+  }
+}

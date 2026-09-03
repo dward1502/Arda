@@ -1,0 +1,165 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:5ddea0b3ae549d91325e64b6895a0617995b67bd68e114edc0bbf3a0f273c69d",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:d876120d5535ed6f27c811467fdc1f508c245e2a7c051366f66acb48e87797a8"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:f2bdb50f93a208e3abb33dae48327d671227ec4c90b593b5cb60f000f9929396",
+  "recorded_at_unix_ms": 1788261028795,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__synthesize-findings--8406daa654288fc0-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent review accepted the revised prioritized synthesis. Source evidence corroborates the named defects: runner.rs:1675-1678 treats any present approval_packet_id as sufficient to bypass a readiness hold, while workbench_executor.rs:2484-2527 validates only nonempty authority metadata rather than a durable approval packet’s status and scope; queue.jsonl:52440-52456 shows repeated pending execute/verify materialization for one objective; the human project permits vault traversal at src/lib.rs:184-192, discards serialized memory at src/lib.rs:56-89, and ingests Markdown without enforcing the documented authority/privacy contract at src/lib.rs:107-125; the tool-gate project checks trace evidence only for metadata.requires_review at src/policy.rs:89-102 even though critical risk independently produces ReviewRequired at src/policy.rs:129-143. The synthesis now preserves the designed readiness-hold bypass while identifying the smallest repair as policy-bound, durable, scoped authorization rather than unconditional blocking. Registry and plan evidence supports the remaining mixed proof/real project, joined-close, Hermes control, restart, Vairë, operator-acceptance, and daily-loop gaps without claiming those downstream gates are complete. The prior verification receipt exactly covers the declared test check cargo test -p arda-core with exit code 0. Exported read-output digests provide source evidence and appropriately differ from source-content digests; no context_use_receipt was required because no governed capsule supplied one. No mutating tool calls are present under read-only authority, no files were modified, no checks were rerun, and no artifacts were created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":35,\"offset\":52440,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:4211143ee4bb8ebe80659ac9b1973f292d4fcd6be732b36dabc666873d531379",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":95,\"offset\":1645,\"path\":\"crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a0db8d0257d608b7adf54bd4d1f018470533b6f56031197428dff88f6a3a7d3b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":70,\"offset\":3495,\"path\":\"crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:97f741812265e9c2d256d3f25a6d4fb57e43e9decd8a1de6f766dd970547ef30",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":65,\"offset\":3850,\"path\":\"crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee21993ca104a84d1222b13955576b750db679c2089dfffb96a3f914ad6ad7ea",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"docs/plans/autonomous-task-completion/04-real-multi-project-execution.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e3b48ddee70b43414d59d27dacd6152a701b6b4bf297f25ed9d9f7e96706316e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":105,\"offset\":35,\"path\":\"ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b707ccfe34aa14ede49ca4dd82bda446ee91d82d46f721b2863e0b090edf6de9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":620,\"offset\":1,\"path\":\"data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"crates/spine/observability/arda-aule/src/prometheus\",\"pattern\":\"approval_packet_id|governance_authorization_id|action_class\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:57f1d937c37bee7142bdf2de8c17f8bd4f95196fc9fea2cf154877801c6f76ec",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":260,\"offset\":1,\"path\":\"target/arda-real-projects/human/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"target/arda-real-projects/tool-gate/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":51610,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2ce06b76a98cafa5618a88e36554760ac93794894b96d429235410540d3ecfdb",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":52040,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a1948b706e4c70c4d35fdd2228533b8f9ae379c36143ce29e9d30b55ebe0a66e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"docs/plans/autonomous-task-completion/03-live-critic-revision.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ead414beb69f12f458be94c21a9dafa91133a6bbfe8a9f49b9c9bbcdd9352c5c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":220,\"offset\":1,\"path\":\"docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":240,\"offset\":1,\"path\":\"docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":2455,\"path\":\"crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:318c49e8bcbe5e25ddbef220db4e3eef8c8ca6e91b29e51a3dba770a746de31a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":4,\"file_glob\":\"*.rs\",\"limit\":80,\"output_mode\":\"content\",\"path\":\"crates/spine/observability/arda-aule/src/prometheus\",\"pattern\":\"fn governance_authorization_id|governance_authorization_id\\\\(\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:27ee042b38b9fc2ad116dac3f402075404629340417eead65f5b3286095d00e2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"crates/spine/observability/arda-aule/src/prometheus\",\"pattern\":\"approval_packet_id\\\\.is_some\\\\(\\\\)|operator_approved\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e3117da8aab363203e5c29e8e292251739a88d591f6d8ec0af78bf6bd550e4db",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":190,\"offset\":1,\"path\":\"target/arda-real-projects/tool-gate/src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8d5f6e41fd65315e0808eb892299dde9b5b99c5ceab0e80b9ba62eb700df6aed",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":110,\"offset\":35,\"path\":\"target/arda-real-projects/tool-gate/tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2c94132adb52be9aa62bf1e5f0a39656bd72e34c184407aee34924e1e67d6923",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":125,\"offset\":1,\"path\":\"target/arda-real-projects/human/docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b71b89fb062155ad1741d056e542f758c6f2745bda38c262d28863fc774068f6",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 47259,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2066,
+    "provider": "openai-codex",
+    "total_tokens": 49325
+  }
+}

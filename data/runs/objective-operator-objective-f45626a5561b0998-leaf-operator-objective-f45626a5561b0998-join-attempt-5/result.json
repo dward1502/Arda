@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:95d9d1114750e9f65947108c13ce1c01653cb7bfd89455920a636aac0705360e",
+    "summary": "Review found unsupported completion and named defects: (1) src/lib.rs:56-89 MemoryStore::store only serializes a MemoryRecord and discards it, so scan_vault provides no durable Mnemosyne persistence despite the stated integration; annunimas-mnemosyne is never used. (2) src/lib.rs:13-25 accepts an obsolete frontmatter shape that conflicts with docs/human-knowledge-ingestion-contract.md:71-93: required authority, privacy, provenance, review, supersession, and contract fields are absent, while contract confidence values low/medium/high cannot deserialize into u8. (3) src/lib.rs:184-192 resolves slash-containing and absolute wikilinks without constraining the result to the vault root, allowing existence probing outside the private vault via traversal or absolute paths. (4) src/lib.rs:110-114 silently drops WalkDir traversal errors, permitting incomplete scans to report success. (5) Durable dependency evidence establishes only successful close receipts and a clean-tree check; it supplies no functional or security verification supporting the implementation. Declared checks were not rerun, and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

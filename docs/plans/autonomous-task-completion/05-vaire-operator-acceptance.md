@@ -11,6 +11,10 @@ soterion:
 
 # Milestone 5 — Vairë Continuity and Operator Acceptance
 
+## Status
+
+Partial. Installed terminal outcomes produced durable Mnemosyne memory IDs, including `mem_65318f16b2794990b9ac8b11860ba00d` for the corrected critic run. A live Vairë context-use receipt bound before execution, new-session context recovery, and explicit operator burden verdict remain open.
+
 ## Human-visible result
 
 Arda remembers why the objective exists, what context it used, what happened, and what remains across Hermes sessions and restarts. The operator judges that the completed loop reduced management burden.

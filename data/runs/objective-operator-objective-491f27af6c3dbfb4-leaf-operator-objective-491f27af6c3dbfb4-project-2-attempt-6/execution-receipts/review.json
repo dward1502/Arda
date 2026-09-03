@@ -1,0 +1,129 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:7efbdc6db12f75dc95b437072cdb7483c5c25581da53c61758f6a8c4138b7291",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:109d11bcafd55b92f82e24b1b7adde20fa4b753117606f6d50e1b23d604c294b"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:f42699cd1bab11174e1cb0f2981504d54bcb4ea50c1edc7fac7fb1925f2b4056",
+  "recorded_at_unix_ms": 1788408029876,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-project-2-attempt-6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "No named defects found. Independent read-only inspection found the parent receipt correctly scoped to the declared clean-tree check; its successful exit code and authenticated output digest support the result, while the absence of mutating calls supports the no-modification claim. No artifacts were expected or produced.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:15864db2eef3b87ffaada165f9c01532b4abb62779d69b3f13ade6dea710eb5d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"..\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"src\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b216218c2c6b10ec19f0827348a9c43af9a5544facb6faab3b9866199c4b1fa6",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"tests\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d1f0755bc493f7488906cf4ef3cdf189e9ea82570006f0aa73535292a955c69a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"examples\",\"pattern\":\"*.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:92ebcc1b752b7898862293e3cb5bc4bd1f777a660a08813a2704acb1f164580e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*.rs\",\"limit\":200,\"output_mode\":\"content\",\"path\":\"src\",\"pattern\":\"pub (fn|struct|enum)|fn main|evaluate_invocation\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:10903c53f3c46a453a61732ca67ec6095137dc2980c718853361f9bb4cd5dd87",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 25350,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1071,
+    "provider": "openai-codex",
+    "total_tokens": 26421
+  }
+}

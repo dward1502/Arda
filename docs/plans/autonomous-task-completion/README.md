@@ -6,11 +6,11 @@ soterion:
   role: "program_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-01"
   tags: ["task-loop", "scheduler", "verification", "continuation"]
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-01
 
 # Autonomous Task Completion Program
 
@@ -20,7 +20,7 @@ The operator states an outcome once. Arda retrieves context, decomposes bounded 
 
 ## Current status
 
-The source and package foundation is implemented. One bounded installed objective has completed without repeated operator task assignment. The program is not complete because the remaining cross-system and installed-runtime acceptance gates have not all run successfully.
+The source and package foundation is implemented. A reviewed installed objective has now completed context recovery, two real project-bound inspections, synthesis, read-only outcome production, final acceptance, and receipt-backed joined root closure. The program is not complete because same-objective project overlap, Vairë context-use binding, genuine external messaging ingress, and explicit operator-burden acceptance remain open.
 
 | Capability | Current truth |
 |---|---|
@@ -30,11 +30,11 @@ The source and package foundation is implemented. One bounded installed objectiv
 | Restart checkpoints and mutation isolation | Source/package verified; bounded installed restart proof exists |
 | Independent provider-backed verifier and critic contracts | Source/package verified |
 | Canonical objective/control projection | Source/package verified |
-| Hermes consumption and mutation controls | Open |
-| Installed recurrence, deferred wake, and correction | Open |
-| Live critic rejection followed by revision | Open |
-| Simultaneous real-provider, multi-project execution | Open |
-| Live Vairë receipt binding and operator-burden acceptance | Open |
+| Hermes consumption and mutation controls | Installed bridge/control path verified; genuine messaging-platform receipt open |
+| Installed recurrence, deferred wake, and correction | Timer, pause, terminal suppression, forced restart, and unattended correction verified; deferred/recurring wake remains open |
+| Live critic rejection followed by revision | [Installed provider-backed rejection → `revise_task` → corrected attempt → close verified](../../audits/2026-08-30-autonomous-loop-installed-acceptance.md) |
+| Simultaneous real-provider, multi-project execution | Reviewed real projects, one shared objective, six receipt-backed leaves, and joined close verified by `operator-task-fb5a52e3a268ec2d`; the two real-project execute receipts were serial, so same-objective overlap remains open |
+| Live Vairë receipt binding and operator-burden acceptance | Terminal Mnemosyne outcome binding verified; Vairë context-use and operator verdict remain open |
 
 ## Execution order
 
@@ -50,8 +50,8 @@ Implementation and review history is indexed in [Evidence History](EVIDENCE_HIST
 
 ## Canonical authority
 
-- Queue authority: `core/projects/tasks/queue.jsonl`
-- Schedule authority: `core/projects/tasks/schedules.jsonl`
+- Objective/control/schedule authority: the resident `arda-engine` ObjectiveStore defined by [the active runtime cutover plan](../2026-09-01-arda-objective-runtime-cutover.md). Until that store is installed, objective admission is frozen rather than falling back to legacy files.
+- `core/projects/tasks/queue.jsonl` and `core/projects/tasks/schedules.jsonl` are frozen legacy inputs. They are not acceptance authority and must receive no new objectives, controls, continuations, or schedules.
 - Run/checkpoint authority: Engine `RunStore` and Workbench run graphs
 - Project authority: `data/workbench/projects.json`
 - Read-only operator projection: `core/state/operator_projection.json`

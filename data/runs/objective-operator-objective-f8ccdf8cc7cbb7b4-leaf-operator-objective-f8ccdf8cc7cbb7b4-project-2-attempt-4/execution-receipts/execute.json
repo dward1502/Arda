@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:85eee10e70a3a43258380fd51374992bcd5ddee9878fe219c057bfcdf9f30ff9",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:4ac27fc5d73d7f094bf6413449fcf1544ce8999e26fceeeabf9ee277638057c8"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:454ef3bdfc16828ab285a1f67a6fdc4b36b38069c2bb8f2676d1bc2b8b1395e3",
+  "recorded_at_unix_ms": 1788406375004,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-2-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Integration brief: Agent Loop proposes autonomous-agent work (README.md:53-54); Tool Gate is a Rust library/CLI that evaluates proposed tool invocations and emits allow, deny, or review_required receipts without executing tools (README.md:5-13). Their shared safety boundary is the handoff from agent intent to deterministic pre-execution authorization and auditability (README.md:17-20, README.md:43-48). Recommendation: require every Agent Loop tool proposal to pass a complete ToolMetadata and InvocationEnvelope through Tool Gate, then permit execution only on allow while routing review_required to an operator and recording every receipt. Agent Loop risk: its runtime could bypass or ignore the gate, contrary to the explicit production guidance (README.md:31-33). Tool Gate risk: it is not a sandbox and depends on external authentication, authorization, sandboxing, and runtime enforcement (README.md:156-158). Declared clean-tree check passed exactly as specified; no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 9,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 26091,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1076,
+    "provider": "openai-codex",
+    "total_tokens": 27167
+  }
+}

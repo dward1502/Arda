@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:53b0c27b805e2c3697293d06e08c69f507542779238d06632018a7e3603014e8",
+    "summary": "VERDICT: APPROVE\nThe parent receipt is correct, appropriately scoped, and supported by durable evidence. Source inspection confirms the active-draft ingestion contract, the mismatch between its required frontmatter and `NoteFrontmatter`, non-persisting `MemoryStore::store`, relative Annunimas path dependencies, and the documented exclusion of live vault data and runtime state. The declared clean-tree check passed. The optional Cargo test failure is disclosed accurately and is not represented as passing evidence. No blocking defect was found, and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

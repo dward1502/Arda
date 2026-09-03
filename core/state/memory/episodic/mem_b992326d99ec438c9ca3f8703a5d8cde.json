@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b992326d99ec438c9ca3f8703a5d8cde",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b-attempt-2 for task operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b ended status=completed result=completed; receipt=sha256:2b9a24f143254e7c7de64cd94e613add0a555d3bb8978583bc94602a38f0c92f; detail=Independent review confirms the evidence is sufficient and the declared `test` check is covered exactly by the prior verification receipt: `cargo test -p arda-core` passed with exit code 0. P0 is source-supported: runner.rs:1670-1679 treats any approval_packet_id as a readiness bypass, queue_operation.rs:165-192 accepts it as operator-approved authority without a scoped readiness waiver, and queue.jsonl:46890-46894 records promotion and Apollo submission while readiness is `hold`. P1 is also supported: queue_writer.rs:70-126 appends without an identity/idempotency check, while queue.jsonl:46884-46894 contains repeated execute/verify leaves and same-ID Apollo records. The P2 label `stale status authority` is imprecise because ARDA_SYSTEM_STATUS_REPORT.md:16-20 is explicitly dated and delegates canonical authority elsewhere; the supported defect is that this still-active report contains stale current-maturity claims, including three connected contracts at line 48 versus eight registry entries. Its smallest repair should be framed as updating or superseding the active dated report, not merely labeling it as a snapshot because it is already dated. No files were modified, no checks were rerun, and no artifacts were created.",
+  "salience": 0.6017250000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T09:42:41.485067182Z",
+  "last_seen_at": "2026-09-01T09:42:41.485067182Z",
+  "evidence_class": "inferred",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity"
+}

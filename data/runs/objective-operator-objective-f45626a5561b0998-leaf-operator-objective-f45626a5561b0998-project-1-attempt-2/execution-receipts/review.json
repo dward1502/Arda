@@ -1,0 +1,135 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3b4dd6ce1e6d81072e9d8bee1eb5fdd7b927fdd9b902aa34582cd9083e22f95b",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:f1ce5e7a05ab77ac90229c6b39c8d38f60a82eea450b2ac39a0c2779720ed962"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:616af4634191905c7632110102b1fccce884a7d5586977d3b22c03fa0f811a4c",
+  "recorded_at_unix_ms": 1788369792382,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Review found named correctness and security defects: (1) src/lib.rs:56-89 MemoryStore::store only serializes a MemoryRecord and discards it, so the claimed persistent-memory integration performs no storage; (2) src/lib.rs:13-25 expects legacy fields and numeric confidence, making it incompatible with the documented human_knowledge.v1 frontmatter at docs/human-knowledge-ingestion-contract.md:71-94; (3) src/lib.rs:184-192 permits absolute and parent-relative wikilinks to resolve outside the vault boundary; (4) src/lib.rs:110-114 silently drops traversal errors, allowing incomplete scans to report success; and (5) src/lib.rs:94-98 accepts any existing path, including a regular file, as a vault. The parent receipt authenticates README inspection and a clean-tree check only; it provides no implementation or test evidence supporting correctness. No files were modified and declared checks were not rerun.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d14c11f6e2985d324da285295709870bea95ce8535612139967a52e511c015d0",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f8c2069b0b18f32e2f3bcf9f751192ca259dc27a86f4f3c00914c708541b919",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e7e68890b8a5be51f9a58aaf65ce02e86102d332f3fb9ce0ced874aa226a112b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:0834aaacf2bb5ca6d21189f0e3abf1c34d8ffc715de4d92a889c034b8e1751e9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2e3224cb6a189b92e96bc08d903516b5deebcd6095c063404918c4c22b123ec2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ae6ec396f2995014738692f50549b52475584993e8487b7ede91d843aec9e0ff",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"fixtures/vault-basic/Main.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eae6aef9fdb063ff4b71fe4dd469648a9cf30106552d33ef19df4af6202d0c74",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"fixtures/vault-basic/Known.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:69c118e182d8ead13c6e04f324e47806c0df7b3a54a6473bc25a2bd40c6e6c56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"MemoryStore|scan_vault|HumanKnowledge|NoteFrontmatter\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:569df5e48850d4b5526d21a340c246dc89780a128c676961c66a23a8469e6e0b",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":1,\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"annunimas_contract|source_type|authority|privacy|review_required\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9adf0d65d1505a6a6e2feb31e70347df344bac550f5973e718b135b6e07e4331",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":1,\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"fixture|vault-basic|migration|tenant\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7d47ebb900f5bc5e3ab7e2288cc664d2531f0d622717100c05e6e11aadf251ae",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 16119,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1104,
+    "provider": "openai-codex",
+    "total_tokens": 17223
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_65ab2956e1304837afe6107a94197f14",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-35bff5edbfff65a8__recover-context--fcd5dc58b3703c99-attempt-2 for task operator-task-35bff5edbfff65a8__recover-context--fcd5dc58b3703c99 ended status=failed result=failed; receipt=none; detail=none",
+  "salience": 0.5913749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T00:33:29.634671007Z",
+  "last_seen_at": "2026-09-01T00:33:29.634671007Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

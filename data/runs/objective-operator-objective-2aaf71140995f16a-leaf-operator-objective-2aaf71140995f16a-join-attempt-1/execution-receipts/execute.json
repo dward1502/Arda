@@ -1,0 +1,77 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:a1e5089931f1f0773926e5a5b437ddf95c6f9d2eaa73f912e45b13ba29d68455",
+  "idempotency_key": "queue-operator-objective-2aaf71140995f16a-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-85e7cab453d2a4e7"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:cb8136dec88e936e656c7e9ae7cad61d06d3bbc9ec10375e595eb419072999ed",
+  "recorded_at_unix_ms": 1788416786190,
+  "run_id": "objective-operator-objective-2aaf71140995f16a-leaf-operator-objective-2aaf71140995f16a-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Synthesized the completed project leaves through read-only inspection. The declared clean-tree check passed exactly as specified. No outputs were created. Optional cargo testing was blocked because the package is beneath an undeclared parent Cargo workspace member; this does not invalidate the required clean-tree evidence.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git log -1 --oneline && git show --stat --oneline --summary HEAD",
+      "exit_code": 0,
+      "output_digest": "sha256:9780d7df97899aead7535a4817f077cdf1fe51bfc87a2eeaee258cbe1f937b8d",
+      "tool": "terminal"
+    },
+    {
+      "action": "git log --graph --decorate --oneline --all -10",
+      "exit_code": 0,
+      "output_digest": "sha256:80c0065a0290ea66e83654740fc9bbfd506ce41a49806733604911439af25546",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test --all-targets",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 12,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10735,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1135,
+    "provider": "openai-codex",
+    "total_tokens": 11870
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:abe86311f18036a94b996868db353fc60578b371f55bbc814f258fd861ca2996",
+  "idempotency_key": "queue-operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:534cd69d9ddaf0c259fc4eb9d478ada76df7ffb8d039900dfdfb19eed6d09afa"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:d6adbac471f2bd6ff48ceecf002c5d865639a912716a88991fec900ab7b1ca78",
+  "recorded_at_unix_ms": 1788255207607,
+  "run_id": "queue-operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "The verification receipt covers the declared `cargo test -p arda-core` check with exit code 0, and the read-only source evidence is otherwise sufficient. Review found a missing P0 governance defect in the synthesized backlog: `runner.rs:1675-1679` bypasses a failed autonomy-readiness gate whenever any operator approval packet is present, while `queue_operation.rs:177-192` merely records the `hold` decision as metadata and still appends work. Durable evidence shows this path materializing and submitting execute/verify tasks despite `autonomy_readiness_decision:\"hold\"`, three unmet readiness conditions, and no governance authorization (`core/projects/tasks/queue.jsonl:46890-46894`). The synthesis prioritizes duplicate materialization but omits this security-relevant readiness bypass. Smallest authoritative repair: enforce readiness at the queue append/dispatch boundary, or require an explicit scoped and auditable readiness-override authorization distinct from a general approval packet. No checks were rerun, no files were modified, and no artifacts were created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda\",\"pattern\":\"NoteFrontmatter|scan_vault|struct MemoryStore|impl MemoryStore\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:74d60aedbcdd593b43b5b4c366ff71a5bde1319034434023a88eae6162390149",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":1200,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:56b0dee22654649565549669e73d123011b29b859b1b2101a97f3d30433b728a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a10908395c3d7b730e6fc1e5b10fa5a1b06c458bc69dacfe736659a6a0d8d8d2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/02-installed-scheduling-restart.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c0840493cdaf2a9df9ee5d5f9a0b312de66a9db444ec0a410678f773bb9b434a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/04-real-multi-project-execution.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e3b48ddee70b43414d59d27dacd6152a701b6b4bf297f25ed9d9f7e96706316e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":45,\"offset\":55,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:4be566abf3aaab194dfcbd2c4a06e4fc35414ea88b919a6f7bc042f14bf44575",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":30,\"offset\":35,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:bfe71ea6a7b536f2b9d8df4128199192c6c0572ecbb50fe97ae1ac77b7fdb4d2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"/var/home/mythos/Eregion/Arda\",\"pattern\":\"*memory*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab49df84302ba974e4701cb3ca37eb8ddf060872cd84196b069b487ead67476b",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"/var/home/mythos/Eregion/Arda\",\"pattern\":\"*knowledge*contract*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda\",\"pattern\":\"scan_vault|NoteFrontmatter|MemoryRecord\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:715a8633b099db63b331564ed5b12b33ef5d717e7d61ecced9b5268b345575bb",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":150,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3931e07d7883987d86571b9c43ee688b1a62e3c0b65f4363ef3056e7a810f0b5",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":130,\"offset\":48495,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3b3b6d71a2bbcb989c727cd7b914ad1897cb3a1275e6c7cbb2f918f0c3337c57",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":48209,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2f0ed439539ec1f92dde3d52f98606f44574827cb34306018d14bc5d907d0e90",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":30,\"offset\":48615,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:39060eded4b5bc0f9af1b57411186688c95e17a0f3bf129e49e0025f7f59cd56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":12,\"offset\":46886,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:414a977145abb30e6221c2c2141dcdd4458c631ed399a8cbe50a5048a803cb5f",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/runs/queue-operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03/execution-receipts/review.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ec76a2b4b4afc40e672a4d99f4dfdb7acd06837ecc0967a1823b52ed4419322",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/runs/queue-operator-task-4d29e778c62417a9__inspect-authorities-project-2--24911b9c57d2b864/execution-receipts/review.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:07f1b087281716cbc6b3aae30ae91fe473b72d5ac4a619a41ee187dc28c69699",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":300,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:5319c9cea653107c58068e12857f295cb26d14844700d5e06367c475da90adc4",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates\",\"pattern\":\"autonomy_readiness_decision|governance_authorization_id|safe_autonomous\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6f586604004378aaeaadcf06e95afb51db639e4fceb42515a614d35aa8aded11",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":4,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus\",\"pattern\":\"autonomy_readiness_decision\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:4065d5f1402e926179d760a1fbefc30ea8f9b7d4775a2cc01c46500f3debbb90",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":170,\"offset\":70,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/queue_operation.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:31a02be8bde34439d91af403bfc67c1a5d24a96494e96d06064bce96f0e4dd3a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":90,\"offset\":2430,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:36c6dc5dfe18a9b131554374be93bcb4740b23f37890bf44790240c2f13ca7d2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates\",\"pattern\":\"autonomy_preflight_stale|autonomy_readiness_reasons\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:95b00fc3bc2c8b53355379594c78ca7bd96c776a3057d4e9d196f3950f57ddae",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":190,\"offset\":1650,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:47d574b73162b2bb174aff6747eab25e13a708f0c4d4b850c81e724efde9941f",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":130,\"offset\":1180,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82533945aa62f307ce9e370ad210ba941ba06e249e1fac21536089a37f9ad933",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot\",\"pattern\":\"task_promotion_allowed\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fb0d014f79485e5c290a1b8f54bf27ca5021cfedd07d98fbdd6bc0a2dfeaead0",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 6,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 90928,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2307,
+    "provider": "openai-codex",
+    "total_tokens": 93235
+  }
+}

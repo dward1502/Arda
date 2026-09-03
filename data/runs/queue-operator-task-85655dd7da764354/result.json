@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:f02e1655677b929c5a275a17adfa909a2a3a30a34b371544ba221bbab97d92a6",
+    "summary": "Declared check failed because Cargo treated the package as an unregistered member of the parent workspace; no files were changed."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=101 output_digest=sha256:b273d0f5345124dc35cdf9a8ef167a86895a980992e325c79b24008b6c3d5919",
+      "duration_ms": null,
+      "name": "cargo test -- --test-threads=1",
+      "status": "failed"
+    }
+  ]
+}

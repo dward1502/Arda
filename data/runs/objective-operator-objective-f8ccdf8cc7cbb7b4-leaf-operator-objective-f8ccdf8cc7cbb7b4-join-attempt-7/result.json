@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:62a1cc5427d46aba857af7c4f2c01da132bbe3fcc779c829c8052f34519807dc",
+    "summary": "Unsupported joined completion. The two dependency close receipts assert only that their leaves were closed; they provide no leaf objectives, implementation summaries, artifacts, or verification evidence sufficient to judge the full approved objective. The parent verification receipt is additionally scoped to a “sole project leaf” and contains evidence only for the attached project contract a94de97f…, while the join depends on a second leaf with contract d59bb85f… and supplies no inspectable evidence for it. Independent source review also found contract-level defects in the attached project: src/lib.rs:13-25 cannot represent the required authority, source_type, owner, privacy, review_required, supersession, or affected-path metadata; src/lib.rs:107-125 ingests every Markdown note as semantic memory without classification or review gating; and src/lib.rs:56-89 serializes each memory record and immediately discards it, providing neither durable storage nor provenance-backed recall. These contradict docs/human-knowledge-ingestion-contract.md:23-25,71-94,96-123. No files were modified and no checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

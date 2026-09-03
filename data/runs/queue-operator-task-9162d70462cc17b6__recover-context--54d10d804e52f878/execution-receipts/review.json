@@ -1,0 +1,81 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f833c4ac68497bf8ae231eef78614cbf4ae6138b89e625572f63ec33c59766b0",
+  "idempotency_key": "queue-operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:4d9266253df0726d4247ff5f92a5181ac2703ae6a1f8be53b7e44211d25a08b1"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:385e56d242af2c416374929e8d0824f1f878c9da204d8c8761954f5e258994f3",
+  "recorded_at_unix_ms": 1788244385740,
+  "run_id": "queue-operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Unsupported completion: the verification receipt covers the declared test (`cargo test -p arda-core`, exit 0), and the read-only execution receipt provides valid source-read output digests plus no mutating tool calls. However, the projection supplies only an execute-output digest, not the execution result needed to verify that the required prioritized repair backlog was produced or that its claims distinguish implementation, configuration, and live proof. Source recovery is also incomplete: `AUTONOMOUS_TASK_COMPLETION_LOOP.md` identifies `docs/plans/autonomous-task-completion/README.md` as the structured execution authority, but that authoritative plan was not inspected. Concrete stale-context defects found independently: `ARDA_SYSTEM_STATUS_REPORT.md:48` still says the registry has three proof/demo contracts, while `data/workbench/projects.json` contains additional acceptance and reviewed-project contracts; and `docs/audits/2026-08-26-operator-vision-repair-backlog.md:47,162-168` claims the status report omits full verify/review/close execution even though the current report states that full-graph proof at line 47. A context_use_receipt was not required because no governed capsule supplied one, and tool-output digests correctly need not equal source-content digests.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"queue.jsonl\",\"limit\":20,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"queue-operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878|operator-task-9162d70462cc17b6\"}",
+      "exit_code": null,
+      "output_digest": "sha256:cddb2c7e0a2259f0f8b3b52afef5208d1db91ffb86a1d908482e79243fc298f3",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"offset\":40208,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:0f4519bd2cadefac11cd317e950f1f189c94ff6e3ecc48e3c73e14bbc565901a",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 38671,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1725,
+    "provider": "openai-codex",
+    "total_tokens": 40396
+  }
+}

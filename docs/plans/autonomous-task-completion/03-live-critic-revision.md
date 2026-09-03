@@ -11,6 +11,10 @@ soterion:
 
 # Milestone 3 — Live Critic Rejection and Revision
 
+## Status
+
+Complete. Task `operator-task-218b6be4e50c73d8` was rejected because the first receipt chain did not prove the exact artifact bytes, appended durable `revise_task`, ran `queue-operator-task-218b6be4e50c73d8-attempt-2`, and closed with receipt `sha256:ced7cab0e714c23cf78352a924960b74271f7f1f6afe6a8b0a63a6ea7c3ceeeb` after independent acceptance ([evidence](../../audits/2026-08-30-autonomous-loop-installed-acceptance.md)).
+
 ## Human-visible result
 
 A real independent critic rejects inadequate work with named defects. Arda converts that rejection into a durable revision, executes the correction, re-verifies it, and closes only after the critic’s concerns are resolved.

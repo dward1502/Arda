@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7db0aa36b976471497c70eee08dba40f",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-82ff7992dda58091__recover-context--b3aeb6b310d50f6d for task operator-task-82ff7992dda58091__recover-context--b3aeb6b310d50f6d ended status=failed result=cancelled; receipt=none; detail=--reason superseded recovery leaf after transient provider failure",
+  "salience": 0.4113749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T03:09:25.894649707Z",
+  "last_seen_at": "2026-09-01T03:09:25.894649707Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:cad3726f8382783cd1c11e03b3b9fae7af6bef12a9e2682a41be7e42280baaf8",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:0b63e68a0da5df2713073f3faa7047c2463f61d5130e681809552b7174a61ca6"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:f1ce5e7a05ab77ac90229c6b39c8d38f60a82eea450b2ac39a0c2779720ed962",
+  "recorded_at_unix_ms": 1788369759184,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project identity as annunimas-human and its purpose as a HADES-generated directory overview for crates/annunimas-human. The declared clean-tree check passed, and no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"import subprocess; lines=subprocess.check_output(['git','show','HEAD:README.md'], text=True).splitlines(); print('14: '+lines[13]); print('16: '+lines[15])\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:3e5812534eef7897094f27a2926e6882162eaeecf00c6fe83f7427e6228aa688",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6931,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 508,
+    "provider": "openai-codex",
+    "total_tokens": 7439
+  }
+}

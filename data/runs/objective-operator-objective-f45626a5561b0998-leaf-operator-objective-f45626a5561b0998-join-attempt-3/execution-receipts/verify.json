@@ -1,0 +1,89 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:74ce7404b6075509a887df63c583d03e3bf10df965d4a26a435749a8793ff500",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:46f5eaf5110e0fda80966a4ca1cfe1fa8486158d0cf3f6357fa0297dbd13549a"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:b077e27fe6c8e93ee4f243e9852aa87100c2651971114e13f959dc14ae7e92b7",
+  "recorded_at_unix_ms": 1788370838185,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the sole upstream project leaf has canonical, digest-validated close-receipt lineage with succeeded status. The declared clean-tree check passed, and no files were changed.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:76ce25dbee8297c0997fdd5daf3d14467b2fd1e2c010ebd5427c94c84f8745ad",
+      "tool": "terminal"
+    },
+    {
+      "action": "git log -5 --oneline --decorate",
+      "exit_code": 0,
+      "output_digest": "sha256:e5c55f53687381c78b616f6facde486290715ba624f617788b7af1065d69fdee",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:INDEX.md && printf '\\n--- README.md ---\\n' && git show HEAD:README.md && printf '\\n--- src/INDEX.md ---\\n' && git show HEAD:src/INDEX.md && printf '\\n--- tests/INDEX.md ---\\n' && git show HEAD:tests/INDEX.md",
+      "exit_code": 0,
+      "output_digest": "sha256:4680045935d95e1034a71daf6439a1e978673a83783cc2e7e713ebf7b772761e",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:docs/human-knowledge-ingestion-contract.md && printf '\\n--- migration ---\\n' && git show HEAD:docs/migration-notes.md",
+      "exit_code": 0,
+      "output_digest": "sha256:fc2dba533eee84b4620206d1efbc3c29770e8cd0ce002c029a21addd3faaade5",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:Cargo.toml && printf '\\n--- lib ---\\n' && git show HEAD:src/lib.rs && printf '\\n--- tests ---\\n' && git show HEAD:tests/target_local.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:557c341e7a0a501ba2fb1648588e2edfc81251c3a57a1b9810077439f7e54192",
+      "tool": "terminal"
+    },
+    {
+      "action": "git grep -n -i -E 'close[-_ ]receipt|lineage|receipt' HEAD -- . ':!Cargo.lock' || true",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12227,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1133,
+    "provider": "openai-codex",
+    "total_tokens": 13360
+  }
+}

@@ -59,7 +59,6 @@ cp "$ROOT_DIR/config/systemd/arda.service" \
   "$ROLLBACK_SANDBOX/home/.config/systemd/user/arda.service"
 printf 'masked inactive\n' > "$ROLLBACK_SANDBOX/state/arda-aule-autopilot-read-only.timer"
 printf 'disabled inactive\n' > "$ROLLBACK_SANDBOX/state/arda-aule-autopilot.timer"
-printf 'disabled inactive\n' > "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.service"
 printf 'disabled inactive\n' > "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.timer"
 cat > "$ROLLBACK_SANDBOX/bin/systemctl" <<'EOF'
 #!/usr/bin/env bash
@@ -134,7 +133,6 @@ test -L "$ROLLBACK_SANDBOX/home/.config/systemd/user/arda-aule-autopilot-read-on
 test "$(readlink "$ROLLBACK_SANDBOX/home/.config/systemd/user/arda-aule-autopilot-read-only.timer")" = /dev/null
 grep -Fx 'masked inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot-read-only.timer"
 grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot.timer"
-grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.service"
 grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.timer"
 
 printf 'arda automation installer test: pass\n'

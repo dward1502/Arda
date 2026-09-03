@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:e3fb23727a77bac4030ebcf5196a46c8d15ee944ac8e667cb9268c66291eae9d",
+  "idempotency_key": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-2--5afd4ba60aae317d-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:bc73f59d8e3d0c554abc50708bf86e7a8f2119ee3519664c4ca0533ceeb96fa6"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:5dc0ed84a2c8ac6db98f4efc0c6b401e837aeaefad9148cc0ae33d6e1c037f9e",
+  "recorded_at_unix_ms": 1788241565463,
+  "run_id": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-2--5afd4ba60aae317d",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared clean-tree check passed. Project-native cargo test passed all 5 integration tests, unit tests, and doc-tests with no failures. No project files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:84fe6e7a20e64c94bd835baa700129a2b818574b0db9e06131a1bf103cb9af44",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 7216,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 399,
+    "provider": "openai-codex",
+    "total_tokens": 7615
+  }
+}

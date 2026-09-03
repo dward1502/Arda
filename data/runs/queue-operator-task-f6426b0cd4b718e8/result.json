@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:298f46b478c31f079fc2b3c7c17e76af8faf7c654107c5f2d107f246c20de2bf",
+    "summary": "The declared clean-tree check passed. Read-only inspection found only the annunimas-human tenant in the approved root; the five named authority files and second reviewed project were absent, so a joined two-project comparison could not be completed without violating the root boundary. Prioritized repair backlog: P0 expose both project roots and cited authorities within the approved scope; P1 replace the generated README purpose with the crate’s actual human-vault ingestion role; P2 align NoteFrontmatter and parsing with annunimas.human_knowledge.v1 authority, status, privacy, provenance, and review fields; P3 replace MemoryStore::store’s serialization-only no-op with the tenant-facing memory contract. Smallest authoritative surfaces are project provisioning/project_contract for P0, README.md for P1, src/lib.rs plus contract tests for P2, and Cargo.toml/src/lib.rs plus integration tests for P3. No files were changed."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

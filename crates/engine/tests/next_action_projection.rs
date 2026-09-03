@@ -4,7 +4,6 @@ use arda_core::personal_ops::{
     ItemClassifiedEvent, PersonalItemKind, PersonalOpsEnvelope, PersonalOpsRecord,
 };
 use arda_engine::next_action::publish_next_action_projection;
-use arda_engine::objectives::{NewLeaf, NewObjective, ObjectiveStore};
 use arda_engine::personal_ops::PersonalOpsLogStore;
 use chrono::{TimeZone, Utc};
 use serde_json::json;
@@ -25,32 +24,6 @@ fn write_queue(root: &std::path::Path, rows: &[serde_json::Value]) {
         .join("\n")
         + "\n";
     fs::write(path, content).unwrap();
-}
-
-fn write_objective(root: &std::path::Path, id: &str, title: &str, priority: i64) {
-    ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))
-        .unwrap()
-        .create_authenticated_objective(
-            NewObjective {
-                id: id.to_string(),
-                source_id: format!("source-{id}"),
-                idempotency_key: format!("idempotency-{id}"),
-                operator_id: "operator:mythos".to_string(),
-                text: title.to_string(),
-                priority,
-                projects: Vec::new(),
-                leaves: vec![NewLeaf {
-                    id: format!("{id}-leaf"),
-                    project_id: None,
-                    workspace_root: root.display().to_string(),
-                    authority: "read_only".to_string(),
-                    dependencies: Vec::new(),
-                    execution: None,
-                }],
-            },
-            now().timestamp_millis(),
-        )
-        .unwrap();
 }
 
 fn write_current_run(root: &std::path::Path, state: &str) {
@@ -142,14 +115,8 @@ fn write_personal_item(root: &std::path::Path, evidence_class: EvidenceClass) ->
 }
 
 #[test]
-fn source_projection_selects_resident_objective_and_ignores_legacy_queue() {
+fn source_projection_selects_current_operator_queue_and_excludes_future_gate() {
     let root = tempfile::tempdir().unwrap();
-    write_objective(
-        root.path(),
-        "resident-current",
-        "Review Arda against the operator vision",
-        90,
-    );
     write_queue(
         root.path(),
         &[
@@ -187,14 +154,14 @@ fn source_projection_selects_resident_objective_and_ignores_legacy_queue() {
 
     assert_eq!(projection.status, NextActionStatus::Ready);
     let selected = projection.selected.unwrap();
-    assert_eq!(selected.id, "resident-current");
-    assert_eq!(selected.source_kind, NextActionSourceKind::Objective);
+    assert_eq!(selected.id, "current-critical");
+    assert_eq!(selected.source_kind, NextActionSourceKind::Queue);
     assert_eq!(
         selected.authority_state,
         NextActionAuthorityState::ReviewRequired
     );
-    assert_eq!(projection.excluded.future_gated, 0);
-    assert_eq!(projection.excluded.inferred_without_review, 0);
+    assert_eq!(projection.excluded.future_gated, 1);
+    assert_eq!(projection.excluded.inferred_without_review, 1);
 }
 
 #[test]
@@ -236,13 +203,19 @@ fn awaiting_workbench_approval_preempts_queue_and_survives_reopen() {
 }
 
 #[test]
-fn operator_authored_personal_item_preempts_lower_priority_resident_work() {
+fn operator_authored_personal_item_preempts_lower_priority_queue_work() {
     let root = tempfile::tempdir().unwrap();
-    write_objective(
+    write_queue(
         root.path(),
-        "objective-low",
-        "Low priority resident work",
-        30,
+        &[json!({
+            "id": "queue-low",
+            "title": "Low priority queue work",
+            "status": "pending",
+            "priority": "low",
+            "owner": "operator:mythos",
+            "origin": "operator-authored-session-objective",
+            "meta": {"lifecycle_phase": "current"}
+        })],
     );
     let item_id = write_personal_item(root.path(), EvidenceClass::OperatorAuthored);
 

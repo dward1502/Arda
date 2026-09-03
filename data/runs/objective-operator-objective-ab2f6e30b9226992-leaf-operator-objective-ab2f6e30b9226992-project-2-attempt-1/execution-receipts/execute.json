@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:6032550e3a39fe28dbf2d221fde515460466c316f3d3dc4c9974155481aae073",
+  "idempotency_key": "queue-operator-objective-ab2f6e30b9226992-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:9e19459526538b426346b400bce70f6193d7fca11fc9f494b1b8b4fd3023f56a"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:850d4ac10e3c3c363da332d87a5b72c46b67a6ee0d2235d220fce208e6d87c2e",
+  "recorded_at_unix_ms": 1788411982824,
+  "run_id": "objective-operator-objective-ab2f6e30b9226992-leaf-operator-objective-ab2f6e30b9226992-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Integration-readiness comparison could not be completed without inventing evidence: only project c33d0000-e29b-41d4-a716-446655440003 (tool-gate) was supplied. Its exact clean-tree check passed (`git diff --exit-code HEAD --`, exit 0). Source-backed finding: tool-gate is an active Rust library/CLI with CI covering formatting, clippy, tests, and docs, but it is intentionally adapter-free and does not provide execution, authentication, authorization, storage, queue integration, or sandboxing (README.md:5-13,58-61,156-158; .github/workflows/ci.yml:9-12). No source or check outcome for the second registered project was available within the authorized root, so a valid comparison and shared-risk synthesis are impossible. Recommended operator action: provide the second project's governed check result and source context, then verify its runtime adapter enforces tool-gate receipts without bypass paths.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:000f899b41e56cbde280ab253a44359bc7d493915c135627382d93859167be1a",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 13,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 21408,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1496,
+    "provider": "openai-codex",
+    "total_tokens": 22904
+  }
+}

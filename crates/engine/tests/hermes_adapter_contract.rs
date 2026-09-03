@@ -53,6 +53,9 @@ pid_path = os.environ.get("ARDA_PID_PATH")
 if pid_path:
     Path(pid_path).write_text(str(os.getpid()), encoding="utf-8")
 mode = os.environ.get("ARDA_FAKE_MODE", "success")
+if mode.startswith("review_") and "On review nodes, the first line of summary MUST be exactly" not in prompt:
+    print("missing top-level review verdict contract", file=sys.stderr)
+    raise SystemExit(2)
 if mode == "sleep":
     child = subprocess.Popen(["/usr/bin/python3", "-c", "import time; time.sleep(10)"])
     Path(os.environ["ARDA_CHILD_PID_PATH"]).write_text(str(child.pid), encoding="utf-8")
@@ -106,7 +109,7 @@ session = {
         },
     ],
 }
-if mode == "review_file":
+if mode.startswith("review_"):
     session["messages"] = [
         {
             "role": "assistant",
@@ -148,8 +151,24 @@ result = {
     "artifacts": [],
 }
 if mode == "review_file":
-    result["summary"] = "Independent file-only review found no blocking defects."
+    result["summary"] = "VERDICT: APPROVE\nIndependent file-only review found no blocking defects."
     result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "review_block":
+    result["status"] = "failed"
+    result["summary"] = "VERDICT: BLOCK\nThe bounded result lacks required evidence."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "review_block_as_success":
+    result["summary"] = "VERDICT: BLOCK\nThe bounded result lacks required evidence."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "review_approve_with_embedded_block":
+    result["summary"] = "VERDICT: APPROVE\nLater analysis says VERDICT: BLOCK."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "derived_evidence":
+    result["tool_evidence"] = []
     result["test_evidence"] = []
 if mode == "leak":
     result["session_id"] = "vendor-session-must-not-escape"
@@ -365,6 +384,14 @@ fn review_task() -> HermesNodeTask {
     task
 }
 
+fn inspection_task() -> HermesNodeTask {
+    let mut task = review_task();
+    task.node.id = NodeId::new("inspect-hermes").unwrap();
+    task.node.kind = NodeKind::Inspect;
+    task.node.worker.as_mut().unwrap().role = WorkerRole::LocalSummaryClassification;
+    task
+}
+
 fn adapter(root: &TempDir, mode: &str) -> HermesAdapter {
     write_fake_hermes(root.path());
     let config = write_config(root.path());
@@ -485,6 +512,18 @@ async fn graph_node_becomes_bounded_hermes_job_and_canonical_receipt() {
         .as_str()
         .unwrap()
         .contains("execute-hermes"));
+    assert!(capture["prompt"]
+        .as_str()
+        .unwrap()
+        .contains("Arda automatically derives tool and test evidence"));
+    assert!(!capture["prompt"]
+        .as_str()
+        .unwrap()
+        .contains("actual-call-id"));
+    assert!(capture["prompt"]
+        .as_str()
+        .unwrap()
+        .contains("never list files merely read as artifacts"));
     let environment = capture["environment"].as_array().unwrap();
     for expected in [
         "ARDA_CAPTURE_PATH",
@@ -746,6 +785,86 @@ async fn file_only_review_produces_inspection_evidence_without_terminal_checks()
         .as_array()
         .unwrap()
         .contains(&serde_json::json!("terminal")));
+}
+
+#[tokio::test]
+async fn blocking_review_cannot_report_transport_success() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_block_as_success");
+
+    let error = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect_err("blocking review with succeeded status must fail validation");
+
+    assert!(matches!(error, HermesAdapterError::InvalidResult(_)));
+    assert!(error.to_string().contains("VERDICT: BLOCK"));
+}
+
+#[tokio::test]
+async fn approving_review_cannot_embed_blocking_verdict() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_approve_with_embedded_block");
+
+    let error = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect_err("an approving review containing a blocking verdict must fail closed");
+
+    assert!(matches!(error, HermesAdapterError::InvalidResult(_)));
+    assert!(error.to_string().contains("VERDICT: BLOCK"));
+}
+
+#[tokio::test]
+async fn blocking_review_produces_failed_receipt() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_block");
+
+    let receipt = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect("well-formed blocking review receipt");
+
+    assert_eq!(receipt.status, HermesReceiptStatus::Failed);
+    assert!(receipt.summary.starts_with("VERDICT: BLOCK\n"));
+}
+
+#[tokio::test]
+async fn file_only_inspection_derives_material_evidence_from_exported_calls() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn inspected() {}\n").unwrap();
+    let adapter = adapter(&root, "review_file");
+
+    let receipt = adapter
+        .execute(&inspection_task(), AdapterCancellation::new())
+        .await
+        .expect("file-only inspection must derive evidence from the exported session");
+
+    assert_eq!(receipt.tool_evidence.len(), 1);
+    assert_eq!(receipt.tool_evidence[0].tool, "read_file");
+    assert!(receipt.test_evidence.is_empty());
+}
+
+#[tokio::test]
+async fn execute_derives_declared_evidence_without_opaque_call_ids() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "derived_evidence");
+
+    let receipt = adapter
+        .execute(&task(1_000), AdapterCancellation::new())
+        .await
+        .expect("execute evidence must be derived from the exported session");
+
+    assert_eq!(receipt.tool_evidence.len(), 1);
+    assert_eq!(receipt.test_evidence.len(), 1);
+    assert_eq!(receipt.test_evidence[0].status, "passed");
 }
 
 #[tokio::test]

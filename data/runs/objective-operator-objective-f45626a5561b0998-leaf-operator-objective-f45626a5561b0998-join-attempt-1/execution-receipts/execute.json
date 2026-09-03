@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:9e004f4c226a847fa9c8533a59a3286ca566f65a1c80f18614f5d9f646e18fb5",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-real-two-project-v3"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:dac39d341ac7b7b6534ae9bafd5a8eca1f6f76cad3d10a3c4ea63df255921578",
+  "recorded_at_unix_ms": 1788370182377,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Completed the objective synthesis node. The declared clean-tree check passed exactly as specified; no files were created or modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 7769,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 217,
+    "provider": "openai-codex",
+    "total_tokens": 7986
+  }
+}

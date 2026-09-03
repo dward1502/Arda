@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:32472ec6df517b089167865b3734b6cc5c88eb6b404bb185c2c0b9c211db9441",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-real-two-project-v3"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:0b63e68a0da5df2713073f3faa7047c2463f61d5130e681809552b7174a61ca6",
+  "recorded_at_unix_ms": 1788369731922,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project identity: annunimas-human (README.md:14). Purpose: HADES-generated directory overview for crates/annunimas-human (README.md:16). The declared clean-tree check passed, and no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 4412,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 304,
+    "provider": "openai-codex",
+    "total_tokens": 4716
+  }
+}

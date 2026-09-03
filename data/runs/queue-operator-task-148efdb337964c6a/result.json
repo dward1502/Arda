@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:5d25fec336207c2b1dbea25ea14672f393fb2e81e39fafe168690f13bd75408e",
+    "summary": "Canonical execution and verification receipt payloads were not available for independent inspection; only a parent receipt digest was supplied. Project inspection found the expected implementation, test, and exact 30-byte acceptance.txt content, but cargo test success cannot be independently approved from build artifacts alone."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "duration_ms": null,
+      "name": "cargo test",
+      "status": "passed"
+    }
+  ]
+}

@@ -11,6 +11,10 @@ soterion:
 
 # Milestone 2 — Installed Scheduling and Restart
 
+## Status
+
+Installed timer execution, paused-task suppression, terminal suppression, provider-backed execution, forced exit `86` after a durable execute receipt, timer-driven verify/review continuation, and unattended correction/closure are proven in the [installed acceptance index](../../audits/2026-08-30-autonomous-loop-installed-acceptance.md). One same-objective deferred or recurring wake across restart remains open.
+
 ## Human-visible result
 
 Arda continues a deferred or recurring objective through the installed scheduler, survives a forced restart and a forced failure, corrects the work, and closes without another operator instruction.

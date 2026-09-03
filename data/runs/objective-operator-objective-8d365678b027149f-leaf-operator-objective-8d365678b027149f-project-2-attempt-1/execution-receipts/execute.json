@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1e2cb6f220b0081945468456058a41684ba75eabaeda5620651cc3f35bddf1dc",
+  "idempotency_key": "queue-operator-objective-8d365678b027149f-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-634b9a3fd1ddff92"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:95afec974146097236875801a496fc8cb3cae65d5b79fc7f13d1b753a32fab6d",
+  "recorded_at_unix_ms": 1788415583825,
+  "run_id": "objective-operator-objective-8d365678b027149f-leaf-operator-objective-8d365678b027149f-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project-local inspection completed without modification. Integration authority: tool-gate is an adapter-free Rust library and CLI providing ARDA’s deterministic pre-execution policy boundary; it evaluates caller-supplied ToolMetadata and InvocationEnvelope data and emits tool-gate.decision.v1 receipts with allow, deny, or review_required decisions (README.md:5-13, README.md:51-61, src/lib.rs:1-8, src/receipt.rs:19-38). Contract evidence: public inputs specify tool identity, risk, mutation/idempotency/review flags, allowed targets, invocation identity, caller, trace, and target (src/types.rs:21-41); policy validates inputs and target scope, requires traces for mutating/reviewable actions, requires mutation idempotency, and routes explicit-review or critical-risk actions to human review (src/policy.rs:23-157). The CLI accepts metadata and invocation JSON, emits the receipt, and maps allow/review/deny to exit codes 0/2/3 (src/main.rs:35-70, src/receipt.rs:30-37). Published JSON Schemas expose all three payload types and pin the receipt schema version and decision vocabulary (schemas/tool-metadata.schema.json:1-15, schemas/invocation-envelope.schema.json:1-15, schemas/decision-receipt.schema.json:1-15). Test sources cover allowed read-only requests, denial for missing mutation traces, critical review routing, receipt JSON, and deny exit code behavior (tests/policy_decisions.rs:34-64, tests/cli_contract.rs:4-35); CI declares formatting, clippy with warnings denied, tests, and documentation checks (.github/workflows/ci.yml:1-12). Declared check outcome: clean-tree PASS; exact command `git diff --exit-code HEAD --` exited 0 with no output. Named integration blockers/dependencies: this project deliberately does not execute tools and provides no tool catalog, queue/storage adapter, authentication, authorization, sandbox, or runtime; an integrating system must supply those components, construct the documented inputs, consume the receipt before side effects, and prevent gate bypass (README.md:5-13, README.md:31-33, README.md:156-158). No sibling project was inspected and no cross-project compatibility conclusion was attempted.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:000f899b41e56cbde280ab253a44359bc7d493915c135627382d93859167be1a",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 26,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 27212,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2178,
+    "provider": "openai-codex",
+    "total_tokens": 29390
+  }
+}

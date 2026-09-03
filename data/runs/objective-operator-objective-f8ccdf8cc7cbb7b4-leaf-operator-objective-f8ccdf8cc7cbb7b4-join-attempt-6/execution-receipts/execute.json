@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:244d66dd39318bc150d308f876c2f0aadc50c001e94dffec2683dbeca8e2dd2f",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:4ac27fc5d73d7f094bf6413449fcf1544ce8999e26fceeeabf9ee277638057c8"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:150c0cd44c56d70fee1d92f6da1b1fac03e8e8e151b7e1ea33423f4772367e74",
+  "recorded_at_unix_ms": 1788407980386,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-join-attempt-6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Synthesized the completed project leaves through read-only inspection. The declared clean-tree check passed. The tenant implementation, ingestion contract, migration notes, fixtures, and target-local tests are present; an optional cargo test was blocked because the package is beneath an enclosing Cargo workspace that neither includes nor excludes it.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test --manifest-path Cargo.toml",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 11,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 20301,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1078,
+    "provider": "openai-codex",
+    "total_tokens": 21379
+  }
+}

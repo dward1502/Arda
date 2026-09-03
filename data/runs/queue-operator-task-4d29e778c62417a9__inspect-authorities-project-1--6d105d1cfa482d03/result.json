@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:281e2bbdf3c7d7834cc1db7cdccb68e48156940eef9cde50df1bd5a49556d001",
+    "summary": "Independent source review substantiates the execution findings and identifies concrete defects. NoteFrontmatter omits required contract metadata including authority, owner, privacy, review_required, affected paths, and supersession fields; it also models confidence as u8 although the contract requires low|medium|high, so contract-compliant frontmatter may fail deserialization (src/lib.rs:13-25; docs/human-knowledge-ingestion-contract.md:71-94). scan_vault processes every Markdown file and forwards content into a uniformly human semantic MemoryRecord without authority/status classification, canonical-reliance gating, privacy enforcement, or provenance metadata (src/lib.rs:106-129), contrary to the classification and truth-separation requirements (docs/human-knowledge-ingestion-contract.md:23-25,49-69,115-123). MemoryStore serializes records but never persists them (src/lib.rs:56-89). Tests exercise wikilinks and missing paths only, leaving authority classification, privacy, canonical promotion, provenance, and persistence unverified (tests/target_local.rs:27-63). The prior verification receipt explicitly includes git status --short --branch with exit_code 0 and an authenticated output digest, so the requested declared-check coverage is present; its clean-tree evidence also supports the no-modification claim. No unsupported completion claim was found because the execution reported these implementation gaps rather than claiming contract compliance. No files were modified and no artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

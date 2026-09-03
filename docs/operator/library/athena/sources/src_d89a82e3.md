@@ -30,4 +30,3 @@ Initial shallow ingest completed for NewsArticle. Deep synthesis generated from 
 - love_alignment: `0.6000`
 - joule_estimated: `11.2450`
 - joule_actual: `12.1446`
-

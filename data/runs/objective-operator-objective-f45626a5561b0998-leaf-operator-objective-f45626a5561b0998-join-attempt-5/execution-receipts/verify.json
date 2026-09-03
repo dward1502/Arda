@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:ca74da7f0f2acab9cbf82532de5c707686d5ed2362ebeeceb12f55c6f93de329",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:bc86257b1524f390bb100c639bd6dd7e6e30953034b3832b51d5ff232f3ed680"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:3ac53462fdafb4b3b0868f95c594a3ba769545a6c2ce1445a6e70a882961f8ac",
+  "recorded_at_unix_ms": 1788371509216,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-5",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project leaf has canonical close-receipt lineage through its digest-validated successful parent receipt. The declared clean-tree check passed, and no files were changed or created.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9714,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 244,
+    "provider": "openai-codex",
+    "total_tokens": 9958
+  }
+}

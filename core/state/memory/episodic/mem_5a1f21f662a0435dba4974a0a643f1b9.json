@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_5a1f21f662a0435dba4974a0a643f1b9",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-d8a16a9ec8678cc4__recover-context--2a17e20fddc1e3d1-attempt-2 for task operator-task-d8a16a9ec8678cc4__recover-context--2a17e20fddc1e3d1 ended status=failed result=failed; receipt=sha256:e6b248f54a320a767421e11fff258f12b38f3829e2e861963201f21842cc74b4; detail=Review rejected unsupported completion. The verification receipt covers the declared test check: cargo test -p arda-core passed with exit code 0. Required source_evidence is insufficient: the execution receipt records read-tool output digests but does not bind them to or prove equality with the six digest-pinned context sources declared by the leaf; context_use_receipt is null; and the declared git status --short repository-state source was not inspected, so the no-modification claim is unsupported. Durable queue evidence also shows this leaf was previously rejected for the same defect and retried without repairing the evidence contract. No files were modified and no checks were rerun.",
+  "salience": 0.561725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T05:02:22.315209006Z",
+  "last_seen_at": "2026-09-01T05:02:22.315209006Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

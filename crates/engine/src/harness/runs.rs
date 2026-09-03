@@ -1,7 +1,7 @@
 use arda_core::run_graph::{
     NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRole, WorkerRouteClass,
 };
-use arda_vaire::ContextAssembly;
+use arda_vaire::{ContextAssembly, MnemosyneService};
 use axum::{
     extract::{ConnectInfo, Path, State},
     http::StatusCode,
@@ -49,6 +49,66 @@ static ACTIVE_PROVIDER_CANCELLATIONS: LazyLock<Mutex<HashMap<String, AdapterCanc
     LazyLock::new(|| Mutex::new(HashMap::new()));
 static ACTIVE_PROVIDER_ROUTES: LazyLock<Mutex<HashMap<String, WorkerRouteClass>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
+
+fn validate_durable_context_assembly(
+    root: &FsPath,
+    assembly: &ContextAssembly,
+    run_id: &str,
+    project_id: &str,
+) -> Result<(), ApiError> {
+    let now_unix_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|error| ApiError::internal(format!("system clock is before Unix epoch: {error}")))?
+        .as_millis();
+    assembly
+        .capsule
+        .validate(now_unix_ms)
+        .map_err(|error| ApiError::conflict(format!("context capsule is invalid: {error}")))?;
+    if !assembly
+        .use_receipt
+        .has_valid_digest()
+        .map_err(|error| ApiError::conflict(format!("context use receipt is invalid: {error}")))?
+    {
+        return Err(ApiError::conflict(
+            "context use receipt failed canonical digest verification",
+        ));
+    }
+    let service = MnemosyneService::new(root.join("data/vaire"))
+        .map_err(|error| ApiError::internal(format!("Vairë context store unavailable: {error}")))?
+        .with_contract_memory_root(root.join("core/state/memory"));
+    let durable = service
+        .context_use_receipt(&assembly.use_receipt.receipt_id)
+        .map_err(|error| ApiError::internal(format!("read Vairë context use receipt: {error}")))?
+        .ok_or_else(|| ApiError::conflict("context use receipt is not durably recorded"))?;
+    if durable != assembly.use_receipt
+        || assembly.use_receipt.capsule_id != assembly.capsule.capsule_id
+        || assembly.use_receipt.capsule_digest != assembly.capsule.capsule_digest
+        || assembly.use_receipt.objective_id
+            != assembly.capsule.context.lineage.objective_id.as_str()
+        || assembly.use_receipt.run_id.as_deref() != Some(run_id)
+        || assembly
+            .capsule
+            .context
+            .lineage
+            .run_id
+            .as_ref()
+            .map(RunId::as_str)
+            != Some(run_id)
+        || assembly
+            .capsule
+            .context
+            .lineage
+            .project_id
+            .as_ref()
+            .is_some_and(|value| value.to_string() != project_id)
+        || assembly.capsule.context.consumer.consumer_id != assembly.use_receipt.consumer_id
+    {
+        return Err(ApiError::conflict(
+            "context assembly does not match durable resident objective authority",
+        ));
+    }
+    Ok(())
+}
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -538,7 +598,11 @@ pub(super) async fn complete_run_node(
                 existing_output.unwrap_or("missing")
             )));
         }
-        require_matching_projected_evidence(&store, request.evidence.as_ref())?;
+        validate_idempotent_review_evidence(
+            &store,
+            &request.receipt_digest,
+            request.evidence.as_ref(),
+        )?;
         return Ok(Json(run_response(&store, graph)?));
     }
 
@@ -655,7 +719,7 @@ pub(super) async fn complete_run_node(
 fn provider_instructions(kind: NodeKind, declared_checks: &[String]) -> String {
     if kind == NodeKind::Review {
         format!(
-            "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks, and report named defects. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: {}",
+            "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks. Judge whether the parent receipt's result satisfies this node's bounded objective, and report named defects that contradict the objective or invalidate its evidence. Begin the summary with exactly `VERDICT: APPROVE` and use status `succeeded` only when the bounded result and evidence are approved. Begin with exactly `VERDICT: BLOCK` and use status `failed` when any named defect blocks approval. Requested analytical findings are an output to validate, not defects that fail the run unless they contradict the bounded objective or invalidate its evidence. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: {}",
             declared_checks.join("; ")
         )
     } else if kind == NodeKind::Inspect {
@@ -811,6 +875,15 @@ pub(super) async fn execute_provider_node(
     let project_root = state
         .workbench_root
         .join(attached.contract.workspace.root.as_str());
+
+    if let Some(assembly) = request.context_assembly.as_ref() {
+        validate_durable_context_assembly(
+            &state.workbench_root,
+            assembly,
+            graph.run_id.as_str(),
+            &project_id,
+        )?;
+    }
 
     require_succeeded_dependencies(&graph, &node_id)?;
     enforce_worker_admission(&state, &store, &graph, &node_id).await?;
@@ -1271,7 +1344,7 @@ async fn enforce_worker_admission(
         .find(|blocked| blocked.node_id == *node_id)
         .map(|blocked| format!("{:?}", blocked.reason))
         .unwrap_or_else(|| "not selected by deterministic scheduler".into());
-    Err(ApiError::conflict(format!(
+    Err(ApiError::scheduler_conflict(format!(
         "worker `{}` was not admitted: {reason}",
         node_id.as_str()
     )))
@@ -1724,42 +1797,44 @@ fn project_review_evidence(
     Ok(())
 }
 
-fn require_matching_projected_evidence(
+fn validate_idempotent_review_evidence(
     store: &RunStore,
+    receipt_digest: &str,
     evidence: Option<&RunReviewEvidence>,
 ) -> Result<(), ApiError> {
     let Some(evidence) = evidence else {
         return Ok(());
     };
-    let projected: RunReviewEvidence = store
+    validate_review_evidence(evidence, receipt_digest)?;
+    let stored: RunReviewEvidence = store
         .read_result()
         .map_err(store_error)?
         .map(serde_json::from_value)
         .transpose()
         .map_err(store_error)?
         .unwrap_or_default();
-    let changes_match = evidence.changes.iter().all(|expected| {
-        projected
+    let changes_match = evidence.changes.iter().all(|requested| {
+        stored
             .changes
             .iter()
-            .any(|current| current.path == expected.path && current == expected)
+            .any(|current| current.path == requested.path && current == requested)
     });
-    let tests_match = evidence.tests.iter().all(|expected| {
-        projected
+    let tests_match = evidence.tests.iter().all(|requested| {
+        stored
             .tests
             .iter()
-            .any(|current| current.name == expected.name && current == expected)
+            .any(|current| current.name == requested.name && current == requested)
     });
     let provider_matches = evidence
         .provider_receipt
         .as_ref()
-        .is_none_or(|expected| projected.provider_receipt.as_ref() == Some(expected));
-    if !changes_match || !tests_match || !provider_matches {
-        return Err(ApiError::conflict(
-            "idempotent completion replay evidence differs from the durable projected evidence",
-        ));
+        .is_none_or(|requested| stored.provider_receipt.as_ref() == Some(requested));
+    if changes_match && tests_match && provider_matches {
+        return Ok(());
     }
-    Ok(())
+    Err(ApiError::conflict(
+        "idempotent completion retry attempted to change canonical review evidence",
+    ))
 }
 
 fn validate_review_evidence(
@@ -1908,6 +1983,11 @@ mod tests {
         assert!(instructions.contains("absence of mutating tool calls"));
         assert!(instructions.contains("context_use_receipt only when supplied"));
         assert!(instructions.contains("judge only this node's objective and evidence"));
+        assert!(instructions.contains("VERDICT: APPROVE"));
+        assert!(instructions.contains("VERDICT: BLOCK"));
+        assert!(instructions.contains(
+            "Requested analytical findings are an output to validate, not defects that fail the run"
+        ));
     }
 
     #[test]

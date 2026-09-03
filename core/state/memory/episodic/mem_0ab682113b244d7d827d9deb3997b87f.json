@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0ab682113b244d7d827d9deb3997b87f",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-35bff5edbfff65a8 for task operator-task-35bff5edbfff65a8 ended status=failed result=cancelled; receipt=none; detail=Superseded after installed diagnostic failure: inspection provider instructions required terminal checks that read-only authority could not execute; corrected artifact deployed and fresh acceptance required.",
+  "salience": 0.5747083333333332,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T01:07:14.304567310Z",
+  "last_seen_at": "2026-09-01T01:07:14.304567310Z",
+  "evidence_class": "inferred",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity"
+}

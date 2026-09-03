@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:cec3b956cd01dc85921b8e263a58e179cffd5dc9cc1fab81fc3ceb20174a6fbe",
+    "summary": "The clean-tree check passed, but the project-native test failed because Cargo considers this package part of /var/home/mythos/Eregion/Arda/Cargo.toml while it is not listed as a workspace member or exclusion."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

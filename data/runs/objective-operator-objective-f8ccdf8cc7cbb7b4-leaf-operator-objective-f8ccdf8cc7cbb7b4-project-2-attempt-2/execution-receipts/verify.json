@@ -1,0 +1,77 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1b8c119d30b5960d7d81d43556ff261492b71abb211fcca4af6d0b8b6a972f7c",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:985e63a6349111cce0b4773f4ca29624eadab4b83611fdbc88330d683011bdda"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:1d61e8464720e023476650ef5bd9e6990566b0a6eec07abe50682fe49e81d707",
+  "recorded_at_unix_ms": 1788405792004,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project-local result. The declared clean-tree check passed exactly as specified, README.md substantiates the Tool Gate integration and safety-boundary claims, and all 5 integration tests passed via cargo test. No files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:000f899b41e56cbde280ab253a44359bc7d493915c135627382d93859167be1a",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path\np=Path('README.md')\nfor i,line in enumerate(p.read_text().splitlines(),1): print(f'{i:4}: {line}')\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:592b20a887bd6491f0574a1234ebc52e74f5f4e4fee36620cd205c48f1ec07e6",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:67ae313731a2c88f6ea622561068c11a718c214eab43ec9c407fb708ed5df846",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 7,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 13708,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 864,
+    "provider": "openai-codex",
+    "total_tokens": 14572
+  }
+}

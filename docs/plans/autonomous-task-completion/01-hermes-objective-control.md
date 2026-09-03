@@ -11,6 +11,10 @@ soterion:
 
 # Milestone 1 — Hermes Objective Control
 
+## Status
+
+Engineering and installed loopback bridge acceptance pass with authenticated event-shaped input. Objective intake, projection reads, pause/resume, reprioritization, revision, fresh approval, unclaimed cancellation, and post-terminal suppression were exercised against canonical records. A genuine message delivered by an external messaging platform remains the open platform gate.
+
 ## Human-visible result
 
 In a normal Hermes conversation, the operator can ask what Arda is doing, see one truthful objective summary and its next action, then pause, resume, reprioritize, revise, approve, reject, or cancel it without handling IDs or editing ledgers.

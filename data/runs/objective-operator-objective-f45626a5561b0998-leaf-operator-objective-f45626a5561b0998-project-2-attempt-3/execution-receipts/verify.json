@@ -1,0 +1,65 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:b7abec7caf0a529492b10b963ef3ce203b58b70683144d0cad1d48724b6850b0",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:e93cca5e404d651e50f8e221fd70c533d84b1a8f0b0d2e7917b00dc0841dab5b"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:5303a6c614ab2ab9d712422bd5c19b6cf9dff82dd2176d359ea4048095c3ce63",
+  "recorded_at_unix_ms": 1788370115964,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-project-2-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project-local result: the worktree passes the declared clean-tree check, and README.md identifies tool-gate as a Rust library and CLI that evaluates caller-supplied tool-invocation metadata against explicit policy rules and emits allow, deny, or review_required receipts without executing tools.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path; p=Path('README.md'); lines=p.read_text().splitlines(); print('README.md lines 5-13:'); print('\\\\n'.join(f'{i}: {lines[i-1]}' for i in range(5, min(13, len(lines))+1)))\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:592b20a887bd6491f0574a1234ebc52e74f5f4e4fee36620cd205c48f1ec07e6",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12063,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 671,
+    "provider": "openai-codex",
+    "total_tokens": 12734
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:11a8ed8ff01d00f99ca3f92f136709792150cb95d2cf872dfb9c8d3939ff1855",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:44b3874153b999e933cc2f1966dbb65d41d07e5d93652fde855c1207b4e32065"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:5a587fb13b9d5643bdd977f7921868a1c58458bac2178efc66980bd4dc93be63",
+  "recorded_at_unix_ms": 1788329346724,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-7",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Unsupported completion. Named defects: (1) the project contains only README.acceptance with an acceptance marker and no inspectable implementation; (2) the sole durable verification receipt covers only `pwd`, proving the working directory but not implementation correctness, scope compliance, or security/privacy properties. No files were modified and no declared checks were rerun.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"Cargo.toml\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*\",\"limit\":200,\"output_mode\":\"files_only\",\"path\":\".\",\"pattern\":\".\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 11273,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 550,
+    "provider": "openai-codex",
+    "total_tokens": 11823
+  }
+}

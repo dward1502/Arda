@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:aadaebfeca4823dbfa75ea07bb3fa0d55a1c0b11d2d058913039da19459d6389",
+    "summary": "Read-only review completed. The parent clean-tree evidence is valid for its declared check, and source inspection supports the narrow claim that the Rust library and CLI evaluate metadata and emit allow, deny, or review_required receipts without executing tools. Named defects: (1) src/policy.rs permits a non-mutating critical-risk invocation with no trace_id when metadata.requires_review is false, even though critical_always_review makes the outcome review_required; require_trace_for_review therefore does not cover every review outcome. (2) The published JSON schemas permit blank strings and unrestricted extra properties, while runtime validation rejects some blank fields and serde accepts unknown fields, so README.md's exit-code description of schema mismatch is not backed by actual JSON Schema validation and schema-valid inputs can still become policy denials. (3) DecisionReceipt omits invocation_id, tool_id, target, caller, and requested_at_utc, so a receipt is not cryptographically or structurally bound to the invocation it purportedly audited. No files were modified, no declared checks were rerun, and no artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

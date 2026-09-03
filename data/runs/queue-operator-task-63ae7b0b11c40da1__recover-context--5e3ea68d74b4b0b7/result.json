@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:d264ecb3179aa0ab659893ae489eed390e1c6feadd34743623d3bfbabd3735d8",
+    "summary": "Review rejected unsupported completion. The verification receipt covers the declared `test` check: `cargo test -p arda-core` passed with exit code 0. Most required source files were inspected, and their read-tool output digests correctly authenticate call-output envelopes rather than source bytes. No context_use_receipt was required because no governed capsule supplied one, and the absence of mutating tool calls supports the read-only/no-modification requirement. However, the declared repository-state context source (`git status --short`) was not inspected, so authoritative repository context was not fully recovered. The projection also provides only the execute-output digest and tool trace, not the semantic execution summary, preventing independent confirmation that the recovered context distinguishes implemented capability, configured runtime, and live proof as required."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:218a99f6ee70b136d07dc7d8deea27a54f1486f6e681a70abb130bd1d9d732ae",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

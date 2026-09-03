@@ -1,0 +1,65 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:e2c95e9d2ba2768ddb9dd6dec46c37922e4184a4415a83ea991a58eb17f2c7fd",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:89cce9b019460c6846e15ca99a08840ce9410a0c25280bad2d223ad616e743e1"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:5be0385489dfecd5538bd14cfd0e3ca2d8e6d94e3a8d124314b469fde1a36a42",
+  "recorded_at_unix_ms": 1788372929936,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-10",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the sole project leaf has canonical close-receipt lineage: the execute receipt is succeeded, digest-validated, and referenced by the verify node. The required clean-tree check passed; no changes or artifacts were created.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 126,
+      "output_digest": "sha256:a394720391b3345164c7e6a3dafc7a6320a3a4df0ad3b39d5223306ce290d8b6",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:76ce25dbee8297c0997fdd5daf3d14467b2fd1e2c010ebd5427c94c84f8745ad",
+      "tool": "terminal"
+    },
+    {
+      "action": "for f in Cargo.toml src/lib.rs tests/target_local.rs README.md docs/human-knowledge-ingestion-contract.md; do printf '\\n===== %s =====\\n' \"$f\"; git show \"HEAD:$f\"; done",
+      "exit_code": 0,
+      "output_digest": "sha256:23a32755dabb06d2b76d8432b0f8d89afc9acefd4578f9ad2128b62c5c37bed4",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 11573,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 805,
+    "provider": "openai-codex",
+    "total_tokens": 12378
+  }
+}

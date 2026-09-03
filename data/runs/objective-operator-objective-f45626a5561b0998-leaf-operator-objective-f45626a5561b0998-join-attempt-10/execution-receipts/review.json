@@ -1,0 +1,99 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0993bf10d1747abb9d980dc1a155487e43d844183b5b0cda4befea8efb2ddf29",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:5be0385489dfecd5538bd14cfd0e3ca2d8e6d94e3a8d124314b469fde1a36a42"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:bc39bc5894a6816394faa1f8c2c64c9da6e268a3bfeca827901f4d310b02e7a1",
+  "recorded_at_unix_ms": 1788372960020,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-10",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Review found unsupported completion and four named defects: (1) src/lib.rs:56-88 MemoryStore::store serializes each MemoryRecord and immediately discards it, so scan_vault provides no persistent Mnemosyne storage or durable ingestion; (2) src/lib.rs:13-25 requires legacy fields and numeric confidence, while docs/human-knowledge-ingestion-contract.md:71-94 specifies authority, privacy, provenance, review, and string-valued confidence fields, so contract-compliant notes cannot be ingested and required classification is not enforced; (3) src/lib.rs:110-114 silently discards WalkDir traversal errors, allowing incomplete scans to be reported as successful; (4) src/lib.rs:184-192 permits absolute and parent-directory wikilinks to resolve outside the private vault boundary. The supplied verification receipt establishes only a clean tree and source inspection, not functional or security verification of these behaviors. No files were modified and no checks were rerun.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:645920a979dc08275a73ecf2d6be68fc62e825f65bea9204d23f122d62297c1e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/fixtures/vault-basic/Main.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eae6aef9fdb063ff4b71fe4dd469648a9cf30106552d33ef19df4af6202d0c74",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/fixtures/vault-basic/Known.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:69c118e182d8ead13c6e04f324e47806c0df7b3a54a6473bc25a2bd40c6e6c56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f8c2069b0b18f32e2f3bcf9f751192ca259dc27a86f4f3c00914c708541b919",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":100,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"MemoryStore|scan_vault|HumanKnowledge|human_knowledge|confidence|backlinks\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6e5ace03bd16643f65fcb1e2ca75a3b0291ef53912490f5ff45146037aa87a27",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 15732,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1111,
+    "provider": "openai-codex",
+    "total_tokens": 16843
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_fd2f653506624566a0b3759c96cb5c9a",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-63ae7b0b11c40da1__recover-context--5e3ea68d74b4b0b7 for task operator-task-63ae7b0b11c40da1__recover-context--5e3ea68d74b4b0b7 ended status=failed result=failed; receipt=sha256:d264ecb3179aa0ab659893ae489eed390e1c6feadd34743623d3bfbabd3735d8; detail=Review rejected unsupported completion. The verification receipt covers the declared `test` check: `cargo test -p arda-core` passed with exit code 0. Most required source files were inspected, and their read-tool output digests correctly authenticate call-output envelopes rather than source bytes. No context_use_receipt was required because no governed capsule supplied one, and the absence of mutating tool calls supports the read-only/no-modification requirement. However, the declared repository-state context source (`git status --short`) was not inspected, so authoritative repository context was not fully recovered. The projection also provides only the execute-output digest and tool trace, not the semantic execution summary, preventing independent confirmation that the recovered context distinguishes implemented capability, configured runtime, and live proof as required.",
+  "salience": 0.6017250000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T05:24:14.676569131Z",
+  "last_seen_at": "2026-09-01T05:24:14.676569131Z",
+  "evidence_class": "inferred",
+  "memory_scope": "system_continuity",
+  "memory_domain": "system"
+}

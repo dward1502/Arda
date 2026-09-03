@@ -1,4 +1,8 @@
 #![cfg(feature = "full-cli")]
+#![allow(
+    dead_code,
+    reason = "legacy queue execution is crate-private and retained only for migration tests"
+)]
 //! Bounded adapter from operator-approved canonical queue work into Workbench.
 
 use super::decomposer::{
@@ -11,13 +15,12 @@ use super::task_queue::{
     QueueRecord, MAX_PARALLEL_READ_ONLY_PER_WORKSPACE,
 };
 use super::validator::PlanValidator;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use arda_core::project_contract::ProjectContract;
 use arda_orome::WorkerContextHandoffReceipt;
-use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
+use arda_vaire::ContextAssembly;
 use arda_vaire::{
     ContextDisposition, ContextOutcomeInput, ContextOutcomeReceipt, MnemosyneService,
-    OrganismContext,
 };
 use chrono::{DateTime, Utc};
 use fs2::FileExt;
@@ -80,6 +83,8 @@ pub struct ExplicitWorkbenchWorkItem {
     pub objective_plan_receipt: String,
     #[serde(default)]
     pub dependency_receipts: Vec<ExplicitReceiptReference>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_assembly: Option<ContextAssembly>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -197,10 +202,17 @@ impl WorkbenchExecutionAdapter {
                 .json(&json!({
                     "objective": prompt,
                     "envelope": explicit_stage_envelope(item, stage)?,
+                    "context_assembly": item.context_assembly,
                 }))
                 .send()
                 .await
                 .with_context(|| format!("execute explicit Workbench {stage} stage"))?;
+            if response.status() == reqwest::StatusCode::CONFLICT {
+                require_scheduler_admission_conflict(response, stage).await?;
+                run = wait_for_explicit_stage(&self.client, &self.harness_url, &item.run_id, stage)
+                    .await?;
+                continue;
+            }
             let value = response_error(
                 response,
                 &format!("execute explicit Workbench {stage} stage"),
@@ -223,21 +235,38 @@ impl WorkbenchExecutionAdapter {
                 .json(&json!({
                     "objective": review_prompt,
                     "envelope": explicit_stage_envelope(item, "review")?,
+                    "context_assembly": item.context_assembly,
                 }))
                 .send()
                 .await
                 .context("execute explicit Workbench review stage")?;
-            let value = response_error(response, "execute explicit Workbench review stage").await?;
-            if value["receipt"]["status"] != "succeeded" {
-                return explicit_failed_outcome(&self.root, item, &run, &value);
+            if response.status() == reqwest::StatusCode::CONFLICT {
+                require_scheduler_admission_conflict(response, "review").await?;
+                run = wait_for_explicit_stage(
+                    &self.client,
+                    &self.harness_url,
+                    &item.run_id,
+                    "review",
+                )
+                .await?;
+            } else {
+                let value =
+                    response_error(response, "execute explicit Workbench review stage").await?;
+                if value["receipt"]["status"] != "succeeded" {
+                    return explicit_failed_outcome(&self.root, item, &run, &value);
+                }
+                run = value["run"].clone();
             }
-            run = value["run"].clone();
         }
 
         if node_state(&run, "close") != Some("succeeded") {
             let parent = node_output_digest(&run, "review")
                 .ok_or_else(|| anyhow!("explicit Workbench close omitted review receipt"))?;
             let close_receipt = canonical_explicit_close_receipt(item, parent)?;
+            // Persist deterministic evidence before making the durable run
+            // terminal. A crash may leave an unreferenced file, but cannot
+            // leave a succeeded run whose canonical close receipt is absent.
+            persist_explicit_close_receipt(&self.root, item, &close_receipt)?;
             let response = self
                 .client
                 .post(format!(
@@ -257,9 +286,39 @@ impl WorkbenchExecutionAdapter {
                     "explicit Workbench close node did not retain its canonical receipt digest"
                 ));
             }
-            persist_explicit_close_receipt(&self.root, item, &close_receipt)?;
         }
         explicit_outcome_from_run(&self.root, item, &run)
+    }
+}
+
+async fn wait_for_explicit_stage(
+    client: &reqwest::Client,
+    harness_url: &str,
+    run_id: &str,
+    stage: &str,
+) -> Result<Value> {
+    let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(1_200);
+    loop {
+        let response = client
+            .get(format!("{harness_url}/v1/runs/{run_id}"))
+            .send()
+            .await
+            .with_context(|| format!("reconcile conflicted explicit Workbench {stage} stage"))?;
+        let run = response_error(
+            response,
+            &format!("reconcile conflicted explicit Workbench {stage} stage"),
+        )
+        .await?;
+        match node_state(&run, stage) {
+            Some("succeeded") => return Ok(run),
+            Some("failed" | "cancelled") => {
+                bail!("conflicted explicit Workbench {stage} stage became terminal without success")
+            }
+            _ if tokio::time::Instant::now() >= deadline => {
+                bail!("timed out reconciling conflicted explicit Workbench {stage} stage")
+            }
+            _ => tokio::time::sleep(std::time::Duration::from_millis(250)).await,
+        }
     }
 }
 
@@ -366,11 +425,26 @@ fn canonical_explicit_close_receipt(
         adapter_version: "1".into(),
         project_contract_digest: item.project_contract_digest.clone(),
         parent_receipts: vec![parent.to_owned()],
-        context_capsule_id: None,
-        context_capsule_digest: None,
-        context_use_receipt_ref: None,
+        context_capsule_id: item
+            .context_assembly
+            .as_ref()
+            .map(|assembly| assembly.capsule.capsule_id.clone()),
+        context_capsule_digest: item
+            .context_assembly
+            .as_ref()
+            .map(|assembly| assembly.capsule.capsule_digest.clone()),
+        context_use_receipt_ref: item
+            .context_assembly
+            .as_ref()
+            .map(|assembly| assembly.use_receipt.receipt_ref()),
         context_handoff: None,
-        recorded_at_unix_ms: u128::try_from(Utc::now().timestamp_millis()).unwrap_or_default(),
+        recorded_at_unix_ms: item.approval_envelope["approval"]
+            .get("created_at_utc")
+            .or_else(|| item.approval_envelope["approval"].get("approved_at_utc"))
+            .and_then(Value::as_str)
+            .and_then(|value| DateTime::parse_from_rfc3339(value).ok())
+            .and_then(|value| u128::try_from(value.timestamp_millis()).ok())
+            .unwrap_or_default(),
     };
     receipt.receipt_digest = receipt.computed_digest()?;
     Ok(receipt)
@@ -397,6 +471,42 @@ fn persist_explicit_close_receipt(
         .with_context(|| format!("write explicit close receipt `{}`", temporary.display()))?;
     std::fs::rename(&temporary, &path)
         .with_context(|| format!("install explicit close receipt `{}`", path.display()))?;
+    Ok(())
+}
+
+fn validate_explicit_close_receipt(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+    run: &Value,
+) -> Result<()> {
+    let review_parent = node_output_digest(run, "review")
+        .ok_or_else(|| anyhow!("explicit Workbench close omitted review receipt"))?;
+    let close_digest = node_output_digest(run, "close")
+        .ok_or_else(|| anyhow!("explicit Workbench close node omitted receipt digest"))?;
+    let path = root
+        .join("data/runs")
+        .join(&item.run_id)
+        .join("execution-receipts/close.json");
+    let bytes = std::fs::read(&path)
+        .with_context(|| format!("read explicit close receipt `{}`", path.display()))?;
+    let receipt: CanonicalHermesExecutionReceipt = serde_json::from_slice(&bytes)
+        .with_context(|| format!("decode explicit close receipt `{}`", path.display()))?;
+    let expected = canonical_explicit_close_receipt(item, review_parent)?;
+    if receipt.receipt_digest != close_digest {
+        return Err(anyhow!(
+            "explicit Workbench close node did not retain its canonical receipt digest"
+        ));
+    }
+    if !receipt.has_valid_digest()? {
+        return Err(anyhow!(
+            "explicit Workbench close receipt has an invalid digest"
+        ));
+    }
+    if serde_json::to_value(&receipt)? != serde_json::to_value(&expected)? {
+        return Err(anyhow!(
+            "explicit Workbench close receipt does not equal the recomputed canonical payload"
+        ));
+    }
     Ok(())
 }
 
@@ -518,6 +628,7 @@ fn explicit_outcome_from_run(
                 .to_string(),
         });
     }
+    validate_explicit_close_receipt(root, item, run)?;
     Ok(ExplicitExecutionOutcome {
         run_id: item.run_id.clone(),
         status: "succeeded".into(),
@@ -620,8 +731,37 @@ impl CanonicalHermesExecutionReceipt {
     }
 }
 
+async fn response_error(response: reqwest::Response, action: &str) -> Result<Value> {
+    let status = response.status();
+    let body = response.text().await.unwrap_or_default();
+    if !status.is_success() {
+        return Err(anyhow!("{action} returned {status}: {body}"));
+    }
+    serde_json::from_str(&body).with_context(|| format!("decode {action} response"))
+}
+
+async fn require_scheduler_admission_conflict(
+    response: reqwest::Response,
+    stage: &str,
+) -> Result<()> {
+    let status = response.status();
+    let body = response
+        .text()
+        .await
+        .with_context(|| format!("read explicit Workbench {stage} conflict response"))?;
+    let code = serde_json::from_str::<Value>(&body)
+        .ok()
+        .and_then(|value| value["code"].as_str().map(str::to_owned));
+    if code.as_deref() == Some("scheduler_not_admitted") {
+        return Ok(());
+    }
+    Err(anyhow!(
+        "execute explicit Workbench {stage} stage returned {status}: {body}"
+    ))
+}
+
 #[derive(Debug, Clone)]
-pub struct WorkbenchQueueExecutor {
+pub(crate) struct WorkbenchQueueExecutor {
     root: PathBuf,
     harness_url: String,
     client: reqwest::Client,
@@ -1205,6 +1345,28 @@ fn acquire_executor_lock(root: &Path) -> Result<File> {
         .with_context(|| format!("open executor lock `{}`", lock_path.display()))?;
     lock.lock_exclusive()
         .with_context(|| format!("acquire executor lock `{}`", lock_path.display()))?;
+    Ok(lock)
+}
+
+fn acquire_objective_advance_lock(root: &Path) -> Result<File> {
+    let lock_path = root.join("core/projects/tasks/.objective-advance.lock");
+    if let Some(parent) = lock_path.parent() {
+        std::fs::create_dir_all(parent).with_context(|| {
+            format!(
+                "create objective advance lock directory `{}`",
+                parent.display()
+            )
+        })?;
+    }
+    let lock = OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .open(&lock_path)
+        .with_context(|| format!("open objective advance lock `{}`", lock_path.display()))?;
+    lock.lock_exclusive()
+        .with_context(|| format!("acquire objective advance lock `{}`", lock_path.display()))?;
     Ok(lock)
 }
 
@@ -2068,59 +2230,15 @@ fn record_context_outcome(
         .and_then(Value::as_str);
     let service = MnemosyneService::new(root.join("data/vaire"))?
         .with_contract_memory_root(root.join("core/state/memory"));
-    let use_receipt = if let Some(receipt_id) = receipt_id {
-        service
-            .context_use_receipt(receipt_id)?
-            .ok_or_else(|| anyhow!("context use receipt `{receipt_id}` was not found"))?
-    } else {
-        let now = Utc::now().timestamp_millis().max(0) as u128;
-        let context: OrganismContext = serde_json::from_value(json!({
-            "schema_version": "arda.organism-context.v1",
-            "organism_id": "arda",
-            "generated_at_unix_ms": now,
-            "expires_at_unix_ms": now.saturating_add(3_600_000),
-            "consumer": {
-                "consumer_id": "arda_workbench.queue_executor",
-                "role": "worker",
-                "authority_ceiling": "execute_with_approval",
-                "operator_authorized": true,
-                "memory_domains": ["system"],
-                "data_classes": ["internal"],
-                "permitted_egress": ["local_device"],
-                "compute_node_refs": [],
-                "agent_ref": "aule"
-            },
-            "lineage": {
-                "objective_id": task.id,
-                "project_id": task_project_id(task),
-                "run_id": run_id,
-                "task_id": task.id,
-                "session_ref": null,
-                "parent_receipts": []
-            },
-            "objective": {
-                "requested_outcome": task.title.as_deref().unwrap_or(task.id.as_str()),
-                "acceptance_conditions": ["Record an evidence-backed terminal outcome"],
-                "required_capabilities": ["objective_execution"],
-                "forbidden_capabilities": []
-            },
-            "evidence_refs": evidence_refs,
-            "memory_refs": [],
-            "unresolved_failures": [],
-            "return_contract": {
-                "schema_version": "arda.context-return.v1",
-                "required_receipt_types": ["arda.context-outcome-receipt.v1"],
-                "max_output_bytes": 65536
-            }
-        }))?;
-        let mut consumer =
-            ConsumerContext::new("arda_workbench.queue_executor", vec![MemoryDomain::System]);
-        consumer.purpose = Some(task.title.as_deref().unwrap_or(task.id.as_str()).to_owned());
-        consumer.operator_authorized = true;
-        service
-            .assemble_organism_context(context, &consumer, now)?
-            .use_receipt
+    let Some(receipt_id) = receipt_id else {
+        // Legacy queue execution is not a Vairë context authority. Only work
+        // that consumed a previously persisted governed context may report a
+        // context outcome.
+        return Ok(None);
     };
+    let use_receipt = service
+        .context_use_receipt(receipt_id)?
+        .ok_or_else(|| anyhow!("context use receipt `{receipt_id}` was not found"))?;
     if use_receipt.objective_id != task.id || use_receipt.run_id.as_deref() != Some(run_id) {
         return Err(anyhow!(
             "context use receipt `{}` is not bound to objective `{}` and run `{run_id}`",
@@ -2859,6 +2977,10 @@ fn reconcile_terminal_objective_leaves(root: &Path) -> Result<()> {
 }
 
 fn advance_objective_after_leaf(root: &Path, completed_leaf: &QueueRecord) -> Result<()> {
+    // Queue append locks do not protect an earlier reader from observing a
+    // concurrent terminal append between writes. Serialize this compatibility
+    // close transaction across its read, decision, and append boundary.
+    let _advance_lock = acquire_objective_advance_lock(root)?;
     let objective_id = completed_leaf.extra["meta"]["objective_id"]
         .as_str()
         .filter(|value| !value.trim().is_empty())
@@ -3463,15 +3585,6 @@ fn workbench_run_id(task_id: &str) -> String {
     format!("queue-{normalized}")
 }
 
-async fn response_error(response: reqwest::Response, action: &str) -> Result<Value> {
-    let status = response.status();
-    let body = response.text().await.unwrap_or_default();
-    if !status.is_success() {
-        return Err(anyhow!("{action} returned {status}: {body}"));
-    }
-    serde_json::from_str(&body).with_context(|| format!("decode {action} response"))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -3538,6 +3651,7 @@ mod tests {
             approval_envelope: json!({"approval": {"approval_id": "approval-1"}}),
             objective_plan_receipt: format!("sha256:{}", "b".repeat(64)),
             dependency_receipts: Vec::new(),
+            context_assembly: None,
         };
         let receipt =
             canonical_explicit_close_receipt(&dependency, &format!("sha256:{}", "c".repeat(64)))
@@ -3574,21 +3688,6 @@ mod tests {
     async fn explicit_work_item_recovers_receipts_without_reading_or_writing_queue() {
         let dir = tempfile::tempdir().unwrap();
         let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
-        let (harness_url, server) = scripted_harness(vec![Some((
-            200,
-            json!({
-                "graph": {"nodes": [
-                    {"id": "approval", "state": "succeeded", "output_digest": digest('a')},
-                    {"id": "execute", "state": "succeeded", "output_digest": digest('b')},
-                    {"id": "verify", "state": "succeeded", "output_digest": digest('c')},
-                    {"id": "review", "state": "succeeded", "output_digest": digest('d')},
-                    {"id": "close", "state": "succeeded", "output_digest": digest('e')}
-                ]}
-            })
-            .to_string(),
-        ))])
-        .await;
-        let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
         let item = ExplicitWorkbenchWorkItem {
             objective_id: "objective-1".into(),
             leaf_id: "leaf-1".into(),
@@ -3613,7 +3712,25 @@ mod tests {
             }),
             objective_plan_receipt: digest('1'),
             dependency_receipts: Vec::new(),
+            context_assembly: None,
         };
+        let close_receipt = canonical_explicit_close_receipt(&item, &digest('d')).unwrap();
+        persist_explicit_close_receipt(dir.path(), &item, &close_receipt).unwrap();
+        let (harness_url, server) = scripted_harness(vec![Some((
+            200,
+            json!({
+                "graph": {"nodes": [
+                    {"id": "approval", "state": "succeeded", "output_digest": digest('a')},
+                    {"id": "execute", "state": "succeeded", "output_digest": digest('b')},
+                    {"id": "verify", "state": "succeeded", "output_digest": digest('c')},
+                    {"id": "review", "state": "succeeded", "output_digest": digest('d')},
+                    {"id": "close", "state": "succeeded", "output_digest": close_receipt.receipt_digest}
+                ]}
+            })
+            .to_string(),
+        ))])
+        .await;
+        let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
 
         let outcome = adapter.execute(&item).await.unwrap();
         let requests = server.await.unwrap();
@@ -3622,7 +3739,7 @@ mod tests {
         assert_eq!(outcome.receipts.len(), 4);
         assert_eq!(
             outcome.root_receipt_digest.as_deref(),
-            Some(digest('e').as_str())
+            Some(close_receipt.receipt_digest.as_str())
         );
         assert_eq!(requests.len(), 1);
         assert!(requests[0].starts_with("GET /v1/runs/objective-1-leaf-1-attempt-1 "));
@@ -3631,6 +3748,224 @@ mod tests {
             .path()
             .join("core/projects/tasks/schedules.jsonl")
             .exists());
+    }
+
+    #[tokio::test]
+    async fn explicit_work_item_reconciles_scheduler_conflict_from_terminal_run() {
+        let dir = tempfile::tempdir().unwrap();
+        let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
+        let initial = json!({
+            "graph": {"nodes": [
+                {"id": "approval", "state": "succeeded", "output_digest": digest('a')},
+                {"id": "execute", "state": "pending", "output_digest": null},
+                {"id": "verify", "state": "pending", "output_digest": null},
+                {"id": "review", "state": "pending", "output_digest": null},
+                {"id": "close", "state": "pending", "output_digest": null}
+            ]}
+        });
+        let item = ExplicitWorkbenchWorkItem {
+            objective_id: "objective-conflict".into(),
+            leaf_id: "leaf-conflict".into(),
+            run_id: "objective-conflict-leaf-conflict-attempt-1".into(),
+            objective: "Inspect exact project authority".into(),
+            execution_prompt: "Inspect only the bound project.".into(),
+            verification_prompt: "Verify the inspection receipt.".into(),
+            review_prompt: "Independently review the evidence.".into(),
+            project_id: DEFAULT_PROJECT_ID.into(),
+            project_contract_digest: digest('f'),
+            workspace_root: dir.path().to_path_buf(),
+            approval_envelope: json!({
+                "approval": {
+                    "schema_version": "arda.orome.task_approval.v1",
+                    "proposal_id": "operator-objective-conflict",
+                    "approval_id": "operator-approval-conflict",
+                    "ledger_writes": ["data/arda/objectives.sqlite3", "data/runs"],
+                    "decision": "policy_safe",
+                    "created_at_utc": "2026-09-01T00:00:00Z"
+                },
+                "idempotency_key": "objective-conflict-leaf-conflict"
+            }),
+            objective_plan_receipt: digest('1'),
+            dependency_receipts: Vec::new(),
+            context_assembly: None,
+        };
+        let close_receipt = canonical_explicit_close_receipt(&item, &digest('d')).unwrap();
+        persist_explicit_close_receipt(dir.path(), &item, &close_receipt).unwrap();
+        let terminal = json!({
+            "graph": {"nodes": [
+                {"id": "approval", "state": "succeeded", "output_digest": digest('a')},
+                {"id": "execute", "state": "succeeded", "output_digest": digest('b')},
+                {"id": "verify", "state": "succeeded", "output_digest": digest('c')},
+                {"id": "review", "state": "succeeded", "output_digest": digest('d')},
+                {"id": "close", "state": "succeeded", "output_digest": close_receipt.receipt_digest}
+            ]}
+        });
+        let (harness_url, server) = scripted_harness(vec![
+            Some((200, initial.to_string())),
+            Some((
+                409,
+                json!({"code": "scheduler_not_admitted", "message": "not selected by deterministic scheduler"})
+                    .to_string(),
+            )),
+            Some((200, terminal.to_string())),
+        ])
+        .await;
+        let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
+
+        let outcome = adapter.execute(&item).await.unwrap();
+        let requests = server.await.unwrap();
+
+        assert_eq!(outcome.status, "succeeded");
+        assert_eq!(
+            outcome.root_receipt_digest.as_deref(),
+            Some(close_receipt.receipt_digest.as_str())
+        );
+        assert_eq!(requests.len(), 3);
+        assert!(requests[1].contains("/nodes/execute/execute-provider "));
+        assert!(requests[2].starts_with("GET /v1/runs/objective-conflict-leaf-conflict-attempt-1 "));
+
+        let mut forged = close_receipt.clone();
+        forged.recorded_at_unix_ms = forged.recorded_at_unix_ms.saturating_add(1);
+        forged.receipt_digest = forged.computed_digest().unwrap();
+        persist_explicit_close_receipt(dir.path(), &item, &forged).unwrap();
+        let mut forged_terminal = terminal;
+        forged_terminal["graph"]["nodes"][4]["output_digest"] =
+            Value::String(forged.receipt_digest.clone());
+        let error =
+            validate_explicit_close_receipt(dir.path(), &item, &forged_terminal).unwrap_err();
+        assert!(error.to_string().contains("recomputed canonical payload"));
+    }
+
+    #[tokio::test]
+    async fn non_scheduler_conflict_is_not_reconciled() {
+        let (harness_url, server) = scripted_harness(vec![Some((
+            409,
+            json!({"code": "conflict", "message": "different canonical payload"}).to_string(),
+        ))])
+        .await;
+        let response = reqwest::get(harness_url).await.unwrap();
+        let error = require_scheduler_admission_conflict(response, "execute")
+            .await
+            .unwrap_err();
+        assert!(error.to_string().contains("different canonical payload"));
+        server.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn conflicted_close_is_not_treated_as_scheduler_owned_completion() {
+        let dir = tempfile::tempdir().unwrap();
+        let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
+        let run = |close_state: &str, close_digest: Option<String>| {
+            json!({
+                "graph": {"nodes": [
+                    {"id": "approval", "state": "succeeded", "output_digest": digest('a')},
+                    {"id": "execute", "state": "succeeded", "output_digest": digest('b')},
+                    {"id": "verify", "state": "succeeded", "output_digest": digest('c')},
+                    {"id": "review", "state": "succeeded", "output_digest": digest('d')},
+                    {"id": "close", "state": close_state, "output_digest": close_digest}
+                ]}
+            })
+        };
+        let initial = run("pending", None);
+        let (harness_url, server) = scripted_harness(vec![
+            Some((200, initial.to_string())),
+            Some((409, json!({"code": "conflict"}).to_string())),
+        ])
+        .await;
+        let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
+        let item = ExplicitWorkbenchWorkItem {
+            objective_id: "objective-close-conflict".into(),
+            leaf_id: "leaf-close-conflict".into(),
+            run_id: "objective-close-conflict-leaf-close-conflict-attempt-1".into(),
+            objective: "Inspect exact project authority".into(),
+            execution_prompt: "Inspect only the bound project.".into(),
+            verification_prompt: "Verify the inspection receipt.".into(),
+            review_prompt: "Independently review the evidence.".into(),
+            project_id: DEFAULT_PROJECT_ID.into(),
+            project_contract_digest: digest('f'),
+            workspace_root: dir.path().to_path_buf(),
+            approval_envelope: json!({
+                "approval": {
+                    "schema_version": "arda.orome.task_approval.v1",
+                    "proposal_id": "operator-objective-close-conflict",
+                    "approval_id": "operator-approval-close-conflict",
+                    "ledger_writes": ["data/arda/objectives.sqlite3", "data/runs"],
+                    "decision": "policy_safe",
+                    "created_at_utc": "2026-09-01T00:00:00Z"
+                },
+                "idempotency_key": "objective-close-conflict-leaf-close-conflict"
+            }),
+            objective_plan_receipt: digest('1'),
+            dependency_receipts: Vec::new(),
+            context_assembly: None,
+        };
+        let error = adapter.execute(&item).await.unwrap_err();
+        let requests = server.await.unwrap();
+
+        assert!(error.to_string().contains("returned 409"));
+        assert_eq!(requests.len(), 2);
+        let staged_receipt = dir
+            .path()
+            .join("data/runs")
+            .join(&item.run_id)
+            .join("execution-receipts/close.json");
+        assert!(staged_receipt.exists());
+        let staged: CanonicalHermesExecutionReceipt =
+            serde_json::from_slice(&std::fs::read(staged_receipt).unwrap()).unwrap();
+        assert!(staged.has_valid_digest().unwrap());
+    }
+
+    #[test]
+    fn terminal_close_rejects_locally_valid_noncanonical_payload() {
+        let dir = tempfile::tempdir().unwrap();
+        let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
+        let item = ExplicitWorkbenchWorkItem {
+            objective_id: "objective-forged-close".into(),
+            leaf_id: "leaf-forged-close".into(),
+            run_id: "objective-forged-close-leaf-forged-close-attempt-1".into(),
+            objective: "Inspect exact project authority".into(),
+            execution_prompt: "Inspect only the bound project.".into(),
+            verification_prompt: "Verify the inspection receipt.".into(),
+            review_prompt: "Independently review the evidence.".into(),
+            project_id: DEFAULT_PROJECT_ID.into(),
+            project_contract_digest: digest('f'),
+            workspace_root: dir.path().to_path_buf(),
+            approval_envelope: json!({
+                "approval": {
+                    "schema_version": "arda.orome.task_approval.v1",
+                    "proposal_id": "operator-objective-forged-close",
+                    "approval_id": "operator-approval-forged-close",
+                    "ledger_writes": ["data/arda/objectives.sqlite3", "data/runs"],
+                    "decision": "policy_safe",
+                    "created_at_utc": "2026-09-01T00:00:00Z"
+                },
+                "idempotency_key": "objective-forged-close-leaf-forged-close"
+            }),
+            objective_plan_receipt: digest('1'),
+            dependency_receipts: Vec::new(),
+            context_assembly: None,
+        };
+        let mut forged = canonical_explicit_close_receipt(&item, &digest('d')).unwrap();
+        forged.summary = "forged but self-consistent close".into();
+        forged.receipt_digest.clear();
+        forged.receipt_digest = forged.computed_digest().unwrap();
+        persist_explicit_close_receipt(dir.path(), &item, &forged).unwrap();
+        let run = json!({"graph": {"nodes": [
+            {"id": "review", "state": "succeeded", "output_digest": digest('d')},
+            {"id": "close", "state": "succeeded", "output_digest": forged.receipt_digest}
+        ]}});
+        assert_eq!(
+            node_output_digest(&run, "close"),
+            Some(forged.receipt_digest.as_str())
+        );
+
+        let error = validate_explicit_close_receipt(dir.path(), &item, &run).unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("does not equal the recomputed canonical payload"),
+            "unexpected validation error: {error:#}"
+        );
     }
 
     #[tokio::test]
@@ -3710,6 +4045,7 @@ mod tests {
             }),
             objective_plan_receipt: digest('1'),
             dependency_receipts: Vec::new(),
+            context_assembly: None,
         };
 
         let outcome = adapter.execute(&item).await.unwrap();

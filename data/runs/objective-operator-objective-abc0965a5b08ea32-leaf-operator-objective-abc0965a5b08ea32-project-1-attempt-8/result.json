@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:f008397e55698548ecdb15a4841edf6a06fa382dfdf9446fb6beb61cdf5af61a",
+    "summary": "Unsupported completion. Named defects: the project root contains only README.acceptance with a one-line acceptance label and no implementation to inspect; the sole durable verification check is pwd, which confirms the working directory but provides no evidence of implementation correctness, security/privacy properties, or objective scope. The parent receipt is structurally consistent with the declared check, and no modification evidence is present under read-only authority, but these facts cannot substantiate the governed work."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

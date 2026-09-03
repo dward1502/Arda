@@ -1,0 +1,55 @@
+{
+  "schema_version": "arda.autonomous-loop-installed-acceptance-snapshot.v1",
+  "recorded_at_utc": "2026-08-30T13:30:00Z",
+  "evidence_boundary": "Credential-free tracked snapshot of append-only runtime authorities; not a replacement mutation authority.",
+  "live_runtime_authority_hashes_at_snapshot": {
+    "core/projects/tasks/queue.jsonl": "sha256:a649649e57e9ea5020e8be46eec6f60bf46ddb08684e5c2ebd6ed1ac660fdc18",
+    "data/workbench/projects.json": "sha256:c9315dd745f88b7961d1c473a69ba455d6c619435beac66748df864b5b72f2eb"
+  },
+  "tracked_raw_snapshot": "docs/audits/evidence/2026-08-30-autonomous-loop-installed-acceptance-raw.json",
+  "tracked_provider_receipts": "docs/audits/evidence/2026-08-30-autonomous-loop-provider-receipts.json",
+  "critic_revision_close": {
+    "task_id": "operator-task-218b6be4e50c73d8",
+    "rejected_run_id": "queue-operator-task-218b6be4e50c73d8",
+    "rejection_decision": "revise_task",
+    "named_defect": "The canonical receipt did not prove the exact acceptance artifact bytes.",
+    "corrected_run_id": "queue-operator-task-218b6be4e50c73d8-attempt-2",
+    "terminal_status": "completed",
+    "terminal_decision": "close_complete",
+    "execution_receipt_digest": "sha256:ced7cab0e714c23cf78352a924960b74271f7f1f6afe6a8b0a63a6ea7c3ceeeb",
+    "outcome_receipt_file_sha256": "sha256:37f228bcd10424d930588657b6070d2af53bbd67ad9a2cce13341f790e36de27"
+  },
+  "mnemosyne_outcome": {
+    "memory_id": "mem_65318f16b2794990b9ac8b11860ba00d",
+    "memory_file_sha256": "sha256:ef8f0d0b2bb4b19faa81d8a04d343b9c137a64152509c6a4859172eb1782c7ea",
+    "run_id": "queue-operator-task-218b6be4e50c73d8-attempt-2",
+    "result": "completed"
+  },
+  "distinct_project_overlap": [
+    {
+      "task_id": "operator-task-be75219e89eea616",
+      "project_id": "9b8e8400-e29b-41d4-a716-446655440099",
+      "workspace_root": "target/arda-autonomous-acceptance-project",
+      "execute_running_unix_ms": 1788094523214,
+      "execute_terminal_unix_ms": 1788094590785,
+      "terminal_receipt_digest": "sha256:ca0d964cddb7992cdc1856857af2bd438701e66ccbb2dc4cf045a17b528740be",
+      "outcome_receipt_file_sha256": "sha256:f70b29adc5d337915efcee3057fa72e0a50c197acacd094b57893bce6acc185a"
+    },
+    {
+      "task_id": "operator-task-296ca07a057e05a5",
+      "project_id": "9b8e8400-e29b-41d4-a716-446655440100",
+      "workspace_root": "target/arda-autonomous-acceptance-project-b",
+      "execute_running_unix_ms": 1788094523341,
+      "execute_terminal_unix_ms": 1788094571042,
+      "terminal_receipt_digest": "sha256:e9eec0e5322ada6914018bb537f64a1ec2b2e8ba5de56f87abe6caa0cf609438",
+      "outcome_receipt_file_sha256": "sha256:2afbda5ff0dde1421c2a5f06b7db14cec7f0dc93908f7b7295123beb91109734"
+    }
+  ],
+  "open_gates": [
+    "genuine_external_messaging_platform receipt",
+    "same-objective deferred or recurring wake across restart",
+    "single shared-objective multi-project joined close",
+    "live Vaire context-use receipt",
+    "explicit operator burden verdict"
+  ]
+}

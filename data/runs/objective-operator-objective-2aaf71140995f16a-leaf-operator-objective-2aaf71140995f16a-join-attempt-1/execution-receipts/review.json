@@ -1,0 +1,141 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:b3b6c697170e4648739c53f2d42913ab49f82f366f08349e45feb2c0056011f2",
+  "idempotency_key": "queue-operator-objective-2aaf71140995f16a-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:e6e1b85ae2e279d84e82f52f0b522549168e39d669e6be9a40339c6a384c50a4"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:19296e9cfb766b9e2c533bfa02238af09351bb16a782c543f21f863136600c54",
+  "recorded_at_unix_ms": 1788416869665,
+  "run_id": "objective-operator-objective-2aaf71140995f16a-leaf-operator-objective-2aaf71140995f16a-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE\nThe two canonical dependency close receipts are succeeded and reported as digest-validated, while the parent verification receipt confirms reviewed leaf closure and a clean worktree before and after read-only inspection. Independent inspection of the attached project found implementation, target-local tests, synthetic fixtures, migration boundaries, and the human-knowledge ingestion contract consistent with the documented tenant scope. No blocking contradiction or evidence invalidation was identified. Declared checks were not rerun, and no files were modified or created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a68e2387f3d2bcbe1b8d6c8f140d882d82cf1829c5c60f2adf7b56eaf812dc8b",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\"docs\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:125a17d6937b8c4214d0224f8b08ef95c41e19fac3518b0f06c9b903d43543e1",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f8c2069b0b18f32e2f3bcf9f751192ca259dc27a86f4f3c00914c708541b919",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e7e68890b8a5be51f9a58aaf65ce02e86102d332f3fb9ce0ced874aa226a112b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:0834aaacf2bb5ca6d21189f0e3abf1c34d8ffc715de4d92a889c034b8e1751e9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2e3224cb6a189b92e96bc08d903516b5deebcd6095c063404918c4c22b123ec2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ae6ec396f2995014738692f50549b52475584993e8487b7ede91d843aec9e0ff",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"fixtures/vault-basic/Main.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eae6aef9fdb063ff4b71fe4dd469648a9cf30106552d33ef19df4af6202d0c74",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"fixtures/vault-basic/Known.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:69c118e182d8ead13c6e04f324e47806c0df7b3a54a6473bc25a2bd40c6e6c56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"HumanKnowledge|MemoryStore|resolve_wikilink|scan_vault\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d8739f99e55b887ce725e36b68b70aae6b13f46a29e6064b3a883d5c12b41d6b",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":1,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"privacy|private|vault|path traversal|canonical|quarantine\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6cd6e93038ad911131b2a9d3077593999b59fbe34cc85e6cc222f4a16d2d7b85",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\".gitignore\"}",
+      "exit_code": null,
+      "output_digest": "sha256:601de88e661f6f97fcbd4a32348fc0b4e2c7b5a3ab8ddeb086b9fb72e3565306",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 16264,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1935,
+    "provider": "openai-codex",
+    "total_tokens": 18199
+  }
+}

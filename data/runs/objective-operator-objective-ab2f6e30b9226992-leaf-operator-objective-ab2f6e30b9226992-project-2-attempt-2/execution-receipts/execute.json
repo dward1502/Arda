@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f215f7eb9cebbc799d633668f0bb37c167fac429ee824507357e1c37b86a8297",
+  "idempotency_key": "queue-operator-objective-ab2f6e30b9226992-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:9e19459526538b426346b400bce70f6193d7fca11fc9f494b1b8b4fd3023f56a"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:31313d24d0274489a7353fa6edf1f511df2868b197f0a6c351138c85d13bf16c",
+  "recorded_at_unix_ms": 1788412266287,
+  "run_id": "objective-operator-objective-ab2f6e30b9226992-leaf-operator-objective-ab2f6e30b9226992-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Project c33d0000-e29b-41d4-a716-446655440003 (tool-gate): clean-tree check `git diff --exit-code HEAD --` passed. Source-backed finding: the project is an active, adapter-free Rust policy library/CLI that emits deterministic allow, deny, or review-required receipts but deliberately excludes execution, authentication, authorization, sandboxing, storage, catalogs, and queue/runtime integrations (README.md:5-13, README.md:53-61, README.md:146-158). A valid two-project comparison and shared-risk synthesis could not be produced because the supplied authority and project root expose only this project and provide no report or sources for the other registered project. Recommended operator action: rerun the integration-readiness aggregation with both project-specific reports in context, then verify the execution adapter enforces tool-gate receipts and supplies authentication, authorization, sandboxing, and audit persistence.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:000f899b41e56cbde280ab253a44359bc7d493915c135627382d93859167be1a",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 28517,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1397,
+    "provider": "openai-codex",
+    "total_tokens": 29914
+  }
+}

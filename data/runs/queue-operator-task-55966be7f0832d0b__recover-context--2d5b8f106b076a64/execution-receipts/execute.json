@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:b07fb63f5eb254760e41129b96660b7c3caf9e34cc0bdf486e46ffb33df3801d",
+  "idempotency_key": "queue-operator-task-55966be7f0832d0b__recover-context--2d5b8f106b076a64-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-3cc74b1475ea4d86903755341f3348f6"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:5fdfdc32c780e9ff47886c8c6b26d106920b5808977280a6c1b7fa6d18bc60a5",
+  "recorded_at_unix_ms": 1788251548817,
+  "run_id": "queue-operator-task-55966be7f0832d0b__recover-context--2d5b8f106b076a64",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Recovered the live bounded context without modifying project files or generated queue projections. Project authority: data/workbench/projects.json:5-68 defines the root Rust project arda-rust-example (project_id 550e8400-e29b-41d4-a716-446655440000), Cargo adapter, and reserved check cargo test -p arda-core; the registry also contains proof, acceptance, real-project, and read-only reviewed contracts (data/workbench/projects.json:70-583). Program authority: docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:23-37 says the core path and one bounded installed objective exist, but acceptance still requires Hermes objective control, installed scheduling/restart, live critic revision, real multi-project execution, Vairë continuity, and explicit operator acceptance. docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:17-47 defines the target operating loop; lines 49-97 order completion through autonomous-loop, worker-routing, project-fabric, daily-improvement, assimilation, and whole-system gates; lines 99-108 require canonical authority, acceptance-backed closure, and read-only treatment of dirty repositories. Status evidence: ARDA_SYSTEM_STATUS_REPORT.md:23-55 identifies the canonical queue ledger and generated projections, reports substantial bounded foundations but incomplete autonomous completion, connected projects, retrieval, and daily improvement; lines 71-89 define the active end-to-end gate; lines 119-131 prioritize restart/deferred continuation, real project attachment, Manwë routing, daily improvement, Vairë/Soterion/Hermes controls, and operator verdict. Receipt context: core/projects/tasks/queue.jsonl:46450-46489 shows repeated pending execute/verify projections for a disposable acceptance objective, while line 46490 records this exact read-only recover-context leaf, its approval, budget, acceptance criteria, and cited authorities. Downstream work should distinguish implemented source/package capability from configured runtime and live deployed proof, preserve the dirty tree, avoid generated queue projections, and treat cargo test -p arda-core as verifier-owned rather than executed here.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c111b0a480f0088d49c66db2bf73808a169cffc0dc7f632d3275a0b39c4f717e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":41,\"offset\":46450,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:af186fa676663cd597c42da363e1424ce1e618c6182e66a44803727f8945d8dc",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 51165,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 946,
+    "provider": "openai-codex",
+    "total_tokens": 52111
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:dc74c60885567f56cdc6fe69782b4813205385023b2f47e714ca906ab9408a39",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:6f43a2edfa4d9a0b2760060a92dd6442cfce3e88bd27c12c7735ee9745b10286"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:568fb71204e18ea7998835d3d66571114a5223565ae15e7236047c64bf906305",
+  "recorded_at_unix_ms": 1788408562753,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-join-attempt-8",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified canonical close-receipt lineage from the digest-validated parent execution receipt. The declared clean-tree check passed with no project changes.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 1602,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 305,
+    "provider": "openai-codex",
+    "total_tokens": 1907
+  }
+}

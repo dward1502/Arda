@@ -1,0 +1,45 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3f61ff580118e40f074ba9907b79ae96f44aca79f8c3a250f69b04209787523a",
+  "idempotency_key": "queue-operator-objective-1c8d6262ff693e53-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:ee62953b87372fa99043790390b503d58ee2f4805b2fa5519e0a6996eb39467a"
+  ],
+  "project_contract_digest": "sha256:e77fc25e9e87310b96c880be1ec1656e832472b5b786b322d1db0a81a45cf4e8",
+  "receipt_digest": "sha256:c4fd46205648ec88c012afd6d92130d9287615bd80e530b1b3d2615380fe64ed",
+  "recorded_at_unix_ms": 1788327961924,
+  "run_id": "objective-operator-objective-1c8d6262ff693e53-leaf-operator-objective-1c8d6262ff693e53-project-2-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "No defects found. Read-only inspection confirmed acceptance.txt contains the expected durable acceptance statement; scope is limited to the supplied project root, the declared existence check is covered by the parent verification receipt, and no project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ae07537328ad8370c95a6327886872647618fab9fd275d52a227bea89311f00d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b/acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ba942d13e4367efc797dc7060812a36b3f051d71797e2f9ead27f20bd229eecc",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6240,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 395,
+    "provider": "openai-codex",
+    "total_tokens": 6635
+  }
+}

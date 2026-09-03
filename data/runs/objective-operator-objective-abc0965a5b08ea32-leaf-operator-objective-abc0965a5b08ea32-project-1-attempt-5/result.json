@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:bb10d3391cf3178aa24a156a08016e575241094bc184cd307ef4c628b9565efe",
+    "summary": "Defect: the project root contains only README.acceptance with the text “isolated installed resident runtime acceptance”; no implementation or durable verification evidence is present to support a correctness or scope review. Defect: the parent receipt proves only that `pwd` succeeded and does not verify any implementation behavior, acceptance criterion, or security/privacy property. Completion is therefore unsupported."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

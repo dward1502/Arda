@@ -1,0 +1,159 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:57b2d6163d0a52b554ebe01cb50871292a5843676a3868dd9aee874ba3d5323a",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:5303a6c614ab2ab9d712422bd5c19b6cf9dff82dd2176d359ea4048095c3ce63"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:aadaebfeca4823dbfa75ea07bb3fa0d55a1c0b11d2d058913039da19459d6389",
+  "recorded_at_unix_ms": 1788370162796,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-project-2-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only review completed. The parent clean-tree evidence is valid for its declared check, and source inspection supports the narrow claim that the Rust library and CLI evaluate metadata and emit allow, deny, or review_required receipts without executing tools. Named defects: (1) src/policy.rs permits a non-mutating critical-risk invocation with no trace_id when metadata.requires_review is false, even though critical_always_review makes the outcome review_required; require_trace_for_review therefore does not cover every review outcome. (2) The published JSON schemas permit blank strings and unrestricted extra properties, while runtime validation rejects some blank fields and serde accepts unknown fields, so README.md's exit-code description of schema mismatch is not backed by actual JSON Schema validation and schema-valid inputs can still become policy denials. (3) DecisionReceipt omits invocation_id, tool_id, target, caller, and requested_at_utc, so a receipt is not cryptographically or structurally bound to the invocation it purportedly audited. No files were modified, no declared checks were rerun, and no artifacts were created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:15864db2eef3b87ffaada165f9c01532b4abb62779d69b3f13ade6dea710eb5d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"src\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b216218c2c6b10ec19f0827348a9c43af9a5544facb6faab3b9866199c4b1fa6",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"tests\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d1f0755bc493f7488906cf4ef3cdf189e9ea82570006f0aa73535292a955c69a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"examples\",\"pattern\":\"*.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:92ebcc1b752b7898862293e3cb5bc4bd1f777a660a08813a2704acb1f164580e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"src\",\"pattern\":\"evaluate_invocation|Decision|Command|std::process|execute|spawn\"}",
+      "exit_code": null,
+      "output_digest": "sha256:aea0ba80ced81b340f1cc10deee53aaff0dfcbe9fe86dd7577d43dc7ace10c57",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/tool-metadata.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:35b34798fc0ee45dbdc2d037c5409c7cbf2685533d0a16b83653bd1a518ecc4d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/invocation-envelope.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:df13ce4abffeebf7c467567486819a87499114a706499b2026176f38552a9709",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/decision-receipt.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a1011639f677ab4b81db23e43153a7d490978b6bc181400deb3e53a220a39a56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:08cda912f14b26a5ddbe0133fc50b5811267ab7ddd3d162883658041b20bb708",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a511881b8f1fad25fbdd787c5304d808c9744279d2c5a06e03b5425a920984ae",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.md\",\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"allowed_targets|requested_at_utc|trace_id|schema\"}",
+      "exit_code": null,
+      "output_digest": "sha256:514c5e65eeda04e73b345c1e67078cdaef3d1d1a3bca8afaf6a2341f7bf52ec1",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 33342,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1459,
+    "provider": "openai-codex",
+    "total_tokens": 34801
+  }
+}

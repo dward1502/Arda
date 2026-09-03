@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:26ad30229266c063ec7b2a639236688ada4e73efc48d12284598b4cc4fda294c",
+    "summary": "Review completed read-only. The joined completion is not supported by the supplied evidence: the only declared check proves a clean tree, not compilation, tests, or objective behavior, while both close receipts contain no implementation or behavioral verification details. Named defects: (1) src/lib.rs:184-192 permits wikilinks containing absolute paths or `..` components to resolve outside the private vault, exposing existence and paths of external files; (2) src/lib.rs:106-125 scans every Markdown file and assigns semantic-memory treatment without enforcing the classification, authority, status, privacy, quarantine, or review requirements in docs/human-knowledge-ingestion-contract.md; (3) src/lib.rs:56-89 serializes each MemoryRecord and immediately discards it, so the claimed persistent-memory ingestion does not persist anything; (4) NoteFrontmatter at src/lib.rs:13-25 implements a legacy schema incompatible with the documented required ingestion metadata, including a numeric confidence field instead of low/medium/high; (5) Cargo.toml:13-14 depends on crates outside the supplied project root, so this bounded review cannot establish that the implementation builds against its dependencies. No files were modified and no artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

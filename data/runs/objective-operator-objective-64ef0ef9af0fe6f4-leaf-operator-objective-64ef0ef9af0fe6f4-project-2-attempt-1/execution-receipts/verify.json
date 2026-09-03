@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:6a1de9c22b262f0c3eeca412572628fa640d7b49768556a38a0e5a69fbd5cadf",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:c30359f7d7e7beacf4abe6fac542477e6f112ff336ffc504aa5dcf9e2ff67fe9"
+  ],
+  "project_contract_digest": "sha256:9b8dfd99ed150c213045aeb5fd75ee905540fce35e8ed93c096d414bc2d3e3be",
+  "receipt_digest": "sha256:d228658590534b1dd8fabff9e5f43a24f892b96e62116c85a3db5677cf3ddf00",
+  "recorded_at_unix_ms": 1788329592174,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared verify check passed: README.acceptance contains the exact required line.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9841,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 248,
+    "provider": "openai-codex",
+    "total_tokens": 10089
+  }
+}

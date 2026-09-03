@@ -1,0 +1,99 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:260e09e277e1b8d62ba949c56019e3228a63dcda6e55cd9b9cd6ab2edf8a5eb3",
+  "idempotency_key": "queue-operator-task-148efdb337964c6a-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:c57be96c1104c8e06d844dc312891d603e7630e54859dfe14c827ab75ab63da1"
+  ],
+  "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+  "receipt_digest": "sha256:5d25fec336207c2b1dbea25ea14672f393fb2e81e39fafe168690f13bd75408e",
+  "recorded_at_unix_ms": 1788092332010,
+  "run_id": "queue-operator-task-148efdb337964c6a",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Canonical execution and verification receipt payloads were not available for independent inspection; only a parent receipt digest was supplied. Project inspection found the expected implementation, test, and exact 30-byte acceptance.txt content, but cargo test success cannot be independently approved from build artifacts alone.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:07109ee2c1f0b10fb86bd09f873905059821f3835d3935f2bfd5722e10c26a2f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"limit\":200,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"c57be96c1104c8e06d844dc312891d603e7630e54859dfe14c827ab75ab63da1|cargo test|arda-autonomous-loop-accepted\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c404d908be794d942c45660bb4116982595b416c287e0c4a1003fd4a2f68e55a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b53d5bfd6e8958af9a78a704490b944958fb518a908b7dbfa735c56ae3dbfab7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7f3fe1dc0cec33dd59c545688d0e06f9e977d33d3a5265a7ab5e294d98e5f21c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:1dae453e8127360c647af7a0cbdc4663c93983910f4f3336fdfec00b53e9e656",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:27aa7a8a7413c83724a0e7a65c92e271b36a00584ab8c6a43cdd56de943d02e8",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"Cargo.lock\"}",
+      "exit_code": null,
+      "output_digest": "sha256:553d4d4ff14d0fbc7ea6ed0af140dedc706790fa70cd5ee184fabf23c40f9241",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"target/debug/.fingerprint/arda-autonomous-acceptance-f14e596ce895ea4d/test-lib-arda_autonomous_acceptance.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2bf3a322fe6ccdbdef871673a65c31c14cbd9555eef659ae0534a55367cca8d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"target/debug/deps/arda_autonomous_acceptance-f14e596ce895ea4d.d\"}",
+      "exit_code": null,
+      "output_digest": "sha256:344684f3e67b710d7fe2a6d95ffe92fd8c0b1cfb3ad23ebc0bfe23f71f1a59d1",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\".gitignore\"}",
+      "exit_code": null,
+      "output_digest": "sha256:601de88e661f6f97fcbd4a32348fc0b4e2c7b5a3ab8ddeb086b9fb72e3565306",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\".\",\"pattern\":\"*receipt*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14447,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1939,
+    "provider": "openai-codex",
+    "total_tokens": 16386
+  }
+}

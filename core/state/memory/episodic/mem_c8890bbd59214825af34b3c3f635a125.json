@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c8890bbd59214825af34b3c3f635a125",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-55966be7f0832d0b for task operator-task-55966be7f0832d0b ended status=failed result=cancelled; receipt=none; detail=--reason superseded after installing node-local critic scope",
+  "salience": 0.4113749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T08:54:48.386630582Z",
+  "last_seen_at": "2026-09-01T08:54:48.386630582Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

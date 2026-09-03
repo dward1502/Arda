@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:948639684cb8a97722e0856615b0185af11016f51423807a1c1ff133d6d43ddc",
+  "idempotency_key": "queue-operator-objective-8d365678b027149f-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-634b9a3fd1ddff92"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:d426c2c835353d706dfd57de43c1de129f9e3096892e3c69fe26e3ac0a937c20",
+  "recorded_at_unix_ms": 1788415544819,
+  "run_id": "objective-operator-objective-8d365678b027149f-leaf-operator-objective-8d365678b027149f-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project-local inspection completed without modifications. Integration authority: docs/human-knowledge-ingestion-contract.md defines active-draft contract annunimas.human_knowledge.v1, owned by ATHENA / MNEMOSYNE / HADES / PROMETHEUS, with private-by-default ingestion, authority/status classification, provenance, review, and conflict-handling requirements. Readiness evidence: Cargo.toml exposes annunimas_human as a Rust library; src/lib.rs provides vault validation, Markdown scanning, YAML frontmatter parsing, wikilink resolution, and conversion into annunimas_core::contract::memory::MemoryRecord; tests/target_local.rs covers existing/missing wikilinks and missing vault rejection; fixtures/vault-basic supplies a linked two-note fixture. Declared check outcome: `git diff --exit-code HEAD --` exited 0 before inspection and again after inspection, confirming a clean tree. Blockers: MemoryStore::store only serializes and discards MemoryRecord, so no persistent MNEMOSYNE integration exists; Cargo.toml depends directly on repository-relative Annunimas core and mnemosyne paths, which migration notes identify as a temporary compatibility seam; NoteFrontmatter implements a legacy schema with numeric confidence and omits the documented contract, authority, source_type, owner, privacy, review, supersession, and affected-path fields; migration notes state live vault data, runtime state, and ingestion ledgers were not copied. Therefore this project has a usable local parsing seam but is not independently integration-ready until persistence, a tenant-facing dependency contract, and schema alignment are implemented and validated.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 14,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 18438,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1419,
+    "provider": "openai-codex",
+    "total_tokens": 19857
+  }
+}

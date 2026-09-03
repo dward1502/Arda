@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:e36569205d4c7947efd1351070a63bd01378a1c86ecabf8daba0c0e4823ec67f",
+  "idempotency_key": "queue-operator-objective-968cd6b44e8a2921-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:db4ac4a92dc30d276dd3025ee6aeacb9c495c934159d23b7c99864b4678ba17b"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:0ce0e6e7e73b8a2326dcf4fe5b1d61e439170885a7d9c2593b7c202757935a22",
+  "recorded_at_unix_ms": 1788413060487,
+  "run_id": "objective-operator-objective-968cd6b44e8a2921-leaf-operator-objective-968cd6b44e8a2921-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project c33d0000-e29b-41d4-a716-446655440003 (tool-gate) is locally integration-ready with caveats. Declared clean-tree check `git diff --exit-code HEAD --` passed with exit code 0; final `git status --short` was empty. Optional project checks also passed: formatting, Clippy with warnings denied, all 5 integration tests, doc tests, and documentation generation. Source confirms a deterministic Rust library/CLI producing versioned allow/deny/review_required receipts and exit codes 0/3/2, with trace, target-scope, idempotency, and review gates. Integration risks: it intentionally does not execute, authenticate, authorize, sandbox, persist, or source tool metadata, so downstream adapters must enforce receipts; target matching supports only exact, global `*`, or trailing-prefix wildcards; JSON schemas do not reject unknown properties or enforce nonblank strings/timestamp formats; automated coverage is limited to five integration tests and does not exercise every CLI exit-code/schema edge. Recommended next operator action: run an adapter-level contract test proving the intended runtime parses `tool-gate.decision.v1`, blocks deny and review_required outcomes, maps exit codes correctly, and cannot bypass the gate before enabling execution.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test && cargo doc --no-deps",
+      "exit_code": 0,
+      "output_digest": "sha256:faca1618fcfa347c6c8133a016960e07daba7a9ed4604bc95226b127582efd12",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 22,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 33651,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1921,
+    "provider": "openai-codex",
+    "total_tokens": 35572
+  }
+}

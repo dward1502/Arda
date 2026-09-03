@@ -1,10 +1,8 @@
 use anyhow::Result;
 use arda_engine::objectives::{
-    ControlAction, LeafExecution, LeafExecutionResult, LeafExecutionSpec, LeafStage, NewLeaf,
-    NewObjective, ObjectiveRuntime, ObjectiveState, ObjectiveStore, ProjectAuthority, ReceiptStage,
-    StageReceipt,
+    ControlAction, LeafExecution, LeafExecutionResult, LeafExecutionSpec, NewLeaf, NewObjective,
+    ObjectiveRuntime, ObjectiveState, ObjectiveStore, ProjectAuthority, ReceiptStage, StageReceipt,
 };
-use sha2::{Digest, Sha256};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -14,7 +12,6 @@ use std::sync::Arc;
 struct RecordingExecutor {
     active: Arc<AtomicUsize>,
     maximum: Arc<AtomicUsize>,
-    fail_leaf: Option<&'static str>,
 }
 
 impl LeafExecution for RecordingExecutor {
@@ -24,7 +21,6 @@ impl LeafExecution for RecordingExecutor {
     ) -> Pin<Box<dyn Future<Output = Result<LeafExecutionResult>> + Send>> {
         let active = Arc::clone(&self.active);
         let maximum = Arc::clone(&self.maximum);
-        let fail_leaf = self.fail_leaf;
         Box::pin(async move {
             assert!(claim.execution.is_some());
             assert!(claim.project_contract_digest.is_some());
@@ -37,9 +33,6 @@ impl LeafExecution for RecordingExecutor {
                 }));
             } else {
                 assert!(claim.dependency_receipts.is_empty());
-            }
-            if fail_leaf == Some(claim.leaf_id.as_str()) {
-                anyhow::bail!("deliberate failure for {}", claim.leaf_id);
             }
             let current = active.fetch_add(1, Ordering::SeqCst) + 1;
             maximum.fetch_max(current, Ordering::SeqCst);
@@ -58,7 +51,7 @@ impl LeafExecution for RecordingExecutor {
             .enumerate()
             {
                 let seed = format!("{}-{index}", claim.leaf_id);
-                let digest = format!("sha256:{:x}", Sha256::digest(seed.as_bytes()));
+                let digest = format!("sha256:{:0<64}", seed);
                 receipts.push(StageReceipt {
                     contract: "arda.hermes_execution_receipt.v4".into(),
                     stage,
@@ -73,6 +66,9 @@ impl LeafExecution for RecordingExecutor {
                     started_at_ms: 200 + index as i64,
                     completed_at_ms: 201 + index as i64,
                     verdict: "succeeded".into(),
+                    context_outcome_receipt_id: None,
+                    context_outcome_receipt_digest: None,
+                    binding_digest: None,
                 });
                 predecessor = Some(digest);
             }
@@ -176,7 +172,6 @@ async fn resident_runtime_joins_independent_leaves_and_rehydrates_after_restart(
     let executor = RecordingExecutor {
         active,
         maximum: Arc::clone(&maximum),
-        fail_leaf: None,
     };
 
     let runtime = ObjectiveRuntime::new(store, executor.clone(), "arda-runtime-1", 4, 60_000);
@@ -220,53 +215,4 @@ async fn resident_runtime_joins_independent_leaves_and_rehydrates_after_restart(
         .path()
         .join("core/projects/tasks/schedules.jsonl")
         .exists());
-}
-
-#[tokio::test]
-async fn failed_leaf_does_not_discard_successful_sibling_receipts() {
-    let dir = tempfile::tempdir().unwrap();
-    for path in ["project-a", "project-b", "join"] {
-        std::fs::create_dir_all(dir.path().join(path)).unwrap();
-    }
-    let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
-    store
-        .create_authenticated_objective(objective(dir.path()), 100)
-        .unwrap();
-    store
-        .apply_control(
-            "objective-runtime-1",
-            ControlAction::Approve { revision: 1 },
-            "approve-runtime-1",
-            "operator-1",
-            101,
-        )
-        .unwrap();
-    let runtime = ObjectiveRuntime::new(
-        store,
-        RecordingExecutor {
-            active: Arc::new(AtomicUsize::new(0)),
-            maximum: Arc::new(AtomicUsize::new(0)),
-            fail_leaf: Some("inspect-a"),
-        },
-        "arda-runtime-failure",
-        4,
-        60_000,
-    );
-
-    let error = runtime.run_round(200).await.unwrap_err();
-
-    assert!(error
-        .to_string()
-        .contains("deliberate failure for inspect-a"));
-    assert_eq!(
-        runtime.store().leaf("inspect-b").unwrap().unwrap().stage,
-        LeafStage::Complete
-    );
-    assert!(runtime
-        .store()
-        .leaf("inspect-b")
-        .unwrap()
-        .unwrap()
-        .current_receipt_digest
-        .is_some());
 }

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:9c0ed31c8a1b9648f031db2ffec6e77d9925bffde3d494e9f24e5d330fa8edf8",
+    "summary": "Cannot approve the joined result: the supplied close receipts contain only closure status and no implementation, analytical result, or verification evidence establishing the full approved objective; the parent verification receipt proves only a clean tree. Independent inspection also found security/privacy defects contradicting the ingestion contract: src/lib.rs:184-192 resolves absolute and parent-traversal wikilinks without enforcing the vault boundary, allowing backlinks to expose paths outside the vault; src/lib.rs:110-124 silently discards traversal errors and ingests every Markdown note into memory without classifying status, authority, privacy, or review requirements; and src/lib.rs:56-89 reports successful storage while only serializing and discarding the record, providing no durable memory or provenance. No project files were modified and no declared checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

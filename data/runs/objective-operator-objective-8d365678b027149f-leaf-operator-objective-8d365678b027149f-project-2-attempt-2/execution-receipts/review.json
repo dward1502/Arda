@@ -1,0 +1,207 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1c130e5ed4cbe82cc624344c5684283e97df171306bc090ccf6dccd658c6b2ee",
+  "idempotency_key": "queue-operator-objective-8d365678b027149f-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:d9cd71d347dc1bb3fbcde53296040622188ac19a7b1c42d7f661ddd8d6732f54"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:92c14fd41ed17226a8483740053945548447ab83de1f664e52f27a969417d36c",
+  "recorded_at_unix_ms": 1788415906504,
+  "run_id": "objective-operator-objective-8d365678b027149f-leaf-operator-objective-8d365678b027149f-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE\nIndependent read-only review found no blocking defects. The implementation matches the documented policy boundary, decision-receipt schema, review behavior, and CLI exit-code contract. The digest-validated parent receipt provides successful formatting, test, Clippy, rustdoc, source-inspection, and clean-tree evidence; its five reported integration tests correspond to the inspected test suite. No project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:06b65c0b60358241133149c14aad661d99868d0660b69f24fa0cb8799dcf5b9f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\".github/workflows/ci.yml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d63232621735776b785c80ebf560365f858ce38e1ca278cc45c2fd73aa9839b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"examples\",\"pattern\":\"*.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:92ebcc1b752b7898862293e3cb5bc4bd1f777a660a08813a2704acb1f164580e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"evaluate_invocation|DecisionReceipt|exit_code|target_allowed\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:523f0ece424eeb42f991ac1f7dd53b01f9e81f6e9b76195e054a3459e8bb3ef1",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"CLAUDE.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*.schema.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fbd360997035c08a3d7fc90025785fdb6d36e48028d70c8259f0510f1b2af0b2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":120,\"path\":\"Cargo.lock\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9e67b3fce9063ef5e8bb8cb15c4b415f7c76f1ea8df5f8da828bc1211edac143",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/tool-metadata.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:35b34798fc0ee45dbdc2d037c5409c7cbf2685533d0a16b83653bd1a518ecc4d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/invocation-envelope.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:df13ce4abffeebf7c467567486819a87499114a706499b2026176f38552a9709",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/decision-receipt.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a1011639f677ab4b81db23e43153a7d490978b6bc181400deb3e53a220a39a56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:08cda912f14b26a5ddbe0133fc50b5811267ab7ddd3d162883658041b20bb708",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a511881b8f1fad25fbdd787c5304d808c9744279d2c5a06e03b5425a920984ae",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/critical-review.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:17f4f01bd88e85fa998bb47ac9fe77b65c8bd500255cb43cad5c7cc893eb6892",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/critical-review.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:cba52264173077ca884b51fed639b3fba2b39ca3a4aa5f26abde7aa77936d2c2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/mutating-idempotent.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:113fc5cb7fe9d9ce58dd8fa4e0699da6e0f22948628b62be492bdc01e4a09279",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/mutating-idempotent.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f59c4db1ed6aac26525013ca2ec286dae4dbfa91e96e3374927916da235b86a7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/missing-trace-denied.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fe75db1f74114f3739eb667c107a0d0dfacf60812d6bca0908cdafc868e3afb9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.md\",\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"objective|acceptance|receipt|scope|target|policy\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:43724a90fc00d4f7bef6769dcc28702065982dbba248f7d3c7c3b4a427d9408c",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 25041,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1166,
+    "provider": "openai-codex",
+    "total_tokens": 26207
+  }
+}

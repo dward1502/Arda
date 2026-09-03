@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3ae5cd6b3605cb7bcf3f81d942222c5b5a7d9b6090ecb52e2886905fafbc6944",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:4ac27fc5d73d7f094bf6413449fcf1544ce8999e26fceeeabf9ee277638057c8"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:62e992ae40b5250ecfac44c9672bddb68aab56f42f0329806d36dee353a7ea92",
+  "recorded_at_unix_ms": 1788406369510,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-1-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Integration brief: (1) annunimas-human-tenant provides Obsidian-compatible human-vault scanning, frontmatter parsing, wikilink resolution, and conversion into semantic memory records (src/lib.rs:1-5, src/lib.rs:37-42, src/lib.rs:106-129). Concrete risk: MemoryStore::store serializes each record but discards it, so scanning does not actually persist memories (src/lib.rs:56-89). (2) Annunimas core/Mnemosyne supplies the tenant’s memory contracts and intended persistent-memory integration through sibling path dependencies (Cargo.toml:13-14, src/lib.rs:3-6). Concrete risk: this integration is tightly coupled to relative repository paths until a tenant-facing memory contract replaces them, with the compatibility seam still pending removal (docs/migration-notes.md:7-10). Shared safety boundary: autonomous agents must classify private human knowledge by authority and status, preserve provenance, never silently promote raw material to canonical truth, and require explicit approval for destructive or high-risk actions (docs/human-knowledge-ingestion-contract.md:23-25, docs/human-knowledge-ingestion-contract.md:49-69, docs/human-knowledge-ingestion-contract.md:96-143). Recommendation: implement the tenant-facing memory adapter so ingestion persists provenance-bearing records while enforcing authority/status and review gates, then remove direct path dependencies only after compatibility verification. Declared clean-tree check passed; inspection was read-only.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 11711,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1463,
+    "provider": "openai-codex",
+    "total_tokens": 13174
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:869b6d4c5ad5e48d8859c20d0b034585b74b472f634fbcceb12fc8bcb27f7a0b",
+  "idempotency_key": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-c17e08bbc9d4445c95c56ac74a87e91c"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:22b7eab2165bec6e61d19f9fd9c9e7dc582fa8c525e736a97bd22923f7409b4d",
+  "recorded_at_unix_ms": 1788249962359,
+  "run_id": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Bounded read-only inspection completed without modifying project files or running verifier-owned checks. Project-local evidence identifies this as the private annunimas-human tenant (README.md:14-20). Its active-draft ingestion contract classifies human knowledge before reliance, keeps human content private by default, separates authority from status, and requires unresolved conflicts to become candidate/quarantine review tasks rather than guesses (docs/human-knowledge-ingestion-contract.md:14-25,49-69,145-152). The implementation validates the vault path, scans Markdown without following symlinks, parses required frontmatter, records semantic memory metadata, and retains only wikilinks resolving to existing files (src/lib.rs:92-193). Target-local tests cover existing versus missing wikilinks and rejection of a missing vault path (tests/target_local.rs:27-63). Migration evidence confirms that live human vault data, runtime state, and ingestion ledgers were intentionally excluded from this private/local tenant copy (docs/migration-notes.md:3-10). Root-level and sibling-project authority sources are outside this bounded leaf and were not required or inspected.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":80,\"offset\":1,\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":240,\"offset\":1,\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":80,\"offset\":1,\"path\":\"docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 13087,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 649,
+    "provider": "openai-codex",
+    "total_tokens": 13736
+  }
+}

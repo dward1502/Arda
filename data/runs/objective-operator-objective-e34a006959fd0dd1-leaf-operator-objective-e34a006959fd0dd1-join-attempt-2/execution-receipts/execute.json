@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:8976fc9436c6ff8a2299b734c7d1742f12010b098ef5d75d5009a00180063a01",
+  "idempotency_key": "queue-operator-objective-e34a006959fd0dd1-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-real-two-project-v2"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:4bdb7431d7548fd62a843a0d6a431baf8be4686f2c15095ed66924d4577095f2",
+  "recorded_at_unix_ms": 1788331345976,
+  "run_id": "objective-operator-objective-e34a006959fd0dd1-leaf-operator-objective-e34a006959fd0dd1-join-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Completed project leaves are present in the synthesized repository, and the declared clean-tree check passed with no uncommitted differences. No files were created or modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch && git log -5 --oneline --decorate",
+      "exit_code": 0,
+      "output_digest": "sha256:7457463f9d9093d87524134b25958935159753862d64f99679af972977344460",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14233,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 724,
+    "provider": "openai-codex",
+    "total_tokens": 14957
+  }
+}

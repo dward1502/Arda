@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:6c2fadccabf9368c5f1667cb8c92942d18b12d6c6674888cc060bdebe8fce29b",
+    "summary": "Review completed without modifying files or rerunning checks. The parent receipt’s clean-tree evidence is valid for its declared check, and README.md accurately describes the adapter-free CLI/library architecture and most policy behavior. Named defect: src/policy.rs requires trace evidence only when metadata.requires_review is true, while critical_always_review can independently produce review_required; therefore a non-mutating critical invocation with requires_review=false can reach human review without a trace_id, contradicting README.md’s stated trace requirement for reviewable actions. The tests do not cover this path. This finding does not invalidate the parent’s clean-tree evidence."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

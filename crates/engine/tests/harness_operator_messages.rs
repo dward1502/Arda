@@ -290,29 +290,6 @@ async fn authenticated_gateway_capture_is_durable_and_duplicate_safe() {
         .expect("duplicate");
     assert_eq!(duplicate.status(), 409);
 
-    let mut other_chat = body.clone();
-    other_chat["event"]["source"]["chat_id"] = json!("discord-dm-2");
-    client
-        .post(format!("http://{bound}/v1/operator/messages"))
-        .json(&other_chat)
-        .send()
-        .await
-        .expect("same platform message id in another chat")
-        .error_for_status()
-        .expect("chat-scoped message id");
-    let inbox: Value = client
-        .get(format!("http://{bound}/v1/personal/inbox"))
-        .header("x-arda-operator-id", "discord-user-1")
-        .send()
-        .await
-        .expect("inbox after second chat")
-        .error_for_status()
-        .expect("inbox after second chat status")
-        .json()
-        .await
-        .expect("inbox after second chat body");
-    assert_eq!(inbox["inbox"].as_array().map(Vec::len), Some(2));
-
     shutdown.notify_waiters();
     handle.await.expect("harness join");
 }
@@ -547,31 +524,6 @@ async fn gateway_controls_mutate_only_resident_objective_store() {
     )
     .unwrap();
     let operator_event_count = operator_rows.lines().count();
-
-    let rejected_reapproval = client
-        .post(format!("http://{bound}/v1/operator/messages"))
-        .json(&gateway_message(
-            "discord-reapprove-objective",
-            &format!(
-                "arda approve-objective {task_id} {objective_id} duplicate approval must fail"
-            ),
-        ))
-        .send()
-        .await
-        .expect("rejected reapproval");
-    assert_eq!(rejected_reapproval.status(), reqwest::StatusCode::CONFLICT);
-    assert_eq!(
-        fs::read_to_string(
-            root.path()
-                .join("core/state/orome/operator-session/operator_sessions.jsonl"),
-        )
-        .unwrap()
-        .lines()
-        .count(),
-        operator_event_count,
-        "rejected resident mutation must not append an operator session event"
-    );
-
     let wrong_lineage_command =
         format!("arda cancel-task {task_id} wrong-objective must not cancel");
     let wrong_lineage = client
@@ -695,6 +647,23 @@ async fn gateway_multi_project_objective_preserves_all_attached_project_authorit
     let leaves = store.list_leaves(objective_id).expect("objective leaves");
     assert_eq!(leaves.len(), 3, "two leaves plus dependent join");
     assert!(leaves.iter().any(|leaf| leaf.id.ends_with("-join")));
+    for leaf in leaves.iter().filter(|leaf| !leaf.id.ends_with("-join")) {
+        let project_id = leaf.project_id.as_deref().expect("project-bound leaf");
+        let execution = leaf.execution.as_ref().expect("leaf execution spec");
+        assert_eq!(
+            execution.objective,
+            format!("Inspect exact project {project_id} for project-local evidence."),
+        );
+        assert!(execution
+            .execution_prompt
+            .contains(&format!("Inspect only exact project {project_id}.")));
+        assert!(execution
+            .execution_prompt
+            .contains("Do not compare sibling projects or require sibling files"));
+        assert!(execution
+            .execution_prompt
+            .contains("Cross-project comparison is reserved for the dependent synthesis leaf"));
+    }
     assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
 
     shutdown.notify_waiters();

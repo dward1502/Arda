@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:616af4634191905c7632110102b1fccce884a7d5586977d3b22c03fa0f811a4c",
+    "summary": "Review found named correctness and security defects: (1) src/lib.rs:56-89 MemoryStore::store only serializes a MemoryRecord and discards it, so the claimed persistent-memory integration performs no storage; (2) src/lib.rs:13-25 expects legacy fields and numeric confidence, making it incompatible with the documented human_knowledge.v1 frontmatter at docs/human-knowledge-ingestion-contract.md:71-94; (3) src/lib.rs:184-192 permits absolute and parent-relative wikilinks to resolve outside the vault boundary; (4) src/lib.rs:110-114 silently drops traversal errors, allowing incomplete scans to report success; and (5) src/lib.rs:94-98 accepts any existing path, including a regular file, as a vault. The parent receipt authenticates README inspection and a clean-tree check only; it provides no implementation or test evidence supporting correctness. No files were modified and declared checks were not rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

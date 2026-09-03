@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:06f3f2410aae7b20d47168fd95d855d59e35a1809e3e1f9898122260c574a01a",
+    "summary": "The joined result is unsupported. The supplied close receipts only state that two leaves were closed; they provide no leaf objectives, implementation summaries, artifacts, tool evidence, or test evidence. The parent verification receipt proves only that the tree matched HEAD, which cannot establish satisfaction of the full approved objective. Independent inspection also found unresolved implementation defects: MemoryStore::store serializes and discards records instead of persisting them (src/lib.rs:56-89), wikilink resolution permits absolute and parent-relative paths outside the vault (src/lib.rs:183-192), and the implemented frontmatter schema conflicts with the documented ingestion contract, including numeric versus enumerated confidence and missing authority/privacy/provenance fields (src/lib.rs:13-25; docs/human-knowledge-ingestion-contract.md:71-94). No declared checks were rerun and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

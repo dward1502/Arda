@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ce8801a248b74e68b05ea93e962a57ed",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-2--5afd4ba60aae317d for task operator-task-60881bb5b2df61f8__inspect-authorities-project-2--5afd4ba60aae317d ended status=failed result=failed; receipt=sha256:c8592bd7c3de6ea779a0bde3e045bdf16588e5684b75b889f3eb5bc2890d636c; detail=Unsupported completion: the execute receipt does not demonstrate that both registered project authorities were inspected in order or that receipt-backed joined acceptance occurred. Its attempted reads of data/workbench/projects.json and core/projects/tasks/queue.jsonl target files absent from this bound project, and no authority registration, authority-specific findings, or ordered inspection result appears elsewhere in the project-local source evidence. The prior verification receipt does cover the declared clean-tree check and records cargo test exit 0, but those checks cannot establish the missing authority-inspection evidence. Independent source review also found a security-relevant trust-boundary weakness: src/main.rs:35-50 accepts both policy metadata and invocation data from caller-selected files, while src/policy.rs:49-50 trusts the supplied risk, mutation, review, idempotency, and allowed-target declarations; without an authenticated metadata adapter, a caller can self-declare a low-risk read-only tool with allowed_targets [\"*\"] and obtain allow. No files were modified.",
+  "salience": 0.5267249999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T05:47:33.131113281Z",
+  "last_seen_at": "2026-09-01T05:47:33.131113281Z",
+  "evidence_class": "inferred",
+  "memory_scope": "system_continuity",
+  "memory_domain": "system"
+}

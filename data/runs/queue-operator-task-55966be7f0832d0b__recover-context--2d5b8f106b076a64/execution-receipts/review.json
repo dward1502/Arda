@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:adf980be551b12c6d2e21b7f7c4393775892cc1d567be55f5c3c4ae6e1db1e10",
+  "idempotency_key": "queue-operator-task-55966be7f0832d0b__recover-context--2d5b8f106b076a64-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:f56849bac729283ba2d6acda4edb044dc13f76d27c358821e92256c0f3cb174f"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:dd8d1fb5493bbf499e1b5167a300cc620da6341dc0bf067d7c0f39a26984c444",
+  "recorded_at_unix_ms": 1788251634472,
+  "run_id": "queue-operator-task-55966be7f0832d0b__recover-context--2d5b8f106b076a64",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Review found unsupported completion. The execution recovered and cited the project registry, active plans, status report, and queue context, and the verification receipt covers the declared `cargo test -p arda-core` check with exit code 0. However, the governed acceptance criterion requires a prioritized repair backlog naming concrete human-visible behavior, source evidence, and the smallest authoritative repair surface. The execution summary only reproduces broad program priorities and downstream cautions; it does not provide that backlog or identify the smallest repair surface for each item. It also does not explicitly classify its recovered claims as implemented capability, configured runtime, or live deployed proof. Read-only evidence is otherwise sufficient: all execution calls were file reads, their exported-output digests appropriately differ from source-content digests, no context_use_receipt was required or supplied, and no created artifacts exist.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":650,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":170,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":150,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":41,\"offset\":46450,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2c0781e1275e6a08032b836661e4c18aef92c0a689562c3bfef9b92d6837cef9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":46490,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:0485bab9d36f1b2233725ac21633230745d88bc82a7df61697a410faa44097a3",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 33640,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1158,
+    "provider": "openai-codex",
+    "total_tokens": 34798
+  }
+}

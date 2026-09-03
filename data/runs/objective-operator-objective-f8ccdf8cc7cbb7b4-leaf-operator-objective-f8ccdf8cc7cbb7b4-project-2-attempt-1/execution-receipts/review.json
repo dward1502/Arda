@@ -1,0 +1,183 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:d504c5e015fca3a63c5811ed48e83e967d4848212827e6938fa1be32d797af10",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:6da6ce45f70a1746201ca5d26704f68180060d0dc2e39d9b98ea69ccc3a63ffa"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:e16fc1e017cdf309ddd0a344cf450e0387e92f5d386d23e43295586d738f470f",
+  "recorded_at_unix_ms": 1788405554853,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Review found correctness and evidence defects: src/policy.rs:89 checks review-trace requirements only when metadata.requires_review is true, while src/policy.rs:129 can independently make critical-risk invocations review-required; therefore a non-mutating critical tool with requires_review=false can reach review_required without the trace evidence promised by README.md:152. src/types.rs:69-89 accepts any nonblank requested_at_utc value, allowing malformed or non-UTC audit timestamps. src/policy.rs:160-168 performs raw prefix target matching without normalization, so path-like targets containing traversal components can pass an allowed prefix and later resolve outside it. Existing tests do not cover these cases. The parent receipt supports only the declared clean-tree condition and README inspection; it does not provide functional evidence sufficient to approve implementation correctness. No files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9b1c517dbc196f7f407b77bc7ca2881022df4bef77cc51c55d15fd40a3faa6e5",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":260,\"offset\":1,\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c0256a3d6dbf291b590c0a5ac5cfdaf2e7d871885685f5dc3f2b995f96abbb31",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*test*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"examples\",\"pattern\":\"*.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:92ebcc1b752b7898862293e3cb5bc4bd1f777a660a08813a2704acb1f164580e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"schemas/tool-metadata.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:35b34798fc0ee45dbdc2d037c5409c7cbf2685533d0a16b83653bd1a518ecc4d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/invocation-envelope.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:df13ce4abffeebf7c467567486819a87499114a706499b2026176f38552a9709",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/decision-receipt.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a1011639f677ab4b81db23e43153a7d490978b6bc181400deb3e53a220a39a56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/critical-review.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:17f4f01bd88e85fa998bb47ac9fe77b65c8bd500255cb43cad5c7cc893eb6892",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/critical-review.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:cba52264173077ca884b51fed639b3fba2b39ca3a4aa5f26abde7aa77936d2c2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:08cda912f14b26a5ddbe0133fc50b5811267ab7ddd3d162883658041b20bb708",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a511881b8f1fad25fbdd787c5304d808c9744279d2c5a06e03b5425a920984ae",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/mutating-idempotent.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:113fc5cb7fe9d9ce58dd8fa4e0699da6e0f22948628b62be492bdc01e4a09279",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/mutating-idempotent.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f59c4db1ed6aac26525013ca2ec286dae4dbfa91e96e3374927916da235b86a7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/missing-trace-denied.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fe75db1f74114f3739eb667c107a0d0dfacf60812d6bca0908cdafc868e3afb9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"requested_at_utc|allowed_targets|critical_always_review|requires_review\"}",
+      "exit_code": null,
+      "output_digest": "sha256:4ee7936b6e5e5724972d1b70de6b8c765832d59c389858b87ce24412f209040e",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 23233,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1889,
+    "provider": "openai-codex",
+    "total_tokens": 25122
+  }
+}

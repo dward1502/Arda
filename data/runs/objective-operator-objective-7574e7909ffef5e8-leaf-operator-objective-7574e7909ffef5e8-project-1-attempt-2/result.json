@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:02c5758885bf5ef9ed715bf8ed29f3bc638640052ce851998cbfb0d68cbf10b0",
+    "summary": "Independent read-only review found no named defects. The project contains only README.acceptance with the expected acceptance marker. The digest-validated parent receipt reports the sole declared check, `pwd`, passed with exit code 0; its distinct tool-output and check-output digests are consistent with envelope-specific hashing. Scope was limited to this intermediate review node, no context_use_receipt was required, and no project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:9ab467119f11c24e958e0b3748c89e72ddce5db971cdcc5ca08509feeb4391a9",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

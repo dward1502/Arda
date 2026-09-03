@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:38e57935d7338f040edb87fb6d49dbd1861468498623bc5d5395c65a7543029f",
+    "summary": "Independent read-only review completed. The prior verification receipt covers `git status --short --branch` with exit code 0 and reports a clean detached-HEAD worktree; the declared clean-tree check also passed. Source evidence supports the execution summary, but one concrete security defect exists: `src/policy.rs:89-102` requires trace evidence only when `metadata.requires_review` is true, while `src/policy.rs:129-143` can independently require review for critical risk. Consequently, a critical, non-mutating tool with `requires_review=false` and no trace receives `review_required` despite the default `require_trace_for_review=true`, contrary to the documented trace requirement for reviewable actions. Existing coverage at `tests/policy_decisions.rs:55-64` uses both `requires_review=true` and a trace, so it does not detect this path. No checks were rerun, no files were modified, and no artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

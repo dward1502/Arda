@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:9fe8f5ae95e2f1717b6fa6aa99a37e44fa956df42b45fc01918162f7707840e1",
+    "summary": "Review found one evidence defect in the parent receipt: README.md and src/types.rs support the documented boundary and data model, but they do not independently establish the claimed policy behavior or receipt construction. Those claims depend on src/policy.rs and src/receipt.rs, which were not included in the parent tool evidence. Independent read-only inspection found the implementation consistent with the brief, but the parent receipt alone does not fully support its completion claim. The clean-tree evidence is valid as declared, and no modifications or artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

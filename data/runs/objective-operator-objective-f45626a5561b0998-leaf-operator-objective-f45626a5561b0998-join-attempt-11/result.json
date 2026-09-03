@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:8d67278a17b0913a141c843f49fb631abf93d2557b45cfe46ce0f1f97a1a8e55",
+    "summary": "Read-only review completed; no project files were modified and the parent clean-tree verification receipt is valid. Defects: (1) src/lib.rs:56-89 implements MemoryStore::store as a no-op that serializes and discards each MemoryRecord, so the advertised Mnemosyne persistence never occurs and annunimas-mnemosyne is unused. (2) src/lib.rs:13-25 and 152-163 use a legacy frontmatter schema incompatible with docs/human-knowledge-ingestion-contract.md:71-93, notably requiring numeric confidence while the active contract specifies low|medium|high and omitting authority, privacy, provenance, and review fields; contract-conforming notes therefore fail ingestion or lose required classification. (3) src/lib.rs:106-129 treats every Markdown file as trusted semantic human memory without enforcing status, authority, privacy, quarantine, provenance, or review requirements, contrary to docs/human-knowledge-ingestion-contract.md:23-25 and 96-123; one malformed or unrelated Markdown file also aborts the entire scan. (4) src/lib.rs:167-192 accepts absolute paths and parent traversal in wikilinks, does not canonicalize or enforce vault containment, and exposes existing out-of-vault paths through HumanNote.backlinks. Existing tests cover only legacy happy paths and missing-vault rejection; they do not cover persistence, the documented contract, privacy/authority handling, malformed-note isolation, or path traversal."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

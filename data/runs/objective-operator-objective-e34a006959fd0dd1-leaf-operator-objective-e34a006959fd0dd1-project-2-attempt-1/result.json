@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:91f10b55ea26f2a64eb283847593c8500cc0f677f8ebbee27e26b9acb87c5ac6",
+    "summary": "Read-only review completed; the parent clean-tree receipt is digest-identified and reports exit code 0, and this node made no modifications. Named defects: (1) src/policy.rs:89 checks trace requirements only for metadata.requires_review, while src/policy.rs:129 can independently require review for critical risk; therefore a critical non-mutating tool with requires_review=false can reach review_required without a trace even when require_trace_for_review=true. (2) src/policy.rs:160 implements target patterns as raw string-prefix matching, so path-like targets such as scope/../secret satisfy scope/* unless a downstream runtime separately canonicalizes and revalidates them. (3) src/receipt.rs:20 and src/policy.rs:186 produce receipts without invocation_id, tool_id, target, caller, requested_at_utc, or an input digest, so a receipt is not cryptographically or structurally bound to the invocation it purportedly authorizes and can be misassociated or replayed by downstream systems. (4) src/types.rs:69 treats requested_at_utc as any nonblank string and performs no timestamp parsing, freshness, or replay validation despite describing the input as a UTC request time. Existing tests cover only basic allow, missing mutation trace, and explicit critical review paths, leaving these cases unverified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

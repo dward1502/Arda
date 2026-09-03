@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:173896ec8c91695316fae03e7255dc72d76e74d1548a29b56c8837a67239c203",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-two-project-v2"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:60e17fac478a848eca44728eceaa91aab22f8188f9e2b92c022954a97eb264d3",
+  "recorded_at_unix_ms": 1788328992808,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the declared check and confirmed README.acceptance exists in the exact project workspace with the bounded acceptance fixture content.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5932,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 231,
+    "provider": "openai-codex",
+    "total_tokens": 6163
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:302778ec67c36ed88ddef184665b8e71087bd4b84bab47a923523486c5a0286f",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:5bcf104c97adc0284dd5e20a3b5beb502db70d0cf55b418e5ef72521be551a4d"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:fe22e32493770eed02b1eb0a2e9168654380e38f5e0d4600cc6dbc22df50a562",
+  "recorded_at_unix_ms": 1788370509865,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified canonical close-receipt lineage for every project leaf. The declared clean-tree check passed with no tracked changes relative to HEAD.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 1758,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 250,
+    "provider": "openai-codex",
+    "total_tokens": 2008
+  }
+}

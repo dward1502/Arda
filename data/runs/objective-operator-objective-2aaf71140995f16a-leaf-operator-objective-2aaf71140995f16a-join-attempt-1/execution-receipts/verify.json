@@ -1,0 +1,95 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2341886f3dd598def907786d834a51fbfa4038cd57d199eafe572098b1a7943e",
+  "idempotency_key": "queue-operator-objective-2aaf71140995f16a-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:cb8136dec88e936e656c7e9ae7cad61d06d3bbc9ec10375e595eb419072999ed"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:e6e1b85ae2e279d84e82f52f0b522549168e39d669e6be9a40339c6a384c50a4",
+  "recorded_at_unix_ms": 1788416821163,
+  "run_id": "objective-operator-objective-2aaf71140995f16a-leaf-operator-objective-2aaf71140995f16a-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE\nThe sole parent execute receipt is succeeded, digest-validated, and provides canonical close-receipt lineage for the completed project leaves. The declared clean-tree check passed exactly as printed before exploration and passed again after read-only verification. No files were changed or created.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git log --graph --decorate --oneline --all -20",
+      "exit_code": 0,
+      "output_digest": "sha256:80c0065a0290ea66e83654740fc9bbfd506ce41a49806733604911439af25546",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-tree -r --name-only HEAD",
+      "exit_code": 0,
+      "output_digest": "sha256:76ce25dbee8297c0997fdd5daf3d14467b2fd1e2c010ebd5427c94c84f8745ad",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show --format=fuller --stat HEAD",
+      "exit_code": 0,
+      "output_digest": "sha256:e024adc2574a7c07bc85e5f3ee62765bdb89d18f4e97849553bf66c294526cbb",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:INDEX.md && git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:3cdca2e30c4a47c0779934df022cde070b886fb4a4d943430e2625acc54acab0",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:src/INDEX.md && git show HEAD:src/README.md && git show HEAD:tests/INDEX.md && git show HEAD:tests/README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:0d270e665f44e552995667329a046ab0a09f6f736b0e9aebac1b9fa1fc6e6ad3",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:docs/migration-notes.md && git show HEAD:docs/human-knowledge-ingestion-contract.md",
+      "exit_code": 0,
+      "output_digest": "sha256:a731e80e815751cb2e1f73f35ecbb8624acc7bfba3932049d5909709cca7c402",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:Cargo.toml && git show HEAD:src/lib.rs && git show HEAD:tests/target_local.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:d140cfa5586ac9df0459271e4731c952e3844abc32108c9bb3cc543343a6201d",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 28480,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1234,
+    "provider": "openai-codex",
+    "total_tokens": 29714
+  }
+}

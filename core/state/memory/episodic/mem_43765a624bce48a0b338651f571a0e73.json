@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_43765a624bce48a0b338651f571a0e73",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6 for task operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6 ended status=completed result=completed; receipt=sha256:ec72d664b1ffb47686447ce90fe479b9abc551c80a406118891aaf6791d74e0f; detail=Independent review approved this intermediate produce-outcome node. The worker report supplies a prioritized operator-visible backlog, distinguishes implemented capability from configured/runtime and live acceptance gaps, and identifies the smallest canonical repair surfaces. Source inspection corroborates two concrete P0 defects: core/projects/tasks/queue.jsonl:53323-53327 materializes and submits execute/verify work despite autonomy_readiness_decision=hold, unmet readiness reasons, and null governance authorization, indicating a fail-open authorization path; core/projects/tasks/queue.jsonl:53281-53322 repeatedly materializes pending execute/verify pairs for one objective. The plans corroborate that Hermes objective control, restart-safe continuation, critic correction, joined real multi-project execution, Vairë continuity, operator acceptance, real-worker routing, and daily improvement remain open. The supplied verification receipt covers the required git status --short --branch check with exit code 0 and also records cargo test -p arda-core passing. Read-tool output digests appropriately authenticate exported call envelopes rather than source contents, no context_use_receipt was required by the governed capsule, and the absence of mutating calls is sufficient no-modification evidence under read-only authority. No unsupported completion claim blocks this node; downstream joined closure is outside this intermediate node's acceptance scope.",
+  "salience": 0.561725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T11:19:22.455832282Z",
+  "last_seen_at": "2026-09-01T11:19:22.455832282Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

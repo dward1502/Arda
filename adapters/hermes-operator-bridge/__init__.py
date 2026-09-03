@@ -76,6 +76,26 @@ def _canonical_operator_id() -> str:
     return operator_id
 
 
+def _gateway_capability() -> str:
+    capability = os.environ.get("ARDA_HERMES_GATEWAY_CAPABILITY", "").strip()
+    if capability:
+        return capability
+    credentials_directory = os.environ.get("CREDENTIALS_DIRECTORY", "").strip()
+    if credentials_directory:
+        try:
+            capability = (
+                Path(credentials_directory)
+                .joinpath("arda-hermes-gateway-capability")
+                .read_text(encoding="utf-8")
+                .strip()
+            )
+        except OSError:
+            capability = ""
+    if not capability:
+        raise RuntimeError("Arda Hermes Gateway capability is not configured")
+    return capability
+
+
 def _state_root() -> Path:
     hermes_home = Path(os.environ.get("HERMES_HOME", "~/.hermes")).expanduser()
     return hermes_home / "state" / "arda-operator-bridge"
@@ -320,13 +340,16 @@ def _payload(event) -> dict:
 
 
 def _post(payload: dict) -> tuple[bool, str]:
-    request = Request(
-        _ENDPOINT,
-        data=json.dumps(payload, separators=(",", ":")).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
     try:
+        request = Request(
+            _ENDPOINT,
+            data=json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "x-arda-gateway-capability": _gateway_capability(),
+            },
+            method="POST",
+        )
         with urlopen(request, timeout=3.0) as response:
             body = json.loads(response.read().decode("utf-8"))
             return True, str(body.get("summary") or "Arda command completed.")

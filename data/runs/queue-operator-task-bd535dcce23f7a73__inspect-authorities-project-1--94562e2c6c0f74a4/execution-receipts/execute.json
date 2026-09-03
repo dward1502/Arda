@@ -1,0 +1,123 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0ac8daad78f8275c3c15f4b9c2cac2c937eced1357ae47dd2201270cf3fa6306",
+  "idempotency_key": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-c17e08bbc9d4445c95c56ac74a87e91c"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:f14abb6cc8eebfd136e6eefef7f6eca1c97cb25b01ecec6456a7d82897524144",
+  "recorded_at_unix_ms": 1788248922312,
+  "run_id": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Bounded read-only inspection completed without modifying project files or running verifier-owned checks. Material project-local evidence shows this is the private annunimas-human tenant (README.md:14-20), governed locally by the active-draft human knowledge ingestion contract (docs/human-knowledge-ingestion-contract.md:14-25), with explicit authority/status classification and conflict-handling rules (lines 49-69 and 145-152). The implementation scans Markdown vault notes without following symlinks, parses required frontmatter, records semantic memory, and resolves only existing wikilinks (src/lib.rs:92-193); target-local tests cover existing/missing wikilinks and rejection of a missing vault path (tests/target_local.rs:27-63). Migration evidence states live human vault data, runtime state, and ingestion ledgers were not copied into this tenant (docs/migration-notes.md:3-10). The governed inspection cannot be accepted because all five mandated live authority paths are absent from the supplied project root: data/workbench/projects.json, docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md, docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md, ARDA_SYSTEM_STATUS_REPORT.md, and core/projects/tasks/queue.jsonl. Therefore their required digests, objective lineage, and receipt-backed source evidence could not be validated from this leaf.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"context\":12,\"limit\":20,\"output_mode\":\"content\",\"path\":\"data/workbench/projects.json\",\"pattern\":\"b22c0000-e29b-41d4-a716-446655440002\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7613f81d3cd2ffdfa1ff482d6023e2bd037b8619292dcb64c55438a6172f5bcb",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":1,\"limit\":30,\"output_mode\":\"content\",\"path\":\"core/projects/tasks/queue.jsonl\",\"pattern\":\"b22c0000-e29b-41d4-a716-446655440002|inspect-authorities-project-1|bd535dcce23f7a73\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e88d7c418ad574842e63f0f656520bbd82227e179e907fc8bd66ea4cb10a900a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d02c5898dfb99a0f01180df312d3825fe5749e6f17b72e880cef2d1ef78baa00",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ab5f5690e4ddcecf0af90feb063a4a3e1042c3a1eb3b9118741349631a2a012",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:10da35fab340db83a2043f922bb0c5680ef239ec8217c3a638731e2711edba2b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"Cargo.toml\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ae50b72107a1985cefd0e65aa38db97b8e142cfd483cad448d68bd2bb7879732",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:645920a979dc08275a73ecf2d6be68fc62e825f65bea9204d23f122d62297c1e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"*projects.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"*SYSTEM_STATUS*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":250,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 21762,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1398,
+    "provider": "openai-codex",
+    "total_tokens": 23160
+  }
+}

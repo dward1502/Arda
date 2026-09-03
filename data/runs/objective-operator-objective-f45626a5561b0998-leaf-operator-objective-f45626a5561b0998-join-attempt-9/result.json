@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:ad2b6c00ddefabd546be0e9b7d58fd21371a4ec808bf833ca10fa43c0ad59ce4",
+    "summary": "Review found unsupported completion and named defects: (1) src/lib.rs:87 serializes each MemoryRecord and immediately discards it, so MemoryStore::store provides no durable storage despite the documented persistence role; (2) src/lib.rs:15-25 and 119-124 omit the ingestion contract’s authority, source_type, privacy, review_required, provenance, and lifecycle controls, treating every scanned note—including raw, superseded, or quarantined material—as Semantic memory; (3) src/lib.rs:184-192 permits wikilinks containing ../ to resolve outside the configured vault and returns those external paths when they exist; (4) src/lib.rs:110-114 silently discards traversal and permission errors, allowing scan_vault to report success with incomplete results; and (5) src/lib.rs:152-158 accepts the first delimiter-shaped block anywhere in a document rather than requiring frontmatter at the file start. The only supplied verification evidence is a clean-tree check, which establishes non-modification but does not verify these behaviors or support implementation approval. No project files were modified and no declared checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

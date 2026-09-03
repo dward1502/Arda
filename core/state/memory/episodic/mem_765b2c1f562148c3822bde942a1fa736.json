@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_765b2c1f562148c3822bde942a1fa736",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-55966be7f0832d0b__recover-context--2d5b8f106b076a64 for task operator-task-55966be7f0832d0b__recover-context--2d5b8f106b076a64 ended status=failed result=failed; receipt=sha256:dd8d1fb5493bbf499e1b5167a300cc620da6341dc0bf067d7c0f39a26984c444; detail=Review found unsupported completion. The execution recovered and cited the project registry, active plans, status report, and queue context, and the verification receipt covers the declared `cargo test -p arda-core` check with exit code 0. However, the governed acceptance criterion requires a prioritized repair backlog naming concrete human-visible behavior, source evidence, and the smallest authoritative repair surface. The execution summary only reproduces broad program priorities and downstream cautions; it does not provide that backlog or identify the smallest repair surface for each item. It also does not explicitly classify its recovered claims as implemented capability, configured runtime, or live deployed proof. Read-only evidence is otherwise sufficient: all execution calls were file reads, their exported-output digests appropriately differ from source-content digests, no context_use_receipt was required or supplied, and no created artifacts exist.",
+  "salience": 0.561725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T08:33:54.566404354Z",
+  "last_seen_at": "2026-09-01T08:33:54.566404354Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

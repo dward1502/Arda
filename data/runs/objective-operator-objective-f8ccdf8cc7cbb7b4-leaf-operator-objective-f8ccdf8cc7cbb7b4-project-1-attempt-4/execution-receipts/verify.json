@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:23ccd69288175378abaa4c80d71f4a103276c7055ac8caf8b6c72cbfe8acaefb",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:62e992ae40b5250ecfac44c9672bddb68aab56f42f0329806d36dee353a7ea92"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:4a1b4c3414003fa72a4b7e09f036a1a7229a3744085fefb625e90e59a1267a7d",
+  "recorded_at_unix_ms": 1788406380336,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-1-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project-local result. The declared clean-tree check passed with no differences from HEAD; no files were changed.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5128,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 153,
+    "provider": "openai-codex",
+    "total_tokens": 5281
+  }
+}

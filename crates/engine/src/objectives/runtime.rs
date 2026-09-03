@@ -68,77 +68,44 @@ where
             .collect::<Vec<_>>();
         let results = futures::future::join_all(executions).await;
         let mut outcomes = Vec::with_capacity(claims.len());
-        let mut errors = Vec::new();
         for (claim, result) in claims.into_iter().zip(results) {
-            let result = match result.with_context(|| {
+            let result = result.with_context(|| {
                 format!(
                     "execute objective `{}` leaf `{}`",
                     claim.objective_id, claim.leaf_id
                 )
-            }) {
-                Ok(result) => result,
-                Err(error) => {
-                    errors.push(format!("{error:#}"));
-                    continue;
-                }
-            };
+            })?;
             if result.receipts.is_empty() {
-                errors.push(format!(
-                    "leaf `{}` returned no canonical receipts",
-                    claim.leaf_id
-                ));
-                continue;
+                anyhow::bail!("leaf `{}` returned no canonical receipts", claim.leaf_id);
             }
-            let mut receipt_error = None;
             for receipt in result.receipts {
-                if let Err(error) = self.store.record_stage_receipt(
+                self.store.record_stage_receipt(
                     &claim.leaf_id,
                     &claim.lease_owner,
                     receipt,
                     now_ms,
-                ) {
-                    receipt_error = Some(error);
-                    break;
-                }
-            }
-            if let Some(error) = receipt_error {
-                errors.push(format!(
-                    "record objective `{}` leaf `{}` receipt: {error:#}",
-                    claim.objective_id, claim.leaf_id
-                ));
-                continue;
-            }
-            let completed = (|| -> Result<LeafRoundOutcome> {
-                let leaf = self.store.leaf(&claim.leaf_id)?.ok_or_else(|| {
-                    anyhow::anyhow!("claimed leaf `{}` disappeared", claim.leaf_id)
-                })?;
-                let terminal_receipt_digest = leaf.current_receipt_digest.ok_or_else(|| {
-                    anyhow::anyhow!(
-                        "completed leaf `{}` omitted terminal receipt",
-                        claim.leaf_id
-                    )
-                })?;
-                self.store.complete_objective_if_ready(
-                    &claim.objective_id,
-                    &terminal_receipt_digest,
-                    now_ms,
                 )?;
-                Ok(LeafRoundOutcome {
-                    objective_id: claim.objective_id,
-                    leaf_id: claim.leaf_id.clone(),
-                    terminal_receipt_digest,
-                })
-            })();
-            match completed {
-                Ok(outcome) => outcomes.push(outcome),
-                Err(error) => errors.push(format!(
-                    "finalize objective leaf `{}`: {error:#}",
-                    claim.leaf_id
-                )),
             }
-        }
-        if !errors.is_empty() {
-            anyhow::bail!("objective round failed: {}", errors.join("; "));
+            let leaf = self
+                .store
+                .leaf(&claim.leaf_id)?
+                .ok_or_else(|| anyhow::anyhow!("claimed leaf `{}` disappeared", claim.leaf_id))?;
+            let terminal_receipt_digest = leaf.current_receipt_digest.ok_or_else(|| {
+                anyhow::anyhow!(
+                    "completed leaf `{}` omitted terminal receipt",
+                    claim.leaf_id
+                )
+            })?;
+            self.store.complete_objective_if_ready(
+                &claim.objective_id,
+                &terminal_receipt_digest,
+                now_ms,
+            )?;
+            outcomes.push(LeafRoundOutcome {
+                objective_id: claim.objective_id,
+                leaf_id: claim.leaf_id,
+                terminal_receipt_digest,
+            });
         }
         Ok(outcomes)
     }

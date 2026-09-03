@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:35fb85b3fa8f3b72ffa0bb66a25e1c089ffd0f804281790f6a680a8366bde1c2",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:6a22ed0440180725b55c1a2047683d1790b4a552eadd57aa2ad720d99967c5be"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:b56ad7b8da3ca820942cf746f04fb64c75e1644651d33f6e06c3ad9a9b8ab648",
+  "recorded_at_unix_ms": 1788371109942,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified canonical close-receipt lineage for the completed project leaves from the digest-validated parent execution receipt. The declared clean-tree check passed exactly as printed, and no files were changed.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5209,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 423,
+    "provider": "openai-codex",
+    "total_tokens": 5632
+  }
+}

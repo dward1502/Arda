@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:c8592bd7c3de6ea779a0bde3e045bdf16588e5684b75b889f3eb5bc2890d636c",
+    "summary": "Unsupported completion: the execute receipt does not demonstrate that both registered project authorities were inspected in order or that receipt-backed joined acceptance occurred. Its attempted reads of data/workbench/projects.json and core/projects/tasks/queue.jsonl target files absent from this bound project, and no authority registration, authority-specific findings, or ordered inspection result appears elsewhere in the project-local source evidence. The prior verification receipt does cover the declared clean-tree check and records cargo test exit 0, but those checks cannot establish the missing authority-inspection evidence. Independent source review also found a security-relevant trust-boundary weakness: src/main.rs:35-50 accepts both policy metadata and invocation data from caller-selected files, while src/policy.rs:49-50 trusts the supplied risk, mutation, review, idempotency, and allowed-target declarations; without an authenticated metadata adapter, a caller can self-declare a low-risk read-only tool with allowed_targets [\"*\"] and obtain allow. No files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

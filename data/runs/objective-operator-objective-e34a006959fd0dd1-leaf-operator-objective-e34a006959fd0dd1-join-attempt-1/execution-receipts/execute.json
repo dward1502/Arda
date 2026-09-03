@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f7ac09c040db454e5ac702e36c369b0115328d17ee84a21aa0fb2941e65f98cb",
+  "idempotency_key": "queue-operator-objective-e34a006959fd0dd1-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-real-two-project-v2"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:558630c010575b1dc1888f6891e02b547c16719770f0619e2fa0bd1e03b37461",
+  "recorded_at_unix_ms": 1788331081784,
+  "run_id": "objective-operator-objective-e34a006959fd0dd1-leaf-operator-objective-e34a006959fd0dd1-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Completed the synthesis node as a read-only verification. The declared clean-tree check passed; no project files were created or modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 10,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 22760,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 935,
+    "provider": "openai-codex",
+    "total_tokens": 23695
+  }
+}

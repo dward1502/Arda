@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:524483a756c35da295507f7dc8bbbb6c24e29769e63d7ae11b996e2f48031c70",
+    "summary": "Review completed. The parent receipt supports only that tracked files match HEAD: `git diff --exit-code HEAD --` does not detect untracked or ignored files. Its additional claim that no files were created or modified is unsupported, particularly because `.gitignore` excludes `/target/`. No implementation change was claimed, so no further correctness conclusion is supported by the receipt. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

@@ -146,6 +146,16 @@ impl ApiError {
         }
     }
 
+    pub(super) fn scheduler_conflict(message: impl Into<String>) -> Self {
+        Self {
+            status: StatusCode::CONFLICT,
+            code: "scheduler_not_admitted",
+            message: message.into(),
+            recovery_action:
+                "Wait for deterministic scheduler admission, then inspect canonical run state.",
+        }
+    }
+
     pub(super) fn forbidden(message: impl Into<String>) -> Self {
         Self {
             status: StatusCode::FORBIDDEN,

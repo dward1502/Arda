@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:23327f39e60f608a203518425a686bb1270c55ed16c60c4d3bb7ca339988190d",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:4ac27fc5d73d7f094bf6413449fcf1544ce8999e26fceeeabf9ee277638057c8"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:f5c17e5c842ac7cc84c99a9b3c8f2ea666ab741f3a5e8b4a9e526bba15cf4796",
+  "recorded_at_unix_ms": 1788406077303,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-2-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Two-project integration brief: Agent Loop proposes autonomous work (README.md:51-56), while Tool Gate deterministically evaluates caller-supplied tool metadata and invocation envelopes and emits allow, deny, or review_required receipts without executing tools (README.md:5-13,17-20). Their shared safety boundary is the transition from an agent’s proposed action to runtime permission before side effects occur (README.md:17-20,31-33). Recommendation: require every Agent Loop tool intent to pass through Tool Gate using catalog-owned metadata, and make the runtime accept execution only with a matching allow receipt; route review_required receipts to an operator. Agent Loop risk: any execution path that bypasses receipt enforcement can run proposed work without policy review (README.md:31-33). Tool Gate risk: it trusts caller-provided risk, mutation, idempotency, review, and target metadata (src/types.rs:21-40; src/policy.rs:49-167) while providing no authentication, authorization, sandboxing, or execution isolation (README.md:156-158), so forged or incorrect metadata can produce an unsafe allow decision. Declared clean-tree check passed with git diff --exit-code HEAD --. Inspection was read-only and created no artifacts.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 30891,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1817,
+    "provider": "openai-codex",
+    "total_tokens": 32708
+  }
+}

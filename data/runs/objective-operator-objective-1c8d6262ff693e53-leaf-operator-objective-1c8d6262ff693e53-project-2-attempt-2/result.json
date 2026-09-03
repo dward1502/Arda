@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:0d286e898c35bf17266e775ce0d7df664dc0ba9ffd0925423870293812bade4d",
+    "summary": "Defect: acceptance.txt contains only the unsupported assertion “resident objective runtime accepted this project.” The supplied receipt covers file existence only; no implementation or durable evidence supports the asserted runtime acceptance, so correctness cannot be independently approved. Scope was read-only and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "test -f acceptance.txt",
+      "status": "passed"
+    }
+  ]
+}

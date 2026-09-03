@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProjectAuthority {
@@ -217,6 +218,19 @@ pub struct StageReceipt {
     pub started_at_ms: i64,
     pub completed_at_ms: i64,
     pub verdict: String,
+    pub context_outcome_receipt_id: Option<String>,
+    pub context_outcome_receipt_digest: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub binding_digest: Option<String>,
+}
+
+impl StageReceipt {
+    pub fn computed_binding_digest(&self) -> Result<String, serde_json::Error> {
+        let mut canonical = self.clone();
+        canonical.binding_digest = None;
+        let encoded = serde_json::to_vec(&canonical)?;
+        Ok(format!("sha256:{:x}", Sha256::digest(encoded)))
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

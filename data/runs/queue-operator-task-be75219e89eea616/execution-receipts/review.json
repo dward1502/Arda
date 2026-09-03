@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:80273aa5eebd253844d527882953ae1438e808a1fbdda8b5c9d46bde21766f33",
+  "idempotency_key": "queue-operator-task-be75219e89eea616-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:0aa49712d858bbcf218d8fed954c993dc2889f294c5642497f3d13025fab2787"
+  ],
+  "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+  "receipt_digest": "sha256:1032ffd7983afb801999aaa2b555090e8568288ca1b23c4afb4e0f3ac9cae703",
+  "recorded_at_unix_ms": 1788094669680,
+  "run_id": "queue-operator-task-be75219e89eea616",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "No concrete defect, unsupported completion claim, or security issue found. The canonical verification receipt covers cargo test with exit_code 0; independent read-only inspection confirmed acceptance_ready() returns true, its unit test asserts readiness, and acceptance.txt contains arda-autonomous-loop-accepted.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9e8232959a9eb2e901cc224ba3754c61daf0d8cea2ea616f1521c1e77d8ae5a0",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b53d5bfd6e8958af9a78a704490b944958fb518a908b7dbfa735c56ae3dbfab7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7f3fe1dc0cec33dd59c545688d0e06f9e977d33d3a5265a7ab5e294d98e5f21c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:1dae453e8127360c647af7a0cbdc4663c93983910f4f3336fdfec00b53e9e656",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:27aa7a8a7413c83724a0e7a65c92e271b36a00584ab8c6a43cdd56de943d02e8",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/Cargo.lock\"}",
+      "exit_code": null,
+      "output_digest": "sha256:553d4d4ff14d0fbc7ea6ed0af140dedc706790fa70cd5ee184fabf23c40f9241",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/.gitignore\"}",
+      "exit_code": null,
+      "output_digest": "sha256:601de88e661f6f97fcbd4a32348fc0b4e2c7b5a3ab8ddeb086b9fb72e3565306",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10469,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2208,
+    "provider": "openai-codex",
+    "total_tokens": 12677
+  }
+}

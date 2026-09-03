@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:dd4e54c7209ec2419388a5a6700c052bedc8a07be125113c2048df1814f4e363",
+  "idempotency_key": "queue-operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:f3066ac18a504f26eaee6cde3a3f4131cb5a53299d3ce490454036069ea9d24b"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:f8c4dd6a7ea7a516590557267c077feea11dc29645d9661ad42ee64e06bbe07e",
+  "recorded_at_unix_ms": 1788254168060,
+  "run_id": "queue-operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared clean-tree check passed. Project-native verification reported a clean worktree on detached HEAD. No project files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch",
+      "exit_code": 0,
+      "output_digest": "sha256:6504daff6e1cadfe87a4c88628079fa6fdffd231f2f8278d4b75b5f271278c22",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 13474,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 218,
+    "provider": "openai-codex",
+    "total_tokens": 13692
+  }
+}

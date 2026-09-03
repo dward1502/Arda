@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:6ed22272abea90cebed0fbefd5b3c936152948e5a6bccbebaf50e705fd9bff50",
+  "idempotency_key": "queue-operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:approve-7fb91f11335a438eabf2d3b63ef4b663"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:813c80ae25bca304c8d15a152d7cfb93280ba1a2a6ef9cf486ce19086adefe1c",
+  "recorded_at_unix_ms": 1788246099864,
+  "run_id": "queue-operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only context recovery completed without modifying files or running reserved checks. Project authority: data/workbench/projects.json:1-584 defines a Rust/Cargo registry; the root Arda contract uses workspace '.', project_id 550e8400-e29b-41d4-a716-446655440000, and declares check 'test' as 'cargo test -p arda-core' (lines 5-64). The registry currently contains proof/acceptance contracts, two bounded real Rust projects, and two reviewed read-only Git documentation projects, so the dated status report's claim that production contains only three proof/demo contracts is not current registry truth. Program authority: docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:23-37 says the core path and one bounded installed objective exist but the program remains unaccepted pending Hermes control, restart-safe scheduling, critic revision, real multi-project execution, Vairë continuity, and operator acceptance. docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:17-108 defines the product outcome and canonical observe-to-context-to-contract-to-schedule-to-place-to-execute-to-verify/review-to-revise/close loop; Gate 1 is the immediate priority, and tests, timers, reports, and queue records alone do not establish product completion. ARDA_SYSTEM_STATUS_REPORT.md:23-55,71-89,119-131 corroborates substantial source/package foundations but incomplete autonomous completion, connected projects, worker routing, Soterion retrieval, and daily improvement; Ambient Agent and consequential external actions remain held. Repository authority is the append-only core/projects/tasks/queue.jsonl ledger, while generated queue projections are non-authoritative (ARDA_SYSTEM_STATUS_REPORT.md:31-34). The latest ledger receipt at core/projects/tasks/queue.jsonl:42148 is this approved read-only recover-context execution attempt under gateway:approve-7fb91f11335a438eabf2d3b63ef4b663. Immediately preceding records at lines 42143-42147 show another disposable acceptance objective repeatedly projected into plan/execute/verify work while autonomy readiness remains on hold for stale preflight and missing governance ledgers; execute and verify were nevertheless submitted as pending Apollo queue work. Downstream leaves should therefore treat live registry and append-only receipts as authoritative, distinguish implemented/configured/live proof, preserve the dirty repository and generated projections, prioritize the five autonomous-loop product gates, and leave cargo test -p arda-core to the independent verifier.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:480f80f45f54f7e9c3b16b3d40c56e123d27021eebf7cb963b1a3f650103fa0e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"offset\":42000,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2cc4c15bd310616be6232a1a43772fc5950cc3a1fd4d3bedc1aab7fb47e054d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":50,\"offset\":42125,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:efa0a114294ecd3a8e3fcab6831ee502c22824622e775b294d245f9cdaede894",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 82506,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1260,
+    "provider": "openai-codex",
+    "total_tokens": 83766
+  }
+}

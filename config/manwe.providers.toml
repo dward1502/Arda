@@ -351,15 +351,28 @@ access_tier = "free_cloud"
 quality_band = "high"
 requests_per_minute = 15
 requests_per_day = 1500
+supports_tools = true
+supports_structured_output = true
+probe_model = "gemini-2.5-flash"
+probe_profile = "verified_tool_capable_default"
 
-  # Refreshed from the live catalog on 2026-07-23. Gemini 2.0 was shut down;
-  # gemini-3.1-flash-lite completed a live free-tier inference probe.
+  # Refreshed from the live catalog on 2026-09-02. Gemini 2.5 Flash completed
+  # a standard OpenAI tool-call continuation and structured-output probe.
+
+  [[provider.model]]
+  id = "gemini-2.5-flash"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 1048576
+  max_output_tokens = 65536
+  is_default = true
+  capabilities = { tools = true, structured_output = true }
 
   [[provider.model]]
   id = "gemini-3.1-flash-lite"
   capable_tasks = ["chat", "summary", "background"]
   context_window = 1048576
-  is_default = true
+  max_output_tokens = 65536
+  capabilities = { tools = false, structured_output = true }
 
   [[provider.model]]
   id = "gemini-3.5-flash"

@@ -1,0 +1,64 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:2b6d0d5702bbe69615b540be9eba02d2f75973b92d52c03fbdc9924f50b9d854",
+      "path": "acceptance.txt"
+    }
+  ],
+  "authority_binding_digest": "sha256:d6f115677644c937bc7430f920c0c1580bc85cd82217f905cc0fc0644d3b3073",
+  "idempotency_key": "queue-operator-task-be75219e89eea616-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:installed-concurrency-1788094511-0-approve"
+  ],
+  "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+  "receipt_digest": "sha256:7e3a84740e7696d1e9cc363e04ed9740599ed4cc660bbbcb6465edfa6b1d6df2",
+  "recorded_at_unix_ms": 1788094590735,
+  "run_id": "queue-operator-task-be75219e89eea616",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "cargo test passed (1 test); acceptance.txt contains arda-autonomous-loop-accepted; repository remained unchanged.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:b4ae20166d5f00b9760d6d6ce8abae5c05acf6556e96cd8b3be5be6659859427",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:b4ae20166d5f00b9760d6d6ce8abae5c05acf6556e96cd8b3be5be6659859427",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "sha256sum acceptance.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:8a28256f129296c27522061d9e3830cb1e46193e8f7004e5cf08532274e01d9c",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 7862,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2283,
+    "provider": "openai-codex",
+    "total_tokens": 10145
+  }
+}

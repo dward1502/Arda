@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:ab06e5a306cad8e5e468227606f0d56314d75e7321841757e25ce1ddbc691523",
+    "summary": "Review completed with three named defects. TG-001: critical-risk invocations can reach review_required without a trace when requires_review=false and mutates_state=false, because trace enforcement precedes and does not use the computed critical-risk review condition (src/policy.rs:89,129). TG-002: decision receipts are not bound to invocation_id or tool_id, so receipts—especially trace-less read-only allows—cannot independently identify the invocation they authorize (src/receipt.rs:20-27, src/policy.rs:186-193). TG-003: requested_at_utc is validated only as nonblank, permitting arbitrary non-date content and weakening audit evidence (src/types.rs:71-82). Evidence limitation: the parent receipt authenticates only a clean tracked tree; it provides no build, test, schema-conformance, or policy-behavior evidence, so implementation correctness is not supported by the declared verification receipt alone. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

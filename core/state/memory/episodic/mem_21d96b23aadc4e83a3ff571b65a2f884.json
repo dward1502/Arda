@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_21d96b23aadc4e83a3ff571b65a2f884",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-85655dd7da764354 for task operator-task-85655dd7da764354 ended status=failed result=failed; receipt=sha256:f02e1655677b929c5a275a17adfa909a2a3a30a34b371544ba221bbab97d92a6; detail=Declared check failed because Cargo treated the package as an unregistered member of the parent workspace; no files were changed.",
+  "salience": 0.6417249999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-31T04:02:28.384883174Z",
+  "last_seen_at": "2026-08-31T04:02:28.384883174Z",
+  "evidence_class": "inferred",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity"
+}

@@ -1,0 +1,105 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1a5e9dda52b81aa7f3f293be5dcba17c2752234de4de0b4d255934ec9c591a6a",
+  "idempotency_key": "queue-operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-9e7798e06612459a81836d1e679e5da0"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:f2783bf6fc970fec527861617047f5d17c4c7b1aedc8e0676df294ac64e5e330",
+  "recorded_at_unix_ms": 1788255082556,
+  "run_id": "queue-operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Prioritized findings: P0 — repair the human-knowledge ingestion boundary identified by the first project inspection. NoteFrontmatter omits required authority, owner, privacy, review, affected-path, and supersession metadata and models confidence incompatibly; scan_vault ingests Markdown as uniformly human semantic memory without authority/status classification, privacy enforcement, provenance, or canonical-reliance gating; MemoryStore does not persist serialized records; and tests omit these contract requirements (core/projects/tasks/queue.jsonl:48209). Smallest repair: align NoteFrontmatter with docs/human-knowledge-ingestion-contract.md, classify and gate records before MemoryRecord creation, persist through the existing store boundary, and add focused contract/privacy/provenance/persistence tests. P0 — stop duplicate task-graph materialization: the recent canonical ledger repeatedly appends execute/verify pairs for the same objective and plan across many timestamped IDs (core/projects/tasks/queue.jsonl:48518-48618). Smallest repair: enforce objective-plus-plan-leaf idempotency before append and make startup/timer reconciliation reuse the existing nonterminal leaf rather than rematerializing it. P1 — complete the remaining product gates instead of adding isolated schemas: same-objective deferred/recurring wake remains open, reviewed-real-project shared-objective joined close remains open, and Vairë context-use plus operator-burden acceptance remain open (docs/plans/autonomous-task-completion/README.md:33-37; 02-installed-scheduling-restart.md:14-20; 04-real-multi-project-execution.md:14-33). Smallest repair: run one canonical operator objective through two reviewed project contracts, a scheduled wake and restart, independent critic-driven correction, joined checks, Vairë receipts, and Hermes controls. P1 — replace proof/disposable registry authority with truthful real-project contracts and exact digests; data/workbench/projects.json still mixes root-level proof contracts, disposable target projects, and only two reviewed read-only projects, while the whole-system plan requires production authority over real bounded projects (data/workbench/projects.json:1-583; docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:66-73). P2 — activate daily improvement only after the completion loop is trustworthy, then prove seven installed cycles containing a verified improvement, justified no-change, and correct rejection (docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:75-83). The second project inspection found no concrete defect or unsupported completion claim and requires no repair (core/projects/tasks/queue.jsonl:48623). Capability truth remains substantial source/package and bounded installed proof, not whole-system or operator-accepted completion (ARDA_SYSTEM_STATUS_REPORT.md:47-50; docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:23-36). Read-only inspection completed without modifying files or running the verifier-owned cargo check.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d7fda6172c73d2ae11ce6b851e2a789c2b1d84ab3f6dfa8e00f0e946c67f8cd2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":48518,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c80f189ae7f7c87b4c9c45a17386cfd5ee6da960e31d22a234dabc25fadaa010",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1200,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1200,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a10908395c3d7b730e6fc1e5b10fa5a1b06c458bc69dacfe736659a6a0d8d8d2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1200,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/04-real-multi-project-execution.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e3b48ddee70b43414d59d27dacd6152a701b6b4bf297f25ed9d9f7e96706316e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1200,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/02-installed-scheduling-restart.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c0840493cdaf2a9df9ee5d5f9a0b312de66a9db444ec0a410678f773bb9b434a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":0,\"limit\":20,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\",\"pattern\":\"operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c1f9f00f2a2972ffa6c498a675c501869b2c7ad74fd0f671ee4c1f9bba46d23e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":1,\"offset\":48209,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fbdfaa7456f2260ff44197e6389dbbc5ff9021ebdc39f0f3faed60ec0d4fe519",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 82716,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1603,
+    "provider": "openai-codex",
+    "total_tokens": 84319
+  }
+}

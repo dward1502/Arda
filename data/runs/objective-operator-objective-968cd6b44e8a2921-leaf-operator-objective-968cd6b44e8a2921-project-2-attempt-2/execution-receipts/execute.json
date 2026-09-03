@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3a729fe6c56daaa26190ee9bfe4f870b1999cb9128948483bba8cb1ba3245fdf",
+  "idempotency_key": "queue-operator-objective-968cd6b44e8a2921-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:db4ac4a92dc30d276dd3025ee6aeacb9c495c934159d23b7c99864b4678ba17b"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:d8602d5114cabb67863ff0b8ad191d89fbf9d05c9ffe53378256d54f95573b2a",
+  "recorded_at_unix_ms": 1788413351287,
+  "run_id": "objective-operator-objective-968cd6b44e8a2921-leaf-operator-objective-968cd6b44e8a2921-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project c33d0000-e29b-41d4-a716-446655440003 passed the declared clean-tree check: `git diff --exit-code HEAD --` exited 0 with no output. Source inspection shows an adapter-free Rust library and CLI that accepts ToolMetadata plus InvocationEnvelope and emits deterministic allow, deny, or review_required receipts (`README.md:5-13`, `src/policy.rs:23-158`), with documented CLI exit codes 0/2/3 and input/internal error codes 64/65/70 (`README.md:89-107`, `src/receipt.rs:30-37`, `src/main.rs:35-70`). Integration risks are that execution, authentication, authorization, storage, and sandboxing are explicitly external responsibilities (`README.md:156-158`); target authorization supports only exact, global `*`, or trailing-prefix wildcard matching (`src/policy.rs:160-168`); and the published input schemas accept unconstrained strings and unspecified extra properties, including no date-time format enforcement for requested_at_utc (`schemas/invocation-envelope.schema.json:5-14`). Existing integration tests cover allowed read-only operation, missing-trace denial, critical review routing, receipt schema/version, and CLI deny exit code (`tests/policy_decisions.rs:34-64`, `tests/cli_contract.rs:4-35`). Recommended next operator action: define the runtime adapter that maps catalog metadata and invocation targets into these schemas, enforce deny/review receipts before execution, and explicitly harden or accept the current target-pattern and schema-validation semantics before integration.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 20,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 22271,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1697,
+    "provider": "openai-codex",
+    "total_tokens": 23968
+  }
+}

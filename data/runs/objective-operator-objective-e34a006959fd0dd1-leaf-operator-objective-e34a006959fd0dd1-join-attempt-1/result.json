@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:695839657ed89da3b8a949117b844691b112d8d7d3e12551d84082b92dd0e118",
+    "summary": "Review cannot approve the joined result. The sole parent receipt proves only a clean tree; it provides no source, artifact, or tool evidence supporting its claim that every project leaf has canonical close-receipt lineage. Independent inspection also found named implementation defects: src/lib.rs:87 serializes memory records but never persists them; src/lib.rs:94 accepts any existing path rather than requiring a vault directory; src/lib.rs:113 silently discards vault traversal errors; and src/lib.rs:184-192 permits absolute or parent-directory wikilinks to resolve outside the vault, exposing existence and paths of external Markdown files. The ingestion implementation also does not enforce the documented authority, privacy, classification, quarantine, review, or provenance requirements in docs/human-knowledge-ingestion-contract.md."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

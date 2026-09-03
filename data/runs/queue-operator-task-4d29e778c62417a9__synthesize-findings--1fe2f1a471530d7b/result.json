@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:d6adbac471f2bd6ff48ceecf002c5d865639a912716a88991fec900ab7b1ca78",
+    "summary": "The verification receipt covers the declared `cargo test -p arda-core` check with exit code 0, and the read-only source evidence is otherwise sufficient. Review found a missing P0 governance defect in the synthesized backlog: `runner.rs:1675-1679` bypasses a failed autonomy-readiness gate whenever any operator approval packet is present, while `queue_operation.rs:177-192` merely records the `hold` decision as metadata and still appends work. Durable evidence shows this path materializing and submitting execute/verify tasks despite `autonomy_readiness_decision:\"hold\"`, three unmet readiness conditions, and no governance authorization (`core/projects/tasks/queue.jsonl:46890-46894`). The synthesis prioritizes duplicate materialization but omits this security-relevant readiness bypass. Smallest authoritative repair: enforce readiness at the queue append/dispatch boundary, or require an explicit scoped and auditable readiness-override authorization distinct from a general approval packet. No checks were rerun, no files were modified, and no artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:8a279f65d32c89e32bd167ce5b2c0b5af039c4e65cb6237a9ecab3538b1869dd",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

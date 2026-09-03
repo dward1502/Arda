@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:d74e29caa3b37a4ee40d5af7c6234f46496edd074a59edb836dbccf1a12504bc",
+    "summary": "Read-only inspection found no named correctness, scope, or receipt-evidence defects. The project contains only README.acceptance with the expected isolated-runtime acceptance marker. The validated parent receipt shows the declared pwd check passed at the supplied project root, and its evidence contains no mutating tool calls. No files were modified or created."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

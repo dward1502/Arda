@@ -979,9 +979,11 @@ fn create_operator_objective(
             authority: "operator_approved_workbench".into(),
             dependencies: Vec::new(),
             execution: Some(LeafExecutionSpec {
-                objective: text.to_owned(),
+                objective: format!(
+                    "Inspect exact project {project_id} for project-local evidence."
+                ),
                 execution_prompt: format!(
-                    "Execute the approved objective for exact project {project_id}: {text}"
+                    "Inspect only exact project {project_id}. Produce source-backed, project-local evidence and exact project-specific check outcomes that can support the approved parent objective. Do not compare sibling projects or require sibling files. Cross-project comparison is reserved for the dependent synthesis leaf. Parent objective context only: {text}"
                 ),
                 verification_prompt: format!(
                     "Verify the project-local result for exact project {project_id}."
@@ -1333,19 +1335,6 @@ fn command_operation(command: &Command) -> BridgeOperation {
     }
 }
 
-fn is_resident_objective_mutation(command: &Command) -> bool {
-    matches!(
-        command,
-        Command::Objective { .. }
-            | Command::PauseTask { .. }
-            | Command::ResumeTask { .. }
-            | Command::ReprioritizeTask { .. }
-            | Command::ReviseObjective { .. }
-            | Command::ApproveObjective { .. }
-            | Command::CancelTask { .. }
-    )
-}
-
 fn command_run_id(command: &Command) -> Option<&str> {
     match command {
         Command::Capture(_)
@@ -1403,6 +1392,19 @@ fn command_objective_id(command: &Command) -> Option<&str> {
         | Command::CancelTask { objective_id, .. } => Some(objective_id),
         _ => None,
     }
+}
+
+fn is_resident_objective_mutation(command: &Command) -> bool {
+    matches!(
+        command,
+        Command::Objective { .. }
+            | Command::PauseTask { .. }
+            | Command::ResumeTask { .. }
+            | Command::ReprioritizeTask { .. }
+            | Command::ReviseObjective { .. }
+            | Command::ApproveObjective { .. }
+            | Command::CancelTask { .. }
+    )
 }
 
 fn session_id(event: &HermesMessageEvent) -> String {

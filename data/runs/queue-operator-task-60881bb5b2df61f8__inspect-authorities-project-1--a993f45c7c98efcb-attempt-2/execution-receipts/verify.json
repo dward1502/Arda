@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:cf6d56bed1be1bc26a37680bac12895e1a22059c129819185867e62de09ee844",
+  "idempotency_key": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-1--a993f45c7c98efcb-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:50bbbf369795a2a6861ad52c8c8e9bbeeebd7707aee5a7666a58f3d1c2872d13"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:fcd595f64f5a9795ca8913be22669612949d6604cd0f5c9d24c1ecd8bc141955",
+  "recorded_at_unix_ms": 1788242070129,
+  "run_id": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-1--a993f45c7c98efcb-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Clean-tree check passed. Project-native test failed because Cargo considers this package part of /var/home/mythos/Eregion/Arda/Cargo.toml, but it is not listed in that workspace's members or exclusions.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 7632,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 321,
+    "provider": "openai-codex",
+    "total_tokens": 7953
+  }
+}

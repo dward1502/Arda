@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:9d985be089c3cfbb24f71c0a88099502cc60dc405bab72151254728fd906f69d",
+    "summary": "Review found unsupported completion and named defects: (1) src/lib.rs:56-89 MemoryStore::store serializes each MemoryRecord and immediately discards it, so scan_vault does not provide the claimed persistent-memory integration; (2) src/lib.rs:184-192 resolves slash-containing wikilinks with an unchecked PathBuf::join and accepts absolute or parent-traversal paths, allowing links to resolve outside the private vault and disclose external path existence; (3) src/lib.rs:110-113 silently drops WalkDir errors, permitting incomplete scans to report success; (4) src/lib.rs:13-25 cannot deserialize the active ingestion contract documented at docs/human-knowledge-ingestion-contract.md:71-93 because required governance/privacy fields are absent and confidence is modeled as u8 rather than low/medium/high. Existing tests cover only ordinary links and a missing vault path, not these failure or security cases. The supplied durable evidence establishes only a clean tree and close-receipt lineage; it does not substantiate functional, contract, security, or privacy correctness."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

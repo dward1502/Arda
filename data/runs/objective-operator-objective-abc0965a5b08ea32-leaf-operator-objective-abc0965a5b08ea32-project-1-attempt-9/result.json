@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:13fd8fb520a73844180ddfd37dd3fb5b195bc912c8b8885c61ab9061d3d00aa8",
+    "summary": "Named defects: no implementation is present to review; the project contains only README.acceptance with a one-line acceptance label. The parent receipt proves only that pwd returned the supplied project root, so it provides no evidence of implementation correctness, security/privacy properties, or scope compliance. Completion is therefore unsupported."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

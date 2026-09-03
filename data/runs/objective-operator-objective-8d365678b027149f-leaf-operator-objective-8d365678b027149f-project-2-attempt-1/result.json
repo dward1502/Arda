@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:0ef95ad5a4025f3bedabd83421a0b0219c7c7b878fdad3da9df5663676eafe39",
+    "summary": "VERDICT: BLOCK\nThe default review-trace policy is bypassed for critical-risk tools unless metadata also sets `requires_review` or `mutates_state`. In `src/policy.rs:89`, trace enforcement tests only `metadata.requires_review`, while `src/policy.rs:129-130` independently makes critical-risk invocations reviewable through `critical_always_review`. Consequently, a critical, non-mutating tool with `requires_review: false` and no trace receives `review_required` instead of denial despite `require_trace_for_review: true`. The existing critical test sets both `mutates_state` and `requires_review`, so it cannot detect this path. This contradicts the documented default policy requiring trace evidence for reviewable actions and invalidates approval of policy correctness. The supplied build and clean-tree evidence otherwise supports the parent’s mechanical verification claims."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

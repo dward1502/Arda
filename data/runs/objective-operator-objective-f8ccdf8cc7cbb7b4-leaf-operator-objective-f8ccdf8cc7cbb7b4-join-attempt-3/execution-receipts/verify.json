@@ -1,0 +1,131 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:81bf2ceda2fe3b358db9bf6c9101542da608824ca9649fb199599c51a354d07a",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:da3c216d7a0b2907ea782bfdc86cf096d0514ee1f6451a8c8c01f86d94f6e646"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:a69ae59ba595eee00cb15a716ba6509a01eeba0edf852ea8827bc9386ccd8ceb",
+  "recorded_at_unix_ms": 1788407112381,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-join-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the sole project leaf has digest-validated canonical close-receipt lineage with succeeded status. The declared clean-tree check passed exactly as specified; no files were changed.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:76ce25dbee8297c0997fdd5daf3d14467b2fd1e2c010ebd5427c94c84f8745ad",
+      "tool": "terminal"
+    },
+    {
+      "action": "git log -1 --stat --oneline",
+      "exit_code": 0,
+      "output_digest": "sha256:0c45c8efe36895d8969b4dde74b06d2b6810c09a92d01322bdc768051c75ccab",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path\nfor f in ['INDEX.md','README.md','src/INDEX.md','src/README.md','tests/INDEX.md','tests/README.md','docs/human-knowledge-ingestion-contract.md','docs/migration-notes.md']:\n print('===== '+f+' ====='); print(Path(f).read_text())\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:INDEX.md",
+      "exit_code": 0,
+      "output_digest": "sha256:26459919954f90363f5a5acb38d2bd491a3e631715b66f3564c805a8f242c2b5",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:src/INDEX.md",
+      "exit_code": 0,
+      "output_digest": "sha256:34602135dab9f3dd4a29c98518c1af481da2a91af9a45ce9eebb98a616ddbea0",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:tests/INDEX.md",
+      "exit_code": 0,
+      "output_digest": "sha256:4673e729c74b94a284cf10d5de66ec383141654a81c8a51dc804c94e0e535aa3",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:3e5812534eef7897094f27a2926e6882162eaeecf00c6fe83f7427e6228aa688",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:src/README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:5fc4e37c45f7f87030c76152f586c8367f8c7492234322f3c3f69b2ef196f9a3",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:tests/README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:ce11e566f79baa5ad3bfb54f581873fff7432b30f4a63597ca4ab4d6f1a13f4b",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test --all-targets",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:tests/target_local.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:4b3f69043f71bbecbc5b7ee09ed8fa6110d37c5eb09c1bb8be0877312873a14e",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:src/lib.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:028045780ed6431fddc4233c7347c6a5f06fc1c66fdc5885730efbf552eae936",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:Cargo.toml",
+      "exit_code": 0,
+      "output_digest": "sha256:2664d3abc84610a09b045cb89e6845360c37eaea47394612da8af88a0130f214",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 7,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 17631,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1463,
+    "provider": "openai-codex",
+    "total_tokens": 19094
+  }
+}

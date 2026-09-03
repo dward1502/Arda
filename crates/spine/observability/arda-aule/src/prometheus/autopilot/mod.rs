@@ -93,12 +93,10 @@ pub use service_health::{
     ServiceHealth, ServiceHealthMonitor, ServiceHealthReport, SystemdQuery, UserSystemd,
 };
 pub use source_registry::{SourceDescriptor, SourceRegistry, SOURCE_REGISTRY_CONTRACT};
-pub use task_queue::{
-    ActiveQueueExecutor, QueueRecord, QueueRecordStatus, TaskQueueAnalyzer, TaskQueueMetrics,
-};
+pub use task_queue::{QueueRecord, QueueRecordStatus, TaskQueueAnalyzer, TaskQueueMetrics};
 pub use taxonomy::{canonical, is_apollo_dispatchable, CANONICAL_TYPES};
 pub use validator::{PlanValidator, ValidationResult};
 pub use workbench_executor::{
     ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
-    QueueExecutionReceipt, WorkbenchExecutionAdapter, WorkbenchQueueExecutor,
+    QueueExecutionReceipt, WorkbenchExecutionAdapter,
 };

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:9c270615e7f7a992ba0bda094276ca674529c8f0fb9098336421ce9ff56a0156",
+    "summary": "Named defects: the project contains only README.acceptance with a one-line acceptance label and no inspectable implementation; no durable verification evidence supports runtime correctness, security, privacy, or acceptance behavior. The parent receipt authenticates only that pwd succeeded in the project root, so it cannot support implementation completion. Read-only inspection found no project files to modify and created no artifacts."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:a3767e245927ef40bed7d5ad60a7ebcefc2172024f19869b19656ada58616ef7",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

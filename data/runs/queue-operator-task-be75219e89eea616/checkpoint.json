@@ -1,0 +1,244 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "queue-operator-task-be75219e89eea616",
+  "objective_id": "operator-task-be75219e89eea616",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-operator-task-be75219e89eea616-plan",
+      "input_digest": null,
+      "output_digest": "gateway:installed-concurrency-1788094511-0-approve",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "queue-operator-task-be75219e89eea616:plan:4",
+        "checkpoint_digest": "sha256:38f5ff31df29a28b23c16719182e5b860fd3c1981e7a38c0d5de785dc8bf06a7"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-operator-task-be75219e89eea616-approval",
+      "input_digest": null,
+      "output_digest": "gateway:installed-concurrency-1788094511-0-approve",
+      "parent_receipts": [
+        "gateway:installed-concurrency-1788094511-0-approve"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "queue-operator-task-be75219e89eea616:approval:7",
+        "checkpoint_digest": "sha256:7f31fd6142d634517719d45959a7a911bd99bb44768ed57a45510b93b7b4e7ed"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-operator-task-be75219e89eea616-execute",
+      "input_digest": null,
+      "output_digest": "sha256:7e3a84740e7696d1e9cc363e04ed9740599ed4cc660bbbcb6465edfa6b1d6df2",
+      "parent_receipts": [
+        "gateway:installed-concurrency-1788094511-0-approve"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "queue-operator-task-be75219e89eea616:execute:10",
+        "checkpoint_digest": "sha256:a4bedb7933c97030d515378671cae0cf63ebd9d621c1259c7f341e0ec00c9e75"
+      },
+      "worker": {
+        "role": "implementer",
+        "worker_id": "hermes:queue:operator-task-be75219e89eea616",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:e3d6e42909dcfea57f5306fc923327a97c884046fbd84406d959a5a14e54010a",
+        "allowed_toolsets": [
+          "file",
+          "terminal"
+        ],
+        "dependencies": [
+          "approval"
+        ],
+        "deadline_unix_ms": 1788095722249,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    },
+    {
+      "id": "verify",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-operator-task-be75219e89eea616-verify",
+      "input_digest": null,
+      "output_digest": "sha256:0aa49712d858bbcf218d8fed954c993dc2889f294c5642497f3d13025fab2787",
+      "parent_receipts": [
+        "sha256:7e3a84740e7696d1e9cc363e04ed9740599ed4cc660bbbcb6465edfa6b1d6df2"
+      ],
+      "checkpoint": {
+        "sequence": 14,
+        "recovery_token": "queue-operator-task-be75219e89eea616:verify:14",
+        "checkpoint_digest": "sha256:7c9656ef878674c3b10bf426dd556768c28835199ed96daf04aed33ae68c34ad"
+      },
+      "worker": {
+        "role": "independent_verifier",
+        "worker_id": "hermes:queue:operator-task-be75219e89eea616:verify",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:e3d6e42909dcfea57f5306fc923327a97c884046fbd84406d959a5a14e54010a",
+        "allowed_toolsets": [
+          "terminal"
+        ],
+        "dependencies": [
+          "execute"
+        ],
+        "deadline_unix_ms": 1788095722249,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "project_native_checks"
+      }
+    },
+    {
+      "id": "review",
+      "kind": "review",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-operator-task-be75219e89eea616-review",
+      "input_digest": null,
+      "output_digest": "sha256:1032ffd7983afb801999aaa2b555090e8568288ca1b23c4afb4e0f3ac9cae703",
+      "parent_receipts": [
+        "sha256:0aa49712d858bbcf218d8fed954c993dc2889f294c5642497f3d13025fab2787"
+      ],
+      "checkpoint": {
+        "sequence": 18,
+        "recovery_token": "queue-operator-task-be75219e89eea616:review:18",
+        "checkpoint_digest": "sha256:299beeb4d5d0860401acf6d86fa30975db5ec843b21029e12d95772d8e94467c"
+      },
+      "worker": {
+        "role": "security_privacy_critic",
+        "worker_id": "hermes:queue:operator-task-be75219e89eea616:critic",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:e3d6e42909dcfea57f5306fc923327a97c884046fbd84406d959a5a14e54010a",
+        "allowed_toolsets": [
+          "file"
+        ],
+        "dependencies": [
+          "verify"
+        ],
+        "deadline_unix_ms": 1788095722249,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    },
+    {
+      "id": "close",
+      "kind": "close",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-operator-task-be75219e89eea616-close",
+      "input_digest": null,
+      "output_digest": "sha256:ca0d964cddb7992cdc1856857af2bd438701e66ccbb2dc4cf045a17b528740be",
+      "parent_receipts": [
+        "sha256:1032ffd7983afb801999aaa2b555090e8568288ca1b23c4afb4e0f3ac9cae703"
+      ],
+      "checkpoint": {
+        "sequence": 22,
+        "recovery_token": "queue-operator-task-be75219e89eea616:close:22",
+        "checkpoint_digest": "sha256:dcdb8bf2fc823d8dced893a3f8df445579c7681155bb02388b2363714c6df7b6"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "gateway:installed-concurrency-1788094511-0-approve"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "gateway:installed-concurrency-1788094511-0-approve"
+    },
+    {
+      "id": "execute-verify",
+      "from": "execute",
+      "to": "verify",
+      "parent_receipt": "sha256:7e3a84740e7696d1e9cc363e04ed9740599ed4cc660bbbcb6465edfa6b1d6df2"
+    },
+    {
+      "id": "verify-review",
+      "from": "verify",
+      "to": "review",
+      "parent_receipt": "sha256:0aa49712d858bbcf218d8fed954c993dc2889f294c5642497f3d13025fab2787"
+    },
+    {
+      "id": "review-close",
+      "from": "review",
+      "to": "close",
+      "parent_receipt": "sha256:1032ffd7983afb801999aaa2b555090e8568288ca1b23c4afb4e0f3ac9cae703"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": [
+      "gateway:installed-concurrency-1788094511-0-approve",
+      "sha256:7eb848d57328ce20db90f992b0f989e4c040b526a062b7d37d6a1a84111b6f4a"
+    ]
+  }
+}

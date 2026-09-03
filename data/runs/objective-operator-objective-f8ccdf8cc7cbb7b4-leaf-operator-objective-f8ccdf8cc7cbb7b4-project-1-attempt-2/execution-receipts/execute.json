@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:869cba8eb118ddbcefc771ee021bd3f34e6619085213436f3722487d6f222b1d",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:4ac27fc5d73d7f094bf6413449fcf1544ce8999e26fceeeabf9ee277638057c8"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:29d3cf531e39c1acf6dcd91fc2ad292b678a30a3f7b684b588b32a9caa347c00",
+  "recorded_at_unix_ms": 1788405767749,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Integration brief — annunimas-human-tenant provides Obsidian-compatible vault scanning, frontmatter parsing, wikilink resolution, and semantic-memory record construction (src/lib.rs:1-4,37-42,106-129). MNEMOSYNE is the intended persistent-memory and recall layer, preserving provenance while distinguishing generated recall from canonical truth (src/lib.rs:3-4; docs/human-knowledge-ingestion-contract.md:115-123). Their shared autonomous-agent safety boundary is classification before reliance: private human material must not become canonical silently, unresolved conflicts require review rather than guessing, and high-risk actions remain governed (docs/human-knowledge-ingestion-contract.md:21-25,49-69,96-113,145-152). Recommendation: replace the direct Annunimas path dependency with a tenant-facing memory contract and make MemoryStore persist provenance-bearing records only after authority/status policy checks (Cargo.toml:12-15; docs/migration-notes.md:5-10). Human-project risk: MemoryStore currently serializes each record and discards it, so scans appear successful without durable ingestion (src/lib.rs:56-89). MNEMOSYNE-side risk: generated recall may be mistaken for canonical truth unless the required distinction and provenance links are enforced (docs/human-knowledge-ingestion-contract.md:115-123). The declared clean-tree check completed successfully; inspection was read-only.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14658,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1369,
+    "provider": "openai-codex",
+    "total_tokens": 16027
+  }
+}

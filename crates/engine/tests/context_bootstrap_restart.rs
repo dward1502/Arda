@@ -223,7 +223,7 @@ fn assembly(root: &Path, run_id: &str, worker_id: &str, parents: Vec<String>) ->
         .as_millis();
     let mut consumer = ConsumerContext::new(worker_id, vec![MemoryDomain::System]);
     consumer.purpose = Some(objective());
-    let service = MnemosyneService::new(root.join("data/mnemosyne"))
+    let service = MnemosyneService::new(root.join("data/vaire"))
         .unwrap()
         .with_contract_memory_root(root.join("core/state/memory"));
     if service
@@ -407,7 +407,7 @@ async fn another_fresh_worker_continues_after_root_restart_without_conversation_
     shutdown1.notify_waiters();
     handle1.await.unwrap();
 
-    let reopened = MnemosyneService::new(root.path().join("data/mnemosyne")).unwrap();
+    let reopened = MnemosyneService::new(root.path().join("data/vaire")).unwrap();
     assert_eq!(
         reopened
             .context_use_receipt(&first.use_receipt.receipt_id)
@@ -428,7 +428,7 @@ async fn another_fresh_worker_continues_after_root_restart_without_conversation_
         root.path(),
         "run-context-second",
         "execute-second",
-        second_parents,
+        second_parents.clone(),
     );
     let second_response = execute(
         &client,
@@ -467,6 +467,33 @@ async fn another_fresh_worker_continues_after_root_restart_without_conversation_
         );
     }
 
+    let foreign_root = tempfile::tempdir().unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(2));
+    let foreign = assembly(
+        foreign_root.path(),
+        "run-context-second",
+        "execute-second",
+        second_parents,
+    );
+    let foreign_response = client
+        .post(format!(
+            "http://{bound2}/v1/runs/run-context-second/nodes/execute-second/execute-provider"
+        ))
+        .json(&json!({
+            "envelope": envelope("execute-run-context-second"),
+            "objective": objective(),
+            "context_assembly": foreign,
+        }))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(foreign_response.status(), reqwest::StatusCode::CONFLICT);
+    let foreign_body = foreign_response.text().await.unwrap();
+    assert!(
+        foreign_body.contains("context use receipt is not durably recorded"),
+        "unexpected foreign-context rejection: {foreign_body}"
+    );
+
     let mut mismatched = second.clone();
     mismatched.capsule.capsule_digest = format!("{}-mismatch", second.capsule.capsule_digest);
     let mismatch_response = client
@@ -486,7 +513,7 @@ async fn another_fresh_worker_continues_after_root_restart_without_conversation_
         .text()
         .await
         .unwrap()
-        .contains("does not match the requested context capsule"));
+        .contains("context capsule is invalid"));
     if !live_hermes {
         assert_eq!(
             fs::read_to_string(root.path().join("context-worker-count")).unwrap(),

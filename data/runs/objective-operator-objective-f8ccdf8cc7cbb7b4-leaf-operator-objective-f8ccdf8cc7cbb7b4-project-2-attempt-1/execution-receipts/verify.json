@@ -1,0 +1,65 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:519f25caace391fcf62b3c422407f403bd47c5513572c9663910dd6b98af134a",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:2b228e1143707a429358944de5dcbeaced2ccb78c5f8eedd40ac355eaac61b6b"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:6da6ce45f70a1746201ca5d26704f68180060d0dc2e39d9b98ea69ccc3a63ffa",
+  "recorded_at_unix_ms": 1788405506519,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project-local result. The declared clean-tree check passed exactly as specified, the README supports the parent receipt’s integration and risk assessment, and no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 - <<'PY'\nfrom pathlib import Path\np = Path('README.md')\nfor i, line in enumerate(p.read_text().splitlines(), 1):\n    if 1 <= i <= 60 or 145 <= i <= 165:\n        print(f'{i}: {line}')\nPY",
+      "exit_code": -1,
+      "output_digest": "sha256:8f8f4dd8fe02b3b024adde00e0a7adc216dd0e89326378b588bbd95ce431805a",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path; lines=Path('README.md').read_text().splitlines(); print(chr(10).join(f'{i}: {line}' for i,line in enumerate(lines,1) if 1 <= i <= 60 or 145 <= i <= 165))\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:592b20a887bd6491f0574a1234ebc52e74f5f4e4fee36620cd205c48f1ec07e6",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 7670,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 638,
+    "provider": "openai-codex",
+    "total_tokens": 8308
+  }
+}

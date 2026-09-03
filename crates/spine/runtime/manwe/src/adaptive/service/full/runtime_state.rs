@@ -21,23 +21,32 @@ pub(super) fn merge_runtime_state(
 ) -> Vec<ProviderState> {
     for provider in &mut loaded {
         if let Some(existing) = current.iter().find(|p| p.id == provider.id) {
-            provider.healthy = existing.healthy
-                && !(existing.consecutive_failures > 0 && existing.last_error.is_some());
-            provider.intelligence_refreshed_at_utc = existing.intelligence_refreshed_at_utc.clone();
-            provider.probe_model = existing.probe_model.clone();
-            provider.probe_profile = existing.probe_profile.clone();
+            let probe_configuration_changed =
+                provider.probe_model.is_some() && provider.probe_model != existing.probe_model;
+            if provider.probe_model.is_none() {
+                provider.probe_model = existing.probe_model.clone();
+            }
+            if provider.probe_profile.is_none() {
+                provider.probe_profile = existing.probe_profile.clone();
+            }
             provider.requests_used_minute = existing.requests_used_minute;
             provider.requests_used_day = existing.requests_used_day;
-            provider.in_cooldown = existing.in_cooldown;
-            provider.cooldown_until_utc = existing.cooldown_until_utc.clone();
-            provider.cooldown_backoff_seconds = existing.cooldown_backoff_seconds;
-            provider.error_count = existing.error_count;
-            provider.consecutive_failures = existing.consecutive_failures;
-            provider.consecutive_successes = existing.consecutive_successes;
-            provider.last_error = existing.last_error.clone();
-            provider.avg_latency_ms = existing.avg_latency_ms;
             provider.minute_window_started_utc = existing.minute_window_started_utc.clone();
             provider.day_window_started_utc = existing.day_window_started_utc.clone();
+            if !probe_configuration_changed {
+                provider.healthy = existing.healthy
+                    && !(existing.consecutive_failures > 0 && existing.last_error.is_some());
+                provider.intelligence_refreshed_at_utc =
+                    existing.intelligence_refreshed_at_utc.clone();
+                provider.in_cooldown = existing.in_cooldown;
+                provider.cooldown_until_utc = existing.cooldown_until_utc.clone();
+                provider.cooldown_backoff_seconds = existing.cooldown_backoff_seconds;
+                provider.error_count = existing.error_count;
+                provider.consecutive_failures = existing.consecutive_failures;
+                provider.consecutive_successes = existing.consecutive_successes;
+                provider.last_error = existing.last_error.clone();
+                provider.avg_latency_ms = existing.avg_latency_ms;
+            }
             for model in &mut provider.models {
                 if let Some(existing_model) = existing.models.iter().find(|m| m.id == model.id) {
                     model.healthy = existing_model.healthy;
@@ -145,7 +154,10 @@ pub(super) fn refresh_provider_windows(
     }
 }
 
-fn refresh_model_windows(models: &mut [crate::adaptive::types::ModelState], now: chrono::DateTime<Utc>) {
+fn refresh_model_windows(
+    models: &mut [crate::adaptive::types::ModelState],
+    now: chrono::DateTime<Utc>,
+) {
     for model in models {
         if let Some(until) = model.cooldown_until_utc.as_deref() {
             if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(until) {
@@ -730,6 +742,34 @@ mod tests {
         assert_eq!(model.consecutive_failures, 3);
         assert_eq!(model.avg_latency_ms, Some(321));
         assert_eq!(model.streaming_validated, Some(false));
+    }
+
+    #[test]
+    fn configured_probe_model_overrides_stale_runtime_snapshot_choice() {
+        let current = vec![ProviderState {
+            healthy: false,
+            consecutive_failures: 3,
+            last_error: Some("provider google HTTP 503".to_string()),
+            probe_model: Some("gemini-3.6-flash".to_string()),
+            probe_profile: Some("catalog_default_fallback".to_string()),
+            ..provider("google")
+        }];
+        let loaded = vec![ProviderState {
+            probe_model: Some("gemini-2.5-flash".to_string()),
+            probe_profile: Some("verified_tool_capable_default".to_string()),
+            ..provider("google")
+        }];
+
+        let merged = merge_runtime_state(current, loaded);
+
+        assert_eq!(merged[0].probe_model.as_deref(), Some("gemini-2.5-flash"));
+        assert_eq!(
+            merged[0].probe_profile.as_deref(),
+            Some("verified_tool_capable_default")
+        );
+        assert!(merged[0].healthy);
+        assert_eq!(merged[0].consecutive_failures, 0);
+        assert!(merged[0].last_error.is_none());
     }
 
     #[test]

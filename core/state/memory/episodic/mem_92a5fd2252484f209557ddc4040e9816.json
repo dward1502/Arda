@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_92a5fd2252484f209557ddc4040e9816",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5 for task operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5 ended status=failed result=failed; receipt=sha256:89c79d17f719d16d1de8dfb08a63e4e726ca0f6e16fe0fc4af0d375233dbe5ac; detail=Unsupported completion: the execute receipt proves read-only inspection of the five declared context sources, and its exported read-output digests correctly differ from the corresponding source-content digests, but the projection contains no execution summary or durable output demonstrating the required prioritized repair backlog, concrete human-visible behaviors, source evidence, smallest authoritative repair surfaces, or implemented/configured/live distinctions. The verify receipt does cover the declared `test` check exactly (`cargo test -p arda-core`, exit 0). No mutating tool calls or created artifacts are present, consistent with read-only authority, but the missing governed work product prevents approval.",
+  "salience": 0.561725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T07:03:14.622264985Z",
+  "last_seen_at": "2026-09-01T07:03:14.622264985Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

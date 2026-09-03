@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:b823385cb1f0b970eaa54e85c55d5f0e7c0db910a803154d7691ba09edc4a94a",
+  "idempotency_key": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:22b7eab2165bec6e61d19f9fd9c9e7dc582fa8c525e736a97bd22923f7409b4d"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:0ff347288265dc8244b1b147dbd42a4f42931538237e5f2cc6f20166813121ad",
+  "recorded_at_unix_ms": 1788249992129,
+  "run_id": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared clean-tree check passed, and project-native status verification reported a clean detached HEAD. No project files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch",
+      "exit_code": 0,
+      "output_digest": "sha256:6504daff6e1cadfe87a4c88628079fa6fdffd231f2f8278d4b75b5f271278c22",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6369,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 233,
+    "provider": "openai-codex",
+    "total_tokens": 6602
+  }
+}

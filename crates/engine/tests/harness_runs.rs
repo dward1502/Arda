@@ -140,7 +140,7 @@ fn stored_review_receipt(
         run_id: arda_core::run_graph::RunId::new(run_id).expect("run id"),
         node,
         objective: objective.into(),
-        instructions: "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks, and report named defects. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: test: cargo test -p arda-core".into(),
+        instructions: "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks. Judge whether the parent receipt's result satisfies this node's bounded objective, and report named defects that contradict the objective or invalidate its evidence. Begin the summary with exactly `VERDICT: APPROVE` and use status `succeeded` only when the bounded result and evidence are approved. Begin with exactly `VERDICT: BLOCK` and use status `failed` when any named defect blocks approval. Requested analytical findings are an output to validate, not defects that fail the run unless they contradict the bounded objective or invalidate its evidence. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: test: cargo test -p arda-core".into(),
         checks: Vec::new(),
         check_commands: Default::default(),
         project_contract_digest: project_contract_digest.into(),
@@ -156,7 +156,7 @@ fn stored_review_receipt(
         node_id: "review".into(),
         idempotency_key: format!("node-{run_id}"),
         status: HermesReceiptStatus::Succeeded,
-        summary: "Stored independent review completed.".into(),
+        summary: "VERDICT: APPROVE\nStored independent review completed.".into(),
         tool_evidence: vec![HermesToolEvidence {
             tool: "read_file".into(),
             action: "inspect".into(),
@@ -1562,27 +1562,6 @@ async fn operator_receipts_complete_execute_verify_review_and_close_in_order() {
     assert_eq!(recovered["review"]["tests"][0]["status"], "passed");
     assert_eq!(recovered["review"]["provider_receipt"]["provider"], "nous");
 
-    let evidence_changing_retry = client
-        .post(format!(
-            "http://{bound}/v1/runs/run-complete/nodes/close/complete"
-        ))
-        .json(&json!({
-            "envelope": envelope("complete-close"),
-            "receipt_digest": receipt_digest("close"),
-            "evidence": {
-                "changes": [{
-                    "path": "src/forged.rs",
-                    "status": "modified",
-                    "additions": 1,
-                    "deletions": 0
-                }]
-            }
-        }))
-        .send()
-        .await
-        .expect("evidence-changing complete retry");
-    assert_eq!(evidence_changing_retry.status(), 409);
-
     let retry = client
         .post(format!(
             "http://{bound}/v1/runs/run-complete/nodes/close/complete"
@@ -1595,6 +1574,35 @@ async fn operator_receipts_complete_execute_verify_review_and_close_in_order() {
         .await
         .expect("complete retry");
     assert_eq!(retry.status(), 200);
+
+    let evidence_changing_retry = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-complete/nodes/execute/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("complete-execute"),
+            "receipt_digest": receipt_digest("execute"),
+            "evidence": {
+                "changes": [{
+                    "path": "src/lib.rs",
+                    "status": "deleted",
+                    "additions": 2,
+                    "deletions": 2,
+                    "diff": "-hello\n+hello, Arda"
+                }],
+                "provider_receipt": {
+                    "provider": "nous",
+                    "model": "fixture-model",
+                    "adapter": "hermes-workbench",
+                    "receipt_digest": receipt_digest("execute"),
+                    "summary": "Bounded fixture mutation completed."
+                }
+            }
+        }))
+        .send()
+        .await
+        .expect("evidence-changing complete retry");
+    assert_eq!(evidence_changing_retry.status(), 409);
 
     let conflicting_retry = client
         .post(format!(

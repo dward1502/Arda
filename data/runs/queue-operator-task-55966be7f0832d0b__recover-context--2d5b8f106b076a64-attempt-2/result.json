@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:7c7608e7bbac5215775ea596145e9b1d9e5f22ac231e5bf52e772656d6917d2a",
+    "summary": "Independent review confirmed that the supplied verification receipt covers the declared `test` check exactly: the project contract defines `cargo test -p arda-core`, and the receipt records that command passing with exit code 0. Source evidence is otherwise sufficient, its exported read-output digests are distinct from source-content digests, no context_use_receipt was required, and no mutation evidence is present. However, the recovery backlog misses a concrete P0 governance defect: core/projects/tasks/queue.jsonl:46890-46894 records `autonomy_readiness_decision\":\"hold\"`, three unmet readiness reasons, and a null governance authorization while still creating pending execute/verify work and submitting those leaves through Apollo. This apparent fail-open authorization path is more consequential than the reported duplicate fan-out and must be named and investigated before approving the recovered prioritized backlog. The duplicate execute/verify accumulation and stale status-report claims identified by execution are independently corroborated."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:f7990a765cd4d833b82a6dbf66204b961c8a739d82fd9c19a1d3381c7c8d208b",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:c4551cf0838c8e5d18f059d61772e90d6541dd3abb22f7555955ba476c89309b",
+    "summary": "Independent read-only review completed with sufficient receipt-backed source evidence. The prior verification receipt covers `git status --short --branch` with exit code 0 and the declared clean-tree check passed. Concrete defects: (1) `src/policy.rs:89` enforces `require_trace_for_review` only when metadata explicitly sets `requires_review`; a non-mutating critical-risk invocation can reach `review_required` through `critical_always_review` at `src/policy.rs:129` without any trace ID. (2) `src/policy.rs:160` performs lexical prefix target matching, so a path-like target such as `scope/../outside` matches `scope/*`, allowing traversal-shaped targets outside the intended scope unless callers canonicalize them separately. (3) `src/types.rs:74` only checks that `requested_at_utc` is nonblank, so malformed or non-UTC timestamps are accepted while the receipt reports the input as structurally valid. Existing tests do not cover these cases. No files were modified and no declared checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

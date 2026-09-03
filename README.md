@@ -8,8 +8,8 @@ The installed/release support authority remains the [Arda 0.9 Baseline](docs/rel
 
 ## Current workspace status
 
-- `cargo metadata --no-deps --format-version 1` resolves 18 current workspace
-  packages (16 default members) as of 2026-08-08.
+- `cargo metadata --no-deps --format-version 1` resolves 19 current workspace
+  packages (17 default members) as of 2026-08-30.
 - The root binary is `arda`; the workspace has no `arda-council` package.
 - Installed services and listeners are runtime evidence, not Cargo topology or
   release support. Use `ARDA_SYSTEM_STATUS_REPORT.md` for the latest bounded

@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:ab5ca82e7b95cee0ad54fe86fcd354c4d142f5be436fc50c4d6dc45d31c9b9d2",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:hermes-m4-5b9547697f1f4693"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:057b6b709e30437a4b9078a2204aa527a09d400bf7340141f8d00ce6c8f080cb",
+  "recorded_at_unix_ms": 1788409096533,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Synthesized the completed project leaves: the Rust human-knowledge interface, ingestion contract, fixtures, and target-local tests form a coherent result for vault validation, Markdown frontmatter parsing, wikilink resolution, note scanning, and memory-record serialization. The declared clean-tree check passed; no changes were required or created.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 7,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10254,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 584,
+    "provider": "openai-codex",
+    "total_tokens": 10838
+  }
+}

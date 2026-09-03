@@ -84,6 +84,9 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
                 started_at_ms INTEGER NOT NULL,
                 completed_at_ms INTEGER NOT NULL,
                 verdict TEXT NOT NULL,
+                context_outcome_receipt_id TEXT,
+                context_outcome_receipt_digest TEXT,
+                binding_digest TEXT,
                 recorded_at_ms INTEGER NOT NULL,
                 PRIMARY KEY (leaf_id, stage)
             );
@@ -112,5 +115,61 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
             .execute("ALTER TABLE leaves ADD COLUMN execution_json TEXT", [])
             .context("add leaf execution payload column")?;
     }
+    for (column, sql) in [
+        (
+            "context_outcome_receipt_id",
+            "ALTER TABLE stage_receipts ADD COLUMN context_outcome_receipt_id TEXT",
+        ),
+        (
+            "context_outcome_receipt_digest",
+            "ALTER TABLE stage_receipts ADD COLUMN context_outcome_receipt_digest TEXT",
+        ),
+        (
+            "binding_digest",
+            "ALTER TABLE stage_receipts ADD COLUMN binding_digest TEXT",
+        ),
+    ] {
+        let exists = {
+            let mut statement = connection.prepare("PRAGMA table_info(stage_receipts)")?;
+            let columns = statement.query_map([], |row| row.get::<_, String>(1))?;
+            columns
+                .collect::<rusqlite::Result<Vec<_>>>()?
+                .iter()
+                .any(|candidate| candidate == column)
+        };
+        if !exists {
+            connection.execute(sql, [])?;
+        }
+    }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn partially_migrated_stage_receipts_gain_binding_digest() {
+        let connection = Connection::open_in_memory().unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE stage_receipts (
+                    context_outcome_receipt_id TEXT,
+                    context_outcome_receipt_digest TEXT
+                );",
+            )
+            .unwrap();
+
+        apply(&connection).unwrap();
+
+        let mut statement = connection
+            .prepare("PRAGMA table_info(stage_receipts)")
+            .unwrap();
+        let columns = statement
+            .query_map([], |row| row.get::<_, String>(1))
+            .unwrap()
+            .collect::<rusqlite::Result<Vec<_>>>()
+            .unwrap();
+        assert!(columns.iter().any(|column| column == "binding_digest"));
+    }
 }

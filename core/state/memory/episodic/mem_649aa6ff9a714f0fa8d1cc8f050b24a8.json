@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_649aa6ff9a714f0fa8d1cc8f050b24a8",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-d8a16a9ec8678cc4__recover-context--2a17e20fddc1e3d1 for task operator-task-d8a16a9ec8678cc4__recover-context--2a17e20fddc1e3d1 ended status=failed result=failed; receipt=sha256:f04d0def072282c562f9f792a8111d8ef56c1815c94e4c31fdcf78195e1fd50f; detail=Review rejected unsupported completion. The verification receipt covers the declared test check: cargo test -p arda-core passed with exit code 0. Required source_evidence is insufficient: the execution receipt exposes read-tool output digests but does not bind them to or prove equality with the six digest-pinned context sources in the leaf contract; context_use_receipt is null; and the declared git status --short repository-state source was not inspected, leaving the no-modification claim unsupported. Concrete durable-state defect: core/projects/tasks/queue.jsonl contains many duplicate pending execute/verify records for the same objective and repeated replan continuations, contradicting canonical single-next-action scheduling. The active audit also contains stale capability claims relative to the newer milestone plans, so it cannot independently establish authoritative current context.",
+  "salience": 0.561725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T04:55:08.901833113Z",
+  "last_seen_at": "2026-09-01T04:55:08.901833113Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

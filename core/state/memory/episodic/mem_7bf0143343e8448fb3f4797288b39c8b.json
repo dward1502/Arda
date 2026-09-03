@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7bf0143343e8448fb3f4797288b39c8b",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-db3ce87ce2704e18 for task operator-task-db3ce87ce2704e18 ended status=failed result=cancelled; receipt=none; detail=--reason Superseded after installed evidence proved inspection file calls were wrongly excluded from material evidence",
+  "salience": 0.4350583333333332,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T02:08:24.203769269Z",
+  "last_seen_at": "2026-09-01T02:08:24.203769269Z",
+  "memory_scope": "system_continuity",
+  "memory_domain": "system",
+  "evidence_class": "inferred"
+}

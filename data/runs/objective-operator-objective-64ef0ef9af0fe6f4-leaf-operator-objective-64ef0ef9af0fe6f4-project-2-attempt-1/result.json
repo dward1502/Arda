@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:d71b1d6c5ffa8a48e91c0043a914f2359abfe38bd0c64f8d4da2d01c60203482",
+    "summary": "No defects found. Read-only inspection confirmed the sole project file contains exactly the required acceptance fixture line, and the digest-validated parent receipt records the declared verification check passing. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "duration_ms": null,
+      "name": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "status": "passed"
+    }
+  ]
+}

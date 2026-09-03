@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1fcc530f504ac7b61747779347e4780f8a8c2189bd3e2003f781e1d83b1da9ca",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-real-two-project-v3"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:619c57fb860c15707e70a87e9687a58faaf5ae54ea146926aac97dc42593f7ae",
+  "recorded_at_unix_ms": 1788369431065,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project identity: tool-gate. README.md identifies it as a Rust library and CLI that evaluates explicit policy rules for proposed autonomous-agent tool invocations and emits machine-readable allow, deny, or review_required receipts without executing tools.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6021,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 280,
+    "provider": "openai-codex",
+    "total_tokens": 6301
+  }
+}

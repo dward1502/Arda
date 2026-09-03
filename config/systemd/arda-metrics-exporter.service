@@ -2,13 +2,15 @@
 Description=Arda Prometheus Metrics Exporter
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=5min
+StartLimitBurst=5
 
 [Service]
 Type=simple
 WorkingDirectory=/var/home/mythos/Eregion/Arda
 Environment=ARDA_ROOT=/var/home/mythos/Eregion/Arda
 ExecStart=%h/.local/bin/arda-cli metrics serve --root %h/Eregion/Arda --bind 127.0.0.1 --port 9101 --refresh-secs 15
-Restart=always
+Restart=on-failure
 RestartSec=3
 
 [Install]

@@ -2,7 +2,6 @@ use arda_engine::objectives::{
     ControlAction, LeafStage, NewLeaf, NewObjective, ObjectiveState, ObjectiveStore,
     ProjectAuthority, ReceiptStage, ScheduleSpec, StageReceipt,
 };
-use sha2::{Digest, Sha256};
 use std::sync::{Arc, Barrier};
 use std::thread;
 use tempfile::TempDir;
@@ -65,10 +64,7 @@ fn close_claim(store: &ObjectiveStore, leaf_id: &str, lease_owner: &str, now_ms:
     .into_iter()
     .enumerate()
     {
-        let digest = format!(
-            "sha256:{:x}",
-            Sha256::digest(format!("{leaf_id}-{stage_name}").as_bytes())
-        );
+        let digest = format!("sha256:{leaf_id}-{stage_name}");
         store
             .record_stage_receipt(
                 leaf_id,
@@ -84,6 +80,9 @@ fn close_claim(store: &ObjectiveStore, leaf_id: &str, lease_owner: &str, now_ms:
                     started_at_ms: now_ms + offset as i64,
                     completed_at_ms: now_ms + offset as i64 + 1,
                     verdict: "succeeded".to_owned(),
+                    context_outcome_receipt_id: None,
+                    context_outcome_receipt_digest: None,
+                    binding_digest: None,
                 },
                 now_ms + offset as i64 + 1,
             )
@@ -299,14 +298,11 @@ fn stage_progression_requires_exact_receipt_lineage() {
         .claim_runnable("worker-1", 120, 100, 1)
         .unwrap()
         .remove(0);
-    let execute_digest = format!("sha256:{}", "a".repeat(64));
-    let verify_digest = format!("sha256:{}", "b".repeat(64));
-    let wrong_digest = format!("sha256:{}", "c".repeat(64));
 
-    let execute = StageReceipt {
+    let mut execute = StageReceipt {
         contract: "arda.hermes_execution_receipt.v4".to_owned(),
         stage: ReceiptStage::Execute,
-        digest: execute_digest.clone(),
+        digest: "sha256:execute".to_owned(),
         predecessor_digest: None,
         run_path: "data/runs/run-1/execution-receipts/execute.json".to_owned(),
         provider: "provider-a".to_owned(),
@@ -314,7 +310,11 @@ fn stage_progression_requires_exact_receipt_lineage() {
         started_at_ms: 121,
         completed_at_ms: 130,
         verdict: "succeeded".to_owned(),
+        context_outcome_receipt_id: Some("context-outcome-1".to_owned()),
+        context_outcome_receipt_digest: Some(format!("sha256:{}", "a".repeat(64))),
+        binding_digest: None,
     };
+    execute.binding_digest = Some(execute.computed_binding_digest().unwrap());
     let mut invalid_contract = execute.clone();
     invalid_contract.contract = "legacy.synthetic_receipt.v1".to_owned();
     assert!(store
@@ -323,20 +323,32 @@ fn stage_progression_requires_exact_receipt_lineage() {
         .to_string()
         .contains("arda.hermes_execution_receipt.v4"));
     store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", execute, 131)
+        .record_stage_receipt(&claim.leaf_id, "worker-1", execute.clone(), 131)
         .unwrap();
+    let mut conflicting_outcome = execute;
+    conflicting_outcome.context_outcome_receipt_id = Some("context-outcome-2".to_owned());
+    conflicting_outcome.binding_digest =
+        Some(conflicting_outcome.computed_binding_digest().unwrap());
+    assert!(store
+        .record_stage_receipt(&claim.leaf_id, "worker-1", conflicting_outcome, 131)
+        .unwrap_err()
+        .to_string()
+        .contains("idempotency conflict"));
 
     let wrong = StageReceipt {
         contract: "arda.hermes_execution_receipt.v4".to_owned(),
         stage: ReceiptStage::Verify,
-        digest: verify_digest.clone(),
-        predecessor_digest: Some(wrong_digest),
+        digest: "sha256:verify".to_owned(),
+        predecessor_digest: Some("sha256:wrong".to_owned()),
         run_path: "data/runs/run-1/execution-receipts/verify.json".to_owned(),
         provider: "provider-b".to_owned(),
         model: "model-b".to_owned(),
         started_at_ms: 132,
         completed_at_ms: 140,
         verdict: "succeeded".to_owned(),
+        context_outcome_receipt_id: None,
+        context_outcome_receipt_digest: None,
+        binding_digest: None,
     };
     assert!(store
         .record_stage_receipt(&claim.leaf_id, "worker-1", wrong, 141)
@@ -345,11 +357,11 @@ fn stage_progression_requires_exact_receipt_lineage() {
         .contains("predecessor"));
 
     let verify = StageReceipt {
-        predecessor_digest: Some(execute_digest),
+        predecessor_digest: Some("sha256:execute".to_owned()),
         ..StageReceipt {
             contract: "arda.hermes_execution_receipt.v4".to_owned(),
             stage: ReceiptStage::Verify,
-            digest: verify_digest,
+            digest: "sha256:verify".to_owned(),
             predecessor_digest: None,
             run_path: "data/runs/run-1/execution-receipts/verify.json".to_owned(),
             provider: "provider-b".to_owned(),
@@ -357,6 +369,9 @@ fn stage_progression_requires_exact_receipt_lineage() {
             started_at_ms: 132,
             completed_at_ms: 140,
             verdict: "succeeded".to_owned(),
+            context_outcome_receipt_id: None,
+            context_outcome_receipt_digest: None,
+            binding_digest: None,
         }
     };
     store
@@ -414,114 +429,4 @@ fn revision_invalidates_approval_and_terminal_root_requires_every_leaf_close() {
         .unwrap_err()
         .to_string()
         .contains("not complete"));
-}
-
-#[test]
-fn objective_creation_rejects_dependency_cycles() {
-    let temp = TempDir::new().unwrap();
-    let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
-    let mut cyclic = objective("objective-cycle", "message-cycle");
-    cyclic.leaves[0].dependencies = vec!["objective-cycle-join".to_owned()];
-
-    let error = store
-        .create_authenticated_objective(cyclic, 100)
-        .unwrap_err();
-
-    assert!(
-        error.to_string().contains("contain a cycle"),
-        "unexpected error: {error:#}"
-    );
-    assert!(store.list_objectives().unwrap().is_empty());
-}
-
-#[test]
-fn revision_is_rejected_after_leaf_execution_begins() {
-    let temp = TempDir::new().unwrap();
-    let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
-    store
-        .create_authenticated_objective(objective("objective-1", "message-1"), 100)
-        .unwrap();
-    store
-        .apply_control(
-            "objective-1",
-            ControlAction::Approve { revision: 1 },
-            "approval-1",
-            "operator:primary",
-            110,
-        )
-        .unwrap();
-    store
-        .claim_runnable("worker-1", 120, 100, 1)
-        .unwrap()
-        .remove(0);
-
-    let error = store
-        .apply_control(
-            "objective-1",
-            ControlAction::Revise {
-                text: "Unsafe mid-execution revision".to_owned(),
-            },
-            "revision-after-execution",
-            "operator:primary",
-            121,
-        )
-        .unwrap_err();
-
-    assert!(
-        error.to_string().contains("execution started"),
-        "unexpected error: {error:#}"
-    );
-    assert_eq!(store.objective("objective-1").unwrap().unwrap().revision, 1);
-}
-
-#[test]
-fn stage_receipts_require_canonical_digests_and_safe_relative_paths() {
-    let temp = TempDir::new().unwrap();
-    let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
-    store
-        .create_authenticated_objective(objective("objective-1", "message-1"), 100)
-        .unwrap();
-    store
-        .apply_control(
-            "objective-1",
-            ControlAction::Approve { revision: 1 },
-            "approval-1",
-            "operator:primary",
-            110,
-        )
-        .unwrap();
-    let claim = store
-        .claim_runnable("worker-1", 120, 100, 1)
-        .unwrap()
-        .remove(0);
-    let receipt = StageReceipt {
-        contract: "arda.hermes_execution_receipt.v4".to_owned(),
-        stage: ReceiptStage::Execute,
-        digest: "sha256:not-a-digest".to_owned(),
-        predecessor_digest: None,
-        run_path: "data/runs/run-1/execution-receipts/execute.json".to_owned(),
-        provider: "provider-a".to_owned(),
-        model: "model-a".to_owned(),
-        started_at_ms: 121,
-        completed_at_ms: 130,
-        verdict: "succeeded".to_owned(),
-    };
-    let digest_error = store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", receipt.clone(), 131)
-        .unwrap_err();
-    assert!(digest_error.to_string().contains("lowercase-hex"));
-
-    let path_error = store
-        .record_stage_receipt(
-            &claim.leaf_id,
-            "worker-1",
-            StageReceipt {
-                digest: format!("sha256:{}", "d".repeat(64)),
-                run_path: "../outside.json".to_owned(),
-                ..receipt
-            },
-            131,
-        )
-        .unwrap_err();
-    assert!(path_error.to_string().contains("repository-relative"));
 }

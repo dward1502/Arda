@@ -4,10 +4,10 @@ soterion:
   role: "evidence_index"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-01"
 ---
 
-> 🜏 Soterion: 📜 evidence_index | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 evidence_index | owner: PROMETHEUS | status: active | reviewed: 2026-09-01
 
 # Autonomous Completion Evidence History
 
@@ -23,6 +23,8 @@ This file indexes completed engineering slices. It is not the execution plan and
 | 2026-08-28 | Pause/resume, reprioritization, revision, fresh approval | Source/package | Aulë canonical-control tests |
 | 2026-08-28 | Provider-backed verifier and independent critic contracts | Source/package | Engine/Aulë provider receipt tests |
 | 2026-08-30 | Unified objective/control projection | Source/package | Commit `412250bde5abc4274da980d998cc9187678e44c8` |
+| 2026-09-01 | Reviewed real multi-project objective and receipt-backed joined close | Installed workflow; overlap still open | `operator-task-fb5a52e3a268ec2d` and `docs/audits/2026-08-30-autonomous-loop-installed-acceptance.md` |
+| 2026-09-01 | Legacy queue authority frozen; `operator-task-020fddb7c36065cf` abandoned by architecture cutover | Operational boundary, not acceptance | `docs/plans/2026-09-01-arda-objective-runtime-cutover.md`; timer disabled and legacy ledgers made read-only |
 
 ## Supporting audits
 

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:9cb8469aa7b4b6601ad66f796c706b14f1eae0c1c7a22ce4044958005e4cd9f5",
+    "summary": "No defects found. Independent read-only inspection confirmed README.acceptance contains the required exact line. The parent verification receipt is scoped to the declared check, reports exit code 0, includes distinct tool-output and test-output digests, and declares no artifacts or modifications."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "duration_ms": null,
+      "name": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "status": "passed"
+    }
+  ]
+}

@@ -743,14 +743,14 @@ impl HermesAdapter {
             "context_use_receipt": task.context_assembly.as_ref().map(|assembly| &assembly.use_receipt),
         });
         Ok(format!(
-            "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Arda automatically derives tool and test evidence from Hermes' redacted session export, so leave tool_evidence and test_evidence empty and do not fail merely because opaque tool-call IDs are unavailable. Use status failed only when the governed work or evidence itself fails. Artifact entries are created outputs only: never list files merely read as artifacts, and use an empty artifacts array for read-only inspection or review work. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[],\"test_evidence\":[],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
+            "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Arda automatically derives tool and test evidence from Hermes' redacted session export, so leave tool_evidence and test_evidence empty and do not fail merely because opaque tool-call IDs are unavailable. Use status failed only when the governed work or evidence itself fails. On review nodes, the first line of summary MUST be exactly `VERDICT: APPROVE` with status succeeded, or exactly `VERDICT: BLOCK` with status failed; never report transport success for a blocking review. Artifact entries are created outputs only: never list files merely read as artifacts, and use an empty artifacts array for read-only inspection or review work. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[],\"test_evidence\":[],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
             serde_json::to_string(&context)?
         ))
     }
 
     fn validate_result(
         &self,
-        _task: &HermesNodeTask,
+        task: &HermesNodeTask,
         result: &HermesJobResult,
     ) -> Result<(), HermesAdapterError> {
         if result.schema_version != RESULT_SCHEMA_VERSION {
@@ -763,6 +763,22 @@ impl HermesAdapter {
             return Err(HermesAdapterError::InvalidResult(
                 "summary cannot be empty".into(),
             ));
+        }
+        if task.node.kind == NodeKind::Review {
+            let verdict = result.summary.lines().next().map(str::trim);
+            let contains_block_verdict = result.summary.contains("VERDICT: BLOCK");
+            let valid = match (verdict, result.status) {
+                (Some("VERDICT: APPROVE"), HermesReceiptStatus::Succeeded) => {
+                    !contains_block_verdict
+                }
+                (Some("VERDICT: BLOCK"), HermesReceiptStatus::Failed) => true,
+                _ => false,
+            };
+            if !valid {
+                return Err(HermesAdapterError::InvalidResult(
+                    "review result must begin with `VERDICT: APPROVE` and status succeeded, or `VERDICT: BLOCK` and status failed".into(),
+                ));
+            }
         }
         let mut claimed_call_ids = std::collections::BTreeSet::new();
         for evidence in &result.tool_evidence {

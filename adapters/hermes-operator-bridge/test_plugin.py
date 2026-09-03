@@ -72,6 +72,30 @@ class _ReminderGateway(_Gateway):
 _SOURCE = SimpleNamespace(platform="discord", chat_id="private-chat", thread_id=None)
 
 
+class CapabilityAuthenticationTests(unittest.TestCase):
+    def test_operator_post_sends_gateway_capability_header(self):
+        with (
+            patch.dict(
+                os.environ,
+                {"ARDA_HERMES_GATEWAY_CAPABILITY": "test-gateway-capability"},
+            ),
+            patch.object(
+                plugin,
+                "urlopen",
+                return_value=_Response('{"summary":"Accepted."}'),
+            ) as mocked,
+        ):
+            accepted, summary = plugin._post(_payload())
+
+        self.assertTrue(accepted)
+        self.assertEqual(summary, "Accepted.")
+        request = mocked.call_args.args[0]
+        self.assertEqual(
+            request.get_header("X-arda-gateway-capability"),
+            "test-gateway-capability",
+        )
+
+
 class ReminderDeliveryTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -177,7 +201,13 @@ def _payload(message_id: str = "message-1") -> dict:
 class DurableRetryTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.env = patch.dict(os.environ, {"HERMES_HOME": self.temp.name})
+        self.env = patch.dict(
+            os.environ,
+            {
+                "HERMES_HOME": self.temp.name,
+                "ARDA_HERMES_GATEWAY_CAPABILITY": "test-gateway-capability",
+            },
+        )
         self.env.start()
         plugin._RETRY_DELAYS = (0.0,)
         plugin._RETRY_TASKS.clear()

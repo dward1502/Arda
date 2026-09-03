@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2b70798b1cab4c57844d3da50eb0de91",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699-attempt-2 for task operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699 ended status=failed result=failed; receipt=sha256:b15854300df9aec59c85167458aa69caec9cf6436673eaa170cf8007f2155d75; detail=Bounded read-only inspection recovered the project registry, active completion plans, system status, existing repair backlog, and current queue lineage without modifying project files or running reserved checks. Prioritized backlog: P0 expose one canonical Workbench objective through Hermes inspection and controls; P0 prove same-objective deferred or recurring continuation across restart and critic rejection followed by durable correction; P1 route canonical execution and independent review through Manwë and complete one joined objective across the two reviewed project contracts; P1 replace fixture and proof registry entries with reviewed real-project contracts; P1 bind Vairë context-use receipts and Soterion retrieval to the same operator-visible objective; P2 activate the daily research and project-audit loop with verified-improvement, justified-no-change, and rejection outcomes; P3 govern one external-capability candidate through adoption or justified rejection. Human-visible behavior should be one truthful objective view showing projects, current leaf, route, evidence, schedule, blocker, and controls. The smallest authoritative surfaces are Workbench objective, queue, schedule, and receipt records; Manwë placement receipts; the project registry; Vairë context-use receipts; and read-only Hermes/HUD projections. The job is failed because this runtime did not expose actual tool-call IDs for the completed file reads, so valid tool_evidence cannot be returned without fabrication.",
+  "salience": 0.4617249999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T03:17:14.010127980Z",
+  "last_seen_at": "2026-09-01T03:17:14.010127980Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

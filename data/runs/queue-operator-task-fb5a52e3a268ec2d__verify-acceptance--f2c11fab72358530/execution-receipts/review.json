@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0687d5bc71a7deff8e9c01b0ae396fa706d8400e242d0de9f6788b897559230b",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__verify-acceptance--f2c11fab72358530-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:a539556cb56a9a161d23cc7aa44d48a3669067425eb96cad85eec15bbd35addc"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:08ce4a6332d427cbba79fafbe78ef9ff620dc6e894b8d5026b34bc444f6426dc",
+  "recorded_at_unix_ms": 1788261942946,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__verify-acceptance--f2c11fab72358530",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent review found sufficient project-check and acceptance evidence for this intermediate node. The prior verification receipt exactly covers the declared `test` check with `cargo test -p arda-core`, exit code 0. The reviewed backlog names human-visible behavior, source evidence, and authoritative repair surfaces while distinguishing source/package implementation, configured or workflow-proven state, live deployment, and operator acceptance. Concrete defects remain explicitly disclosed: queue work can proceed despite an autonomy-readiness hold and null governance authorization, duplicate execute/verify leaves accumulate for one objective, review independence is not workflow-proven, and active status documentation remains stale. These defects do not invalidate this node’s objective because identifying them is part of the required acceptance outcome, and no whole-system completion is claimed. Read-only evidence contains no mutating calls; no context-use receipt was required; no files were modified or created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":260,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":140,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":140,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f45d1bc562897b4fdf0024e4af4cf3cfb2567ecb4de6781d2577290f94374ff3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":8,\"offset\":53339,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:33103d1427d9e09d14878db4c3e9d65ed6baff1c9df8365fe4fa2e376bebb16e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"limit\":30,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\",\"pattern\":\"operator-task-fb5a52e3a268ec2d__(produce-outcome|verify-acceptance)\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d917cf779ee90388ec49569449e18b71fd65bf0c57f2958cca5d82d20bec7099",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 30956,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 803,
+    "provider": "openai-codex",
+    "total_tokens": 31759
+  }
+}

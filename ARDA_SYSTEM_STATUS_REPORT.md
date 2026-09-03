@@ -44,7 +44,7 @@ authorities. Read `queue_active.json` first for task selection.
 | Memory and evidence | digest-bound Vairë continuation and Varda provenance/contradiction handling proved across restart in the bounded organism flow |
 | Arandur orchestration | read-only governed CEO cycle operator-accepted; it proposes and observes without becoming queue or execution authority |
 | HUD authority and five upper monitors | Rust authority implemented/tested; five-monitor native implementation operator-accepted |
-| Autonomous completion loop | incomplete; installed queue execution omits verify/review/close and does not continue work to acceptance |
+| Autonomous completion loop | full graph and durable continuation are source/package verified and bounded installed runs reached verify/review/close, forced restart recovery, critic revision, and corrected close; same-objective deferred wake, joined multi-project close, Vairë context-use, and operator acceptance remain open |
 | Connected projects | incomplete; production registry contains three proof/demo contracts while 18 real Eregion Git repositories remain unattached |
 | Soterion retrieval | library-level metadata index exists, but no complete live operator/agent quick-lookup path was found |
 | Daily improvement | incomplete; repository Warden research/survey timers are not installed and no research-to-verified-change loop is active |
@@ -118,16 +118,17 @@ genuine operator evidence, and the required whole-system proofs.
 
 ## Immediate continuing work
 
-1. Replace the installed queue executor's truncated graph with full
-   plan/approval/execute/verify/review/close and durable continuation decisions.
+1. Complete one same-objective deferred/recurring wake across restart and one
+   shared-objective multi-project joined close.
 2. Attach real projects with truthful contracts and remove proof/demo records
    from production project authority.
 3. Route canonical queued work through Manwë placement so available local,
    subscription, and paid capacity is actually used according to policy.
 4. Repair and activate daily research/project-audit scheduling, then connect its
    findings to the same verified completion loop.
-5. Expose expanded Soterion retrieval and the canonical loop through Hermes and
-   native HUD controls without making either surface a parallel authority.
+5. Bind live Vairë context-use receipts, expose expanded Soterion retrieval and
+   the canonical loop through Hermes/native HUD controls without parallel
+   authority, and obtain the operator-burden verdict.
 
 The finite 0.9 improvement plan remains a completed
 [`historical record`](docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).

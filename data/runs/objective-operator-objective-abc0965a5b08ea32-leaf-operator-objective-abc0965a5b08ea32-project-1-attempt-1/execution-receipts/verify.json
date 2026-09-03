@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:af0a81ca1e56273facb31d8ca9a9ad4237f86f93d928d348a1a7911eab8644c4",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:daa3976ee758f4827728be73e36ea858e16d135ca1eadd5dd2420c54df230ccc"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:67b5692e560c11e77b639f1f01f859aba8118a8774f0740c179954454d33e13d",
+  "recorded_at_unix_ms": 1788327490954,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared verify check passed; pwd returned the exact supplied project root.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5248,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 139,
+    "provider": "openai-codex",
+    "total_tokens": 5387
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:78e4c54aea35494afef20bf5a09bd8adfe4a8affcdc72084f882b43f062035fb",
+    "summary": "Approved with no named defects. Independent source inspection confirms the parent summary: Tool Gate evaluates caller-supplied metadata as a deterministic pre-execution policy gate, returns allow, deny, or review_required receipts, does not execute tools, and explicitly delegates authentication, authorization, sandboxing, and execution to callers. Although the parent’s direct README extraction exited -1, its successful line-scoped git-blame evidence covers the cited claims, and the successful clean-tree evidence supports the no-modification assertion."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

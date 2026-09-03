@@ -1,4 +1,8 @@
 #![cfg(feature = "full-cli")]
+#![allow(
+    dead_code,
+    reason = "legacy queue execution is crate-private and retained only for migration tests"
+)]
 // sigil: REPAIR
 //! Task queue analyzer over `core/projects/tasks/queue.jsonl`.
 
@@ -112,7 +116,7 @@ pub struct ApprovedQueueClaim {
 }
 
 #[derive(Debug, Clone)]
-pub struct ActiveQueueExecutor {
+pub(crate) struct ActiveQueueExecutor {
     queue_path: PathBuf,
     active_projection_path: PathBuf,
     schedule_path: PathBuf,
@@ -131,7 +135,13 @@ impl TaskQueueAnalyzer {
 
     pub fn load(&self) -> std::io::Result<Vec<QueueRecord>> {
         let f = std::fs::File::open(&self.queue_path)?;
-        read_queue_records(&f)
+        f.lock_shared()?;
+        let records = read_queue_records(&f);
+        let unlock = fs2::FileExt::unlock(&f);
+        match (records, unlock) {
+            (Ok(records), Ok(())) => Ok(records),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
     }
 
     pub fn analyze(&self) -> TaskQueueMetrics {
@@ -141,9 +151,19 @@ impl TaskQueueAnalyzer {
     }
 
     pub fn effective_records(records: Vec<QueueRecord>) -> Vec<QueueRecord> {
-        let authorized_reopens = (0..records.len())
-            .map(|index| record_authorizes_reopen(&records, index))
-            .collect::<Vec<_>>();
+        let prior_aliases = prior_same_alias_indices(&records);
+        let mut valid_root_reopens = vec![false; records.len()];
+        let mut authorized_reopens = Vec::with_capacity(records.len());
+        for index in 0..records.len() {
+            valid_root_reopens[index] =
+                record_is_valid_root_reopen(&records, index, &prior_aliases, &valid_root_reopens);
+            authorized_reopens.push(record_authorizes_reopen_indexed(
+                &records,
+                index,
+                &prior_aliases,
+                &valid_root_reopens,
+            ));
+        }
         let valid_objective_revisions = (0..records.len())
             .map(|index| record_is_valid_objective_revision(&records, index))
             .collect::<Vec<_>>();
@@ -605,114 +625,287 @@ impl ActiveQueueExecutor {
                 "approval packet id, reviewer, and reason must be non-empty",
             ));
         }
-        if let Some(parent) = self.queue_path.parent() {
-            std::fs::create_dir_all(parent)?;
+        let preflight_records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
+        let current = TaskQueueAnalyzer::effective_records(preflight_records.clone())
+            .into_iter()
+            .find(|record| record.id == task_id && queue_objective_id(record) == Some(objective_id))
+            .ok_or_else(|| {
+                std::io::Error::new(std::io::ErrorKind::NotFound, "revised queue task not found")
+            })?;
+        let contract = current.extra.get("contract").and_then(Value::as_str);
+        let same_persisted_approval = contract
+            == Some("arda.workbench.objective_revision_approval.v1")
+            && current
+                .extra
+                .get("meta")
+                .and_then(Value::as_object)
+                .and_then(|meta| meta.get("approval_packet_id"))
+                .and_then(Value::as_str)
+                == Some(approval_packet_id);
+        if contract != Some("arda.workbench.objective_revision.v1") && !same_persisted_approval {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "task is not pending objective revision approval",
+            ));
         }
-        let mut file = OpenOptions::new()
-            .create(true)
-            .read(true)
-            .append(true)
-            .open(&self.queue_path)?;
-        file.lock_exclusive()?;
-        let result = (|| {
-            let records = read_queue_records(&file)?;
-            let valid_objective_revisions = (0..records.len())
-                .map(|index| record_is_valid_objective_revision(&records, index))
-                .collect::<Vec<_>>();
-            let effective = TaskQueueAnalyzer::effective_records(records.clone());
-            let mut appended = effective
-                .into_iter()
-                .find(|record| {
-                    record.id == task_id && queue_objective_id(record) == Some(objective_id)
-                })
-                .ok_or_else(|| {
-                    std::io::Error::new(
-                        std::io::ErrorKind::NotFound,
-                        "revised queue task not found",
-                    )
-                })?;
-            if appended.extra.get("contract").and_then(Value::as_str)
-                != Some("arda.workbench.objective_revision.v1")
-            {
+        if !same_persisted_approval {
+            let structurally_valid_revision = (0..preflight_records.len()).rev().any(|index| {
+                record_is_valid_objective_revision(&preflight_records, index)
+                    && preflight_records[index].id == task_id
+                    && queue_objective_id(&preflight_records[index]) == Some(objective_id)
+            });
+            if !structurally_valid_revision {
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::InvalidInput,
-                    "task is not pending objective revision approval",
+                    "task is not pending a structurally valid objective revision",
                 ));
             }
-            records
-                .iter()
-                .enumerate()
-                .rposition(|(index, record)| {
-                    valid_objective_revisions[index]
-                        && record.id == task_id
-                        && queue_objective_id(record) == Some(objective_id)
-                })
-                .ok_or_else(|| {
-                    std::io::Error::new(
-                        std::io::ErrorKind::InvalidInput,
-                        "task is not pending a structurally valid objective revision",
-                    )
-                })?;
-            if approval_packet_precedes_index(&records, records.len(), approval_packet_id) {
+            if approval_packet_precedes_index(
+                &preflight_records,
+                preflight_records.len(),
+                approval_packet_id,
+            ) {
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::InvalidInput,
                     "approval packet was already used in the canonical queue ledger",
                 ));
             }
-            let meta = appended
-                .extra
-                .get_mut("meta")
-                .and_then(Value::as_object_mut)
-                .ok_or_else(|| {
-                    std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        "revised task omitted governed queue metadata",
-                    )
-                })?;
-            meta.insert(
-                "mutation_risk".into(),
-                Value::String("operator-approved".into()),
-            );
-            meta.insert(
-                "action_class".into(),
-                Value::String("approved_autopilot_plan_step".into()),
-            );
-            meta.insert(
-                "approval_packet_id".into(),
-                Value::String(approval_packet_id.into()),
-            );
-            appended.extra.insert(
-                "contract".into(),
-                Value::String("arda.workbench.objective_revision_approval.v1".into()),
-            );
-            appended
-                .extra
-                .insert("reviewed_by".into(), Value::String(reviewed_by.into()));
-            appended
-                .extra
-                .insert("operator_reason".into(), Value::String(reason.into()));
-            appended.extra.insert(
-                "objective_approved_at_utc".into(),
-                Value::String(Utc::now().to_rfc3339()),
-            );
-            serde_json::to_writer(&mut file, &appended)
-                .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-            writeln!(file)?;
-            file.sync_data()?;
-            Ok(appended)
-        })();
-        let unlock = FileExt::unlock(&file);
-        match (result, unlock) {
-            (Ok(value), Ok(())) => Ok(value),
-            (Err(error), _) | (_, Err(error)) => Err(error),
         }
+        let schedule_ledger = ScheduleLedger::new(&self.schedule_path);
+        match schedule_ledger.effective()?.get(task_id) {
+            Some(existing) if existing.objective_id != objective_id => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    "existing schedule objective lineage does not match approved task",
+                ));
+            }
+            Some(existing)
+                if matches!(
+                    existing.state,
+                    ScheduleState::Cancelled | ScheduleState::Completed
+                ) =>
+            {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "terminal schedule cannot be reopened by objective approval",
+                ));
+            }
+            Some(_) | None => {}
+        }
+        let approved = schedule_ledger.with_effective(|schedules| {
+            if let Some(existing) = schedules.get(task_id) {
+                if existing.objective_id != objective_id {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::PermissionDenied,
+                        "schedule objective lineage changed during approval",
+                    ));
+                }
+                if matches!(
+                    existing.state,
+                    ScheduleState::Cancelled | ScheduleState::Completed
+                ) {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "terminal schedule cannot be approved",
+                    ));
+                }
+            }
+            if let Some(parent) = self.queue_path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            let mut file = OpenOptions::new()
+                .create(true)
+                .read(true)
+                .append(true)
+                .open(&self.queue_path)?;
+            file.lock_exclusive()?;
+            let result = (|| {
+                let records = read_queue_records(&file)?;
+                let valid_objective_revisions = (0..records.len())
+                    .map(|index| record_is_valid_objective_revision(&records, index))
+                    .collect::<Vec<_>>();
+                let effective = TaskQueueAnalyzer::effective_records(records.clone());
+                let mut appended = effective
+                    .into_iter()
+                    .find(|record| {
+                        record.id == task_id && queue_objective_id(record) == Some(objective_id)
+                    })
+                    .ok_or_else(|| {
+                        std::io::Error::new(
+                            std::io::ErrorKind::NotFound,
+                            "revised queue task not found",
+                        )
+                    })?;
+                if appended.extra.get("contract").and_then(Value::as_str)
+                    == Some("arda.workbench.objective_revision_approval.v1")
+                    && appended
+                        .extra
+                        .get("meta")
+                        .and_then(Value::as_object)
+                        .and_then(|meta| meta.get("approval_packet_id"))
+                        .and_then(Value::as_str)
+                        == Some(approval_packet_id)
+                {
+                    return Ok(appended);
+                }
+                if appended.extra.get("contract").and_then(Value::as_str)
+                    != Some("arda.workbench.objective_revision.v1")
+                {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "task is not pending objective revision approval",
+                    ));
+                }
+                records
+                    .iter()
+                    .enumerate()
+                    .rposition(|(index, record)| {
+                        valid_objective_revisions[index]
+                            && record.id == task_id
+                            && queue_objective_id(record) == Some(objective_id)
+                    })
+                    .ok_or_else(|| {
+                        std::io::Error::new(
+                            std::io::ErrorKind::InvalidInput,
+                            "task is not pending a structurally valid objective revision",
+                        )
+                    })?;
+                if approval_packet_precedes_index(&records, records.len(), approval_packet_id) {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "approval packet was already used in the canonical queue ledger",
+                    ));
+                }
+                let meta = appended
+                    .extra
+                    .get_mut("meta")
+                    .and_then(Value::as_object_mut)
+                    .ok_or_else(|| {
+                        std::io::Error::new(
+                            std::io::ErrorKind::InvalidData,
+                            "revised task omitted governed queue metadata",
+                        )
+                    })?;
+                meta.insert(
+                    "mutation_risk".into(),
+                    Value::String("operator-approved".into()),
+                );
+                meta.insert(
+                    "action_class".into(),
+                    Value::String("approved_autopilot_plan_step".into()),
+                );
+                meta.insert(
+                    "execution_authority".into(),
+                    Value::String("arda_workbench".into()),
+                );
+                meta.insert(
+                    "approval_packet_id".into(),
+                    Value::String(approval_packet_id.into()),
+                );
+                appended.extra.insert(
+                    "contract".into(),
+                    Value::String("arda.workbench.objective_revision_approval.v1".into()),
+                );
+                appended
+                    .extra
+                    .insert("reviewed_by".into(), Value::String(reviewed_by.into()));
+                appended
+                    .extra
+                    .insert("operator_reason".into(), Value::String(reason.into()));
+                appended.extra.insert(
+                    "objective_approved_at_utc".into(),
+                    Value::String(Utc::now().to_rfc3339()),
+                );
+                serde_json::to_writer(&mut file, &appended)
+                    .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+                writeln!(file)?;
+                file.sync_data()?;
+                Ok(appended)
+            })();
+            let unlock = FileExt::unlock(&file);
+            match (result, unlock) {
+                (Ok(value), Ok(())) => Ok(value),
+                (Err(error), _) | (_, Err(error)) => Err(error),
+            }
+        })?;
+        match schedule_ledger.effective()?.get(task_id) {
+            None => schedule_ledger.append(&ScheduleRecord {
+                contract: super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task_id.into(),
+                objective_id: objective_id.into(),
+                mode: ScheduleMode::Immediate,
+                state: ScheduleState::Scheduled,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: Some("operator approved revised objective".into()),
+            })?,
+            Some(existing)
+                if existing.state == ScheduleState::Paused
+                    && existing.reason.as_deref()
+                        == Some("prepared pending revised-objective approval") =>
+            {
+                schedule_ledger.resume(
+                    task_id,
+                    objective_id,
+                    Utc::now(),
+                    "operator approved revised objective",
+                )?;
+            }
+            Some(_) => {}
+        }
+        Ok(approved)
     }
 
     pub fn reconcile_schedules(&self, now: DateTime<Utc>) -> std::io::Result<usize> {
         let ledger = ScheduleLedger::new(&self.schedule_path);
         let effective =
             TaskQueueAnalyzer::effective_records(TaskQueueAnalyzer::new(&self.queue_path).load()?);
-        let schedules = ledger.effective()?;
+        let mut schedules = ledger.effective()?;
+        let mut reconciled = 0;
+        for task in &effective {
+            if !schedules.contains_key(&task.id)
+                && task.extra.get("contract").and_then(Value::as_str)
+                    == Some("arda.workbench.objective_revision_approval.v1")
+            {
+                let Some(objective_id) = queue_objective_id(task) else {
+                    continue;
+                };
+                let schedule = ScheduleRecord {
+                    contract: super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                    task_id: task.id.clone(),
+                    objective_id: objective_id.into(),
+                    mode: ScheduleMode::Immediate,
+                    state: ScheduleState::Scheduled,
+                    not_before_utc: None,
+                    interval_seconds: None,
+                    recorded_at_utc: now,
+                    reason: Some("reconciled approved revised objective".into()),
+                };
+                ledger.append(&schedule)?;
+                schedules.insert(task.id.clone(), schedule);
+                reconciled += 1;
+            }
+            let Some(schedule) = schedules.get(&task.id) else {
+                continue;
+            };
+            let prepared_approval = task.extra.get("contract").and_then(Value::as_str)
+                == Some("arda.workbench.objective_revision_approval.v1")
+                && schedule_matches_queue_objective(task, schedule)
+                && schedule.state == ScheduleState::Paused
+                && schedule.reason.as_deref()
+                    == Some("prepared pending revised-objective approval");
+            if prepared_approval {
+                let resumed = ledger.resume(
+                    &task.id,
+                    schedule.objective_id.as_str(),
+                    now,
+                    "reconciled approved revised objective",
+                )?;
+                schedules.insert(task.id.clone(), resumed);
+                reconciled += 1;
+            }
+        }
         for task in &effective {
             let Some(schedule) = schedules.get(&task.id) else {
                 continue;
@@ -772,7 +965,7 @@ impl ActiveQueueExecutor {
             }
         }
 
-        ledger.with_effective(|schedules| {
+        let activated = ledger.with_effective(|schedules| {
             if let Some(parent) = self.queue_path.parent() {
                 std::fs::create_dir_all(parent)?;
             }
@@ -794,6 +987,7 @@ impl ActiveQueueExecutor {
                     }
                     if task.status.as_deref().map(normalize_task_status) != Some("completed")
                         || task.result.as_deref() != Some("completed")
+                        || schedule.mode != ScheduleMode::Recurring
                         || schedule.state != ScheduleState::Scheduled
                         || !schedule
                             .not_before_utc
@@ -831,7 +1025,8 @@ impl ActiveQueueExecutor {
                 (Ok(count), Ok(())) => Ok(count),
                 (Err(error), _) | (_, Err(error)) => Err(error),
             }
-        })
+        })?;
+        Ok(reconciled + activated)
     }
 
     /// Atomically claim one approved task by appending its in-progress state
@@ -903,12 +1098,20 @@ impl ActiveQueueExecutor {
             file.lock_exclusive()?;
             let result = (|| {
                 let records = read_queue_records(&file)?;
+                let exact_attempt_indices = exact_persisted_workbench_attempt_indices(&records);
+                let exact_attempts = records
+                    .iter()
+                    .enumerate()
+                    .filter(|(index, _)| exact_attempt_indices.contains(index))
+                    .map(|(_, record)| record.clone())
+                    .collect::<Vec<_>>();
                 let effective =
                     dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
                 if let Some(task) = effective.iter().find(|record| {
                     !excluded_task_ids.contains(&record.id)
                         && record.status.as_deref().map(normalize_task_status)
                             == Some("in_progress")
+                        && exact_attempts.iter().any(|attempt| attempt == *record)
                         && authoritative_schedule_eligible(record, schedules, Utc::now())
                         && approved_workbench_metadata(record)
                 }) {
@@ -951,13 +1154,21 @@ impl ActiveQueueExecutor {
             let file = OpenOptions::new().read(true).open(&self.queue_path)?;
             file.lock_shared()?;
             let result = (|| {
-                let effective = dispatch_priority_order(TaskQueueAnalyzer::effective_records(
-                    read_queue_records(&file)?,
-                ));
+                let records = read_queue_records(&file)?;
+                let exact_attempt_indices = exact_persisted_workbench_attempt_indices(&records);
+                let exact_attempts = records
+                    .iter()
+                    .enumerate()
+                    .filter(|(index, _)| exact_attempt_indices.contains(index))
+                    .map(|(_, record)| record.clone())
+                    .collect::<Vec<_>>();
+                let effective =
+                    dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
                 if let Some(task) = effective.iter().find(|record| {
                     !excluded_task_ids.contains(&record.id)
                         && record.status.as_deref().map(normalize_task_status)
                             == Some("in_progress")
+                        && exact_attempts.iter().any(|attempt| attempt == *record)
                         && authoritative_schedule_eligible(record, schedules, Utc::now())
                         && approved_workbench_metadata(record)
                 }) {
@@ -998,9 +1209,16 @@ impl ActiveQueueExecutor {
                 .open(&self.queue_path)?;
             file.lock_exclusive()?;
             let result = (|| {
-                let effective = dispatch_priority_order(TaskQueueAnalyzer::effective_records(
-                    read_queue_records(&file)?,
-                ));
+                let records = read_queue_records(&file)?;
+                let exact_attempt_indices = exact_persisted_workbench_attempt_indices(&records);
+                let exact_attempts = records
+                    .iter()
+                    .enumerate()
+                    .filter(|(index, _)| exact_attempt_indices.contains(index))
+                    .map(|(_, record)| record.clone())
+                    .collect::<Vec<_>>();
+                let effective =
+                    dispatch_priority_order(TaskQueueAnalyzer::effective_records(records));
                 let now = Utc::now();
                 let selected = effective
                     .iter()
@@ -1008,6 +1226,7 @@ impl ActiveQueueExecutor {
                         !excluded_task_ids.contains(&record.id)
                             && record.status.as_deref().map(normalize_task_status)
                                 == Some("in_progress")
+                            && exact_attempts.iter().any(|attempt| attempt == *record)
                             && authoritative_schedule_eligible(record, schedules, now)
                             && approved_workbench_metadata(record)
                     })
@@ -1024,6 +1243,7 @@ impl ActiveQueueExecutor {
                     return Ok(None);
                 };
                 if task.status.as_deref().map(normalize_task_status) == Some("in_progress")
+                    && exact_attempts.iter().any(|attempt| attempt == task)
                     && authoritative_schedule_eligible(task, schedules, now)
                     && approved_workbench_metadata(task)
                 {
@@ -1635,16 +1855,154 @@ fn attempt_from_claimed_task(task: &QueueRecord) -> std::io::Result<ActiveQueueE
 }
 
 fn record_is_exact_persisted_workbench_attempt(records: &[QueueRecord], index: usize) -> bool {
+    exact_persisted_workbench_attempt_indices(records).contains(&index)
+}
+
+fn exact_persisted_workbench_attempt_indices(records: &[QueueRecord]) -> BTreeSet<usize> {
+    let predecessors = effective_predecessor_indices(records);
+    records
+        .iter()
+        .enumerate()
+        .filter(|(index, _)| {
+            record_is_exact_persisted_workbench_attempt_with_predecessor(
+                records,
+                *index,
+                predecessors[*index],
+            )
+        })
+        .map(|(index, _)| index)
+        .collect()
+}
+
+#[cfg(test)]
+fn recoverable_persisted_workbench_attempt_indices(records: &[QueueRecord]) -> BTreeSet<usize> {
+    let predecessors = effective_predecessor_indices(records);
+    let mut recoverable = BTreeSet::new();
+    for index in 0..records.len() {
+        if record_is_exact_persisted_workbench_attempt_with_predecessor(
+            records,
+            index,
+            predecessors[index],
+        ) {
+            recoverable.insert(index);
+            continue;
+        }
+        let record = &records[index];
+        let Some(predecessor_index) = predecessors[index] else {
+            continue;
+        };
+        let predecessor = &records[predecessor_index];
+        let canonical_continuation = record.extra.get("contract").and_then(Value::as_str)
+            == Some("arda.workbench.queue_continuation.v1")
+            && record
+                .extra
+                .get("completed_stage")
+                .and_then(Value::as_str)
+                .is_some_and(|stage| matches!(stage, "execute" | "verify" | "review"))
+            && record
+                .extra
+                .get("continuation_decision")
+                .and_then(Value::as_str)
+                .is_some_and(|decision| {
+                    matches!(
+                        decision,
+                        "continue_verify" | "continue_review" | "continue_close"
+                    )
+                })
+            && record
+                .extra
+                .get("recorded_at_utc")
+                .and_then(Value::as_str)
+                .and_then(parse_utc)
+                .is_some()
+            && record.extra.get("workbench_run_id") == predecessor.extra.get("workbench_run_id");
+        if canonical_continuation && recoverable.contains(&predecessor_index) {
+            recoverable.insert(index);
+        }
+    }
+    recoverable
+}
+
+fn effective_predecessor_indices(records: &[QueueRecord]) -> Vec<Option<usize>> {
+    let prior_indices = prior_same_alias_indices(records);
+    let mut valid_reopens = vec![false; records.len()];
+    let mut authorized_reopens = Vec::with_capacity(records.len());
+    for index in 0..records.len() {
+        valid_reopens[index] =
+            record_is_valid_root_reopen(records, index, &prior_indices, &valid_reopens);
+        authorized_reopens.push(record_authorizes_reopen_indexed(
+            records,
+            index,
+            &prior_indices,
+            &valid_reopens,
+        ));
+    }
+    let valid_objective_revisions = (0..records.len())
+        .map(|index| record_is_valid_objective_revision(records, index))
+        .collect::<Vec<_>>();
+    let (valid_revision_approvals, blocked_by_pending_revision) =
+        objective_revision_approval_authority(records, &valid_objective_revisions);
+
+    let mut positions = BTreeMap::<String, usize>::new();
+    let mut terminal_keys = BTreeSet::<String>::new();
+    let mut predecessors = Vec::with_capacity(records.len());
+    for (index, record) in records.iter().enumerate() {
+        let prior = positions.get(&record.id).copied();
+        predecessors.push(prior);
+        if !valid_revision_approvals[index]
+            && !valid_objective_revisions[index]
+            && blocked_by_pending_revision[index]
+        {
+            continue;
+        }
+        let aliases = [
+            record.id.clone(),
+            TaskQueueAnalyzer::effective_record_key(record),
+        ];
+        let terminal = record.canonical_status().is_terminal();
+        if !terminal
+            && aliases.iter().any(|alias| terminal_keys.contains(alias))
+            && !authorized_reopens[index]
+        {
+            continue;
+        }
+        let superseded = aliases
+            .iter()
+            .filter_map(|alias| positions.get(alias).copied())
+            .collect::<BTreeSet<_>>();
+        for superseded_index in superseded {
+            let superseded_record = &records[superseded_index];
+            for alias in [
+                superseded_record.id.clone(),
+                TaskQueueAnalyzer::effective_record_key(superseded_record),
+            ] {
+                if positions.get(&alias) == Some(&superseded_index) {
+                    positions.remove(&alias);
+                }
+            }
+        }
+        for alias in aliases {
+            positions.insert(alias.clone(), index);
+            if terminal {
+                terminal_keys.insert(alias);
+            }
+        }
+    }
+    predecessors
+}
+
+fn record_is_exact_persisted_workbench_attempt_with_predecessor(
+    records: &[QueueRecord],
+    index: usize,
+    predecessor_index: Option<usize>,
+) -> bool {
     let Some(current) = records.get(index) else {
         return false;
     };
     let Some(started_at) = current.started_at_utc.as_deref().and_then(parse_utc) else {
         return false;
     };
-    let Some(predecessor) = TaskQueueAnalyzer::effective_records(records[..index].to_vec())
-        .into_iter()
-        .find(|record| record.id == current.id)
-    else {
+    let Some(predecessor) = predecessor_index.and_then(|index| records.get(index)) else {
         return false;
     };
     let action_class = predecessor
@@ -1674,7 +2032,7 @@ fn record_is_exact_persisted_workbench_attempt(records: &[QueueRecord], index: u
         lease_expires_at_utc: started_at + Duration::minutes(20),
     };
     let mut encoded = Vec::new();
-    if append_attempt_to_writer(&mut encoded, &predecessor, &attempt).is_err() {
+    if append_attempt_to_writer(&mut encoded, predecessor, &attempt).is_err() {
         return false;
     }
     serde_json::from_slice::<QueueRecord>(&encoded).is_ok_and(|expected| expected == *current)
@@ -1891,10 +2249,27 @@ fn records_share_effective_alias(left: &QueueRecord, right: &QueueRecord) -> boo
         })
 }
 
+#[cfg(test)]
 fn prior_same_alias_index(records: &[QueueRecord], index: usize) -> Option<usize> {
     (0..index)
         .rev()
         .find(|prior_index| records_share_effective_alias(&records[index], &records[*prior_index]))
+}
+
+fn prior_same_alias_indices(records: &[QueueRecord]) -> Vec<Option<usize>> {
+    let mut latest = BTreeMap::<String, usize>::new();
+    let mut prior = Vec::with_capacity(records.len());
+    for (index, record) in records.iter().enumerate() {
+        let source = TaskQueueAnalyzer::effective_record_key(record);
+        let previous = [record.id.as_str(), source.as_str()]
+            .iter()
+            .filter_map(|alias| latest.get(*alias).copied())
+            .max();
+        prior.push(previous);
+        latest.insert(record.id.clone(), index);
+        latest.insert(source, index);
+    }
+    prior
 }
 
 fn same_reopen_identity(current: &QueueRecord, prior: &QueueRecord) -> bool {
@@ -1948,13 +2323,22 @@ fn sequence(record: &QueueRecord, field: &str) -> u64 {
         .unwrap_or(0)
 }
 
-fn validated_root_reopen_contract(records: &[QueueRecord], index: usize) -> Option<&str> {
+fn record_is_valid_root_reopen(
+    records: &[QueueRecord],
+    index: usize,
+    prior_aliases: &[Option<usize>],
+    valid_root_reopens: &[bool],
+) -> bool {
     let current = &records[index];
-    let contract = current.extra.get("contract").and_then(Value::as_str)?;
+    let Some(contract) = current.extra.get("contract").and_then(Value::as_str) else {
+        return false;
+    };
     if !is_authorized_reopen_contract(contract) {
-        return None;
+        return false;
     }
-    let prior_index = prior_same_alias_index(records, index)?;
+    let Some(prior_index) = prior_aliases[index] else {
+        return false;
+    };
     let prior = &records[prior_index];
     let current_status = current.status.as_deref().map(normalize_task_status);
     let prior_status = prior.status.as_deref().map(normalize_task_status);
@@ -2002,8 +2386,7 @@ fn validated_root_reopen_contract(records: &[QueueRecord], index: usize) -> Opti
                 .and_then(Value::as_str);
             let queued_wait_activation = prior.extra.get("contract").and_then(Value::as_str)
                 == Some("arda.workbench.executable_continuation.v1")
-                && validated_root_reopen_contract(records, prior_index)
-                    == Some("arda.workbench.executable_continuation.v1")
+                && valid_root_reopens[prior_index]
                 && prior_status == Some("blocked")
                 && current_status == Some("queued")
                 && decision == Some("wait_until")
@@ -2072,7 +2455,7 @@ fn validated_root_reopen_contract(records: &[QueueRecord], index: usize) -> Opti
         }
         _ => false,
     };
-    valid.then_some(contract)
+    valid
 }
 
 fn reprioritization_preserves_predecessor(
@@ -2134,13 +2517,41 @@ fn reprioritization_preserves_predecessor(
         && current_extra == prior_extra
 }
 
-fn record_authorizes_reopen(records: &[QueueRecord], index: usize) -> bool {
+fn record_authorizes_reopen_indexed(
+    records: &[QueueRecord],
+    index: usize,
+    prior_aliases: &[Option<usize>],
+    valid_root_reopens: &[bool],
+) -> bool {
     let record = &records[index];
     let Some(contract) = record.extra.get("contract").and_then(Value::as_str) else {
         return false;
     };
+    if contract == "arda.prometheus.active_queue_execution_attempt.v1" {
+        let Some(prior_index) = prior_aliases[index] else {
+            return false;
+        };
+        let prior = &records[prior_index];
+        return prior.extra.get("contract").and_then(Value::as_str)
+            == Some("arda.workbench.executable_continuation.v1")
+            && valid_root_reopens[prior_index]
+            && same_reopen_payload(record, prior)
+            && prior.status.as_deref().map(normalize_task_status) == Some("queued")
+            && record.status.as_deref().map(normalize_task_status) == Some("in_progress")
+            && record.result.is_none()
+            && record.extra.get("executor").and_then(Value::as_str)
+                == Some("arda_workbench.queue_executor")
+            && record.extra.get("workbench_run_id").and_then(Value::as_str)
+                == prior.extra.get("workbench_run_id").and_then(Value::as_str)
+            && extra_timestamp(record, "lease_expires_at_utc")
+            && record
+                .started_at_utc
+                .as_deref()
+                .and_then(parse_utc)
+                .is_some();
+    }
     if is_authorized_reopen_contract(contract) {
-        return validated_root_reopen_contract(records, index).is_some();
+        return valid_root_reopens[index];
     }
     if contract != "arda.workbench.queue_reprioritization.v1" {
         return false;
@@ -2155,7 +2566,7 @@ fn record_authorizes_reopen(records: &[QueueRecord], index: usize) -> bool {
     };
 
     let mut cursor = index;
-    while let Some(prior_index) = prior_same_alias_index(records, cursor) {
+    while let Some(prior_index) = prior_aliases[cursor] {
         if !reprioritization_preserves_predecessor(
             &records[cursor],
             &records[prior_index],
@@ -2166,8 +2577,7 @@ fn record_authorizes_reopen(records: &[QueueRecord], index: usize) -> bool {
         let prior = &records[prior_index];
         match prior.extra.get("contract").and_then(Value::as_str) {
             Some(prior_contract) if is_authorized_reopen_contract(prior_contract) => {
-                return validated_root_reopen_contract(records, prior_index)
-                    == Some(root_authority);
+                return valid_root_reopens[prior_index] && prior_contract == root_authority;
             }
             Some("arda.workbench.queue_reprioritization.v1")
                 if prior
@@ -2182,6 +2592,17 @@ fn record_authorizes_reopen(records: &[QueueRecord], index: usize) -> bool {
         }
     }
     false
+}
+
+#[cfg(test)]
+fn record_authorizes_reopen(records: &[QueueRecord], index: usize) -> bool {
+    let prior_aliases = prior_same_alias_indices(records);
+    let mut valid_root_reopens = vec![false; records.len()];
+    for cursor in 0..=index {
+        valid_root_reopens[cursor] =
+            record_is_valid_root_reopen(records, cursor, &prior_aliases, &valid_root_reopens);
+    }
+    record_authorizes_reopen_indexed(records, index, &prior_aliases, &valid_root_reopens)
 }
 
 fn parse_utc(s: &str) -> Option<DateTime<Utc>> {
@@ -2359,6 +2780,10 @@ fn record_is_valid_objective_revision_approval(
         Value::String("approved_autopilot_plan_step".into()),
     );
     expected_meta.insert(
+        "execution_authority".into(),
+        Value::String("arda_workbench".into()),
+    );
+    expected_meta.insert(
         "approval_packet_id".into(),
         Value::String(approval_packet_id.into()),
     );
@@ -2468,6 +2893,25 @@ mod tests {
     use super::*;
 
     #[test]
+    fn indexed_prior_aliases_match_canonical_reverse_search() {
+        let mut records = vec![blank("alpha"), blank("beta"), blank("alpha")];
+        records[1]
+            .extra
+            .insert("source_record_id".into(), Value::String("alpha".into()));
+        records.push(blank("gamma"));
+        records[3]
+            .extra
+            .insert("source_record_id".into(), Value::String("beta".into()));
+
+        let indexed = prior_same_alias_indices(&records);
+        let canonical = (0..records.len())
+            .map(|index| prior_same_alias_index(&records, index))
+            .collect::<Vec<_>>();
+
+        assert_eq!(indexed, canonical);
+    }
+
+    #[test]
     fn canonical_queue_status_owns_alias_and_terminal_semantics() {
         let status = |value: &str| {
             serde_json::from_value::<QueueRecord>(json!({"id": "task", "status": value}))
@@ -2529,6 +2973,35 @@ mod tests {
             &[predecessor.clone(), persisted.clone()],
             1,
         ));
+        assert_eq!(
+            exact_persisted_workbench_attempt_indices(&[predecessor.clone(), persisted.clone(),]),
+            BTreeSet::from([1]),
+        );
+
+        let mut continuation = persisted.clone();
+        continuation.extra.insert(
+            "contract".into(),
+            Value::String("arda.workbench.queue_continuation.v1".into()),
+        );
+        continuation
+            .extra
+            .insert("completed_stage".into(), Value::String("execute".into()));
+        continuation.extra.insert(
+            "continuation_decision".into(),
+            Value::String("continue_verify".into()),
+        );
+        continuation.extra.insert(
+            "recorded_at_utc".into(),
+            Value::String("2026-08-28T23:11:00Z".into()),
+        );
+        assert_eq!(
+            recoverable_persisted_workbench_attempt_indices(&[
+                predecessor.clone(),
+                persisted.clone(),
+                continuation,
+            ]),
+            BTreeSet::from([1, 2]),
+        );
 
         let mut noncanonical_run_id = persisted.clone();
         noncanonical_run_id.extra.insert(
@@ -4330,10 +4803,7 @@ mod tests {
     }
 
     #[test]
-    fn governed_workbench_claim_without_executor_stamps_reconciles() {
-        // Regression: a Workbench approval flow appended an `in_progress`
-        // record whose lineage lives only in `meta`. Orphan reconciliation
-        // must recover it instead of failing the whole executor.
+    fn governed_workbench_claim_without_exact_writer_stamps_is_not_recovered() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -4374,16 +4844,9 @@ mod tests {
 
         let claim = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
             .claim_next_approved_reconciling_orphans()
-            .unwrap()
-            .expect("governed meta claim reconciles");
+            .unwrap();
 
-        assert_eq!(claim.task.id, "digital-organism-s7-living-mesh-proof");
-        assert_eq!(
-            claim.attempt.workbench_run_id,
-            "stage7-living-mesh-20260823"
-        );
-        assert_eq!(claim.attempt.action_class, "approved_autopilot_plan_step");
-        assert!(claim.attempt.lease_expires_at_utc > claim.attempt.appended_at_utc);
+        assert!(claim.is_none());
         assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
@@ -4394,7 +4857,7 @@ mod tests {
         let active_path = dir.path().join("queue_active.json");
         let meta = approved_workbench_extra().remove("meta").unwrap();
         let appended_at = Utc::now() - Duration::seconds(5);
-        let lease_expires_at = Utc::now() + Duration::minutes(15);
+        let lease_expires_at = appended_at + Duration::minutes(20);
         let queued = json!({
             "id": "orphaned-task",
             "status": "queued",
@@ -4407,7 +4870,6 @@ mod tests {
             "contract": "arda.prometheus.active_queue_execution_attempt.v1",
             "executor": "arda_workbench.queue_executor",
             "action_class": "approved_autopilot_plan_step",
-            "hades_projection_repair": false,
             "started_at_utc": appended_at.to_rfc3339(),
             "workbench_run_id": "queue-orphaned-task",
             "lease_expires_at_utc": lease_expires_at.to_rfc3339(),
@@ -5063,6 +5525,84 @@ mod tests {
             TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
         );
         assert_eq!(effective[0].status.as_deref(), Some("failed"));
+    }
+
+    #[test]
+    fn retry_claim_reopens_an_authorized_executable_continuation() {
+        let base_meta = approved_workbench_extra()["meta"].clone();
+        let mut retry_meta = base_meta.as_object().unwrap().clone();
+        retry_meta.insert("continuation_decision".into(), json!("retry_same_task"));
+        retry_meta.insert("continuation_sequence".into(), json!(1));
+        retry_meta.insert("retry_sequence".into(), json!(1));
+        retry_meta.insert("revision_sequence".into(), json!(0));
+        retry_meta.insert(
+            "revision_directive".into(),
+            json!("retry with critic feedback"),
+        );
+        let records: Vec<QueueRecord> = vec![
+            serde_json::from_value(json!({
+                "id": "retry-leaf",
+                "source_record_id": "retry-leaf",
+                "title": "Retry governed leaf",
+                "owner": "prometheus",
+                "priority": "critical",
+                "status": "failed",
+                "result": "failed",
+                "contract": "arda.workbench.queue_terminal.v1",
+                "executor": "arda_workbench.queue_executor",
+                "workbench_run_id": "run-1",
+                "completed_at_utc": "2026-09-01T00:00:00Z",
+                "meta": base_meta,
+            }))
+            .unwrap(),
+            serde_json::from_value(json!({
+                "id": "retry-leaf",
+                "source_record_id": "retry-leaf",
+                "title": "Retry governed leaf",
+                "owner": "prometheus",
+                "priority": "critical",
+                "status": "queued",
+                "contract": "arda.workbench.executable_continuation.v1",
+                "executor": "arda_workbench.queue_executor",
+                "workbench_run_id": "run-2",
+                "parent_workbench_run_id": "run-1",
+                "continuation_decision": "retry_same_task",
+                "continuation_sequence": 1,
+                "retry_sequence": 1,
+                "revision_sequence": 0,
+                "revision_directive": "retry with critic feedback",
+                "queued_at_utc": "2026-09-01T00:01:00Z",
+                "meta": Value::Object(retry_meta.clone()),
+            }))
+            .unwrap(),
+            serde_json::from_value(json!({
+                "id": "retry-leaf",
+                "source_record_id": "retry-leaf",
+                "title": "Retry governed leaf",
+                "owner": "prometheus",
+                "priority": "critical",
+                "status": "in_progress",
+                "contract": "arda.prometheus.active_queue_execution_attempt.v1",
+                "executor": "arda_workbench.queue_executor",
+                "workbench_run_id": "run-2",
+                "lease_expires_at_utc": "2026-09-01T00:21:00Z",
+                "started_at_utc": "2026-09-01T00:01:00Z",
+                "meta": Value::Object(retry_meta),
+            }))
+            .unwrap(),
+        ];
+
+        assert!(record_authorizes_reopen(&records, 1));
+        assert!(record_authorizes_reopen(&records, 2));
+        let effective = TaskQueueAnalyzer::effective_records(records);
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+        assert_eq!(
+            effective[0]
+                .extra
+                .get("workbench_run_id")
+                .and_then(Value::as_str),
+            Some("run-2")
+        );
     }
 
     #[test]
@@ -6479,6 +7019,142 @@ mod tests {
             "stale approval rejection appended a queue record"
         );
         assert!(executor.select_next_approved().unwrap().is_none());
+    }
+
+    #[test]
+    fn terminal_schedule_rejects_revision_approval_before_queue_append() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "terminal-schedule-approval".into(),
+            title: Some("Original objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("terminal-schedule-approval")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        append_test_schedule(
+            &queue_path,
+            &task.id,
+            "objective-1",
+            ScheduleMode::Immediate,
+            ScheduleState::Scheduled,
+            None,
+        );
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised objective",
+                "operator correction",
+            )
+            .unwrap();
+        ScheduleLedger::new(executor.schedule_path.clone())
+            .with_cancellation_transition(
+                &task.id,
+                "objective-1",
+                Utc::now(),
+                Some("cancel before approval"),
+                || Ok(()),
+            )
+            .unwrap();
+        let before = std::fs::read_to_string(&queue_path).unwrap();
+
+        assert!(executor
+            .approve_revised_objective(
+                &task.id,
+                "objective-1",
+                "approval-after-cancel",
+                "operator@example.test",
+                "must remain cancelled",
+            )
+            .is_err());
+        assert_eq!(std::fs::read_to_string(&queue_path).unwrap(), before);
+    }
+
+    #[test]
+    fn retry_resumes_a_prepared_revision_approval_schedule() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "prepared-approval".into(),
+            title: Some("Original objective".into()),
+            priority: Some("high".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra_for_target("project-a", "/worktrees/a"),
+            ..blank("prepared-approval")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[]}").unwrap();
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        executor
+            .revise_objective(
+                &task.id,
+                "objective-1",
+                "Revised objective",
+                "operator correction",
+            )
+            .unwrap();
+        ScheduleLedger::new(executor.schedule_path.clone())
+            .append(&ScheduleRecord {
+                contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-1".into(),
+                mode: ScheduleMode::Immediate,
+                state: ScheduleState::Paused,
+                not_before_utc: None,
+                interval_seconds: None,
+                recorded_at_utc: Utc::now(),
+                reason: Some("prepared pending revised-objective approval".into()),
+            })
+            .unwrap();
+
+        executor
+            .approve_revised_objective(
+                &task.id,
+                "objective-1",
+                "approval-prepared",
+                "operator@example.test",
+                "approve prepared transition",
+            )
+            .unwrap();
+
+        assert_eq!(
+            ScheduleLedger::new(executor.schedule_path.clone())
+                .effective()
+                .unwrap()[&task.id]
+                .state,
+            ScheduleState::Scheduled
+        );
+        ScheduleLedger::new(executor.schedule_path.clone())
+            .pause(
+                &task.id,
+                "objective-1",
+                Utc::now(),
+                "prepared pending revised-objective approval",
+            )
+            .unwrap();
+        assert_eq!(executor.reconcile_schedules(Utc::now()).unwrap(), 1);
+        assert_eq!(
+            ScheduleLedger::new(executor.schedule_path.clone())
+                .effective()
+                .unwrap()[&task.id]
+                .state,
+            ScheduleState::Scheduled
+        );
     }
 
     #[test]

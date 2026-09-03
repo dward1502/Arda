@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:f9c0c0080a94db328e34fd4e8dda57936c853a504986b36c443298bb27cdc3ab",
+    "summary": "DEFECT-1: The project contains only README.acceptance with the unsupported assertion “isolated installed resident runtime acceptance”; no implementation or durable evidence substantiates runtime installation, residency, or isolation. DEFECT-2: The parent receipt authenticates only a successful pwd check, which establishes the working directory but does not verify the claimed acceptance behavior. Scope was respected: inspection was read-only, the declared check was not rerun, and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:60cc1c74d2e4a2399f123d35ded1dcf9fe7583b9507705a38d2ca1eb07832e5a",
+  "idempotency_key": "queue-operator-objective-8d365678b027149f-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:d426c2c835353d706dfd57de43c1de129f9e3096892e3c69fe26e3ac0a937c20"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:523fe086b17d00f29de2a669b90c9e0861022029789ee12ae084dc8689017ec9",
+  "recorded_at_unix_ms": 1788415578353,
+  "run_id": "objective-operator-objective-8d365678b027149f-leaf-operator-objective-8d365678b027149f-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE\nThe parent result is accurate and the project remains unmodified. The declared clean-tree check `git diff --exit-code HEAD --` passed. Inspection confirmed the documented active-draft ingestion contract, private-by-default and classification requirements, library target, parsing and wikilink behavior, target-local tests, discarded MemoryRecord serialization, repository-relative dependencies, legacy frontmatter schema, and migration exclusions. An optional `cargo test` attempt could not run because Cargo treats this package as an undeclared member of the parent workspace; this does not contradict the parent result, which identifies the project as not independently integration-ready.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "python -c \"from pathlib import Path\nfor f in ['Cargo.toml','src/lib.rs','tests/target_local.rs','docs/human-knowledge-ingestion-contract.md']:\n p=Path(f); print('===== '+f+' ====='); print(p.read_text())\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:Cargo.toml && printf '\\n===== src/lib.rs =====\\n' && git show HEAD:src/lib.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:1655b0ffe946e51014c7e1bb18095ccebe551f214ab419b1662f6fa65b2fe126",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:tests/target_local.rs && printf '\\n===== docs/human-knowledge-ingestion-contract.md =====\\n' && git show HEAD:docs/human-knowledge-ingestion-contract.md",
+      "exit_code": 0,
+      "output_digest": "sha256:b5a04709eeb28aa65710c02a73a8c4fa1070bee3151d4ccf08807a05f18ad20f",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:docs/migration-notes.md",
+      "exit_code": 0,
+      "output_digest": "sha256:b8b1ab686996f93a2b7fbaa45dc58d37ab9fa346e7dc80e9400cf543660aa0f3",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10727,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1226,
+    "provider": "openai-codex",
+    "total_tokens": 11953
+  }
+}

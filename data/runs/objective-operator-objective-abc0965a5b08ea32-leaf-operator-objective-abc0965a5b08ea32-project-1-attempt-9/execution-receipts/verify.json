@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:48a957d519d32a195220cc8cf3ab949ab65dd5d9a88baa24294d6da5a7a2ab41",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:834b4404f33e5115829cd29e626d95f7f421933a42ae95f7236de85509aca3d4"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:824fe475d529c6d5d989403dfe7b28e3308c6ed7878228273618e1f1554a937f",
+  "recorded_at_unix_ms": 1788329984057,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-9",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project-local result by running the declared check exactly as printed; pwd returned the supplied project root with exit code 0. No files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "pwd",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5059,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 252,
+    "provider": "openai-codex",
+    "total_tokens": 5311
+  }
+}

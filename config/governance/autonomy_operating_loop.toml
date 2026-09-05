@@ -12,7 +12,7 @@ contract_doc = "docs/contracts/autonomous-operating-loop-contract.md"
 rule = "the loop is the portable policy/config spine; ceo-autopilot remains the orchestration and execution engine"
 
 [loop]
-mode = "preflight"
+mode = "continuous_execution"
 cadence = "every_10_minutes"
 default_mutation_policy = "no_mutation_without_policy_gate"
 confirm_after_execute = true

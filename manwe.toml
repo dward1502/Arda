@@ -1,0 +1,14 @@
+# Manwe gateway configuration
+bind = "127.0.0.1"
+port = 7171
+default_provider = "local"
+
+[providers.local]
+base_url = "http://127.0.0.1:11434/v1"
+api_key = null
+models = ["llama3", "mistral"]
+
+[providers.hermes-workbench]
+base_url = "http://127.0.0.1:7878/v1"
+api_key = null
+models = ["auto"]

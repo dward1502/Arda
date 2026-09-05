@@ -124,7 +124,7 @@ impl WorkbenchExecutionAdapter {
             root: root.as_ref().to_path_buf(),
             harness_url: harness_url.into().trim_end_matches('/').to_owned(),
             client: reqwest::Client::builder()
-                .timeout(std::time::Duration::from_secs(1_200))
+                .timeout(std::time::Duration::from_secs(60))
                 .build()?,
         })
     }
@@ -297,7 +297,7 @@ async fn wait_for_explicit_stage(
     run_id: &str,
     stage: &str,
 ) -> Result<Value> {
-    let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(1_200);
+    let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(30);
     loop {
         let response = client
             .get(format!("{harness_url}/v1/runs/{run_id}"))
@@ -315,7 +315,7 @@ async fn wait_for_explicit_stage(
                 bail!("conflicted explicit Workbench {stage} stage became terminal without success")
             }
             _ if tokio::time::Instant::now() >= deadline => {
-                bail!("timed out reconciling conflicted explicit Workbench {stage} stage")
+                bail!("timed out waiting for Workbench {stage} stage after 30s — manwe may not be connected to the harness at http://127.0.0.1:7878. Set ARDA_HARNESS_URL env var to override.")
             }
             _ => tokio::time::sleep(std::time::Duration::from_millis(250)).await,
         }
@@ -780,7 +780,7 @@ impl WorkbenchQueueExecutor {
     ) -> Result<Self> {
         let harness_url = harness_url.into();
         let client = reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(1_200))
+            .timeout(std::time::Duration::from_secs(60))
             .build()?;
         Ok(Self {
             root: root.as_ref().to_path_buf(),

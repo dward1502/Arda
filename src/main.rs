@@ -180,7 +180,7 @@ async fn main() -> anyhow::Result<()> {
     let objective_store =
         arda_engine::objectives::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))?;
     let objective_executor = arda_engine::objectives::WorkbenchLeafExecution::new(&root)?;
-    let objective_runtime = arda_engine::objectives::ObjectiveRuntime::new(
+    let mut objective_runtime = arda_engine::objectives::ObjectiveRuntime::new(
         objective_store,
         objective_executor,
         "arda-resident-objective-runtime",

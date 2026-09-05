@@ -1,4 +1,4 @@
-use super::{ClaimedLeaf, ObjectiveStore, StageReceipt};
+use super::{ClaimedLeaf, MAX_OBJECTIVE_ATTEMPTS, ObjectiveStore, StageReceipt};
 use anyhow::{Context, Result};
 use std::future::Future;
 use std::pin::Pin;
@@ -28,6 +28,7 @@ pub struct ObjectiveRuntime<E> {
     worker_id: String,
     capacity: usize,
     lease_duration_ms: i64,
+    objective_attempts: i64,
 }
 
 impl<E> ObjectiveRuntime<E>
@@ -47,6 +48,7 @@ where
             worker_id: worker_id.into(),
             capacity,
             lease_duration_ms,
+            objective_attempts: 0,
         }
     }
 
@@ -54,7 +56,10 @@ where
         &self.store
     }
 
-    pub async fn run_round(&self, now_ms: i64) -> Result<Vec<LeafRoundOutcome>> {
+    pub async fn run_round(&mut self, now_ms: i64) -> Result<Vec<LeafRoundOutcome>> {
+        if self.objective_attempts >= MAX_OBJECTIVE_ATTEMPTS {
+            return Ok(Vec::new());
+        }
         let claims = self.store.claim_runnable(
             &self.worker_id,
             now_ms,
@@ -107,6 +112,7 @@ where
                 terminal_receipt_digest,
             });
         }
+        self.objective_attempts += 1;
         Ok(outcomes)
     }
 }

@@ -9,5 +9,5 @@ pub use model::{
     ObjectiveRecord, ObjectiveState, ProjectAuthority, ReceiptStage, ScheduleSpec, StageReceipt,
 };
 pub use runtime::{LeafExecution, LeafExecutionResult, LeafRoundOutcome, ObjectiveRuntime};
-pub use store::ObjectiveStore;
+pub use store::{MAX_OBJECTIVE_ATTEMPTS, ObjectiveStore};
 pub use workbench::{ExplicitWorkbenchExecution, WorkbenchLeafExecution};

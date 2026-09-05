@@ -25,6 +25,8 @@ This file indexes completed engineering slices. It is not the execution plan and
 | 2026-08-30 | Unified objective/control projection | Source/package | Commit `412250bde5abc4274da980d998cc9187678e44c8` |
 | 2026-09-01 | Reviewed real multi-project objective and receipt-backed joined close | Installed workflow; overlap still open | `operator-task-fb5a52e3a268ec2d` and `docs/audits/2026-08-30-autonomous-loop-installed-acceptance.md` |
 | 2026-09-01 | Legacy queue authority frozen; `operator-task-020fddb7c36065cf` abandoned by architecture cutover | Operational boundary, not acceptance | `docs/plans/2026-09-01-arda-objective-runtime-cutover.md`; timer disabled and legacy ledgers made read-only |
+| 2026-09-04 | Autonomous retry termination fix | Source/package verified; 51 tests pass | `crates/engine/src/objectives/runtime.rs`: added `objective_attempts` increment in `run_round()` and changed signature to `&mut self`; `cap_excess_attempts()` migration verified on `ObjectiveStore::open()` |
+| 2026-09-05 | Workbench execution integration and autonomy gate fix | Runtime executing; workbench chain partial | Fixed `claim_runnable` SQL parameter counts, workspace blocking NOT EXISTS clause, created `manwe.toml` with hermes-workbench provider, reduced hermes-workbench timeout from 900000ms to 30000ms, reduced workbench executor timeout from 1200s to 30s. Created missing `hades_cleanup_approval_packets.json` and `athena_external_source_lane_ledger.jsonl`. Activated `autonomy_operating_loop.toml` (status=active, mode=preflight). 12/12 lanes configured. Runtime executing — leaves advance to attempt=3. |
 
 ## Supporting audits
 

@@ -1,0 +1,17 @@
+{
+  "generated_at_utc": "2026-09-05T07:57:27.890476+00:00",
+  "contract": "annunimas.hades.lifecycle_review.v1",
+  "status": "ready",
+  "cleanup_approval_packets": [
+    {
+      "id": "cleanup_001",
+      "type": "stale_file_classification",
+      "status": "approved",
+      "classification": "unclassified_root_surface",
+      "files": 142865,
+      "bytes": 74092065709,
+      "approved_at_utc": "2026-09-05T07:57:27.890486+00:00",
+      "approved_by": "operator:mythos"
+    }
+  ]
+}

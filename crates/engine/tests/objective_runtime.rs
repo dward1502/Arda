@@ -174,7 +174,7 @@ async fn resident_runtime_joins_independent_leaves_and_rehydrates_after_restart(
         maximum: Arc::clone(&maximum),
     };
 
-    let runtime = ObjectiveRuntime::new(store, executor.clone(), "arda-runtime-1", 4, 60_000);
+    let mut runtime = ObjectiveRuntime::new(store, executor.clone(), "arda-runtime-1", 4, 60_000);
     let first = runtime.run_round(200).await.unwrap();
 
     assert_eq!(first.len(), 2);
@@ -190,7 +190,7 @@ async fn resident_runtime_joins_independent_leaves_and_rehydrates_after_restart(
     );
     drop(runtime);
 
-    let restarted = ObjectiveRuntime::new(
+    let mut restarted = ObjectiveRuntime::new(
         ObjectiveStore::open(&database).unwrap(),
         executor,
         "arda-runtime-2",

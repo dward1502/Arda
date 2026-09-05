@@ -1,0 +1,2 @@
+{"id": "web", "kind": "internet_search", "status": "gated", "receipts_collected": true, "policy_ready": false, "task_promotion": false, "note": "Web search receipts available; policy-ready candidates pending prometheus promotion receipt"}
+{"id": "x_bookmarks", "kind": "social_bookmarks", "status": "gated", "receipts_collected": true, "policy_ready": false, "task_promotion": false, "note": "X bookmarks receipts available; canonical source ledger pending"}

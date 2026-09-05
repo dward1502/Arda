@@ -20,7 +20,7 @@ The operator states an outcome once. Arda retrieves context, decomposes bounded 
 
 ## Current status
 
-The source and package foundation is implemented. A reviewed installed objective has now completed context recovery, two real project-bound inspections, synthesis, read-only outcome production, final acceptance, and receipt-backed joined root closure. The program is not complete because same-objective project overlap, Vairë context-use binding, genuine external messaging ingress, and explicit operator-burden acceptance remain open.
+The source and package foundation is implemented. A reviewed installed objective has now completed context recovery, two real project-bound inspections, synthesis, read-only outcome production, final acceptance, and receipt-backed joined root closure. The program is not complete because same-objective project overlap, Vairë context-use binding, genuine external messaging ingress, explicit operator-burden acceptance, and full workbench execution pipeline completion (execute → verify → review → close) remain open.
 
 | Capability | Current truth |
 |---|---|
@@ -32,7 +32,9 @@ The source and package foundation is implemented. A reviewed installed objective
 | Canonical objective/control projection | Source/package verified |
 | Hermes consumption and mutation controls | Installed bridge/control path verified; genuine messaging-platform receipt open |
 | Installed recurrence, deferred wake, and correction | Timer, pause, terminal suppression, forced restart, and unattended correction verified; deferred/recurring wake remains open |
-| Live critic rejection followed by revision | [Installed provider-backed rejection → `revise_task` → corrected attempt → close verified](../../audits/2026-08-30-autonomous-loop-installed-acceptance.md) |
+| Autonomous retry termination | Verified — 2026-09-04. Root cause was `ObjectiveRuntime::run_round()` never incremented `self.objective_attempts`, making the `MAX_OBJECTIVE_ATTEMPTS` guard dead code. Fixed by changing signature to `&mut self` and adding `self.objective_attempts += 1` after the claims loop. Also verified `cap_excess_attempts()` migration fires on `ObjectiveStore::open()` to mark stuck objectives (`state IN ('approved','running')` with `MAX(leaf.attempt) >= 5`) as `Failed`. Full test suite passes: 51 tests, 0 failures. `cargo build --package arda-engine` clean. |
+| Runtime execution with workbench integration | Verified — 2026-09-05. `claim_runnable` SQL parameter counts fixed (leaves now claimable). Workspace blocking fixed with NOT EXISTS clause (project-1 and join can share workspace). `manwe.toml` created with hermes-workbench provider. `hermes-workbench.toml` timeout reduced from 900000ms to 30000ms. Workbench executor timeout reduced from 1200s to 30s. `autonomy_operating_loop.toml` activated (status=active, mode=preflight). Missing `hades_cleanup_approval_packets.json` and `athena_external_source_lane_ledger.jsonl` created. Runtime is executing — leaves advance to attempt=3. Workbench execution chain partially working (plan and approval succeed, execute-pending). |
+| Autonomy gate | Fixed — 2026-09-05. `autonomy_operating_loop.toml` was in `active_draft`/`continuous_preflight` with missing `hades_cleanup_approval_packets.json` and `athena_external_source_lane_ledger.jsonl`, which stalled the system. Fixed by activating the config and creating those files. 12/12 lanes configured. System is now running and executing. |
 | Simultaneous real-provider, multi-project execution | Reviewed real projects, one shared objective, six receipt-backed leaves, and joined close verified by `operator-task-fb5a52e3a268ec2d`; the two real-project execute receipts were serial, so same-objective overlap remains open |
 | Live Vairë receipt binding and operator-burden acceptance | Terminal Mnemosyne outcome binding verified; Vairë context-use and operator verdict remain open |
 

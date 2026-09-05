@@ -16,6 +16,9 @@ pub struct ObjectiveStore {
     path: PathBuf,
 }
 
+const MAX_LEAF_ATTEMPTS: i64 = 5;
+pub const MAX_OBJECTIVE_ATTEMPTS: i64 = 5;
+
 impl ObjectiveStore {
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref().to_path_buf();
@@ -26,7 +29,26 @@ impl ObjectiveStore {
         let store = Self { path };
         let connection = store.connection()?;
         migrations::apply(&connection)?;
+        store.cap_excess_attempts()?;
         Ok(store)
+    }
+
+    fn cap_excess_attempts(&self) -> Result<()> {
+        let connection = self.connection()?;
+        let now_ms = chrono::Utc::now().timestamp_millis();
+        connection.execute(
+            "UPDATE objectives SET state = 'failed', updated_at_ms = ?1
+             WHERE state IN ('approved', 'running')
+             AND id IN (
+                 SELECT o.id FROM objectives o
+                 JOIN leaves l ON l.objective_id = o.id
+                 WHERE l.stage NOT IN ('complete', 'cancelled', 'failed')
+                 GROUP BY o.id
+                 HAVING MAX(l.attempt) >= ?2
+             )",
+            params![now_ms, MAX_LEAF_ATTEMPTS],
+        )?;
+        Ok(())
     }
 
     pub fn create_authenticated_objective(
@@ -400,19 +422,20 @@ impl ObjectiveStore {
                  FROM leaves l
                  JOIN objectives o ON o.id = l.objective_id
                  WHERE o.state IN (?1, ?2)
-                   AND l.stage IN (?3, ?4, ?5, ?6)
-                   AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?7)
+                   AND l.stage = ?3
+                   AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?4)
                    AND NOT EXISTS (
                        SELECT 1 FROM leaf_dependencies d
                        JOIN leaves prerequisite ON prerequisite.id = d.dependency_leaf_id
-                       WHERE d.leaf_id = l.id AND prerequisite.stage != ?8
+                       WHERE d.leaf_id = l.id AND prerequisite.stage != ?5
                    )
                    AND NOT EXISTS (
                        SELECT 1 FROM leaves active
                        WHERE active.id != l.id
+                         AND active.objective_id != l.objective_id
                          AND active.workspace_root = l.workspace_root
-                         AND active.lease_expires_ms > ?7
-                         AND active.stage IN (?3, ?4, ?5, ?6)
+                         AND active.lease_expires_ms > ?4
+                         AND active.stage IN (?6, ?7, ?8)
                    )
                  ORDER BY o.priority DESC, o.created_at_ms, o.id, l.id
                  LIMIT ?9",
@@ -422,11 +445,11 @@ impl ObjectiveStore {
                     ObjectiveState::Approved.as_str(),
                     ObjectiveState::Running.as_str(),
                     LeafStage::Execute.as_str(),
-                    LeafStage::Verify.as_str(),
-                    LeafStage::Review.as_str(),
-                    LeafStage::Close.as_str(),
                     now_ms,
                     LeafStage::Complete.as_str(),
+                    LeafStage::Execute.as_str(),
+                    LeafStage::Verify.as_str(),
+                    LeafStage::Review.as_str(),
                     candidate_limit,
                 ],
                 |row| row.get::<_, String>(0),
@@ -445,25 +468,31 @@ impl ObjectiveStore {
             let changed = transaction.execute(
                 "UPDATE leaves AS target
                  SET lease_owner = ?1, lease_expires_ms = ?2, attempt = attempt + 1,
+                     stage = ?11,
                      updated_at_ms = ?3
                  WHERE id = ?4
-                   AND (lease_owner IS NULL OR lease_expires_ms <= ?3)
+                   AND attempt < ?9
+                   AND (lease_owner IS NULL OR lease_expires_ms <= ?5)
                    AND NOT EXISTS (
                        SELECT 1 FROM leaves active
                        WHERE active.id != target.id
+                         AND active.objective_id != target.objective_id
                          AND active.workspace_root = target.workspace_root
-                         AND active.lease_expires_ms > ?3
-                         AND active.stage IN (?5, ?6, ?7, ?8)
+                         AND active.lease_expires_ms > ?5
+                         AND active.stage IN (?6, ?7, ?8)
                    )",
                 params![
                     lease_owner,
                     expires_ms,
                     now_ms,
                     leaf_id,
+                    now_ms,
                     LeafStage::Execute.as_str(),
                     LeafStage::Verify.as_str(),
                     LeafStage::Review.as_str(),
+                    MAX_LEAF_ATTEMPTS,
                     LeafStage::Close.as_str(),
+                    LeafStage::Execute.as_str(),
                 ],
             )?;
             if changed == 0 {

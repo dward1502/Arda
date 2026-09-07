@@ -1,4 +1,55 @@
+---
+soterion:
+  sigil: "SCROLL"
+  glyph: "📜"
+  code_point: "U+1F4DC"
+  role: "program_plan"
+  owner: "PROMETHEUS"
+  status: "active"
+  reviewed: "2026-09-07"
+  tags: ["whole-system", "autonomy", "completion", "projects", "daily-improvement"]
+---
+
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
+
 # Arda Objective Runtime Cutover Plan
+
+## Planning authority
+
+This plan owns only runtime cutover implementation. Product acceptance remains in the [autonomous milestones](autonomous-task-completion/README.md), under the [whole-system program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md). Recovery/scheduling feed milestone 2; critic stage recovery feeds milestone 3; workspace isolation feeds milestone 4; installed continuity feeds milestone 5. Closing a source task here does not close those installed scenarios. Provider transport prerequisites are tracked in [provider convergence](PROVIDER_WORKER_CONVERGENCE.md), not a new plan.
+
+## Current status — 2026-09-07
+
+**Active; not complete.** The installed daemon owns the indexed objective runtime,
+but the earlier implementation-complete claim below is historical, not current
+acceptance. Source inspection exposed removed safety checks and missing Phase 4
+contracts. The verified repair and remaining gates are recorded in
+[the cutover revalidation receipt](../audits/2026-09-07-objective-cutover-revalidation.md).
+
+### Verified source repair
+
+- [x] Keep polling after idle rounds; do not spend an objective retry budget on daemon lifetime.
+- [x] Preserve successful sibling receipts when another joined execution fails.
+- [x] Reject dependency cycles, unsafe receipt paths/digests, and revisions after execution starts.
+- [x] Exclude overlapping claims on the same stored workspace root within one objective as well as across objectives.
+- [x] Reclaim persisted verify/review/close stages without resetting the stored stage to execute.
+- [x] Enforce persisted leaf-attempt limits during claim transactions; opening the store for a projection must not fail an in-flight fifth attempt.
+- [x] Run focused regressions, Engine/Aulë suites and strict lint, and build release daemon/CLI candidates. These are source/build evidence, not installed acceptance.
+
+### Remaining cutover exit gates (execution order)
+
+- [ ] Close end-to-end recovery identity: `WorkbenchLeafExecution` still derives run IDs from the incremented lease attempt. Prove recovery of an interrupted RunStore stage uses the same run and does not repeat provider execution, including interruption before SQLite receipt recording and at the retry limit.
+- [ ] Complete Phase 4 resident supervision: ingress/control `Notify`, consumption of due schedules, tracked stage persistence, bounded drain/shutdown, startup RunStore reconciliation before admission, and runtime readiness/active/wake/error status. Current `src/main.rs` uses a sleep-polled `run_round` and an unbounded shutdown await.
+- [ ] Prove physical-root alias exclusion, not merely equal stored path strings.
+- [ ] Reverify all installed legacy producers are frozen. The legacy queue was already dirty at entry and changed further during verification; a missing queue-executor unit alone does not establish producer freeze. Classify test emissions separately from installed writers before deleting anything.
+- [ ] Obtain exact-candidate independent review, install qualified source-current daemon/CLI with matching SHA-256, and exercise restart/replay/projection/operator controls. This session built candidates but did not install or restart the service.
+- [ ] Close Phase 8 against final installed evidence and create the required focused reviewed local commit. Exclude the pre-existing Hermes adapter edit and all runtime data.
+
+Milestone 4's useful real-project outcome and measured provider overlap remain
+owned by [its acceptance plan](autonomous-task-completion/04-real-multi-project-execution.md).
+They are not silently satisfied by these deterministic regression tests. Change
+`soterion.status` to `complete` only after the cutover gates above pass; keep the
+wider Milestone 4/5 product gates separate.
 
 Goal: Retire the legacy global JSONL task queue and make the installed `arda` daemon the durable owner of objective control, scheduling, concurrent execution, restart recovery, and receipt-backed closure.
 
@@ -6,7 +57,7 @@ Architecture: Add an indexed transactional objective store to `arda-engine`, sta
 
 Tech stack: Rust, Tokio, SQLite in WAL mode through `rusqlite`, existing Engine `RunStore`, existing authenticated Harness ingress, existing `arda.hermes_execution_receipt.v4` receipts.
 
-## Implementation status — 2026-09-02
+## Historical implementation status — 2026-09-02 (superseded above)
 
 Implemented and installed. The resident daemon owns authenticated objective
 creation, controls, indexed scheduling, leases, dependency release, Workbench

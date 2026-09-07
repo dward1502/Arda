@@ -1,7 +1,21 @@
+---
+soterion:
+  sigil: "SCROLL"
+  glyph: "📜"
+  code_point: "U+1F4DC"
+  role: "portfolio_index"
+  owner: "PROMETHEUS"
+  status: "active"
+  reviewed: "2026-09-07"
+  tags: ["whole-system", "autonomy", "completion", "projects", "daily-improvement"]
+---
+
+> 🜏 Soterion: 📜 portfolio_index | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
+
 # Arda Product Plan Suite
 
 **Status:** Active portfolio index<br>
-**Updated:** 2026-08-25<br>
+**Updated:** 2026-09-07<br>
 **Current release baseline:** [Arda 0.9 Baseline](../releases/0.9/BASELINE.md)<br>
 **Completed improvement record:** [Arda 0.9 Baseline and Improvement Plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
 **Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)<br>
@@ -21,6 +35,16 @@ Final public `1.0.0` qualification remains a separate, fail-closed future
 decision.
 
 ## Active planning authority
+
+This is a portfolio index, not an additional execution backlog. Authority is:
+
+1. [Whole-system program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md): product gates and cross-workstream order.
+2. [Autonomous milestones](autonomous-task-completion/README.md): the single autonomous acceptance backlog.
+3. [Runtime cutover](2026-09-01-arda-objective-runtime-cutover.md): bounded implementation dependency of those milestones, not a second autonomous program.
+4. [Provider convergence](PROVIDER_WORKER_CONVERGENCE.md): provider transport and placement dependencies shared by the program.
+
+[AUTONOMOUS_TASK_COMPLETION_LOOP.md](AUTONOMOUS_TASK_COMPLETION_LOOP.md) is a compatibility pointer only. Do not seed a second task set from it or from this index. A shared gate has one owning milestone; other documents link to its evidence rather than independently closing it.
+
 
 `docs/plans/` contains this portfolio index, the
 [Arda Whole-System Completion Program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md),

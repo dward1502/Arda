@@ -11,6 +11,10 @@ soterion:
 
 # Milestone 4 — Real Multi-Project Execution
 
+## Revalidation — 2026-09-07
+
+The cutover is **not complete**. [Current repair evidence and open gates](../../audits/2026-09-07-objective-cutover-revalidation.md) supersede earlier retry/runtime-complete claims. The daemon-lifetime polling cap was removed; persisted leaf attempts are capped transactionally after lease expiry, not when a reader opens the store. Source regressions also restore sibling receipt persistence, dependency-cycle and receipt validation, revision safety, equal-root exclusion, and persisted-stage reclaim. Installed same-run recovery, supervision/schedule integration, physical-root alias proof, and final deployment acceptance remain open.
+
 ## Status
 
 Partial. The resident ObjectiveRuntime cutover is implemented, installed, and owns objective execution without the legacy queue executor. Deterministic production-boundary tests prove two distinct project leaves execute concurrently, their dependent join remains blocked until both close, both canonical predecessor receipt payloads reach Workbench review with digest validation, terminal-root closure is receipt-backed, and restart recovery does not duplicate completed stages. These runtime invariants do not close Milestone 4 by themselves: the remaining gate is one useful human-visible outcome across two real registered projects with measured overlap, not a provider-specific synthetic prompt.

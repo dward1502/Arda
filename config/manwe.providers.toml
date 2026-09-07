@@ -890,7 +890,8 @@ supports_tools = true
 supports_structured_output = false
 
   [[provider.model]]
-  id = "gpt-5.5"
+  # Aligned with the operator's active Hermes model (2026-09-07).
+  id = "gpt-6-astra"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
   context_window = 1050000
   is_default = true

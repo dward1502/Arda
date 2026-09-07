@@ -6,11 +6,11 @@ soterion:
   role: "program_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-07"
   tags: ["whole-system", "autonomy", "completion", "projects", "daily-improvement"]
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
 
 # Arda Whole-System Completion Program
 
@@ -45,6 +45,10 @@ Core source/package foundations are substantial, but the whole system is not com
 10. Review independently where risk or uncertainty requires it.
 11. Close, retry, revise, replan, defer, or request one concrete decision.
 12. Record context use, outcomes, corrections, and reusable learning with provenance.
+
+## Execution authority
+
+The [portfolio index](ARDA_PRODUCT_PLAN_SUITE.md) owns navigation; this program owns product gates. The [autonomous milestone program](autonomous-task-completion/README.md) owns autonomous acceptance. Its [runtime cutover dependency](2026-09-01-arda-objective-runtime-cutover.md) owns runtime migration mechanics. Provider repairs belong to [provider convergence](PROVIDER_WORKER_CONVERGENCE.md); they may be executed as prerequisites to Gate 1 rather than waiting for Gate 2. No duplicate objective queue or parallel autonomous plan is authorized.
 
 ## Execution order
 

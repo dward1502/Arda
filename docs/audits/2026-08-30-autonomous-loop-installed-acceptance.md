@@ -11,6 +11,11 @@ soterion:
 
 # Autonomous Loop Installed Acceptance — 2026-08-30
 
+## Subsequent cutover revalidation — 2026-09-07
+
+[Source regression repairs and reopened cutover gates](2026-09-07-objective-cutover-revalidation.md). Earlier installed evidence remains historical; it does not qualify the current candidate or close restart/replay acceptance.
+
+
 This index preserves the bounded installed evidence summarized by the active program. The credential-free [machine evidence index](evidence/2026-08-30-autonomous-loop-installed-acceptance.json), [raw runtime snapshot](evidence/2026-08-30-autonomous-loop-installed-acceptance-raw.json), and [provider receipt snapshot](evidence/2026-08-30-autonomous-loop-provider-receipts.json) retain exact canonical queue rows, project contracts, memory records, provider/model/worker authority, receipt digests, project roots, and overlap timestamps. Canonical runtime ledgers remain mutation authority.
 
 ## Acceptance artifact identity

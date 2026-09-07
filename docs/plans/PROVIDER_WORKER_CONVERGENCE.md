@@ -6,11 +6,11 @@ soterion:
   role: "implementation_plan"
   owner: "MANWE"
   status: "active"
-  reviewed: "2026-08-25"
+  reviewed: "2026-09-07"
   tags: ["providers", "routing", "local-inference", "hermes", "workers"]
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: MANWE | status: active | reviewed: 2026-08-25
+> 🜏 Soterion: 📜 implementation_plan | owner: MANWE | status: active | reviewed: 2026-09-07
 
 # Provider and Worker Convergence
 
@@ -18,7 +18,16 @@ soterion:
 
 Canonical Arda work uses all suitable available capability—deterministic tools, local inference, subscription providers, free cloud, and paid cloud—through one observable placement decision. Local capacity is preferred when it can satisfy the task; stronger or paid capability is selected when evidence, risk, context, tools, or time justify it.
 
-## Verified starting point
+## Current repair evidence — 2026-09-07
+
+Installed Manwë local, subscription, automatic routing, and long-patch inference
+were exercised after the request/response repair: [verification record](../audits/2026-09-07-objective-cutover-revalidation.md#provider-repair-and-independent-review-follow-up).
+OpenRouter remains billing-unavailable; it is not an acceptance prerequisite.
+These provider repairs support the [autonomous milestones](autonomous-task-completion/README.md)
+and [runtime cutover](2026-09-01-arda-objective-runtime-cutover.md), not a competing
+execution plan. This workstream remains active until its worker-placement gates pass.
+
+## Historical starting point — 2026-08-25
 
 - Manwë is live on `127.0.0.1:7171` with 22 configured providers.
 - Three providers were ready at the audit snapshot: two local and one OpenAI subscription route.

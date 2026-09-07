@@ -1,8 +1,56 @@
+#[tokio::test]
+async fn failed_leaf_does_not_discard_successful_sibling_receipts() {
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
+    store
+        .create_authenticated_objective(objective(dir.path()), 100)
+        .unwrap();
+    store
+        .apply_control(
+            "objective-runtime-1",
+            ControlAction::Approve { revision: 1 },
+            "approve-runtime-1",
+            "operator-1",
+            101,
+        )
+        .unwrap();
+    let mut runtime = ObjectiveRuntime::new(
+        store,
+        RecordingExecutor {
+            active: Arc::new(AtomicUsize::new(0)),
+            maximum: Arc::new(AtomicUsize::new(0)),
+            fail_leaf: Some("inspect-a"),
+        },
+        "arda-runtime-failure",
+        4,
+        60_000,
+    );
+
+    let error = runtime.run_round(200).await.unwrap_err();
+
+    assert!(format!("{error:#}").contains("deliberate failure for inspect-a"));
+    assert_eq!(
+        runtime.store().leaf("inspect-b").unwrap().unwrap().stage,
+        LeafStage::Complete
+    );
+    assert!(runtime
+        .store()
+        .leaf("inspect-b")
+        .unwrap()
+        .unwrap()
+        .current_receipt_digest
+        .is_some());
+}
 use anyhow::Result;
+use arda_engine::objectives::LeafStage;
 use arda_engine::objectives::{
     ControlAction, LeafExecution, LeafExecutionResult, LeafExecutionSpec, NewLeaf, NewObjective,
     ObjectiveRuntime, ObjectiveState, ObjectiveStore, ProjectAuthority, ReceiptStage, StageReceipt,
 };
+use sha2::{Digest, Sha256};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -12,6 +60,7 @@ use std::sync::Arc;
 struct RecordingExecutor {
     active: Arc<AtomicUsize>,
     maximum: Arc<AtomicUsize>,
+    fail_leaf: Option<&'static str>,
 }
 
 impl LeafExecution for RecordingExecutor {
@@ -21,7 +70,11 @@ impl LeafExecution for RecordingExecutor {
     ) -> Pin<Box<dyn Future<Output = Result<LeafExecutionResult>> + Send>> {
         let active = Arc::clone(&self.active);
         let maximum = Arc::clone(&self.maximum);
+        let fail_leaf = self.fail_leaf;
         Box::pin(async move {
+            if fail_leaf == Some(claim.leaf_id.as_str()) {
+                anyhow::bail!("deliberate failure for {}", claim.leaf_id);
+            }
             assert!(claim.execution.is_some());
             assert!(claim.project_contract_digest.is_some());
             if claim.leaf_id == "join" {
@@ -51,7 +104,7 @@ impl LeafExecution for RecordingExecutor {
             .enumerate()
             {
                 let seed = format!("{}-{index}", claim.leaf_id);
-                let digest = format!("sha256:{:0<64}", seed);
+                let digest = format!("sha256:{:x}", Sha256::digest(seed.as_bytes()));
                 receipts.push(StageReceipt {
                     contract: "arda.hermes_execution_receipt.v4".into(),
                     stage,
@@ -148,6 +201,49 @@ fn objective(root: &std::path::Path) -> NewObjective {
 }
 
 #[tokio::test]
+async fn resident_runtime_accepts_work_after_idle_polling() {
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
+    let executor = RecordingExecutor {
+        active: Arc::new(AtomicUsize::new(0)),
+        maximum: Arc::new(AtomicUsize::new(0)),
+        fail_leaf: None,
+    };
+    let mut runtime = ObjectiveRuntime::new(store, executor, "resident", 4, 60_000);
+    for now in 0..10 {
+        assert!(runtime.run_round(now).await.unwrap().is_empty());
+    }
+    runtime
+        .store()
+        .create_authenticated_objective(objective(dir.path()), 100)
+        .unwrap();
+    runtime
+        .store()
+        .apply_control(
+            "objective-runtime-1",
+            ControlAction::Approve { revision: 1 },
+            "approve-after-idle",
+            "operator-1",
+            101,
+        )
+        .unwrap();
+    assert_eq!(runtime.run_round(200).await.unwrap().len(), 2);
+    assert_eq!(runtime.run_round(300).await.unwrap().len(), 1);
+    assert_eq!(
+        runtime
+            .store()
+            .objective("objective-runtime-1")
+            .unwrap()
+            .unwrap()
+            .state,
+        ObjectiveState::Completed
+    );
+}
+
+#[tokio::test]
 async fn resident_runtime_joins_independent_leaves_and_rehydrates_after_restart() {
     let dir = tempfile::tempdir().unwrap();
     for path in ["project-a", "project-b", "join"] {
@@ -172,6 +268,7 @@ async fn resident_runtime_joins_independent_leaves_and_rehydrates_after_restart(
     let executor = RecordingExecutor {
         active,
         maximum: Arc::clone(&maximum),
+        fail_leaf: None,
     };
 
     let mut runtime = ObjectiveRuntime::new(store, executor.clone(), "arda-runtime-1", 4, 60_000);

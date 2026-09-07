@@ -6,11 +6,11 @@ soterion:
   role: "program_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-09-01"
+  reviewed: "2026-09-07"
   tags: ["task-loop", "scheduler", "verification", "continuation"]
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-01
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
 
 # Autonomous Task Completion Program
 
@@ -18,25 +18,23 @@ soterion:
 
 The operator states an outcome once. Arda retrieves context, decomposes bounded work, applies existing authority, schedules and executes it, verifies and independently reviews the result, revises failures, survives restarts, and continues until acceptance passes or one genuine operator decision is required.
 
+## Revalidation — 2026-09-07
+
+The cutover is **not complete**. [Current repair evidence and open gates](../../audits/2026-09-07-objective-cutover-revalidation.md) supersede earlier retry/runtime-complete claims. The daemon-lifetime polling cap was removed; persisted leaf attempts are capped transactionally after lease expiry, not when a reader opens the store. Source regressions also restore sibling receipt persistence, dependency-cycle and receipt validation, revision safety, equal-root exclusion, and persisted-stage reclaim. Installed same-run recovery, supervision/schedule integration, physical-root alias proof, and final deployment acceptance remain open.
+
 ## Current status
 
-The source and package foundation is implemented. A reviewed installed objective has now completed context recovery, two real project-bound inspections, synthesis, read-only outcome production, final acceptance, and receipt-backed joined root closure. The workbench runtime has been fully repaired (Milestone 5). The daemon runs cleanly with manwe and hermes both functional. The execute→verify→review→close pipeline is operational. Remaining open items: same-objective project overlap, Vairë context-use binding, genuine external messaging ingress, explicit operator-burden acceptance.
+The source/package foundation and bounded installed receipts exist, but current cutover acceptance remains open. Earlier runtime-complete narratives are historical; use the [revalidation evidence](../../audits/2026-09-07-objective-cutover-revalidation.md) for the repaired source and remaining installed gates.
 
-| Capability | Current truth |
-|---|---|
-| Canonical queue, schedules, and continuation decisions | Source/package verified |
-| `plan → approval → execute → verify → review → close` | Source/package verified; bounded installed proof exists |
-| Retry, revision, replan, deferred work, cancellation | Source/package verified |
-| Restart checkpoints and mutation isolation | Source/package verified; bounded installed restart proof exists |
-| Independent provider-backed verifier and critic contracts | Source/package verified |
-| Canonical objective/control projection | Source/package verified |
-| Hermes consumption and mutation controls | Installed bridge/control path verified; genuine messaging-platform receipt open |
-| Installed recurrence, deferred wake, and correction | Timer, pause, terminal suppression, forced restart, and unattended correction verified; deferred/recurring wake remains open |
-| Autonomous retry termination | Verified — 2026-09-04. Root cause was `ObjectiveRuntime::run_round()` never incremented `self.objective_attempts`, making the `MAX_OBJECTIVE_ATTEMPTS` guard dead code. Fixed by changing signature to `&mut self` and adding `self.objective_attempts += 1` after the claims loop. Also verified `cap_excess_attempts()` migration fires on `ObjectiveStore::open()` to mark stuck objectives (`state IN ('approved','running')` with `MAX(leaf.attempt) >= 5`) as `Failed`. Full test suite passes: 51 tests, 0 failures. `cargo build --package arda-engine` clean. |
-|| Runtime execution with workbench integration | Verified — 2026-09-05. `claim_runnable` SQL parameter counts fixed (leaves now claimable). Workspace blocking fixed with NOT EXISTS clause. `manwe.toml` created with hermes-workbench provider. `hermes-workbench.toml` timeout reduced from 900000ms to 30000ms. Workbench executor timeout reduced from 1200s to 30s. `autonomy_operating_loop.toml` activated (status=active, mode=preflight). Missing `hades_cleanup_approval_packets.json` and `athena_external_source_lane_ledger.jsonl` created. Runtime is executing — leaves advance to attempt=3. Workbench execution chain partially working (plan and approval succeed, execute-pending). **FIXED 2026-09-07**: Root cause of execute failure was `services.toml` marking `hermes-workbench` adapter as `health = "unavailable"` and `eligible = false`. Fixed to `health = "ready"` and `eligible = true`. Daemon restarted. `MAX_OBJECTIVE_ATTEMPTS=5` verified in `crates/engine/src/objectives/store.rs`. Lease expiration and re-claim working correctly. **Also fixed 2026-09-07**: Hermes Python venv had broken `.pth` file (`__editable__.hermes_agent-0.21.0.pth`) pointing to corrupted `.hermes-runtime` Python modules causing `IndexError: string index out of range`. Removed broken `.pth` file and `.hermes-runtime`. Rebuilt `arda` and `manwe` from source (`cargo clean && cargo build -p arda --release`). Fixed broken `manwe` symlink. Created missing workspace `target/arda-real-projects/human`. The workbench execute→verify→review→close pipeline is now fully operational. |
-| Autonomy gate | Fixed — 2026-09-05. `autonomy_operating_loop.toml` was in `active_draft`/`continuous_preflight` with missing `hades_cleanup_approval_packets.json` and `athena_external_source_lane_ledger.jsonl`, which stalled the system. Fixed by activating the config and creating those files. 12/12 lanes configured. System is now running and executing. |
-| Simultaneous real-provider, multi-project execution | Reviewed real projects, one shared objective, six receipt-backed leaves, and joined close verified by `operator-task-fb5a52e3a268ec2d`; the two real-project execute receipts were serial, so same-objective overlap remains open |
-|| Live Vairë receipt binding and operator-burden acceptance | Terminal Mnemosyne outcome binding verified; Vairë context-use and operator verdict remain open. Workbench runtime fully repaired 2026-09-07: daemon restart loop fixed (rebuilt arda+manwe, fixed manwe symlink), hermes-workbench adapter fixed (health=ready, eligible=true), hermes Python venv .pth removed (broken .hermes-runtime), project workspace created (target/arda-real-projects/human), all Annunimas cron/systemd removed. The execute→verify→review→close pipeline is now fully operational. |
+| Owning milestone | Retained evidence | Remaining acceptance |
+|---|---|---|
+| [1 — Hermes control](01-hermes-objective-control.md) | Installed bridge/control evidence | Genuine messaging ingress against canonical records |
+| [2 — Scheduling/restart](02-installed-scheduling-restart.md) | Bounded restart/correction evidence | Resident same-run recovery and deferred/recurring wake |
+| [3 — Critic revision](03-live-critic-revision.md) | Provider-backed contracts and bounded evidence | Preserve the milestone's real rejection/revision acceptance requirements |
+| [4 — Multi-project](04-real-multi-project-execution.md) | Two-project serial joined close | Same-objective overlap and physical workspace alias isolation |
+| [5 — Continuity/acceptance](05-vaire-operator-acceptance.md) | Outcome binding evidence | Live Vairë context-use binding and explicit operator acceptance |
+
+The [cutover plan](../2026-09-01-arda-objective-runtime-cutover.md) is the implementation dependency for these gates, not another acceptance program. The [legacy loop index](../AUTONOMOUS_TASK_COMPLETION_LOOP.md) owns no separate tasks. Provider transport repairs belong to [provider convergence](../PROVIDER_WORKER_CONVERGENCE.md).
 
 ## Execution order
 

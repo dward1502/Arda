@@ -7,8 +7,8 @@ use anyhow::{anyhow, bail, Context, Result};
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::collections::{HashMap, HashSet};
+use std::path::{Component, Path, PathBuf};
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
@@ -16,7 +16,7 @@ pub struct ObjectiveStore {
     path: PathBuf,
 }
 
-const MAX_LEAF_ATTEMPTS: i64 = 5;
+const MAX_LEAF_ATTEMPTS: i64 = MAX_OBJECTIVE_ATTEMPTS;
 pub const MAX_OBJECTIVE_ATTEMPTS: i64 = 5;
 
 impl ObjectiveStore {
@@ -29,26 +29,7 @@ impl ObjectiveStore {
         let store = Self { path };
         let connection = store.connection()?;
         migrations::apply(&connection)?;
-        store.cap_excess_attempts()?;
         Ok(store)
-    }
-
-    fn cap_excess_attempts(&self) -> Result<()> {
-        let connection = self.connection()?;
-        let now_ms = chrono::Utc::now().timestamp_millis();
-        connection.execute(
-            "UPDATE objectives SET state = 'failed', updated_at_ms = ?1
-             WHERE state IN ('approved', 'running')
-             AND id IN (
-                 SELECT o.id FROM objectives o
-                 JOIN leaves l ON l.objective_id = o.id
-                 WHERE l.stage NOT IN ('complete', 'cancelled', 'failed')
-                 GROUP BY o.id
-                 HAVING MAX(l.attempt) >= ?2
-             )",
-            params![now_ms, MAX_LEAF_ATTEMPTS],
-        )?;
-        Ok(())
     }
 
     pub fn create_authenticated_objective(
@@ -363,6 +344,20 @@ impl ObjectiveStore {
                 ) {
                     bail!("terminal objective cannot be revised");
                 }
+                let execution_started = transaction.query_row(
+                    "SELECT EXISTS(
+                        SELECT 1 FROM leaves
+                        WHERE objective_id = ?1
+                          AND (attempt > 0 OR current_receipt_digest IS NOT NULL OR stage != ?2)
+                    )",
+                    params![objective_id, LeafStage::Execute.as_str()],
+                    |row| row.get::<_, bool>(0),
+                )?;
+                if execution_started {
+                    bail!(
+                        "objective cannot be revised after execution started; cancel it and create a new objective"
+                    );
+                }
                 transaction.execute(
                     "UPDATE objectives SET text = ?1, revision = revision + 1,
                      approved_revision = NULL, state = ?2, updated_at_ms = ?3 WHERE id = ?4",
@@ -415,6 +410,19 @@ impl ObjectiveStore {
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .context("begin objective claim")?;
+        // Retry exhaustion belongs to the resident claim transaction, not store
+        // opening (operator projections open this store too). Preserve live leases.
+        transaction.execute(
+            "UPDATE objectives SET state = 'failed', updated_at_ms = ?1
+             WHERE state IN ('approved', 'running')
+               AND EXISTS (
+                   SELECT 1 FROM leaves l WHERE l.objective_id = objectives.id
+                     AND l.stage NOT IN ('complete', 'cancelled', 'failed')
+                     AND l.attempt >= ?2
+                     AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?1)
+               )",
+            params![now_ms, MAX_LEAF_ATTEMPTS],
+        )?;
         let candidate_limit = capacity.saturating_mul(8).saturating_add(32) as i64;
         let candidates = {
             let mut statement = transaction.prepare(
@@ -422,20 +430,20 @@ impl ObjectiveStore {
                  FROM leaves l
                  JOIN objectives o ON o.id = l.objective_id
                  WHERE o.state IN (?1, ?2)
-                   AND l.stage = ?3
-                   AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?4)
+                   AND l.attempt < ?10
+                   AND l.stage IN (?3, ?4, ?5, ?6)
+                   AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?7)
                    AND NOT EXISTS (
                        SELECT 1 FROM leaf_dependencies d
                        JOIN leaves prerequisite ON prerequisite.id = d.dependency_leaf_id
-                       WHERE d.leaf_id = l.id AND prerequisite.stage != ?5
+                       WHERE d.leaf_id = l.id AND prerequisite.stage != ?8
                    )
                    AND NOT EXISTS (
                        SELECT 1 FROM leaves active
                        WHERE active.id != l.id
-                         AND active.objective_id != l.objective_id
                          AND active.workspace_root = l.workspace_root
-                         AND active.lease_expires_ms > ?4
-                         AND active.stage IN (?6, ?7, ?8)
+                         AND active.lease_expires_ms > ?7
+                         AND active.stage IN (?3, ?4, ?5, ?6)
                    )
                  ORDER BY o.priority DESC, o.created_at_ms, o.id, l.id
                  LIMIT ?9",
@@ -445,12 +453,13 @@ impl ObjectiveStore {
                     ObjectiveState::Approved.as_str(),
                     ObjectiveState::Running.as_str(),
                     LeafStage::Execute.as_str(),
-                    now_ms,
-                    LeafStage::Complete.as_str(),
-                    LeafStage::Execute.as_str(),
                     LeafStage::Verify.as_str(),
                     LeafStage::Review.as_str(),
+                    LeafStage::Close.as_str(),
+                    now_ms,
+                    LeafStage::Complete.as_str(),
                     candidate_limit,
+                    MAX_LEAF_ATTEMPTS,
                 ],
                 |row| row.get::<_, String>(0),
             )?;
@@ -468,31 +477,27 @@ impl ObjectiveStore {
             let changed = transaction.execute(
                 "UPDATE leaves AS target
                  SET lease_owner = ?1, lease_expires_ms = ?2, attempt = attempt + 1,
-                     stage = ?11,
                      updated_at_ms = ?3
                  WHERE id = ?4
                    AND attempt < ?9
-                   AND (lease_owner IS NULL OR lease_expires_ms <= ?5)
+                   AND (lease_owner IS NULL OR lease_expires_ms <= ?3)
                    AND NOT EXISTS (
                        SELECT 1 FROM leaves active
                        WHERE active.id != target.id
-                         AND active.objective_id != target.objective_id
                          AND active.workspace_root = target.workspace_root
-                         AND active.lease_expires_ms > ?5
-                         AND active.stage IN (?6, ?7, ?8)
+                         AND active.lease_expires_ms > ?3
+                         AND active.stage IN (?5, ?6, ?7, ?8)
                    )",
                 params![
                     lease_owner,
                     expires_ms,
                     now_ms,
                     leaf_id,
-                    now_ms,
                     LeafStage::Execute.as_str(),
                     LeafStage::Verify.as_str(),
                     LeafStage::Review.as_str(),
-                    MAX_LEAF_ATTEMPTS,
                     LeafStage::Close.as_str(),
-                    LeafStage::Execute.as_str(),
+                    MAX_LEAF_ATTEMPTS,
                 ],
             )?;
             if changed == 0 {
@@ -881,11 +886,62 @@ fn validate_objective(objective: &NewObjective) -> Result<()> {
         }
     }
     for leaf in &objective.leaves {
+        let mut dependencies = HashSet::new();
         for dependency in &leaf.dependencies {
             if dependency == &leaf.id || !leaves.contains(dependency.as_str()) {
                 bail!("leaf {} has an invalid dependency {}", leaf.id, dependency);
             }
+            if !dependencies.insert(dependency.as_str()) {
+                bail!("leaf {} has duplicate dependency {}", leaf.id, dependency);
+            }
         }
+    }
+    let mut unresolved = objective
+        .leaves
+        .iter()
+        .map(|leaf| (leaf.id.as_str(), leaf.dependencies.len()))
+        .collect::<HashMap<_, _>>();
+    let mut ready = unresolved
+        .iter()
+        .filter_map(|(leaf_id, count)| (*count == 0).then_some(*leaf_id))
+        .collect::<Vec<_>>();
+    let mut visited = 0;
+    while let Some(completed) = ready.pop() {
+        if unresolved.remove(completed).is_none() {
+            continue;
+        }
+        visited += 1;
+        for leaf in &objective.leaves {
+            if leaf
+                .dependencies
+                .iter()
+                .any(|dependency| dependency == completed)
+            {
+                if let Some(count) = unresolved.get_mut(leaf.id.as_str()) {
+                    *count -= 1;
+                    if *count == 0 {
+                        ready.push(leaf.id.as_str());
+                    }
+                }
+            }
+        }
+    }
+    if visited != objective.leaves.len() {
+        bail!("objective leaf dependencies contain a cycle");
+    }
+    Ok(())
+}
+
+fn validate_sha256(value: &str, name: &str) -> Result<()> {
+    let Some(hex) = value.strip_prefix("sha256:") else {
+        bail!("{name} must use the sha256:<lowercase-hex> form");
+    };
+    if hex.len() != 64
+        || !hex
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+    {
+        bail!("{name} must use the sha256:<lowercase-hex> form");
     }
     Ok(())
 }
@@ -904,6 +960,18 @@ fn validate_receipt(receipt: &StageReceipt) -> Result<()> {
         if value.trim().is_empty() {
             bail!("{name} must not be empty");
         }
+    }
+    validate_sha256(&receipt.digest, "receipt digest")?;
+    if let Some(predecessor) = receipt.predecessor_digest.as_deref() {
+        validate_sha256(predecessor, "receipt predecessor digest")?;
+    }
+    let run_path = Path::new(&receipt.run_path);
+    if run_path.is_absolute()
+        || run_path
+            .components()
+            .any(|component| !matches!(component, Component::Normal(_)))
+    {
+        bail!("receipt run path must be a safe repository-relative path");
     }
     if receipt.completed_at_ms < receipt.started_at_ms {
         bail!("receipt completion precedes its start");

@@ -1,4 +1,4 @@
-use super::{ClaimedLeaf, MAX_OBJECTIVE_ATTEMPTS, ObjectiveStore, StageReceipt};
+use super::{ClaimedLeaf, ObjectiveStore, StageReceipt};
 use anyhow::{Context, Result};
 use std::future::Future;
 use std::pin::Pin;
@@ -28,7 +28,6 @@ pub struct ObjectiveRuntime<E> {
     worker_id: String,
     capacity: usize,
     lease_duration_ms: i64,
-    objective_attempts: i64,
 }
 
 impl<E> ObjectiveRuntime<E>
@@ -48,7 +47,6 @@ where
             worker_id: worker_id.into(),
             capacity,
             lease_duration_ms,
-            objective_attempts: 0,
         }
     }
 
@@ -57,9 +55,6 @@ where
     }
 
     pub async fn run_round(&mut self, now_ms: i64) -> Result<Vec<LeafRoundOutcome>> {
-        if self.objective_attempts >= MAX_OBJECTIVE_ATTEMPTS {
-            return Ok(Vec::new());
-        }
         let claims = self.store.claim_runnable(
             &self.worker_id,
             now_ms,
@@ -73,46 +68,78 @@ where
             .collect::<Vec<_>>();
         let results = futures::future::join_all(executions).await;
         let mut outcomes = Vec::with_capacity(claims.len());
+        let mut errors = Vec::new();
         for (claim, result) in claims.into_iter().zip(results) {
-            let result = result.with_context(|| {
+            let result = match result.with_context(|| {
                 format!(
                     "execute objective `{}` leaf `{}`",
                     claim.objective_id, claim.leaf_id
                 )
-            })?;
+            }) {
+                Ok(result) => result,
+                Err(error) => {
+                    errors.push(format!("{error:#}"));
+                    continue;
+                }
+            };
             if result.receipts.is_empty() {
-                anyhow::bail!("leaf `{}` returned no canonical receipts", claim.leaf_id);
+                errors.push(format!(
+                    "leaf `{}` returned no canonical receipts",
+                    claim.leaf_id
+                ));
+                continue;
             }
+            let mut receipt_error = None;
             for receipt in result.receipts {
-                self.store.record_stage_receipt(
+                if let Err(error) = self.store.record_stage_receipt(
                     &claim.leaf_id,
                     &claim.lease_owner,
                     receipt,
                     now_ms,
-                )?;
+                ) {
+                    receipt_error = Some(error);
+                    break;
+                }
             }
-            let leaf = self
-                .store
-                .leaf(&claim.leaf_id)?
-                .ok_or_else(|| anyhow::anyhow!("claimed leaf `{}` disappeared", claim.leaf_id))?;
-            let terminal_receipt_digest = leaf.current_receipt_digest.ok_or_else(|| {
-                anyhow::anyhow!(
-                    "completed leaf `{}` omitted terminal receipt",
+            if let Some(error) = receipt_error {
+                errors.push(format!(
+                    "record objective `{}` leaf `{}` receipt: {error:#}",
+                    claim.objective_id, claim.leaf_id
+                ));
+                continue;
+            }
+            let completed = (|| -> Result<LeafRoundOutcome> {
+                let leaf = self.store.leaf(&claim.leaf_id)?.ok_or_else(|| {
+                    anyhow::anyhow!("claimed leaf `{}` disappeared", claim.leaf_id)
+                })?;
+                let terminal_receipt_digest = leaf.current_receipt_digest.ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "completed leaf `{}` omitted terminal receipt",
+                        claim.leaf_id
+                    )
+                })?;
+                self.store.complete_objective_if_ready(
+                    &claim.objective_id,
+                    &terminal_receipt_digest,
+                    now_ms,
+                )?;
+                Ok(LeafRoundOutcome {
+                    objective_id: claim.objective_id,
+                    leaf_id: claim.leaf_id.clone(),
+                    terminal_receipt_digest,
+                })
+            })();
+            match completed {
+                Ok(outcome) => outcomes.push(outcome),
+                Err(error) => errors.push(format!(
+                    "finalize objective leaf `{}`: {error:#}",
                     claim.leaf_id
-                )
-            })?;
-            self.store.complete_objective_if_ready(
-                &claim.objective_id,
-                &terminal_receipt_digest,
-                now_ms,
-            )?;
-            outcomes.push(LeafRoundOutcome {
-                objective_id: claim.objective_id,
-                leaf_id: claim.leaf_id,
-                terminal_receipt_digest,
-            });
+                )),
+            }
         }
-        self.objective_attempts += 1;
+        if !errors.is_empty() {
+            anyhow::bail!("objective round failed: {}", errors.join("; "));
+        }
         Ok(outcomes)
     }
 }

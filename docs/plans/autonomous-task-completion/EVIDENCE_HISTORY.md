@@ -11,6 +11,11 @@ soterion:
 
 # Autonomous Completion Evidence History
 
+## Subsequent cutover revalidation — 2026-09-07
+
+[Source regression repairs and reopened cutover gates](../../audits/2026-09-07-objective-cutover-revalidation.md). Earlier installed evidence remains historical; it does not qualify the current candidate or close restart/replay acceptance.
+
+
 This file indexes completed engineering slices. It is not the execution plan and does not promote source/package evidence into installed or operator acceptance.
 
 | Date | Slice | Proven level | Primary evidence |

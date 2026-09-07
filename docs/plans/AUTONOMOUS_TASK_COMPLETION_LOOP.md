@@ -6,11 +6,11 @@ soterion:
   role: "program_index"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-07"
   tags: ["task-loop", "scheduler", "verification", "continuation"]
 ---
 
-> 🜏 Soterion: 📜 program_index | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 program_index | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
 
 # Autonomous Task Completion Loop
 
@@ -19,6 +19,8 @@ soterion:
 The structured execution program is [Autonomous Task Completion Program](autonomous-task-completion/README.md).
 
 This compatibility index preserves existing links. Detailed implementation and review history has been removed from the active plan and reduced to the [Evidence History](autonomous-task-completion/EVIDENCE_HISTORY.md).
+
+This document owns no tasks or independent completion verdict. Follow the structured program for current status and acceptance; the [runtime cutover](2026-09-01-arda-objective-runtime-cutover.md) is its implementation dependency.
 
 ## Status
 

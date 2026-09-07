@@ -26,18 +26,16 @@ arda_runtime_build_env() {
   fi
 }
 
-# Invoke the prebuilt arda-cli release binary. Hard-fails with an
-# instructive message if the binary is missing — never silently falls back
-# to `cargo run`, which historically caused Hermes APIConnectionError
-# outages from cold-compile latency. Build the binary once with:
+# Invoke the Arda CLI binary. Uses the prebuilt arda-aule CLI with full-cli features.
+# Build the binary with:
 #   source scripts/runtime_build_env.sh && arda_runtime_build_env .
 #   cargo build -p arda-aule --bin arda-cli --features full-cli --release
-arda_cli() {
-  local cli_bin="${ARDA_CLI_BIN:-${CARGO_TARGET_DIR:-}/release/arda-cli}"
+ardacli() {
+  local cli_bin="${ARDA_CLI_BIN:-${CARGO_TARGET_DIR:-}/release/ardacli}"
   if [[ -z "${CARGO_TARGET_DIR:-}" || ! -x "$cli_bin" ]]; then
-    echo "[arda_cli] prebuilt CLI not found at: ${cli_bin}" >&2
-    echo "[arda_cli] build it with: cargo build -p arda-aule --bin arda-cli --features full-cli --release" >&2
-    echo "[arda_cli] (ensure runtime_build_env.sh is sourced first so CARGO_TARGET_DIR is set)" >&2
+    echo "[ardacli] prebuilt CLI not found at: ${cli_bin}" >&2
+    echo "[ardacli] build it with: cargo build -p arda-aule --bin arda-cli --features full-cli --release" >&2
+    echo "[ardacli] (ensure runtime_build_env.sh is sourced first so CARGO_TARGET_DIR is set)" >&2
     return 127
   fi
   "$cli_bin" "$@"

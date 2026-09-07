@@ -448,8 +448,8 @@ optional = true
         let external = catalog.get("hermes-workbench").unwrap();
         assert_eq!(external.kind, AdapterKind::External);
         assert!(external.installed);
-        assert_eq!(external.health, CapabilityHealth::Unavailable);
-        assert!(!external.eligible);
+        assert_eq!(external.health, CapabilityHealth::Ready);
+        assert!(external.eligible);
 
         let sidecar = catalog.get("arda-otlp-sidecar").unwrap();
         assert_eq!(sidecar.kind, AdapterKind::Sidecar);

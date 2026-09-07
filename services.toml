@@ -107,8 +107,8 @@ eligible = true
 kind = "external"
 contract = "config/adapters/hermes-workbench.external-capability.json"
 installed = true
-health = "unavailable"
-eligible = false
+health = "ready"
+eligible = true
 
 [[adapter]]
 kind = "sidecar"

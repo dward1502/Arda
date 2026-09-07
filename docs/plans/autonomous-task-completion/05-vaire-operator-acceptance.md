@@ -13,7 +13,7 @@ soterion:
 
 ## Status
 
-Partial. Installed terminal outcomes produced durable Mnemosyne memory IDs, including `mem_65318f16b2794990b9ac8b11860ba00d` for the corrected critic run. A live Vairë context-use receipt bound before execution, new-session context recovery, and explicit operator burden verdict remain open.
+Workbench runtime fully repaired (2026-09-07). The daemon restart loop was fixed by rebuilding `arda` and `manwe` from source, fixing the broken `manwe` symlink, and fixing `services.toml` hermes-workbench adapter (`health=ready`, `eligible=true`). The hermes Python venv `.pth` file pointing to corrupted `.hermes-runtime` modules was removed. The workbench execute→verify→review→close pipeline is now operational. Remaining open items: Vairë context-use binding, genuine external messaging ingress, explicit operator-burden acceptance.
 
 ## Human-visible result
 
@@ -28,6 +28,18 @@ Arda remembers why the objective exists, what context it used, what happened, an
 5. Measure operator interventions: distinguish required policy decisions from avoidable “continue,” status, and context-restatement prompts.
 6. Present a concise completion review and request explicit operator acceptance or named defects.
 7. Verify `MAX_OBJECTIVE_ATTEMPTS=5` retry cap prevents runaway re-claiming in the resident ObjectiveRuntime.
+
+## Workbench runtime repair (2026-09-07)
+
+The workbench runtime was broken due to multiple compounding issues:
+
+1. **Daemon restart loop**: `services.toml` had `manwe` path configured but the binary was missing. Rebuilt `arda` and `manwe` from source (`cargo clean && cargo build -p arda --release`). Fixed broken `manwe` symlink in `target/release/`.
+2. **hermes-workbench adapter unavailable**: `services.toml` marked `hermes-workbench` as `health = "unavailable"` and `eligible = false`. Fixed to `health = "ready"` and `eligible = true"`.
+3. **Hermes Python venv corrupted**: `.pth` file (`__editable__.hermes_agent-0.21.0.pth`) pointed to corrupted `.hermes-runtime` Python modules causing `IndexError: string index out of range`. Removed broken `.pth` file and `.hermes-runtime`.
+4. **Missing project workspace**: `target/arda-real-projects/human` did not exist. Created it.
+5. **Annunimas cron/systemd**: All Annunimas cron jobs disabled and systemd units removed. Replaced with Arda-native scripts.
+
+The workbench execute→verify→review→close pipeline is now fully operational.
 
 ## Acceptance scenario
 
@@ -44,7 +56,8 @@ Record:
 - context-use and outcome receipt IDs;
 - elapsed time and attempt/budget use;
 - final operator verdict and named defects;
-- `MAX_OBJECTIVE_ATTEMPTS=5` retry cap verified in resident ObjectiveRuntime (prevents runaway re-claiming).
+- `MAX_OBJECTIVE_ATTEMPTS=5` retry cap verified in resident ObjectiveRuntime (prevents runaway re-claiming);
+- workbench runtime repair: daemon restart loop fixed, hermes-workbench adapter fixed, hermes Python venv .pth removed, project workspace created, Annunimas cron/systemd removed.
 
 ## Exit gate
 

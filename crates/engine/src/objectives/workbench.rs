@@ -87,12 +87,8 @@ where
                 "objective-{}-leaf-{}-attempt-{}",
                 claim.objective_id, claim.leaf_id, claim.attempt
             );
-            let approval_id = execution
-                .approval_envelope["approval"]["approval_id"]
-                .as_str()
-                .unwrap_or("");
             let (memory, context_assembly) =
-                assemble_resident_context(&root, &claim, &run_id, approval_id, execution, project_id)?;
+                assemble_resident_context(&root, &claim, &run_id, execution, project_id)?;
             let item = ExplicitWorkbenchWorkItem {
                 objective_id: claim.objective_id.clone(),
                 leaf_id: claim.leaf_id.clone(),
@@ -160,12 +156,12 @@ fn assemble_resident_context(
     root: &Path,
     claim: &ClaimedLeaf,
     run_id: &str,
-    approval_id: &str,
     execution: &super::model::LeafExecutionSpec,
     project_id: &str,
 ) -> Result<(MnemosyneService, ContextAssembly)> {
     let service = MnemosyneService::new(root.join("data/vaire"))?
         .with_contract_memory_root(root.join("core/state/memory"));
+    let approval_id = execution.approval_envelope["approval"]["approval_id"].as_str().unwrap_or("");
     let consumer_id = format!("arda.resident-objective:{run_id}");
     let mut consumer = ConsumerContext::new(&consumer_id, vec![MemoryDomain::System]);
     consumer.purpose = Some(execution.execution_prompt.clone());

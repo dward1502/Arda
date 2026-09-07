@@ -54,7 +54,7 @@
     {
       "id": "execute",
       "kind": "execute",
-      "state": "pending",
+      "state": "failed",
       "authority": "execute_with_approval",
       "budget": {
         "max_joules": 5000.0,
@@ -71,7 +71,7 @@
         "gateway-approval:gateway-event:4a95c980a5d445adca301262f8fa191c466d69f7c1608b628b306d6587f939a0"
       ],
       "checkpoint": {
-        "sequence": 0,
+        "sequence": 2,
         "recovery_token": null,
         "checkpoint_digest": null
       },
@@ -88,7 +88,7 @@
         "dependencies": [
           "approval"
         ],
-        "deadline_unix_ms": 1788422648257,
+        "deadline_unix_ms": 1788598809074,
         "output_contract": "arda.hermes-job-result.v1",
         "evidence_policy": "worker_report"
       }
@@ -127,7 +127,7 @@
         "dependencies": [
           "execute"
         ],
-        "deadline_unix_ms": 1788422648257,
+        "deadline_unix_ms": 1788598809074,
         "output_contract": "arda.hermes-job-result.v1",
         "evidence_policy": "project_native_checks"
       }
@@ -166,7 +166,7 @@
         "dependencies": [
           "verify"
         ],
-        "deadline_unix_ms": 1788422648257,
+        "deadline_unix_ms": 1788598809074,
         "output_contract": "arda.hermes-job-result.v1",
         "evidence_policy": "worker_report"
       }

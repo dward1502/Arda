@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-03T16:35:35.875887851+00:00",
+  "timestamp": "2026-09-04T21:09:29.306692599+00:00",
   "queue": {
     "total": 1048,
     "by_status": {
@@ -33,7 +33,7 @@
     "in_progress": 1,
     "completed": 37,
     "failed": 26,
-    "aging_oldest_pending_secs": 1181252,
+    "aging_oldest_pending_secs": 1284086,
     "bottleneck_owner": "prometheus",
     "recent_completions_1h": 0,
     "recent_completions_24h": 0,
@@ -69,18 +69,18 @@
       {
         "unit": "arda-manwe-inference-probe.service",
         "load": "loaded",
-        "active": "failed",
-        "sub": "failed",
-        "score": 0.0,
-        "note": "failed"
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
       },
       {
         "unit": "arda-metrics-exporter.service",
         "load": "loaded",
-        "active": "active",
-        "sub": "running",
-        "score": 1.0,
-        "note": "running"
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.4,
+        "note": "stopped"
       },
       {
         "unit": "arda-relic-bridge.service",
@@ -133,10 +133,10 @@
       {
         "unit": "arda-manwe-inference-probe.timer",
         "load": "loaded",
-        "active": "inactive",
-        "sub": "dead",
-        "score": 0.3,
-        "note": "timer inactive"
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
       },
       {
         "unit": "arda-varda-external-lane.timer",
@@ -147,21 +147,21 @@
         "note": "timer armed (waiting)"
       }
     ],
-    "healthy": 9,
-    "degraded": 1,
-    "failed": 3,
-    "overall_score": 0.7423076923076923
+    "healthy": 10,
+    "degraded": 2,
+    "failed": 1,
+    "overall_score": 0.8153846153846154
   },
   "dashboard": {
     "task_completion_rate": 1.0,
-    "avg_aging_pending_secs": 1181252.0,
+    "avg_aging_pending_secs": 1284086.0,
     "recent_completions_1h": 0,
-    "service_overall_score": 0.7423076923076923,
-    "services_failed": 3,
+    "service_overall_score": 0.8153846153846154,
+    "services_failed": 1,
     "alerts": [
       {
         "severity": "Critical",
-        "message": "3 arda service(s) failed",
+        "message": "1 arda service(s) failed",
         "source": "systemd"
       },
       {
@@ -33059,11 +33059,11 @@
         "gate": "evidence_for_governance_not_approval_by_itself",
         "runtime_adapter": true,
         "source_path": "/var/home/mythos/Eregion/Arda/data/council/agent_conversations.jsonl",
-        "source_records": 975,
-        "cycle_receipts": 975,
+        "source_records": 1144,
+        "cycle_receipts": 1144,
         "gate_effect": "evidence_only",
         "evidence_summary": [
-          "conversation_records=975",
+          "conversation_records=1144",
           "council_output_does_not_approve_execution_by_itself"
         ]
       }
@@ -33074,9 +33074,9 @@
     "contract": "arda.prometheus.council_runtime_projection.v1",
     "ledger_path": "/var/home/mythos/Eregion/Arda/data/council/agent_conversations.jsonl",
     "source_available": true,
-    "existing_record_count": 976,
+    "existing_record_count": 1145,
     "appended_record_count": 1,
-    "latest_conversation_id": "ceo_autopilot_cycle_2026-09-03T16_35_35_875803820_00_00",
+    "latest_conversation_id": "ceo_autopilot_cycle_2026-09-04T21_09_29_306478096_00_00",
     "task_promotion_allowed": false,
     "evidence_only": true,
     "error": null
@@ -33184,6 +33184,6 @@
       "/var/home/mythos/Eregion/Arda/config/governance/autonomy_operating_loop.toml"
     ]
   },
-  "report_path": "/var/home/mythos/Eregion/Arda/data/ceo/reports/daily_2026-09-03.md",
+  "report_path": "/var/home/mythos/Eregion/Arda/data/ceo/reports/daily_2026-09-04.md",
   "weekly_report_path": "/var/home/mythos/Eregion/Arda/data/ceo/reports/weekly_2026-W36.md"
 }

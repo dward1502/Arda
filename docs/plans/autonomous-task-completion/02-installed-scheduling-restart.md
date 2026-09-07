@@ -4,10 +4,10 @@ soterion:
   role: "acceptance_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-04"
 ---
 
-> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-04
 
 # Milestone 2 — Installed Scheduling and Restart
 
@@ -27,6 +27,7 @@ Arda continues a deferred or recurring objective through the installed scheduler
 4. Force process exit after a durable execution checkpoint and verify exactly-once resume.
 5. Force verification failure and prove the continuation engine chooses retry, revision, or bounded stop according to persisted policy.
 6. Prove terminal schedule state prevents a later wake.
+7. Verify `MAX_OBJECTIVE_ATTEMPTS=5` retry cap prevents runaway re-claiming in the resident ObjectiveRuntime.
 
 ## Acceptance scenario
 
@@ -38,8 +39,8 @@ A reversible real-project task runs once, defers until a near-term wake, resumes
 - Canonical queue, schedule, run, and continuation lineage.
 - Timer invocation and process-restart observations.
 - Before/after artifact identity and declared check output.
-- Proof that no duplicate attempt or post-terminal wake occurred.
+- Proof that no duplicate attempt or post-terminal wake occurred; `MAX_OBJECTIVE_ATTEMPTS=5` retry cap verified in resident ObjectiveRuntime |
 
 ## Exit gate
 
-The complete installed scenario succeeds unattended. Package-only or direct-CLI simulation does not close this milestone.
+The complete installed scenario succeeds unattended. Package-only or direct-CLI simulation does not close this milestone; the `MAX_OBJECTIVE_ATTEMPTS=5` retry cap must also be verified in the resident ObjectiveRuntime.

@@ -87,8 +87,12 @@ where
                 "objective-{}-leaf-{}-attempt-{}",
                 claim.objective_id, claim.leaf_id, claim.attempt
             );
+            let approval_id = execution
+                .approval_envelope["approval"]["approval_id"]
+                .as_str()
+                .unwrap_or("");
             let (memory, context_assembly) =
-                assemble_resident_context(&root, &claim, &run_id, execution, project_id)?;
+                assemble_resident_context(&root, &claim, &run_id, approval_id, execution, project_id)?;
             let item = ExplicitWorkbenchWorkItem {
                 objective_id: claim.objective_id.clone(),
                 leaf_id: claim.leaf_id.clone(),
@@ -156,6 +160,7 @@ fn assemble_resident_context(
     root: &Path,
     claim: &ClaimedLeaf,
     run_id: &str,
+    approval_id: &str,
     execution: &super::model::LeafExecutionSpec,
     project_id: &str,
 ) -> Result<(MnemosyneService, ContextAssembly)> {
@@ -163,7 +168,7 @@ fn assemble_resident_context(
         .with_contract_memory_root(root.join("core/state/memory"));
     let consumer_id = format!("arda.resident-objective:{run_id}");
     let mut consumer = ConsumerContext::new(&consumer_id, vec![MemoryDomain::System]);
-    consumer.purpose = Some(execution.objective.clone());
+    consumer.purpose = Some(execution.execution_prompt.clone());
     consumer.operator_authorized = true;
     let memory_refs = service
         .recall_governed_memories(Some(&consumer))?
@@ -216,14 +221,20 @@ fn assemble_resident_context(
             run_id: Some(RunId::new(run_id.to_owned())?),
             task_id: Some(claim.leaf_id.clone()),
             session_ref: None,
-            parent_receipts: claim
-                .dependency_receipts
-                .iter()
-                .map(|receipt| receipt.digest.clone())
-                .collect(),
+            parent_receipts: {
+                let mut receipts = claim
+                    .dependency_receipts
+                    .iter()
+                    .map(|receipt| receipt.digest.clone())
+                    .collect::<Vec<_>>();
+                if !receipts.iter().any(|r| r == approval_id) && !approval_id.is_empty() {
+                    receipts.push(approval_id.to_string());
+                }
+                receipts
+            },
         },
         objective: ContextObjective {
-            requested_outcome: execution.objective.clone(),
+            requested_outcome: execution.execution_prompt.clone(),
             acceptance_conditions: vec![execution.verification_prompt.clone()],
             required_capabilities: vec!["resident_objective_execution".into()],
             forbidden_capabilities: vec!["legacy_queue_authority".into()],

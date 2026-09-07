@@ -1,13 +1,13 @@
 ---
 soterion:
   sigil: "SCROLL"
-  role: "implementation_plan"
-  owner: "HERMES"
+  role: "acceptance_plan"
+  owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-04"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-04
 
 # Milestone 1 — Hermes Objective Control
 
@@ -33,6 +33,7 @@ In a normal Hermes conversation, the operator can ask what Arda is doing, see on
 4. Require an explicit confirmation for consequential reject/cancel/revision actions while allowing read and bounded pause/resume under existing policy.
 5. Return the updated canonical projection after each mutation, including source freshness and any blocker.
 6. Preserve one command receipt linking Hermes session, objective, task, mutation, and resulting canonical record.
+7. Verify `MAX_OBJECTIVE_ATTEMPTS=5` retry cap prevents runaway re-claiming in the resident ObjectiveRuntime.
 
 ## Acceptance scenario
 
@@ -52,4 +53,4 @@ In a normal Hermes conversation, the operator can ask what Arda is doing, see on
 
 ## Exit gate
 
-The operator can inspect and control a real objective conversationally, and every displayed state and mutation is traceable to the same canonical Arda records.
+The operator can inspect and control a real objective conversationally, and every displayed state and mutation is traceable to the same canonical Arda records. The `MAX_OBJECTIVE_ATTEMPTS=5` retry cap must also be verified in the resident ObjectiveRuntime.

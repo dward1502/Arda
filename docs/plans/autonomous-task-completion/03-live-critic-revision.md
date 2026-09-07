@@ -4,10 +4,10 @@ soterion:
   role: "acceptance_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-04"
 ---
 
-> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-04
 
 # Milestone 3 — Live Critic Rejection and Revision
 
@@ -30,6 +30,7 @@ Engine persists separate implementer, verifier, and critic identities; dispatche
 3. Convert named critic defects into the existing `revise_task` continuation contract.
 4. Preserve defect text, rejected artifact identity, parent receipt, revised attempt, and final resolution.
 5. Reject synthetic, workerless, stale, cross-run, or provenance-free critic receipts.
+6. Verify `MAX_OBJECTIVE_ATTEMPTS=5` retry cap prevents runaway re-claiming in the resident ObjectiveRuntime.
 
 ## Acceptance scenario
 
@@ -37,4 +38,4 @@ Use a reversible implementation fixture with a deliberate semantic defect that p
 
 ## Exit gate
 
-The live receipt chain proves rejection → named defect → durable revision → corrected artifact → independent acceptance. A critic that only approves does not satisfy this milestone.
+The live receipt chain proves rejection → named defect → durable revision → corrected artifact → independent acceptance. A critic that only approves does not satisfy this milestone. The `MAX_OBJECTIVE_ATTEMPTS=5` retry cap must also be verified in the resident ObjectiveRuntime.

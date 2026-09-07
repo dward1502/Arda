@@ -1,27 +1,27 @@
 # CEO Autopilot Weekly Summary
 
-Generated: 2026-09-03T16:35:35.875887851+00:00
+Generated: 2026-09-04T21:09:29.306692599+00:00
 Window: last 7 days
 
 ## Throughput
 - cycles: 984
-- objectives processed: 522
-- outcomes ingested: 72
-- plans queued: 819
-- Apollo dispatches: 546
-- Pipeline submissions: 522
-- delegated Joules: 8190.0
+- objectives processed: 689
+- outcomes ingested: 70
+- plans queued: 813
+- Apollo dispatches: 542
+- Pipeline submissions: 689
+- delegated Joules: 8130.0
 
 ## H2A / A2H
 - responses processed: 0
 - objectives resumed: 0
 - denials recorded: 0
-- escalations emitted: 6
+- escalations emitted: 4
 
 ## Governance
-- held objectives: 6
-- escalated objectives: 6
-- human required: 6
+- held objectives: 4
+- escalated objectives: 4
+- human required: 4
 - triad quorum required: 0
 - triad quorum approved: 0
 - HADES review required: 0
@@ -34,11 +34,11 @@ Window: last 7 days
 - missing required: 0
 
 ## Council Runtime
-- latest ledger records: 975
+- latest ledger records: 1144
 - records appended: 917
 
 ## Health
-- average service score: 0.81
+- average service score: 0.80
 - minimum service score: 0.66
 - latest queue pending: 855
 - latest completion rate 24h: 1.00
@@ -54,4 +54,4 @@ Window: last 7 days
 ## Current Cycle
 - objectives processed: 1
 - outcomes ingested: 0
-- services failed: 3
+- services failed: 1

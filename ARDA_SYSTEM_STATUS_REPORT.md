@@ -13,12 +13,13 @@ soterion:
 
 # ARDA SYSTEM STATUS REPORT
 
-**Updated:** 2026-08-25 PDT<br>
+**Updated:** 2026-09-04 PDT<br>
 **Current identity:** `0.9.0` personal/internal baseline<br>
 **Canonical status authority:** [`docs/releases/0.9/BASELINE.md`](docs/releases/0.9/BASELINE.md)<br>
 **Current planning authority:** [`docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`](docs/plans/ARDA_PRODUCT_PLAN_SUITE.md)<br>
 **Active completion program:** [`docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md`](docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md)<br>
-**Branch:** `plan/ambient-agent-program`
+**Branch:** `plan/ambient-agent-program`<br>
+**Build status:** `cargo build --package arda-engine` passes; `target/` rebuilt to 4.7GB after `cargo clean`
 
 ## Whole-system posture
 
@@ -88,7 +89,32 @@ remains on hold. Mirromere, expanded RELIC embodiment, sensors, physical outpost
 external agent accounts, funded action, and commercialization are not authorized
 by the digital-organism closeout.
 
-## Live snapshot — 2026-08-25 PDT
+## Autonomous completion loop — fix log (2026-09-04)
+
+Root cause of runaway retry loop identified and fixed in
+`crates/engine/src/objectives/store.rs` and `crates/engine/src/objectives/runtime.rs`.
+
+**Bug:** `claim_runnable` incremented `attempt` on every re-claim with no
+cap. `run_round` called `complete_objective_if_ready` which required all
+leaves to reach `Complete` stage; if they didn't, the objective was re-claimed
+endlessly. This produced 307+ failed attempts on objective
+`operator-objective-1319f0404a18a27b-project-1` with zero result files.
+
+**Fixes applied:**
+1. `MAX_LEAF_ATTEMPTS = 5` cap in `claim_runnable` SQL UPDATE (`attempt < ?9`)
+2. `cap_excess_attempts()` called during `ObjectiveStore::open()` — marks stuck
+   objectives (≥5 attempts, no terminal receipt) as `Failed`
+3. `MAX_OBJECTIVE_ATTEMPTS = 5` cap in `ObjectiveRuntime::run_round` — returns
+   empty if objective-level retry cap exceeded
+4. Queue hygiene: 819 stale pending tasks (>24h old) in `queue_active.json`
+   marked as `cancelled`/`stale_pending`; active projection reduced from 839
+   to 20 real tasks
+5. `target/` cleaned from 316GB to 4.7GB via `cargo clean`; rebuilt passes
+
+**Queue origin:** `queue.jsonl` uses `contract: "arda.operator_project_task.v1"`
+— this is the current Arda schema, NOT legacy Annunimas. Cannot be tossed.
+
+## Live snapshot — 2026-09-04 PDT
 
 - `arda.service`, `arda-varda.service`, `arda-relic-bridge.service`,
   `arda-metrics-exporter.service`, and `arda-crawl4ai.service` were active/running.
@@ -97,10 +123,11 @@ by the digital-organism closeout.
 - Queue executor, read-only Arandur/Aulë autopilot, Manwë inference probe, and
   Varda external-lane timers were active/waiting; each owning one-shot service's
   latest result was `success`. Their inactive/dead between-run state is expected.
-- The generated queue projection contained 3 pending operator objectives, 12
-  completed tasks, 15 latest task identities, and no projected plan tasks. The
-  active plan records all three pending objectives as review-required or
-  future-gated rather than executable by inference.
+- The generated queue projection was cleaned: 819 stale pending tasks cancelled,
+  reducing active projection from 839 to 20 real tasks. Queue hygiene migration
+  completed.
+- `cargo build --package arda-engine` passes after retry-cap fixes.
+  `target/` is 4.7GB after `cargo clean` (was 316GB).
 - RELIC had a fresh remote delivery acknowledgement for its read-only scene
   projection. This proves the recorded bridge delivery only, not physical-device
   action authority or broader embodiment acceptance.

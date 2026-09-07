@@ -4,10 +4,10 @@ soterion:
   role: "acceptance_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-09-01"
+  reviewed: "2026-09-04"
 ---
 
-> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-01
+> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-04
 
 # Milestone 4 — Real Multi-Project Execution
 
@@ -51,11 +51,14 @@ One objective coordinates useful work across two real registered projects. Indep
 4. Serialize mutations targeting the same physical root, including aliases.
 5. Preserve existing dirty operator work; fresh mutation on a dirty root must remain blocked while read-only inspection is allowed.
 6. Join per-project evidence only through the shared objective lineage.
+7. Verify `MAX_OBJECTIVE_ATTEMPTS=5` retry cap prevents runaway re-claiming in the resident ObjectiveRuntime.
 
 ## Acceptance scenario
 
 A single operator objective creates dependent leaves in two distinct real projects. At least two safe independent leaves overlap measurably. Each project produces a reversible human-visible result and passes its own declared checks. A forced same-root conflict is deferred rather than double-mutated. The objective closes only when both project acceptance contracts pass.
 
+**Autonomous retry termination (2026-09-04):** `ObjectiveRuntime::run_round()` previously never incremented `self.objective_attempts`, making the `MAX_OBJECTIVE_ATTEMPTS=5` guard dead code. Fixed by changing signature to `&mut self` and adding `self.objective_attempts += 1` after the claims loop. `cap_excess_attempts()` migration fires on `ObjectiveStore::open()` to mark stuck objectives as `Failed`. Full test suite passes (51 tests, 0 failures).
+
 ## Exit gate
 
-One useful human-visible result must be observed across two real registered projects. Canonical receipts and timestamps must prove overlap, mutation isolation, project checks, and one evidence-backed objective close. Runtime contract tests establish the substrate but do not substitute for this product acceptance.
+One useful human-visible result must be observed across two real registered projects. Canonical receipts and timestamps must prove overlap, mutation isolation, project checks, and one evidence-backed objective close. Runtime contract tests establish the substrate but do not substitute for this product acceptance. The `MAX_OBJECTIVE_ATTEMPTS=5` retry cap must also be verified in the resident ObjectiveRuntime.

@@ -4,10 +4,10 @@ soterion:
   role: "acceptance_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-30"
+  reviewed: "2026-09-04"
 ---
 
-> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-30
+> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-04
 
 # Milestone 5 — Vairë Continuity and Operator Acceptance
 
@@ -27,6 +27,7 @@ Arda remembers why the objective exists, what context it used, what happened, an
 4. Run the full program acceptance objective across the prior four milestones.
 5. Measure operator interventions: distinguish required policy decisions from avoidable “continue,” status, and context-restatement prompts.
 6. Present a concise completion review and request explicit operator acceptance or named defects.
+7. Verify `MAX_OBJECTIVE_ATTEMPTS=5` retry cap prevents runaway re-claiming in the resident ObjectiveRuntime.
 
 ## Acceptance scenario
 
@@ -42,8 +43,9 @@ Record:
 - avoidable prompts or manual interventions;
 - context-use and outcome receipt IDs;
 - elapsed time and attempt/budget use;
-- final operator verdict and named defects.
+- final operator verdict and named defects;
+- `MAX_OBJECTIVE_ATTEMPTS=5` retry cap verified in resident ObjectiveRuntime (prevents runaway re-claiming).
 
 ## Exit gate
 
-The operator explicitly accepts that the loop materially reduces management burden. If not, retain the named defects, reopen the owning milestone, and do not archive the program.
+The operator explicitly accepts that the loop materially reduces management burden. If not, retain the named defects, reopen the owning milestone, and do not archive the program. The `MAX_OBJECTIVE_ATTEMPTS=5` retry cap must also be verified in the resident ObjectiveRuntime.

@@ -1,7 +1,7 @@
 {
   "schema_version": "arda.run-graph.v1",
-  "run_id": "objective-operator-objective-1319f0404a18a27b-leaf-operator-objective-1319f0404a18a27b-project-1-attempt-2",
-  "objective_id": "operator-objective-1319f0404a18a27b-project-1",
+  "run_id": "objective-operator-objective-1319f0404a18a27b-leaf-operator-objective-1319f0404a18a27b-join-attempt-2",
+  "objective_id": "operator-objective-1319f0404a18a27b-join",
   "nodes": [
     {
       "id": "plan",
@@ -16,14 +16,14 @@
         "max_attempts": 2
       },
       "timeout_ms": 900000,
-      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-project-1-plan",
+      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-join-plan",
       "input_digest": null,
       "output_digest": "gateway-approval:gateway-event:4a95c980a5d445adca301262f8fa191c466d69f7c1608b628b306d6587f939a0",
       "parent_receipts": [],
       "checkpoint": {
         "sequence": 4,
-        "recovery_token": "objective-operator-objective-1319f0404a18a27b-leaf-operator-objective-1319f0404a18a27b-project-1-attempt-2:plan:4",
-        "checkpoint_digest": "sha256:e05b94b391b06bbd829455dfba51d2ce10164b9bbc8125c76b1e0df6628a2361"
+        "recovery_token": "objective-operator-objective-1319f0404a18a27b-leaf-operator-objective-1319f0404a18a27b-join-attempt-2:plan:4",
+        "checkpoint_digest": "sha256:87ffecb35b8bbe382f6dbfcf658f37c521777e9dc0b8b826939c9250ae45c385"
       }
     },
     {
@@ -39,7 +39,7 @@
         "max_attempts": 2
       },
       "timeout_ms": 900000,
-      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-project-1-approval",
+      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-join-approval",
       "input_digest": null,
       "output_digest": "gateway-approval:gateway-event:4a95c980a5d445adca301262f8fa191c466d69f7c1608b628b306d6587f939a0",
       "parent_receipts": [
@@ -47,8 +47,8 @@
       ],
       "checkpoint": {
         "sequence": 7,
-        "recovery_token": "objective-operator-objective-1319f0404a18a27b-leaf-operator-objective-1319f0404a18a27b-project-1-attempt-2:approval:7",
-        "checkpoint_digest": "sha256:90fb698b9e972f933eeea204099d0670186494927766700ebc03953f5dcd5c01"
+        "recovery_token": "objective-operator-objective-1319f0404a18a27b-leaf-operator-objective-1319f0404a18a27b-join-attempt-2:approval:7",
+        "checkpoint_digest": "sha256:d8263578eb7c60353517ec0df21dd0a90d0c7c6d47ad5bd02fa1e245742fd82e"
       }
     },
     {
@@ -64,7 +64,7 @@
         "max_attempts": 2
       },
       "timeout_ms": 900000,
-      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-project-1-execute",
+      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-join-execute",
       "input_digest": null,
       "output_digest": null,
       "parent_receipts": [
@@ -77,10 +77,10 @@
       },
       "worker": {
         "role": "implementer",
-        "worker_id": "hermes:queue:operator-objective-1319f0404a18a27b-project-1",
+        "worker_id": "hermes:queue:operator-objective-1319f0404a18a27b-join",
         "route_id": "hosted:hermes-workbench",
         "route_class": "hosted",
-        "prompt_digest": "sha256:acd77c89ddf390f21a9c67bbc2e10d3640a40b4e1c47e7eade48f4c032da2d44",
+        "prompt_digest": "sha256:e7b513d082285ed66c712592b9dfaf167475299ebdf1867dfe365b1450e40ab8",
         "allowed_toolsets": [
           "file",
           "terminal"
@@ -88,7 +88,7 @@
         "dependencies": [
           "approval"
         ],
-        "deadline_unix_ms": 1788598935268,
+        "deadline_unix_ms": 1788598935269,
         "output_contract": "arda.hermes-job-result.v1",
         "evidence_policy": "worker_report"
       }
@@ -106,7 +106,7 @@
         "max_attempts": 2
       },
       "timeout_ms": 900000,
-      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-project-1-verify",
+      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-join-verify",
       "input_digest": null,
       "output_digest": null,
       "parent_receipts": [],
@@ -117,17 +117,17 @@
       },
       "worker": {
         "role": "independent_verifier",
-        "worker_id": "hermes:queue:operator-objective-1319f0404a18a27b-project-1:verify",
+        "worker_id": "hermes:queue:operator-objective-1319f0404a18a27b-join:verify",
         "route_id": "hosted:hermes-workbench",
         "route_class": "hosted",
-        "prompt_digest": "sha256:acd77c89ddf390f21a9c67bbc2e10d3640a40b4e1c47e7eade48f4c032da2d44",
+        "prompt_digest": "sha256:e7b513d082285ed66c712592b9dfaf167475299ebdf1867dfe365b1450e40ab8",
         "allowed_toolsets": [
           "terminal"
         ],
         "dependencies": [
           "execute"
         ],
-        "deadline_unix_ms": 1788598935268,
+        "deadline_unix_ms": 1788598935269,
         "output_contract": "arda.hermes-job-result.v1",
         "evidence_policy": "project_native_checks"
       }
@@ -145,7 +145,7 @@
         "max_attempts": 2
       },
       "timeout_ms": 900000,
-      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-project-1-review",
+      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-join-review",
       "input_digest": null,
       "output_digest": null,
       "parent_receipts": [],
@@ -156,17 +156,17 @@
       },
       "worker": {
         "role": "security_privacy_critic",
-        "worker_id": "hermes:queue:operator-objective-1319f0404a18a27b-project-1:critic",
+        "worker_id": "hermes:queue:operator-objective-1319f0404a18a27b-join:critic",
         "route_id": "hosted:hermes-workbench",
         "route_class": "hosted",
-        "prompt_digest": "sha256:acd77c89ddf390f21a9c67bbc2e10d3640a40b4e1c47e7eade48f4c032da2d44",
+        "prompt_digest": "sha256:e7b513d082285ed66c712592b9dfaf167475299ebdf1867dfe365b1450e40ab8",
         "allowed_toolsets": [
           "file"
         ],
         "dependencies": [
           "verify"
         ],
-        "deadline_unix_ms": 1788598935268,
+        "deadline_unix_ms": 1788598935269,
         "output_contract": "arda.hermes-job-result.v1",
         "evidence_policy": "worker_report"
       }
@@ -184,7 +184,7 @@
         "max_attempts": 2
       },
       "timeout_ms": 900000,
-      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-project-1-close",
+      "idempotency_key": "queue-operator-objective-1319f0404a18a27b-join-close",
       "input_digest": null,
       "output_digest": null,
       "parent_receipts": [],

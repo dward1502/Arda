@@ -10,7 +10,25 @@ import {
   rehydrateMonitorSurfaceRegistry,
 } from './boardroomSlotSettings'
 
+const invokeMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('@tauri-apps/api/core', () => ({ invoke: invokeMock }))
+
 describe('monitor surface persistence', () => {
+  it('restores an empty registry on a genuinely fresh start', async () => {
+    invokeMock.mockClear()
+    localStorage.removeItem(MONITOR_SURFACE_REGISTRY_STORAGE_KEY)
+    await rehydrateMonitorSurfaceRegistry()
+    expect(invokeMock).toHaveBeenCalledWith('restore_monitor_surface_registry', {
+      document: expect.objectContaining({ schemaVersion: 'arda.monitor-session-registry.v2', sessions: {} }),
+    })
+  })
+
+  it('does not authorize empty startup when persisted state is corrupt', async () => {
+    invokeMock.mockClear()
+    localStorage.setItem(MONITOR_SURFACE_REGISTRY_STORAGE_KEY, '{corrupt')
+    await rehydrateMonitorSurfaceRegistry()
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
   it('persists and reloads a registry from localStorage', async () => {
     const registry = {
       schema_version: 'arda.monitor-session-registry.v2',

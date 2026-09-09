@@ -107,6 +107,11 @@ fn validate_durable_context_assembly(
             "context assembly does not match durable resident objective authority",
         ));
     }
+    service
+        .validate_context_assembly_for_execution(assembly, now_unix_ms)
+        .map_err(|error| {
+            ApiError::conflict(format!("current context authority is invalid: {error}"))
+        })?;
     Ok(())
 }
 

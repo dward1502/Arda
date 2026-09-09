@@ -21,7 +21,7 @@ Arda continues a deferred or recurring objective through the installed scheduler
 
 ## Work
 
-1. Restore and verify the user-systemd scheduler path used by the installed binary.
+1. Verify scheduling inside the resident `arda.service` runtime. Do not restore the retired JSONL queue executor or timer. The [cutover owner](../2026-09-01-arda-objective-runtime-cutover.md) owns due-schedule integration and recovery.
 2. Bind the installed binary identity to the tested source revision and record it in the acceptance receipt.
 3. Exercise immediate, deferred `wait_until`, recurring, pause/resume, and cancellation states through canonical schedule records.
 4. Force process exit after a durable execution checkpoint and verify exactly-once resume.
@@ -36,8 +36,8 @@ A reversible real-project task runs once, defers until a near-term wake, resumes
 ## Required evidence
 
 - Installed binary hash and source commit/tree.
-- Canonical queue, schedule, run, and continuation lineage.
-- Timer invocation and process-restart observations.
+- Canonical ObjectiveStore objective/schedule/control and RunStore continuation lineage; legacy JSONL is historical only.
+- Resident wake and process-restart observations. Historical timer proof does not qualify the resident replacement.
 - Before/after artifact identity and declared check output.
 - Proof that no duplicate attempt or post-terminal wake occurred; `MAX_OBJECTIVE_ATTEMPTS=5` retry cap verified in resident ObjectiveRuntime |
 

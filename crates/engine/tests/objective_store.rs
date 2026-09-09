@@ -3,6 +3,46 @@ use arda_engine::objectives::{
     ProjectAuthority, ReceiptStage, ScheduleSpec, StageReceipt,
 };
 #[test]
+fn execution_identity_survives_lease_reclaim() {
+    let temp = TempDir::new().unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    store
+        .create_authenticated_objective(objective("identity", "identity-message"), 100)
+        .unwrap();
+    store
+        .apply_control(
+            "identity",
+            ControlAction::Approve { revision: 1 },
+            "identity-approval",
+            "operator:primary",
+            110,
+        )
+        .unwrap();
+    let first = store
+        .claim_runnable("worker-one", 120, 100, 1)
+        .unwrap()
+        .remove(0);
+    let first_json = serde_json::to_value(&first).unwrap();
+    assert!(
+        first_json["execution_run_id"].is_string(),
+        "claim must carry a persisted execution identity"
+    );
+    drop(store);
+    let reopened = ObjectiveStore::open(&path).unwrap();
+    let next = reopened
+        .claim_runnable("worker-two", 221, 100, 1)
+        .unwrap()
+        .remove(0);
+    assert_eq!(first.leaf_id, next.leaf_id);
+    assert_eq!(next.attempt, first.attempt + 1);
+    assert_eq!(
+        serde_json::to_value(&next).unwrap()["execution_run_id"],
+        first_json["execution_run_id"]
+    );
+}
+
+#[test]
 fn objective_creation_rejects_dependency_cycles() {
     let temp = TempDir::new().unwrap();
     let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
@@ -96,7 +136,13 @@ fn stage_receipts_require_canonical_digests_and_safe_relative_paths() {
         binding_digest: None,
     };
     let digest_error = store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", receipt.clone(), 131)
+        .record_stage_receipt(
+            &claim.leaf_id,
+            "worker-1",
+            claim.attempt,
+            receipt.clone(),
+            131,
+        )
         .unwrap_err();
     assert!(digest_error.to_string().contains("lowercase-hex"));
 
@@ -104,6 +150,7 @@ fn stage_receipts_require_canonical_digests_and_safe_relative_paths() {
         .record_stage_receipt(
             &claim.leaf_id,
             "worker-1",
+            claim.attempt,
             StageReceipt {
                 digest: format!("sha256:{}", "d".repeat(64)),
                 run_path: "../outside.json".to_owned(),
@@ -206,6 +253,191 @@ fn exhausted_attempts_fail_only_after_the_active_lease_expires() {
     );
 }
 
+#[cfg(unix)]
+#[test]
+fn physical_workspace_aliases_are_excluded_across_claims_and_restart() {
+    let temp = TempDir::new().unwrap();
+    let physical = temp.path().join("physical");
+    let alias = temp.path().join("alias");
+    std::fs::create_dir(&physical).unwrap();
+    std::os::unix::fs::symlink(&physical, &alias).unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let mut input = objective("aliases", "aliases-ingress");
+    input.leaves.truncate(2);
+    input.leaves[0].workspace_root = physical.display().to_string();
+    input.leaves[1].workspace_root = alias.display().to_string();
+    store.create_authenticated_objective(input, 1).unwrap();
+    store
+        .apply_control(
+            "aliases",
+            ControlAction::Approve { revision: 1 },
+            "approve-aliases",
+            "operator:primary",
+            2,
+        )
+        .unwrap();
+    let claims = store.claim_runnable("first", 3, 100, 2).unwrap();
+    assert_eq!(
+        claims.len(),
+        1,
+        "one physical directory may hold only one lease"
+    );
+    drop(store);
+    let reopened = ObjectiveStore::open(&path).unwrap();
+    assert!(reopened
+        .claim_runnable("second", 4, 100, 2)
+        .unwrap()
+        .is_empty());
+    assert_eq!(
+        reopened
+            .claim_runnable("recovery", 104, 100, 2)
+            .unwrap()
+            .len(),
+        1
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn physical_workspace_exclusion_handles_nested_missing_and_relative_roots() {
+    let temp = tempfile::tempdir_in(std::env::current_dir().unwrap()).unwrap();
+    let physical = temp.path().join("physical");
+    let alias = temp.path().join("alias");
+    std::fs::create_dir(&physical).unwrap();
+    std::os::unix::fs::symlink(&physical, &alias).unwrap();
+    let cwd = std::env::current_dir().unwrap();
+    for (index, second) in [
+        alias.join("not-created"),
+        alias.join("."),
+        alias.strip_prefix(&cwd).unwrap().to_path_buf(),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let store =
+            ObjectiveStore::open(temp.path().join(format!("case-{index}.sqlite3"))).unwrap();
+        let mut input = objective("nested", "nested-ingress");
+        input.leaves.truncate(2);
+        input.leaves[0].workspace_root = physical.display().to_string();
+        input.leaves[1].workspace_root = second.display().to_string();
+        store.create_authenticated_objective(input, 1).unwrap();
+        store
+            .apply_control(
+                "nested",
+                ControlAction::Approve { revision: 1 },
+                "approval",
+                "operator:primary",
+                2,
+            )
+            .unwrap();
+        assert_eq!(store.claim_runnable("worker", 3, 100, 2).unwrap().len(), 1);
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn concurrent_objectives_cannot_claim_physical_aliases() {
+    let temp = TempDir::new().unwrap();
+    let physical = temp.path().join("physical");
+    let alias = temp.path().join("alias");
+    std::fs::create_dir(&physical).unwrap();
+    std::os::unix::fs::symlink(&physical, &alias).unwrap();
+    let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
+    for (id, root) in [("first", physical), ("second", alias)] {
+        let mut input = objective(id, id);
+        input.leaves.truncate(1);
+        input.leaves[0].workspace_root = root.display().to_string();
+        store.create_authenticated_objective(input, 1).unwrap();
+        store
+            .apply_control(
+                id,
+                ControlAction::Approve { revision: 1 },
+                &format!("approve-{id}"),
+                "operator:primary",
+                2,
+            )
+            .unwrap();
+    }
+    let barrier = Arc::new(Barrier::new(2));
+    let handles = (0..2)
+        .map(|index| {
+            let store = store.clone();
+            let barrier = barrier.clone();
+            thread::spawn(move || {
+                barrier.wait();
+                store
+                    .claim_runnable(&format!("worker-{index}"), 3, 100, 2)
+                    .unwrap()
+                    .len()
+            })
+        })
+        .collect::<Vec<_>>();
+    let total: usize = handles
+        .into_iter()
+        .map(|handle| handle.join().unwrap())
+        .sum();
+    assert_eq!(total, 1);
+}
+
+#[cfg(unix)]
+#[test]
+fn blocked_aliases_do_not_starve_an_independent_workspace() {
+    let temp = TempDir::new().unwrap();
+    let physical = temp.path().join("physical");
+    let alias = temp.path().join("alias");
+    let independent = temp.path().join("independent");
+    std::fs::create_dir(&physical).unwrap();
+    std::fs::create_dir(&independent).unwrap();
+    std::os::unix::fs::symlink(&physical, &alias).unwrap();
+    let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
+    let mut holder = objective("holder", "holder-ingress");
+    holder.leaves.truncate(1);
+    holder.leaves[0].workspace_root = physical.display().to_string();
+    store.create_authenticated_objective(holder, 1).unwrap();
+    store
+        .apply_control(
+            "holder",
+            ControlAction::Approve { revision: 1 },
+            "approve-holder",
+            "operator:primary",
+            2,
+        )
+        .unwrap();
+    assert_eq!(store.claim_runnable("holder", 3, 100, 1).unwrap().len(), 1);
+    let mut input = objective("waiting", "waiting-ingress");
+    let template = input.leaves[0].clone();
+    input.leaves = (0..45)
+        .map(|index| NewLeaf {
+            id: format!("blocked-{index:03}"),
+            workspace_root: alias.display().to_string(),
+            ..template.clone()
+        })
+        .collect();
+    input.leaves.push(NewLeaf {
+        id: "z-independent".into(),
+        workspace_root: independent.display().to_string(),
+        ..template
+    });
+    store.create_authenticated_objective(input, 4).unwrap();
+    store
+        .apply_control(
+            "waiting",
+            ControlAction::Approve { revision: 1 },
+            "approve-waiting",
+            "operator:primary",
+            5,
+        )
+        .unwrap();
+    let claimed = store.claim_runnable("next", 6, 100, 1).unwrap();
+    assert_eq!(
+        claimed.len(),
+        1,
+        "blocked aliases must not exhaust the candidate window"
+    );
+    assert_eq!(claimed[0].leaf_id, "z-independent");
+}
+
 #[test]
 fn same_objective_cannot_lease_the_same_workspace_twice() {
     let temp = TempDir::new().unwrap();
@@ -255,6 +487,7 @@ fn expired_claim_resumes_the_persisted_stage() {
         .record_stage_receipt(
             &first.leaf_id,
             "first",
+            first.attempt,
             StageReceipt {
                 contract: "arda.hermes_execution_receipt.v4".into(),
                 stage: ReceiptStage::Execute,
@@ -286,6 +519,7 @@ fn expired_claim_resumes_the_persisted_stage() {
 }
 
 fn close_claim(store: &ObjectiveStore, leaf_id: &str, lease_owner: &str, now_ms: i64) {
+    let attempt = store.leaf(leaf_id).unwrap().unwrap().attempt;
     let mut predecessor = None;
     for (offset, (stage, stage_name)) in [
         (ReceiptStage::Execute, "execute"),
@@ -304,6 +538,7 @@ fn close_claim(store: &ObjectiveStore, leaf_id: &str, lease_owner: &str, now_ms:
             .record_stage_receipt(
                 leaf_id,
                 lease_owner,
+                attempt,
                 StageReceipt {
                     contract: "arda.hermes_execution_receipt.v4".to_owned(),
                     stage,
@@ -553,19 +788,37 @@ fn stage_progression_requires_exact_receipt_lineage() {
     let mut invalid_contract = execute.clone();
     invalid_contract.contract = "legacy.synthetic_receipt.v1".to_owned();
     assert!(store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", invalid_contract, 131)
+        .record_stage_receipt(
+            &claim.leaf_id,
+            "worker-1",
+            claim.attempt,
+            invalid_contract,
+            131
+        )
         .unwrap_err()
         .to_string()
         .contains("arda.hermes_execution_receipt.v4"));
     store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", execute.clone(), 131)
+        .record_stage_receipt(
+            &claim.leaf_id,
+            "worker-1",
+            claim.attempt,
+            execute.clone(),
+            131,
+        )
         .unwrap();
     let mut conflicting_outcome = execute;
     conflicting_outcome.context_outcome_receipt_id = Some("context-outcome-2".to_owned());
     conflicting_outcome.binding_digest =
         Some(conflicting_outcome.computed_binding_digest().unwrap());
     assert!(store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", conflicting_outcome, 131)
+        .record_stage_receipt(
+            &claim.leaf_id,
+            "worker-1",
+            claim.attempt,
+            conflicting_outcome,
+            131
+        )
         .unwrap_err()
         .to_string()
         .contains("idempotency conflict"));
@@ -586,7 +839,7 @@ fn stage_progression_requires_exact_receipt_lineage() {
         binding_digest: None,
     };
     assert!(store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", wrong, 141)
+        .record_stage_receipt(&claim.leaf_id, "worker-1", claim.attempt, wrong, 141)
         .unwrap_err()
         .to_string()
         .contains("predecessor"));
@@ -610,7 +863,7 @@ fn stage_progression_requires_exact_receipt_lineage() {
         }
     };
     store
-        .record_stage_receipt(&claim.leaf_id, "worker-1", verify, 141)
+        .record_stage_receipt(&claim.leaf_id, "worker-1", claim.attempt, verify, 141)
         .unwrap();
     assert_eq!(
         store.leaf(&claim.leaf_id).unwrap().unwrap().stage,

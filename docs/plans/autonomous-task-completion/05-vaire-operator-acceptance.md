@@ -4,61 +4,56 @@ soterion:
   role: "acceptance_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-09-04"
+  reviewed: "2026-09-07"
 ---
 
-> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-04
+> 🜏 Soterion: 📜 acceptance_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
 
 # Milestone 5 — Vairë Continuity and Operator Acceptance
 
-## Status
+## Outcome and current evidence
 
-Workbench runtime fully repaired (2026-09-07). The daemon restart loop was fixed by rebuilding `arda` and `manwe` from source, fixing the broken `manwe` symlink, and fixing `services.toml` hermes-workbench adapter (`health=ready`, `eligible=true`). The hermes Python venv `.pth` file pointing to corrupted `.hermes-runtime` modules was removed. The workbench execute→verify→review→close pipeline is now operational. Remaining open items: Vairë context-use binding, genuine external messaging ingress, explicit operator-burden acceptance.
+Arda remembers why an objective exists, the authorized context it used, what
+happened and what remains across Hermes sessions and restarts. The operator
+judges that the complete loop reduces management burden.
 
-## Human-visible result
+`crates/engine/src/objectives/workbench.rs` calls `assemble_resident_context`,
+passes a context assembly to explicit Workbench execution, validates receipt
+bindings in `project_receipts`, and records a governed outcome through Vairë.
+Its source regression covers context/outcome references and cross-project
+filtering. That is not genuine installed new-session acceptance.
 
-Arda remembers why the objective exists, what context it used, what happened, and what remains across Hermes sessions and restarts. The operator judges that the completed loop reduced management burden.
+Earlier workbench service, symlink and interpreter repair narratives are
+[historical evidence](../../audits/autonomous-task-completion-history.md), not
+proof that this milestone or the whole pipeline passes today. Current installed
+binary identity differs from the release candidate. The accepted phone media
+flow in [Personal System Experience](../PERSONAL_SYSTEM_EXPERIENCE.md) proves
+that bounded ingress/presentation route, not objective memory continuity.
 
-## Work
+## Dependencies and remaining work
 
-1. Retrieve authorized Vairë context for the live objective and record exact context references used by planning/execution.
-2. Record the terminal outcome, corrections, failures, accepted evidence, and unresolved follow-up with provenance.
-3. Resume the objective from a new Hermes session without asking the operator to reconstruct prior context.
-4. Run the full program acceptance objective across the prior four milestones.
-5. Measure operator interventions: distinguish required policy decisions from avoidable “continue,” status, and context-restatement prompts.
-6. Present a concise completion review and request explicit operator acceptance or named defects.
-7. Verify `MAX_OBJECTIVE_ATTEMPTS=5` retry cap prevents runaway re-claiming in the resident ObjectiveRuntime.
+1. Close resident recovery and scheduling under the [cutover owner](../2026-09-01-arda-objective-runtime-cutover.md), then the useful [multi-project outcome](04-real-multi-project-execution.md). Retry caps and stage/run identity are verified there once, not duplicated here.
+2. Retrieve authorized Vairë context for the genuine objective; retain exact context-use references consumed by planning/execution. Do not substitute an empty baseline or merely present memory metadata for use of relevant context.
+3. Bind the terminal outcome, correction, failure, accepted evidence and unresolved follow-up to the same lineage. Preserve scope, correction/revocation and privacy; receipt replay must not mint duplicate outcomes.
+4. Resume from a new authenticated Hermes session after daemon restart without asking the operator to reconstruct prior context. Exercise genuine messaging ingress through the existing channel, not a new client.
+5. Measure required policy decisions separately from avoidable continue/status/context-restatement prompts. Run the full prior-milestone acceptance outcome without reconstructing accepted consequential actions simply to create fresh receipts.
+6. Present a concise completion review for explicit operator acceptance or named defects.
 
-## Workbench runtime repair (2026-09-07)
+## Genuine acceptance scenario
 
-The workbench runtime was broken due to multiple compounding issues:
+The operator states one useful multi-project outcome, leaves, returns in a new
+session after restart, asks for status, corrects a decision if needed, and later
+receives the verified result. Vairë supplies relevant authorized context and
+retains the outcome without leaking scope or fabricating memory.
 
-1. **Daemon restart loop**: `services.toml` had `manwe` path configured but the binary was missing. Rebuilt `arda` and `manwe` from source (`cargo clean && cargo build -p arda --release`). Fixed broken `manwe` symlink in `target/release/`.
-2. **hermes-workbench adapter unavailable**: `services.toml` marked `hermes-workbench` as `health = "unavailable"` and `eligible = false`. Fixed to `health = "ready"` and `eligible = true"`.
-3. **Hermes Python venv corrupted**: `.pth` file (`__editable__.hermes_agent-0.21.0.pth`) pointed to corrupted `.hermes-runtime` Python modules causing `IndexError: string index out of range`. Removed broken `.pth` file and `.hermes-runtime`.
-4. **Missing project workspace**: `target/arda-real-projects/human` did not exist. Created it.
-5. **Annunimas cron/systemd**: All Annunimas cron jobs disabled and systemd units removed. Replaced with Arda-native scripts.
-
-The workbench execute→verify→review→close pipeline is now fully operational.
-
-## Acceptance scenario
-
-The operator states one multi-project outcome once, leaves, returns in a new session after restart, asks for status, corrects one decision if needed, and later receives the verified result. Vairë provides the relevant prior context and retains the outcome without leaking unauthorized scope or fabricating memory.
-
-## Acceptance record
-
-Record:
-
-- initial operator messages;
-- automatic continuations and scheduler wakes;
-- genuinely required operator decisions;
-- avoidable prompts or manual interventions;
-- context-use and outcome receipt IDs;
-- elapsed time and attempt/budget use;
-- final operator verdict and named defects;
-- `MAX_OBJECTIVE_ATTEMPTS=5` retry cap verified in resident ObjectiveRuntime (prevents runaway re-claiming);
-- workbench runtime repair: daemon restart loop fixed, hermes-workbench adapter fixed, hermes Python venv .pth removed, project workspace created, Annunimas cron/systemd removed.
+Record initial operator messages, automatic continuations/wakes, genuinely
+required decisions, avoidable interventions, exact context-use/outcome receipt
+IDs, attempt/budget/elapsed-use evidence, and the operator verdict. Use existing
+private/canonical receipts; do not paste private conversation into public plans.
 
 ## Exit gate
 
-The operator explicitly accepts that the loop materially reduces management burden. If not, retain the named defects, reopen the owning milestone, and do not archive the program. The `MAX_OBJECTIVE_ATTEMPTS=5` retry cap must also be verified in the resident ObjectiveRuntime.
+Only explicit operator acceptance that the loop materially reduces management
+burden closes this milestone. Named defects reopen their owning milestone;
+health endpoints, successful builds, configured eligibility or an agent-authored
+summary do not substitute for this verdict. Keep this plan active until then.

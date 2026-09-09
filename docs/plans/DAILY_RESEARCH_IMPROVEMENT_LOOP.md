@@ -20,7 +20,7 @@ Every day Arda examines active objectives, connected projects, failed work, stal
 
 This is not a daily news digest and not an agent that continually invents features. Research is driven by operator goals and verified system needs.
 
-## Verified starting point
+## Historical starting point — revalidate against current units
 
 - Repository systemd units define daily Warden internet research and repository survey.
 - Those timers are not installed in the active user unit set.
@@ -68,7 +68,7 @@ Compare findings with live local evidence. Produce one of:
 - `urgent_review` for security, data loss, or material external change;
 - `blocked_research` when sources are inadequate.
 
-Policy-safe local candidates may enter the canonical queue automatically. Consequential changes require operator approval. Duplicate and superseded findings do not create new work.
+Policy-safe local candidates may enter Engine ObjectiveStore through authenticated governed admission. The legacy JSONL queue is not an allowed pivot target. Consequential changes require operator approval. Duplicate and superseded findings do not create new work.
 
 ### 5. Execute and continue
 
@@ -120,6 +120,21 @@ Run safe candidates through full Workbench verification/review. Support code, do
 ### D6 — Feedback and learning
 
 Track whether each promoted finding produced a useful accepted change, was rejected, or caused rework. Adjust topic selection and source weighting while preserving operator corrections and provenance.
+
+## Rúmil-backed Apothecary
+
+The [personal-system assessment](PERSONAL_SYSTEM_EXPERIENCE.md) supplies the September 7 source/live snapshot and the five-upper-monitor presentation dependency. This section owns recurring audit-to-improvement work; do not create a separate Apothecary scheduler or backlog.
+
+**Current observation (2026-09-07):** local `arda-aule-autopilot.timer` invokes the governed `prometheus autopilot once` command, and its last inspected service exit was successful. The earlier read-only-autopilot description above is historical, not current deployment truth. Neither a successful exit nor source scaffolding proves the complete improvement loop. Remote Warden timer installation remains unverified in this assessment because its Tailscale peer was offline. September 7 source inspection of `config/systemd/arda-aule-autopilot.service` also finds `ARDA_PROJECT_TASK_QUEUE_PATH=core/projects/tasks/queue.jsonl` and a queue existence condition. Classify installed writers and repair the canonical pivot before describing the old queue as frozen; do not erase its accumulating history.
+
+- [ ] Reuse `crates/spine/runtime/arda-rumil` profiles, provider bounds, evidence classes, baseline comparison, and digest-bound Warden `/audit` and `/audit/followup` consumers. Inspect actual runtime callable paths before choosing placement; full project audits remain host-side, not assumed Pi workloads.
+- [ ] Define an operator-approved nightly window, bounded project set, CPU/model/I/O budgets, cancellation, missed-run behavior, and one canonical cycle identity. Start with a read-only audit; keep deeper project-purpose audits weekly unless justified. Preserve unfinished work across ticks without duplicate findings or objectives.
+- [ ] Connect material findings to D4's governed objective pivot. Rúmil reports and proposes; it never authorizes or performs its own repair. Isolate approved implementation work and retain checks, independent review where required, and rollback evidence through the existing execution authority.
+- [ ] Distinguish current tool evidence, historical baseline, heuristic, partial, and unavailable results. A powered-off optional node produces a deferred/unavailable result, not a successful empty audit or a restart loop.
+- [ ] Verify one repair and a subsequent audit showing its effect, one justified no-change outcome, and one rejected unsafe/low-value candidate. Feed accepted outcomes and operator corrections into Vairë with provenance; an accumulating report directory is not learning.
+- [ ] Publish a concise native morning result through the existing monitor/session contract: what changed, what was checked, what remains blocked, and the decision actually needed. Respect privacy and occupied monitors. Use Mirromere/other delivery only through their supported explicit capabilities; no invented notification guarantee.
+
+Validation includes Rúmil's existing all-feature/no-default-feature tests and provider timeout/budget/replay tests, consumer evidence classification, canonical schedule/ObjectiveRuntime restart and dedupe behavior, and a genuine installed cycle. These are prerequisites to the seven-cycle acceptance window below, not replacements for it. Source/project proposals outside Arda reuse the same approved project contracts rather than gaining authority from an audit result.
 
 ## Acceptance window
 

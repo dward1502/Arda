@@ -159,6 +159,9 @@ pub struct ClaimedLeaf {
     pub authority: String,
     pub stage: LeafStage,
     pub attempt: i64,
+    /// Stable provider run identity; absent on unreconciled legacy claims.
+    #[serde(default)]
+    pub execution_run_id: Option<String>,
     pub lease_owner: String,
     pub lease_expires_ms: i64,
     pub current_receipt_digest: Option<String>,
@@ -235,6 +238,7 @@ impl StageReceipt {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ControlAction {
+    DeleteRecoveryContext { run_id: String },
     Approve { revision: i64 },
     Reject,
     Pause,

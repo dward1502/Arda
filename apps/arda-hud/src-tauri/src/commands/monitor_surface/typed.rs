@@ -13,6 +13,7 @@ const REGISTRY_CHANGED_EVENT: &str = "monitor-surface-registry-changed";
 #[derive(Debug)]
 pub struct TypedMonitorSurfaceState {
     contract: MonitorSurfaceContractState,
+    restored: std::sync::Mutex<bool>,
 }
 
 impl Default for TypedMonitorSurfaceState {
@@ -25,6 +26,7 @@ impl TypedMonitorSurfaceState {
     pub fn new() -> Self {
         Self {
             contract: MonitorSurfaceContractState::new(),
+            restored: std::sync::Mutex::new(false),
         }
     }
 
@@ -65,12 +67,26 @@ impl TypedMonitorSurfaceState {
             .patch_playback(surface_session_id, owner, expected_revision, playback)
     }
 
+    pub fn presentation_ready(&self) -> bool {
+        self.restored.lock().map(|ready| *ready).unwrap_or(false)
+    }
+
     pub fn snapshot(&self) -> SessionRegistryDocument {
         self.contract.session_registry()
     }
 
     pub fn restore(&self, document: SessionRegistryDocument) -> Result<(), String> {
-        self.contract.restore(document)
+        let mut restored = self
+            .restored
+            .lock()
+            .map_err(|_| "registry restore lock poisoned")?;
+        // Repeated frontend effects must not overwrite a newer native claim.
+        if *restored {
+            return Ok(());
+        }
+        self.contract.restore(document)?;
+        *restored = true;
+        Ok(())
     }
 }
 
@@ -112,7 +128,7 @@ pub struct MonitorSurfaceRegistryChangedEvent {
     pub session: Option<MonitorSessionRecord>,
 }
 
-fn emit_registry_changed(
+pub(super) fn emit_registry_changed(
     app: &AppHandle,
     operation: &str,
     slot_id: &str,

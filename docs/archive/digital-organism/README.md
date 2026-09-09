@@ -71,7 +71,7 @@ Stages do not run in parallel merely because their files differ. Later stages ma
 ## Relationship to existing active plans
 
 - [`../../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md`](../../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md) is the current completion authority. It connects the completed organism foundations to real project registration, scheduled execution, provider placement, verification/review, continuation, and daily improvement.
-- [`../../plans/ambient-agent/README.md`](../../plans/ambient-agent/README.md) remains the downstream embodiment program. Mirromere, RELIC expansion, sensing, and physical outposts remain held until the whole-system completion gate is accepted.
+- [`../../plans/ambient-agent/README.md`](../deferred/ambient-agent/README.md) remains the downstream embodiment program. Mirromere, RELIC expansion, sensing, and physical outposts remain held until the whole-system completion gate is accepted.
 - [`../../plans/ARDA_PRODUCT_PLAN_SUITE.md`](../../plans/ARDA_PRODUCT_PLAN_SUITE.md) is the portfolio index and must point to the active completion program.
 
 ## Stage 0 decision authorities
@@ -117,6 +117,6 @@ No lower state satisfies a higher one. Simulated nodes prove protocol behavior, 
 read-only hardware-portability scope was proven live the same day
 (`.hermes/evidence/digital-organism/stage8-hardware-portability-receipt.json`).
 
-This program is complete only when the Stage 7 living mesh is repeatedly useful and the Stage 8 node contract has been demonstrated on at least one stronger or differently constrained hardware target without architectural rewrites. Hardware fabrication, public deployment, accounts, payments, and commercialization are not program completion criteria. Repeated-use evidence and a stronger-GPU transfer demonstration remain the open follow-ups under the completion definition above; embodiment work beyond read-only projection stays gated by [`../../plans/ambient-agent/README.md`](../../plans/ambient-agent/README.md).
+This program is complete only when the Stage 7 living mesh is repeatedly useful and the Stage 8 node contract has been demonstrated on at least one stronger or differently constrained hardware target without architectural rewrites. Hardware fabrication, public deployment, accounts, payments, and commercialization are not program completion criteria. Repeated-use evidence and a stronger-GPU transfer demonstration remain the open follow-ups under the completion definition above; embodiment work beyond read-only projection stays gated by [`../../plans/ambient-agent/README.md`](../deferred/ambient-agent/README.md).
 
 Implementation ownership, branch order, dirty-worktree protection, and review gates are defined in [WORKSTREAMS.md](WORKSTREAMS.md).

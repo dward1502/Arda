@@ -2,132 +2,69 @@
 soterion:
   sigil: "SCROLL"
   glyph: "📜"
-  role: "plan"
+  role: "implementation_plan"
   status: "active"
-  owner: "visual-pass"
-  last_reviewed: "2026-08-22"
+  owner: "HERMES"
+  reviewed: "2026-09-07"
 ---
 
-# Arda HUD Visual Pass — Assessment & Plan
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-09-07
 
-Scope: `apps/arda-hud` UI/UX structure. This pass is **visual/UX only** — it does
-not touch authority boundaries, derivation logic, or acceptance paths.
+# HUD Visual Pass — Remaining Work
 
-## Current state (evidence)
+## Scope and priority
 
-### Strengths
-- Tokenized design system already exists: `src/styles/foundation/tokens.css`
-  defines color, spacing (1–8), radius, HUD kit, machine-grammar substrate
-  (`--arda-*`), minimum text sizes, focus outlines.
-- Organized stylesheet tree (`foundation/`, `components/`, `layout/`,
-  `adapters/`, `scene/`) with INDEX/TREE docs.
-- A visual convergence contract test already exists
-  (`src/styles/phase8VisualConvergenceContract.test.ts`) — the pass should
-  extend, not fight, this contract.
-- Module components are individually tested; accessibility tests exist for
-  WorkbenchModule.
+Own HUD visual consistency and maintainable shell structure, not execution,
+media acquisition, or Mirromere. Daily usefulness and the
+[personal media flow](../PERSONAL_SYSTEM_EXPERIENCE.md) take priority. World View
+remains passive; intentional sparse/low-contrast instruments and lower WebGL
+apertures are not redesign targets. No new visual language or geometry changes
+are authorized merely by this reconciliation.
 
-### Structural risks found
-1. **App.tsx is 2,775 lines** and imports ~30+ modules directly. It is the
-   de-facto layout authority. Any visual restructure means editing a monolith.
-2. **Two competing visual languages coexist**: the rounded glassy token set
-   (`--radius-*` up to 1.75rem, soft surfaces) vs. the sharp cyberpunk HUD kit
-   (`--hud-radius: 2px`, cut corners, glow). Unclear which applies where.
-3. **Mixed styling mechanisms**: tokens.css, per-module CSS
-   (e.g. `LearningLoopSurface.module.css`), component CSS files, and
-   `nightcity.tokens.ts` — four sources of truth for visual decisions.
-4. **Accessibility is uneven**: only 6 `aria-`/`role=` occurrences in
-   WorkbenchModule; other modules untested.
-5. **Text-density risk**: `--arda-text-min-instrument: 0.5rem` (8px) is below
-   readable thresholds; instrument screens are intentionally near-textless, but
-   any text at that size needs a deliberate rule, not a default.
+## Evidence and consolidation
 
-## Operator decisions (2026-08-22)
-1. **No monolith development** — App.tsx (2,775 lines) must be decomposed into
-   shell components; new work goes in focused components, never appended.
-2. **Sharp cyberpunk HUD kit is primary** — `--hud-*` / `--arda-*` machine
-   grammar wins; rounded glassy tokens are legacy.
-3. **`src/styles/` is the styling home** — `nightcity.tokens.ts` is old and to
-   be retired; component-scoped CSS that drifted out of `styles/` migrates back
-   (or is justified as true component-scoped modules).
-4. **Accessibility deferred** — functionality first; a11y pass comes later.
-5. **Units: rem/em, not px** — dynamic sizing; where a px value is required
-   (hairlines, glows), define it once as a token at standard value.
+- The [historical WS3b avatar closeout](../../archive/arda-hud-visual-pass/03b-avatar-cortana-redesign.md) records the August 25 native visual pass and tests. Current `AvatarPresenceLayer.tsx` renders `PresenceParticleSystem`, which samples `presence_form`; `boardroomSpatialLayout.ts` retains emitter position `[0, 0.3, 0.22]` and size `[0.9, 0.16, 0.9]`. This is source corroboration, not a fresh native qualification or Mirromere acceptance.
+- The [historical WS3a assessment](../../archive/arda-hud-visual-pass/03a-boardroom-workstations-assessment.md) is consolidated here. Its emitter recommendation is addressed above. Its remaining support-marker consistency and occupied-workstation inspection are retained below; no requirement is discarded as a recurring task.
+- `src/styles/foundation/tokens.css`, the existing phase-8 visual convergence test, and `boardroomSpatialLayout.ts` remain the design/geometry authorities. August measurements of App.tsx size, token consumers, and accessibility were snapshots, not current counts.
 
-## Visual evidence (live scene, 2026-08-22)
-Observed from running HUD (World View, display-only):
-- Upper row: 4–5 distinct idle monitor identities (waveform stripes, network
-  constellation, polar/radar grid, rain-chart) — good variety, consistent
-  dark frames.
-- Lower desk: 4 instrument screens (gold diamond lattice, hex gauge, red
-  circular-sweep, green orbit) — near-textless as designed; working well.
-- Central hologram: wireframe chalice + geodesic orb over purple-lit pedestal;
-  pastel color swatch grid floats beside it — the swatch grid's flat pastel
-  rounded squares **clash** with the sharp neon wireframe language (legacy
-  rounded vocabulary visible in-scene).
-- Console materials and cityscape backdrop are coherent; no visible px/rem
-  issues at this layer (scene is canvas, not DOM).
+## Operator decisions retained
 
-## Constraints (from memory + skills)
-- HUD World View is display-only; sparse low contrast there is intentional.
-- Lower desk screens are WebGL apertures, not DOM cards — out of scope.
-- Reuse native acceptance/authority paths; browser preview is passive.
-- No synthetic acceptance: visual changes verified against the running app.
+Sharp `--hud-*` / `--arda-*` machine grammar is primary; rounded glassy tokens
+are legacy. New layout work belongs in focused shell/components, not additions
+to an App.tsx monolith. `src/styles/` is the styling home. Prefer rem/em for DOM
+sizing; unavoidable fixed hairlines/glows use common tokens. Broad accessibility
+work remains explicitly deferred, not completed.
 
-## Proposed folder structure for this pass
+## Remaining sequence
 
-```
-docs/plans/arda-hud-visual-pass/
-├── README.md            (this file — assessment + plan)
-├── 01-design-language-unification.md
-├── 02-app-shell-structure.md
-├── 03-module-visual-audit.md
-├── 04-accessibility-and-readability.md
-└── WORKSTREAMS.md
-```
+1. **WS1 — Design language:** inventory actual soft-radius/surface and non-token
+   consumers; converge on existing sharp tokens or document bounded exceptions.
+2. **WS2 — Shell structure:** inspect current App.tsx composition, then extract
+   remaining header/rail/dock/workstation-host regions without changing behavior.
+   Do not repeat already completed extractions merely because old line counts
+   were large. Preserve native ownership and media restoration paths.
+3. **WS3 — Useful modules:** inspect actual occupied sessions in all five upper
+   monitors and four desk-console workstations, plus Control Core. Check spacing,
+   hierarchy, empty/loading/failure states, readability and support-marker
+   consistency. The current avatar support markers use octahedra; inspect any
+   remaining `AgentPresenceOrbit` path before removing or restyling it. Prioritize
+   capture, next action, Personal Operations, and review. Use the personal media
+   plan's publication/session evidence rather than duplicating its media matrix.
+4. **WS4 — Styling consolidation:** inventory px values and out-of-tree styles;
+   migrate DOM units and common constants; retire `nightcity.tokens.ts` only after
+   its consumers are migrated. Move CSS into `styles/` or justify genuine scoped
+   modules. No blanket WebGL-coordinate conversion.
 
-## Workstreams
+## Dependencies and acceptance
 
-### WS1 — Design-language unification (01)
-Decide: one primary visual language. Recommendation: the sharp HUD/machine
-grammar (`--hud-*`, `--arda-*`) as the identity, with the soft token set
-demoted to legacy/fallback. Inventory every component using `--radius-lg+`,
-soft surfaces, or non-token colors; converge or document exceptions.
+WS1 precedes WS2/WS3; WS4 accompanies each affected module. Do not disturb the
+accepted phone-to-HUD path. A media renderer/ownership defect belongs to
+[Personal System Experience](../PERSONAL_SYSTEM_EXPERIENCE.md), not a duplicate
+visual backlog. Mirromere remains separately held.
 
-### WS2 — App shell structure (02)
-Extract App.tsx layout regions into explicit shell components
-(header/rail/dock/workstation host) so visual structure is inspectable without
-reading 2,775 lines. No behavior change; tests must stay green
-(`pnpm run tauri dev`, vitest suite).
-
-### WS3 — Module visual audit (03)
-Per-module pass over `src/components/arda/modules/` (~8.5k LOC): spacing
-consistency, header hierarchy, empty/loading/failure states. Prioritize
-core-usefulness surfaces first (capture, next action, Personal Operations,
-review gate) per governance.
-
-### WS4 — Units & styling consolidation (04) *(replaces a11y for now)*
-- Convert px values to rem/em across DOM styles; single tokens for the
-  unavoidable fixed values (1px hairlines, glow radii).
-- Retire `tokens/nightcity.tokens.ts`; migrate consumers to `foundation/tokens.css`.
-- Inventory CSS that drifted into component files; migrate back to
-  `styles/components/` or justify as true CSS modules.
-- Accessibility explicitly deferred.
-
-## Order & acceptance
-1. WS1 first (tokens decide everything downstream).
-2. WS2 (structure) before WS3 (per-module polish).
-3. WS4 runs alongside WS3 per module.
-Acceptance = running HUD inspected live (Tauri dev), screenshots reviewed,
-vitest + phase8 contract green. No doc-only completion.
-
-## Opinion (explicitly requested)
-
-The HUD's biggest visual problem is not aesthetics — it's **authority
-ambiguity**: two design languages and four styling mechanisms mean every new
-surface makes an implicit choice. Unify tokens first (WS1); it's the
-highest-leverage, lowest-risk move. Second, App.tsx as layout monolith makes
-any visual iteration expensive — the shell extraction pays for itself within
-this pass. Third, resist adding new visual vocabulary: this pass should
-*reduce* the number of visual decisions a component can make, matching the
-"shared substrate, not shared layout" comment already in tokens.css.
+For each actual change, run affected Vitest tests, the phase-8 visual contract,
+TypeScript checks, and the supported Tauri build. Inspect the running native
+surface with genuine assigned content and compare before/after visuals. Preserve
+same-session interaction and frame timing. Historical screenshots and new unit
+tests alone cannot close native acceptance. Retire this plan after its owned
+remaining work is verified; keep evidence in the archive/operations convention.

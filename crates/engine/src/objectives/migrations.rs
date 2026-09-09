@@ -102,6 +102,26 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
             "#,
         )
         .context("apply ObjectiveStore schema")?;
+    connection.execute_batch(
+        "CREATE TABLE IF NOT EXISTS resident_context_bindings (
+        run_id TEXT PRIMARY KEY, request_digest TEXT NOT NULL, assembly_json TEXT NOT NULL,
+        deleted_by_operator_ms INTEGER
+    );",
+    )?;
+    let has_operator_marker = {
+        let mut statement = connection.prepare("PRAGMA table_info(resident_context_bindings)")?;
+        let columns = statement.query_map([], |row| row.get::<_, String>(1))?;
+        columns
+            .collect::<rusqlite::Result<Vec<_>>>()?
+            .iter()
+            .any(|column| column == "deleted_by_operator_ms")
+    };
+    if !has_operator_marker {
+        connection.execute(
+            "ALTER TABLE resident_context_bindings ADD COLUMN deleted_by_operator_ms INTEGER",
+            [],
+        )?;
+    }
     let has_execution_json = {
         let mut statement = connection.prepare("PRAGMA table_info(leaves)")?;
         let columns = statement.query_map([], |row| row.get::<_, String>(1))?;
@@ -114,6 +134,32 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
         connection
             .execute("ALTER TABLE leaves ADD COLUMN execution_json TEXT", [])
             .context("add leaf execution payload column")?;
+    }
+    let has_run_id = {
+        let mut statement = connection.prepare("PRAGMA table_info(leaves)")?;
+        let columns = statement.query_map([], |row| row.get::<_, String>(1))?;
+        columns
+            .collect::<rusqlite::Result<Vec<_>>>()?
+            .iter()
+            .any(|column| column == "execution_run_id")
+    };
+    if !has_run_id {
+        connection.execute("ALTER TABLE leaves ADD COLUMN execution_run_id TEXT", [])?;
+    }
+    let has_context_bound = {
+        let mut statement = connection.prepare("PRAGMA table_info(leaves)")?;
+        let columns = statement.query_map([], |row| row.get::<_, String>(1))?;
+        columns
+            .collect::<rusqlite::Result<Vec<_>>>()?
+            .iter()
+            .any(|column| column == "context_bound")
+    };
+    if !has_context_bound {
+        // NULL means historical/unknown, never proof of no previous dispatch.
+        connection.execute(
+            "ALTER TABLE leaves ADD COLUMN context_bound INTEGER CHECK (context_bound IN (0, 1))",
+            [],
+        )?;
     }
     for (column, sql) in [
         (
@@ -147,6 +193,30 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn existing_resident_context_bindings_gain_operator_marker_without_data_loss() {
+        let connection = Connection::open_in_memory().unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE resident_context_bindings (
+                run_id TEXT PRIMARY KEY, request_digest TEXT NOT NULL, assembly_json TEXT NOT NULL
+             );
+             INSERT INTO resident_context_bindings VALUES ('run-1', 'digest-1', 'original-bytes');",
+            )
+            .unwrap();
+        apply(&connection).unwrap();
+        apply(&connection).unwrap();
+        let binding: (String, String, Option<i64>) = connection
+            .query_row(
+                "SELECT request_digest, assembly_json, deleted_by_operator_ms
+             FROM resident_context_bindings WHERE run_id = 'run-1'",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .unwrap();
+        assert_eq!(binding, ("digest-1".into(), "original-bytes".into(), None));
+    }
 
     #[test]
     fn partially_migrated_stage_receipts_gain_binding_digest() {

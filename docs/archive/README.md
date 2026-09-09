@@ -16,6 +16,14 @@ soterion:
 Purpose: retain completed historical plans without presenting them as active
 work under `docs/plans/`.
 
+## Queue reconciliation — 2026-09-07
+
+- [Deferred ambient requirements](deferred/ambient-agent/README.md): seven documents moved intact from the active queue, **not completed**. Core usefulness/operator acceptance and explicit scope reactivation remain prerequisites; commercial work needs a separate request.
+- [HUD WS3b avatar closeout](arda-hud-visual-pass/03b-avatar-cortana-redesign.md): historical August native visual slice, corroborated by current particle/emitter source; not Mirromere or general-media acceptance.
+- [HUD WS3a assessment](arda-hud-visual-pass/03a-boardroom-workstations-assessment.md): consolidated into the [active visual owner](../plans/arda-hud-visual-pass/README.md); remaining occupied-session/marker checks retained there.
+- [Retired autonomous compatibility index](2026-09-07-autonomous-loop-compatibility-index.md): no independent tasks; the milestone program remains active.
+- [Autonomous evidence history](../audits/autonomous-task-completion-history.md): retained outside the active execution queue with historical/superseded claims identified.
+
 ## Completed closeouts
 
 Deferred, non-1.0 records live under [`deferred/`](deferred/). They preserve

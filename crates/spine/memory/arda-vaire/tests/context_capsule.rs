@@ -82,6 +82,121 @@ fn write_memory(service: &MnemosyneService, id: &str, content: &str) {
 }
 
 #[test]
+fn concurrent_stage_binding_appends_one_receipt() {
+    let temp = TempDir::new().unwrap();
+    let svc = service(&temp);
+    let now = 1_787_340_000_000;
+    let original = svc
+        .assemble_organism_context(context(now, vec![]), &consumer(), now)
+        .unwrap();
+    let barrier = std::sync::Barrier::new(12);
+    std::thread::scope(|scope| {
+        let handles = (0..12)
+            .map(|_| {
+                let original = &original;
+                let barrier = &barrier;
+                let temp = &temp;
+                scope.spawn(move || {
+                    let svc = service(temp);
+                    barrier.wait();
+                    svc.bind_run_stage_context(
+                        original,
+                        "verify",
+                        "verify",
+                        vec!["receipt:execute".into()],
+                        now + 1,
+                    )
+                })
+            })
+            .collect::<Vec<_>>();
+        for handle in handles {
+            handle.join().unwrap().unwrap();
+        }
+    });
+    let ledger =
+        std::fs::read_to_string(temp.path().join("vaire/context_use_receipts.jsonl")).unwrap();
+    assert_eq!(
+        ledger.lines().count(),
+        2,
+        "one original and one stage receipt"
+    );
+}
+
+#[test]
+fn stage_context_preserves_snapshot_and_expiry_across_reopen() {
+    let temp = TempDir::new().unwrap();
+    let original_service = service(&temp);
+    write_memory(&original_service, "mem-stage", "original context");
+    let now = 1_787_340_000_000;
+    let original = original_service
+        .assemble_organism_context(context(now, vec!["mem-stage".into()]), &consumer(), now)
+        .unwrap();
+    let parents = vec!["receipt:execute".into()];
+    let bound = original_service
+        .bind_run_stage_context(
+            &original,
+            "verify",
+            "verify result",
+            parents.clone(),
+            now + 1,
+        )
+        .unwrap();
+    assert_eq!(bound.capsule.memories, original.capsule.memories);
+    assert_eq!(
+        bound.capsule.context.expires_at_unix_ms,
+        original.capsule.context.expires_at_unix_ms
+    );
+    assert_eq!(bound.capsule.context.lineage.parent_receipts, parents);
+    assert_eq!(
+        bound.capsule.context.objective.requested_outcome,
+        "verify result"
+    );
+    assert_ne!(
+        bound.use_receipt.receipt_id,
+        original.use_receipt.receipt_id
+    );
+    let path = temp.path().join("vaire/context_use_receipts.jsonl");
+    let before = std::fs::read(&path).unwrap();
+    let reopened = service(&temp);
+    assert_eq!(
+        reopened
+            .bind_run_stage_context(
+                &original,
+                "verify",
+                "verify result",
+                parents.clone(),
+                now + 2
+            )
+            .unwrap(),
+        bound
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), before);
+    assert_eq!(
+        original
+            .for_run_stage("verify", "verify result", parents.clone())
+            .unwrap(),
+        bound
+    );
+    assert!(reopened
+        .bind_run_stage_context(
+            &original,
+            "verify",
+            "verify result",
+            parents.clone(),
+            now + 60_000
+        )
+        .is_err());
+    write_memory(&reopened, "mem-stage", "corrected context");
+    assert!(reopened
+        .bind_run_stage_context(&original, "review", "review result", parents, now + 3)
+        .is_err());
+    assert_eq!(std::fs::read(&path).unwrap(), before);
+    reopened
+        .validate_context_assembly_for_execution(&bound, now + 3)
+        .unwrap_err();
+}
+
+#[test]
 fn vaire_assembles_a_bounded_policy_filtered_capsule_and_use_receipt() {
     let temp = TempDir::new().unwrap();
     let service = service(&temp);
@@ -129,6 +244,40 @@ fn vaire_assembles_a_bounded_policy_filtered_capsule_and_use_receipt() {
     let wire = serde_json::to_string(&assembled).unwrap();
     assert!(!wire.contains("\"transcript\":"));
     assert!(!wire.contains("\"session_id\":"));
+}
+
+#[test]
+fn cached_capsule_rechecks_current_memory_authority_without_new_receipts() {
+    let temp = TempDir::new().unwrap();
+    let service = service(&temp);
+    write_memory(&service, "mem-cached", "original content");
+    let now = 1_787_340_000_000;
+    let assembly = service
+        .assemble_organism_context(context(now, vec!["mem-cached".into()]), &consumer(), now)
+        .unwrap();
+    let receipt_path = temp.path().join("vaire/context_use_receipts.jsonl");
+    let before = std::fs::read(&receipt_path).unwrap();
+    service
+        .validate_context_assembly_for_execution(&assembly, now + 1)
+        .unwrap();
+    assert!(service
+        .validate_context_assembly_for_execution(&assembly, now + 60_000)
+        .is_err());
+    let mut revoked = service
+        .recall_governed_memories(Some(&consumer()))
+        .unwrap()
+        .remove(0);
+    revoked.state = MemoryState::Revoked;
+    service
+        .write_governed_memory(revoked, Some(&consumer()))
+        .unwrap();
+    assert!(
+        service
+            .validate_context_assembly_for_execution(&assembly, now + 2)
+            .is_err(),
+        "cached content must not bypass revocation"
+    );
+    assert_eq!(std::fs::read(&receipt_path).unwrap(), before);
 }
 
 #[test]

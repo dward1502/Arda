@@ -5,11 +5,13 @@ soterion:
   code_point: "U+1F4DC"
   role: "program_plan"
   owner: "PROMETHEUS"
-  status: "active"
+  status: "deferred"
   reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-20
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: deferred | reviewed: 2026-08-20
+
+> Queue disposition (2026-09-07): deferred intact, **not completed**. The existing core-usefulness/operator-acceptance hold remains. Return this requirement set to active execution only after that gate and explicit scope approval; commercialization additionally requires a separate operator request. Historical source paths and implementation proposals below require revalidation before use.
 
 # Arda Ambient Agent Program
 
@@ -32,14 +34,14 @@ Arda extends the Hermes relationship into a dependable personal system that:
 - survives session, model, surface, and restart changes;
 - eventually appears through embodied outposts without creating parallel memories, policies, tasks, or runtimes.
 
-Hermes remains the primary conversational and worker runtime. The completed [Digital Organism Program](../../archive/digital-organism/README.md) (archived; closeout [synopsis](../../archive/digital-organism/SYNOPSIS.md)) owns cohesion across organism identity, node topology, capability placement, A2A work, continuity, homeostasis, recovery, and Arandur orchestration. This ambient program begins only after that mesh is real and repeatedly useful; it projects the same authorities into embodiment rather than creating another runtime.
+Hermes remains the primary conversational and worker runtime. The completed [Digital Organism Program](../../digital-organism/README.md) (archived; closeout [synopsis](../../digital-organism/SYNOPSIS.md)) owns cohesion across organism identity, node topology, capability placement, A2A work, continuity, homeostasis, recovery, and Arandur orchestration. This ambient program begins only after that mesh is real and repeatedly useful; it projects the same authorities into embodiment rather than creating another runtime.
 
 ## Core-Arda prerequisite
 
 The active completion work is owned by the
-[`Arda Whole-System Completion Program`](../ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md),
+[`Arda Whole-System Completion Program`](../../../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md),
 grounded in the current
-[`Autonomous System Gap Audit`](../../audits/2026-08-25-autonomous-system-gap-audit.md).
+[`Autonomous System Gap Audit`](../../../audits/2026-08-25-autonomous-system-gap-audit.md).
 The ambient plans remain on hold while that program is active.
 
 No ambient phase may begin until Core Arda can take a real operator-authored

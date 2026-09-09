@@ -3,10 +3,12 @@ soterion:
   sigil: "SCROLL"
   glyph: "📜"
   role: "plan"
-  status: "active"
+  status: "superseded"
   owner: "visual-pass"
   last_reviewed: "2026-08-22"
 ---
+
+> Queue disposition (2026-09-07): assessment consolidated, not blanket-completed. Emitter repair is recorded in WS3b; remaining support-marker and occupied-workstation requirements belong to [the active visual owner](../../plans/arda-hud-visual-pass/README.md).
 
 # WS3a — Boardroom Desk & Monitor Workstation Visual Assessment
 

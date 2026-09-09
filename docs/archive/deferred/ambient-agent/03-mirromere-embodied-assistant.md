@@ -5,11 +5,13 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "HERMES"
-  status: "active"
+  status: "deferred"
   reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-20
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: deferred | reviewed: 2026-08-20
+
+> Queue disposition (2026-09-07): deferred intact, **not completed**. The existing core-usefulness/operator-acceptance hold remains. Return this requirement set to active execution only after that gate and explicit scope approval; commercialization additionally requires a separate operator request. Historical source paths and implementation proposals below require revalidation before use.
 
 # Phase 3: Mirromere Embodied Assistant
 
@@ -41,12 +43,12 @@ None of these satisfy the product:
 - the ARDA HUD copied onto a second monitor as the default experience;
 - an autonomous authority separate from Arda's memory, policy, task, research, or approval systems.
 
-The failed projection/dashboard work is retained only as a warning in [`../../archive/2026-08-20-failed-mirromere-projection-implementation.md`](../../archive/2026-08-20-failed-mirromere-projection-implementation.md).
+The failed projection/dashboard work is retained only as a warning in [`../../archive/2026-08-20-failed-mirromere-projection-implementation.md`](../../2026-08-20-failed-mirromere-projection-implementation.md).
 
 ## Prerequisite: core Arda must be useful first
 
 Implementation is blocked by the active
-[`Arda Whole-System Completion Program`](../ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md).
+[`Arda Whole-System Completion Program`](../../../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md).
 Core Arda must own a real outcome through context retrieval, decomposition,
 authorization, scheduling, provider placement, execution, verification, review,
 revision/retry, restart recovery, and accepted closure across connected projects.

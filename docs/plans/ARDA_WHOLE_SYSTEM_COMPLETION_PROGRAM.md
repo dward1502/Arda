@@ -31,6 +31,10 @@ Core source/package foundations are substantial, but the whole system is not com
 | External capability assimilation | Existing assimilation/AIPKG contracts | Contract foundations exist | One real candidate reaches governed adoption or justified rejection |
 | Operator relationship | Hermes plus canonical operator projection | Projection implemented; consumption open | Conversational inspection and controls over the same records |
 
+## Operator-facing integration priority
+
+The [Personal System Experience assessment and plan](PERSONAL_SYSTEM_EXPERIENCE.md) owns the next share-to-display delivery: genuine shared material presented by an agent on the existing five upper HUD monitors, with native readability, privacy, ownership, restart, and performance acceptance. This is integration of existing surfaces, not a replacement for the whole-system gates or a new embodiment program. Device-role reconciliation feeds provider placement and Milestone 4; Rúmil-backed Apothecary remains owned by the daily improvement plan. Bounded read-only capture, display, and audit integration can proceed alongside runtime repairs; autonomous mutation still depends on the existing execution gates.
+
 ## Canonical operating loop
 
 1. Observe an operator request, failure, stale plan, audit finding, degradation, or cited external finding.

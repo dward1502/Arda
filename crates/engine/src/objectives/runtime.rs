@@ -1,9 +1,18 @@
 use super::{ClaimedLeaf, ObjectiveStore, StageReceipt};
 use anyhow::{Context, Result};
+use futures::{stream::FuturesUnordered, StreamExt};
 use std::future::Future;
 use std::pin::Pin;
 
 pub trait LeafExecution: Send + Sync {
+    /// Retrieve completed evidence only; never fall back to provider execution.
+    fn reconcile(
+        &self,
+        _claim: ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<LeafExecutionResult>>> + Send>> {
+        Box::pin(async { Ok(None) })
+    }
+
     fn execute(
         &self,
         claim: ClaimedLeaf,
@@ -55,28 +64,59 @@ where
     }
 
     pub async fn run_round(&mut self, now_ms: i64) -> Result<Vec<LeafRoundOutcome>> {
-        let claims = self.store.claim_runnable(
+        let started = std::time::Instant::now();
+        let completion_time = || {
+            now_ms.saturating_add(i64::try_from(started.elapsed().as_millis()).unwrap_or(i64::MAX))
+        };
+        let recovery = self.store.claim_reconciliation(
             &self.worker_id,
             now_ms,
             self.lease_duration_ms,
             self.capacity,
         )?;
-        let executions = claims
-            .iter()
-            .cloned()
-            .map(|claim| self.executor.execute(claim))
-            .collect::<Vec<_>>();
-        let results = futures::future::join_all(executions).await;
+        let normal = self.store.claim_runnable(
+            &self.worker_id,
+            now_ms,
+            self.lease_duration_ms,
+            self.capacity.saturating_sub(recovery.len()),
+        )?;
+        let claims: Vec<_> = recovery
+            .into_iter()
+            .map(|claim| (claim, true))
+            .chain(normal.into_iter().map(|claim| (claim, false)))
+            .collect();
         let mut outcomes = Vec::with_capacity(claims.len());
+        let mut executions = claims
+            .into_iter()
+            .map(|(claim, reconciliation_only)| {
+                let execution = if reconciliation_only {
+                    self.executor.reconcile(claim.clone())
+                } else {
+                    let execution = self.executor.execute(claim.clone());
+                    Box::pin(async move { execution.await.map(Some) })
+                };
+                async move { (claim, reconciliation_only, execution.await) }
+            })
+            .collect::<FuturesUnordered<_>>();
         let mut errors = Vec::new();
-        for (claim, result) in claims.into_iter().zip(results) {
+        // Persist each finished leaf before waiting for its siblings. A pending
+        // provider must not keep successful work only in this round's memory.
+        while let Some((claim, _reconciliation_only, result)) = executions.next().await {
             let result = match result.with_context(|| {
                 format!(
                     "execute objective `{}` leaf `{}`",
                     claim.objective_id, claim.leaf_id
                 )
             }) {
-                Ok(result) => result,
+                Ok(Some(result)) => result,
+                Ok(None) => {
+                    self.store.fail_reconciliation(&claim, completion_time())?;
+                    errors.push(format!(
+                        "retry budget exhausted without completed evidence for leaf `{}`",
+                        claim.leaf_id
+                    ));
+                    continue;
+                }
                 Err(error) => {
                     errors.push(format!("{error:#}"));
                     continue;
@@ -94,8 +134,9 @@ where
                 if let Err(error) = self.store.record_stage_receipt(
                     &claim.leaf_id,
                     &claim.lease_owner,
+                    claim.attempt,
                     receipt,
-                    now_ms,
+                    completion_time(),
                 ) {
                     receipt_error = Some(error);
                     break;

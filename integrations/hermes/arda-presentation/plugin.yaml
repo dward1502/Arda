@@ -1,0 +1,4 @@
+name: arda-presentation
+version: 0.1.0
+description: Native upper-monitor presentation execution adapter; publication is not render evidence
+entry_point: __init__:register

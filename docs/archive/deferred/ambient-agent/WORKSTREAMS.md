@@ -5,11 +5,13 @@ soterion:
   code_point: "U+1F4DC"
   role: "execution_map"
   owner: "PROMETHEUS"
-  status: "active"
+  status: "deferred"
   reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 execution_map | owner: PROMETHEUS | status: active | reviewed: 2026-08-20
+> 🜏 Soterion: 📜 execution_map | owner: PROMETHEUS | status: deferred | reviewed: 2026-08-20
+
+> Queue disposition (2026-09-07): deferred intact, **not completed**. The existing core-usefulness/operator-acceptance hold remains. Return this requirement set to active execution only after that gate and explicit scope approval; commercialization additionally requires a separate operator request. Historical source paths and implementation proposals below require revalidation before use.
 
 # Ambient Agent Execution Order and Ownership
 

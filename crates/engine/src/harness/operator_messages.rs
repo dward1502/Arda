@@ -62,6 +62,10 @@ enum Command {
     },
     Context,
     Objectives,
+    DeleteRecoveryContext {
+        objective_id: String,
+        run_id: String,
+    },
     PauseTask {
         task_id: String,
         objective_id: String,
@@ -184,6 +188,7 @@ pub(super) async fn ingest_operator_message(
             | Command::Objective { .. }
             | Command::Context
             | Command::Objectives
+            | Command::DeleteRecoveryContext { .. }
             | Command::PauseTask { .. }
             | Command::ResumeTask { .. }
             | Command::ReprioritizeTask { .. }
@@ -599,6 +604,25 @@ async fn apply_command(
                 evidence_refs.push(format!("arda://objectives/{}", objective.id));
             }
             Ok((lines.join("\n"), evidence_refs))
+        }
+        Command::DeleteRecoveryContext {
+            objective_id,
+            run_id,
+        } => {
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::DeleteRecoveryContext {
+                    run_id: run_id.clone(),
+                },
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!("Removed the resident recovery snapshot for {run_id}; receipt digests and deletion tombstone retained. This does not erase RunStore, Vairë records, backups or SQLite forensic remnants."),
+                vec![format!("arda://objectives/{objective_id}"),
+                     format!("arda://objectives/{objective_id}/controls/{message_id}")],
+            ))
         }
         Command::PauseTask {
             task_id,
@@ -1193,6 +1217,11 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
                 reason: reason.to_owned(),
             })
         }
+        "delete-recovery-context" => {
+            let (objective_id, rest) = take_arg(args, "objective_id")?;
+            let run_id = only_arg(rest, "run_id")?;
+            Ok(Command::DeleteRecoveryContext { objective_id, run_id })
+        }
         "cancel-task" => {
             let (task_id, rest) = take_arg(args, "task_id")?;
             let (objective_id, reason) = take_arg(rest, "objective_id")?;
@@ -1328,7 +1357,8 @@ fn command_operation(command: &Command) -> BridgeOperation {
         | Command::ResumeTask { .. }
         | Command::ReprioritizeTask { .. }
         | Command::ReviseObjective { .. }
-        | Command::ApproveObjective { .. } => BridgeOperation::Control,
+        | Command::ApproveObjective { .. }
+        | Command::DeleteRecoveryContext { .. } => BridgeOperation::Control,
         Command::Cancel { .. } | Command::CancelTask { .. } => BridgeOperation::Cancel,
         Command::Acknowledge { .. } => BridgeOperation::Acknowledge,
         Command::Defer { .. } => BridgeOperation::Defer,
@@ -1348,6 +1378,7 @@ fn command_run_id(command: &Command) -> Option<&str> {
         | Command::ReviseObjective { .. }
         | Command::ApproveObjective { .. }
         | Command::CancelTask { .. }
+        | Command::DeleteRecoveryContext { .. }
         | Command::Status { run_id: None }
         | Command::Acknowledge { .. }
         | Command::Defer { .. } => None,
@@ -1389,7 +1420,8 @@ fn command_objective_id(command: &Command) -> Option<&str> {
         | Command::ReprioritizeTask { objective_id, .. }
         | Command::ReviseObjective { objective_id, .. }
         | Command::ApproveObjective { objective_id, .. }
-        | Command::CancelTask { objective_id, .. } => Some(objective_id),
+        | Command::CancelTask { objective_id, .. }
+        | Command::DeleteRecoveryContext { objective_id, .. } => Some(objective_id),
         _ => None,
     }
 }
@@ -1404,6 +1436,7 @@ fn is_resident_objective_mutation(command: &Command) -> bool {
             | Command::ReviseObjective { .. }
             | Command::ApproveObjective { .. }
             | Command::CancelTask { .. }
+            | Command::DeleteRecoveryContext { .. }
     )
 }
 

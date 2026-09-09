@@ -3,17 +3,19 @@ soterion:
   sigil: "SCROLL"
   role: "evidence_index"
   owner: "PROMETHEUS"
-  status: "active"
+  status: "historical"
   reviewed: "2026-09-01"
 ---
 
-> 🜏 Soterion: 📜 evidence_index | owner: PROMETHEUS | status: active | reviewed: 2026-09-01
+> 🜏 Soterion: 📜 evidence_index | owner: PROMETHEUS | status: historical | reviewed: 2026-09-01
+
+> Queue disposition (2026-09-07): historical evidence index moved out of the execution queue. Earlier timer/JSONL authority and retry-cap claims are superseded by the cutover revalidation. Reported workbench health or repair does not establish current end-to-end acceptance. Retained rows are historical claims, not fresh verification.
 
 # Autonomous Completion Evidence History
 
 ## Subsequent cutover revalidation — 2026-09-07
 
-[Source regression repairs and reopened cutover gates](../../audits/2026-09-07-objective-cutover-revalidation.md). Earlier installed evidence remains historical; it does not qualify the current candidate or close restart/replay acceptance.
+[Source regression repairs and reopened cutover gates](2026-09-07-objective-cutover-revalidation.md). Earlier installed evidence remains historical; it does not qualify the current candidate or close restart/replay acceptance.
 
 
 This file indexes completed engineering slices. It is not the execution plan and does not promote source/package evidence into installed or operator acceptance.
@@ -37,9 +39,9 @@ This file indexes completed engineering slices. It is not the execution plan and
 
 ## Supporting audits
 
-- [Operator Vision Repair Backlog](../../audits/2026-08-26-operator-vision-repair-backlog.md)
-- [Continuous Governed Execution Gap Report](../../audits/2026-08-27-continuous-governed-execution-gap-report.md)
-- [Objective Plan Receipt Acceptance](../../audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md)
+- [Operator Vision Repair Backlog](2026-08-26-operator-vision-repair-backlog.md)
+- [Continuous Governed Execution Gap Report](2026-08-27-continuous-governed-execution-gap-report.md)
+- [Objective Plan Receipt Acceptance](2026-08-27-objective-plan-receipt-post-remediation-acceptance.md)
 
 ## Evidence rule
 

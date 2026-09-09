@@ -43,9 +43,9 @@ execution plan. This workstream remains active until its worker-placement gates 
 
 Produce one redacted reconciliation command that compares repository Manwë config, live provider projection, Hermes provider/auxiliary/delegation routes, fleet capability records, and installed service environment. Fail visibly on stale endpoints, absent credentials by name, disabled expected capacity, or runtime/config disagreement.
 
-### P2 — Queue placement contract
+### P2 — Resident objective placement contract
 
-Add placement requirements to queue tasks: task kind, tools, structured output, context floor, privacy domain, maximum cost, latency class, review independence, and allowed access tiers. Send those requirements to Manwë before Workbench execution.
+Bind placement requirements to resident objective leaves and their existing execution contracts, not legacy JSONL tasks: task kind, tools, structured output, context floor, privacy domain, maximum cost, latency class, review independence, and allowed access tiers. Send those requirements to Manwë before Workbench execution.
 
 ### P3 — Adapter routing
 

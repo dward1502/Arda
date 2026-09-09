@@ -28,8 +28,9 @@ composable capabilities of one personal agent ecosystem.
 The current release authority is the [0.9 baseline](../releases/0.9/BASELINE.md);
 its finite [improvement plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)
 is a completed historical record.
-The active implementation authority is the segmented
-[Ambient Agent Program](../plans/ambient-agent/README.md). The older 1.0
+The active implementation authority is the
+[Whole-System Completion Program](../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md).
+The [Ambient Agent Program](../archive/deferred/ambient-agent/README.md) remains deferred, not complete. The older 1.0
 convergence plan is retained as a
 [deferred historical record](../archive/deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md),
 not as competing current authority.

@@ -2,131 +2,84 @@
 soterion:
   sigil: "SCROLL"
   glyph: "📜"
-  code_point: "U+1F4DC"
   role: "portfolio_index"
   owner: "PROMETHEUS"
   status: "active"
   reviewed: "2026-09-07"
-  tags: ["whole-system", "autonomy", "completion", "projects", "daily-improvement"]
 ---
 
 > 🜏 Soterion: 📜 portfolio_index | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
 
-# Arda Product Plan Suite
+# Arda Active Execution Queue
 
-**Status:** Active portfolio index<br>
-**Updated:** 2026-09-07<br>
-**Current release baseline:** [Arda 0.9 Baseline](../releases/0.9/BASELINE.md)<br>
-**Completed improvement record:** [Arda 0.9 Baseline and Improvement Plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
-**Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)<br>
-**Completed cohesion program (archived):** [Arda Digital Organism Program](../archive/digital-organism/README.md) — closeout [synopsis](../archive/digital-organism/SYNOPSIS.md)<br>
-**Active whole-system program:** [Arda Whole-System Completion Program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md)<br>
-**Downstream embodiment program on hold:** [Arda Ambient Agent Program](ambient-agent/README.md)
+This existing portfolio index accounts for every plan; it owns no duplicate
+backlog. Arda is the local-first distributed personal agent ecosystem, not
+Workbench, a dashboard, a business, or an embodiment demonstration.
 
-## Product decision
+## Authority and current runtime
 
-Arda `0.9.0` is the personal/internal whole-system baseline. Workbench is the
-first workflow-proven execution capability inside one governed local-first
-personal-agent ecosystem. The 0.9 profile is single-operator and loopback-only.
+- [Whole-system program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md): product gates, dependencies, external assimilation and whole-system acceptance.
+- [Autonomous milestones](autonomous-task-completion/README.md): one autonomous acceptance owner; [cutover](2026-09-01-arda-objective-runtime-cutover.md) supplies runtime implementation.
+- Hermes owns conversation/workers; core/Engine owns objective execution and RunStore; Manwë routes; Vairë owns continuity; Oromë communicates; Aulë observes; Rúmil/HADES audits. Projections cannot approve or close work.
+- Local inspection September 7: Arda PID 1829, native HUD PID 414874 and Hermes gateway PID 425928 were active. Gateway `/proc/.../exe` and its `.venv` report Python 3.14.7. Installed Arda hash `afb5096ab05b14653dec1b91af1d57a99bcceee79698c513311f0f357014ae11` differs from the existing release candidate `8c89340e43df2995bd42cef177c7dbc69e10391f4c39ef274eb389bbfae6e18c`. Neither is proof of current-source deployment. No restart was performed during this inspection.
+- `arda_present status` returned native readiness and the existing `monitor_1`/`monitor_2` image-session records. This read did not republish content or establish new rendering acceptance. Preserve the [operator-confirmed Discord-phone flow](PERSONAL_SYSTEM_EXPERIENCE.md); broader media remains open.
+- `annunimas-server` is intentionally powered off. Leave it off and unavailable for placement, not failed. Other remote deployment remains unverified; no remote change is authorized by an old plan.
 
-Independent flow review is not required for this personal baseline. Its absence
-is disclosed and may not be converted into an independent-qualification claim.
-Final public `1.0.0` qualification remains a separate, fail-closed future
-decision.
+## Execution priority
 
-## Active planning authority
+1. Cutover recovery/workspace safety and resident supervision, preserving working services.
+2. Dependency-ready media lifecycle/ownership integration beside those repairs; no replay of accepted consequential work just to recreate evidence.
+3. Real project contracts, policy-bound provider placement and multi-project installed acceptance through the same runtime.
+4. Rúmil/daily improvement through that runtime; seven-cycle and operator gates remain real elapsed-use requirements.
+5. Remaining functional HUD consistency. Embodiment stays deferred; commercialization is not a personal-system completion requirement and needs a separate operator request.
 
-This is a portfolio index, not an additional execution backlog. Authority is:
+## Complete inventory and disposition
 
-1. [Whole-system program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md): product gates and cross-workstream order.
-2. [Autonomous milestones](autonomous-task-completion/README.md): the single autonomous acceptance backlog.
-3. [Runtime cutover](2026-09-01-arda-objective-runtime-cutover.md): bounded implementation dependency of those milestones, not a second autonomous program.
-4. [Provider convergence](PROVIDER_WORKER_CONVERGENCE.md): provider transport and placement dependencies shared by the program.
+The entry inventory contained **25 Markdown files recursively**. It is reconciled
+to **14 active files** below plus **11 retained historical/deferred records**.
+Every row is a disposition, not a new task set. Historical evidence is not fresh
+verification; source presence is not deployed or operator-accepted behavior.
 
-[AUTONOMOUS_TASK_COMPLETION_LOOP.md](AUTONOMOUS_TASK_COMPLETION_LOOP.md) is a compatibility pointer only. Do not seed a second task set from it or from this index. A shared gate has one owning milestone; other documents link to its evidence rather than independently closing it.
-
-
-`docs/plans/` contains this portfolio index, the
-[Arda Whole-System Completion Program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md),
-its autonomous-task, provider, project-fabric, and daily-improvement workstreams,
-and the downstream [`ambient-agent/`](ambient-agent/README.md) program. The
-Digital Organism Program completed all eight stages on 2026-08-25
-and is archived under [`docs/archive/digital-organism/`](../archive/digital-organism/README.md)
-with its closeout synopsis; its architecture map remains live at
-`docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md`. The finite 0.9
-improvement plan completed its defect, dependency, documentation, measurement,
-and honest Personal Operations disposition work and is retained under
-`docs/archive/`. The former Core Arda Usefulness Repair plan was rejected by the
-operator because it reduced the intended autonomous system to a short interface
-demonstration; it is retained only as history under `docs/archive/`.
-
-## Digital-organism stages (completed — archived)
-
-All eight stages closed 2026-08-25. Historical stage plans and the closeout
-synopsis live under [`docs/archive/digital-organism/`](../archive/digital-organism/SYNOPSIS.md);
-the authority/transport map remains live at
-[`docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md`](../architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md).
-
-| Stage | Archived plan | Delivered proof |
-|---:|---|---|
-| 0 | [Foundation salvage and alignment](../archive/digital-organism/00-foundation-salvage-alignment.md) | source-backed reuse/adapt/archive and actual-vs-intended flow map |
-| 1 | [Organism kernel and bootstrap](../archive/digital-organism/01-organism-kernel-bootstrap.md) | bounded context capsule survives session/model/restart changes |
-| 2 | [Node mesh and A2A](../archive/digital-organism/02-node-mesh-and-a2a.md) | two real nodes discover capability and exchange correlated work over standard A2A |
-| 3 | [Adaptive cognition and placement](../archive/digital-organism/03-adaptive-cognition-and-placement.md) | role-based work moves between capability/resource profiles without workflow rewrites |
-| 4 | [Memory, learning, and context](../archive/digital-organism/04-memory-learning-and-context.md) | cross-node continuation and memory-use receipts honor correction/revocation |
-| 5 | [Homeostasis, governance, and recovery](../archive/digital-organism/05-homeostasis-governance-and-recovery.md) | real failure is reconciled and eligible work is safely reassigned |
-| 6 | [Arandur/CEO orchestration](../archive/digital-organism/06-arandur-ceo-orchestration.md) | one canonical review → record → plan → execute → assess organism cycle |
-| 7 | [Living mesh proof](../archive/digital-organism/07-living-mesh-proof.md) | operator-accepted objective crosses heterogeneous roles/nodes and survives failure/restart |
-| 8 | [Hardware portability and embodiment](../archive/digital-organism/08-hardware-portability-and-embodiment.md) | stronger/specialized node improves placement without semantic rewrites |
-
-Completed Stage 5, system-unification, and HUD convergence plans are historical
-records under `docs/archive/`. The older ecosystem convergence plan and Stage 6
-final-1.0 qualification plan remain historical/deferred records under
-`docs/archive/deferred/1.0/`; they do not override the active ambient-agent
-program or create retroactive 0.9 blockers.
-
-## Ambient-agent phases
-
-| Phase | Plan authority | Required proof |
+| Original file under `docs/plans/` | Outcome / evidence boundary | Remaining work and dependency / disposition |
 |---|---|---|
-| 1 | [Launcher and local runtime — completed](../archive/2026-08-17-launcher-local-runtime-plan.md) | **Accepted:** post-restart icon → health → native HUD; [operations evidence](../operations/launcher-local-runtime-acceptance.md) |
-| 2 | [Hermes continuity and handoff — completed](../archive/2026-08-17-hermes-continuity-handoff-plan.md) | **Accepted:** same authenticated conversation lineage across phone and desktop; [operations evidence](../operations/hermes-continuity-handoff-acceptance.md) |
-| 3 | [Mirromere embodied assistant — planning hold](ambient-agent/03-mirromere-embodied-assistant.md) | avatar-led text/voice conversation, contextual daily assistance, and deliberate passive/avatar/HUD/private/offline scenes; no dashboard or radar substitution |
-| 4 | [Presence, identity, and privacy — planning hold](ambient-agent/04-presence-identity-privacy.md) | real local arrival/departure moves an already-working avatar between passive/private and a safe personalized greeting without authorizing action |
-| 5 | [RELIC runtime embodiment — planning hold](ambient-agent/05-relic-runtime-embodiment.md) | physical receipt-backed visualization only after genuine operator-used agent flow exists |
-| 6 | [Governed physical outposts — planning hold](ambient-agent/06-governed-physical-outposts.md) | approved exactly-once simulated device execution only after the digital review workflow is useful |
-| 7 | [Product validation and commercialization — planning hold](ambient-agent/07-product-validation-commercialization.md) | external validation only after the operator repeatedly uses the relevant slice |
+| `ARDA_PRODUCT_PLAN_SUITE.md` | Navigation and full inventory | Keep this index only; no parallel tasks |
+| [ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md) | One useful autonomous personal system; substantial foundations, not whole-system acceptance | Keep cross-system gates including external assimilation; dependent work links its canonical owner |
+| [2026-09-01-arda-objective-runtime-cutover.md](2026-09-01-arda-objective-runtime-cutover.md) | Resident SQLite authority exists; current `runtime.rs` still joins complete rounds and `workbench.rs` derives run identity from lease attempt | Keep same-run recovery, due schedules, bounded shutdown/readiness, physical-root safety, legacy-writer freeze and installed qualification |
+| [autonomous-task-completion/README.md](autonomous-task-completion/README.md) | Autonomous program exit scenario | Keep single acceptance program; implementation belongs to cutover |
+| [autonomous-task-completion/01-hermes-objective-control.md](autonomous-task-completion/01-hermes-objective-control.md) | Installed loopback controls historically exercised | Keep genuine messaging objective/control acceptance; accepted media ingress is not objective-control acceptance |
+| [autonomous-task-completion/02-installed-scheduling-restart.md](autonomous-task-completion/02-installed-scheduling-restart.md) | Historical timer/restart evidence | Keep resident same-objective deferred/recurring wake and interruption/correction; never reinstall retired queue executor |
+| [autonomous-task-completion/03-live-critic-revision.md](autonomous-task-completion/03-live-critic-revision.md) | Historical real rejection/revision receipt, not missing implementation | Keep integration against resident recovery/attempt authority; retain historical accepted action without gratuitous repetition |
+| [autonomous-task-completion/04-real-multi-project-execution.md](autonomous-task-completion/04-real-multi-project-execution.md) | Historical serial joined close; source store/runtime tests | Keep useful real-project overlap, physical-root isolation, checks and one close; depends on cutover/provider/fabric |
+| [autonomous-task-completion/05-vaire-operator-acceptance.md](autonomous-task-completion/05-vaire-operator-acceptance.md) | Workbench context assembly/outcome code exists; earlier health/repair claims are not this gate | Keep genuine context-use, new-session/restart continuity and explicit reduced-burden verdict |
+| [PROVIDER_WORKER_CONVERGENCE.md](PROVIDER_WORKER_CONVERGENCE.md) | Prior installed Manwë route repairs; Engine adaptive-placement and learning paths exist | Keep canonical worker routing, privacy, bounds, fallback and actual-route receipts; offline optional server is not a blocker |
+| [CONNECTED_PROJECT_FABRIC.md](CONNECTED_PROJECT_FABRIC.md) | Existing Workbench project registry; live objective roots include `target/arda-real-projects/...` proof paths | Keep real bounded contracts, review/attachment, rooted checks, Rúmil audit and relationships; discovery is not mutation authority |
+| [DAILY_RESEARCH_IMPROVEMENT_LOOP.md](DAILY_RESEARCH_IMPROVEMENT_LOOP.md) | Rúmil profiles and governed autopilot exist; unit still names legacy JSONL queue | Keep writer reconciliation, questions/retrieval/pivot/feedback and seven useful cycles; approved cadence/resource scope required before activation |
+| [PERSONAL_SYSTEM_EXPERIENCE.md](PERSONAL_SYSTEM_EXPERIENCE.md) | Native adapter/plugin plus operator-confirmed phone image flow | Keep general media/playback, pins, pending intake, replay, source/privacy, web restrictions, performance; owns these once |
+| [arda-hud-visual-pass/README.md](arda-hud-visual-pass/README.md) | Existing tokens, shell, modules and visual contracts; prior measurements historical | Keep WS1–WS4 plus residual WS3a requirements, after daily-use integration; no Mirromere coupling |
+| `AUTONOMOUS_TASK_COMPLETION_LOOP.md` | Compatibility pointer, no owned tasks | [Retired redundant index](../archive/2026-09-07-autonomous-loop-compatibility-index.md); milestones retain every gate |
+| `autonomous-task-completion/EVIDENCE_HISTORY.md` | Historical evidence, not executable work | [Moved to audits](../audits/autonomous-task-completion-history.md); keep receipt links and supersession warnings |
+| `arda-hud-visual-pass/03a-boardroom-workstations-assessment.md` | Emitter recommendation addressed; occupied-session/marker assessment unresolved | [Archived assessment](../archive/arda-hud-visual-pass/03a-boardroom-workstations-assessment.md), remaining requirements consolidated into visual README |
+| `arda-hud-visual-pass/03b-avatar-cortana-redesign.md` | August native visual closeout corroborated by particle source and emitter geometry | [Archived completed HUD slice](../archive/arda-hud-visual-pass/03b-avatar-cortana-redesign.md); no fresh native or Mirromere claim |
+| `ambient-agent/README.md` | Embodiment program explicitly held, not complete | [Deferred intact](../archive/deferred/ambient-agent/README.md); core usefulness and operator gate required to reactivate |
+| `ambient-agent/WORKSTREAMS.md` | Ownership/hold map, no independently ready work | [Deferred intact](../archive/deferred/ambient-agent/WORKSTREAMS.md); revalidate stale JSONL authority before use |
+| `ambient-agent/03-mirromere-embodied-assistant.md` | Second-display embodied conversation, distinct from HUD avatar; shell is not acceptance | [Deferred intact](../archive/deferred/ambient-agent/03-mirromere-embodied-assistant.md); avatar/text/local voice/context/privacy plus operator use remain |
+| `ambient-agent/04-presence-identity-privacy.md` | Presence/identity/authorization separation; protocol foundations only | [Deferred intact](../archive/deferred/ambient-agent/04-presence-identity-privacy.md); accepted Mirromere, enrollment/privacy and real non-biometric arrival required; camera separately opt-in |
+| `ambient-agent/05-relic-runtime-embodiment.md` | Existing read-only bridge service; service-active is not physical rendering evidence | [Deferred intact](../archive/deferred/ambient-agent/05-relic-runtime-embodiment.md); useful source flow, correlated physical display, degradation/recovery and soak remain |
+| `ambient-agent/06-governed-physical-outposts.md` | Shared outpost substrate is not safe actuation acceptance | [Deferred intact](../archive/deferred/ambient-agent/06-governed-physical-outposts.md); digital approval use, simulator exact-once proof, then separately approved attended hardware |
+| `ambient-agent/07-product-validation-commercialization.md` | Optional external validation, not Arda identity | [Deferred intact](../archive/deferred/ambient-agent/07-product-validation-commercialization.md); separate operator opt-in, real useful slice and consent before external activity |
 
-Parallel implementation and shared-file ownership follow the
-[workstream and branch map](ambient-agent/WORKSTREAMS.md).
+## Retained release and operational evidence
 
-## Product classification
+[Product doctrine](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md),
+[personal 0.9 baseline](../releases/0.9/BASELINE.md),
+[Digital Organism history](../archive/digital-organism/SYNOPSIS.md),
+[Launcher acceptance](../operations/launcher-local-runtime-acceptance.md),
+[phone/desktop continuity](../operations/hermes-continuity-handoff-acceptance.md)
+and [Personal Operations acceptance](../operations/personal-operations-private-alpha-acceptance.md)
+retain their bounded scopes. Launcher is entry/resume/recovery; HUD workstations
+support deeper work; upper monitors display agent-selected material; Mirromere
+is separate ambient conversation; World View stays passive.
 
-| Surface | 0.9 classification | Authority |
-|---|---|---|
-| Arda Workbench | supported personal baseline; workflow-proven | [0.9 baseline](../releases/0.9/BASELINE.md) |
-| Native launcher/packages | supported on declared x86_64 Bluefin LTS 10 profile; unsigned | [0.9 baseline](../releases/0.9/BASELINE.md) |
-| HUD health, Workbench, Research, Personal Operations, monitor sessions | implemented backend-owned projections | [archived HUD convergence record](../archive/2026-08-06-hud-frontend-backend-contract-convergence-plan.md) |
-| Research/watchlists | bounded implemented workflow | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) |
-| Personal Operations | implemented; genuine operator acceptance open | [operational acceptance](../operations/personal-operations-private-alpha-acceptance.md) |
-| Rúmil project audit | optional, read-only bounded capability | [Rúmil status](../../crates/spine/runtime/arda-rumil/STATUS.md) |
-| RELIC/CITADEL, Mirromere, presence, extra devices | planning-only until core Arda is operator-accepted; not 0.9-supported | [ambient-agent program](ambient-agent/README.md) |
-| Phone continuity | accepted on the declared personal local profile; not public-release qualified | [Phase 2 evidence](../operations/hermes-continuity-handoff-acceptance.md) |
-| Multi-user/remote release profile | unsupported for 0.9 and not implied by the single-operator program | [0.9 limitations](../releases/0.9/BASELINE.md#known-limitations) |
-
-## Authority history
-
-- [Stage 5 release candidate](../archive/2026-07-29-stage-5-release-candidate-plan.md) — completed historical candidate/release-engineering tranche.
-- [System unification and usability](../archive/2026-08-02-arda-system-unification-and-usability-plan.md) — U0–U5 and bounded U6 implementation history.
-- [HUD frontend/backend convergence](../archive/2026-08-06-hud-frontend-backend-contract-convergence-plan.md) — implemented authority and restart-recovery history; remaining refinements moved to the 0.9 plan.
-- [Deferred Stage 6 final 1.0 qualification](../archive/deferred/1.0/2026-07-29-stage-6-legitimate-1.0-plan.md) — signed-byte, independent review, supported matrix, and final release gates.
-- [Deferred complete-vision convergence](../archive/deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) — broader whole-ecosystem proofs and optional capability composition.
-
-## Portfolio rules
-
-- A plan is not evidence that a feature exists.
-- Source, tests, receipts, operator evidence, and exact artifact identity remain distinct maturity signals.
-- Optional capabilities reuse kernel authorities and cannot block the 0.9 base.
-- New work must fix a defect, satisfy a named evidence gap, improve a supported workflow measurably, or answer an explicit operator need.
-- No author or agent may represent omitted independent review as completed review.
-- Completed plans leave `docs/plans/`; future/deferred plans hold no current execution authority.
+Completed work leaves the active folder. Deferred requirements remain discoverable
+here but are not seeded as current work. Missing evidence never proves absence;
+a report, checkbox, green endpoint or archived claim never proves acceptance.

@@ -2,279 +2,89 @@
 soterion:
   sigil: "SCROLL"
   glyph: "📜"
-  code_point: "U+1F4DC"
-  role: "program_plan"
+  role: "implementation_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-09-07"
-  tags: ["whole-system", "autonomy", "completion", "projects", "daily-improvement"]
+  reviewed: "2026-09-08"
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-07
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-08
 
-# Arda Objective Runtime Cutover Plan
+# Resident Objective Runtime — Remaining Cutover
 
-## Planning authority
+## Outcome and authority
 
-This plan owns only runtime cutover implementation. Product acceptance remains in the [autonomous milestones](autonomous-task-completion/README.md), under the [whole-system program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md). Recovery/scheduling feed milestone 2; critic stage recovery feeds milestone 3; workspace isolation feeds milestone 4; installed continuity feeds milestone 5. Closing a source task here does not close those installed scenarios. Provider transport prerequisites are tracked in [provider convergence](PROVIDER_WORKER_CONVERGENCE.md), not a new plan.
+The installed `arda` daemon owns durable objective control, scheduling, bounded
+concurrent execution, restart recovery and receipt-backed closure. Engine
+ObjectiveStore is transactional SQLite (`data/arda/objectives.sqlite3`); Engine
+RunStore owns immutable execution evidence. Hermes/Oromë provide authenticated
+ingress; Vairë supplies context/outcomes; Aulë supplies execution mechanisms and
+observability, not another scheduler.
 
-## Current status — 2026-09-07
+This is the implementation dependency of the [autonomous milestones](autonomous-task-completion/README.md), not a second acceptance program. Provider transport belongs to [provider convergence](PROVIDER_WORKER_CONVERGENCE.md); useful real-project overlap belongs to [Milestone 4](autonomous-task-completion/04-real-multi-project-execution.md); continuity and operator burden belong to [Milestone 5](autonomous-task-completion/05-vaire-operator-acceptance.md).
 
-**Active; not complete.** The installed daemon owns the indexed objective runtime,
-but the earlier implementation-complete claim below is historical, not current
-acceptance. Source inspection exposed removed safety checks and missing Phase 4
-contracts. The verified repair and remaining gates are recorded in
-[the cutover revalidation receipt](../audits/2026-09-07-objective-cutover-revalidation.md).
+## Current evidence, not completion
 
-### Verified source repair
+- [September 7 revalidation](../audits/2026-09-07-objective-cutover-revalidation.md) records restored cycle checks, receipt/path validation, revision safety, equal-string workspace exclusion, persisted-stage reclaim, sibling receipt retention and transactional persisted-attempt limits. Earlier implementation-complete declarations were superseded.
+- Source follow-up after the installed alias slice: `runtime.rs` now persists each completed leaf result through `FuturesUnordered` before waiting for pending siblings. A RED/GREEN interruption/reopen regression proves a finished sibling is not reclaimed; all four focused runtime tests pass. Final follow-up gates passed: 276 Engine tests, 4 ignored, five root-daemon tests, strict all-target Clippy and release build. Exact diff `9c0bb587b91bbc376d8e11297739dee153d745690a6ba27f538f4f2a13cbaee8` received independent review; its incorrect claims that `join_all` blocks or cannot be aborted were rejected. Installed at 20:58 PDT as PID 492164, executable SHA-256 `88a33157832c2a1281442c3acc95e3dc61419874f142733b71aabee8061cb50a`, with healthy unchanged-binary Manwë child PID 492180. Rollback: `~/.local/state/arda/rollbacks/20260907-205759-sibling-durability/`. HUD/gateway PIDs stayed unchanged, operator projection remained readable, and no leaf stage/attempt changed during cutover. This is qualified deployment plus fixture regression evidence, not a genuine new multi-project acceptance run. This does not persist intermediate stages inside an unfinished Workbench call. `workbench.rs` still derives `run_id` from the incremented lease attempt and assembles fresh context; stable identity alone would not preserve context/outcome receipt bindings. `src/main.rs` still sleep-polls and awaits objective shutdown without a drain bound. Schedule storage tests do not prove due schedules are consumed.
+- September 7 installed source repair: a real symlink regression first returned two simultaneous claims for one physical directory. Canonical-path exclusion now covers stable aliases, relative roots, nested/uncreated descendants, concurrent claimers and store reopen. `cargo test -p arda-engine` and strict all-target Clippy passed. The first review missed candidate-window starvation; a new RED test reproduced it and bounded keyset pagination fixed it. The revised exact diff received independent review; incorrect review claims about monotonic IDs and cross-process SQLite locking were rejected against source. Final gates: 275 Engine tests passed, 4 ignored, strict all-target Clippy passed, five root-daemon tests passed, release build passed. Do not mark the broader physical-identity gate complete.
+- September 7, 20:48 PDT installed verification: gracefully stopped old root PID 1829 and its Manwë child, verified both disappeared, installed SHA-256 `3f75ea90d7ed18c3d71c916726501b41a5e462ecfa12a6309df998d5ad0e3092`, started once as PID 480798 and verified executable hash plus healthy supervised Manwë PID 480814. Rollback binary/unit/database snapshot and deployment record: `~/.local/state/arda/rollbacks/20260907-204820-workspace-admission/`. HUD PID 414874 and Hermes gateway PID 425928 stayed unchanged; presentation status retained both accepted image-session records. This is deployment/readback evidence, not new visual or multi-project acceptance.
+- Installed retry-bound reconciliation changed the one exhausted running objective to failed without changing any leaf stage or attempt. No provider action was replayed for this check. Alias/fairness behavior is regression-tested and now installed, but a genuine operator-authored concurrent-workspace scenario remains under Milestone 4.
+- Legacy queue files were dirty before this effort. The autopilot source unit still names `core/projects/tasks/queue.jsonl`; its installed timer continues running. No absence-of-writer or freeze claim is justified yet. Do not erase history or blame optional powered-off devices.
 
-- [x] Keep polling after idle rounds; do not spend an objective retry budget on daemon lifetime.
-- [x] Preserve successful sibling receipts when another joined execution fails.
-- [x] Reject dependency cycles, unsafe receipt paths/digests, and revisions after execution starts.
-- [x] Exclude overlapping claims on the same stored workspace root within one objective as well as across objectives.
-- [x] Reclaim persisted verify/review/close stages without resetting the stored stage to execute.
-- [x] Enforce persisted leaf-attempt limits during claim transactions; opening the store for a projection must not fail an in-flight fifth attempt.
-- [x] Run focused regressions, Engine/Aulë suites and strict lint, and build release daemon/CLI candidates. These are source/build evidence, not installed acceptance.
+## Remaining implementation order
 
-### Remaining cutover exit gates (execution order)
+1. **Physical workspace admission — bounded fix installed; wider acceptance open.** Do not repeat the completed alias/fairness implementation or its guarded deployment. Exercise a genuinely authorized installed admission scenario. Preserve original project/contract spelling while excluding the same physical root and parent/child mutation overlap. Keep bind-mount aliases, directory/symlink retarget during a live lease, missing/inaccessible roots and candidate fairness explicit until proven. Preserve read-only admission on dirty projects; do not bypass exact project approval or Workbench validation.
+2. **Stable run recovery.** Persist execution identity separately from claim/recovery count. Reclaim interrupted execute/verify/review/close against the same RunStore run. Recover the original context assembly as well as the execution ID; never substitute a freshly timestamped assembly for an existing receipt binding. Legacy attempts without an unambiguous durable binding must remain explicitly unreconciled rather than guessed. Reconcile a durable RunStore receipt written before its SQLite projection without repeating provider execution or Vairë effects. Include interruption at the retry limit; preserve canonical dependency receipt payloads/digests. Do not change a failed attempt into fabricated success or reset live objectives to create evidence.
+3. **Resident supervision.** Wake through existing ingress/control notification plus bounded due-time/lease recovery. Consume deferred/recurring schedules, suppress paused/cancelled/terminal wakes, track joined tasks and persist each stage as it completes. Reconcile RunStore/leases before new admission. Stop claims on shutdown, bound drain, preserve recoverable stage/lease state and reap children. Report readiness, active leaves, next wake and reconciliation error through Harness; `/health=ok` alone is insufficient.
+4. **Canonical ingress/projections and producer freeze.** Confirm authenticated intake and inspect/pause/resume/reprioritize/revise/approve/reject/cancel all use Engine state; reject changed-payload replay. Notify runtime after accepted mutations. Fail closed on store loss, never fall back to JSONL. Classify installed autopilot/research/other legacy writers and test emissions separately; route eligible new objectives through canonical admission. No new task/control/schedule/continuation may enter retired JSONL authority. Preserve compatibility readers and historical ledgers until their consumers are explicitly retired.
+5. **Qualified deployment and installed acceptance.** Build exact-source daemon and CLI, complete independent review, retain rollback and bind source/candidate/installed hashes. Inspect active work before restart; stop cleanly, verify target PID disappearance, start once and verify actual readiness. Exercise same-run recovery, due wakes, canonical projection/control behavior, sibling isolation and one terminal close. Do not re-execute accepted consequential actions merely to obtain new receipts.
+6. **Closeout.** Reconcile milestone evidence, run final gates after the last semantic edit and independently review the exact candidate. No commit or push unless explicitly requested. Keep the wider multi-project/continuity/operator gates open until their own genuine scenarios pass.
 
-- [ ] Close end-to-end recovery identity: `WorkbenchLeafExecution` still derives run IDs from the incremented lease attempt. Prove recovery of an interrupted RunStore stage uses the same run and does not repeat provider execution, including interruption before SQLite receipt recording and at the retry limit.
-- [ ] Complete Phase 4 resident supervision: ingress/control `Notify`, consumption of due schedules, tracked stage persistence, bounded drain/shutdown, startup RunStore reconciliation before admission, and runtime readiness/active/wake/error status. Current `src/main.rs` uses a sleep-polled `run_round` and an unbounded shutdown await.
-- [ ] Prove physical-root alias exclusion, not merely equal stored path strings.
-- [ ] Reverify all installed legacy producers are frozen. The legacy queue was already dirty at entry and changed further during verification; a missing queue-executor unit alone does not establish producer freeze. Classify test emissions separately from installed writers before deleting anything.
-- [ ] Obtain exact-candidate independent review, install qualified source-current daemon/CLI with matching SHA-256, and exercise restart/replay/projection/operator controls. This session built candidates but did not install or restart the service.
-- [ ] Close Phase 8 against final installed evidence and create the required focused reviewed local commit. Exclude the pre-existing Hermes adapter edit and all runtime data.
+## Recovery implementation in progress — not deployed
 
-Milestone 4's useful real-project outcome and measured provider overlap remain
-owned by [its acceptance plan](autonomous-task-completion/04-real-multi-project-execution.md).
-They are not silently satisfied by these deterministic regression tests. Change
-`soterion.status` to `complete` only after the cutover gates above pass; keep the
-wider Milestone 4/5 product gates separate.
+- Added a nullable persisted `execution_run_id` on claims; new work keeps the same identity after lease expiry/reopen. Started legacy rows are not assigned a guessed identity.
+- Workbench now uses that identity and binds the original `ContextAssembly` to an immutable request digest in the existing ObjectiveStore before adapter dispatch. Reclaimed fixture execution preserves the original stage/context-outcome receipts, with one outcome rather than a second memory effect. Changed execution payloads and unbound legacy claims fail closed.
+- Added Vairë current-authority validation before fresh provider execution. A RED/GREEN cached-capsule regression verifies revocation is checked and the use-receipt ledger stays byte-identical; expiry rejection is also covered. Existing foreign-context rejection semantics are retained.
+- September 8 source repair: the real Workbench/Harness boundary rejected verification because the execute capsule carried different predecessor authority. Stage contexts now derive deterministically from the original snapshot, preserving memory content and expiry while binding each stage's purpose and actual predecessors. Fresh execution retains current-authority validation. Concurrent context-use persistence now locks lookup/deduplication/append; a reproduced duplicate-receipt race passes 20 repeated runs after repair. [Vairë regression coverage](../../crates/spine/memory/arda-vaire/tests/context_capsule.rs).
+- The [isolated subprocess crash fixture](../../crates/engine/tests/resident_restart_fixture.rs.inc) exits with code 73 after provider/context-outcome receipts but before ObjectiveStore projection. Reopen preserves the same run and receipt bytes, keeps the fixture-provider invocation count at three, and suppresses post-close execution. This uses deterministic fake Hermes, not live provider or installed acceptance. Independent review found dangling stage-use references could pass historical projection; a RED/GREEN regression now removes each stage-use receipt and requires explicit reconciliation failure without provider replay or receipt recreation. Historical validation does not renew expiry or require fresh authority. Focused independent re-review cleared that finding.
+- Verification: `cargo test -p arda-engine` (279 passed, 4 ignored), `cargo test -p arda-vaire` (91 passed, 1 ignored), `cargo test -p arda-aule --features full-cli` (393 passed), strict all-target Clippy for these packages, and `cargo check --workspace` passed; ignored tests are not acceptance. Engine tests, Clippy and workspace check were rerun after the review fix. Local logs: `/tmp/arda-stage-context-*-tests.log` and `/tmp/arda-stage-context-reviewed-*.log`.
+- Initial-binding recovery is now fixture-tested: new first claims persist an explicit unbound marker; snapshot binding atomically consumes it before dispatch. The subprocess fixture exits with code 74 before context assembly, then resumes the same run after lease expiry and completes with three fixture-provider invocations. Lost bound snapshots and unknown historical markers fail closed without memory recall/provider execution. Engine tests, strict all-target Engine Clippy and workspace check passed after this edit (`/tmp/arda-prebind-*.log`); independent source review found no defects in this bounded marker implementation. Transaction-internal process exit and reclaim-versus-binding races were not forced by this fixture. [Implementation](../../crates/engine/src/objectives/store.rs) and [crash regressions](../../crates/engine/tests/resident_restart_fixture.rs.inc).
+- Retry-limit recovery has passed focused independent source re-review with no remaining findings in the two repaired boundaries: the [runtime](../../crates/engine/src/objectives/runtime.rs) separates receipt-only reconciliation from ordinary dispatch. [Subprocess regressions](../../crates/engine/tests/resident_restart_fixture.rs.inc) cover completion after the final lease expires, Harness outage followed by successful recovery, and missing canonical run without replanning/provider invocation. Independent review identified reused reconciliation generations and malformed successful GET responses becoming terminal failure; both were reproduced and repaired. [Fencing regressions](../../crates/engine/tests/objective_runtime.rs) cover delayed success/failure after same-owner reclaim and expiry without reclaim. Every claim advances the generation, receipt writes require it, and lease checks use completion time. The [adapter](../../crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs) rejects malformed graphs as retryable errors. Engine tests, serial Aulë full-cli tests, strict Clippy and workspace check pass after these fixes (`/tmp/arda-fenced-recovery-*.log`); the reviewer did not independently rerun tests or assess live acceptance. The earlier parallel Aulë target-lock admission failure passed in isolation and serial execution but remains unresolved; broader interruption and installed acceptance gates remain open.
+- September 8 lock/telemetry follow-up: [Aulë target guards](../../crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs) now explicitly unlock target and read-slot descriptors on drop; the regression retains duplicate descriptors and freshly probes both locks. Independent review supported the Linux open-file-description mechanism, but did not identify the original forked child or establish partial-acquisition cleanup coverage. The separate [telemetry test](../../crates/spine/observability/arda-aule/tests/telemetry_surface.rs) reproduced 54 failures in 200 parallel test processes. Removing OTEL initialization did not eliminate the failure; removing the unsubscribed API smoke emitter did. Its scoped capture subscriber now prevents that test interaction with tracing-core 0.1.36's single-dispatch callsite cache and adds exact span/event count assertions. Existing attribute assertions remain intact. After repair: 300 repeated telemetry runs and four full parallel Aulë suites passed (394 tests each), plus strict Clippy. Independent source review found no blocking issue; this is a fixture repair, not a general tracing-core or collector-delivery fix. Logs: `/tmp/arda-telemetry-repro.log`, `/tmp/arda-telemetry-fixed-aule-{1,2,3,4}.log`, `/tmp/arda-telemetry-fixed-clippy.log`.
+- September 8 intermediate-stage fixture: the [isolated subprocess test](../../crates/engine/tests/resident_restart_fixture.rs.inc) now exits with code 75 after the real Harness commits execute, verify or review and returns success, before Workbench receives that response. The test first failed with the old final-only exit code 73. Fresh Harness/Workbench recovery passes all three boundaries, retaining the run ID, original SQLite context binding and existing stage receipt bytes, with three total fake-Hermes invocations and byte-stable post-close event/use/outcome/close evidence. Independent source review found no blocking issue. This proves durable-stage response-loss recovery and post-close resident scheduling suppression, not interruption inside provider mutation, receipt/checkpoint write gaps or direct HTTP replay. The use-ledger prefix assertion proves preservation, not uniqueness of new stage-use entries. The existing timeout helper kills only its direct child; descendant cleanup on a hung-provider path remains unproven. Engine tests (286 passed, 4 ignored), Vairë tests (91 passed, 1 ignored), strict all-target Engine/Vairë/Aulë Clippy and workspace check passed after this test addition; the reviewer did not independently rerun those checks. Logs: `/tmp/arda-intermediate-{red,green,engine-tests,vaire-tests,clippy,workspace}.log`.
+- September 9 operator decision: retain full recovery snapshots until explicit authenticated operator deletion, with **no automatic expiry**. [Vairë eligibility](../../crates/spine/memory/arda-vaire/src/service/retention.rs) is separate from memory-record decay and execution expiry/revocation. Unfinished recovery evidence remains protected, including cancelled/failed objectives without complete receipt-backed leaves.
+- September 9 retention source slice, not deployed: [Engine control](../../crates/engine/src/objectives/store.rs) and [authenticated private Harness ingress](../../crates/engine/src/harness/operator_messages.rs) implement `arda delete-recovery-context <objective_id> <run_id>`. The immediate transaction requires the exact owner, a terminal objective, all leaves closed against stored receipt digests, no live lease and one exact bound run. It clears only that resident assembly body and retains the request digest, deletion tombstone and control idempotency record. This is logical deletion of the resident snapshot, **not** erasure of RunStore, Vairë records, backups or SQLite forensic remnants. Changed-payload replay fails closed; identical ObjectiveStore replay is idempotent while Oromë retains its existing HTTP 409 duplicate-transport response. The former uncalled marker helper is test-only, not an alternate deletion authority.
+- [Schema and marker regressions](../../crates/engine/src/objectives/migrations.rs) reproduced missing-column migration and incorrect SQL parameter binding before repair. [Workbench regression](../../crates/engine/src/objectives/workbench.rs) rejects marked context before adapter dispatch; [real HTTP fixtures](../../crates/engine/tests/harness_operator_messages.rs) exercise private/capability/owner gates, unfinished and live-leased evidence, target binding, deletion, preserved sibling/receipt data and replay. These are isolated synthetic persisted-state fixtures, not installed or real-provider acceptance. Verification: Engine 289 passed/4 ignored; Vairë 92 passed/1 ignored; Aulë full-cli 394 passed; strict all-target Clippy for all three and workspace check passed (existing vendored GLib warnings remain). Logs: `/tmp/arda-retention-{gateway,engine,vaire,aule,clippy,aule-clippy,workspace}.log`. Focused independent source review found no blocking defect; its unsupported claims that Oromë can restore cleared assemblies and that the controls table emits duplicate-transport 409 were rejected against source/tests. The reviewer did not independently run the gates or assess installed acceptance. No restart, live deletion, commit or push occurred.
+- September 8 read-only installed/topology check: the [monitoring configuration](../../config/monitoring-setup/centralized-monitoring-config.md) explicitly places Grafana/Prometheus on Beelink and forbids a duplicate workstation stack. SSH, model, Grafana health and Prometheus readiness probes to its configured `100.103.125.88` address timed out; remote deployment and OTLP collector placement remain unverified, not diagnosed as broken. User-systemd owns `arda.service`, PID 1827, with supervised Manwë PID 1911. Installed, running and existing release daemon SHA-256 all equal `88a33157832c2a1281442c3acc95e3dc61419874f142733b71aabee8061cb50a`: none contains this recovery work. Read-only ObjectiveStore counts showed 7 cancelled, 7 completed and 1 failed objective, no active objective. No cutover was attempted; candidate qualification, exact rollback validation and installed/live-provider recovery remain open.
+- Installed snapshot-control validation, live provider mutation-count acceptance and qualified deployment remain open. Retry-limit, bounded intermediate-stage recovery and retention controls are source/fixture evidence, not installed acceptance. No service was restarted, no live objective reset, and no commit or push was made. Do not infer full recovery or installed behavior from these checks.
 
-Goal: Retire the legacy global JSONL task queue and make the installed `arda` daemon the durable owner of objective control, scheduling, concurrent execution, restart recovery, and receipt-backed closure.
+## Historical audit boundary — before the uninstalled changes above
 
-Architecture: Add an indexed transactional objective store to `arda-engine`, start one persistent objective runtime inside the existing `arda` daemon, and keep Engine `RunStore` receipts as immutable execution evidence. Hermes ingress and operator projections use the same Engine API; `arda-aule` supplies bounded execution mechanisms but no longer owns scheduling authority.
+- `crates/engine/src/objectives/workbench.rs` derives the run ID from `claim.attempt` and constructs fresh context on execution. The claim path increments attempts; that counter alone is not an original-run binding after recovery.
+- `crates/spine/memory/arda-vaire/src/service/context_capsule.rs` returns the full `ContextAssembly` but persists its use receipt, not the memory projection/capsule body. `context_use_receipt` retrieves that receipt, not the original assembly. Do not reconstruct historical content by recalling current memory.
+- The inspected provider path (`crates/engine/src/harness/runs.rs` and `crates/engine/src/adapters/hermes.rs`) passes the assembly in the request/prompt and binds execution receipts to its ID/digest/use receipt. This is not an identified durable full-assembly recovery API; a redacted worker export is not a canonical replacement.
+- Reject two overbroad audit conclusions: `context_outcome.rs::record_context_outcome` explicitly persists and branches on `Used` versus other dispositions; `runs.rs::validate_durable_context_assembly` already validates expiry, digest, durable use receipt and run/project/consumer bindings. Preserve those checks. Reading completed evidence must not implicitly authorize a fresh provider execution with expired or revoked context.
+- Next implementation must bind run identity and original assembly before dispatch, reuse existing Engine/Vairë authority, retain explicit legacy-data ambiguity, and cover crash-before-dispatch and receipt-before-SQLite-projection with isolated failpoints. Any persisted memory snapshot also needs retention/revocation handling; do not add an unmanaged second memory store. This dependency is unresolved, not a request to reset existing objectives or bypass context validation.
 
-Tech stack: Rust, Tokio, SQLite in WAL mode through `rusqlite`, existing Engine `RunStore`, existing authenticated Harness ingress, existing `arda.hermes_execution_receipt.v4` receipts.
+## Required invariants retained from the cutover contract
 
-## Historical implementation status — 2026-09-02 (superseded above)
+- Indexed objectives/projects/leaves/dependencies/schedules/control idempotency and stage receipts; transactional claims, WAL, foreign keys and compatible migrations.
+- Exact reviewed project, workspace, authority, budget, approval revision and predecessor bindings; no cycles or post-start revision mutation.
+- Persisted leaf-attempt limit (`MAX_OBJECTIVE_ATTEMPTS=5`) enforced during claim after lease expiry, not a daemon lifetime counter or mutation on projection-store open.
+- Claim-returned dependency close receipts cross adapter/Workbench review without substitution; every terminal root binds all required leaf closure evidence.
+- Preserve successful siblings when another leaf fails, terminate/recover within bounds and never detach untracked provider work.
+- Existing retired queue-executor templates/installed units remain retired; no replacement one-shot worker or second daemon. `arda.service` is the sole objective lifecycle owner.
+- No migration of historical JSONL queue records, remote/fleet expansion, unrelated credential/service changes or invented acceptance fixture. Keep canonical RunStore receipts and Vairë memories intact.
 
-Implemented and installed. The resident daemon owns authenticated objective
-creation, controls, indexed scheduling, leases, dependency release, Workbench
-execution, canonical receipt persistence, terminal closure, and restart
-recovery. The dependency contract is verified at each production boundary:
-the store claims a join with every completed predecessor close receipt, the
-adapter preserves those references unchanged, and Workbench loads and
-digest-validates the durable receipt payloads before independent review.
+## Verification and retirement
 
-This cutover is accepted by those general runtime invariants, not by teaching
-one provider to satisfy a synthetic project prompt. Milestone 4's remaining
-human-visible real-project acceptance is tracked separately below and does not
-reopen queue authority.
+Use focused RED/GREEN regressions, then `cargo test -p arda-engine`,
+`cargo test -p arda-aule --features full-cli`, corresponding strict all-target
+Clippy, release daemon/CLI builds, source/install hash verification, and genuine
+installed control/restart/replay checks. Validate active-plan links and inspect
+scoped Git diffs; exclude pre-existing Hermes adapter/HUD edits and runtime data
+from any runtime-only commit. Source tests and successful installation are
+checkpoints, not the complete cutover acceptance verdict.
 
-## Scope decision
-
-The old queue is not migrated. `core/projects/tasks/queue.jsonl` and `core/projects/tasks/schedules.jsonl` are frozen legacy artifacts and are not runtime authority. Queue-specific systemd units are deleted; historical ledgers, receipts, and compatibility readers are retained until a separate archive cleanup can remove them without discarding operator evidence. Git history remains the final historical archive.
-
-Canonical `data/runs/**` execution receipts, cited audit evidence, and Vairë memories are retained. The interrupted legacy objective `operator-task-020fddb7c36065cf` is not promoted into the new store; Milestone 4 uses one fresh authenticated objective created after cutover.
-
-## Target ownership
-
-- `arda` daemon: sole local lifecycle owner of the objective runtime.
-- `arda-engine`: canonical objective, leaf, dependency, lease, schedule, control, and terminal-root state.
-- Engine `RunStore`: immutable run checkpoints and execute/verify/review receipts.
-- `arda-aule`: execution adapter and observability only; no canonical queue or scheduler authority.
-- Hermes/Oromë: authenticated conversational ingress and controls through the Harness.
-- Vairë: context-use and terminal outcome continuity.
-- `core/state/*.json`: read-only projections only.
-
-## Canonical store
-
-Create `data/arda/objectives.sqlite3` with WAL journaling, foreign keys, transactions, and schema migrations owned by `arda-engine`.
-
-Required indexed tables:
-
-1. `objectives`: identity, authenticated source, operator, text, lifecycle state, revision, priority, approval binding, timestamps, terminal receipt digest.
-2. `objective_projects`: exact reviewed project authorities and project contract digests.
-3. `leaves`: leaf identity, objective, project, workspace, authority class, lifecycle stage, attempt, lease owner/expiry, budget, current run ID, terminal receipt digest.
-4. `leaf_dependencies`: explicit DAG edges.
-5. `schedules`: next wake, recurrence, pause/cancel state, and idempotency key.
-6. `stage_receipts`: stage, canonical `arda.hermes_execution_receipt.v4` digest, RunStore path, provider/model, start/end timestamps, and verdict.
-7. `control_actions`: authenticated pause/resume/reprioritize/revise/approve/cancel decisions with single-use idempotency keys.
-
-Every hot-path query is indexed by lifecycle state, wake time, objective ID, project ID, workspace root, and lease expiry. Runtime selection must never deserialize or scan historical receipts.
-
-## Phase 1 — Freeze and specify the replacement
-
-Files:
-- Modify: `docs/plans/autonomous-task-completion/README.md`
-- Modify: `docs/plans/autonomous-task-completion/04-real-multi-project-execution.md`
-- Modify: `docs/plans/autonomous-task-completion/EVIDENCE_HISTORY.md`
-- Modify: `docs/audits/2026-08-30-autonomous-loop-installed-acceptance.md`
-
-Steps:
-1. Record that the JSONL queue is legacy and must not receive new objectives.
-2. Mark the current Milestone 4 legacy attempt abandoned by architecture cutover, not failed by a provider.
-3. Preserve cited RunStore receipts and explicitly exclude queue records from future acceptance authority.
-4. Keep `arda-workbench-queue-executor.timer` disabled during implementation.
-
-Gate: No installed producer may append a new task, control action, continuation, or schedule to the legacy files.
-
-## Phase 2 — Build the Engine objective store with TDD
-
-Files:
-- Create: `crates/engine/src/objectives/mod.rs`
-- Create: `crates/engine/src/objectives/store.rs`
-- Create: `crates/engine/src/objectives/model.rs`
-- Create: `crates/engine/src/objectives/migrations.rs`
-- Create: `crates/engine/tests/objective_store.rs`
-- Modify: `crates/engine/src/lib.rs`
-- Modify: `crates/engine/Cargo.toml`
-- Modify: root `Cargo.toml`
-
-TDD cases:
-1. Atomic authenticated objective creation with two project authorities and dependency-bound leaves.
-2. Duplicate ingress idempotency returns the exact existing objective.
-3. Transactional claim selects only runnable leaves and records a lease without scanning terminal history.
-4. Distinct safe project roots can be leased concurrently; the same physical root cannot.
-5. Expired leases recover after daemon restart without duplicating a completed stage.
-6. Stage transitions require the exact prior canonical receipt digest.
-7. Revision invalidates prior approval and requires a new authenticated approval.
-8. Terminal root can close only when every required leaf carries canonical close evidence.
-
-Gate commands:
-- `cargo test -p arda-engine --test objective_store`
-- `cargo test -p arda-engine`
-
-## Phase 3 — Separate explicit execution from legacy queue claiming
-
-Files:
-- Modify: `crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs`
-- Modify: `crates/spine/observability/arda-aule/src/prometheus/autopilot/mod.rs`
-- Add focused executor tests beside the implementation.
-
-Steps:
-1. Extract an explicit `ExecutionWorkItem` input containing objective, leaf, project, workspace, authority, run, attempt, and expected predecessor receipt.
-2. Make the executor run exactly that supplied work item through execute, verify, independent review, and close.
-3. Return canonical stage receipts to the caller; do not append queue records or select another task internally.
-4. Remove temporary `m4-trace` diagnostics.
-5. Retain structured `join_all`/joined concurrency; no detached provider tasks.
-
-Gate: A supplied work item completes and returns exact receipt lineage without reading `queue.jsonl`.
-
-## Phase 4 — Run objective supervision inside `arda`
-
-Files:
-- Create: `crates/engine/src/objectives/runtime.rs`
-- Create: `crates/engine/tests/objective_runtime.rs`
-- Modify: `src/main.rs`
-- Modify: `crates/engine/src/harness.rs`
-
-Runtime behavior:
-1. Start one `ObjectiveRuntime` alongside the Harness and process supervisor.
-2. Wake through `tokio::sync::Notify` on ingress/control changes and through a bounded timer for scheduled/lease recovery.
-3. Transactionally claim up to configured capacity.
-4. Spawn joined, tracked leaf tasks in a `JoinSet`; persist every stage receipt before advancing.
-5. Apply exact project/workspace mutation exclusion while allowing safe distinct-project reads to overlap.
-6. On shutdown, stop claiming, allow a bounded drain, release or expire leases, and preserve resumable stage state.
-7. On startup, reconcile leases and RunStore receipts before accepting new execution.
-8. Report readiness, active leaves, wake time, and last reconciliation error through Harness health/status.
-
-Gate: Killing and restarting `arda.service` during a leaf resumes from the last canonical stage without duplicate provider execution or root closure.
-
-## Phase 5 — Rewire authenticated ingress and projections
-
-Files:
-- Modify: `crates/engine/src/harness/operator_messages.rs`
-- Modify: `crates/engine/src/operator_projection.rs`
-- Modify: `crates/engine/src/next_action.rs`
-- Modify: corresponding Engine harness/projection tests.
-
-Steps:
-1. Replace `ActiveQueueExecutor`, `TaskQueueAnalyzer`, and `ScheduleLedger` calls with `ObjectiveStore` transactions.
-2. Submit, inspect, pause, resume, reprioritize, revise, approve, reject, and cancel the same canonical objective rows.
-3. Notify the resident runtime after mutations.
-4. Build operator and next-action projections from ObjectiveStore plus RunStore.
-5. Fail closed if the store is unavailable; never fall back to JSONL.
-
-Gate: Repo-wide Engine source has no operational dependency on `core/projects/tasks/queue.jsonl` or `schedules.jsonl`.
-
-## Phase 6 — Installed runtime acceptance
-
-Steps:
-1. Build and install source-current `arda` and `arda-cli`; verify source/install SHA-256 equality.
-2. Restart `arda.service`; confirm the resident objective runtime is ready.
-3. Prove distinct project leaves can execute concurrently while a dependent join remains blocked.
-4. Prove completed predecessor close receipts cross store claim, adapter, and Workbench review boundaries without payload or digest substitution.
-5. Prove exact execute/verify/review/close lineage under `arda.hermes_execution_receipt.v4` and receipt-backed terminal-root closure.
-6. Restart the daemon and prove expired work is reclaimed while completed stages and terminal roots are not duplicated.
-7. Verify the installed service remains healthy and no legacy queue executor unit is loaded.
-
-These are production invariants covered by deterministic store/runtime/adapter
-tests plus installed daemon health and ownership probes. A provider response to
-one hand-shaped fixture is not an architectural gate. Milestone 4 still owns
-the separate human-visible real-project outcome and measured overlap gate.
-
-## Phase 7 — Delete the legacy subsystem
-
-Files/directories retired in this cutover:
-- `config/systemd/arda-workbench-queue-executor.service`
-- `config/systemd/arda-workbench-queue-executor.timer`
-- installer activation of the queue executor; successful installation now
-  disables and removes stale installed copies transactionally.
-
-Deferred archive cleanup:
-- frozen queue/schedule ledgers and their historical receipts;
-- compatibility analyzers/CLI readers still covered by supported tests;
-- generated queue projections and audit artifacts whose provenance must be
-  retained until consumers are removed explicitly.
-
-System actions:
-1. Stop and disable the queue timer/service.
-2. Remove installed unit files and run `systemctl --user daemon-reload`.
-3. Preserve historical runtime files until their remaining consumers are retired and evidence retention is decided.
-4. Verify no running process has a legacy queue file open.
-5. Verify repo-wide operational references are zero; historical audit prose may remain explicitly labeled legacy.
-
-Gate: `arda.service` alone owns objective execution. No queue timer or one-shot executor is installed or loaded, and JSONL state has no objective authority.
-
-## Phase 8 — Final verification, review, and closeout
-
-Commands:
-- `cargo test -p arda-aule --features full-cli`
-- `cargo test -p arda-engine`
-- `cargo clippy -p arda-aule --features full-cli --all-targets -- -D warnings`
-- `cargo clippy -p arda-engine --all-targets -- -D warnings`
-- `cargo build --release -p arda --bin arda`
-- `cargo build --release -p arda-aule --features full-cli --bin arda-cli`
-- installed health, restart, replay, projection, and operator-control checks
-- documentation-link and plan-state validation
-
-Closeout:
-1. Update the four Milestone 4 authority/evidence documents with installed evidence.
-2. Produce the exact intended diff and SHA-256.
-3. Obtain independent approval of those exact bytes/hash.
-4. Stage only approved source/docs/deletions through an isolated index.
-5. Exclude live SQLite data, RunStore output, projections, installed binaries, rollback artifacts, and unrelated dirty files.
-6. Create one focused local commit; do not push.
-
-## Tie to Milestone 5
-
-Milestone 5 begins only after the new runtime closes Milestone 4. It does not build another scheduler. It exercises the same resident objective store and runtime across:
-
-- a new Hermes session;
-- an `arda.service` restart;
-- Vairë context-use before execution;
-- Vairë terminal outcome binding;
-- correction without reconstructing prior context;
-- explicit operator burden acceptance.
-
-The automation build-out closes when Milestone 5 proves continuity and the operator accepts the reduction in management burden. Any defect in scheduling, replay, concurrency, or receipts reopens Milestone 4; any defect limited to memory/session continuity remains in Milestone 5.
-
-## Non-goals
-
-- No migration of the 82k legacy queue records.
-- No second daemon or replacement one-shot worker.
-- No synthetic acceptance fixture.
-- No remote/fleet scheduler expansion.
-- No redesign of provider routing, project contracts, or Vairë beyond what Milestones 4 and 5 require.
+Historical phase instructions remain in Git history and the [evidence index](../audits/autonomous-task-completion-history.md). Retire this active file only after its remaining cutover invariants and installed gates pass; product acceptance continues under the milestone owners.

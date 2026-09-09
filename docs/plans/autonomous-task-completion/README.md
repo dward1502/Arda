@@ -34,7 +34,7 @@ The source/package foundation and bounded installed receipts exist, but current 
 | [4 — Multi-project](04-real-multi-project-execution.md) | Two-project serial joined close | Same-objective overlap and physical workspace alias isolation |
 | [5 — Continuity/acceptance](05-vaire-operator-acceptance.md) | Outcome binding evidence | Live Vairë context-use binding and explicit operator acceptance |
 
-The [cutover plan](../2026-09-01-arda-objective-runtime-cutover.md) is the implementation dependency for these gates, not another acceptance program. The [legacy loop index](../AUTONOMOUS_TASK_COMPLETION_LOOP.md) owns no separate tasks. Provider transport repairs belong to [provider convergence](../PROVIDER_WORKER_CONVERGENCE.md).
+The [cutover plan](../2026-09-01-arda-objective-runtime-cutover.md) is the implementation dependency for these gates, not another acceptance program. The [legacy loop index](../../archive/2026-09-07-autonomous-loop-compatibility-index.md) owns no separate tasks. Provider transport repairs belong to [provider convergence](../PROVIDER_WORKER_CONVERGENCE.md).
 
 ## Execution order
 
@@ -46,11 +46,11 @@ Complete these milestones in order. A milestone closes only through its human-vi
 4. [Real multi-project execution](04-real-multi-project-execution.md)
 5. [Vairë continuity and operator acceptance](05-vaire-operator-acceptance.md)
 
-Implementation and review history is indexed in [Evidence History](EVIDENCE_HISTORY.md). New detailed test output belongs in receipts or audit artifacts, not in this plan.
+Implementation and review history is indexed in [Evidence History](../../audits/autonomous-task-completion-history.md). New detailed test output belongs in receipts or audit artifacts, not in this plan.
 
 ## Canonical authority
 
-- Objective/control/schedule authority: the resident `arda-engine` ObjectiveStore defined by [the active runtime cutover plan](../2026-09-01-arda-objective-runtime-cutover.md). Until that store is installed, objective admission is frozen rather than falling back to legacy files.
+- Objective/control/schedule authority: the resident `arda-engine` ObjectiveStore defined by [the active runtime cutover plan](../2026-09-01-arda-objective-runtime-cutover.md). The store is installed, but source-current recovery/scheduling acceptance remains open; never fall back to legacy files.
 - `core/projects/tasks/queue.jsonl` and `core/projects/tasks/schedules.jsonl` are frozen legacy inputs. They are not acceptance authority and must receive no new objectives, controls, continuations, or schedules.
 - Run/checkpoint authority: Engine `RunStore` and Workbench run graphs
 - Project authority: `data/workbench/projects.json`

@@ -1,0 +1,43 @@
+{
+  "id": "m4-concurrent-workspace-isolation-test",
+  "source_id": "m4-scenario-v1",
+  "ingress_key": "hermes-m4-execution",
+  "operator_id": "mythos",
+  "text": "Demonstrate concurrent execution across two read-only git projects with mutation serialization",
+  "priority": 1,
+  "approved_revision": 1,
+  "state": "Pending",
+  "projects": [
+    "b22c0000-e29b-41d4-a716-446655440002",
+    "c33d0000-e29b-41d4-a716-446655440003"
+  ],
+  "leaves": [
+    {
+      "project_id": "b22c0000-e29b-41d4-a716-446655440002",
+      "task_id": "inspect-human-project-structure",
+      "description": "Read-only inspection of human project git state",
+      "checks": [
+        "git status",
+        "git log --oneline -5"
+      ],
+      "artifacts": [
+        "git-status-output.txt"
+      ]
+    },
+    {
+      "project_id": "c33d0000-e29b-41d4-a716-446655440003",
+      "task_id": "inspect-tool-gate-project-structure",
+      "description": "Read-only inspection of tool-gate project git state",
+      "checks": [
+        "git status",
+        "git log --oneline -5"
+      ],
+      "artifacts": [
+        "git-status-output.txt"
+      ]
+    }
+  ],
+  "dependencies": {
+    "join_at_terminal": true
+  }
+}

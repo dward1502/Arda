@@ -21,6 +21,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
 
+include!("resident_restart_fixture.rs.inc");
+
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 const OBJECTIVE: &str = "Complete the bounded context-bootstrap check using only the governed capsule. Execute `python3 verify-context-bootstrap.py` as the first and only terminal command, then bind test evidence to that exact terminal call. Do not inspect the directory with ls or pwd.";
 
@@ -39,6 +41,16 @@ async fn start(
     Arc<Notify>,
     tokio::task::JoinHandle<()>,
 ) {
+    start_at(root.path()).await
+}
+
+async fn start_at(
+    root: &Path,
+) -> (
+    std::net::SocketAddr,
+    Arc<Notify>,
+    tokio::task::JoinHandle<()>,
+) {
     let shutdown = Arc::new(Notify::new());
     let state = HarnessState {
         harness_addr: DEFAULT_HARNESS_ADDR.into(),
@@ -52,7 +64,7 @@ async fn start(
         warden_scout_url: None,
         warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
         presence_inputs: HarnessPresenceState::default(),
-        workbench_root: root.path().to_path_buf(),
+        workbench_root: root.to_path_buf(),
         operator_id: "operator-0".into(),
     };
     let (bound, handle) = serve(
@@ -182,6 +194,17 @@ session = {
 }
 transcript.write_text(json.dumps(session), encoding="utf-8")
 result={"schema_version":"arda.hermes-job-result.v1","status":"succeeded","summary":"Fresh worker completed the bounded task from governed context.","tool_evidence":[{"tool_call_id":"call-test-1"}],"test_evidence":[{"check_id":"test","tool_call_id":"call-test-1"}],"artifacts":[]}
+node_context = json.loads(prompt.split("Canonical node context follows:\n", 1)[1])
+if node_context["node"]["kind"] == "review":
+    result["summary"] = "VERDICT: APPROVE\nDeterministic fixture review accepted the bounded result."
+    result["test_evidence"] = []
+    receipt_path = root / "data/runs" / node_context["run_id"] / "execution-receipts/verify.json"
+    receipt_text = receipt_path.read_text(encoding="utf-8")
+    session["messages"] = [
+        {"role":"assistant","content":None,"tool_calls":[{"id":"call-test-1","type":"function","function":{"name":"read_file","arguments":json.dumps({"path":str(receipt_path)})}}]},
+        {"role":"tool","tool_call_id":"call-test-1","tool_name":"read_file","content":json.dumps({"content":receipt_text})}
+    ]
+    transcript.write_text(json.dumps(session), encoding="utf-8")
 print(f"session_id: fresh-context-worker-{count}")
 print(json.dumps(result), flush=True)
 "#,

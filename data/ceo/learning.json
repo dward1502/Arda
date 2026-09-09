@@ -61,9 +61,9 @@
       "avg_joules": 0.0
     },
     "prometheus::ops": {
-      "attempts": 12,
-      "successes": 12,
-      "avg_duration_secs": -2257.1666666666665,
+      "attempts": 54,
+      "successes": 54,
+      "avg_duration_secs": -501.59259259259267,
       "avg_joules": 0.0
     },
     "unknown::ops": {

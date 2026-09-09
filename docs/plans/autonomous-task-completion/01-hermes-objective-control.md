@@ -21,15 +21,15 @@ In a normal Hermes conversation, the operator can ask what Arda is doing, see on
 
 ## Existing foundation
 
-- Engine publishes `core/state/operator_projection.json` from canonical queue, schedule, and run state.
+- Engine publishes `core/state/operator_projection.json` from resident ObjectiveStore and RunStore; old queue-shaped evidence is historical.
 - The loopback harness exposes read-only `GET /v1/operator-projection`.
-- Aulë owns canonical pause/resume, reprioritization, objective revision/fresh approval, and cancellation mutations.
+- Engine ObjectiveStore owns canonical pause/resume, reprioritization, pre-execution revision/fresh approval, and cancellation. Aulë is an adapter/projection consumer, not a competing mutation owner.
 
 ## Work
 
 1. Add one typed Hermes-facing objective summary sourced from `OperatorProjection`; do not re-derive queue or run state.
 2. Resolve conversational references to one exact `objective_id` and current `task_id`; ambiguous references must ask one concrete question.
-3. Route each control to the existing Aulë mutation owner.
+3. Route each control through authenticated Harness to Engine ObjectiveStore. Mid-execution revision currently rejects safely; a fresh approved objective is required rather than silently changing running work.
 4. Require an explicit confirmation for consequential reject/cancel/revision actions while allowing read and bounded pause/resume under existing policy.
 5. Return the updated canonical projection after each mutation, including source freshness and any blocker.
 6. Preserve one command receipt linking Hermes session, objective, task, mutation, and resulting canonical record.

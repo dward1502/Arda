@@ -9,14 +9,15 @@ use super::organism_context::OrganismContext;
 use super::scope_policy::{
     self, ConsumerContext, MemoryDomain, PolicyDisposition, PolicyOperation,
 };
-use super::{store, MnemosyneService};
+use super::MnemosyneService;
 use arda_core::contract::{MemoryRecord, MemoryState};
 use arda_core::error::{ArdaError, Result};
+use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::fs::{File, OpenOptions};
+use std::io::{BufRead, BufReader, Write};
 
 pub const CONTEXT_CAPSULE_SCHEMA_VERSION: &str = "arda.organism-context-capsule.v1";
 pub const CONTEXT_USE_RECEIPT_SCHEMA_VERSION: &str = "arda.context-use-receipt.v1";
@@ -127,7 +128,92 @@ impl ContextUseReceipt {
     }
 }
 
+impl ContextAssembly {
+    /// Deterministic stage projection; this alone grants no execution authority.
+    pub fn for_run_stage(&self, stage: &str, purpose: &str, parents: Vec<String>) -> Result<Self> {
+        if !matches!(stage, "execute" | "verify" | "review") {
+            return Err(context_error("unsupported context execution stage"));
+        }
+        self.capsule
+            .validate(self.capsule.context.generated_at_unix_ms)?;
+        if !self.use_receipt.has_valid_digest()?
+            || self.use_receipt.capsule_digest != self.capsule.capsule_digest
+        {
+            return Err(context_error("invalid original context binding"));
+        }
+        let mut derived = self.clone();
+        let context = &mut derived.capsule.context;
+        context.consumer.consumer_id = format!("{}:{stage}", self.use_receipt.consumer_id);
+        context.objective.requested_outcome = purpose.to_owned();
+        context.lineage.parent_receipts = parents;
+        context.evidence_refs.push(self.use_receipt.receipt_ref());
+        derived.capsule.capsule_digest = derived.capsule.computed_digest()?;
+        derived.capsule.capsule_id = format!(
+            "capsule:{}",
+            derived.capsule.capsule_digest.trim_start_matches("sha256:")
+        );
+        derived
+            .capsule
+            .validate(self.capsule.context.generated_at_unix_ms)?;
+        let receipt = &mut derived.use_receipt;
+        receipt.capsule_id = derived.capsule.capsule_id.clone();
+        receipt.capsule_digest = derived.capsule.capsule_digest.clone();
+        receipt.consumer_id = derived.capsule.context.consumer.consumer_id.clone();
+        receipt.purpose = purpose.to_owned();
+        receipt.recorded_at_unix_ms = derived.capsule.context.generated_at_unix_ms;
+        receipt.receipt_id = format!(
+            "context-use:{}",
+            hex_digest(
+                format!(
+                    "{}\0{}\0{}",
+                    receipt.capsule_digest, receipt.consumer_id, receipt.purpose
+                )
+                .as_bytes()
+            )
+        );
+        receipt.receipt_digest = receipt.computed_digest()?;
+        Ok(derived)
+    }
+}
+
 impl MnemosyneService {
+    pub fn bind_run_stage_context(
+        &self,
+        original: &ContextAssembly,
+        stage: &str,
+        purpose: &str,
+        parents: Vec<String>,
+        now_unix_ms: u128,
+    ) -> Result<ContextAssembly> {
+        self.validate_context_assembly_for_execution(original, now_unix_ms)?;
+        let expected = original.for_run_stage(stage, purpose, parents)?;
+        let mut consumer = ConsumerContext::new(
+            &expected.use_receipt.consumer_id,
+            expected.capsule.context.consumer.memory_domains.clone(),
+        );
+        consumer.purpose = Some(purpose.to_owned());
+        consumer.operator_authorized = expected.capsule.context.consumer.operator_authorized;
+        // Resolve current authority without writing first. Never silently replace
+        // the original snapshot if memory changed between these reads.
+        let assembly = self.assemble_context(
+            expected.capsule.context.clone(),
+            &consumer,
+            expected.capsule.context.generated_at_unix_ms,
+            false,
+        )?;
+        if assembly != expected {
+            return Err(context_error(
+                "stage context differs from the original snapshot",
+            ));
+        }
+        if self.persist_context_use_receipt(&expected.use_receipt)? != expected.use_receipt {
+            return Err(context_error(
+                "stage context receipt conflicts with durable binding",
+            ));
+        }
+        Ok(expected)
+    }
+
     /// Assemble one deterministic, purpose-bound capsule from canonical
     /// references and persist an idempotent use receipt.
     pub fn assemble_organism_context(
@@ -135,6 +221,16 @@ impl MnemosyneService {
         context: OrganismContext,
         consumer: &ConsumerContext,
         now_unix_ms: u128,
+    ) -> Result<ContextAssembly> {
+        self.assemble_context(context, consumer, now_unix_ms, true)
+    }
+
+    fn assemble_context(
+        &self,
+        context: OrganismContext,
+        consumer: &ConsumerContext,
+        now_unix_ms: u128,
+        persist: bool,
     ) -> Result<ContextAssembly> {
         context
             .validate()
@@ -229,11 +325,48 @@ impl MnemosyneService {
             expires_at_unix_ms: capsule.context.expires_at_unix_ms,
         };
         receipt.receipt_digest = digest_receipt(&receipt)?;
-        store::append_jsonl(&self.root.join("context_use_receipts.jsonl"), &receipt)?;
+        if persist {
+            receipt = self.persist_context_use_receipt(&receipt)?;
+        }
         Ok(ContextAssembly {
             capsule,
             use_receipt: receipt,
         })
+    }
+
+    /// Validate a supplied assembly before fresh execution, without recording use.
+    pub fn validate_context_assembly_for_execution(
+        &self,
+        assembly: &ContextAssembly,
+        now_unix_ms: u128,
+    ) -> Result<()> {
+        assembly.capsule.validate(now_unix_ms)?;
+        if !assembly.use_receipt.has_valid_digest()?
+            || self
+                .context_use_receipt(&assembly.use_receipt.receipt_id)?
+                .as_ref()
+                != Some(&assembly.use_receipt)
+        {
+            return Err(context_error("context use receipt is not durably bound"));
+        }
+        let mut consumer = ConsumerContext::new(
+            &assembly.use_receipt.consumer_id,
+            assembly.capsule.context.consumer.memory_domains.clone(),
+        );
+        consumer.purpose = Some(assembly.use_receipt.purpose.clone());
+        consumer.operator_authorized = assembly.capsule.context.consumer.operator_authorized;
+        let current = self.assemble_context(
+            assembly.capsule.context.clone(),
+            &consumer,
+            now_unix_ms,
+            false,
+        )?;
+        if current != *assembly {
+            return Err(context_error(
+                "context memory or authority changed since assembly",
+            ));
+        }
+        Ok(())
     }
 
     pub fn context_use_receipt(&self, receipt_id: &str) -> Result<Option<ContextUseReceipt>> {
@@ -248,24 +381,59 @@ impl MnemosyneService {
         if !path.exists() {
             return Ok(Vec::new());
         }
-        let mut receipts = Vec::new();
-        let mut identities = BTreeSet::new();
-        for line in BufReader::new(File::open(&path)?).lines() {
-            let line = line?;
-            if line.trim().is_empty() {
-                continue;
-            }
-            let receipt: ContextUseReceipt = serde_json::from_str(&line)?;
-            if receipt.schema_version != CONTEXT_USE_RECEIPT_SCHEMA_VERSION
-                || digest_receipt(&receipt)? != receipt.receipt_digest
-                || !identities.insert(receipt.receipt_id.clone())
-            {
-                return Err(context_error("invalid context-use receipt ledger"));
-            }
-            receipts.push(receipt);
-        }
-        Ok(receipts)
+        let file = File::open(&path)?;
+        FileExt::lock_shared(&file)?;
+        read_context_use_receipts(&file)
     }
+
+    fn persist_context_use_receipt(
+        &self,
+        receipt: &ContextUseReceipt,
+    ) -> Result<ContextUseReceipt> {
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(self.root.join("context_use_receipts.jsonl"))?;
+        file.lock_exclusive()?;
+        if let Some(existing) = read_context_use_receipts(&file)?
+            .into_iter()
+            .find(|existing| existing.receipt_id == receipt.receipt_id)
+        {
+            let mut comparable = receipt.clone();
+            comparable.recorded_at_unix_ms = existing.recorded_at_unix_ms;
+            comparable.receipt_digest = comparable.computed_digest()?;
+            if comparable != existing {
+                return Err(context_error("context-use receipt identity conflict"));
+            }
+            return Ok(existing);
+        }
+        let mut bytes = serde_json::to_vec(receipt)?;
+        bytes.push(b'\n');
+        file.write_all(&bytes)?;
+        file.sync_all()?;
+        Ok(receipt.clone())
+    }
+}
+
+fn read_context_use_receipts(file: &File) -> Result<Vec<ContextUseReceipt>> {
+    let mut receipts = Vec::new();
+    let mut identities = BTreeSet::new();
+    for line in BufReader::new(file).lines() {
+        let line = line?;
+        if line.trim().is_empty() {
+            continue;
+        }
+        let receipt: ContextUseReceipt = serde_json::from_str(&line)?;
+        if receipt.schema_version != CONTEXT_USE_RECEIPT_SCHEMA_VERSION
+            || digest_receipt(&receipt)? != receipt.receipt_digest
+            || !identities.insert(receipt.receipt_id.clone())
+        {
+            return Err(context_error("invalid context-use receipt ledger"));
+        }
+        receipts.push(receipt);
+    }
+    Ok(receipts)
 }
 
 fn validate_consumer_binding(

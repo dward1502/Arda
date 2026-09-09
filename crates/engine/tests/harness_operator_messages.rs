@@ -127,6 +127,151 @@ fn created_objective_id(response: &Value) -> &str {
 }
 
 #[tokio::test]
+async fn recovery_snapshot_deletion_requires_private_owner_and_closed_evidence() {
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let endpoint = format!("http://{bound}/v1/operator/messages");
+    let path = root.path().join("data/arda/objectives.sqlite3");
+    let _store = ObjectiveStore::open(&path).unwrap();
+    let db = rusqlite::Connection::open(&path).unwrap();
+    // Isolated persisted-state fixture; no provider or live objective is used.
+    db.execute_batch("INSERT INTO objectives VALUES
+        ('objective-delete', 'source-delete', 'ingress-delete', 'payload', 'discord-user-1',
+         'test', 0, 1, 1, 'completed', 'terminal-digest', 0, 0);
+        INSERT INTO leaves (id, objective_id, workspace_root, authority, stage, attempt,
+                            execution_run_id, context_bound, current_receipt_digest, updated_at_ms)
+        VALUES ('leaf-delete', 'objective-delete', '/fixture', 'test', 'complete', 1,
+                'run-delete', 1, 'close-digest', 0);
+        INSERT INTO stage_receipts (leaf_id, stage, contract, digest, run_path, provider, model,
+                                   started_at_ms, completed_at_ms, verdict, recorded_at_ms)
+        VALUES ('leaf-delete', 'close', 'fixture', 'close-digest', 'data/runs/run-delete/close.json',
+                'fixture', 'fixture', 0, 1, 'passed', 1);
+        INSERT INTO resident_context_bindings VALUES
+            ('run-delete', 'request-digest', 'private snapshot', NULL),
+            ('other-run', 'other-digest', 'other snapshot', NULL);").unwrap();
+    let command = "arda delete-recovery-context objective-delete run-delete";
+    let body = gateway_message("delete-snapshot", command);
+    assert_eq!(
+        reqwest::Client::new()
+            .post(&endpoint)
+            .json(&body)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        403
+    );
+    let mut public = body.clone();
+    public["event"]["source"]["chat_type"] = json!("group");
+    assert_eq!(
+        gateway_client()
+            .post(&endpoint)
+            .json(&public)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        403
+    );
+    let mut foreign = body.clone();
+    foreign["operator"]["operator_id"] = json!("other-operator");
+    foreign["event"]["user_id"] = json!("other-operator");
+    assert_eq!(
+        gateway_client()
+            .post(&endpoint)
+            .json(&foreign)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        403
+    );
+    for sql in [
+        "UPDATE objectives SET state = 'running'",
+        "UPDATE objectives SET state = 'cancelled'; UPDATE leaves SET stage = 'cancelled'",
+        "UPDATE objectives SET state = 'failed'; UPDATE leaves SET stage = 'verify'",
+        "UPDATE objectives SET state = 'completed'; UPDATE leaves SET stage = 'complete', current_receipt_digest = 'not-the-close-receipt'",
+        "UPDATE leaves SET current_receipt_digest = 'close-digest'; INSERT INTO leaves (id, objective_id, workspace_root, authority, stage, updated_at_ms) VALUES ('unfinished-sibling', 'objective-delete', '/sibling', 'test', 'verify', 0)",
+        "DELETE FROM leaves WHERE id = 'unfinished-sibling'; UPDATE leaves SET execution_run_id = 'different-run'",
+        "UPDATE leaves SET execution_run_id = 'run-delete', context_bound = NULL",
+        "UPDATE leaves SET context_bound = 1, lease_expires_ms = 9223372036854775807",
+        "UPDATE leaves SET lease_expires_ms = NULL; UPDATE objectives SET operator_id = 'other-operator'",
+    ] {
+        db.execute_batch(sql).unwrap();
+        assert_eq!(gateway_client().post(&endpoint).json(&body).send().await.unwrap().status(), 409, "{sql}");
+        let snapshot: String = db.query_row("SELECT assembly_json FROM resident_context_bindings WHERE run_id = 'run-delete'", [], |row| row.get(0)).unwrap();
+        assert_eq!(snapshot, "private snapshot");
+    }
+    db.execute_batch("UPDATE objectives SET operator_id = 'discord-user-1'")
+        .unwrap();
+    let accepted = gateway_client()
+        .post(&endpoint)
+        .json(&body)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(accepted.status(), 200, "{}", accepted.text().await.unwrap());
+    let read = || {
+        db.query_row(
+        "SELECT assembly_json, deleted_by_operator_ms, request_digest FROM resident_context_bindings WHERE run_id = 'run-delete'",
+        [], |row| Ok((row.get::<_, String>(0)?, row.get::<_, Option<i64>>(1)?, row.get::<_, String>(2)?)),
+    ).unwrap()
+    };
+    let deleted = read();
+    assert_eq!(deleted.0, "");
+    assert!(deleted.1.is_some());
+    assert_eq!(deleted.2, "request-digest");
+    // ObjectiveStore replay is idempotent; Oromë rejects a duplicate transport
+    // event rather than appending a second operator-session record.
+    let replay = gateway_client()
+        .post(&endpoint)
+        .json(&body)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(replay.status(), 409);
+    assert!(replay
+        .text()
+        .await
+        .unwrap()
+        .contains("duplicate transport event"));
+    assert_eq!(read(), deleted);
+    let changed = gateway_message(
+        "delete-snapshot",
+        "arda delete-recovery-context objective-delete other-run",
+    );
+    assert_eq!(
+        gateway_client()
+            .post(&endpoint)
+            .json(&changed)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        409
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT assembly_json FROM resident_context_bindings WHERE run_id = 'other-run'",
+            [],
+            |row| row.get::<_, String>(0)
+        )
+        .unwrap(),
+        "other snapshot"
+    );
+    assert_eq!(
+        db.query_row("SELECT digest FROM stage_receipts", [], |row| row
+            .get::<_, String>(0))
+            .unwrap(),
+        "close-digest"
+    );
+    drop(db);
+    ObjectiveStore::open(&path).unwrap();
+    shutdown.notify_waiters();
+    handle.await.unwrap();
+}
+
+#[tokio::test]
 async fn gateway_capability_is_required_before_operator_ingestion() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_capability_harness(&root).await;

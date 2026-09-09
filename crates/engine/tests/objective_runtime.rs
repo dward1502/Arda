@@ -56,6 +56,219 @@ use std::pin::Pin;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
+struct BlockOneExecutor(RecordingExecutor);
+
+struct DelayedReconciliation {
+    started: Arc<tokio::sync::Notify>,
+    release: Arc<tokio::sync::Notify>,
+    success: bool,
+}
+
+impl LeafExecution for DelayedReconciliation {
+    fn execute(
+        &self,
+        _: arda_engine::objectives::ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<LeafExecutionResult>> + Send>> {
+        panic!("receipt-only recovery must not dispatch")
+    }
+
+    fn reconcile(
+        &self,
+        claim: arda_engine::objectives::ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<LeafExecutionResult>>> + Send>> {
+        let started = self.started.clone();
+        let release = self.release.clone();
+        let success = self.success;
+        Box::pin(async move {
+            started.notify_one();
+            release.notified().await;
+            if success {
+                RecordingExecutor {
+                    active: Arc::new(AtomicUsize::new(0)),
+                    maximum: Arc::new(AtomicUsize::new(0)),
+                    fail_leaf: None,
+                }
+                .execute(claim)
+                .await
+                .map(Some)
+            } else {
+                Ok(None)
+            }
+        })
+    }
+}
+
+#[tokio::test]
+async fn stale_same_owner_reconciliation_cannot_write_success_or_failure() {
+    for (success, reclaim) in [(false, true), (true, true), (false, false), (true, false)] {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("objectives.sqlite3");
+        let store = ObjectiveStore::open(&path).unwrap();
+        let mut input = objective(dir.path());
+        input.leaves.retain(|leaf| leaf.id == "inspect-a");
+        store.create_authenticated_objective(input, 100).unwrap();
+        store
+            .apply_control(
+                "objective-runtime-1",
+                ControlAction::Approve { revision: 1 },
+                "approve",
+                "operator-1",
+                101,
+            )
+            .unwrap();
+        store.claim_runnable("same-owner", 200, 100, 1).unwrap();
+        rusqlite::Connection::open(&path)
+            .unwrap()
+            .execute("UPDATE leaves SET attempt = 5, context_bound = 1", [])
+            .unwrap();
+        let started = Arc::new(tokio::sync::Notify::new());
+        let release = Arc::new(tokio::sync::Notify::new());
+        let mut first = ObjectiveRuntime::new(
+            store,
+            DelayedReconciliation {
+                started: started.clone(),
+                release: release.clone(),
+                success,
+            },
+            "same-owner",
+            1,
+            100,
+        );
+        let first_task = tokio::spawn(async move { first.run_round(301).await });
+        tokio::time::timeout(std::time::Duration::from_secs(2), started.notified())
+            .await
+            .unwrap();
+        let next_task = if reclaim {
+            let next_started = Arc::new(tokio::sync::Notify::new());
+            let mut next = ObjectiveRuntime::new(
+                ObjectiveStore::open(&path).unwrap(),
+                DelayedReconciliation {
+                    started: next_started.clone(),
+                    release: Arc::new(tokio::sync::Notify::new()),
+                    success: true,
+                },
+                "same-owner",
+                1,
+                60_000,
+            );
+            let next_task = tokio::spawn(async move { next.run_round(402).await });
+            tokio::time::timeout(std::time::Duration::from_secs(2), next_started.notified())
+                .await
+                .unwrap();
+            Some(next_task)
+        } else {
+            tokio::time::sleep(std::time::Duration::from_millis(120)).await;
+            None
+        };
+        release.notify_one();
+        let _ = tokio::time::timeout(std::time::Duration::from_secs(2), first_task)
+            .await
+            .unwrap()
+            .unwrap();
+        if let Some(next_task) = next_task {
+            next_task.abort();
+            assert!(next_task.await.unwrap_err().is_cancelled());
+        }
+        let observed = ObjectiveStore::open(&path).unwrap();
+        assert_eq!(
+            observed
+                .objective("objective-runtime-1")
+                .unwrap()
+                .unwrap()
+                .state,
+            ObjectiveState::Running,
+            "stale failure must not finalize a reclaimed objective"
+        );
+        assert_eq!(
+            observed.leaf("inspect-a").unwrap().unwrap().stage,
+            LeafStage::Execute,
+            "stale success must not advance the new generation"
+        );
+    }
+}
+
+impl LeafExecution for BlockOneExecutor {
+    fn execute(
+        &self,
+        claim: arda_engine::objectives::ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<LeafExecutionResult>> + Send>> {
+        if claim.leaf_id == "inspect-a" {
+            Box::pin(std::future::pending())
+        } else {
+            self.0.execute(claim)
+        }
+    }
+}
+
+#[tokio::test]
+async fn finished_sibling_is_durable_before_a_pending_round_is_interrupted() {
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let database = dir.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&database).unwrap();
+    store
+        .create_authenticated_objective(objective(dir.path()), 100)
+        .unwrap();
+    store
+        .apply_control(
+            "objective-runtime-1",
+            ControlAction::Approve { revision: 1 },
+            "approve-runtime-1",
+            "operator-1",
+            101,
+        )
+        .unwrap();
+    let mut runtime = ObjectiveRuntime::new(
+        store,
+        BlockOneExecutor(RecordingExecutor {
+            active: Arc::new(AtomicUsize::new(0)),
+            maximum: Arc::new(AtomicUsize::new(0)),
+            fail_leaf: None,
+        }),
+        "interrupted-runtime",
+        4,
+        60_000,
+    );
+    let task = tokio::spawn(async move { runtime.run_round(200).await });
+    let observer = ObjectiveStore::open(&database).unwrap();
+    let persisted = tokio::time::timeout(std::time::Duration::from_secs(2), async {
+        loop {
+            if observer.leaf("inspect-b").unwrap().unwrap().stage == LeafStage::Complete {
+                break;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .is_ok();
+    assert!(
+        !task.is_finished(),
+        "the other leaf should still be pending"
+    );
+    task.abort();
+    assert!(task.await.unwrap_err().is_cancelled());
+    assert!(
+        persisted,
+        "a finished sibling must persist before the whole round completes"
+    );
+    drop(observer);
+    let reopened = ObjectiveStore::open(&database).unwrap();
+    assert_eq!(
+        reopened.leaf("inspect-b").unwrap().unwrap().stage,
+        LeafStage::Complete
+    );
+    let recovered = reopened
+        .claim_runnable("recovered-runtime", 60_201, 60_000, 4)
+        .unwrap();
+    assert_eq!(recovered.len(), 1);
+    assert_eq!(
+        recovered[0].leaf_id, "inspect-a",
+        "completed work must not be reclaimed"
+    );
+}
+
 #[derive(Clone)]
 struct RecordingExecutor {
     active: Arc<AtomicUsize>,

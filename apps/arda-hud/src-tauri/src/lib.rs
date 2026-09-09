@@ -3015,6 +3015,13 @@ pub fn run() {
         .manage(PtyCaptureState::default())
         .manage(mirromere::MirromereInteractionReceiptState::default())
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            #[cfg(unix)]
+            if let Err(error) = commands::monitor_surface::presentation_socket::start(app.handle().clone()) {
+                eprintln!("HUD presentation adapter unavailable: {error}");
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,
             attach_project_contract,

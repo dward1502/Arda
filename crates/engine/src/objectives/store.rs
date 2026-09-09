@@ -32,6 +32,98 @@ impl ObjectiveStore {
         Ok(store)
     }
 
+    pub(crate) fn resident_context(
+        &self,
+        run_id: &str,
+        request_digest: &str,
+    ) -> Result<Option<arda_vaire::ContextAssembly>> {
+        let row: Option<(String, String, Option<i64>)> = self
+            .connection()?
+            .query_row(
+                "SELECT request_digest, assembly_json, deleted_by_operator_ms
+             FROM resident_context_bindings WHERE run_id = ?1",
+                [run_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()?;
+        row.map(|(digest, json, deleted_at)| {
+            if digest != request_digest {
+                bail!("resident run binding conflicts with claimed authority");
+            }
+            if deleted_at.is_some() {
+                bail!("resident context deleted by operator; reconciliation required");
+            }
+            Ok(serde_json::from_str(&json)?)
+        })
+        .transpose()
+    }
+
+    /// Records a deny-reuse marker only; does not erase recovery evidence.
+    /// Test-only marker fixture; production deletion goes through apply_control.
+    #[cfg(test)]
+    pub(crate) fn resident_context_deleted_by_operator(&self, run_id: &str) -> Result<()> {
+        let now_ms = i64::try_from(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .context("get current time")?
+                .as_millis(),
+        )
+        .context("operator marker timestamp overflow")?;
+        let changed = self.connection()?.execute(
+            "UPDATE resident_context_bindings
+             SET deleted_by_operator_ms = COALESCE(deleted_by_operator_ms, ?1) WHERE run_id = ?2",
+            params![now_ms, run_id],
+        )?;
+        if changed != 1 {
+            bail!("cannot mark missing resident context binding");
+        }
+        Ok(())
+    }
+
+    pub(crate) fn can_prepare_resident_context(&self, claim: &ClaimedLeaf) -> Result<bool> {
+        Ok(self.connection()?.query_row(
+            "SELECT EXISTS(SELECT 1 FROM leaves WHERE id = ?1 AND execution_run_id = ?2
+             AND lease_owner = ?3 AND attempt = ?4 AND context_bound = 0)",
+            params![
+                claim.leaf_id,
+                claim.execution_run_id,
+                claim.lease_owner,
+                claim.attempt
+            ],
+            |row| row.get(0),
+        )?)
+    }
+
+    pub(crate) fn bind_resident_context(
+        &self,
+        claim: &ClaimedLeaf,
+        request_digest: &str,
+        assembly: &arda_vaire::ContextAssembly,
+    ) -> Result<arda_vaire::ContextAssembly> {
+        let run_id = claim
+            .execution_run_id
+            .as_deref()
+            .context("missing execution identity")?;
+        let mut connection = self.connection()?;
+        let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let changed = transaction.execute(
+            "UPDATE leaves SET context_bound = 1 WHERE id = ?1 AND execution_run_id = ?2
+             AND lease_owner = ?3 AND attempt = ?4 AND context_bound = 0",
+            params![claim.leaf_id, run_id, claim.lease_owner, claim.attempt],
+        )?;
+        if changed != 1 {
+            bail!("context preparation no longer owns an unbound claim; reconciliation required");
+        }
+        transaction.execute(
+            "INSERT INTO resident_context_bindings(run_id, request_digest, assembly_json, deleted_by_operator_ms)
+             VALUES (?1, ?2, ?3, NULL) ON CONFLICT(run_id) DO NOTHING",
+            params![run_id, request_digest, serde_json::to_string(assembly)?],
+        )?;
+        transaction.commit()?;
+        self.resident_context(run_id, request_digest)?
+            .context("resident context binding disappeared")
+    }
+
     pub fn create_authenticated_objective(
         &self,
         objective: NewObjective,
@@ -251,6 +343,43 @@ impl ObjectiveStore {
         }
 
         match &action {
+            ControlAction::DeleteRecoveryContext { run_id } => {
+                let terminal = matches!(
+                    current.state,
+                    ObjectiveState::Completed | ObjectiveState::Cancelled | ObjectiveState::Failed
+                );
+                let (all_closed, live_lease): (bool, bool) = transaction.query_row(
+                    "SELECT NOT EXISTS (
+                        SELECT 1 FROM leaves l WHERE l.objective_id = ?1
+                        AND (l.stage != 'complete' OR NOT EXISTS (
+                            SELECT 1 FROM stage_receipts r WHERE r.leaf_id = l.id
+                            AND r.stage = 'close' AND r.digest = l.current_receipt_digest))
+                     ), EXISTS (SELECT 1 FROM leaves WHERE objective_id = ?1 AND lease_expires_ms > ?2)",
+                    params![objective_id, now_ms], |row| Ok((row.get(0)?, row.get(1)?)),
+                )?;
+                if !arda_vaire::service::retention::recovery_snapshot_deletion_allowed(
+                    terminal, all_closed, live_lease,
+                ) {
+                    bail!("unfinished recovery evidence is protected from deletion");
+                }
+                let target_count: i64 = transaction.query_row(
+                    "SELECT COUNT(*) FROM leaves WHERE objective_id = ?1 AND execution_run_id = ?2
+                     AND context_bound = 1",
+                    params![objective_id, run_id],
+                    |row| row.get(0),
+                )?;
+                if target_count != 1 {
+                    bail!("recovery deletion requires one exact bound objective run");
+                }
+                let changed = transaction.execute(
+                    "UPDATE resident_context_bindings SET assembly_json = '',
+                     deleted_by_operator_ms = COALESCE(deleted_by_operator_ms, ?1) WHERE run_id = ?2",
+                    params![now_ms, run_id],
+                )?;
+                if changed != 1 {
+                    bail!("recovery context binding is missing");
+                }
+            }
             ControlAction::Approve { revision } => {
                 if *revision != current.revision {
                     bail!(
@@ -396,6 +525,46 @@ impl ObjectiveStore {
         lease_duration_ms: i64,
         capacity: usize,
     ) -> Result<Vec<ClaimedLeaf>> {
+        self.claim_leaves(lease_owner, now_ms, lease_duration_ms, capacity, false)
+    }
+
+    pub(crate) fn claim_reconciliation(
+        &self,
+        lease_owner: &str,
+        now_ms: i64,
+        lease_duration_ms: i64,
+        capacity: usize,
+    ) -> Result<Vec<ClaimedLeaf>> {
+        self.claim_leaves(lease_owner, now_ms, lease_duration_ms, capacity, true)
+    }
+
+    pub(crate) fn fail_reconciliation(&self, claim: &ClaimedLeaf, now_ms: i64) -> Result<()> {
+        self.connection()?.execute(
+            "UPDATE objectives SET state = 'failed', updated_at_ms = ?1
+             WHERE id = ?2 AND state IN ('approved', 'running')
+             AND EXISTS (SELECT 1 FROM leaves WHERE id = ?3 AND lease_owner = ?4
+                         AND attempt = ?5 AND execution_run_id = ?6
+                         AND lease_expires_ms > ?1)",
+            params![
+                now_ms,
+                claim.objective_id,
+                claim.leaf_id,
+                claim.lease_owner,
+                claim.attempt,
+                claim.execution_run_id
+            ],
+        )?;
+        Ok(())
+    }
+
+    fn claim_leaves(
+        &self,
+        lease_owner: &str,
+        now_ms: i64,
+        lease_duration_ms: i64,
+        capacity: usize,
+        reconciliation_only: bool,
+    ) -> Result<Vec<ClaimedLeaf>> {
         if lease_owner.trim().is_empty() {
             bail!("lease owner must not be empty");
         }
@@ -419,18 +588,45 @@ impl ObjectiveStore {
                    SELECT 1 FROM leaves l WHERE l.objective_id = objectives.id
                      AND l.stage NOT IN ('complete', 'cancelled', 'failed')
                      AND l.attempt >= ?2
+                     AND (COALESCE(l.context_bound, 0) != 1 OR l.execution_run_id IS NULL)
                      AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?1)
                )",
             params![now_ms, MAX_LEAF_ATTEMPTS],
         )?;
         let candidate_limit = capacity.saturating_mul(8).saturating_add(32) as i64;
-        let candidates = {
+
+        // Resolve live leases inside the same immediate transaction as admission.
+        // Stored contract spelling is preserved; aliases are not separate capacity.
+        let mut occupied_roots = {
             let mut statement = transaction.prepare(
-                "SELECT l.id
+                "SELECT workspace_root FROM leaves WHERE lease_expires_ms > ?1
+                 AND stage IN ('execute', 'verify', 'review', 'close')",
+            )?;
+            let roots = statement
+                .query_map([now_ms], |row| row.get::<_, String>(0))?
+                .collect::<rusqlite::Result<Vec<_>>>()?;
+            roots
+                .iter()
+                .map(|root| physical_workspace_root(root))
+                .collect::<Result<Vec<_>>>()?
+        };
+        let expires_ms = now_ms
+            .checked_add(lease_duration_ms)
+            .ok_or_else(|| anyhow!("lease expiry overflow"))?;
+        let mut claimed = Vec::new();
+        // Keyset pages bound temporary memory without letting blocked aliases at
+        // the head of the queue permanently hide eligible independent work.
+        let mut cursor: Option<(String, i64, i64, String)> = None;
+        while claimed.len() < capacity {
+            let candidates = {
+                let mut statement = transaction.prepare(
+                    "SELECT l.id, o.priority, o.created_at_ms, o.id
                  FROM leaves l
                  JOIN objectives o ON o.id = l.objective_id
                  WHERE o.state IN (?1, ?2)
-                   AND l.attempt < ?10
+                   AND ((?15 = 0 AND l.attempt < ?10)
+                     OR (?15 = 1 AND l.attempt >= ?10 AND l.context_bound = 1
+                         AND l.execution_run_id IS NOT NULL))
                    AND l.stage IN (?3, ?4, ?5, ?6)
                    AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?7)
                    AND NOT EXISTS (
@@ -445,41 +641,73 @@ impl ObjectiveStore {
                          AND active.lease_expires_ms > ?7
                          AND active.stage IN (?3, ?4, ?5, ?6)
                    )
+                 AND (?11 IS NULL OR o.priority < ?11
+                      OR (o.priority = ?11 AND (o.created_at_ms, o.id, l.id) > (?12, ?13, ?14)))
                  ORDER BY o.priority DESC, o.created_at_ms, o.id, l.id
                  LIMIT ?9",
-            )?;
-            let rows = statement.query_map(
-                params![
-                    ObjectiveState::Approved.as_str(),
-                    ObjectiveState::Running.as_str(),
-                    LeafStage::Execute.as_str(),
-                    LeafStage::Verify.as_str(),
-                    LeafStage::Review.as_str(),
-                    LeafStage::Close.as_str(),
-                    now_ms,
-                    LeafStage::Complete.as_str(),
-                    candidate_limit,
-                    MAX_LEAF_ATTEMPTS,
-                ],
-                |row| row.get::<_, String>(0),
-            )?;
-            rows.collect::<rusqlite::Result<Vec<_>>>()?
-        };
-
-        let expires_ms = now_ms
-            .checked_add(lease_duration_ms)
-            .ok_or_else(|| anyhow!("lease expiry overflow"))?;
-        let mut claimed = Vec::new();
-        for leaf_id in candidates {
-            if claimed.len() == capacity {
+                )?;
+                let rows = statement.query_map(
+                    params![
+                        ObjectiveState::Approved.as_str(),
+                        ObjectiveState::Running.as_str(),
+                        LeafStage::Execute.as_str(),
+                        LeafStage::Verify.as_str(),
+                        LeafStage::Review.as_str(),
+                        LeafStage::Close.as_str(),
+                        now_ms,
+                        LeafStage::Complete.as_str(),
+                        candidate_limit,
+                        MAX_LEAF_ATTEMPTS,
+                        cursor.as_ref().map(|c| c.1),
+                        cursor.as_ref().map(|c| c.2),
+                        cursor.as_ref().map(|c| c.3.as_str()),
+                        cursor.as_ref().map(|c| c.0.as_str()),
+                        reconciliation_only,
+                    ],
+                    |row| {
+                        Ok((
+                            row.get::<_, String>(0)?,
+                            row.get::<_, i64>(1)?,
+                            row.get::<_, i64>(2)?,
+                            row.get::<_, String>(3)?,
+                        ))
+                    },
+                )?;
+                rows.collect::<rusqlite::Result<Vec<_>>>()?
+            };
+            if candidates.is_empty() {
                 break;
             }
-            let changed = transaction.execute(
-                "UPDATE leaves AS target
-                 SET lease_owner = ?1, lease_expires_ms = ?2, attempt = attempt + 1,
+            cursor = candidates.last().cloned();
+            for (leaf_id, _, _, _) in candidates {
+                if claimed.len() == capacity {
+                    break;
+                }
+                let workspace: String = transaction.query_row(
+                    "SELECT workspace_root FROM leaves WHERE id = ?1",
+                    [&leaf_id],
+                    |row| row.get(0),
+                )?;
+                let physical_root = physical_workspace_root(&workspace)?;
+                if occupied_roots
+                    .iter()
+                    .any(|root| physical_root.starts_with(root) || root.starts_with(&physical_root))
+                {
+                    continue;
+                }
+                let changed = transaction.execute(
+                    "UPDATE leaves AS target
+                 SET lease_owner = ?1, lease_expires_ms = ?2,
+                     execution_run_id = CASE WHEN attempt = 0 THEN
+                         'objective-' || objective_id || '-leaf-' || id || '-attempt-1'
+                         ELSE execution_run_id END,
+                     context_bound = CASE WHEN attempt = 0 THEN 0 ELSE context_bound END,
+                     attempt = attempt + 1,
                      updated_at_ms = ?3
                  WHERE id = ?4
-                   AND attempt < ?9
+                   AND ((?10 = 0 AND attempt < ?9)
+                     OR (?10 = 1 AND attempt >= ?9 AND context_bound = 1
+                         AND execution_run_id IS NOT NULL))
                    AND (lease_owner IS NULL OR lease_expires_ms <= ?3)
                    AND NOT EXISTS (
                        SELECT 1 FROM leaves active
@@ -488,28 +716,30 @@ impl ObjectiveStore {
                          AND active.lease_expires_ms > ?3
                          AND active.stage IN (?5, ?6, ?7, ?8)
                    )",
-                params![
-                    lease_owner,
-                    expires_ms,
-                    now_ms,
-                    leaf_id,
-                    LeafStage::Execute.as_str(),
-                    LeafStage::Verify.as_str(),
-                    LeafStage::Review.as_str(),
-                    LeafStage::Close.as_str(),
-                    MAX_LEAF_ATTEMPTS,
-                ],
-            )?;
-            if changed == 0 {
-                continue;
-            }
-            let mut claim = transaction.query_row(
+                    params![
+                        lease_owner,
+                        expires_ms,
+                        now_ms,
+                        leaf_id,
+                        LeafStage::Execute.as_str(),
+                        LeafStage::Verify.as_str(),
+                        LeafStage::Review.as_str(),
+                        LeafStage::Close.as_str(),
+                        MAX_LEAF_ATTEMPTS,
+                        reconciliation_only,
+                    ],
+                )?;
+                if changed == 0 {
+                    continue;
+                }
+                occupied_roots.push(physical_root);
+                let mut claim = transaction.query_row(
                 "SELECT objective_id, id, project_id, workspace_root, authority, stage, attempt,
                         current_receipt_digest,
                         (SELECT contract_digest FROM objective_projects p
                          WHERE p.objective_id = leaves.objective_id
                            AND p.project_id = leaves.project_id),
-                        execution_json
+                        execution_json, execution_run_id
                  FROM leaves WHERE id = ?1",
                 [&leaf_id],
                 |row| {
@@ -527,13 +757,14 @@ impl ObjectiveStore {
                         current_receipt_digest: row.get(7)?,
                         project_contract_digest: row.get(8)?,
                         execution: parse_execution_spec(row.get(9)?)?,
+                        execution_run_id: row.get(10)?,
                         dependency_receipts: Vec::new(),
                     })
                 },
             )?;
-            claim.dependency_receipts = {
-                let mut statement = transaction.prepare(
-                    "SELECT r.contract, r.digest, r.predecessor_digest, r.run_path, r.provider,
+                claim.dependency_receipts = {
+                    let mut statement = transaction.prepare(
+                        "SELECT r.contract, r.digest, r.predecessor_digest, r.run_path, r.provider,
                             r.model, r.started_at_ms, r.completed_at_ms, r.verdict,
                             r.context_outcome_receipt_id, r.context_outcome_receipt_digest,
                             r.binding_digest
@@ -541,38 +772,41 @@ impl ObjectiveStore {
                      JOIN stage_receipts r ON r.leaf_id = d.dependency_leaf_id
                      WHERE d.leaf_id = ?1 AND r.stage = ?2
                      ORDER BY d.dependency_leaf_id",
-                )?;
-                let rows =
-                    statement.query_map(params![leaf_id, ReceiptStage::Close.as_str()], |row| {
-                        Ok(StageReceipt {
-                            contract: row.get(0)?,
-                            stage: ReceiptStage::Close,
-                            digest: row.get(1)?,
-                            predecessor_digest: row.get(2)?,
-                            run_path: row.get(3)?,
-                            provider: row.get(4)?,
-                            model: row.get(5)?,
-                            started_at_ms: row.get(6)?,
-                            completed_at_ms: row.get(7)?,
-                            verdict: row.get(8)?,
-                            context_outcome_receipt_id: row.get(9)?,
-                            context_outcome_receipt_digest: row.get(10)?,
-                            binding_digest: row.get(11)?,
-                        })
-                    })?;
-                rows.collect::<rusqlite::Result<Vec<_>>>()?
-            };
-            transaction.execute(
-                "UPDATE objectives SET state = ?1, updated_at_ms = ?2
+                    )?;
+                    let rows = statement.query_map(
+                        params![leaf_id, ReceiptStage::Close.as_str()],
+                        |row| {
+                            Ok(StageReceipt {
+                                contract: row.get(0)?,
+                                stage: ReceiptStage::Close,
+                                digest: row.get(1)?,
+                                predecessor_digest: row.get(2)?,
+                                run_path: row.get(3)?,
+                                provider: row.get(4)?,
+                                model: row.get(5)?,
+                                started_at_ms: row.get(6)?,
+                                completed_at_ms: row.get(7)?,
+                                verdict: row.get(8)?,
+                                context_outcome_receipt_id: row.get(9)?,
+                                context_outcome_receipt_digest: row.get(10)?,
+                                binding_digest: row.get(11)?,
+                            })
+                        },
+                    )?;
+                    rows.collect::<rusqlite::Result<Vec<_>>>()?
+                };
+                transaction.execute(
+                    "UPDATE objectives SET state = ?1, updated_at_ms = ?2
                  WHERE id = ?3 AND state = ?4",
-                params![
-                    ObjectiveState::Running.as_str(),
-                    now_ms,
-                    claim.objective_id,
-                    ObjectiveState::Approved.as_str()
-                ],
-            )?;
-            claimed.push(claim);
+                    params![
+                        ObjectiveState::Running.as_str(),
+                        now_ms,
+                        claim.objective_id,
+                        ObjectiveState::Approved.as_str()
+                    ],
+                )?;
+                claimed.push(claim);
+            }
         }
         transaction.commit().context("commit objective claims")?;
         Ok(claimed)
@@ -582,6 +816,7 @@ impl ObjectiveStore {
         &self,
         leaf_id: &str,
         lease_owner: &str,
+        attempt: i64,
         receipt: StageReceipt,
         now_ms: i64,
     ) -> Result<()> {
@@ -623,7 +858,7 @@ impl ObjectiveStore {
 
         let leaf = transaction
             .query_row(
-                "SELECT stage, lease_owner, lease_expires_ms, current_receipt_digest
+                "SELECT stage, lease_owner, lease_expires_ms, current_receipt_digest, attempt
                  FROM leaves WHERE id = ?1",
                 [leaf_id],
                 |row| {
@@ -632,6 +867,7 @@ impl ObjectiveStore {
                         row.get::<_, Option<String>>(1)?,
                         row.get::<_, Option<i64>>(2)?,
                         row.get::<_, Option<String>>(3)?,
+                        row.get::<_, i64>(4)?,
                     ))
                 },
             )
@@ -640,7 +876,10 @@ impl ObjectiveStore {
         if leaf.0 != receipt.stage.leaf_stage() {
             bail!("receipt stage does not match current leaf stage");
         }
-        if leaf.1.as_deref() != Some(lease_owner) || leaf.2.is_none_or(|expiry| expiry < now_ms) {
+        if leaf.1.as_deref() != Some(lease_owner)
+            || leaf.2.is_none_or(|expiry| expiry <= now_ms)
+            || leaf.4 != attempt
+        {
             bail!("receipt writer does not hold the active leaf lease");
         }
         if receipt.predecessor_digest != leaf.3 {
@@ -932,6 +1171,39 @@ fn validate_objective(objective: &NewObjective) -> Result<()> {
     Ok(())
 }
 
+// Resolve existing ancestors too: a not-yet-created workspace below a symlink
+// must not evade exclusion. Never collapse `..` before resolving symlinks.
+fn physical_workspace_root(root: &str) -> Result<PathBuf> {
+    // Workbench resolves legacy relative roots against the daemon working
+    // directory as well. Preserve that compatibility, not a database-parent guess.
+    let mut path = std::path::absolute(root).context("resolve workspace base directory")?;
+    let mut missing = Vec::new();
+    loop {
+        match path.canonicalize() {
+            Ok(mut resolved) => {
+                for component in missing.iter().rev() {
+                    resolved.push(component);
+                }
+                return Ok(resolved);
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                // A dangling link is not an absent ordinary directory.
+                if std::fs::symlink_metadata(&path).is_ok() {
+                    return Err(error).context("resolve workspace symlink");
+                }
+                let Some(Component::Normal(name)) = path.components().next_back() else {
+                    bail!("cannot resolve workspace root safely: {root}");
+                };
+                missing.push(name.to_os_string());
+                if !path.pop() {
+                    bail!("cannot resolve workspace root: {root}");
+                }
+            }
+            Err(error) => return Err(error).context("resolve physical workspace root"),
+        }
+    }
+}
+
 fn validate_sha256(value: &str, name: &str) -> Result<()> {
     let Some(hex) = value.strip_prefix("sha256:") else {
         bail!("{name} must use the sha256:<lowercase-hex> form");
@@ -1123,4 +1395,65 @@ fn invalid_enum(kind: &str, value: &str) -> rusqlite::Error {
         rusqlite::types::Type::Text,
         format!("invalid {kind} {value}").into(),
     )
+}
+
+#[cfg(test)]
+mod resident_marker_tests {
+    use super::*;
+
+    #[test]
+    fn operator_marker_targets_one_run_preserves_evidence_and_is_idempotent() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("objectives.sqlite3");
+        let store = ObjectiveStore::open(&path).unwrap();
+        store.connection().unwrap().execute_batch(
+            "INSERT INTO resident_context_bindings VALUES ('run-1', 'digest-1', 'original-1', NULL);
+             INSERT INTO resident_context_bindings VALUES ('run-2', 'digest-2', 'original-2', NULL);",
+        ).unwrap();
+        store.resident_context_deleted_by_operator("run-1").unwrap();
+        let read = || {
+            let connection = store.connection().unwrap();
+            let mut query = connection
+                .prepare(
+                    "SELECT run_id, request_digest, assembly_json, deleted_by_operator_ms
+                 FROM resident_context_bindings ORDER BY run_id",
+                )
+                .unwrap();
+            query
+                .query_map([], |row| {
+                    Ok((
+                        row.get::<_, String>(0)?,
+                        row.get::<_, String>(1)?,
+                        row.get::<_, String>(2)?,
+                        row.get::<_, Option<i64>>(3)?,
+                    ))
+                })
+                .unwrap()
+                .collect::<rusqlite::Result<Vec<_>>>()
+                .unwrap()
+        };
+        let marked = read();
+        assert_eq!(
+            (&marked[0].0, &marked[0].1, &marked[0].2),
+            (&"run-1".into(), &"digest-1".into(), &"original-1".into())
+        );
+        assert!(marked[0].3.is_some_and(|timestamp| timestamp > 0));
+        assert_eq!(
+            marked[1],
+            ("run-2".into(), "digest-2".into(), "original-2".into(), None)
+        );
+        std::thread::sleep(Duration::from_millis(5));
+        store.resident_context_deleted_by_operator("run-1").unwrap();
+        assert_eq!(read(), marked);
+        assert!(store
+            .resident_context_deleted_by_operator("unknown")
+            .is_err());
+        assert_eq!(read(), marked);
+        let reopened = ObjectiveStore::open(&path).unwrap();
+        let error = reopened.resident_context("run-1", "digest-1").unwrap_err();
+        assert!(
+            error.to_string().contains("deleted by operator"),
+            "{error:#}"
+        );
+    }
 }

@@ -24,6 +24,13 @@ use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 
 pub trait ExplicitWorkbenchExecution: Send + Sync {
+    fn reconcile_explicit<'a>(
+        &'a self,
+        _item: &'a ExplicitWorkbenchWorkItem,
+    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
+        Box::pin(async { Ok(None) })
+    }
+
     fn execute_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
@@ -31,6 +38,13 @@ pub trait ExplicitWorkbenchExecution: Send + Sync {
 }
 
 impl ExplicitWorkbenchExecution for WorkbenchExecutionAdapter {
+    fn reconcile_explicit<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
+        Box::pin(async move { self.reconcile(item).await })
+    }
+
     fn execute_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
@@ -67,6 +81,27 @@ where
     E: ExplicitWorkbenchExecution + Clone + 'static,
 {
     fn execute(&self, claim: ClaimedLeaf) -> BoxFuture<'static, Result<LeafExecutionResult>> {
+        let execution = self.run_claim(claim, false);
+        Box::pin(async move { execution.await?.context("execution returned no outcome") })
+    }
+
+    fn reconcile(
+        &self,
+        claim: ClaimedLeaf,
+    ) -> BoxFuture<'static, Result<Option<LeafExecutionResult>>> {
+        self.run_claim(claim, true)
+    }
+}
+
+impl<E> WorkbenchLeafExecution<E>
+where
+    E: ExplicitWorkbenchExecution + Clone + 'static,
+{
+    fn run_claim(
+        &self,
+        claim: ClaimedLeaf,
+        reconciliation_only: bool,
+    ) -> BoxFuture<'static, Result<Option<LeafExecutionResult>>> {
         let root = self.root.clone();
         let adapter = self.adapter.clone();
         Box::pin(async move {
@@ -83,12 +118,51 @@ where
                         claim.leaf_id
                     )
                 })?;
-            let run_id = format!(
-                "objective-{}-leaf-{}-attempt-{}",
-                claim.objective_id, claim.leaf_id, claim.attempt
+            let run_id = claim.execution_run_id.clone().ok_or_else(||
+                anyhow!("legacy claimed leaf `{}` has no durable execution identity; reconciliation required", claim.leaf_id)
+            )?;
+            let request_digest = format!(
+                "sha256:{:x}",
+                Sha256::digest(serde_json::to_vec(&json!({
+                    "objective_id": claim.objective_id, "leaf_id": claim.leaf_id,
+                    "project_id": project_id, "project_contract_digest": project_contract_digest,
+                    "workspace_root": claim.workspace_root, "authority": claim.authority,
+                    "execution": execution, "dependencies": claim.dependency_receipts,
+                }))?)
             );
-            let (memory, context_assembly) =
-                assemble_resident_context(&root, &claim, &run_id, execution, project_id)?;
+            let store =
+                super::store::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))?;
+            let memory = MnemosyneService::new(root.join("data/vaire"))?
+                .with_contract_memory_root(root.join("core/state/memory"));
+            let context_assembly = match store.resident_context(&run_id, &request_digest)? {
+                Some(assembly) => assembly,
+                None => {
+                    // Only an explicit unbound marker permits initial assembly.
+                    // Binding the snapshot atomically consumes that marker before
+                    // dispatch, so snapshot loss never looks like new work.
+                    if reconciliation_only || !store.can_prepare_resident_context(&claim)? {
+                        bail!("missing original context for reclaimed run `{run_id}`; reconciliation required");
+                    }
+                    let (_, assembly) =
+                        assemble_resident_context(&root, &claim, &run_id, execution, project_id)?;
+                    store.bind_resident_context(&claim, &request_digest, &assembly)?
+                }
+            };
+            // Historical integrity is not fresh execution authorization. The harness
+            // retains its current-time context checks before dispatching a provider.
+            context_assembly
+                .capsule
+                .validate(context_assembly.capsule.context.generated_at_unix_ms)?;
+            if memory
+                .context_use_receipt(&context_assembly.use_receipt.receipt_id)?
+                .as_ref()
+                != Some(&context_assembly.use_receipt)
+                || context_assembly.use_receipt.run_id.as_deref() != Some(run_id.as_str())
+                || context_assembly.use_receipt.capsule_digest
+                    != context_assembly.capsule.capsule_digest
+            {
+                bail!("resident context does not match durable Vaire authority");
+            }
             let item = ExplicitWorkbenchWorkItem {
                 objective_id: claim.objective_id.clone(),
                 leaf_id: claim.leaf_id.clone(),
@@ -113,7 +187,14 @@ where
                     .collect(),
                 context_assembly: Some(context_assembly.clone()),
             };
-            let outcome = adapter.execute_explicit(&item).await?;
+            let outcome = if reconciliation_only {
+                match adapter.reconcile_explicit(&item).await? {
+                    Some(outcome) => outcome,
+                    None => return Ok(None),
+                }
+            } else {
+                adapter.execute_explicit(&item).await?
+            };
             if outcome.run_id != run_id {
                 bail!(
                     "explicit Workbench outcome run `{}` did not match claimed run `{run_id}`",
@@ -126,13 +207,8 @@ where
                     outcome.status
                 );
             }
-            let mut receipts = project_receipts(
-                &root,
-                &run_id,
-                project_contract_digest,
-                &context_assembly,
-                &outcome,
-            )?;
+            let mut receipts =
+                project_receipts(&root, &run_id, project_contract_digest, &item, &outcome)?;
             let context_outcome = record_resident_context_outcome(
                 &root,
                 &memory,
@@ -147,7 +223,7 @@ where
                     Some(context_outcome.receipt_digest.clone());
                 receipt.binding_digest = Some(receipt.computed_binding_digest()?);
             }
-            Ok(LeafExecutionResult { receipts })
+            Ok(Some(LeafExecutionResult { receipts }))
         })
     }
 }
@@ -161,7 +237,9 @@ fn assemble_resident_context(
 ) -> Result<(MnemosyneService, ContextAssembly)> {
     let service = MnemosyneService::new(root.join("data/vaire"))?
         .with_contract_memory_root(root.join("core/state/memory"));
-    let approval_id = execution.approval_envelope["approval"]["approval_id"].as_str().unwrap_or("");
+    let approval_id = execution.approval_envelope["approval"]["approval_id"]
+        .as_str()
+        .unwrap_or("");
     let consumer_id = format!("arda.resident-objective:{run_id}");
     let mut consumer = ConsumerContext::new(&consumer_id, vec![MemoryDomain::System]);
     consumer.purpose = Some(execution.execution_prompt.clone());
@@ -401,7 +479,7 @@ fn project_receipts(
     root: &Path,
     run_id: &str,
     project_contract_digest: &str,
-    context: &ContextAssembly,
+    item: &ExplicitWorkbenchWorkItem,
     outcome: &ExplicitExecutionOutcome,
 ) -> Result<Vec<StageReceipt>> {
     let expected_stages = [
@@ -417,6 +495,8 @@ fn project_receipts(
         );
     }
     let canonical_root = root.canonicalize().context("canonicalize Arda root")?;
+    let memory = MnemosyneService::new(root.join("data/vaire"))?
+        .with_contract_memory_root(root.join("core/state/memory"));
     let mut predecessor = None;
     let mut projected = Vec::with_capacity(expected_stages.len());
     for (reference, (expected_name, stage)) in outcome.receipts.iter().zip(expected_stages) {
@@ -477,7 +557,19 @@ fn project_receipts(
             }
             _ => {}
         }
+        let context = item
+            .stage_context(root, expected_name, receipt.parent_receipts.clone())?
+            .context("resident stage context missing")?;
         let expected_context_ref = context.use_receipt.receipt_ref();
+        // Historical evidence requires its original durable binding, not renewed
+        // execution permission. Do not recreate missing receipts during recovery.
+        if memory
+            .context_use_receipt(&context.use_receipt.receipt_id)?
+            .as_ref()
+            != Some(&context.use_receipt)
+        {
+            bail!("explicit Workbench {expected_name} durable stage context is missing or conflicts; reconciliation required");
+        }
         if receipt.context_capsule_id.as_deref() != Some(context.capsule.capsule_id.as_str())
             || receipt.context_capsule_digest.as_deref()
                 != Some(context.capsule.capsule_digest.as_str())
@@ -545,6 +637,7 @@ mod tests {
 
     #[derive(Clone)]
     struct RecordingWorkbench {
+        root: PathBuf,
         outcome: ExplicitExecutionOutcome,
         item: Arc<Mutex<Option<ExplicitWorkbenchWorkItem>>>,
     }
@@ -555,14 +648,28 @@ mod tests {
             item: &'a ExplicitWorkbenchWorkItem,
         ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
             let mut outcome = self.outcome.clone();
+            let root = self.root.clone();
             let recorded = Arc::clone(&self.item);
             Box::pin(async move {
-                let context = item.context_assembly.as_ref().unwrap();
                 let mut predecessor = Some(format!("sha256:{}", "f".repeat(64)));
                 for reference in &mut outcome.receipts {
                     let mut receipt: HermesExecutionReceipt =
                         serde_json::from_slice(&std::fs::read(&reference.path).unwrap()).unwrap();
                     receipt.parent_receipts = predecessor.iter().cloned().collect();
+                    let context = item
+                        .stage_context(&root, &reference.stage, receipt.parent_receipts.clone())?
+                        .unwrap();
+                    if reference.stage != "close" {
+                        let memory = MnemosyneService::new(root.join("data/vaire"))?
+                            .with_contract_memory_root(root.join("core/state/memory"));
+                        memory.bind_run_stage_context(
+                            item.context_assembly.as_ref().unwrap(),
+                            &reference.stage,
+                            &context.use_receipt.purpose,
+                            receipt.parent_receipts.clone(),
+                            Utc::now().timestamp_millis().max(0) as u128,
+                        )?;
+                    }
                     receipt.context_capsule_id = Some(context.capsule.capsule_id.clone());
                     receipt.context_capsule_digest = Some(context.capsule.capsule_digest.clone());
                     receipt.context_use_receipt_ref = Some(context.use_receipt.receipt_ref());
@@ -649,10 +756,17 @@ mod tests {
                 path: path.display().to_string(),
             });
         }
+        let dependency_path = root
+            .path()
+            .join("data/runs/dependency/execution-receipts/close.json");
+        std::fs::create_dir_all(dependency_path.parent().unwrap()).unwrap();
+        std::fs::copy(&references.last().unwrap().path, &dependency_path).unwrap();
+        let dependency_digest = references.last().unwrap().digest.clone();
         let recorded = Arc::new(Mutex::new(None));
         let executor = WorkbenchLeafExecution::with_adapter(
             root.path(),
             RecordingWorkbench {
+                root: root.path().to_owned(),
                 outcome: ExplicitExecutionOutcome {
                     run_id: run_id.into(),
                     status: "succeeded".into(),
@@ -663,6 +777,7 @@ mod tests {
             },
         );
         let claim = ClaimedLeaf {
+            execution_run_id: Some("objective-objective-1-leaf-leaf-1-attempt-1".into()),
             objective_id: "objective-1".into(),
             leaf_id: "leaf-1".into(),
             project_id: Some("project-1".into()),
@@ -691,7 +806,7 @@ mod tests {
             dependency_receipts: vec![StageReceipt {
                 contract: "arda.hermes_execution_receipt.v4".into(),
                 stage: ReceiptStage::Close,
-                digest: format!("sha256:{}", "d".repeat(64)),
+                digest: dependency_digest,
                 predecessor_digest: Some(format!("sha256:{}", "e".repeat(64))),
                 run_path: "data/runs/dependency/execution-receipts/close.json".into(),
                 provider: "provider-dependency".into(),
@@ -705,6 +820,49 @@ mod tests {
             }],
         };
 
+        let store = super::super::store::ObjectiveStore::open(
+            root.path().join("data/arda/objectives.sqlite3"),
+        )
+        .unwrap();
+        store
+            .create_authenticated_objective(
+                crate::objectives::NewObjective {
+                    id: claim.objective_id.clone(),
+                    source_id: "context-mapping".into(),
+                    idempotency_key: "context-mapping".into(),
+                    operator_id: "operator".into(),
+                    text: "inspect the exact project".into(),
+                    priority: 0,
+                    projects: vec![crate::objectives::ProjectAuthority {
+                        project_id: claim.project_id.clone().unwrap(),
+                        contract_digest: project_digest.clone(),
+                    }],
+                    leaves: vec![crate::objectives::NewLeaf {
+                        id: claim.leaf_id.clone(),
+                        project_id: claim.project_id.clone(),
+                        workspace_root: claim.workspace_root.clone(),
+                        authority: claim.authority.clone(),
+                        dependencies: vec![],
+                        execution: claim.execution.clone(),
+                    }],
+                },
+                0,
+            )
+            .unwrap();
+        store
+            .apply_control(
+                &claim.objective_id,
+                crate::objectives::ControlAction::Approve { revision: 1 },
+                "approve-mapping",
+                "operator",
+                0,
+            )
+            .unwrap();
+        let admitted = store
+            .claim_runnable("runtime", 0, 1000, 1)
+            .unwrap()
+            .remove(0);
+        assert_eq!(admitted.execution_run_id, claim.execution_run_id);
         let followup_claim = claim.clone();
         let followup_execution = claim.execution.clone().unwrap();
         let result = executor.execute(claim).await.unwrap();
@@ -745,6 +903,38 @@ mod tests {
                 && receipt.binding_digest.as_deref()
                     == Some(receipt.computed_binding_digest().unwrap().as_str())
         }));
+        let mut reclaimed = followup_claim.clone();
+        reclaimed.attempt = 2;
+        let replayed = executor.execute(reclaimed).await.unwrap();
+        assert_eq!(
+            replayed.receipts, result.receipts,
+            "reclaim must preserve original context/outcome bindings"
+        );
+        assert_eq!(service.context_outcome_receipts().unwrap().len(), 1);
+        let mut conflicting = followup_claim.clone();
+        conflicting
+            .execution
+            .as_mut()
+            .unwrap()
+            .review_prompt
+            .push_str(" changed authority");
+        assert!(executor
+            .execute(conflicting)
+            .await
+            .unwrap_err()
+            .to_string()
+            .contains("conflicts"));
+        let mut legacy = followup_claim.clone();
+        legacy.execution_run_id = None;
+        assert!(executor
+            .execute(legacy)
+            .await
+            .unwrap_err()
+            .to_string()
+            .contains("reconciliation required"));
+        assert_eq!(service.context_outcome_receipts().unwrap().len(), 1);
+        let replay_item = recorded.lock().unwrap().clone().unwrap();
+        assert_eq!(replay_item.context_assembly.as_ref(), Some(&assembly));
         let (_, followup) = assemble_resident_context(
             root.path(),
             &followup_claim,
@@ -759,6 +949,31 @@ mod tests {
         assert!(followup.capsule.memories[0]
             .content
             .contains("close=close completed"));
+        let connection =
+            rusqlite::Connection::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
+        store.resident_context_deleted_by_operator(run_id).unwrap();
+        *recorded.lock().unwrap() = None;
+        let error = executor.execute(followup_claim.clone()).await.unwrap_err();
+        assert!(
+            error.to_string().contains("deleted by operator"),
+            "{error:#}"
+        );
+        assert!(
+            recorded.lock().unwrap().is_none(),
+            "marked context must not reach the adapter"
+        );
+        assert_eq!(service.context_outcome_receipts().unwrap(), outcomes);
+        connection
+            .execute("DELETE FROM resident_context_bindings", [])
+            .unwrap();
+        let mut missing_binding = followup_claim.clone();
+        missing_binding.attempt = 2;
+        let error = executor.execute(missing_binding).await.unwrap_err();
+        assert!(
+            error.to_string().contains("missing original context"),
+            "unexpected error: {error:#}"
+        );
+        assert_eq!(service.context_outcome_receipts().unwrap().len(), 1);
         let mut sibling_claim = followup_claim;
         sibling_claim.leaf_id = "leaf-2".into();
         sibling_claim.project_id = Some("project-2".into());

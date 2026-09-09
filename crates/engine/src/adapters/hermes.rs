@@ -403,6 +403,14 @@ impl HermesAdapter {
                 environment.insert(key.clone(), value.clone());
             }
         }
+        // PATH is required for hermes to resolve subcommands and shared
+        // libraries.  Without it the child process hangs silently when
+        // invoked via env_clear().
+        if !environment.contains_key("PATH") {
+            if let Some(path) = host_environment.get("PATH") {
+                environment.insert("PATH".to_owned(), path.clone());
+            }
+        }
         Ok(Self {
             config,
             executable,

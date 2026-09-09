@@ -87,6 +87,28 @@ pub struct ExplicitWorkbenchWorkItem {
     pub context_assembly: Option<ContextAssembly>,
 }
 
+impl ExplicitWorkbenchWorkItem {
+    /// Recompute a stage binding without recalling memory or granting authority.
+    pub fn stage_context(
+        &self,
+        root: &Path,
+        stage: &str,
+        parents: Vec<String>,
+    ) -> Result<Option<ContextAssembly>> {
+        let Some(original) = &self.context_assembly else {
+            return Ok(None);
+        };
+        let purpose = match stage {
+            "execute" => self.execution_prompt.clone(),
+            "verify" => self.verification_prompt.clone(),
+            "review" => review_prompt_with_dependency_receipts(root, self)?,
+            "close" => return Ok(Some(original.clone())),
+            _ => bail!("unsupported explicit Workbench context stage"),
+        };
+        Ok(Some(original.for_run_stage(stage, &purpose, parents)?))
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ExplicitReceiptReference {
     pub stage: String,
@@ -127,6 +149,60 @@ impl WorkbenchExecutionAdapter {
                 .timeout(std::time::Duration::from_secs(60))
                 .build()?,
         })
+    }
+
+    /// Read an already completed run. No planning, approval, binding or provider POST.
+    pub async fn reconcile(
+        &self,
+        item: &ExplicitWorkbenchWorkItem,
+    ) -> Result<Option<ExplicitExecutionOutcome>> {
+        validate_explicit_work_item(&self.root, item)?;
+        let response = self
+            .client
+            .get(format!("{}/v1/runs/{}", self.harness_url, item.run_id))
+            .send()
+            .await
+            .context("inspect completed explicit Workbench run")?;
+        if response.status() == reqwest::StatusCode::NOT_FOUND {
+            return Ok(None);
+        }
+        let run = response_error(response, "inspect completed explicit Workbench run").await?;
+        let nodes = run
+            .pointer("/graph/nodes")
+            .and_then(Value::as_array)
+            .ok_or_else(|| anyhow!("malformed canonical run graph nodes"))?;
+        for stage in ["execute", "verify", "review", "close"] {
+            let mut matches = nodes
+                .iter()
+                .filter(|node| node.get("id").and_then(Value::as_str) == Some(stage));
+            let node = matches
+                .next()
+                .ok_or_else(|| anyhow!("canonical run missing stage {stage}"))?;
+            if matches.next().is_some() {
+                return Err(anyhow!("canonical run duplicates stage {stage}"));
+            }
+            let state = node
+                .get("state")
+                .cloned()
+                .ok_or_else(|| anyhow!("canonical run missing state for {stage}"))?;
+            serde_json::from_value::<arda_core::run_graph::NodeState>(state)
+                .with_context(|| format!("malformed canonical run state for {stage}"))?;
+        }
+        if ["execute", "verify", "review", "close"]
+            .iter()
+            .any(|stage| node_state(&run, stage) == Some("running"))
+        {
+            return Err(anyhow!(
+                "canonical run is still running; defer receipt reconciliation"
+            ));
+        }
+        if ["execute", "verify", "review", "close"]
+            .iter()
+            .any(|stage| node_state(&run, stage) != Some("succeeded"))
+        {
+            return Ok(None);
+        }
+        explicit_outcome_from_run(&self.root, item, &run).map(Some)
     }
 
     pub async fn execute(
@@ -193,6 +269,7 @@ impl WorkbenchExecutionAdapter {
             if node_state(&run, stage) == Some("succeeded") {
                 continue;
             }
+            let context = bind_explicit_stage_context(&self.root, item, &run, stage)?;
             let response = self
                 .client
                 .post(format!(
@@ -202,7 +279,7 @@ impl WorkbenchExecutionAdapter {
                 .json(&json!({
                     "objective": prompt,
                     "envelope": explicit_stage_envelope(item, stage)?,
-                    "context_assembly": item.context_assembly,
+                    "context_assembly": context,
                 }))
                 .send()
                 .await
@@ -226,6 +303,7 @@ impl WorkbenchExecutionAdapter {
 
         if node_state(&run, "review") != Some("succeeded") {
             let review_prompt = review_prompt_with_dependency_receipts(&self.root, item)?;
+            let context = bind_explicit_stage_context(&self.root, item, &run, "review")?;
             let response = self
                 .client
                 .post(format!(
@@ -235,7 +313,7 @@ impl WorkbenchExecutionAdapter {
                 .json(&json!({
                     "objective": review_prompt,
                     "envelope": explicit_stage_envelope(item, "review")?,
-                    "context_assembly": item.context_assembly,
+                    "context_assembly": context,
                 }))
                 .send()
                 .await
@@ -289,6 +367,36 @@ impl WorkbenchExecutionAdapter {
         }
         explicit_outcome_from_run(&self.root, item, &run)
     }
+}
+
+fn bind_explicit_stage_context(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+    run: &Value,
+    stage: &str,
+) -> Result<Option<ContextAssembly>> {
+    let Some(original) = &item.context_assembly else {
+        return Ok(None);
+    };
+    let parents: Vec<String> = serde_json::from_value(
+        run["graph"]["nodes"]
+            .as_array()
+            .and_then(|nodes| nodes.iter().find(|node| node["id"] == stage))
+            .ok_or_else(|| anyhow!("explicit run omitted {stage} node"))?["parent_receipts"]
+            .clone(),
+    )?;
+    let expected = item
+        .stage_context(root, stage, parents.clone())?
+        .context("stage context missing")?;
+    let memory = MnemosyneService::new(root.join("data/vaire"))?
+        .with_contract_memory_root(root.join("core/state/memory"));
+    Ok(Some(memory.bind_run_stage_context(
+        original,
+        stage,
+        &expected.use_receipt.purpose,
+        parents,
+        Utc::now().timestamp_millis().max(0) as u128,
+    )?))
 }
 
 async fn wait_for_explicit_stage(
@@ -1374,6 +1482,18 @@ fn acquire_objective_advance_lock(root: &Path) -> Result<File> {
 struct ExecutionTargetLocks {
     _files: Vec<File>,
     binding: ExecutionTargetBinding,
+}
+
+impl Drop for ExecutionTargetLocks {
+    fn drop(&mut self) {
+        // Closing alone leaves flock held while a concurrently forked child
+        // retains the open file description before exec. Release ownership now.
+        for file in &self._files {
+            if let Err(error) = FileExt::unlock(file) {
+                tracing::warn!(%error, "release execution target lock");
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -3716,6 +3836,19 @@ mod tests {
         };
         let close_receipt = canonical_explicit_close_receipt(&item, &digest('d')).unwrap();
         persist_explicit_close_receipt(dir.path(), &item, &close_receipt).unwrap();
+        for corrupt in [
+            json!({}),
+            json!({"graph": {"nodes": []}}),
+            json!({"graph": {"nodes": [{"id": "execute"}]}}),
+        ] {
+            let (url, server) = scripted_harness(vec![Some((200, corrupt.to_string()))]).await;
+            let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), url).unwrap();
+            assert!(
+                adapter.reconcile(&item).await.is_err(),
+                "malformed successful GET must remain retryable"
+            );
+            assert_eq!(server.await.unwrap().len(), 1);
+        }
         let (harness_url, server) = scripted_harness(vec![Some((
             200,
             json!({
@@ -4335,6 +4468,53 @@ mod tests {
             "-m",
             "fixture baseline",
         ]);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn execution_target_guard_releases_lock_with_duplicated_descriptor() {
+        let dir = tempfile::tempdir().unwrap();
+        let project = "550e8400-e29b-41d4-a716-446655440001";
+        write_execution_project_registry(dir.path(), &[(project, "worktrees/duplicate")]);
+        let task = execution_target_task_with_authority("duplicate", project, "read_only");
+        let locks = try_acquire_execution_target_locks(dir.path(), &task)
+            .unwrap()
+            .unwrap();
+        // A concurrent fork can retain the same open file description until exec.
+        // Duplicating descriptors models that lifetime without forking a test runtime.
+        let duplicates: Vec<_> = locks
+            ._files
+            .iter()
+            .map(|file| file.try_clone().unwrap())
+            .collect();
+        drop(locks);
+        let lock_dir = dir
+            .path()
+            .join("core/projects/tasks/.workbench-executor-locks");
+        let mut probed = 0;
+        for entry in std::fs::read_dir(lock_dir).unwrap() {
+            let file = OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(entry.unwrap().path())
+                .unwrap();
+            FileExt::try_lock_exclusive(&file).expect(
+                "both target and read-slot locks must release while duplicates remain alive",
+            );
+            FileExt::unlock(&file).unwrap();
+            probed += 1;
+        }
+        assert_eq!(probed, 2, "probe the target and its occupied read slot");
+        let mutation =
+            execution_target_task_with_authority("mutation", project, "execute_with_approval");
+        let binding = resolve_execution_target(dir.path(), &mutation).unwrap();
+        assert!(
+            try_acquire_execution_target_locks_for_binding(dir.path(), binding)
+                .unwrap()
+                .is_some(),
+            "guard release must not wait for inherited descriptors to close"
+        );
+        drop(duplicates);
     }
 
     #[test]

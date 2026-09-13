@@ -9,27 +9,104 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 use std::path::{Component, Path, PathBuf};
+use std::sync::{Arc, Mutex, OnceLock, Weak};
 use std::time::Duration;
+use tokio::sync::watch;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ObjectiveStore {
     path: PathBuf,
+    changes: Arc<watch::Sender<()>>,
+    pub(super) snapshot_admission: Option<Arc<dyn super::snapshots::SnapshotAdmission>>,
 }
+
+impl std::fmt::Debug for ObjectiveStore {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("ObjectiveStore")
+            .field("path", &self.path)
+            .field("snapshot_admission", &self.snapshot_admission.is_some())
+            .finish_non_exhaustive()
+    }
+}
+
+// Store instances opened by HTTP ingress and the resident loop share a wakeup.
+// SQLite remains authoritative; cross-process writes use bounded fallback polls.
+type StoreWakeups = Mutex<HashMap<PathBuf, Weak<watch::Sender<()>>>>;
+static STORE_WAKEUPS: OnceLock<StoreWakeups> = OnceLock::new();
 
 const MAX_LEAF_ATTEMPTS: i64 = MAX_OBJECTIVE_ATTEMPTS;
 pub const MAX_OBJECTIVE_ATTEMPTS: i64 = 5;
 
 impl ObjectiveStore {
+    pub fn with_snapshot_admission(
+        mut self,
+        keeper: Arc<dyn super::snapshots::SnapshotAdmission>,
+    ) -> Self {
+        self.snapshot_admission = Some(keeper);
+        self
+    }
+
+    pub fn execution_workspace_identity(&self, run_id: &str) -> Result<Option<String>> {
+        let identity: Option<Option<String>> = self.connection()?.query_row(
+            "SELECT i.identity_json FROM leaves l LEFT JOIN lease_workspace_identities i ON i.leaf_id = l.id WHERE l.execution_run_id = ?1",
+            [run_id], |row| row.get(0),
+        ).optional()?;
+        match identity {
+            Some(None) => bail!("resident execution workspace identity is unknown"),
+            Some(Some(identity)) => Ok(Some(identity)),
+            None => Ok(None),
+        }
+    }
+
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref().to_path_buf();
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
                 .with_context(|| format!("create ObjectiveStore directory {}", parent.display()))?;
         }
-        let store = Self { path };
+        let mut store = Self {
+            path,
+            changes: Arc::new(watch::channel(()).0),
+            snapshot_admission: None,
+        };
         let connection = store.connection()?;
         migrations::apply(&connection)?;
+        store.path = std::fs::canonicalize(&store.path).context("resolve ObjectiveStore path")?;
+        let mut wakeups = STORE_WAKEUPS
+            .get_or_init(Default::default)
+            .lock()
+            .map_err(|_| anyhow!("objective wake registry poisoned"))?;
+        wakeups.retain(|_, sender| sender.strong_count() > 0);
+        if let Some(sender) = wakeups.get(&store.path).and_then(Weak::upgrade) {
+            store.changes = sender;
+        } else {
+            wakeups.insert(store.path.clone(), Arc::downgrade(&store.changes));
+        }
         Ok(store)
+    }
+
+    pub(crate) fn subscribe_changes(&self) -> watch::Receiver<()> {
+        self.changes.subscribe()
+    }
+
+    /// Unfinished prior attempts in schedulable objectives, including live
+    /// leases and unbound legacy attempts. An empty claim batch cannot prove
+    /// these have been reconciled. This is observation, not admission authority.
+    pub(crate) fn pending_recovery(&self) -> Result<u64> {
+        self.connection()?
+            .query_row(
+                "SELECT COUNT(*) FROM leaves l JOIN objectives o ON o.id = l.objective_id
+             WHERE o.state IN ('approved', 'running') AND l.attempt > 0
+               AND l.stage NOT IN ('complete', 'cancelled', 'failed')",
+                [],
+                |row| row.get(0),
+            )
+            .context("count unresolved resident attempts")
+    }
+
+    fn notify_change(&self) {
+        self.changes.send_replace(());
     }
 
     pub(crate) fn resident_context(
@@ -234,6 +311,7 @@ impl ObjectiveStore {
         let record = objective_in(&transaction, &objective.id)?
             .ok_or_else(|| anyhow!("created objective disappeared"))?;
         transaction.commit().context("commit objective creation")?;
+        self.notify_change();
         Ok(record)
     }
 
@@ -515,6 +593,7 @@ impl ObjectiveStore {
         let updated = objective_in(&transaction, objective_id)?
             .ok_or_else(|| anyhow!("controlled objective disappeared"))?;
         transaction.commit().context("commit objective control")?;
+        self.notify_change();
         Ok(updated)
     }
 
@@ -565,6 +644,30 @@ impl ObjectiveStore {
         capacity: usize,
         reconciliation_only: bool,
     ) -> Result<Vec<ClaimedLeaf>> {
+        self.reconcile_snapshot_commits()?;
+        let claimed = self.claim_leaves_with_topology(
+            lease_owner,
+            now_ms,
+            lease_duration_ms,
+            capacity,
+            reconciliation_only,
+            read_workspace_topology,
+        )?;
+        // Persist before external commit. Lost acknowledgements leave an intent
+        // for exact-capability reconciliation, never an executable claim return.
+        self.reconcile_snapshot_commits()?;
+        Ok(claimed)
+    }
+
+    fn claim_leaves_with_topology(
+        &self,
+        lease_owner: &str,
+        now_ms: i64,
+        lease_duration_ms: i64,
+        capacity: usize,
+        reconciliation_only: bool,
+        mut read_topology: impl FnMut() -> Result<Vec<u8>>,
+    ) -> Result<Vec<ClaimedLeaf>> {
         if lease_owner.trim().is_empty() {
             bail!("lease owner must not be empty");
         }
@@ -579,6 +682,8 @@ impl ObjectiveStore {
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .context("begin objective claim")?;
+        super::snapshots::check_policy(&transaction, self.snapshot_admission.is_some())?;
+        super::scheduling::consume_due(&transaction, now_ms)?;
         // Retry exhaustion belongs to the resident claim transaction, not store
         // opening (operator projections open this store too). Preserve live leases.
         transaction.execute(
@@ -593,21 +698,51 @@ impl ObjectiveStore {
                )",
             params![now_ms, MAX_LEAF_ATTEMPTS],
         )?;
+        // An empty eligible recovery batch is not proof that recovery is done:
+        // a previous worker may still own a live receipt-only recovery lease.
+        // Check under the admission transaction so fresh callers cannot race it.
+        if !reconciliation_only {
+            let pending: bool = transaction.query_row(
+                "SELECT EXISTS(SELECT 1 FROM leaves l JOIN objectives o ON o.id = l.objective_id
+                 WHERE o.state IN ('approved', 'running')
+                   AND l.stage NOT IN ('complete', 'cancelled', 'failed')
+                   AND l.attempt >= ?1 AND l.context_bound = 1
+                   AND l.execution_run_id IS NOT NULL)",
+                [MAX_LEAF_ATTEMPTS],
+                |row| row.get(0),
+            )?;
+            if pending {
+                transaction.commit()?;
+                return Ok(Vec::new());
+            }
+        }
         let candidate_limit = capacity.saturating_mul(8).saturating_add(32) as i64;
 
         // Resolve live leases inside the same immediate transaction as admission.
         // Stored contract spelling is preserved; aliases are not separate capacity.
+        let topology = read_topology()?;
         let mut occupied_roots = {
             let mut statement = transaction.prepare(
-                "SELECT workspace_root FROM leaves WHERE lease_expires_ms > ?1
-                 AND stage IN ('execute', 'verify', 'review', 'close')",
+                "SELECT l.workspace_root, i.identity_json FROM leaves l
+                 LEFT JOIN lease_workspace_identities i ON i.leaf_id = l.id
+                 WHERE l.lease_expires_ms > ?1
+                 AND l.stage IN ('execute', 'verify', 'review', 'close')",
             )?;
             let roots = statement
-                .query_map([now_ms], |row| row.get::<_, String>(0))?
+                .query_map([now_ms], |row| {
+                    Ok((row.get::<_, String>(0)?, row.get::<_, Option<String>>(1)?))
+                })?
                 .collect::<rusqlite::Result<Vec<_>>>()?;
             roots
                 .iter()
-                .map(|root| physical_workspace_root(root))
+                .map(|(root, saved)| {
+                    let physical = physical_workspace_root(root)?;
+                    let identity = workspace_identity(&physical, &topology)?;
+                    if saved.as_deref() != Some(identity.as_str()) {
+                        bail!("live workspace identity changed or is unknown; admission blocked");
+                    }
+                    Ok(physical)
+                })
                 .collect::<Result<Vec<_>>>()?
         };
         let expires_ms = now_ms
@@ -624,6 +759,16 @@ impl ObjectiveStore {
                  FROM leaves l
                  JOIN objectives o ON o.id = l.objective_id
                  WHERE o.state IN (?1, ?2)
+                   AND (l.attempt > 0 OR NOT EXISTS (
+                       SELECT 1 FROM leaves interrupted
+                       JOIN objectives recovering ON recovering.id = interrupted.objective_id
+                       WHERE recovering.state IN (?1, ?2)
+                         AND interrupted.attempt > 0 AND interrupted.context_bound = 1
+                         AND interrupted.stage IN (?3, ?4, ?5, ?6)))
+                   AND (l.attempt > 0 OR NOT EXISTS
+                        (SELECT 1 FROM schedules s WHERE s.objective_id = o.id)
+                        OR EXISTS (SELECT 1 FROM schedules s JOIN schedule_wakes w ON w.schedule_id = s.id
+                                   WHERE s.objective_id = o.id))
                    AND ((?15 = 0 AND l.attempt < ?10)
                      OR (?15 = 1 AND l.attempt >= ?10 AND l.context_bound = 1
                          AND l.execution_run_id IS NOT NULL))
@@ -683,16 +828,33 @@ impl ObjectiveStore {
                 if claimed.len() == capacity {
                     break;
                 }
-                let workspace: String = transaction.query_row(
-                    "SELECT workspace_root FROM leaves WHERE id = ?1",
+                let (workspace, attempt): (String, u32) = transaction.query_row(
+                    "SELECT workspace_root, attempt FROM leaves WHERE id = ?1",
                     [&leaf_id],
-                    |row| row.get(0),
+                    |row| Ok((row.get(0)?, row.get(1)?)),
                 )?;
                 let physical_root = physical_workspace_root(&workspace)?;
-                if occupied_roots
-                    .iter()
-                    .any(|root| physical_root.starts_with(root) || root.starts_with(&physical_root))
+                let identity = workspace_identity(&physical_root, &topology)?;
+                let saved: Option<String> = transaction
+                    .query_row(
+                        "SELECT identity_json FROM lease_workspace_identities WHERE leaf_id = ?1",
+                        [&leaf_id],
+                        |row| row.get(0),
+                    )
+                    .optional()?;
+                if (attempt > 0 && saved.is_none())
+                    || saved.as_ref().is_some_and(|saved| saved != &identity)
                 {
+                    bail!("recovery workspace identity changed or is unknown; admission blocked");
+                }
+                let mut overlaps = false;
+                for root in &occupied_roots {
+                    if workspace_roots_overlap(&physical_root, root, &topology)? {
+                        overlaps = true;
+                        break;
+                    }
+                }
+                if overlaps {
                     continue;
                 }
                 let changed = transaction.execute(
@@ -732,6 +894,26 @@ impl ObjectiveStore {
                 if changed == 0 {
                     continue;
                 }
+                transaction.execute(
+                    "INSERT INTO lease_workspace_identities (leaf_id, identity_json) VALUES (?1, ?2)
+                     ON CONFLICT(leaf_id) DO NOTHING",
+                    params![leaf_id, identity],
+                )?;
+                super::snapshots::prepare(
+                    &transaction,
+                    self.snapshot_admission.as_deref(),
+                    &leaf_id,
+                    &physical_root,
+                    &identity,
+                    attempt == 0,
+                )?;
+                transaction.execute(
+                    "INSERT INTO retained_snapshot_lease_intents
+                     (leaf_id, generation, lease_owner, lease_expires_ms)
+                     SELECT id, attempt, lease_owner, lease_expires_ms FROM leaves
+                     WHERE id = ?1 AND EXISTS (SELECT 1 FROM retained_workspace_snapshots WHERE leaf_id = ?1)",
+                    [&leaf_id],
+                )?;
                 occupied_roots.push(physical_root);
                 let mut claim = transaction.query_row(
                 "SELECT objective_id, id, project_id, workspace_root, authority, stage, attempt,
@@ -807,6 +989,9 @@ impl ObjectiveStore {
                 )?;
                 claimed.push(claim);
             }
+        }
+        if read_topology()? != topology {
+            bail!("mount topology changed during admission; transaction rolled back");
         }
         transaction.commit().context("commit objective claims")?;
         Ok(claimed)
@@ -926,6 +1111,7 @@ impl ObjectiveStore {
             ],
         )?;
         transaction.commit().context("commit stage receipt")?;
+        self.notify_change();
         Ok(())
     }
 
@@ -1036,12 +1222,38 @@ impl ObjectiveStore {
             ],
         )?;
         transaction.commit()?;
+        self.notify_change();
         Ok(schedule)
     }
 
     pub fn schedule(&self, schedule_id: &str) -> Result<Option<ScheduleSpec>> {
         let connection = self.connection()?;
         schedule_in(&connection, schedule_id)
+    }
+
+    /// Earliest actionable timer; paused/terminal objectives do not wake workers.
+    pub fn next_wake_ms(&self, now_ms: i64) -> Result<Option<i64>> {
+        let connection = self.connection()?;
+        connection
+            .query_row(
+                "SELECT MIN(wake_ms) FROM (
+                SELECT s.next_wake_ms AS wake_ms FROM schedules s
+                JOIN objectives o ON o.id = s.objective_id
+                WHERE o.state IN ('approved', 'running')
+                  AND NOT EXISTS (SELECT 1 FROM schedule_errors e WHERE e.schedule_id = s.id)
+                  AND (s.recurrence IS NOT NULL OR NOT EXISTS
+                       (SELECT 1 FROM schedule_wakes w WHERE w.schedule_id = s.id))
+                UNION ALL
+                SELECT l.lease_expires_ms AS wake_ms FROM leaves l
+                JOIN objectives o ON o.id = l.objective_id
+                WHERE o.state IN ('approved', 'running')
+                  AND l.stage IN ('execute', 'verify', 'review', 'close')
+                  AND l.lease_expires_ms > ?1
+            )",
+                [now_ms],
+                |row| row.get(0),
+            )
+            .context("read next objective wake")
     }
 
     pub fn due_schedules(&self, now_ms: i64, limit: usize) -> Result<Vec<ScheduleSpec>> {
@@ -1053,6 +1265,9 @@ impl ObjectiveStore {
             "SELECT s.id, s.objective_id, s.next_wake_ms, s.recurrence, s.idempotency_key
              FROM schedules s JOIN objectives o ON o.id = s.objective_id
              WHERE s.next_wake_ms <= ?1 AND o.state NOT IN (?2, ?3, ?4, ?5)
+               AND NOT EXISTS (SELECT 1 FROM schedule_errors e WHERE e.schedule_id = s.id)
+               AND (s.recurrence IS NOT NULL OR NOT EXISTS
+                    (SELECT 1 FROM schedule_wakes w WHERE w.schedule_id = s.id))
              ORDER BY s.next_wake_ms, s.id LIMIT ?6",
         )?;
         let rows = statement.query_map(
@@ -1070,7 +1285,7 @@ impl ObjectiveStore {
             .context("list due objective schedules")
     }
 
-    fn connection(&self) -> Result<Connection> {
+    pub(super) fn connection(&self) -> Result<Connection> {
         let connection = Connection::open(&self.path)
             .with_context(|| format!("open ObjectiveStore {}", self.path.display()))?;
         connection.busy_timeout(Duration::from_secs(5))?;
@@ -1204,6 +1419,256 @@ fn physical_workspace_root(root: &str) -> Result<PathBuf> {
     }
 }
 
+// Persist stable filesystem identity, not mutable timestamps. Missing descendants
+// retain the nearest existing ancestor as an explicit conservative anchor.
+fn workspace_identity(root: &Path, topology: &[u8]) -> Result<String> {
+    let mut anchor = root;
+    let metadata = loop {
+        match std::fs::metadata(anchor) {
+            Ok(metadata) => break metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                anchor = anchor
+                    .parent()
+                    .context("workspace has no existing ancestor")?;
+            }
+            Err(error) => return Err(error).context("read workspace identity"),
+        }
+    };
+    if !metadata.is_dir() {
+        bail!("workspace identity anchor is not a directory");
+    }
+    require_workspace_access(anchor)?;
+    #[cfg(unix)]
+    let filesystem_id = {
+        use std::os::unix::fs::MetadataExt;
+        Some((metadata.dev(), metadata.ino()))
+    };
+    #[cfg(not(unix))]
+    let filesystem_id: Option<(u64, u64)> = None;
+    encode_workspace_identity(root, anchor, filesystem_id, topology)
+        .context("encode workspace identity")
+}
+
+fn read_workspace_topology() -> Result<Vec<u8>> {
+    #[cfg(target_os = "linux")]
+    return std::fs::read("/proc/self/mountinfo").context("read admission mount topology");
+    #[cfg(not(target_os = "linux"))]
+    Ok(Vec::new())
+}
+
+// Versioned, conservative namespace-wide baseline. Never upgrade legacy tuples
+// from current mounts: an absent admission baseline must fail comparison closed.
+pub(crate) fn encode_workspace_identity(
+    root: &Path,
+    anchor: &Path,
+    filesystem_id: Option<(u64, u64)>,
+    topology: &[u8],
+) -> serde_json::Result<String> {
+    let fingerprint = format!("{:x}", Sha256::digest(topology));
+    serde_json::to_string(&(2, root, anchor, filesystem_id, fingerprint))
+}
+
+// Missing roots are permitted only as ancestor-based reservations. Actual
+// execution uses this helper on the exact root; neither path creates directories
+// or grants permissions. Read-only admission does not require write access.
+pub(super) fn require_workspace_access(root: &Path) -> Result<()> {
+    if !std::fs::metadata(root)
+        .context("read workspace directory")?
+        .is_dir()
+    {
+        bail!("workspace is not a directory");
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStrExt;
+        let path = std::ffi::CString::new(root.as_os_str().as_bytes())
+            .context("workspace path contains a NUL byte")?;
+        // SAFETY: path is a live NUL-terminated string. AT_EACCESS checks the
+        // effective credentials used by the daemon, including directory search.
+        if unsafe {
+            libc::faccessat(
+                libc::AT_FDCWD,
+                path.as_ptr(),
+                libc::R_OK | libc::X_OK,
+                libc::AT_EACCESS,
+            )
+        } != 0
+        {
+            return Err(std::io::Error::last_os_error())
+                .context("workspace requires read and search access");
+        }
+    }
+    std::fs::read_dir(root).context("open workspace directory")?;
+    Ok(())
+}
+
+// Canonical paths do not collapse bind mounts. Compare relative subtrees at
+// shared physical ancestors as well, without treating independent siblings as
+// overlapping merely because they share a filesystem or ancestor directory.
+/// Reject owner state exposed through any physical workspace mount alias.
+#[cfg(target_os = "linux")]
+pub fn validate_snapshot_owner_paths(workspace: &Path, state: &[&Path]) -> Result<()> {
+    let topology = std::fs::read("/proc/self/mountinfo")?;
+    for path in state {
+        if workspace_roots_overlap(workspace, path, &topology)? {
+            bail!("snapshot owner state overlaps execution workspace");
+        }
+    }
+    Ok(())
+}
+
+fn workspace_roots_overlap(left: &Path, right: &Path, _topology: &[u8]) -> Result<bool> {
+    let mut left_roots = vec![left.to_path_buf()];
+    let mut right_roots = vec![right.to_path_buf()];
+    #[cfg(target_os = "linux")]
+    {
+        // A workspace can contain a mounted subtree shared with an otherwise
+        // disjoint workspace. Inspect this process's namespace, not host-wide
+        // assumptions. Failure to enumerate mounts must not authorize work.
+        let mounts = workspace_mountpoints(_topology)?;
+        let backing_roots = |root: &Path| -> Result<Vec<(Vec<u8>, PathBuf)>> {
+            let (device, backing, point) = mounts
+                .iter()
+                .filter(|(_, _, point)| root.starts_with(point))
+                .max_by_key(|(_, _, point)| point.components().count())
+                .context("workspace has no containing mount")?;
+            if !backing.is_absolute() {
+                bail!("workspace containing mount has an opaque source root");
+            }
+            let mut roots = vec![(device.clone(), backing.join(root.strip_prefix(point)?))];
+            for (device, backing, point) in &mounts {
+                if point.starts_with(root) && point != root {
+                    if !backing.is_absolute() {
+                        bail!("workspace nested mount has an opaque source root");
+                    }
+                    roots.push((device.clone(), backing.clone()));
+                }
+            }
+            Ok(roots)
+        };
+        let left_backing = backing_roots(left)?;
+        let right_backing = backing_roots(right)?;
+        // A bind of a child subtree loses its source parent in pathname ancestry.
+        // Mountinfo retains the filesystem-relative source root for that case.
+        if left_backing.iter().any(|(device, root)| {
+            right_backing.iter().any(|(other_device, other)| {
+                device == other_device && (root.starts_with(other) || other.starts_with(root))
+            })
+        }) {
+            return Ok(true);
+        }
+        for (_, _, mount) in mounts {
+            if mount.starts_with(left) && mount != left {
+                left_roots.push(mount.clone());
+            }
+            if mount.starts_with(right) && mount != right {
+                right_roots.push(mount);
+            }
+        }
+    }
+    for left in &left_roots {
+        for right in &right_roots {
+            if workspace_subtrees_overlap(left, right)? {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
+}
+
+#[cfg(target_os = "linux")]
+fn workspace_mountpoints(mountinfo: &[u8]) -> Result<Vec<(Vec<u8>, PathBuf, PathBuf)>> {
+    use std::os::unix::ffi::OsStringExt;
+    let mut mounts = Vec::new();
+    for line in mountinfo
+        .split(|byte| *byte == b'\n')
+        .filter(|line| !line.is_empty())
+    {
+        let fields = line.split(|byte| *byte == b' ').collect::<Vec<_>>();
+        if fields.len() < 5 {
+            bail!("mount topology omitted mountpoint");
+        }
+        let mut paths = Vec::new();
+        for encoded in [fields[3], fields[4]] {
+            let mut decoded = Vec::new();
+            let mut index = 0;
+            while index < encoded.len() {
+                if encoded[index] == b'\\' {
+                    let escape = encoded
+                        .get(index..index + 4)
+                        .context("truncated mountpoint escape")?;
+                    decoded.push(match escape {
+                        b"\\040" => b' ',
+                        b"\\011" => b'\t',
+                        b"\\012" => b'\n',
+                        b"\\134" => b'\\',
+                        _ => bail!("invalid mountpoint escape"),
+                    });
+                    index += 4;
+                } else {
+                    decoded.push(encoded[index]);
+                    index += 1;
+                }
+            }
+            let mount = PathBuf::from(std::ffi::OsString::from_vec(decoded));
+            if paths.len() == 1 && !mount.is_absolute() {
+                bail!("mount topology contains a relative mountpoint");
+            }
+            paths.push(mount);
+        }
+        mounts.push((fields[2].to_vec(), paths.remove(0), paths.remove(0)));
+    }
+    if mounts.is_empty() {
+        bail!("workspace mount topology is empty");
+    }
+    Ok(mounts)
+}
+
+fn workspace_subtrees_overlap(left: &Path, right: &Path) -> Result<bool> {
+    if left.starts_with(right) || right.starts_with(left) {
+        return Ok(true);
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        let ancestors = |root: &Path| -> Result<Vec<(u64, u64, PathBuf)>> {
+            let mut entries = Vec::new();
+            for ancestor in root.ancestors() {
+                match std::fs::metadata(ancestor) {
+                    Ok(metadata) => {
+                        if !metadata.is_dir() {
+                            bail!("workspace ancestor is not a directory");
+                        }
+                        entries.push((
+                            metadata.dev(),
+                            metadata.ino(),
+                            root.strip_prefix(ancestor)?.to_path_buf(),
+                        ));
+                    }
+                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                    Err(error) => return Err(error).context("read workspace overlap identity"),
+                }
+            }
+            Ok(entries)
+        };
+        let left = ancestors(left)?;
+        let right = ancestors(right)?;
+        for (device, inode, suffix) in &left {
+            if right
+                .iter()
+                .any(|(other_device, other_inode, other_suffix)| {
+                    device == other_device
+                        && inode == other_inode
+                        && (suffix.starts_with(other_suffix) || other_suffix.starts_with(suffix))
+                })
+            {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
+}
+
 fn validate_sha256(value: &str, name: &str) -> Result<()> {
     let Some(hex) = value.strip_prefix("sha256:") else {
         bail!("{name} must use the sha256:<lowercase-hex> form");
@@ -1267,6 +1732,13 @@ fn validate_receipt(receipt: &StageReceipt) -> Result<()> {
 }
 
 fn validate_schedule(schedule: &ScheduleSpec) -> Result<()> {
+    if let Some(recurrence) = &schedule.recurrence {
+        let interval = super::scheduling::recurrence_ms(recurrence)?;
+        schedule
+            .next_wake_ms
+            .checked_add(interval)
+            .ok_or_else(|| anyhow!("next schedule wake overflow"))?;
+    }
     if schedule.id.trim().is_empty()
         || schedule.objective_id.trim().is_empty()
         || schedule.idempotency_key.trim().is_empty()
@@ -1400,6 +1872,202 @@ fn invalid_enum(kind: &str, value: &str) -> rusqlite::Error {
 #[cfg(test)]
 mod resident_marker_tests {
     use super::*;
+
+    #[test]
+    fn snapshot_policy_activation_is_checked_inside_claim_transaction() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
+        store
+            .create_authenticated_objective(
+                NewObjective {
+                    id: "policy".into(),
+                    source_id: "policy".into(),
+                    idempotency_key: "policy".into(),
+                    operator_id: "owner".into(),
+                    text: "policy race".into(),
+                    priority: 0,
+                    projects: vec![],
+                    leaves: vec![crate::objectives::NewLeaf {
+                        id: "policy-leaf".into(),
+                        project_id: None,
+                        workspace_root: dir.path().display().to_string(),
+                        authority: "read_only".into(),
+                        dependencies: vec![],
+                        execution: None,
+                    }],
+                },
+                1,
+            )
+            .unwrap();
+        store
+            .apply_control(
+                "policy",
+                ControlAction::Approve { revision: 1 },
+                "approve",
+                "owner",
+                2,
+            )
+            .unwrap();
+        // Force the exact interleaving: precheck passed, another writer activates
+        // policy, then the original unconfigured handle enters admission.
+        store.reconcile_snapshot_commits().unwrap();
+        store
+            .connection()
+            .unwrap()
+            .execute("INSERT INTO retained_snapshot_policy VALUES (1)", [])
+            .unwrap();
+        let result =
+            store.claim_leaves_with_topology("worker", 3, 100, 1, false, read_workspace_topology);
+        assert!(result.is_err(), "admission ignored newly activated policy");
+        assert_eq!(store.leaf("policy-leaf").unwrap().unwrap().attempt, 0);
+    }
+
+    #[test]
+    fn admission_topology_drift_rolls_back_claim_and_identity() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("objectives.sqlite3");
+        let store = ObjectiveStore::open(&path).unwrap();
+        store
+            .create_authenticated_objective(
+                NewObjective {
+                    id: "drift".into(),
+                    source_id: "drift".into(),
+                    idempotency_key: "drift".into(),
+                    operator_id: "owner".into(),
+                    text: "topology race".into(),
+                    priority: 0,
+                    projects: vec![],
+                    leaves: vec![crate::objectives::NewLeaf {
+                        id: "drift-leaf".into(),
+                        project_id: None,
+                        workspace_root: dir.path().display().to_string(),
+                        authority: "read_only".into(),
+                        dependencies: vec![],
+                        execution: None,
+                    }],
+                },
+                1,
+            )
+            .unwrap();
+        store
+            .apply_control(
+                "drift",
+                ControlAction::Approve { revision: 1 },
+                "approve",
+                "owner",
+                2,
+            )
+            .unwrap();
+        let baseline = read_workspace_topology().unwrap();
+        let mut reads = 0;
+        let result = store.claim_leaves_with_topology("worker", 3, 100, 1, false, || {
+            reads += 1;
+            let mut snapshot = baseline.clone();
+            if reads == 2 {
+                snapshot.push(b'\n');
+            }
+            Ok(snapshot)
+        });
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("topology changed during admission"));
+        assert_eq!(reads, 2);
+        drop(store);
+        let reopened = ObjectiveStore::open(&path).unwrap();
+        let leaf = reopened.leaf("drift-leaf").unwrap().unwrap();
+        assert_eq!(leaf.attempt, 0);
+        let count: i64 = reopened
+            .connection()
+            .unwrap()
+            .query_row(
+                "SELECT COUNT(*) FROM lease_workspace_identities",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 0);
+        assert_eq!(
+            reopened.claim_runnable("worker", 4, 100, 1).unwrap().len(),
+            1
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn mountpoint_parser_preserves_bytes_and_rejects_unknown_topology() {
+        use std::os::unix::ffi::OsStrExt;
+        let mounts = workspace_mountpoints(
+            b"1 0 0:1 / /space\\040tab\\011line\\012slash\\134\xff rw - tmpfs tmpfs rw\n",
+        )
+        .unwrap();
+        assert_eq!(
+            mounts[0].2.as_os_str().as_bytes(),
+            b"/space tab\tline\nslash\\\xff"
+        );
+        for invalid in [
+            b"".as_slice(),
+            b"1 0",
+            b"1 0 0:1 / relative rw",
+            b"1 0 0:1 / /truncated\\0 rw",
+            b"1 0 0:1 / /unknown\\123 rw",
+        ] {
+            assert!(workspace_mountpoints(invalid).is_err());
+        }
+    }
+
+    #[test]
+    fn committed_schedule_wakes_all_observers_but_replay_and_rejection_do_not() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("objectives.sqlite3");
+        let store = ObjectiveStore::open(&path).unwrap();
+        let writer = ObjectiveStore::open(&path).unwrap();
+        writer
+            .create_authenticated_objective(
+                NewObjective {
+                    id: "wake".into(),
+                    source_id: "wake-source".into(),
+                    idempotency_key: "wake-ingress".into(),
+                    operator_id: "owner".into(),
+                    text: "wake test".into(),
+                    priority: 0,
+                    projects: vec![],
+                    leaves: vec![crate::objectives::NewLeaf {
+                        id: "wake-leaf".into(),
+                        project_id: None,
+                        workspace_root: dir.path().display().to_string(),
+                        authority: "read_only".into(),
+                        dependencies: vec![],
+                        execution: None,
+                    }],
+                },
+                1,
+            )
+            .unwrap();
+        let mut first = store.subscribe_changes();
+        let mut second = store.subscribe_changes();
+        let other = ObjectiveStore::open(dir.path().join("other.sqlite3")).unwrap();
+        let unrelated = other.subscribe_changes();
+        let schedule = ScheduleSpec {
+            id: "wake-schedule".into(),
+            objective_id: "wake".into(),
+            next_wake_ms: 1000,
+            recurrence: None,
+            idempotency_key: "wake-schedule".into(),
+        };
+        writer.put_schedule(schedule.clone(), 2).unwrap();
+        assert!(first.has_changed().unwrap());
+        assert!(second.has_changed().unwrap());
+        assert!(!unrelated.has_changed().unwrap());
+        first.borrow_and_update();
+        second.borrow_and_update();
+        writer.put_schedule(schedule.clone(), 3).unwrap();
+        let mut changed = schedule;
+        changed.next_wake_ms = 2000;
+        assert!(writer.put_schedule(changed, 4).is_err());
+        assert!(!first.has_changed().unwrap());
+        assert!(!second.has_changed().unwrap());
+    }
 
     #[test]
     fn operator_marker_targets_one_run_preserves_evidence_and_is_idempotent() {

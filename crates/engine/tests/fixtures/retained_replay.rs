@@ -1,0 +1,134 @@
+use super::*;
+use arda_engine::objectives::{
+    ControlAction, NewLeaf, NewObjective, ObjectiveStore, ProjectAuthority, RetainedSnapshot,
+    SnapshotAdmission,
+};
+use std::{path::Path, sync::Arc};
+
+struct ReceiptKeeper;
+impl SnapshotAdmission for ReceiptKeeper {
+    fn prepare(&self, _: &str, _: &Path, _: &str) -> anyhow::Result<RetainedSnapshot> {
+        Ok(RetainedSnapshot {
+            endpoint: "/nonexistent/receipt-fixture.sock".into(),
+            capability: "fixture".into(),
+            manifest_digest: "a".repeat(64),
+        })
+    }
+    fn commit(&self, _: &RetainedSnapshot, _: &str, _: i64, _: &str, _: i64) -> anyhow::Result<()> {
+        Ok(())
+    }
+    fn release(&self, _: &RetainedSnapshot, _: &str) -> anyhow::Result<()> {
+        Ok(())
+    }
+}
+
+#[tokio::test]
+async fn stored_receipt_replays_after_retained_lease_expiry_and_release() {
+    for phase in ["expired", "released"] {
+        let root = TempDir::new().unwrap();
+        write_file_only_hermes_config(&root);
+        let (bound, shutdown, handle) = start_harness(&root).await;
+        let client = reqwest::Client::new();
+        attach(&client, bound).await;
+        let database = root.path().join("data/arda/objectives.sqlite3");
+        let objectives = ObjectiveStore::open(&database)
+            .unwrap()
+            .with_snapshot_admission(Arc::new(ReceiptKeeper));
+        objectives
+            .create_authenticated_objective(
+                NewObjective {
+                    id: "receipt-replay".into(),
+                    source_id: "receipt-replay".into(),
+                    idempotency_key: "receipt-replay".into(),
+                    operator_id: "operator".into(),
+                    text: "Replay durable receipt".into(),
+                    priority: 1,
+                    projects: vec![ProjectAuthority {
+                        project_id: PROJECT_ID.into(),
+                        contract_digest: "sha256:fixture".into(),
+                    }],
+                    leaves: vec![NewLeaf {
+                        id: "leaf".into(),
+                        project_id: Some(PROJECT_ID.into()),
+                        workspace_root: root.path().to_str().unwrap().into(),
+                        authority: "read_only".into(),
+                        dependencies: vec![],
+                        execution: None,
+                    }],
+                },
+                1,
+            )
+            .unwrap();
+        objectives
+            .apply_control(
+                "receipt-replay",
+                ControlAction::Approve { revision: 1 },
+                "approve",
+                "operator",
+                2,
+            )
+            .unwrap();
+        let claim = objectives
+            .claim_runnable("worker", 10, 100, 1)
+            .unwrap()
+            .remove(0);
+        let run_id = claim.execution_run_id.unwrap();
+        let mut graph = provider_review_graph(&run_id);
+        graph["nodes"][0]["state"] = json!("ready");
+        graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+        client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID, "graph": graph, "envelope": envelope("retained-replay-plan")
+        }))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+        let planned: Value = client
+            .get(format!("http://{bound}/v1/runs/{run_id}"))
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+        let receipt = stored_review_receipt(
+            &run_id,
+            planned["graph"]["provenance"]["project_contract_digest"]
+                .as_str()
+                .unwrap(),
+            vec!["receipt:verify".into()],
+            "Replay durable receipt",
+        );
+        write_stored_review_receipt(&root, &receipt);
+        drop(objectives);
+        let objectives = ObjectiveStore::open(&database)
+            .unwrap()
+            .with_snapshot_admission(Arc::new(ReceiptKeeper));
+        if phase == "released" {
+            objectives
+                .apply_control(
+                    "receipt-replay",
+                    ControlAction::Cancel,
+                    "cancel",
+                    "operator",
+                    200,
+                )
+                .unwrap();
+            objectives.reconcile_snapshot_commits().unwrap();
+        }
+        assert!(objectives.retained_execution(&run_id, 300).is_err());
+        let response = client.post(format!("http://{bound}/v1/runs/{run_id}/nodes/review/execute-provider"))
+            .json(&json!({ "envelope": envelope(&format!("replay-{phase}")), "objective": "Replay durable receipt" }))
+            .send().await.unwrap();
+        let status = response.status();
+        let body = response.text().await.unwrap();
+        assert!(status.is_success(), "{phase}: {status}: {body}");
+        shutdown.notify_waiters();
+        handle.await.unwrap();
+    }
+}

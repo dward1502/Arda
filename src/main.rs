@@ -18,6 +18,7 @@ use arda_engine::registry::Registry;
 use arda_engine::supervisor::{Shutdown, Supervisor};
 
 const OBJECTIVE_RUNTIME_POLL_INTERVAL: std::time::Duration = std::time::Duration::from_secs(1);
+const OBJECTIVE_RUNTIME_DRAIN_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 const OBJECTIVE_RUNTIME_CAPACITY: usize = 4;
 const OBJECTIVE_RUNTIME_LEASE_DURATION_MS: i64 = 300_000;
 
@@ -124,6 +125,10 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let shutdown = Shutdown::new();
+    // Install SIGTERM before starting background work. systemd uses TERM, not
+    // Ctrl-C, and an early signal must remain pending until the listener runs.
+    #[cfg(unix)]
+    let mut sigterm = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     let supervisor = Supervisor::new(services, shutdown.clone());
     let service_statuses = supervisor.statuses();
 
@@ -173,10 +178,6 @@ async fn main() -> anyhow::Result<()> {
         .map(|a| a.parse())
         .transpose()
         .map_err(|e| anyhow::anyhow!("invalid --harness-addr: {e}"))?;
-    let harness_shutdown = Arc::new(tokio::sync::Notify::new());
-    let (_bound, _harness_handle) =
-        arda_engine::harness::serve(harness_addr, harness_state, harness_shutdown.clone()).await?;
-
     let objective_store =
         arda_engine::objectives::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))?;
     let objective_executor = arda_engine::objectives::WorkbenchLeafExecution::new(&root)?;
@@ -187,59 +188,73 @@ async fn main() -> anyhow::Result<()> {
         OBJECTIVE_RUNTIME_CAPACITY,
         OBJECTIVE_RUNTIME_LEASE_DURATION_MS,
     );
-    let (objective_shutdown, mut objective_shutdown_rx) = tokio::sync::watch::channel(false);
+    let harness_shutdown = Shutdown::new();
+    let (_bound, harness_handle) = arda_engine::harness::serve_with_runtime_status(
+        harness_addr,
+        harness_state,
+        harness_shutdown.clone(),
+        objective_runtime.subscribe_status(),
+    )
+    .await?;
+    let objective_shutdown = Shutdown::new();
+    let runtime_shutdown = objective_shutdown.clone();
     let objective_runtime_handle = tokio::spawn(async move {
         info!(
             capacity = OBJECTIVE_RUNTIME_CAPACITY,
             lease_duration_ms = OBJECTIVE_RUNTIME_LEASE_DURATION_MS,
             "arda daemon: resident objective runtime started"
         );
-        loop {
-            if *objective_shutdown_rx.borrow() {
-                break;
-            }
-            if let Err(error) = objective_runtime.run_round(unix_now_ms()).await {
-                warn!("arda daemon: resident objective round failed: {error:#}");
-            }
-            tokio::select! {
-                result = objective_shutdown_rx.changed() => {
-                    if result.is_err() || *objective_shutdown_rx.borrow() {
-                        break;
-                    }
-                }
-                _ = tokio::time::sleep(OBJECTIVE_RUNTIME_POLL_INTERVAL) => {}
-            }
-        }
-        info!("arda daemon: resident objective runtime stopped");
+        let outcome = objective_runtime
+            .run_until_shutdown(
+                runtime_shutdown,
+                OBJECTIVE_RUNTIME_POLL_INTERVAL,
+                OBJECTIVE_RUNTIME_DRAIN_TIMEOUT,
+            )
+            .await;
+        info!(?outcome, "arda daemon: resident objective runtime stopped");
+        outcome
     });
 
-    // Fire shutdown on ctrl-c.
-    let shutdown_on_signal = shutdown.clone();
-    let harness_shutdown_on_signal = harness_shutdown.clone();
+    // Both interactive and service-manager stops use the owned shutdown path.
+
     let objective_shutdown_on_signal = objective_shutdown.clone();
-    tokio::spawn(async move {
-        if tokio::signal::ctrl_c().await.is_ok() {
-            info!("arda daemon: ctrl-c received, shutting down");
-            shutdown_on_signal.trigger();
-            harness_shutdown_on_signal.notify_waiters();
-            let _ = objective_shutdown_on_signal.send(true);
+    let signal_handle = tokio::spawn(async move {
+        #[cfg(unix)]
+        let signal = tokio::select! {
+            result = tokio::signal::ctrl_c() => result.map(|_| "SIGINT"),
+            _ = sigterm.recv() => Ok("SIGTERM"),
+        };
+        #[cfg(not(unix))]
+        let signal = tokio::signal::ctrl_c().await.map(|_| "Ctrl-C");
+        if let Ok(signal) = signal {
+            info!(signal, "arda daemon: shutdown signal received");
+            objective_shutdown_on_signal.trigger();
         }
     });
 
-    supervisor.run().await;
-    let _ = objective_shutdown.send(true);
-    objective_runtime_handle.await?;
+    // Keep dependencies and Harness alive while already-claimed work drains.
+    let supervised = supervisor.run();
+    tokio::pin!(supervised);
+    let supervisor_finished = tokio::select! {
+        _ = &mut supervised => true,
+        _ = objective_shutdown.wait() => false,
+    };
+    objective_shutdown.trigger();
+    let objective_result = objective_runtime_handle.await;
+    // An interrupted client round cannot own the server-side provider. Signal
+    // and join Harness cleanup before stopping its supervised dependencies.
+    harness_shutdown.trigger();
+    let harness_result = harness_handle.await;
+    shutdown.trigger();
+    if !supervisor_finished {
+        supervised.await;
+    }
+    signal_handle.abort();
+    let _ = signal_handle.await;
+    objective_result?;
+    harness_result?;
     info!("arda daemon: stopped");
     Ok(())
-}
-
-fn unix_now_ms() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis()
-        .try_into()
-        .unwrap_or(i64::MAX)
 }
 
 fn configured_operator_id(cli_value: Option<&str>) -> anyhow::Result<String> {

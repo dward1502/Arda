@@ -145,6 +145,7 @@ pub async fn presence_snapshot(
 pub async fn presence_events(
     State(harness): State<HarnessState>,
     ConnectInfo(addr): ConnectInfo<std::net::SocketAddr>,
+    shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
     if !is_authorized(&harness.presence_inputs, &addr, &headers, "presence.read") {
@@ -182,6 +183,8 @@ pub async fn presence_events(
         }
     };
 
+    let shutdown = shutdown.map(|value| value.0).unwrap_or_default();
+    let stream = futures::StreamExt::take_until(stream, async move { shutdown.wait().await });
     Sse::new(stream).into_response()
 }
 

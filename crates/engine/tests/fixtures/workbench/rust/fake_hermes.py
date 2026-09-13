@@ -39,6 +39,8 @@ terminal_content = json.dumps({
     "exit_code": test.returncode,
     "error": None,
 }, separators=(",", ":"))
+if test.returncode:
+    sys.stderr.write((test.stdout + test.stderr).decode("utf-8"))
 file_content = json.dumps({
     "path": "src/lib.rs",
     "changed": after != before,

@@ -22,6 +22,13 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tempfile::TempDir;
 
+#[cfg(target_os = "linux")]
+#[path = "fixtures/keeper_adapter.rs"]
+mod keeper_adapter;
+#[cfg(target_os = "linux")]
+#[path = "fixtures/retained_adapter.rs"]
+mod retained_adapter;
+
 fn write_fake_hermes(root: &Path) -> PathBuf {
     let executable = root.join("hermes");
     fs::write(
@@ -57,7 +64,10 @@ if mode.startswith("review_") and "On review nodes, the first line of summary MU
     print("missing top-level review verdict contract", file=sys.stderr)
     raise SystemExit(2)
 if mode == "sleep":
-    child = subprocess.Popen(["/usr/bin/python3", "-c", "import time; time.sleep(10)"])
+    import socket
+    peer = socket.socket(socket.AF_UNIX)
+    peer.connect(str(Path(pid_path).with_name("provider.sock")))
+    child = subprocess.Popen(["/usr/bin/python3", "-c", "import socket,time; peer=socket.socket(socket.AF_UNIX); peer.connect('provider.sock'); time.sleep(10)"])
     Path(os.environ["ARDA_CHILD_PID_PATH"]).write_text(str(child.pid), encoding="utf-8")
     time.sleep(10)
     raise SystemExit(0)
@@ -402,20 +412,6 @@ fn adapter(root: &TempDir, mode: &str) -> HermesAdapter {
         &host_environment(root.path(), mode),
     )
     .expect("load bounded Hermes adapter")
-}
-
-fn process_is_alive(pid: u32) -> bool {
-    if let Ok(stat) = fs::read_to_string(format!("/proc/{pid}/stat")) {
-        if stat.split_whitespace().nth(2) == Some("Z") {
-            return false;
-        }
-    }
-    std::process::Command::new("/bin/kill")
-        .args(["-0", &pid.to_string()])
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status()
-        .is_ok_and(|status| status.success())
 }
 
 #[test]
@@ -883,35 +879,61 @@ async fn elapsed_persisted_worker_deadline_prevents_spawn() {
 
 #[tokio::test]
 async fn graph_node_timeout_terminates_and_reaps_hermes() {
+    use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
     let root = TempDir::new().expect("project root");
     let adapter = adapter(&root, "sleep");
-
-    // Leave enough startup headroom for the Python fixture to publish both PID
-    // files before the adapter's deadline. The previous 80 ms budget could
-    // expire during interpreter startup under sustained soak load, which tested
-    // scheduler latency rather than descendant termination and reaping.
-    let error = adapter
-        .execute(&task(1_000), AdapterCancellation::new())
-        .await
-        .expect_err("sleeping Hermes process must time out");
-
+    let listener = tokio::net::UnixListener::bind(root.path().join("provider.sock")).unwrap();
+    let is_alive = |fd: &OwnedFd| {
+        let mut poll = libc::pollfd {
+            fd: fd.as_raw_fd(),
+            events: libc::POLLIN,
+            revents: 0,
+        };
+        let result = unsafe { libc::poll(&mut poll, 1, 0) };
+        assert!(result >= 0);
+        result == 0
+    };
+    let collect = async {
+        let mut peers = Vec::new();
+        for _ in 0..2 {
+            let (stream, _) = listener.accept().await.unwrap();
+            // Peer credentials are translated into the host PID namespace.
+            let pid = stream.peer_cred().unwrap().pid().unwrap();
+            let fd = unsafe { libc::syscall(libc::SYS_pidfd_open, pid, 0) };
+            assert!(fd >= 0);
+            let fd = unsafe { OwnedFd::from_raw_fd(fd as i32) };
+            assert!(is_alive(&fd));
+            peers.push(fd);
+        }
+        peers
+    };
+    let task = task(1_000);
+    let (result, peers) = tokio::join!(
+        adapter.execute(&task, AdapterCancellation::new()),
+        tokio::time::timeout(std::time::Duration::from_secs(2), collect)
+    );
+    let survivors = peers
+        .as_ref()
+        .map(|peers| peers.iter().any(&is_alive))
+        .unwrap_or(true);
+    // Preserve the pre-cleanup verdict, but never leave known survivors on RED.
+    if let Ok(peers) = &peers {
+        for fd in peers {
+            unsafe {
+                libc::syscall(
+                    libc::SYS_pidfd_send_signal,
+                    fd.as_raw_fd(),
+                    libc::SIGKILL,
+                    std::ptr::null::<libc::siginfo_t>(),
+                    0,
+                );
+            }
+        }
+    }
+    let error = result.expect_err("sleeping Hermes process must time out");
     assert!(matches!(error, HermesAdapterError::Timeout));
-    let pid: u32 = fs::read_to_string(root.path().join("pid"))
-        .expect("pid file")
-        .parse()
-        .unwrap();
-    assert!(
-        !process_is_alive(pid),
-        "timed-out Hermes pid {pid} survived"
-    );
-    let child_pid: u32 = fs::read_to_string(root.path().join("child-pid"))
-        .expect("child pid file")
-        .parse()
-        .unwrap();
-    assert!(
-        !process_is_alive(child_pid),
-        "timed-out Hermes descendant pid {child_pid} survived"
-    );
+    peers.expect("provider and descendant must start before timeout");
+    assert!(!survivors, "provider or descendant survived timeout");
 }
 
 #[tokio::test]

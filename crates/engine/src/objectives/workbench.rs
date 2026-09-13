@@ -105,6 +105,10 @@ where
         let root = self.root.clone();
         let adapter = self.adapter.clone();
         Box::pin(async move {
+            if !reconciliation_only {
+                super::store::require_workspace_access(Path::new(&claim.workspace_root))
+                    .context("workspace is not available for execution")?;
+            }
             let execution = claim.execution.as_ref().ok_or_else(|| {
                 anyhow!("claimed leaf `{}` omitted execution payload", claim.leaf_id)
             })?;
@@ -819,6 +823,35 @@ mod tests {
                 binding_digest: None,
             }],
         };
+
+        let mut unavailable = claim.clone();
+        unavailable.workspace_root = root.path().join("absent").display().to_string();
+        let error = executor.execute(unavailable).await.unwrap_err();
+        assert!(format!("{error:#}").contains("workspace is not available for execution"));
+        assert!(recorded.lock().unwrap().is_none());
+        assert!(!root.path().join("data/vaire").exists());
+        assert!(!root.path().join("data/arda/objectives.sqlite3").exists());
+
+        let not_directory = root.path().join("file-root");
+        std::fs::write(&not_directory, b"not a directory").unwrap();
+        let mut unavailable = claim.clone();
+        unavailable.workspace_root = not_directory.display().to_string();
+        assert!(
+            format!("{:#}", executor.execute(unavailable).await.unwrap_err())
+                .contains("workspace is not a directory")
+        );
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&workspace, std::fs::Permissions::from_mode(0o000)).unwrap();
+            let result = executor.execute(claim.clone()).await;
+            std::fs::set_permissions(&workspace, std::fs::Permissions::from_mode(0o700)).unwrap();
+            assert!(format!("{:#}", result.unwrap_err())
+                .contains("workspace is not available for execution"));
+        }
+        assert!(recorded.lock().unwrap().is_none());
+        assert!(!root.path().join("data/vaire").exists());
+        assert!(!root.path().join("data/arda/objectives.sqlite3").exists());
 
         let store = super::super::store::ObjectiveStore::open(
             root.path().join("data/arda/objectives.sqlite3"),

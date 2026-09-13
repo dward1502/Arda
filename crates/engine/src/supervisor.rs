@@ -11,8 +11,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use serde::Serialize;
-use tokio::process::{Child, Command};
-use tokio::sync::{Mutex, Notify, RwLock};
+use tokio::process::Command;
+use tokio::sync::{watch, Mutex, RwLock};
 use tracing::{error, info, warn};
 
 /// A process the daemon keeps alive.
@@ -63,20 +63,24 @@ pub struct ServiceRuntimeStatus {
 
 #[derive(Clone)]
 pub struct Shutdown {
-    inner: Arc<Notify>,
+    inner: watch::Sender<bool>,
 }
 
 impl Shutdown {
     pub fn new() -> Self {
         Shutdown {
-            inner: Arc::new(Notify::new()),
+            inner: watch::channel(false).0,
         }
     }
     pub fn trigger(&self) {
-        self.inner.notify_waiters();
+        self.inner.send_replace(true);
+    }
+    pub fn is_triggered(&self) -> bool {
+        *self.inner.borrow()
     }
     pub async fn wait(&self) {
-        self.inner.notified().await;
+        let mut receiver = self.inner.subscribe();
+        let _ = receiver.wait_for(|stopping| *stopping).await;
     }
 }
 
@@ -92,7 +96,6 @@ pub struct Supervisor {
 
 struct Inner {
     services: Vec<Service>,
-    state: Arc<RwLock<Vec<Option<Child>>>>,
     /// Live child PIDs, mirrored so diagnostics (e.g. `child_pids`) can read
     /// them without disturbing the `Child` owned by `supervise_one`.
     pids: Arc<RwLock<Vec<Option<u32>>>>,
@@ -109,10 +112,8 @@ use tokio::task::JoinHandle;
 impl Supervisor {
     pub fn new(services: Vec<Service>, shutdown: Shutdown) -> Self {
         let n = services.len();
-        let mut state = Vec::with_capacity(n);
         let mut pids = Vec::with_capacity(n);
         for _ in 0..n {
-            state.push(None);
             pids.push(None);
         }
         let statuses = services
@@ -131,7 +132,6 @@ impl Supervisor {
         Supervisor {
             inner: Arc::new(Inner {
                 services,
-                state: Arc::new(RwLock::new(state)),
                 pids: Arc::new(RwLock::new(pids)),
                 statuses: Arc::new(RwLock::new(statuses)),
                 pid_mirror: RwLock::new(None),
@@ -185,7 +185,6 @@ impl Supervisor {
                     svc.name,
                     svc.exe.display()
                 );
-                let state = self.inner.state.clone();
                 let pids = self.inner.pids.clone();
                 let statuses = self.inner.statuses.clone();
                 let shutdown = self.inner.shutdown.clone();
@@ -199,7 +198,7 @@ impl Supervisor {
                     health: svc.health.clone(),
                 };
                 handles.push(tokio::spawn(async move {
-                    supervise_one(i, svc, state, pids, statuses, shutdown).await;
+                    supervise_one(i, svc, pids, statuses, shutdown).await;
                 }));
             }
         }
@@ -208,7 +207,7 @@ impl Supervisor {
         // sync while children run. Stops when shutdown fires.
         let mirror_super = self.clone();
         let mirror_shutdown = self.inner.shutdown.clone();
-        tokio::spawn(async move {
+        let mirror_handle = tokio::spawn(async move {
             loop {
                 tokio::select! {
                     _ = mirror_shutdown.wait() => break,
@@ -219,29 +218,28 @@ impl Supervisor {
             }
         });
 
-        // Wait for either the shutdown signal or all children to finish on
-        // their own. Do NOT block on shutdown.wait() alone, because a
-        // broadcast channel that has already fired would return immediately.
+        // Keep each in-flight JoinHandle in the collection across select!
+        // cancellation. Draining it before awaiting would detach the worker.
         tokio::select! {
             _ = self.inner.shutdown.wait() => {}
             _ = async {
                 let mut handles = self.inner.join_handles.lock().await;
-                for h in handles.drain(..) {
+                while let Some(h) = handles.last_mut() {
                     let _ = h.await;
+                    handles.pop();
                 }
             } => {}
         }
 
         info!("supervisor: shutdown signal received, stopping children");
-        let mut guard = self.inner.state.write().await;
-        for child in guard.iter_mut().flatten() {
-            let _ = child.start_kill();
-        }
-        drop(guard);
+        self.inner.shutdown.trigger();
+        let _ = mirror_handle.await;
         let mut handles = self.inner.join_handles.lock().await;
-        for h in handles.drain(..) {
+        while let Some(h) = handles.last_mut() {
             let _ = h.await;
+            handles.pop();
         }
+        self.sync_pid_mirror().await;
         for status in self.inner.statuses.write().await.iter_mut() {
             status.state = ServiceLifecycle::Stopped;
             status.pid = None;
@@ -253,8 +251,9 @@ impl Supervisor {
 
     pub async fn wait(&self) {
         let mut handles = self.inner.join_handles.lock().await;
-        for h in handles.drain(..) {
+        while let Some(h) = handles.last_mut() {
             let _ = h.await;
+            handles.pop();
         }
     }
 
@@ -272,7 +271,6 @@ impl Supervisor {
 async fn supervise_one(
     idx: usize,
     svc: Service,
-    state: Arc<RwLock<Vec<Option<Child>>>>,
     pids: Arc<RwLock<Vec<Option<u32>>>>,
     statuses: Arc<RwLock<Vec<ServiceRuntimeStatus>>>,
     shutdown: Shutdown,
@@ -281,6 +279,9 @@ async fn supervise_one(
     const MAX_BACKOFF: Duration = Duration::from_secs(10);
 
     loop {
+        if *shutdown.inner.borrow() {
+            return;
+        }
         {
             let mut runtime = statuses.write().await;
             runtime[idx].state = ServiceLifecycle::Starting;
@@ -297,9 +298,10 @@ async fn supervise_one(
         }
         cmd.stdin(Stdio::null())
             .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit());
+            .stderr(Stdio::inherit())
+            .kill_on_drop(true);
 
-        let child = match cmd.spawn() {
+        let mut child = match cmd.spawn() {
             Ok(c) => c,
             Err(e) => {
                 error!("supervisor: failed to spawn '{}': {e}", svc.name);
@@ -329,8 +331,6 @@ async fn supervise_one(
             pid.unwrap_or(0)
         );
         {
-            let mut guard = state.write().await;
-            guard[idx] = Some(child);
             let mut pg = pids.write().await;
             pg[idx] = pid;
         }
@@ -349,82 +349,29 @@ async fn supervise_one(
                 "child process is running; no readiness probe declared".to_string()
             };
         }
-        if let (Some(health), Some(probed_pid)) = (svc.health.clone(), pid) {
-            let probe_statuses = statuses.clone();
-            let probe_pids = pids.clone();
-            tokio::spawn(async move {
-                let client = reqwest::Client::new();
-                loop {
-                    if probe_pids.read().await.get(idx).copied().flatten() != Some(probed_pid) {
-                        return;
-                    }
-                    let result = client.get(&health.url).timeout(health.timeout).send().await;
-                    let mut runtime = probe_statuses.write().await;
-                    let status = &mut runtime[idx];
-                    match result {
-                        Ok(response) if response.status().is_success() => {
-                            status.state = ServiceLifecycle::Healthy;
-                            status.detail = format!("readiness probe passed: {}", health.url);
-                        }
-                        Ok(response) => {
-                            status.state = ServiceLifecycle::Degraded;
-                            status.detail = format!(
-                                "readiness probe returned {}: {}",
-                                response.status(),
-                                health.url
-                            );
-                        }
-                        Err(error) => {
-                            status.state = ServiceLifecycle::Degraded;
-                            status.detail = format!("readiness probe failed: {error}");
-                        }
-                    }
-                    drop(runtime);
-                    tokio::time::sleep(health.interval).await;
-                }
-            });
-        }
-
-        // Wait for the child to exit OR the shutdown signal. The `Child` lives in
-        // `state` (owned locally as `child`) so diagnostics read `pids` and the
-        // shutdown arm can reach the same handle to kill it.
-        let mut g = state.write().await;
-        let status = tokio::select! {
-            status = async {
-                match g[idx].as_mut() {
-                    Some(c) => {
-                        let fut = c.wait();
-                        fut.await.ok()
-                    }
-                    None => None,
-                }
-            } => status,
+        // Each worker owns its child. The health future is scoped to this
+        // generation and is dropped before shutdown/restart publishes status.
+        let (status, stopping) = tokio::select! {
+            biased;
             _ = shutdown.wait() => {
-                if let Some(c) = g[idx].as_mut() {
-                    let _ = c.start_kill();
-                    let _ = c.wait().await;
-                }
-                drop(g);
-                {
-                    let mut pg = pids.write().await;
-                    pg[idx] = None;
-                }
-                {
-                    let mut runtime = statuses.write().await;
-                    runtime[idx].state = ServiceLifecycle::Stopped;
-                    runtime[idx].pid = None;
-                    runtime[idx].backoff_ms = None;
-                    runtime[idx].detail = "stopped by supervisor shutdown".to_string();
-                }
-                info!("supervisor: '{}' stopped on shutdown", svc.name);
-                return;
+                let _ = child.start_kill();
+                (child.wait().await.ok(), true)
             }
+            status = child.wait() => (status.ok(), false),
+            _ = probe_health(idx, svc.health.as_ref(), &statuses) => unreachable!("health probe runs until cancelled"),
         };
-        drop(g);
-        // Child exited on its own.
         {
             let mut pg = pids.write().await;
             pg[idx] = None;
+        }
+        if stopping {
+            let mut runtime = statuses.write().await;
+            runtime[idx].state = ServiceLifecycle::Stopped;
+            runtime[idx].pid = None;
+            runtime[idx].backoff_ms = None;
+            runtime[idx].detail = "stopped by supervisor shutdown".to_string();
+            info!("supervisor: '{}' stopped on shutdown", svc.name);
+            return;
         }
         match status {
             Some(code) => warn!("supervisor: '{}' exited (code {:?})", svc.name, code),
@@ -454,9 +401,222 @@ async fn supervise_one(
     }
 }
 
+/// Polled within the owning child's select, never detached or shared across
+/// generations. Child exit/shutdown drops an in-flight request and interval.
+async fn probe_health(
+    idx: usize,
+    health: Option<&HealthProbe>,
+    statuses: &RwLock<Vec<ServiceRuntimeStatus>>,
+) {
+    let Some(health) = health else {
+        return std::future::pending().await;
+    };
+    let client = reqwest::Client::new();
+    loop {
+        let result = client.get(&health.url).timeout(health.timeout).send().await;
+        let mut runtime = statuses.write().await;
+        let status = &mut runtime[idx];
+        match result {
+            Ok(response) if response.status().is_success() => {
+                status.state = ServiceLifecycle::Healthy;
+                status.detail = format!("readiness probe passed: {}", health.url);
+            }
+            Ok(response) => {
+                status.state = ServiceLifecycle::Degraded;
+                status.detail = format!(
+                    "readiness probe returned {}: {}",
+                    response.status(),
+                    health.url
+                );
+            }
+            Err(error) => {
+                status.state = ServiceLifecycle::Degraded;
+                status.detail = format!("readiness probe failed: {error}");
+            }
+        }
+        drop(runtime);
+        tokio::time::sleep(health.interval).await;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn sleeper(name: &'static str) -> Service {
+        Service {
+            name,
+            exe: PathBuf::from("/usr/bin/sleep"),
+            args: vec!["30".into()],
+            cwd: None,
+            required: true,
+            optional: false,
+            health: None,
+        }
+    }
+
+    #[tokio::test]
+    async fn sibling_children_start_without_waiting_for_another_child_to_exit() {
+        let shutdown = Shutdown::new();
+        let supervisor =
+            Supervisor::new(vec![sleeper("first"), sleeper("second")], shutdown.clone());
+        let runner = supervisor.clone();
+        let task = tokio::spawn(async move { runner.run().await });
+        let observed = tokio::time::timeout(Duration::from_secs(1), async {
+            loop {
+                let pids = supervisor.child_pids().await;
+                if pids.len() == 2 {
+                    return pids;
+                }
+                tokio::time::sleep(Duration::from_millis(5)).await;
+            }
+        })
+        .await;
+        shutdown.trigger();
+        tokio::time::timeout(Duration::from_secs(2), task)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(observed.is_ok(), "one child's wait blocked sibling startup");
+        assert!(supervisor.child_pids().await.is_empty());
+        for pid in observed.unwrap() {
+            assert!(
+                !std::path::Path::new(&format!("/proc/{pid}")).exists(),
+                "child {pid} not reaped"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn shutdown_cancels_pending_health_request_before_returning() {
+        use tokio::io::AsyncReadExt;
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let started = Arc::new(tokio::sync::Notify::new());
+        let accepted = started.clone();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let (mut stream, _) = listener.accept().await.unwrap();
+            let mut header = Vec::new();
+            while !header.ends_with(b"\r\n\r\n") {
+                header.push(stream.read_u8().await.unwrap());
+            }
+            accepted.notify_one();
+            let mut byte = [0];
+            // The probe must drop its request on shutdown, not wait for the
+            // configured minute-long health timeout or publish a stale response.
+            stream.read(&mut byte).await.unwrap()
+        });
+        let mut service = sleeper("pending-health");
+        service.health = Some(HealthProbe {
+            url: format!("http://{address}/health"),
+            interval: Duration::from_secs(60),
+            timeout: Duration::from_secs(60),
+        });
+        let shutdown = Shutdown::new();
+        let supervisor = Supervisor::new(vec![service], shutdown.clone());
+        let runner = supervisor.clone();
+        let task = tokio::spawn(async move { runner.run().await });
+        tokio::time::timeout(Duration::from_secs(2), started.notified())
+            .await
+            .unwrap();
+        shutdown.trigger();
+        tokio::time::timeout(Duration::from_secs(2), task)
+            .await
+            .unwrap()
+            .unwrap();
+        let mut server = server;
+        let closed = tokio::time::timeout(Duration::from_millis(300), &mut server).await;
+        if closed.is_err() {
+            server.abort();
+            let _ = server.await;
+        }
+        assert_eq!(
+            closed.expect("health request outlived supervisor").unwrap(),
+            0
+        );
+        assert_eq!(
+            supervisor.statuses().read().await[0].state,
+            ServiceLifecycle::Stopped
+        );
+    }
+
+    #[tokio::test]
+    async fn shutdown_is_retained_for_late_and_repeated_waiters() {
+        let shutdown = Shutdown::new();
+        shutdown.trigger();
+        for _ in 0..3 {
+            tokio::time::timeout(Duration::from_millis(100), shutdown.clone().wait())
+                .await
+                .expect("shutdown must not be lost before a waiter subscribes");
+        }
+    }
+
+    #[tokio::test]
+    async fn shutdown_before_run_does_not_spawn_a_child() {
+        let directory = tempfile::tempdir().unwrap();
+        let marker = directory.path().join("spawned");
+        let shutdown = Shutdown::new();
+        let supervisor = Supervisor::new(
+            vec![Service {
+                name: "must-not-spawn",
+                exe: PathBuf::from("/bin/sh"),
+                args: vec![
+                    "-c".into(),
+                    "touch \"$1\"".into(),
+                    "fixture".into(),
+                    marker.to_string_lossy().into_owned(),
+                ],
+                cwd: None,
+                required: true,
+                optional: false,
+                health: None,
+            }],
+            shutdown.clone(),
+        );
+        shutdown.trigger();
+        tokio::time::timeout(Duration::from_secs(2), supervisor.run())
+            .await
+            .unwrap();
+        assert!(!marker.exists());
+        assert!(supervisor.child_pids().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn shutdown_keeps_worker_handles_until_they_are_joined() {
+        let shutdown = Shutdown::new();
+        let supervisor = Supervisor::new(Vec::new(), shutdown.clone());
+        let finished = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let worker_finished = finished.clone();
+        let worker_shutdown = shutdown.clone();
+        supervisor
+            .inner
+            .join_handles
+            .lock()
+            .await
+            .push(tokio::spawn(async move {
+                worker_shutdown.wait().await;
+                tokio::time::sleep(Duration::from_millis(100)).await;
+                worker_finished.store(true, std::sync::atomic::Ordering::SeqCst);
+            }));
+        let runner = supervisor.clone();
+        let task = tokio::spawn(async move { runner.run().await });
+        tokio::time::timeout(Duration::from_secs(2), async {
+            while supervisor.inner.join_handles.try_lock().is_ok() {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        shutdown.trigger();
+        tokio::time::timeout(Duration::from_secs(2), task)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(
+            finished.load(std::sync::atomic::Ordering::SeqCst),
+            "shutdown detached a worker instead of joining it"
+        );
+    }
 
     /// A supervised `sleep` child must be reaped when the supervisor receives
     /// the shutdown signal. Tracks the exact PID (not a global pgrep scan) so

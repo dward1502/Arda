@@ -208,6 +208,7 @@ struct Status {
 fn router(state: HarnessState) -> axum::Router {
     axum::Router::new()
         .route("/health", get(health))
+        .route("/v1/objective-runtime", get(objective_runtime_status))
         .route("/.well-known/agent-card.json", get(mesh::agent_card))
         .route("/v1/a2a", post(mesh::receive))
         .route("/v1/status", get(status))
@@ -367,6 +368,29 @@ fn harness_cors_layer() -> CorsLayer {
             HeaderName::from_static("idempotency-key"),
             HeaderName::from_static("x-arda-operator-id"),
         ])
+}
+
+/// Live resident observation; HTTP success is not an automation-readiness verdict.
+async fn objective_runtime_status(
+    runtime: Option<
+        axum::Extension<tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>>,
+    >,
+) -> axum::response::Response {
+    if let Some(axum::Extension(runtime)) = runtime {
+        let snapshot = runtime.borrow().clone();
+        if runtime.has_changed().is_ok() {
+            return (StatusCode::OK, Json(snapshot)).into_response();
+        }
+    }
+    (
+        StatusCode::SERVICE_UNAVAILABLE,
+        Json(serde_json::json!({
+            "ready": false, "pending_recovery": null,
+            "phase": "unavailable", "active_leaves": [], "next_wake_ms": null,
+            "last_error": "resident_status_unavailable"
+        })),
+    )
+        .into_response()
 }
 
 /// Liveness probe. Returns 200 once the harness is listening.
@@ -558,14 +582,52 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
     )
 }
 
+/// Start Harness with retained cancellation for provider work and HTTP drain.
+pub async fn serve_with_shutdown(
+    addr: Option<SocketAddr>,
+    state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    serve_inner(addr, state, shutdown, std::future::pending(), None).await
+}
+
+/// Share the resident's observation channel; Harness never creates another runtime.
+pub async fn serve_with_runtime_status(
+    addr: Option<SocketAddr>,
+    state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    runtime: tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    serve_inner(addr, state, shutdown, std::future::pending(), Some(runtime)).await
+}
+
 /// Start the harness HTTP surface. Uses `addr` when provided, otherwise reads
 /// `ARDA_HARNESS_BIND_ADDR` from the environment, falling back to
 /// `DEFAULT_HARNESS_ADDR`. Returns the bound `SocketAddr` and a
 /// `JoinHandle` for the serving task. The `shutdown` notify stops it.
 pub async fn serve(
     addr: Option<SocketAddr>,
-    mut state: HarnessState,
+    state: HarnessState,
     shutdown: Arc<Notify>,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    serve_inner(
+        addr,
+        state,
+        crate::supervisor::Shutdown::new(),
+        async move {
+            shutdown.notified().await;
+        },
+        None,
+    )
+    .await
+}
+
+async fn serve_inner(
+    addr: Option<SocketAddr>,
+    mut state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    compatibility_stop: impl std::future::Future<Output = ()> + Send + 'static,
+    runtime: Option<tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>>,
 ) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
     let addr = addr
         .or_else(|| std::env::var("ARDA_HARNESS_BIND_ADDR").ok()?.parse().ok())
@@ -580,25 +642,78 @@ pub async fn serve(
     state.harness_addr = bound.to_string();
     info!("harness: listening on {bound}");
     let publisher_root = state.workbench_root.clone();
-    let app = router(state);
-    let publisher_shutdown = shutdown.clone();
+    let app = router(state)
+        .layer(axum::middleware::from_fn(stop_request_ingestion))
+        .layer(axum::Extension(shutdown.clone()));
+    let app = if let Some(runtime) = runtime {
+        app.layer(axum::Extension(runtime))
+    } else {
+        app
+    };
     let handle = tokio::spawn(async move {
-        let publisher = tokio::spawn(operator_projection::publish_continuously(
-            publisher_root,
-            publisher_shutdown,
-        ));
-        axum::serve(
-            listener,
-            app.into_make_service_with_connect_info::<SocketAddr>(),
-        )
-        .with_graceful_shutdown(async move { shutdown.notified().await })
-        .await
-        .ok();
-        publisher.abort();
-        let _ = publisher.await;
+        let publisher = async {
+            tokio::select! {
+                _ = shutdown.wait() => {}
+                _ = operator_projection::publish_continuously(publisher_root, Arc::new(Notify::new())) => {}
+            }
+        };
+        let server_shutdown = shutdown.clone();
+        let server = async {
+            let result = axum::serve(
+                listener,
+                app.into_make_service_with_connect_info::<SocketAddr>(),
+            )
+            .with_graceful_shutdown(async move { server_shutdown.wait().await })
+            .await;
+            shutdown.trigger();
+            result
+        };
+        let stopping = async {
+            tokio::select! {
+                _ = compatibility_stop => shutdown.trigger(),
+                _ = shutdown.wait() => {}
+            }
+        };
+        let (result, (), ()) = tokio::join!(server, publisher, stopping);
+        if let Err(error) = result {
+            tracing::warn!(%error, "harness server failed");
+        }
         info!("harness: stopped");
     });
     Ok((bound, handle))
+}
+
+// Cancel only request ingestion, not an executing handler: provider handlers
+// must retain ownership until their cooperative cancellation has reaped children.
+async fn stop_request_ingestion(
+    axum::Extension(shutdown): axum::Extension<crate::supervisor::Shutdown>,
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::response::IntoResponse;
+    use futures::StreamExt;
+    if shutdown.is_triggered() {
+        return axum::http::StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
+    let (parts, body) = request.into_parts();
+    let stream = futures::stream::unfold(Some(body.into_data_stream()), move |body| {
+        let shutdown = shutdown.clone();
+        async move {
+            let mut body = body?;
+            tokio::select! {
+                biased;
+                _ = shutdown.wait() => Some((Err(axum::Error::new(
+                    std::io::Error::new(std::io::ErrorKind::Interrupted, "Harness stopping")
+                )), None)),
+                chunk = body.next() => chunk.map(|chunk| (chunk, Some(body))),
+            }
+        }
+    });
+    next.run(axum::extract::Request::from_parts(
+        parts,
+        axum::body::Body::from_stream(stream),
+    ))
+    .await
 }
 
 #[cfg(test)]

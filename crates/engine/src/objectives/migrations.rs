@@ -47,6 +47,34 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
                 updated_at_ms INTEGER NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS lease_workspace_identities (
+                leaf_id TEXT PRIMARY KEY REFERENCES leaves(id) ON DELETE CASCADE,
+                identity_json TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS retained_workspace_snapshots (
+                leaf_id TEXT PRIMARY KEY REFERENCES leaves(id),
+                run_id TEXT NOT NULL UNIQUE,
+                capability_json TEXT NOT NULL,
+                committed_generation INTEGER NOT NULL CHECK (committed_generation >= 0)
+            );
+
+            CREATE TABLE IF NOT EXISTS retained_snapshot_policy (
+                singleton INTEGER PRIMARY KEY CHECK (singleton = 1)
+            );
+
+            CREATE TABLE IF NOT EXISTS retained_snapshot_lease_intents (
+                leaf_id TEXT NOT NULL REFERENCES retained_workspace_snapshots(leaf_id),
+                generation INTEGER NOT NULL CHECK (generation > 0),
+                lease_owner TEXT NOT NULL,
+                lease_expires_ms INTEGER NOT NULL,
+                PRIMARY KEY (leaf_id, generation)
+            );
+
+            CREATE TABLE IF NOT EXISTS retained_snapshot_releases (
+                leaf_id TEXT PRIMARY KEY REFERENCES retained_workspace_snapshots(leaf_id)
+            );
+
             CREATE TABLE IF NOT EXISTS leaf_dependencies (
                 leaf_id TEXT NOT NULL REFERENCES leaves(id) ON DELETE CASCADE,
                 dependency_leaf_id TEXT NOT NULL REFERENCES leaves(id) ON DELETE CASCADE,
@@ -70,6 +98,17 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
                 payload_digest TEXT NOT NULL,
                 created_at_ms INTEGER NOT NULL,
                 updated_at_ms INTEGER NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS schedule_wakes (
+                schedule_id TEXT PRIMARY KEY REFERENCES schedules(id) ON DELETE CASCADE,
+                last_wake_ms INTEGER NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS schedule_errors (
+                schedule_id TEXT PRIMARY KEY REFERENCES schedules(id) ON DELETE CASCADE,
+                error TEXT NOT NULL,
+                observed_at_ms INTEGER NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS stage_receipts (

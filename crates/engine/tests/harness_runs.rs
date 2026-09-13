@@ -12,6 +12,9 @@ use std::sync::Arc;
 use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
 
+#[path = "fixtures/retained_replay.rs"]
+mod retained_replay;
+
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 
 async fn start_harness(
@@ -22,7 +25,19 @@ async fn start_harness(
     tokio::task::JoinHandle<()>,
 ) {
     let shutdown = Arc::new(Notify::new());
-    let state = HarnessState {
+    let state = harness_state(root);
+    let (bound, handle) = serve(
+        Some("127.0.0.1:0".parse().expect("loopback address")),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+    (bound, shutdown, handle)
+}
+
+fn harness_state(root: &TempDir) -> HarnessState {
+    HarnessState {
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),
@@ -36,15 +51,308 @@ async fn start_harness(
         presence_inputs: HarnessPresenceState::default(),
         workbench_root: root.path().to_path_buf(),
         operator_id: "operator-0".to_string(),
-    };
-    let (bound, handle) = serve(
-        Some("127.0.0.1:0".parse().expect("loopback address")),
-        state,
+    }
+}
+
+#[tokio::test]
+async fn runtime_status_projects_shared_channel_and_detects_owner_loss() {
+    use arda_engine::objectives::ObjectiveRuntimeStatus;
+    let root = tempfile::tempdir().unwrap();
+    let shutdown = arda_engine::supervisor::Shutdown::new();
+    let (sender, receiver) = tokio::sync::watch::channel(ObjectiveRuntimeStatus::default());
+    let (addr, server) = arda_engine::harness::serve_with_runtime_status(
+        Some("127.0.0.1:0".parse().unwrap()),
+        harness_state(&root),
+        shutdown.clone(),
+        receiver,
+    )
+    .await
+    .unwrap();
+    let client = reqwest::Client::new();
+    let url = format!("http://{addr}/v1/objective-runtime");
+    let first = client.get(&url).send().await.unwrap();
+    let first_code = first.status();
+    let first_body = first.text().await.unwrap();
+    sender.send_modify(|status| {
+        status.phase = "recovering";
+        status.active_leaves = vec!["leaf-recovery".into()];
+        status.next_wake_ms = Some(1234);
+        status.last_error = Some("objective_round_failed");
+    });
+    let changed = client.get(&url).send().await.unwrap().text().await.unwrap();
+    drop(sender);
+    let closed = client.get(&url).send().await.unwrap();
+    let closed_code = closed.status();
+    let closed_body = closed.text().await.unwrap();
+    shutdown.trigger();
+    tokio::time::timeout(std::time::Duration::from_secs(2), server)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(first_code, reqwest::StatusCode::OK);
+    assert_eq!(
+        serde_json::from_str::<Value>(&first_body).unwrap()["ready"],
+        false
+    );
+    assert_eq!(
+        serde_json::from_str::<Value>(&first_body).unwrap()["phase"],
+        "not_started"
+    );
+    let changed: Value = serde_json::from_str(&changed).unwrap();
+    assert_eq!(changed["phase"], "recovering");
+    assert_eq!(changed["active_leaves"], json!(["leaf-recovery"]));
+    assert_eq!(changed["next_wake_ms"], 1234);
+    assert_eq!(changed["last_error"], "objective_round_failed");
+    assert_eq!(closed_code, reqwest::StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(
+        serde_json::from_str::<Value>(&closed_body).unwrap()["ready"],
+        false
+    );
+    assert_eq!(
+        serde_json::from_str::<Value>(&closed_body).unwrap()["phase"],
+        "unavailable"
+    );
+}
+
+#[tokio::test]
+async fn managed_shutdown_closes_live_run_and_presence_streams() {
+    use std::time::Duration;
+    let root = tempfile::tempdir().unwrap();
+    let shutdown = arda_engine::supervisor::Shutdown::new();
+    let (addr, mut server) = arda_engine::harness::serve_with_shutdown(
+        Some("127.0.0.1:0".parse().unwrap()),
+        harness_state(&root),
         shutdown.clone(),
     )
     .await
-    .expect("start harness");
-    (bound, shutdown, handle)
+    .unwrap();
+    let base = format!("http://{addr}");
+    let client = reqwest::Client::new();
+    attach(&client, addr).await;
+    let planned = plan(&client, addr, "run-stream-stop", "inspect", "inspect").await;
+    assert_eq!(planned.status(), reqwest::StatusCode::CREATED);
+    let mut run = client
+        .get(format!("{base}/v1/runs/run-stream-stop/events/stream"))
+        .send()
+        .await
+        .unwrap();
+    let mut presence = client
+        .get(format!("{base}/v1/presence/events"))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(run.status(), reqwest::StatusCode::OK);
+    assert_eq!(presence.status(), reqwest::StatusCode::OK);
+    assert!(run.chunk().await.unwrap().is_some());
+    assert!(presence.chunk().await.unwrap().is_some());
+    shutdown.trigger();
+    let stopped = tokio::time::timeout(Duration::from_millis(800), &mut server).await;
+    drop((run, presence));
+    if stopped.is_err() {
+        let _ = tokio::time::timeout(Duration::from_secs(2), &mut server).await;
+        server.abort();
+    }
+    assert!(
+        stopped.is_ok(),
+        "live SSE streams prevented Harness shutdown"
+    );
+    stopped.unwrap().unwrap();
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn managed_shutdown_reaps_provider_without_recording_failure() {
+    assert_managed_provider_shutdown(false).await;
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn managed_shutdown_reaps_provider_after_client_disconnect() {
+    assert_managed_provider_shutdown(true).await;
+}
+
+#[tokio::test]
+async fn managed_shutdown_closes_incomplete_request_body() {
+    use arda_engine::supervisor::Shutdown;
+    use std::time::Duration;
+    use tokio::io::AsyncWriteExt;
+
+    let root = TempDir::new().unwrap();
+    let shutdown = Shutdown::new();
+    let (bound, mut server) = arda_engine::harness::serve_with_shutdown(
+        Some("127.0.0.1:0".parse().unwrap()),
+        harness_state(&root),
+        shutdown.clone(),
+    )
+    .await
+    .unwrap();
+    let mut connection = tokio::net::TcpStream::connect(bound).await.unwrap();
+    connection.write_all(b"POST /v1/runs/plan HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: 2000\r\n\r\n{").await.unwrap();
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    shutdown.trigger();
+    let stopped = tokio::time::timeout(Duration::from_secs(1), &mut server).await;
+    drop(connection);
+    if stopped.is_err() {
+        server.abort();
+        let _ = server.await;
+    }
+    assert!(
+        stopped.is_ok(),
+        "incomplete request body prevented shutdown"
+    );
+    stopped.unwrap().unwrap();
+}
+
+#[cfg(unix)]
+async fn assert_managed_provider_shutdown(disconnect: bool) {
+    use arda_engine::supervisor::Shutdown;
+    use std::os::unix::fs::PermissionsExt;
+    use std::time::Duration;
+    let root = TempDir::new().unwrap();
+    let executable = root.path().join("slow-provider");
+    use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
+    let socket_path = root.path().join("provider.sock");
+    let listener = tokio::net::UnixListener::bind(&socket_path).unwrap();
+    fs::write(
+        &executable,
+        format!(
+            "#!/usr/bin/python3\nimport socket,time\ns=socket.socket(socket.AF_UNIX)\ns.connect('{}')\ntime.sleep(3)\n",
+            socket_path.display()
+        ),
+    )
+    .unwrap();
+    fs::set_permissions(&executable, fs::Permissions::from_mode(0o700)).unwrap();
+    write_file_only_hermes_config(&root);
+    let config_path = root.path().join("config/adapters/hermes-workbench.toml");
+    let config = fs::read_to_string(&config_path)
+        .unwrap()
+        .replace("/bin/true", executable.to_str().unwrap())
+        .replace("max_timeout_ms = 1000", "max_timeout_ms = 30000");
+    fs::write(config_path, config).unwrap();
+    let shutdown = Shutdown::new();
+    let (bound, mut handle) = arda_engine::harness::serve_with_shutdown(
+        Some("127.0.0.1:0".parse().unwrap()),
+        harness_state(&root),
+        shutdown.clone(),
+    )
+    .await
+    .unwrap();
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+    let mut work = graph("run-shutdown", "inspect", "inspect");
+    work["nodes"][0]["state"] = json!("ready");
+    work["nodes"][0]["timeout_ms"] = json!(30000);
+    work["nodes"][0]["parent_receipts"] = json!(["receipt:approval"]);
+    work["nodes"]
+        .as_array_mut()
+        .unwrap()
+        .push(graph("run-shutdown", "approval", "approval")["nodes"][0].clone());
+    work["nodes"][1]["idempotency_key"] = json!("node-shutdown-approval");
+    work["edges"] = json!([{"id": "approval-inspect", "from": "approval", "to": "inspect", "parent_receipt": "receipt:approval"}]);
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID, "graph": work, "envelope": envelope("plan-shutdown")
+        }))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    client
+        .post(format!("http://{bound}/v1/runs/run-shutdown/approve"))
+        .json(&json!({"node_id": "approval", "envelope": envelope("approve-shutdown")}))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let request = tokio::spawn(async move {
+        client
+            .post(format!(
+                "http://{bound}/v1/runs/run-shutdown/nodes/inspect/execute-provider"
+            ))
+            .json(
+                &json!({"envelope": envelope("execute-shutdown"), "objective": "inspect fixture"}),
+            )
+            .send()
+            .await
+            .unwrap()
+    });
+    let started = tokio::time::timeout(Duration::from_secs(2), listener.accept()).await;
+    // Kernel peer credentials are expressed in the receiving host namespace;
+    // never interpret the worker's namespace-local getpid()/$$ as a host PID.
+    let provider = started
+        .as_ref()
+        .ok()
+        .and_then(|result| result.as_ref().ok())
+        .map(|(stream, _)| {
+            let pid = stream.peer_cred().unwrap().pid().unwrap();
+            let fd = unsafe { libc::syscall(libc::SYS_pidfd_open, pid, 0) };
+            assert!(fd >= 0, "cannot open owned provider pidfd");
+            unsafe { OwnedFd::from_raw_fd(fd as i32) }
+        });
+    let is_alive = |fd: &OwnedFd| {
+        let mut poll = libc::pollfd {
+            fd: fd.as_raw_fd(),
+            events: libc::POLLIN,
+            revents: 0,
+        };
+        let result = unsafe { libc::poll(&mut poll, 1, 0) };
+        assert!(result >= 0);
+        result == 0
+    };
+    assert!(
+        provider.as_ref().is_some_and(&is_alive),
+        "provider not live before shutdown"
+    );
+    if disconnect {
+        request.abort();
+        // Let the closed client transport reach the server before stopping it.
+        tokio::time::sleep(Duration::from_millis(50)).await;
+    }
+    shutdown.trigger();
+    let stopped = tokio::time::timeout(Duration::from_millis(800), &mut handle).await;
+    let alive = provider.as_ref().is_some_and(&is_alive);
+    // Clean up before assertions, including when old code ignores shutdown.
+    if let Some(fd) = provider.as_ref().filter(|_| alive) {
+        unsafe {
+            libc::syscall(
+                libc::SYS_pidfd_send_signal,
+                fd.as_raw_fd(),
+                libc::SIGKILL,
+                std::ptr::null::<libc::siginfo_t>(),
+                0,
+            );
+        }
+    }
+    if stopped.is_err() {
+        handle.abort();
+        let _ = handle.await;
+    }
+    if disconnect {
+        assert!(request.await.unwrap_err().is_cancelled());
+    } else {
+        let response = request.await.unwrap();
+        assert_eq!(response.status(), reqwest::StatusCode::SERVICE_UNAVAILABLE);
+    }
+    assert!(started.is_ok(), "provider did not start");
+    assert!(
+        stopped.is_ok(),
+        "Harness did not join shutdown within bound"
+    );
+    assert!(!alive, "provider survived Harness shutdown");
+
+    let store = arda_engine::runs::RunStore::open(
+        root.path(),
+        arda_core::run_graph::RunId::new("run-shutdown").unwrap(),
+    )
+    .unwrap();
+    let recovered = store.recover().unwrap();
+    assert_eq!(
+        recovered.checkpoint.unwrap().nodes[0].state,
+        arda_core::run_graph::NodeState::Running
+    );
 }
 
 fn envelope(key: &str) -> Value {

@@ -818,12 +818,17 @@ fn provider_ready_idempotency_key(node_key: &str, attempt: u64) -> String {
 
 pub(super) async fn execute_provider_node(
     State(state): State<HarnessState>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
     Path((id, node_id)): Path<(String, String)>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
     Json(request): Json<ExecuteProviderNodeRequest>,
 ) -> Result<Json<ExecuteProviderNodeResponse>, ApiError> {
     require_loopback(peer)?;
     request.envelope.validate()?;
+    let shutdown = shutdown.map(|extension| extension.0).unwrap_or_default();
+    if shutdown.is_triggered() {
+        return Err(ApiError::stopping());
+    }
     if request.objective.trim().is_empty() {
         return Err(ApiError::bad_request("provider objective cannot be empty"));
     }
@@ -898,14 +903,7 @@ pub(super) async fn execute_provider_node(
         .cloned()
         .ok_or_else(|| ApiError::conflict("provider execution requires an approval receipt"))?;
     let config_path = provider_config_path(&state.workbench_root);
-    let environment = std::env::vars().collect::<BTreeMap<_, _>>();
-    let adapter = HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
-        .map_err(|error| {
-            ApiError::internal(format!(
-                "failed to load Workbench provider adapter at {}: {error}",
-                config_path.display()
-            ))
-        })?;
+
     let mut ready_node = graph
         .nodes
         .iter()
@@ -1019,18 +1017,56 @@ pub(super) async fn execute_provider_node(
                 "stored provider receipt does not match the requested context capsule authority",
             ));
         }
-        adapter
-            .validate_stored_receipt_authority(&task, &receipt)
-            .map_err(|error| {
+        HermesAdapter::validate_replay(&config_path, &project_root, &task, &receipt).map_err(
+            |error| {
                 ApiError::conflict(format!(
                     "stored provider receipt failed current authority binding: {error}"
                 ))
-            })?;
-        adapter.preflight(&task).map_err(|error| {
-            ApiError::conflict(format!("provider task failed bounded preflight: {error}"))
-        })?;
+            },
+        )?;
         receipt
     } else {
+        let environment = std::env::vars().collect::<BTreeMap<_, _>>();
+        let objectives = crate::objectives::ObjectiveStore::open(
+            state.workbench_root.join("data/arda/objectives.sqlite3"),
+        )
+        .map_err(|error| ApiError::internal(error.to_string()))?;
+        let retained = objectives
+            .retained_execution(id.as_str(), chrono::Utc::now().timestamp_millis())
+            .map_err(|error| ApiError::conflict(error.to_string()))?;
+        let uses_retained = retained.is_some();
+        let adapter = if let Some(binding) = retained {
+            #[cfg(target_os = "linux")]
+            {
+                HermesAdapter::load_retained(&config_path, &project_root, &environment, binding)
+            }
+            #[cfg(not(target_os = "linux"))]
+            {
+                let _ = binding;
+                return Err(ApiError::conflict("retained execution requires Linux"));
+            }
+        } else {
+            HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
+        }
+        .map_err(|error| {
+            ApiError::internal(format!(
+                "failed to load Workbench provider adapter: {error}"
+            ))
+        })?;
+        if !uses_retained {
+            if let Some(identity) = objectives
+                .execution_workspace_identity(id.as_str())
+                .map_err(|error| ApiError::conflict(error.to_string()))?
+            {
+                adapter
+                    .require_admission_workspace(&identity)
+                    .map_err(|error| ApiError::conflict(error.to_string()))?;
+            } else if id.starts_with("objective-") {
+                return Err(ApiError::conflict(
+                    "resident execution workspace identity is unknown",
+                ));
+            }
+        }
         adapter.preflight(&task).map_err(|error| {
             ApiError::conflict(format!("provider task failed bounded preflight: {error}"))
         })?;
@@ -1123,7 +1159,18 @@ pub(super) async fn execute_provider_node(
         }
         drop(_mutation_guard.take());
 
-        let execution = adapter.execute(&task, cancellation).await;
+        let execution = adapter.execute(&task, cancellation.clone());
+        tokio::pin!(execution);
+        let (execution, interrupted) = tokio::select! {
+            biased;
+            _ = shutdown.wait() => {
+                cancellation.cancel();
+                // Await cooperative cleanup before HTTP drain can finish. A daemon
+                // stop leaves the original run recoverable, not falsely failed.
+                (execution.await, true)
+            }
+            result = &mut execution => (result, false),
+        };
         ACTIVE_PROVIDER_CANCELLATIONS
             .lock()
             .await
@@ -1132,6 +1179,17 @@ pub(super) async fn execute_provider_node(
             .lock()
             .await
             .remove(&cancellation_key);
+        if interrupted && execution.is_err() {
+            return Err(ApiError::stopping());
+        }
+        if matches!(
+            execution,
+            Err(crate::adapters::HermesAdapterError::WorkspaceChanged)
+        ) {
+            return Err(ApiError::conflict(
+                "provider workspace changed; stopped for reconciliation",
+            ));
+        }
         _mutation_guard = Some(WORKBENCH_MUTATIONS.lock().await);
 
         // Cancellation may have updated the journal while the child was
@@ -1598,7 +1656,9 @@ pub(super) async fn get_run_events(
 pub(super) async fn stream_run_events(
     State(state): State<HarnessState>,
     Path(id): Path<String>,
+    shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
 ) -> Result<Sse<impl futures_core::Stream<Item = Result<Event, Infallible>>>, ApiError> {
+    let shutdown = shutdown.map(|value| value.0).unwrap_or_default();
     let (store, _) = load_run(&state, &id)?;
     let stream = async_stream::stream! {
         let mut next_sequence = 1_u64;
@@ -1626,6 +1686,7 @@ pub(super) async fn stream_run_events(
             }
         }
     };
+    let stream = futures::StreamExt::take_until(stream, async move { shutdown.wait().await });
     Ok(Sse::new(stream).keep_alive(KeepAlive::new().interval(Duration::from_secs(10))))
 }
 

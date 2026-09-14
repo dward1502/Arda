@@ -1,0 +1,15 @@
+{
+  "contract": "arda.workbench.execution_outcome.v1",
+  "task_id": "digital-organism-s0-foundation-matrix",
+  "recommendation_id": "unknown-recommendation",
+  "approval_packet_id": "unknown-approval",
+  "workbench_run_id": "reconciled-terminal-task",
+  "status": "completed",
+  "result": "docs/audits/digital-organism-foundation-matrix.md",
+  "execution_receipt_digest": null,
+  "evidence_path": "audit/workbench-queue/reconciled-terminal-task/execution_receipt.json",
+  "learning_key": "arda_workbench::operator_authorized_plan_task",
+  "memory_id": "mem_2b0f9da9cb8b4010a647f212c197e5a4",
+  "governance_event_id": "workbench-outcome:reconciled-terminal-task",
+  "projected_at_utc": "2026-08-30T13:53:27.507956009+00:00"
+}

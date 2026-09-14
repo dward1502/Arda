@@ -1,0 +1,88 @@
+{
+  "receipt_id": "langfuse-otlp-trace-acb52570-20260826",
+  "receipt_version": 1,
+  "recorded_at": "2026-08-26T07:36:21Z",
+  "kind": "governed_otlp_trace_readback",
+  "status": "verified",
+  "objective_id": "6d4e23ce-35c7-4f62-b8d8-75f0dc46d33d",
+  "run_id": "rust-standards-assimilation-20260825",
+  "node_id": "discover-rust-standards",
+  "trace": {
+    "id": "acb52570ebc3f5703b9a25c964320c1c",
+    "name": "arda-otlp-proof-20260826T073534Z-3069013a-35d",
+    "timestamp": "2026-08-26T07:35:34.809Z",
+    "service_name": "arda",
+    "observation_count": 1
+  },
+  "readback": {
+    "system": "Langfuse",
+    "api_surface": "/api/public/traces/{trace_id}",
+    "http_status": 200,
+    "trace_id_match": true,
+    "trace_name_match": true,
+    "objective_id_match": true,
+    "run_id_match": true,
+    "node_id_match": true
+  },
+  "transport": {
+    "protocol": "OTLP/HTTP protobuf",
+    "endpoint_path": "/api/public/otel/v1/traces",
+    "authorization": "external systemd credential",
+    "authorization_reference": "secret://arda/langfuse/otlp-authorization",
+    "repository_plaintext_secret": false
+  },
+  "restart_verification": {
+    "service_manager": "user systemd",
+    "service": "arda.service",
+    "previous_main_pid": 2326025,
+    "verified_main_pid": 2327037,
+    "started_at": "2026-08-26T07:35:34Z",
+    "active_after_readback": true,
+    "post_readback_restart": {
+      "previous_main_pid": 2327037,
+      "restarted_main_pid": 2328346,
+      "original_trace_still_readable": true,
+      "continuity_trace_id": "5c0094fe7a8019491f476f9dbf863dd5",
+      "continuity_trace_name": "arda-otlp-restart-proof-20260826T073723Z-dadf33c5-9a9",
+      "continuity_trace_timestamp": "2026-08-26T07:37:24.173Z",
+      "continuity_trace_exact_match": true
+    },
+    "post_build_install_restart": {
+      "previous_main_pid": 2328346,
+      "restarted_main_pid": 2330830,
+      "installed_binary_digest": "sha256:21cfff466c1a207bfc6c8c19c7ac2b5eec1e0d2f20e6f8771fd9514977970acd",
+      "release_binary_digest_match": true,
+      "original_trace_still_readable": true,
+      "final_trace_id": "b594e7ac473f89e17df8a6e8ac3bb5ef",
+      "final_trace_name": "arda-otlp-final-proof-20260826T074102Z-ff5ef51b-f55",
+      "final_trace_timestamp": "2026-08-26T07:41:02.741Z",
+      "final_trace_exact_match": true
+    },
+    "clean_runtime_restart": {
+      "previous_main_pid": 2330830,
+      "restarted_main_pid": 2332044,
+      "one_off_proof_environment_removed": true,
+      "service_active": true,
+      "original_trace_still_readable": true
+    }
+  },
+  "backend_verification": {
+    "langfuse_web": "running",
+    "langfuse_worker": "running",
+    "web_restart_count": 0,
+    "worker_restart_count": 0,
+    "event_storage_secret_matches_minio": true,
+    "media_storage_secret_matches_minio": true
+  },
+  "provenance": {
+    "arda_revision_at_emission": "55441ccb1ba5bc95e6738ff918c50f0670da588e",
+    "telemetry_source_digest": "sha256:9351658720523c31985a80fc43b829cbd494ef2b9a888fd9e3bff2134fa683a2",
+    "cargo_lock_digest": "sha256:efea497d1c45cf458617495305e0d30add91e21571a3e06aa0e7ad854ba1f396",
+    "systemd_unit_digest": "sha256:c50a65f572ab5b94d7207d6767df0da0efd24cdf3a257ae0d2ef5fd223ec72f9"
+  },
+  "sanitization": {
+    "credential_value_included": false,
+    "raw_authorization_header_included": false,
+    "raw_api_response_included": false
+  }
+}

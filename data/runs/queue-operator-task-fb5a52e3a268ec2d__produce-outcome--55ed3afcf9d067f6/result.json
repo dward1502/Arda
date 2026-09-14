@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:7b03552be02915a1b281518537567526b61e32a01341ee4f661dd2d90c531098",
+    "summary": "Independent review approved this intermediate produce-outcome node. The worker report supplies a prioritized operator-visible backlog, distinguishes implemented capability from configured/runtime and live acceptance gaps, and identifies the smallest canonical repair surfaces. Source inspection corroborates two concrete P0 defects: core/projects/tasks/queue.jsonl:53323-53327 materializes and submits execute/verify work despite autonomy_readiness_decision=hold, unmet readiness reasons, and null governance authorization, indicating a fail-open authorization path; core/projects/tasks/queue.jsonl:53281-53322 repeatedly materializes pending execute/verify pairs for one objective. The plans corroborate that Hermes objective control, restart-safe continuation, critic correction, joined real multi-project execution, Vairë continuity, operator acceptance, real-worker routing, and daily improvement remain open. The supplied verification receipt covers the required git status --short --branch check with exit code 0 and also records cargo test -p arda-core passing. Read-tool output digests appropriately authenticate exported call envelopes rather than source contents, no context_use_receipt was required by the governed capsule, and the absence of mutating calls is sufficient no-modification evidence under read-only authority. No unsupported completion claim blocks this node; downstream joined closure is outside this intermediate node's acceptance scope."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:4eda20bb020014fd5ba2b6e6464ee806872fc4f34de74bc1d7d53e171f227523",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

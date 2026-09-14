@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:da5bb31221b47ff275ecfa3dfa985c47fa5683987d3cf9682cb0ee802e0fbbab",
+  "idempotency_key": "queue-operator-task-61ee02628ec4191b__recover-context--d59be9d0a74beef3-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-b6c92342be4e4117aaff5c56dcddc0ac"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:4c3a3de76a267e5e7712af15051a0861f450fcda7be365037eedd6427049cbc2",
+  "recorded_at_unix_ms": 1788230556011,
+  "run_id": "queue-operator-task-61ee02628ec4191b__recover-context--d59be9d0a74beef3-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Recovered the five file-backed authorities and the current queue tail without modifying files or running checks. Completion is blocked because repository_state requires `git status --short`, while this node authorizes only file tools. Prioritized repair backlog: P0 structurally require digest-bound evidence for every declared context source and fail closure with a human-visible missing-source list; smallest surface is arda-core Workbench receipt/close validation. P1 stop duplicate execute/verify materialization visible throughout the ledger tail and retain one bounded continuation per objective leaf; smallest surface is canonical queue materialization/reconciliation. P2 replace proof/demo project contracts with reviewed real-project contracts before claiming multi-project execution; smallest surface is data/workbench/projects.json through its owning attachment authority. P3 complete the installed Hermes control, restart, critic-revision, joined multi-project, Vairë, and operator-acceptance gates. P4 activate the daily research/project-audit loop only through the canonical completion path.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":234,\"offset\":30700,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:5f1a81b5e376ffd2f82f7ab8b2dcedce9af82cbc4e05e951058389bfabd61a24",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":116,\"offset\":30825,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c695133fab08046f825468e9fe68800417e20bda40495eefe32dbf97991ea4ae",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 76064,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2293,
+    "provider": "openai-codex",
+    "total_tokens": 78357
+  }
+}

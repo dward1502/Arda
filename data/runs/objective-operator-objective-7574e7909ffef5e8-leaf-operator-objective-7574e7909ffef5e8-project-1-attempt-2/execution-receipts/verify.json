@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:b95c6472f3edfad84337b6d0c570d286fb4aeb93e05163f353543a11bc68c988",
+  "idempotency_key": "queue-operator-objective-7574e7909ffef5e8-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:68c5edd24ed6363eec3bf06a9a301acfa753632b9300f725b1cced4ca0424504"
+  ],
+  "project_contract_digest": "sha256:76ac3edc8e7bc027bbed4b46cde2837eac4437d2bdedd8cdc26d2af0d84b59d9",
+  "receipt_digest": "sha256:9c9d22c922836eb0909d641475cc14ac2b89b7eaae63db8527004a2ee7d1ef98",
+  "recorded_at_unix_ms": 1788328626215,
+  "run_id": "objective-operator-objective-7574e7909ffef5e8-leaf-operator-objective-7574e7909ffef5e8-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared verify check passed in the exact project workspace. No files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:9ab467119f11c24e958e0b3748c89e72ddce5db971cdcc5ca08509feeb4391a9",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "pwd",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:9ab467119f11c24e958e0b3748c89e72ddce5db971cdcc5ca08509feeb4391a9",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6031,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 226,
+    "provider": "openai-codex",
+    "total_tokens": 6257
+  }
+}

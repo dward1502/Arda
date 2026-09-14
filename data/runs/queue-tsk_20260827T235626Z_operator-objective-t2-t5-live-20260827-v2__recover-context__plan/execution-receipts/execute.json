@@ -1,0 +1,87 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:de98f987c47fa0deec05e6d73be7f44705597022dee2bcdf4cc1b1702d9c2c5b",
+      "path": "docs/audits/2026-08-27-authoritative-context-recovery-backlog.md"
+    }
+  ],
+  "idempotency_key": "queue-tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "approval-operator-t2-t5-live-20260827-v2"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:91e216df27fbfeaea0e06360d042215215add66063679ff3961c4f709ffdc717",
+  "recorded_at_unix_ms": 1787875778864,
+  "run_id": "queue-tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Recovered and verified the declared authorities, identified recursive objective-leaf execution and snapshot drift as the highest-priority defects, and produced a concrete prioritized repair backlog without modifying generated queue projections.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:56fea6ff0531d91d9478bbbb2fd9558b46f77860ad59f8ebc06c0bc2c4fe4939",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:56fea6ff0531d91d9478bbbb2fd9558b46f77860ad59f8ebc06c0bc2c4fe4939",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:d71e15f2ffcd49806b5b002299f56a039c88b62bd77243e5e5b247dac3b57ef4",
+      "tool": "terminal"
+    },
+    {
+      "action": "sha256sum data/workbench/projects.json docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md ARDA_SYSTEM_STATUS_REPORT.md core/projects/tasks/queue.jsonl; git status --short | sha256sum",
+      "exit_code": 0,
+      "output_digest": "sha256:ea6d2684bd821451a7314b06b220e61155fa4e77c3313bbead61079f751bce4a",
+      "tool": "terminal"
+    },
+    {
+      "action": "{\"content\":\"---\\nsoterion:\\n  sigil: \\\"SCROLL\\\"\\n  glyph: \\\"📜\\\"\\n  code_point: \\\"U+1F4DC\\\"\\n  role: \\\"current_state_audit\\\"\\n  owner: \\\"PROMETHEUS\\\"\\n  status: \\\"active\\\"\\n  reviewed: \\\"2026-08-27\\\"\\n  tags: [\\\"context-recovery\\\", \\\"objective-plan\\\", \\\"continuation\\\", \\\"repair-backlog\\\"]\\n---\\n\\n> 🜏 Soterion: 📜 current_state_audit | owner: PROMETHEUS | status: active | reviewed: 2026-08-27\\n\\n# Authoritative Context Recovery: Prioritized Repair Backlog\\n\\n## Decision\\n\\nThe current run recovered the declared project contract, active plans, status report, canonical queue ledger, objective-plan receipt, repository state, and current executor source. The supplied file digests all match live bytes. The supplied repository-state digest does not match the later live `git status --short` output because runtime/run artifacts continued to change the dirty worktree; repository state must therefore be treated as a time-bound observation, not a stable source identity.\\n\\nThe smallest urgent repair is to execute an already-materialized objective leaf directly. The live executor now materializes durable leaves, but a claimed leaf is wrapped in another five-stage Workbench plan and provider prompt. This run is itself evidence of that recursion: the outer `recover-context` leaf became a generic `plan → execute → verify` task, whose execute node was again given `recover-context → inspect-authorities → synthesize-findings → produce-outcome → verify-acceptance`.\\n\\n## Evidence and truth levels\\n\\n| Surface | Implemented capability | Configured runtime | Live deployed proof |\\n|---|---|---|---|\\n| Project authority | `data/workbench/projects.json` declares Cargo checks and approval-required filesystem authority. | Three contracts are registered, all rooted at `.`; two are proof/fixture identities. | The declared `cargo test -p arda-core` check passed in this job. This proves the package check, not truthful portfolio attachment. |\\n| Grounded planning | `ObjectiveDecomposer::decompose_grounded` emits context sources, acceptance criteria, dependency tasks, leaf contracts, budgets, and checks (`decomposer.rs:220-240,421-453`). | `objective_plan_for_task` hashes five files plus `git status --short`, validates the plan, and binds the selected project (`workbench_executor.rs:906-975`). | `audit/workbench-queue/queue-tsk_20260827T235626Z_operator-objective-t2-t5-live-20260827-v2__recover-context__plan/objective_plan_receipt.json` contains the five validated leaves and exact declared source digests. |\\n| Durable leaves | The queue executor materializes objective leaves and returns `continue_next_task` (`workbench_executor.rs:88-103`). | Claimed leaves are recognized and recover their parent plan (`workbench_executor.rs:313-320`). | Canonical queue rows 126-131 materialize the v2 objective leaves; rows 133-136 show the recovered leaf subsequently decomposed into another generic task chain. |\\n| Leaf execution | Leaf-specific authority, evidence, budget, timeout, and checks are represented. | The run graph receives the leaf contract. | The execute provider still receives `objective_execution_prompt(&objective_plan, ...)` (`workbench_executor.rs:368-385`), so one leaf is not yet a single bounded execution unit. |\\n| Continuation | Failure classification returns retry, revise, replan, operator decision, or close (`workbench_executor.rs:760-804`). | Attempt limits are read from leaf budget metadata. | The queue contains `continue_next_task` and stage continuations, but this job provides no live proof that retry/revise/replan materializes a corrected successor and later closes the parent objective. |\\n| Context continuity | Vairë records context-use and outcome receipts. | Without a supplied receipt, the executor constructs a one-hour system-only capsule. | The fallback has no memory references or unresolved failures (`workbench_executor.rs:826-903`); this job recovered files manually, not through a live retrieved context capsule. |\\n| Status truth | Active plans describe the installed full graph and its bounded acceptance proof. | `ARDA_SYSTEM_STATUS_REPORT.md` remains active documentation. | The status report still says the executor omits verify/review/close, contradicting the newer active plan and source. No reconciliation check prevented the drift. |\\n\\n## Prioritized repairs\\n\\n### P0.1 — Execute materialized leaves directly\\n\\nEvidence: `dispatch_claim` recovers the parent objective plan for a leaf, but the execute stage still serializes that whole plan into a provider objective (`workbench_executor.rs:313-373`). The queue ledger demonstrates recursive decomposition around the v2 `recover-context` leaf.\\n\\nHuman-visible behavior: an operator sees one objective with five durable leaves. Each timer tick claims exactly one eligible leaf, performs only that leaf's bounded work, and advances its dependent without creating a nested copy of the plan.\\n\\nSmallest authoritative implementation surface: change only Aulë's Workbench executor prompt construction and graph provenance for objective leaves. Build the execute objective from the selected `PlannedTask` plus its `ExecutableLeafContract`, acceptance criteria, and bounded context references; retain the full plan receipt as provenance. Do not add another queue, graph type, or coordinator.\\n\\nAcceptance: the v2 objective yields exactly five leaf identities; no leaf creates `__plan`, `__execute`, or `__verify` descendants; a restart resumes the same leaf; each leaf receipt names its own authority, budget, project, and evidence requirements.\\n\\n### P0.2 — Materialize typed retry, revision, and replan successors\\n\\nEvidence: continuation classification exists, but current source evidence only returns decision strings after terminal outcomes. The active plans still identify executable retry/revision/replan materialization as open.\\n\\nHuman-visible behavior: a failed check produces one corrected successor under the same objective lineage, with the defect and changed acceptance evidence visible; no new operator instruction is needed while authority and budget remain valid.\\n\\nSmallest authoritative implementation surface: append one canonical successor/tombstone record from the existing queue executor when the decision is `retry_same_task`, `revise_task`, or `replan_objective`; use the existing leaf contracts, dependency identities, attempt budgets, and timer. Engine remains transition authority.\\n\\nAcceptance: force one deterministic verification failure, observe `revise_task`, run one corrected successor after a timer/process restart, and derive parent closure only after all required leaves and acceptance evidence pass.\\n\\n### P0.3 — Make repository-state evidence snapshot-stable\\n\\nEvidence: all five file digests in the supplied node context matched the live files, while live `git status --short` hashed differently from the receipt's repository-state digest because runtime output continued changing the worktree.\\n\\nHuman-visible behavior: an operator can tell what repository state the planner actually consumed, when it was observed, and whether later drift affects the plan.\\n\\nSmallest authoritative implementation surface: persist the canonicalized status bytes (or a bounded redacted snapshot artifact), observation timestamp, and digest in the objective-plan receipt. At execution, report drift separately instead of silently comparing a moving command output to an old digest. Exclude generated queue projections from authored change sets, not from truthful status observations.\\n\\nAcceptance: receipt digest recomputation succeeds from retained snapshot bytes; later runtime churn is labeled drift; protected unrelated dirty paths remain unchanged.\\n\\n### P0.4 — Replace fallback context with authorized retrieval\\n\\nEvidence: the fallback context is system-only and contains empty `memory_refs` and `unresolved_failures`, despite the whole-system plan requiring conversations, corrections, receipts, repositories, and runtime state.\\n\\nHuman-visible behavior: returning to an objective shows a concise sourced packet of prior decisions, current project truth, unresolved failures, and the next bounded leaf; excluded or stale context is disclosed.\\n\\nSmallest authoritative implementation surface: before provider dispatch, ask the existing Vairë service to assemble the leaf's permitted project/system context and bind its use receipt to objective, leaf, run, and source digests. Preserve the existing fallback only as an explicitly degraded mode.\\n\\nAcceptance: one fresh worker resumes after restart from a bounded capsule, cites consumed references, honors correction/revocation, and records a context-outcome receipt.\\n\\n### P1.1 — Attach a truthful canonical Arda project contract\\n\\nEvidence: the registry has three records rooted at `.`, including a fixture, and the selected project ID remains the historical example identity.\\n\\nHuman-visible behavior: every leaf names a recognizable Arda project, exact contract digest, root, checks, protected dirty-worktree policy, authority, and rollback.\\n\\nSmallest authoritative implementation surface: update the existing Workbench registry through its governed API; remove implicit production fixture fallback; bind the exact contract digest into run provenance. Do not hand-edit generated queue projections.\\n\\nAcceptance: missing/stale project identity fails closed; the exact contract digest appears in plan and execution receipts; unrelated dirty work remains untouched.\\n\\n### P1.2 — Reconcile active status claims automatically\\n\\nEvidence: the active status report's completion-loop maturity and immediate-work text predate the active plan's installed full-graph proof.\\n\\nHuman-visible behavior: status surfaces distinguish implemented, configured, installed, live-proven, and operator-accepted states without contradictions.\\n\\nSmallest authoritative implementation surface: add a read-only reconciliation check over active plans, project registry, installed artifact identities, and recent close receipts; report stale claims without making generated state an authority.\\n\\nAcceptance: the known verify/review/close contradiction is detected, and future stale active claims fail the documentation/status gate.\\n\\n## Dependency order and closure\\n\\n1. P0.1 removes recursive execution and establishes truthful leaf identity.\\n2. P0.2 proves T5 continuation with a corrected successor across restart.\\n3. P0.3 and P0.4 make recovered repository and memory context reproducible.\\n4. P1.1 strengthens project authority and provenance.\\n5. P1.2 prevents the resulting proof from drifting into contradictory status prose.\\n\\nClosure requires live evidence that one parent objective advances its original durable leaves, survives a timer/process restart, corrects one failed verification under the same objective lineage, and closes structurally from leaf receipts and acceptance evidence. A passing package check alone is necessary engineering evidence, not objective closure.\\n\",\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-27-authoritative-context-recovery-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fff3c7e54b56cdcbf8e8eff4f5fed41568f7e306b91fa487e1321ea0ad530778",
+      "tool": "write_file"
+    },
+    {
+      "action": "python3 - <<'PY'\nfrom pathlib import Path\np = Path('docs/audits/2026-08-27-authoritative-context-recovery-backlog.md')\ntext = p.read_text()\nrequired = ['Prioritized repairs', 'Evidence:', 'Human-visible behavior:', 'Smallest authoritative implementation surface:', 'Implemented capability', 'Configured runtime', 'Live deployed proof']\nmissing = [marker for marker in required if marker not in text]\nif missing:\n    raise SystemExit(f'missing markers: {missing}')\nprint(f'artifact markers verified: {len(required)}')\nPY\nsha256sum docs/audits/2026-08-27-authoritative-context-recovery-backlog.md\ngit status --short -- docs/audits/2026-08-27-authoritative-context-recovery-backlog.md",
+      "exit_code": -1,
+      "output_digest": "sha256:8f8f4dd8fe02b3b024adde00e0a7adc216dd0e89326378b588bbd95ce431805a",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path; t=Path('docs/audits/2026-08-27-authoritative-context-recovery-backlog.md').read_text(); r=['Prioritized repairs','Evidence:','Human-visible behavior:','Smallest authoritative implementation surface:','Implemented capability','Configured runtime','Live deployed proof']; m=[x for x in r if x not in t]; print(f'artifact markers verified: {len(r)}') if not m else (_ for _ in ()).throw(SystemExit(f'missing markers: {m}'))\" && sha256sum docs/audits/2026-08-27-authoritative-context-recovery-backlog.md && git status --short -- docs/audits/2026-08-27-authoritative-context-recovery-backlog.md",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "sha256sum docs/audits/2026-08-27-authoritative-context-recovery-backlog.md && git status --short -- docs/audits/2026-08-27-authoritative-context-recovery-backlog.md",
+      "exit_code": 0,
+      "output_digest": "sha256:feb23495ce89395773c5e37a8a3b428e1a79879816343c47e70cf4ec71ce2400",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 9,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 109134,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 6153,
+    "provider": "openai-codex",
+    "total_tokens": 115287
+  }
+}

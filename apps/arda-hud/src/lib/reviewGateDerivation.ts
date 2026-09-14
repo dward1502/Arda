@@ -329,7 +329,9 @@ export function getReviewGateItems(bundle: ArdaBundle, queueWriteRequests: Arand
       kind: 'recommendation',
       title: getString(candidate?.title, getString(entry.recommended_candidate_id, 'Untitled recommendation')),
       source: getString(entry.source, 'arandur'),
-      status: getBoolean(entry.review_required, false) ? 'pending_review' : getString(candidate?.result ?? candidate?.status, 'recorded'),
+      status: getBoolean(entry.review_required, false)
+        ? 'pending_review'
+        : getString(entry.review_status, getString(candidate?.result ?? candidate?.status, 'recorded')),
       decisionClass: 'arandur_recommendation',
       evidence: getString(entry.source_packet, sources.slice(0, 2).join(',')),
       summary: getString(entry.recommended_action, 'Review Arandur recommendation before promotion.'),
@@ -423,6 +425,7 @@ export function getReviewGateItems(bundle: ArdaBundle, queueWriteRequests: Arand
 
   return [...queueItems, ...missionItems, ...recommendationItems, ...hadesItems, ...athenaItems]
     .filter((item) => item.id !== 'unknown')
+    .filter((item) => item.kind !== 'recommendation' || item.status === 'pending_review')
     .sort((left, right) => (right.createdAtUtc ?? '').localeCompare(left.createdAtUtc ?? ''))
 }
 

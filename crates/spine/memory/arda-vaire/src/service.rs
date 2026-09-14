@@ -11,8 +11,12 @@ use std::time::Duration as StdDuration;
 // coordinates scoring, persistence, retrieval, and consolidation. `store`
 // owns the on-disk JSONL layout; `retrieval` owns ranking; `promotion` owns
 // derived semantic/procedural records and their promotion receipts.
+pub mod context_capsule;
+pub mod context_outcome;
+pub mod continuity;
 pub mod governance;
 pub mod governed;
+pub mod organism_context;
 mod persona_derive;
 mod promotion;
 pub mod retention;

@@ -1,0 +1,81 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:4657857f6472cd2e9af0ff5db06af987281aa61060d2269aab9105bde58e267b",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:67b5692e560c11e77b639f1f01f859aba8118a8774f0740c179954454d33e13d"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:12bb379aed08ece6d2a7b8dd3c2d06e46311ed45cd4d51a9b3e3c69a2bcaa9eb",
+  "recorded_at_unix_ms": 1788327516523,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Unsupported completion. Named defects: (1) the project root contains only README.acceptance, so there is no implementation to inspect for correctness or scope; (2) the supplied parent receipt is only an opaque digest, with no durable receipt payload available to independently verify that `verify: pwd` resolved to the required project root. No project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"..\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"limit\":200,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"67b5692e560c11e77b639f1f01f859aba8118a8774f0740c179954454d33e13d|verify: pwd|receipt|implementation\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*.toml\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5839,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 735,
+    "provider": "openai-codex",
+    "total_tokens": 6574
+  }
+}

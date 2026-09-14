@@ -1,0 +1,123 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:9db0ff30723b65e6366a7a0705bd8ed58b89a54d83bbe4af505bbb9bd46bcc7d",
+  "idempotency_key": "queue-operator-objective-2aaf71140995f16a-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:b5cf3524074c6543c12f7e7f096f663db450dd2546a340ffc44713c8d35198f3"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:3b290d7abb2676fd5718cd02490d75041b285179ce797cff0287cb4b4f1ec92f",
+  "recorded_at_unix_ms": 1788416734867,
+  "run_id": "objective-operator-objective-2aaf71140995f16a-leaf-operator-objective-2aaf71140995f16a-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE\nThe parent receipt is internally consistent and sufficient for the bounded objective: the exact declared clean-tree check exited 0 with an authenticated output digest and no output, supporting the conclusion that tracked project files match HEAD. Independent read-only inspection found no contradiction in the implementation or receipt evidence. The receipt appropriately avoids claiming build or test health, and no mutating tool calls were made during this review.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":50,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fdd48ee366b3c3c29bec309a566a63aec4f093b4be7e7b667dec17026bdb5310",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c0256a3d6dbf291b590c0a5ac5cfdaf2e7d871885685f5dc3f2b995f96abbb31",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\".\",\"pattern\":\"Cargo.toml\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:44c62a579a7ff247ca599259e448b8c6c45044d3c2b448fc0894008004cf31b4",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\".\",\"pattern\":\"README*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c7929f3c35c0d6202b3928cbff4573221563e5cf2b8217fcf2e4f4ae7930704e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":400,\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14471,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 756,
+    "provider": "openai-codex",
+    "total_tokens": 15227
+  }
+}

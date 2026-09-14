@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:d36f950734dff20997caa59244d0c957c1f6111964278e995d16d1d3df414447",
+    "summary": "No named defects found. Read-only inspection confirmed the project contains only the acceptance marker, and the digest-validated parent receipt supports the narrow declared verification: `pwd` exited successfully in the exact project workspace. This evidence does not establish any broader downstream objective, which was outside this node's scope. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

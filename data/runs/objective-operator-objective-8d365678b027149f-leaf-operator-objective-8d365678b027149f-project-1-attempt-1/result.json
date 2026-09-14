@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:a82a3f2a898e79d1b89924e4cebf8f4ee7b4062059af724f8ef0fee95d7c20d3",
+    "summary": "VERDICT: APPROVE\nNo blocking defects found. Independent read-only inspection supports the parent receipt: the active-draft ingestion contract documents private-by-default classification and governance requirements; the Rust library implements legacy frontmatter parsing, vault scanning, and existing-wikilink resolution; target-local tests cover scanning and missing-vault rejection; MemoryStore serializes but does not persist records; dependencies are repository-relative; and migration notes explicitly exclude live vault data and runtime ledgers. The receipt transparently reports that Cargo testing was blocked by parent-workspace membership and does not misrepresent that attempt as passing. Its successful clean-tree evidence supports the no-modification claim, while later successful source reads compensate for the earlier failed aggregate read call."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

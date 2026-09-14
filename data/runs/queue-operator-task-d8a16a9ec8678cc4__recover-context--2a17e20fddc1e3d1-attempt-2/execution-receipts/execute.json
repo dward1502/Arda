@@ -1,0 +1,99 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3b56564bbe554d168de0b5c2bd8d1acd06d0b7dfb099581f1da736e1428edf0e",
+  "idempotency_key": "queue-operator-task-d8a16a9ec8678cc4__recover-context--2a17e20fddc1e3d1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-7a5d03d0146343a5996d94b750b08a17"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:5742fe7e11d41eec6f4f475c3f5f3c880074b034487b6a9203a7975d918b9577",
+  "recorded_at_unix_ms": 1788238662693,
+  "run_id": "queue-operator-task-d8a16a9ec8678cc4__recover-context--2a17e20fddc1e3d1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only context recovery completed without modifying files or running the reserved cargo check. Prioritized repair backlog: P0 enforce idempotent objective-leaf materialization and reconciliation so one objective has one canonical eligible next action; queue evidence at core/projects/tasks/queue.jsonl:36473-36491 shows repeated pending execute/verify records, while 36500-36512 duplicates the same six leaf identities and 36525-36531 repeatedly emits equivalent replan continuations. The smallest authoritative surface is the existing Workbench queue materializer/reconciler and append-only continuation state, not generated queue projections. P0 bind every declared context source reference and expected digest—including a captured git status --short result—to the execution/context-use receipt, and retain before/after repository-state evidence for no-modification claims; the current leaf declares all six sources at queue.jsonl:36500, but the prior terminal receipt at 36523 records that source-digest equality, context_use_receipt, and repository-state evidence were absent. P1 reconcile active status and audit documents from current plans and receipts: AUTONOMOUS_TASK_COMPLETION_LOOP.md:25-36 and ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:21-55 say the full program remains unaccepted and prioritize Hermes control, restart scheduling, critic revision, multi-project execution, and Vairë/operator acceptance, while the older status report and repair audit contain stale capability and registry claims. P1 expose one truthful objective view showing current leaf, attached projects, route, evidence, schedule, blocker, and pause/revise/approve/reject/cancel controls; keep Workbench/Core as authority and Hermes/HUD as consumers. P1 route execution and independent review through Manwë, prove same-objective deferred continuation and critic-driven correction across restart, and close one joined objective across the two read-only reviewed project contracts registered at projects.json:448-582. P2 attach reviewed real-project contracts beyond fixtures, bind Vairë context-use and Soterion retrieval receipts, and activate the daily improvement loop with verified-change, justified-no-change, and rejected-idea outcomes. Capability truth: durable graph, continuation, project contracts, and projections are implemented; reviewed read-only project contracts are configured; the inspected live queue proves duplicate scheduling state, not canonical unattended completion. The declared git-status source could not be executed because this node authorized only file tools, so no clean-tree or unchanged-status assertion is made.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d6e1d1ca5dba8f28055e91dfbff3d2c889836bff5bdd76fdaedace0c2f3af53c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":60,\"offset\":36473,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:1e190a77a49125376556a712270ac7d6d6c2af07831bcf2a9c982ee7853fa5b5",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":800,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"queue.jsonl\",\"limit\":50,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"operator-task-d8a16a9ec8678cc4__recover-context\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86ece37e329b235ae8c6dac9c06dfadff34fe358472c0ebde848607cdf543d2f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.rs\",\"limit\":100,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates\",\"pattern\":\"next[_ -]action|single.next|continuation_decision|queue_continuation\"}",
+      "exit_code": null,
+      "output_digest": "sha256:961f37f4f2dc3d4d5ffab05c98357fcd855493dcea3a590c6930df717d81e6ba",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.rs\",\"limit\":100,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates\",\"pattern\":\"queue.jsonl|queue_active.json|queue_summary.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:01434dde41b6633faf4e8b25095eafc5da71a304cd5561d9f29c13c2d827ba12",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 87713,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1750,
+    "provider": "openai-codex",
+    "total_tokens": 89463
+  }
+}

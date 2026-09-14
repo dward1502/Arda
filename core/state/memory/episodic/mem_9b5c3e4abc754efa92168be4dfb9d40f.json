@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_9b5c3e4abc754efa92168be4dfb9d40f",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-c9db73e585d95b4c for task operator-task-c9db73e585d95b4c ended status=failed result=cancelled; receipt=none; detail=--reason Superseded after correcting context recovery evidence requirements",
+  "salience": 0.42172499999999985,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T04:23:57.798506074Z",
+  "last_seen_at": "2026-09-01T04:23:57.798506074Z",
+  "evidence_class": "inferred",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity"
+}

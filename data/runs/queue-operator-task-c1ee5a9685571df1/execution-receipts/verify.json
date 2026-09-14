@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:a11b5030f96d738576a9caf14571a2fb69a94a77e36869cf204e7d27c70559d3",
+  "idempotency_key": "queue-operator-task-c1ee5a9685571df1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:a5b22e6ec17fc9f1a1c2f9618b00381c5fa1551d237d9ea8fd568c72ea8b372f"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:0d76c5b27effb4fbef3c60aa56f684466fc1cc13865c3b227b0936bff3d5c7c9",
+  "recorded_at_unix_ms": 1788214275717,
+  "run_id": "queue-operator-task-c1ee5a9685571df1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "clean-tree passed",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6172,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1159,
+    "provider": "openai-codex",
+    "total_tokens": 7331
+  }
+}

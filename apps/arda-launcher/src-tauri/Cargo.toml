@@ -22,5 +22,7 @@ anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
 toml = "0.8"
 sysinfo = "0.30"
+reqwest = { workspace = true, features = ["blocking"] }
+wait-timeout = "0.2"
 arda-core = { workspace = true }
 arda-contract-registry = { workspace = true }

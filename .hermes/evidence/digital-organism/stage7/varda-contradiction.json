@@ -1,0 +1,571 @@
+{
+  "schema_version": "arda.stage7.varda-provenance-contradiction.v1",
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "observed_at_utc": "2026-08-23T12:32:26.637397Z",
+  "service": {
+    "unit": "arda-varda.service",
+    "endpoint": "http://127.0.0.1:5111",
+    "transport": "live_loopback_http"
+  },
+  "http_statuses": {
+    "ingest_batch": 200,
+    "query": 200,
+    "digest": 200
+  },
+  "submitted_inputs": [
+    "Source evidence at crates/engine/src/harness.rs:108 exposes POST /v1/adaptive-placement/objectives as the capability-based placement boundary.",
+    "Live installed Arda probe on 2026-08-23 returned HTTP 404 for GET /v1/adaptive-placement/operator-projection; therefore no operator projection endpoint may be claimed from that URL."
+  ],
+  "ingest_response": {
+    "ok": true,
+    "report": {
+      "accepted_inputs": 2,
+      "deduplicated_inputs": 0,
+      "invalid_inputs": 0,
+      "receipts": [
+        {
+          "book_ref": "/var/home/mythos/Eregion/Arda/data/athena/books/src_50671138.jsonl",
+          "canonical_input": "Source evidence at crates/engine/src/harness.rs:108 exposes POST /v1/adaptive-placement/objectives as the capability-based placement boundary.",
+          "deduplicated": false,
+          "digest_status": "shallow",
+          "input": "Source evidence at crates/engine/src/harness.rs:108 exposes POST /v1/adaptive-placement/objectives as the capability-based placement boundary.",
+          "pipeline_id": "athpl_974f7c3e3d5c4ee6a512ef6ac19d69f0",
+          "source_id": "src_50671138",
+          "url": null
+        },
+        {
+          "book_ref": "/var/home/mythos/Eregion/Arda/data/athena/books/src_df615b81.jsonl",
+          "canonical_input": "Live installed Arda probe on 2026-08-23 returned HTTP 404 for GET /v1/adaptive-placement/operator-projection; therefore no operator projection endpoint may be claimed from that URL.",
+          "deduplicated": false,
+          "digest_status": "shallow",
+          "input": "Live installed Arda probe on 2026-08-23 returned HTTP 404 for GET /v1/adaptive-placement/operator-projection; therefore no operator projection endpoint may be claimed from that URL.",
+          "pipeline_id": "athpl_004c7cbfb1de405d90a0d5c24d4c62d3",
+          "source_id": "src_df615b81",
+          "url": null
+        }
+      ],
+      "total_inputs": 2
+    }
+  },
+  "query_response": {
+    "ok": true,
+    "query": {
+      "matches": [
+        {
+          "book_ref": "/var/home/mythos/Eregion/Arda/data/athena/books/src_df615b81.jsonl",
+          "citations": [
+            {
+              "doc_id": "/var/home/mythos/Eregion/Arda/data/athena/books/src_df615b81.jsonl",
+              "source_id": "src_df615b81",
+              "span": {
+                "end": 57,
+                "field": "title",
+                "start": 54,
+                "text": "404"
+              }
+            },
+            {
+              "doc_id": "/var/home/mythos/Eregion/Arda/data/athena/books/src_df615b81.jsonl",
+              "source_id": "src_df615b81",
+              "span": {
+                "end": 53,
+                "field": "title",
+                "start": 49,
+                "text": "HTTP"
+              }
+            }
+          ],
+          "digest_status": "shallow",
+          "relevance_tags": [
+            "rawnote"
+          ],
+          "score": 7.033224100628329,
+          "shallow_only": true,
+          "source_id": "src_df615b81",
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "Live installed Arda probe on 2026-08-23 returned HTTP 404 for GET /v1/adaptive-p"
+        },
+        {
+          "book_ref": "./data/athena/books/src_cbde3f74.jsonl",
+          "citations": [
+            {
+              "doc_id": "./data/athena/books/src_cbde3f74.jsonl",
+              "source_id": "src_cbde3f74",
+              "span": {
+                "end": 5,
+                "field": "title",
+                "start": 0,
+                "text": "https"
+              }
+            }
+          ],
+          "digest_status": "deep",
+          "extraction_status": "no_llm_attached",
+          "relevance_tags": [
+            "newsarticle",
+            "rust"
+          ],
+          "score": 1.9985288859906039,
+          "shallow_only": true,
+          "source_id": "src_cbde3f74",
+          "summary": "Initial shallow ingest completed for NewsArticle.",
+          "title": "https://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio"
+        },
+        {
+          "book_ref": "./data/athena/books/src_279bd805.jsonl",
+          "citations": [
+            {
+              "doc_id": "./data/athena/books/src_279bd805.jsonl",
+              "source_id": "src_279bd805",
+              "span": {
+                "end": 5,
+                "field": "title",
+                "start": 0,
+                "text": "https"
+              }
+            }
+          ],
+          "digest_status": "deep",
+          "extraction_status": "no_llm_attached",
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "score": 1.6314521518290643,
+          "shallow_only": true,
+          "source_id": "src_279bd805",
+          "summary": "Initial shallow ingest completed for Documentation.",
+          "title": "https://docs.x402.org/core-concepts/facilitator"
+        },
+        {
+          "book_ref": "./data/athena/books/src_9e2d5d03.jsonl",
+          "citations": [
+            {
+              "doc_id": "./data/athena/books/src_9e2d5d03.jsonl",
+              "source_id": "src_9e2d5d03",
+              "span": {
+                "end": 5,
+                "field": "title",
+                "start": 0,
+                "text": "https"
+              }
+            }
+          ],
+          "digest_status": "deep",
+          "extraction_status": "no_llm_attached",
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "score": 1.6314521518290643,
+          "shallow_only": true,
+          "source_id": "src_9e2d5d03",
+          "summary": "Initial shallow ingest completed for Documentation.",
+          "title": "https://docs.x402.org/introduction"
+        },
+        {
+          "book_ref": "./data/athena/books/src_b4a98f51.jsonl",
+          "citations": [
+            {
+              "doc_id": "./data/athena/books/src_b4a98f51.jsonl",
+              "source_id": "src_b4a98f51",
+              "span": {
+                "end": 5,
+                "field": "title",
+                "start": 0,
+                "text": "https"
+              }
+            }
+          ],
+          "digest_status": "deep",
+          "extraction_status": "no_llm_attached",
+          "relevance_tags": [
+            "newsarticle",
+            "rust"
+          ],
+          "score": 1.6314521518290643,
+          "shallow_only": true,
+          "source_id": "src_b4a98f51",
+          "summary": "Initial shallow ingest completed for NewsArticle.",
+          "title": "https://users.rust-lang.org/t/cancel-safety-in-async-and-tokio-select/92381"
+        },
+        {
+          "book_ref": "./data/athena/books/src_ecdd327c.jsonl",
+          "citations": [
+            {
+              "doc_id": "./data/athena/books/src_ecdd327c.jsonl",
+              "source_id": "src_ecdd327c",
+              "span": {
+                "end": 5,
+                "field": "title",
+                "start": 0,
+                "text": "https"
+              }
+            }
+          ],
+          "digest_status": "deep",
+          "extraction_status": "no_llm_attached",
+          "relevance_tags": [
+            "newsarticle"
+          ],
+          "score": 1.6314521518290643,
+          "shallow_only": true,
+          "source_id": "src_ecdd327c",
+          "summary": "Initial shallow ingest completed for NewsArticle.",
+          "title": "https://blog.nodit.io/ai-agents-that-pay-for-themselves-how-the-x402-protocol-wo"
+        }
+      ],
+      "query": "adaptive placement operator projection HTTP 404 operational truth",
+      "suggestion": null,
+      "total_matches": 6
+    }
+  },
+  "digest_response": {
+    "digest": [
+      {
+        "book_ref": "./data/athena/books/src_279bd805.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_279bd805",
+        "last_full_refresh_utc": "2026-08-21T07:56:43.888143753+00:00",
+        "pipeline_id": "athpl_51fa4c7d2ca24ebaa7da76eb9ef46ab8",
+        "processed_at_utc": "2026-08-21T07:56:43.888143753+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/core-concepts/facilitator",
+        "received_at_utc": "2026-08-21T07:56:43.888143753+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/core-concepts/facilitator"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org facilitator x402 API payment protocol",
+        "url": "https://docs.x402.org/core-concepts/facilitator"
+      },
+      {
+        "book_ref": "./data/athena/books/src_9e2d5d03.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_9e2d5d03",
+        "last_full_refresh_utc": "2026-08-21T07:56:44.094803571+00:00",
+        "pipeline_id": "athpl_ce72b4c8f3c44c36814989ddbfa2c8be",
+        "processed_at_utc": "2026-08-21T07:56:44.094803571+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/introduction",
+        "received_at_utc": "2026-08-21T07:56:44.094803571+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/introduction"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org facilitator x402 API payment protocol",
+        "url": "https://docs.x402.org/introduction"
+      },
+      {
+        "book_ref": "./data/athena/books/src_279bd805.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_279bd805",
+        "last_full_refresh_utc": "2026-08-21T07:59:02.749524444+00:00",
+        "pipeline_id": "athpl_88ca6a56c6cf43beb2b364ce3ac05f55",
+        "processed_at_utc": "2026-08-21T07:59:02.749524444+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/core-concepts/facilitator",
+        "received_at_utc": "2026-08-21T07:59:02.749524444+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/core-concepts/facilitator"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org facilitator x402 API payment protocol",
+        "url": "https://docs.x402.org/core-concepts/facilitator"
+      },
+      {
+        "book_ref": "./data/athena/books/src_9e2d5d03.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_9e2d5d03",
+        "last_full_refresh_utc": "2026-08-21T07:59:03.075071295+00:00",
+        "pipeline_id": "athpl_73a1ac95944e4f61aa35b8bd823fabc4",
+        "processed_at_utc": "2026-08-21T07:59:03.075071295+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/introduction",
+        "received_at_utc": "2026-08-21T07:59:03.075071295+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/introduction"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org facilitator x402 API payment protocol",
+        "url": "https://docs.x402.org/introduction"
+      },
+      {
+        "book_ref": "./data/athena/books/src_279bd805.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_279bd805",
+        "last_full_refresh_utc": "2026-08-21T07:59:48.216084481+00:00",
+        "pipeline_id": "athpl_ed8a590280ef4ffcb2c9b27bbf14d9cd",
+        "processed_at_utc": "2026-08-21T07:59:48.216084481+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/core-concepts/facilitator",
+        "received_at_utc": "2026-08-21T07:59:48.216084481+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/core-concepts/facilitator"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org x402 facilitator payment verification settlement",
+        "url": "https://docs.x402.org/core-concepts/facilitator"
+      },
+      {
+        "book_ref": "./data/athena/books/src_9e2d5d03.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_9e2d5d03",
+        "last_full_refresh_utc": "2026-08-21T07:59:48.564784381+00:00",
+        "pipeline_id": "athpl_a33038c122d6425ab6d6065071fa5f97",
+        "processed_at_utc": "2026-08-21T07:59:48.564784381+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/introduction",
+        "received_at_utc": "2026-08-21T07:59:48.564784381+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/introduction"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org x402 facilitator payment verification settlement",
+        "url": "https://docs.x402.org/introduction"
+      },
+      {
+        "book_ref": "./data/athena/books/src_279bd805.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_279bd805",
+        "last_full_refresh_utc": "2026-08-21T08:40:42.808099752+00:00",
+        "pipeline_id": "athpl_58d5b4f9bd5a464dad761105b7c3663b",
+        "processed_at_utc": "2026-08-21T08:40:42.808099752+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/core-concepts/facilitator",
+        "received_at_utc": "2026-08-21T08:40:42.808099752+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/core-concepts/facilitator"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org x402 facilitator payment verification settlement",
+        "url": "https://docs.x402.org/core-concepts/facilitator"
+      },
+      {
+        "book_ref": "./data/athena/books/src_9e2d5d03.jsonl",
+        "deduplicated": true,
+        "digest_status": "shallow_existing",
+        "error": null,
+        "id": "src_9e2d5d03",
+        "last_full_refresh_utc": "2026-08-21T08:40:43.001971199+00:00",
+        "pipeline_id": "athpl_e797e28139cc4a82abb92bb813b02e0d",
+        "processed_at_utc": "2026-08-21T08:40:43.001971199+00:00",
+        "quarantine": false,
+        "raw_input": "https://docs.x402.org/introduction",
+        "received_at_utc": "2026-08-21T08:40:43.001971199+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "Deduplicated source; deep analysis already pending or completed.",
+          "deep_analysis_recommended": false,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "documentation"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Source already present in Athena books; returning existing reference.",
+          "title": "https://docs.x402.org/introduction"
+        },
+        "sigil": "ANKH",
+        "source_type": "documentation",
+        "submitted_by": "workbench_research",
+        "task_context": "Workbench run phase5-economic-intelligence-eaeb4d61fb78 node source-grounded-research explicit research question: site:docs.x402.org x402 facilitator payment verification settlement",
+        "url": "https://docs.x402.org/introduction"
+      },
+      {
+        "book_ref": "/var/home/mythos/Eregion/Arda/data/athena/books/src_50671138.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_50671138",
+        "last_full_refresh_utc": "2026-08-23T12:32:26.590610938+00:00",
+        "pipeline_id": "athpl_974f7c3e3d5c4ee6a512ef6ac19d69f0",
+        "processed_at_utc": "2026-08-23T12:32:26.590610938+00:00",
+        "quarantine": false,
+        "raw_input": "Source evidence at crates/engine/src/harness.rs:108 exposes POST /v1/adaptive-placement/objectives as the capability-based placement boundary.",
+        "received_at_utc": "2026-08-23T12:32:26.590610938+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": "rust",
+          "license": null,
+          "relevance_tags": [
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "Source evidence at crates/engine/src/harness.rs:108 exposes POST /v1/adaptive-pl"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "operator:mythos",
+        "task_context": "objective:digital-organism-s7-living-mesh-proof operational-truth contradiction review",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Eregion/Arda/data/athena/books/src_df615b81.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_df615b81",
+        "last_full_refresh_utc": "2026-08-23T12:32:26.615124238+00:00",
+        "pipeline_id": "athpl_004c7cbfb1de405d90a0d5c24d4c62d3",
+        "processed_at_utc": "2026-08-23T12:32:26.615124238+00:00",
+        "quarantine": false,
+        "raw_input": "Live installed Arda probe on 2026-08-23 returned HTTP 404 for GET /v1/adaptive-placement/operator-projection; therefore no operator projection endpoint may be claimed from that URL.",
+        "received_at_utc": "2026-08-23T12:32:26.615124238+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "Live installed Arda probe on 2026-08-23 returned HTTP 404 for GET /v1/adaptive-p"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "operator:mythos",
+        "task_context": "objective:digital-organism-s7-living-mesh-proof operational-truth contradiction review",
+        "url": null
+      }
+    ],
+    "ok": true
+  },
+  "contradiction": {
+    "claim": "An adaptive-placement operator-projection endpoint is available for HUD/operator consumption.",
+    "opposing_evidence": "The source-current live GET probe returned HTTP 404 and route inventory exposes only POST /v1/adaptive-placement/objectives.",
+    "disposition": "Do not claim a placement operator-projection endpoint; HUD proof is limited to canonical queue and Workbench receipts."
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:bf4618aaddc498d4cf56750ab0b3228331770b87adf4bdb765d50d5081ba9ec6",
+  "idempotency_key": "queue-operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-d8a632934a924ae8bc98dfa3a41c36ee"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:b15854300df9aec59c85167458aa69caec9cf6436673eaa170cf8007f2155d75",
+  "recorded_at_unix_ms": 1788232633894,
+  "run_id": "queue-operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Bounded read-only inspection recovered the project registry, active completion plans, system status, existing repair backlog, and current queue lineage without modifying project files or running reserved checks. Prioritized backlog: P0 expose one canonical Workbench objective through Hermes inspection and controls; P0 prove same-objective deferred or recurring continuation across restart and critic rejection followed by durable correction; P1 route canonical execution and independent review through Manwë and complete one joined objective across the two reviewed project contracts; P1 replace fixture and proof registry entries with reviewed real-project contracts; P1 bind Vairë context-use receipts and Soterion retrieval to the same operator-visible objective; P2 activate the daily research and project-audit loop with verified-improvement, justified-no-change, and rejection outcomes; P3 govern one external-capability candidate through adoption or justified rejection. Human-visible behavior should be one truthful objective view showing projects, current leaf, route, evidence, schedule, blocker, and controls. The smallest authoritative surfaces are Workbench objective, queue, schedule, and receipt records; Manwë placement receipts; the project registry; Vairë context-use receipts; and read-only Hermes/HUD projections. The job is failed because this runtime did not expose actual tool-call IDs for the completed file reads, so valid tool_evidence cannot be returned without fabrication.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:4ab9447a356daaa942bf0d8734f1f5f8ebef91f7a601af10c41964b5eb158860",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":31909,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e311a81ac3f1a5809701feeca4243ea817853bcf276835a84f6a6cbbfb39c8be",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"queue.jsonl\",\"limit\":20,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"queue-operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699|recover-context\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f9aae90b573afdfa5f232d4a8439c621a908e18e22af237464d1f2d492d26369",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"limit\":50,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda\",\"pattern\":\"arda\\\\.hermes-job-result\\\\.v1|tool_call_id\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a629e286c9b320d190bc0fb396a695c8c9c77fc0aed9366dfcdd9f56419b696e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":30,\"offset\":32006,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:77eaf473e8420b2e18eade2f0da84a1155763b9658e5541fd37490083ac1a513",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":5,\"file_glob\":\"*.rs\",\"limit\":50,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda\",\"pattern\":\"tool_evidence|test_evidence|HermesJobResult|hermes-job-result\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:998262854d36d61c0459b5530d4ea95d22995948caf659bead619513db829804",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.json\",\"limit\":50,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/data/runs\",\"pattern\":\"\\\"tool_evidence\\\"|\\\"tool_call_id\\\"\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:10873eee5da004749dcf85b1012d11b5f44c1f674c239656ed88632b8b9d98ce",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/runs/queue-operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699/execution-receipts/execute.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:67c0fe7c3335cc51d20f63f99e8b08f2b6b4e7b86d3aa01d262fe2ebbc59a727",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/runs/queue-operator-task-82ff7992dda58091__recover-context--b3aeb6b310d50f6d/execution-receipts/execute.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b75bd2ef8fdc89210beda93f8847b653237e35ec7866de74efc1ac7f5c307bfa",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":8,\"file_glob\":\"*.rs\",\"limit\":100,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates\",\"pattern\":\"tool_call_id.*tool_evidence|tool_evidence.*tool_call_id|struct HermesJob|HermesJobResult\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:11886a73e392e9036106b7403ac27d988bf69772486a71fbfe663e0963c76ddf",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":270,\"offset\":270,\"path\":\"/var/home/mythos/Eregion/Arda/crates/engine/src/adapters/hermes.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:acc3a75146e8019de5d853a97d33fe1d9130c565e01a6484de971934d1be2ccd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":240,\"offset\":540,\"path\":\"/var/home/mythos/Eregion/Arda/crates/engine/src/adapters/hermes.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:09a988b3e5ba6827e92c6dac7c91855f82bf8570021ecf745defe16438b91430",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":100,\"path\":\"/var/home/mythos/Eregion/Arda/crates/engine/tests/hermes_adapter_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f2fb786802f9d2e23aca1e40ba116fb08ff8d3275a3e673f06d87c352273ae3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"limit\":100,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/data/runs\",\"pattern\":\"call_[A-Za-z0-9_-]{6,}|call-[A-Za-z0-9_-]{6,}\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 9,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 118491,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 3200,
+    "provider": "openai-codex",
+    "total_tokens": 121691
+  }
+}

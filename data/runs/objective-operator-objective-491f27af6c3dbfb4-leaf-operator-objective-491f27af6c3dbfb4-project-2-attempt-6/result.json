@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:f42699cd1bab11174e1cb0f2981504d54bcb4ea50c1edc7fac7fb1925f2b4056",
+    "summary": "No named defects found. Independent read-only inspection found the parent receipt correctly scoped to the declared clean-tree check; its successful exit code and authenticated output digest support the result, while the absence of mutating calls supports the no-modification claim. No artifacts were expected or produced."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

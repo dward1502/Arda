@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:96b0804dee62f4e3548b5faf3978fbc95ecfee68bfa7e8827a3c7c2938f67238",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:e75667afa8664c477166291d6891db593e0b0355dd93751e9649ba902dcbe119"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:7b03552be02915a1b281518537567526b61e32a01341ee4f661dd2d90c531098",
+  "recorded_at_unix_ms": 1788261558518,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent review approved this intermediate produce-outcome node. The worker report supplies a prioritized operator-visible backlog, distinguishes implemented capability from configured/runtime and live acceptance gaps, and identifies the smallest canonical repair surfaces. Source inspection corroborates two concrete P0 defects: core/projects/tasks/queue.jsonl:53323-53327 materializes and submits execute/verify work despite autonomy_readiness_decision=hold, unmet readiness reasons, and null governance authorization, indicating a fail-open authorization path; core/projects/tasks/queue.jsonl:53281-53322 repeatedly materializes pending execute/verify pairs for one objective. The plans corroborate that Hermes objective control, restart-safe continuation, critic correction, joined real multi-project execution, Vairë continuity, operator acceptance, real-worker routing, and daily improvement remain open. The supplied verification receipt covers the required git status --short --branch check with exit code 0 and also records cargo test -p arda-core passing. Read-tool output digests appropriately authenticate exported call envelopes rather than source contents, no context_use_receipt was required by the governed capsule, and the absence of mutating calls is sufficient no-modification evidence under read-only authority. No unsupported completion claim blocks this node; downstream joined closure is outside this intermediate node's acceptance scope.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":80,\"offset\":53270,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:1f3536309c83eecfea32eaf582fcdf6ce9c3635e0d658b99a9d558ae52c3509b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":430,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:aee37043311aff56d48ff43ce88966fae1af9e39403daa8362b1bbb9656830d4",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":110,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6540931855ee3a8eef4a26873440f58075ea48d446350bce89d3103219fbf688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":90,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a1a8ab1840751dce3e6b3e1d544995104cba136bc4036c23a4ec9ca5a0679a82",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 32667,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 976,
+    "provider": "openai-codex",
+    "total_tokens": 33643
+  }
+}

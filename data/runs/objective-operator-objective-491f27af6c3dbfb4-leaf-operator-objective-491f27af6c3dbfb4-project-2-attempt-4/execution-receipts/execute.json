@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f2518829174a90aa24a8208ada2ae3f355794dfa0d7a0446d6f5dfc1c0918352",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:hermes-m4-5b9547697f1f4693"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:1df6472881ffcd6b90c0ad34a44d9a36854a08488ee093626facf4586c7489e3",
+  "recorded_at_unix_ms": 1788407392864,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-project-2-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Integration brief: ARDA Agent Loop proposes autonomous work, while tool-gate independently evaluates each proposed tool invocation and emits allow, deny, or review_required receipts without executing it (README.md:5-13, README.md:51-56). Their shared safety boundary is the transition from agent intent to runtime side effects: proposals must become explicit invocation envelopes and pass deterministic target, trace, idempotency, risk, and review checks before execution (README.md:17-20, README.md:146-158). Actionable integration: place tool-gate directly between Agent Loop and the execution runtime; execute only allow receipts, route review_required receipts to Council/HUD for operator approval, and audit denials and receipts. Agent Loop risk: a runtime path that accepts its proposals directly could bypass policy review. tool-gate risk: metadata is caller-supplied and the gate provides neither authentication nor sandboxing, so untrusted or incorrectly classified metadata could understate mutation or risk unless a trusted catalog and enforcement layer validate it (README.md:5-13, README.md:156-158; src/types.rs:21-30). The declared clean-tree check passed before inspection and again afterward; no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 12,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 35773,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1520,
+    "provider": "openai-codex",
+    "total_tokens": 37293
+  }
+}

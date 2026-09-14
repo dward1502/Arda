@@ -4,6 +4,11 @@
 **Implementation authority:** `docs/archive/2026-07-29-personal-operations-plan.md` after implementation closeout  
 **Evidence rule:** Do not infer operator acceptance from automated tests, author activity, proxy use, or synthetic fixtures.
 
+**2026-08-17 disposition:** The first bounded dogfood window ended with only its
+baseline row populated. It supplies no genuine usefulness or burden verdict, so
+all operator gates below remain open. Any later attempt requires a new bounded
+window; this record must not be backfilled into an acceptance claim.
+
 ## Purpose
 
 This record owns the time-dependent operator evidence that remains after the Personal Operations implementation is complete. Keeping these checks here prevents a finished implementation plan from remaining in `docs/plans/` while preserving honest private-alpha acceptance.

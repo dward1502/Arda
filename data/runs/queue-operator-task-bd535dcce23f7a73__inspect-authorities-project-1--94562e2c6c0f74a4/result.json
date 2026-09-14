@@ -1,0 +1,11 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:f14abb6cc8eebfd136e6eefef7f6eca1c97cb25b01ecec6456a7d82897524144",
+    "summary": "Bounded read-only inspection completed without modifying project files or running verifier-owned checks. Material project-local evidence shows this is the private annunimas-human tenant (README.md:14-20), governed locally by the active-draft human knowledge ingestion contract (docs/human-knowledge-ingestion-contract.md:14-25), with explicit authority/status classification and conflict-handling rules (lines 49-69 and 145-152). The implementation scans Markdown vault notes without following symlinks, parses required frontmatter, records semantic memory, and resolves only existing wikilinks (src/lib.rs:92-193); target-local tests cover existing/missing wikilinks and rejection of a missing vault path (tests/target_local.rs:27-63). Migration evidence states live human vault data, runtime state, and ingestion ledgers were not copied into this tenant (docs/migration-notes.md:3-10). The governed inspection cannot be accepted because all five mandated live authority paths are absent from the supplied project root: data/workbench/projects.json, docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md, docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md, ARDA_SYSTEM_STATUS_REPORT.md, and core/projects/tasks/queue.jsonl. Therefore their required digests, objective lineage, and receipt-backed source evidence could not be validated from this leaf."
+  },
+  "tests": []
+}

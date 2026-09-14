@@ -1,0 +1,15 @@
+{
+  "contract": "arda.workbench.execution_outcome.v1",
+  "task_id": "operator-task-9c2dbf0767b48237__recover-context--a36766902c197577",
+  "recommendation_id": "operator-objective-9c2dbf0767b48237",
+  "approval_packet_id": "gateway:installed-multi-project-decomposed-approve-8f5b90e11a84",
+  "workbench_run_id": "queue-operator-task-9c2dbf0767b48237__recover-context--a36766902c197577",
+  "status": "failed",
+  "result": "cancelled",
+  "execution_receipt_digest": null,
+  "evidence_path": "audit/workbench-queue/queue-operator-task-9c2dbf0767b48237__recover-context--a36766902c197577/execution_receipt.json",
+  "learning_key": "arda_workbench::approved_autopilot_plan_step",
+  "memory_id": "mem_675ad8b3a9024fdbbdef8b7206ecc9b4",
+  "governance_event_id": "workbench-outcome:queue-operator-task-9c2dbf0767b48237__recover-context--a36766902c197577",
+  "projected_at_utc": "2026-09-01T00:18:08.867648902+00:00"
+}

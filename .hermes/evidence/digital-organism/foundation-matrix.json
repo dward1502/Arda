@@ -1,0 +1,359 @@
+{
+  "schema_version": "arda.digital-organism.foundation-matrix.v1",
+  "generated_at_utc": "2026-08-22T05:39:52Z",
+  "task_id": "digital-organism-s0-foundation-matrix",
+  "repository": {
+    "root": "/var/home/mythos/Eregion/Arda",
+    "git_head": "be0fdaf20816fdc700ec9301e2400132cb9f5e0b",
+    "branch": "plan/ambient-agent-program",
+    "workspace_packages": 19,
+    "default_members": 17
+  },
+  "maturity_vocabulary": [
+    "documented",
+    "implemented",
+    "focused_tested",
+    "default_compile_closure",
+    "root_composed",
+    "installed",
+    "running",
+    "workflow_proven",
+    "operator_accepted"
+  ],
+  "runtime_snapshot": {
+    "arda_service": {
+      "active": true,
+      "root_pid": 1823,
+      "supervised_children": [
+        {
+          "name": "manwe",
+          "pid": 1916,
+          "state": "healthy",
+          "restart_count": 0
+        }
+      ],
+      "harness": "http://127.0.0.1:7878",
+      "manwe": "http://127.0.0.1:7171",
+      "installed_source_hash_match": true,
+      "arda_sha256": "6fdbab06403a2648ec4fc97fcb7b51bdfaea5d129ed266118238fed9db9c290d"
+    },
+    "separate_services": [
+      "arda-crawl4ai.service",
+      "arda-metrics-exporter.service",
+      "arda-relic-bridge.service",
+      "arda-varda.service"
+    ],
+    "armed_timers": [
+      "arda-aule-autopilot-read-only.timer",
+      "arda-manwe-inference-probe.timer",
+      "arda-varda-external-lane.timer",
+      "arda-workbench-queue-executor.timer"
+    ],
+    "manwe_probe": {
+      "successful": true,
+      "provider_id": "edge_core",
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "route_class": "interactive",
+      "execution_lane": "interactive",
+      "route_id": "817160e8e1fe86e6",
+      "note": "The 32-token exact-output probe completed through Manwe but ended at the token cap while emitting model thinking text; inference and route selection are proven, exact instruction compliance is not."
+    },
+    "fleet_endpoint_probe": [
+      {"node_id":"node-core-hub","configured_status":"active","reachable":true,"http_status":200,"model_count":1},
+      {"node_id":"node-pi5-warden","configured_status":"active","reachable":true,"http_status":200},
+      {"node_id":"node-ser9-worker","configured_status":"active","reachable":true,"http_status":200,"model_count":1},
+      {"node_id":"node-ser9-carnice","configured_status":"offline","reachable":false,"failure":"connection_refused"},
+      {"node_id":"node-laptop","configured_status":"offline","reachable":false,"failure":"timeout"},
+      {"node_id":"node-backbone-server","configured_status":"active","reachable":false,"failure":"timeout"},
+      {"node_id":"node-backbone-coder","configured_status":"active","reachable":false,"failure":"timeout"},
+      {"node_id":"node-pi5-citadel-avatar","configured_status":"active","reachable":false,"failure":"timeout"}
+    ],
+    "hermes": {
+      "version": "0.20.5",
+      "gateway_running": true,
+      "discord_configured": true,
+      "profiles": ["default"],
+      "arda_plugin": "arda-operator-bridge@0.5.0",
+      "arda_plugin_tests_passed": 16,
+      "delegation_provider": "custom:arda-manwe",
+      "delegation_base_url": "http://127.0.0.1:7171/v1",
+      "a2a_toolset_enabled": false,
+      "moa_configured": true,
+      "moa_active": false
+    },
+    "queue": {
+      "canonical_records": 15,
+      "generated_active_count": 15,
+      "next_action_excluded_inferred_without_review": 12,
+      "selected_next_action": "operator-objective-78370a00190fd9b8",
+      "append_only_guard": "ok"
+    }
+  },
+  "verification": [
+    {"command":"cargo check -p arda","status":"passed"},
+    {"command":"cargo test -p arda-orome --no-default-features","status":"passed","tests":50},
+    {"command":"cargo test -p arda-engine --test worker_orchestrator --test orome_smoke --test run_recovery --test hermes_adapter_contract","status":"passed","tests":26},
+    {"command":"cargo test -p arda-aule --features full-cli --test ceo_surface --test autopilot_surface","status":"passed","tests":2},
+    {"command":"cargo test -p arda-contract-registry --tests","status":"passed","tests":8},
+    {"command":"cargo check -p arda-outpost-protocol -p arda-outpost-scout -p arda-relic-bridge","status":"passed"}
+  ],
+  "components": [
+    {
+      "id": "root-daemon-engine",
+      "owner": "arda-engine",
+      "responsibility": "root composition, service registry, harness, supervision, durable runs",
+      "evidence": ["src/main.rs:49-167","crates/engine/src/lib.rs:1-22","crates/engine/src/harness.rs:92-225","services.toml:4-97"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["With --no-ui the root supervises only Manwe; Varda, metrics, Crawl4AI, RELIC, Hermes, and CEO run under separate lifecycle owners.","Harness status lists configured launcher/HUD names but only returns a live Manwe service status."],
+      "disposition": "adapt",
+      "alignment": "Retain as autonomic/root spine; make enrolled-node and external-service topology explicit rather than implying all organism organs are supervised children."
+    },
+    {
+      "id": "core-contracts",
+      "owner": "arda-core",
+      "responsibility": "task, capability composition, project/run graph, service, next-action, and operator contracts",
+      "evidence": ["crates/spine/governance/arda-core/src/lib.rs:1-84","crates/spine/governance/arda-core/src/run_graph.rs","crates/spine/governance/arda-core/src/capability_composition.rs"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["No accepted organism manifest/context capsule yet.","Core also contains a competing persistent Oromë agent/router state family."],
+      "disposition": "reuse",
+      "alignment": "Extend existing task/run/capability authorities; do not add another organism-contract crate."
+    },
+    {
+      "id": "governance",
+      "owner": "arda-governance",
+      "responsibility": "deterministic policy, authority, evidence, human-impact, readiness, and metrics",
+      "evidence": ["crates/spine/governance/arda-governance/src/lib.rs:1-143"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["The crate explicitly does not own autonomous enforcement; all organism execution paths must prove they call its owning gates."],
+      "disposition": "reuse",
+      "alignment": "Keep as semantic authority classifier; model/council confidence cannot override it."
+    },
+    {
+      "id": "engine-worker-runtime",
+      "owner": "arda-engine",
+      "responsibility": "worker scheduling, budgets, recovery, cancellation, Hermes execution receipts",
+      "evidence": ["crates/engine/src/runs/orchestrator.rs:5-406","crates/engine/src/adapters/hermes.rs:1-340","data/runs/queue-runtime-proof-20260813-v2/execution-receipts/execute.json"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["Current worker route classes are deterministic/local/hosted/human, not enrolled node identities.","Ordinary Hermes delegate_task children are outside canonical Arda run/receipt lineage."],
+      "disposition": "adapt",
+      "alignment": "Reuse durable run and receipt machinery; extend placement to node/A2A lifetimes without replacing the adapter."
+    },
+    {
+      "id": "orome-operator-provider",
+      "owner": "arda-orome",
+      "responsibility": "normalized operator ingress, provider dispatch, transport outcome and approval lineage",
+      "evidence": ["crates/spine/interface/arda-orome/src/lib.rs:7-64","crates/engine/src/orome.rs:1-29","crates/engine/src/harness/operator_messages.rs:1-30"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":true},
+      "gaps": ["Default provider smoke uses ManualTransport; concrete network delivery requires separately configured transports.","Delivery fields in historical operator-session rows remain pending and are not platform-delivery proof."],
+      "disposition": "reuse",
+      "alignment": "Keep semantic ingress and outcome receipts; platform credentials/callbacks stay with Hermes."
+    },
+    {
+      "id": "orome-a2a-envelope",
+      "owner": "arda-orome",
+      "responsibility": "A2A message type, TTL, reply/thread lineage, signatures and hops",
+      "evidence": ["crates/spine/interface/arda-orome/src/message.rs:6-173","crates/spine/interface/arda-orome/src/lib.rs:25-49"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":false,"installed":true,"running":false,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["No root consumer sends these envelopes across a process/machine boundary.","No Linux Foundation A2A codec or Agent Card mapping exists."],
+      "disposition": "adapt",
+      "alignment": "Retain as candidate internal semantic envelope and map it onto standard Hermes/Linux Foundation A2A transport."
+    },
+    {
+      "id": "agent-registry-router-cluster",
+      "owner": "unresolved",
+      "responsibility": "agent identity, capability lookup, heartbeat, message routing and queueing",
+      "evidence": ["crates/spine/interface/arda-orome/src/registry.rs:8-169","crates/spine/interface/arda-orome/src/router.rs:1-161","crates/spine/governance/arda-core/src/orome_runtime.rs:17-234","crates/spine/observability/arda-aule/src/prometheus/registry.rs"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":false,"installed":true,"running":false,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["Oromë registry is in-memory and only compiled for tests/service-runtime.","Oromë MessageRouter is test-only.","Core has a second persistent AgentRegistry and RouterState whose shared router returns a Placeholder.","Prometheus parses a third roster from stale world.json."],
+      "disposition": "unresolved_adapt_inspect",
+      "alignment": "Stage 0 authority mapping must select one semantic node/agent registry and standard A2A transport before promotion; no deletion in Task 1."
+    },
+    {
+      "id": "hermes-runtime-bridge",
+      "owner": "Hermes Agent plus arda-operator-bridge",
+      "responsibility": "conversation, sessions, gateway, tools, skills, delegation, profiles and authenticated Arda ingress",
+      "evidence": ["~/.hermes/plugins/arda-operator-bridge/plugin.yaml","~/.hermes/plugins/arda-operator-bridge/__init__.py","docs/operations/hermes-continuity-extension-audit.md"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":true},
+      "gaps": ["A2A toolset is disabled.","Only the default profile exists.","The plugin registers only pre_gateway_dispatch and emits no subagent lifecycle/placement receipts.","Hermes is 42 upstream commits behind."],
+      "disposition": "adapt",
+      "alignment": "Reuse as cognitive/session runtime; extend the existing plugin through public lifecycle/A2A surfaces instead of forking Hermes."
+    },
+    {
+      "id": "manwe-routing",
+      "owner": "manwe",
+      "responsibility": "provider/model routing, route health, capability catalog and inference receipts",
+      "evidence": ["crates/spine/runtime/manwe/src/lib.rs:1-11","crates/spine/runtime/manwe/Cargo.toml:17-44","services.toml:60-97"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["Catalog advertisement includes unreachable active backbone routes.","Placement is provider/model-centric and does not yet consume a canonical expiring node-capability contract."],
+      "disposition": "adapt",
+      "alignment": "Keep model/provider authority; join it with node identity and resource evidence rather than moving placement into CEO or Hermes."
+    },
+    {
+      "id": "vaire-memory-continuity",
+      "owner": "arda-vaire",
+      "responsibility": "canonical memory, governed knowledge, continuity, scope policy and persona/context projection",
+      "evidence": ["crates/spine/memory/arda-vaire/src/lib.rs:1-22","crates/engine/src/harness/continuity.rs:1-8","crates/engine/src/adapters/knowledge_delta.rs:1-79"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":true},
+      "gaps": ["No organism context capsule or memory-use receipt is yet composed into generic worker bootstrap.","Hermes profile memory remains a separate conversational store that needs an explicit non-authority boundary."],
+      "disposition": "reuse",
+      "alignment": "Make Vairë the capsule and collective-continuity owner; do not create another context database."
+    },
+    {
+      "id": "varda-evidence-research",
+      "owner": "arda-varda",
+      "responsibility": "ingest, query, deep analysis, external evaluation, evidence and research briefs",
+      "evidence": ["crates/spine/executors/arda-varda/src/lib.rs:1-204","crates/engine/src/harness/research.rs:1-13","arda-varda.service"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["The separate Varda listener returns 404 at /health; systemd asserts process state but no service-specific readiness URL is configured.","Current operator projection contains a pending research run with no workers despite completed evidence artifacts."],
+      "disposition": "adapt",
+      "alignment": "Reuse evidence authority; repair service readiness and reconcile run/evidence terminal state."
+    },
+    {
+      "id": "rumil-audit",
+      "owner": "arda-rumil",
+      "responsibility": "bounded project inventory, evidence normalization, comparison and review-only organization plans",
+      "evidence": ["crates/spine/runtime/arda-rumil/src/lib.rs:1-85"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":false,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["Library is invoked on demand; no organism-level scheduled role or node placement contract exists."],
+      "disposition": "reuse",
+      "alignment": "Keep review-only audit role and expose it as a bounded capability, not a sovereign autonomous agent."
+    },
+    {
+      "id": "mandos-reasoning",
+      "owner": "arda-mandos",
+      "responsibility": "bounded reasoning/evidence confidence and policy verdicts",
+      "evidence": ["crates/spine/runtime/arda-mandos/src/lib.rs:1-44"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":false,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["Legacy Oracle naming persists in source docs/types.","Reasoning is a library capability rather than a live node/role."],
+      "disposition": "reuse",
+      "alignment": "Use as evidence/verdict capability inside composition; do not expose it as a competing planner."
+    },
+    {
+      "id": "economics-joulework",
+      "owner": "arda-economics",
+      "responsibility": "cost, energy, JouleWork, measurement provenance and budgets",
+      "evidence": ["crates/spine/runtime/arda-economics/src/lib.rs:1-26","crates/engine/src/runs/orchestrator.rs:5-75"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":false,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["Worker scheduling reserves configured budgets, but current placement does not join measured node pressure/energy observations.","Observed versus estimated cost must remain explicit."],
+      "disposition": "reuse",
+      "alignment": "Keep metabolism/resource accounting and connect measured node observations during Stage 3/5."
+    },
+    {
+      "id": "aule-observability-presence",
+      "owner": "arda-aule",
+      "responsibility": "metrics, operator telemetry, presence and read-only projections",
+      "evidence": ["crates/spine/observability/arda-aule/src/lib.rs:1-129","crates/engine/src/harness/presence.rs:17-161","arda-metrics-exporter.service"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["CEO/Prometheus modules are not in the default/root compile surface; only basic observability/presence is.","Operator projection currently shows no service/capability rows while harness status has Manwe."],
+      "disposition": "adapt",
+      "alignment": "Retain projection/telemetry owner; converge projections on direct topology and receipt evidence."
+    },
+    {
+      "id": "arandur-prometheus-ceo",
+      "owner": "Prometheus/Aulë with Arandur identity",
+      "responsibility": "read-only objective selection, planner, council, queue analysis, recommendations and executive loop",
+      "evidence": ["crates/spine/observability/arda-aule/src/lib.rs:56-69","crates/spine/observability/arda-aule/src/ceo/mod.rs:1-8","crates/spine/observability/arda-aule/src/prometheus/mod.rs:1-22","arda-aule-autopilot-read-only.service"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":true,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["Runs as a separate timer-backed full-cli process, not the root runtime.","Current decision is hold; no objective selected and no plans/outcomes processed.","CoreAutonomyProfile expects core/realm/boot.toml, which is absent; copies exist under core/knowledge/realm.","core/state/world.json contains a March Arandur heartbeat yet labels Arandur ONLINE and system READY.","No data/arandur recommendation tree exists."],
+      "disposition": "adapt",
+      "alignment": "Unify around current queue/topology/context/receipts; retire stale world/realm projections as current authority after successor proof."
+    },
+    {
+      "id": "fleet-outpost-contracts",
+      "owner": "arda-engine plus arda-outpost-protocol",
+      "responsibility": "node inventory, enrollment, observations, presence, research and device boundaries",
+      "evidence": ["config/fleet.toml:23-252","outposts/arda-outpost-protocol/src/lib.rs:1-56"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["Fleet TOML is configuration, not an expiring canonical node observation registry.","Three configured active targets currently time out.","Capability fields are primarily inference-specific and do not yet advertise general tools/data/privacy/resource state."],
+      "disposition": "adapt",
+      "alignment": "Reuse enrollment/observation/presence contracts; converge one node manifest and fresh observation model."
+    },
+    {
+      "id": "warden-scout",
+      "owner": "arda-outpost-scout",
+      "responsibility": "bounded remote research/audit/recall and advisory observations",
+      "evidence": ["outposts/arda-outpost-scout/src/lib.rs:1-26","config/fleet.toml:54-84","http://127.0.0.1:7878/v1/scout/health"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":false},
+      "gaps": ["Reachable as a bounded proxy/outpost, not enrolled as a generic A2A worker.","Advisory authority is intentionally execution-prohibited."],
+      "disposition": "reuse",
+      "alignment": "Use as first remote evidence node in Stage 2 while preserving advisory-only authority."
+    },
+    {
+      "id": "relic-presence",
+      "owner": "arda-relic-bridge",
+      "responsibility": "read-only receipt-backed runtime-presence validation and projection",
+      "evidence": ["outposts/arda-relic-bridge/src/lib.rs:1-133","arda-relic-bridge.service"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":true,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["CITADEL endpoint currently times out.","No current physical delivery acknowledgement file exists.","Active scp retries prove attempted transfer, not delivery."],
+      "disposition": "adapt_hold",
+      "alignment": "Keep read-only projection, but hold embodiment acceptance until living-mesh receipts and fresh delivery acknowledgement exist."
+    },
+    {
+      "id": "contract-registry",
+      "owner": "arda-contract-registry",
+      "responsibility": "declared contract tracks, schemas, sources, receipts and CLI verbs",
+      "evidence": ["crates/spine/contract/arda-contract-registry/src/registry.rs:1-155","core/state/contract_registry.json:1-145","apps/arda-launcher/src-tauri/src/lib.rs:11-104"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":true,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["Direct consumers are launcher/onboarding and CLI validation, not root execution.","Registry generated_at is July 31 and contains maturity/CLI/source claims that need current live audit before reuse.","The root workspace declares the dependency alias but root/engine do not consume it."],
+      "disposition": "adapt",
+      "alignment": "Reuse loader/validation; regenerate tracks from accepted authority map and wire root admission only after Stage 1 design."
+    },
+    {
+      "id": "canonical-queue-projections",
+      "owner": "arda-core/Prometheus projection consumers",
+      "responsibility": "append-only operator/project task authority and read-only active/summary views",
+      "evidence": ["core/projects/tasks/queue.jsonl","core/state/queue_active.json","core/state/queue_summary.json","crates/spine/observability/arda-aule/src/prometheus/autopilot/task_queue.rs:16-240"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":true,"workflow_proven":true,"operator_accepted":true},
+      "gaps": ["Generated active projection counts dependency-gated plan tasks as active backlog.","Projection drops origin/scope/meta needed to explain dependency gates.","Next-action and Arandur separately exclude all 12 tasks, producing inconsistent meaning of active."],
+      "disposition": "adapt",
+      "alignment": "Keep JSONL canonical and append-only; change projection semantics/fields rather than adding a new queue."
+    },
+    {
+      "id": "operator-projection",
+      "owner": "arda-engine/Aulë",
+      "responsibility": "human-visible objective/run/capability/service/receipt convergence",
+      "evidence": ["crates/engine/src/operator_projection.rs","http://127.0.0.1:7878/v1/operator-projection"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":true,"root_composed":true,"installed":true,"running":true,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["Current fresh projection reports one pending economic-intelligence run with no workers, zero capabilities, and no services while harness runtime shows Manwe and separate services.","Current source-backed research evidence and run terminal state are not reconciled."],
+      "disposition": "adapt",
+      "alignment": "Make this the eventual coherent organism projection only after topology, work, and outcome sources reconcile."
+    },
+    {
+      "id": "legacy-world-realm-projections",
+      "owner": "historical Prometheus/Core compatibility",
+      "responsibility": "legacy agent roster and world readiness projection",
+      "evidence": ["core/state/world.json:1-147","core/knowledge/realm/boot.toml","core/knowledge/realm/agents.toml","crates/spine/observability/arda-aule/src/ceo/core_link.rs:17-36"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":false,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["world.json labels Arandur ONLINE/READY using a March heartbeat and is stale.","CoreAutonomyProfile reads absent core/realm paths while historical copies live under core/knowledge/realm."],
+      "disposition": "archive_candidate",
+      "alignment": "Do not delete in Task 1. Stage 0 authority mapping must name the live topology/identity successor and prove no required consumers before retirement."
+    },
+    {
+      "id": "hud-mirromere-surfaces",
+      "owner": "Arda HUD/Mirromere applications",
+      "responsibility": "operator workstations, native projections and eventual embodiment",
+      "evidence": ["apps/arda-hud/","apps/arda-mirromere/","docs/plans/ambient-agent/README.md"],
+      "maturity": {"implemented":true,"focused_tested":true,"default_compile_closure":false,"root_composed":false,"installed":true,"running":false,"workflow_proven":false,"operator_accepted":false},
+      "gaps": ["Root runs --no-ui; launcher/HUD are not supervised in the live root process.","Mirromere remains intentionally held and must not become a Hermes dashboard or topology fiction.","Existing unrelated HUD work is dirty and was excluded from Task 1."],
+      "disposition": "adapt_hold",
+      "alignment": "Consume future organism projection; do not mint topology, work, health or approval."
+    }
+  ],
+  "summary": {
+    "reuse": 8,
+    "adapt": 12,
+    "adapt_hold": 2,
+    "unresolved_adapt_inspect": 1,
+    "archive_candidate": 1,
+    "total_components": 24,
+    "stage_1_ready": false,
+    "blocking_decisions": [
+      "Select one semantic node/agent registry and its persistence owner.",
+      "Define Arda semantic envelope to Hermes/Linux Foundation A2A mapping.",
+      "Replace stale world/realm identity projections only after successor proof.",
+      "Reconcile dependency-gated queue projection semantics.",
+      "Trace one current objective end to end in Task 2 before contract implementation."
+    ],
+    "next_task": "digital-organism-s0-current-flow-trace"
+  }
+}

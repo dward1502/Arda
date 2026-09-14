@@ -1,0 +1,56 @@
+{
+  "schema_version": "arda.mirromere.surface.v1",
+  "surface_id": "mirromere-hud-preview",
+  "outpost_id": "hud:monitor_3",
+  "display_role": "hud_aperture",
+  "source_mode": "fixture",
+  "scene": {
+    "scene_id": "continuity.handoff-ready",
+    "application_id": "arda.mirromere.continuity",
+    "application_version": "1.0.0",
+    "purpose": "Present an authenticated continuation opportunity"
+  },
+  "slots": [
+    {
+      "id": "continuity-presence",
+      "content": {
+        "kind": "conversation_presence",
+        "participant_ref": "operator:fixture",
+        "phase": "waiting"
+      }
+    },
+    {
+      "id": "continuity-view",
+      "content": {
+        "kind": "app_view",
+        "view_id": "continuity"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "source_id": "fixture:continuity",
+      "evidence_ref": "fixture://continuity/handoff-ready",
+      "observed_at": "2026-08-17T12:00:00Z"
+    }
+  ],
+  "generated_at": "2026-08-17T12:00:00Z",
+  "expires_at": "2026-08-17T12:05:00Z",
+  "freshness": "fresh",
+  "availability": "available",
+  "privacy": {
+    "privacy_class": "operator_private",
+    "visibility_ceiling": "operator_private"
+  },
+  "allowed_interactions": ["inspect_provenance", "continue_handoff"],
+  "accessibility": {
+    "description": "A private continuity signal is ready for explicit operator action.",
+    "reduced_motion": "freeze",
+    "urgency": "normal"
+  },
+  "transition": {
+    "style": "fade",
+    "duration_ms": 500,
+    "attention_budget": 1
+  }
+}

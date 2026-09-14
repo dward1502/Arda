@@ -2,12 +2,18 @@
 import type { ArdaWorkstationManifest } from '../../lib/ardaSource'
 import {
   BOARDROOM_SCENE_SLOT_IDS,
+  DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS,
   type BoardroomSceneSlotId,
 } from '../../lib/boardroomSlotSettings'
+import { resolveWorkstationComposition } from '../../lib/workstationComposition'
 
 export const SCENE_SLOT_ZONE_PREFIX = 'scene_slot:'
 const SCENE_SLOT_WORKSTATION_PREFIX = 'scene_slot_'
 const SCENE_SLOT_WORKSTATION_SUFFIX = '_workstation'
+
+function canonicalCompositionForSlot(slotId: BoardroomSceneSlotId) {
+  return resolveWorkstationComposition(DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS[slotId], [])
+}
 
 interface SceneSlotWorkstationTemplate {
   title: string
@@ -42,24 +48,24 @@ const SCENE_SLOT_WORKSTATION_TEMPLATES: Record<BoardroomSceneSlotId, SceneSlotWo
     presentationModes: ['in_scene', 'native_window'],
   },
   view_desk_l: {
-    title: 'Desk Left Review Template',
-    moduleIds: ['governance_controls', 'section_focus'],
-    presentationModes: ['in_scene', 'native_window'],
+    title: canonicalCompositionForSlot('view_desk_l').title,
+    moduleIds: canonicalCompositionForSlot('view_desk_l').moduleIds,
+    presentationModes: canonicalCompositionForSlot('view_desk_l').presentationModes,
   },
   view_desk_control_panel: {
-    title: 'Desk Systems + Fleet Template',
-    moduleIds: ['systems', 'operations_and_packages'],
-    presentationModes: ['in_scene', 'native_window'],
+    title: canonicalCompositionForSlot('view_desk_control_panel').title,
+    moduleIds: canonicalCompositionForSlot('view_desk_control_panel').moduleIds,
+    presentationModes: canonicalCompositionForSlot('view_desk_control_panel').presentationModes,
   },
   view_desk_r: {
-    title: 'Desk Right Routing + Communications Template',
-    moduleIds: ['systems', 'operations_and_packages'],
-    presentationModes: ['in_scene', 'native_window'],
+    title: canonicalCompositionForSlot('view_desk_r').title,
+    moduleIds: canonicalCompositionForSlot('view_desk_r').moduleIds,
+    presentationModes: canonicalCompositionForSlot('view_desk_r').presentationModes,
   },
   view_desk_aux: {
-    title: 'Desk Aux Human + Business Template',
-    moduleIds: ['human_realm', 'business'],
-    presentationModes: ['in_scene', 'native_window'],
+    title: canonicalCompositionForSlot('view_desk_aux').title,
+    moduleIds: canonicalCompositionForSlot('view_desk_aux').moduleIds,
+    presentationModes: canonicalCompositionForSlot('view_desk_aux').presentationModes,
   },
 }
 

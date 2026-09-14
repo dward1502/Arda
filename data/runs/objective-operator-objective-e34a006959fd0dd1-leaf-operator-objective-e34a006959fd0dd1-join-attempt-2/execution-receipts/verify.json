@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:4ba58651aad15385dbfccb006f45e218f454fd3d952076a43591fa2883b05e9a",
+  "idempotency_key": "queue-operator-objective-e34a006959fd0dd1-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:4bdb7431d7548fd62a843a0d6a431baf8be4686f2c15095ed66924d4577095f2"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:d6fa640f6adfe8bafd73f4f570214c56fc881a57288ff5c01181118c9474559b",
+  "recorded_at_unix_ms": 1788331452802,
+  "run_id": "objective-operator-objective-e34a006959fd0dd1-leaf-operator-objective-e34a006959fd0dd1-join-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified canonical close-receipt lineage for all project leaves. The declared clean-tree check passed with no uncommitted differences, and no files were created or modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch && git log -5 --oneline --decorate && git ls-tree -r --name-only HEAD",
+      "exit_code": 0,
+      "output_digest": "sha256:52e37d8031413e8571f8d2ccfc5303208ad9014ec855fdab4c9c5a8ef36b0e83",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:INDEX.md && printf '\\n--- src/INDEX.md ---\\n' && git show HEAD:src/INDEX.md && printf '\\n--- tests/INDEX.md ---\\n' && git show HEAD:tests/INDEX.md && printf '\\n--- README.md ---\\n' && git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:d2da35f811c7e8d40d97491efb2ceceef5157ae796e0afedfdc13193889f6557",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 20539,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 627,
+    "provider": "openai-codex",
+    "total_tokens": 21166
+  }
+}

@@ -8,7 +8,7 @@
   border: 1px solid rgba(216, 231, 255, 0.3);
   border-radius: 0.35rem;
   background:
-    linear-gradient(135deg, rgba(6, 15, 24, 0.95), rgba(2, 5, 10, 0.98)),
+    var(--arda-console-material),
     repeating-linear-gradient(
       90deg,
       rgba(255, 255, 255, 0.04) 0 1px,

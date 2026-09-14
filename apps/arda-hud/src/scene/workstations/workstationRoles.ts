@@ -1,6 +1,6 @@
 // sigil: REPAIR
 
-export type WorkstationRoleId = 'fleet' | 'work' | 'decisions' | 'knowledge' | 'evidence' | 'settings'
+export type WorkstationRoleId = 'fleet' | 'routing' | 'continuity' | 'work' | 'decisions' | 'knowledge' | 'evidence' | 'settings'
 export type WorkstationPresentationMode = 'in_scene' | 'native_window'
 
 export interface WorkstationRoleDefinition {
@@ -17,6 +17,8 @@ export interface WorkstationRoleDefinition {
 
 export const WORKSTATION_ROLE_IDS: WorkstationRoleId[] = [
   'fleet',
+  'routing',
+  'continuity',
   'work',
   'decisions',
   'knowledge',
@@ -48,6 +50,28 @@ export const WORKSTATION_ROLE_DEFINITIONS: WorkstationRoleDefinition[] = [
       'service_checks',
       'read_only_refresh_actions',
     ],
+    defaultPresentationModes: ['in_scene', 'native_window'],
+    debugRawAllowed: false,
+  },
+  {
+    id: 'routing',
+    label: 'Routing',
+    description: 'CHARON lane ownership, provider pressure, route fitness, and external communication pathways.',
+    purpose: 'Explain where inference and communications flow, why, and with what current constraints.',
+    operatorQuestion: 'Which routes own each workload lane, and what pressure or failures constrain them?',
+    previewKinds: ['route_flow', 'lane_pressure', 'communication_receipts'],
+    focusedCapabilities: ['lane_ownership', 'provider_detail', 'route_fitness', 'budget_pressure', 'read_only_refresh_actions'],
+    defaultPresentationModes: ['in_scene', 'native_window'],
+    debugRawAllowed: false,
+  },
+  {
+    id: 'continuity',
+    label: 'Continuity',
+    description: 'Human context, business commitments and value, and personal continuity.',
+    purpose: 'Keep the operator’s context, obligations, and continuity visible without exposing private detail on ambient surfaces.',
+    operatorQuestion: 'What requires human attention across context, business, and personal continuity?',
+    previewKinds: ['continuity_pulse', 'horizon_balance', 'missing_reference_warning'],
+    focusedCapabilities: ['horizon_filtering', 'commitment_detail', 'planned_realized_value_truth', 'private_detail_boundary'],
     defaultPresentationModes: ['in_scene', 'native_window'],
     debugRawAllowed: false,
   },

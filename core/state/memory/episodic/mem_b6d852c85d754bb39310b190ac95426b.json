@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b6d852c85d754bb39310b190ac95426b",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-63ae7b0b11c40da1__recover-context--5e3ea68d74b4b0b7-attempt-2 for task operator-task-63ae7b0b11c40da1__recover-context--5e3ea68d74b4b0b7 ended status=failed result=cancelled; receipt=none; detail=--reason Superseded after restricting context recovery to inspectable sources",
+  "salience": 0.42172499999999985,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T05:30:31.504663788Z",
+  "last_seen_at": "2026-09-01T05:30:31.504663788Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

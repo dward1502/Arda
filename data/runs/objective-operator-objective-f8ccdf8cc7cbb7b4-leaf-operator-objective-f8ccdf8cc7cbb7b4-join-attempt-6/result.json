@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:db14c4bed8a35da9e23abfa400500ad220d26be618725c0ec2cb37e8f2c8b456",
+    "summary": "Cannot approve the joined result: both dependency close receipts contain only generic closure statements and expose neither the approved leaf objectives nor substantive execution/verification evidence. The parent verify receipt establishes clean-tree status and lineage for this project leaf, but does not demonstrate that either dependency satisfied the full joined objective. Independent source review also found security/privacy defects: src/lib.rs accepts wikilinks containing parent-directory components and can report existing paths outside the vault, while scan_vault processes every Markdown file without enforcing the documented privacy, authority, status, quarantine, or review-required boundaries. Completion is therefore unsupported and the implementation conflicts with its ingestion contract."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

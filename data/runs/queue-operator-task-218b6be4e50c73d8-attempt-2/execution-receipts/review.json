@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2bdbb5bf6f89c6a67e47cc62e8241f20c7632772f3bb5545fb08f08c1c9fe0fe",
+  "idempotency_key": "queue-operator-task-218b6be4e50c73d8-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:cb95bdc662c51e29703523044a7b704a577cad86a4ed27f2cbfd94e613ef0c8b"
+  ],
+  "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+  "receipt_digest": "sha256:c44b00f8d731c44909d2f0db47aa216e1fdb42580b209ff9f9c2ca2ef3d5c685",
+  "recorded_at_unix_ms": 1788093680523,
+  "run_id": "queue-operator-task-218b6be4e50c73d8-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "No defects found. Independent read-only inspection confirmed acceptance.txt contains exactly the required line with a trailing newline, and the Rust test implementation is consistent with the canonical verification receipt showing cargo test passed. No checks were rerun and no files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:08af182bf3cd552a0a5c2a5350e4f21ffed888dda5fc4a0c85275e8a72872a1f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b53d5bfd6e8958af9a78a704490b944958fb518a908b7dbfa735c56ae3dbfab7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7f3fe1dc0cec33dd59c545688d0e06f9e977d33d3a5265a7ab5e294d98e5f21c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:1dae453e8127360c647af7a0cbdc4663c93983910f4f3336fdfec00b53e9e656",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/.gitignore\"}",
+      "exit_code": null,
+      "output_digest": "sha256:601de88e661f6f97fcbd4a32348fc0b4e2c7b5a3ab8ddeb086b9fb72e3565306",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/target/debug/.fingerprint/arda-autonomous-acceptance-f14e596ce895ea4d/test-lib-arda_autonomous_acceptance.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2bf3a322fe6ccdbdef871673a65c31c14cbd9555eef659ae0534a55367cca8d7",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 17169,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1799,
+    "provider": "openai-codex",
+    "total_tokens": 18968
+  }
+}

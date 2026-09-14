@@ -1,9 +1,11 @@
+use crate::objectives::agenda::{read_agenda, AgendaObjective, OBJECTIVE_STORE_PATH};
+use crate::objectives::ObjectiveState;
 use arda_core::operator_projection::{
     CapabilityProjection, CommunicationProjection, CouncilProjection, DependencyHealth,
     DependencyProjection, EvidenceProjection, JouleWorkProjection, MeasurementSource,
-    NodeProjection, ObjectiveProjection, ObjectiveStatus, OperatorProjection,
-    PersonalOperationsProjection, ProjectionAuthority, ProjectionFreshness, ReminderProjection,
-    ReminderStatus, RunProjection, RunStatus, WorkerProjection,
+    NodeProjection, ObjectiveBudgetProjection, ObjectiveProjection, ObjectiveStatus,
+    OperatorProjection, PersonalOperationsProjection, ProjectionAuthority, ProjectionFreshness,
+    ReminderProjection, ReminderStatus, RunProjection, RunStatus, WorkerProjection,
 };
 use arda_core::personal_ops::{PersonalOpsRecord, ReminderDeliveryState};
 use arda_core::run_graph::{CapabilityCompositionReceipt, NodeKind, NodeState, RunGraph};
@@ -18,19 +20,38 @@ use crate::personal_ops::{build_projection, PersonalOpsLogStore};
 use crate::runs::RunStore;
 
 pub const OPERATOR_PROJECTION_PATH: &str = "core/state/operator_projection.json";
+pub const CURRENT_RUNS_PATH: &str = "data/workbench/current-runs.json";
 static OPERATOR_PROJECTION_WRITE: Mutex<()> = Mutex::new(());
 
 pub fn publish_operator_projection(
     root: &Path,
     generated_at: DateTime<Utc>,
 ) -> Result<OperatorProjection, OperatorProjectionPublishError> {
-    let run_root = root.join("data/runs");
-    let entries = fs::read_dir(&run_root).map_err(|source| OperatorProjectionPublishError::Io {
-        path: run_root.clone(),
-        source,
+    let agenda = read_agenda(root).map_err(|error| {
+        OperatorProjectionPublishError::InvalidCanonicalInput {
+            path: root.join(OBJECTIVE_STORE_PATH),
+            error: error.to_string(),
+        }
     })?;
+    let run_root = root.join("data/runs");
+    let entries = match fs::read_dir(&run_root) {
+        Ok(entries) => Some(entries),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+        Err(source) => {
+            return Err(OperatorProjectionPublishError::Io {
+                path: run_root,
+                source,
+            })
+        }
+    };
+    let current_run_ids = agenda
+        .iter()
+        .flatten()
+        .flat_map(|objective| objective.runs.iter().map(|(_, run)| run.clone()))
+        .collect::<BTreeSet<_>>();
+    let mut historical_run_count = 0;
     let mut run_directories = Vec::new();
-    for entry in entries {
+    for entry in entries.into_iter().flatten() {
         let entry = entry.map_err(|source| OperatorProjectionPublishError::Io {
             path: run_root.clone(),
             source,
@@ -43,7 +64,11 @@ pub fn publish_operator_projection(
                 source,
             })?;
         if kind.is_dir() {
-            run_directories.push(path);
+            if current_run_ids.contains(&entry.file_name().to_string_lossy().into_owned()) {
+                run_directories.push(path);
+            } else {
+                historical_run_count += 1;
+            }
         }
     }
     run_directories.sort();
@@ -53,7 +78,6 @@ pub fn publish_operator_projection(
         let checkpoint = directory.join("checkpoint.json");
         let raw = match fs::read_to_string(&checkpoint) {
             Ok(raw) => raw,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
             Err(source) => {
                 return Err(OperatorProjectionPublishError::Io {
                     path: checkpoint,
@@ -70,8 +94,25 @@ pub fn publish_operator_projection(
         graphs.push(graph);
     }
 
+    let mut current_directories = Vec::new();
+    let mut current_graphs = Vec::new();
+    for (directory, graph) in run_directories.iter().zip(graphs.iter()) {
+        if current_run_ids.contains(graph.run_id.as_str())
+            && !matches!(
+                derive_run_status(graph),
+                RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
+            )
+        {
+            current_directories.push(directory.clone());
+            current_graphs.push(graph.clone());
+        }
+    }
+    historical_run_count += graphs.len().saturating_sub(current_graphs.len());
+    let graphs = current_graphs;
+    let run_directories = current_directories;
+
     let runs = graphs.iter().map(project_run).collect::<Vec<_>>();
-    let objectives = project_objectives(&graphs, &runs);
+    let objectives = project_objectives(&graphs, &runs, agenda.as_deref().unwrap_or_default());
     let capabilities = project_capabilities(&run_directories)?;
     let councils = project_councils(&run_directories, &graphs)?;
     let personal_operations = project_personal_operations(root, generated_at)?;
@@ -97,9 +138,17 @@ pub fn publish_operator_projection(
         communications: Vec::<CommunicationProjection>::new(),
         dependencies: vec![
             dependency(
+                "objective_store",
+                if agenda.is_some() { DependencyHealth::Ready } else { DependencyHealth::NotConfigured },
+                if agenda.is_some() { "current resident objectives; legacy queue is not read" } else { "resident objective store unavailable; no legacy fallback" }.to_string(),
+            ),
+            dependency(
                 "run_store",
                 DependencyHealth::Ready,
-                format!("{} validated checkpoint(s)", graphs.len()),
+                format!(
+                    "{} current validated checkpoint(s); {} historical checkpoint(s) retained outside the current agenda",
+                    graphs.len(), historical_run_count
+                ),
             ),
             dependency(
                 "resource_ledger",
@@ -198,55 +247,90 @@ fn derive_run_status(graph: &RunGraph) -> RunStatus {
     }
 }
 
-fn project_objectives(graphs: &[RunGraph], runs: &[RunProjection]) -> Vec<ObjectiveProjection> {
-    let mut grouped = BTreeMap::<String, (Option<String>, Vec<RunStatus>)>::new();
-    for (graph, run) in graphs.iter().zip(runs) {
-        let project_id = graph
-            .provenance
-            .project_contract_digest
-            .strip_prefix("project:")
-            .map(ToOwned::to_owned);
-        let entry = grouped
-            .entry(graph.objective_id.as_str().to_string())
-            .or_insert_with(|| (project_id, Vec::new()));
-        entry.1.push(run.status);
-    }
-    grouped
-        .into_iter()
-        .map(
-            |(objective_id, (project_id, statuses))| ObjectiveProjection {
-                title: objective_id.clone(),
-                objective_id,
-                project_id,
-                status: derive_objective_status(&statuses),
-            },
-        )
+fn project_objectives(
+    graphs: &[RunGraph],
+    runs: &[RunProjection],
+    agenda: &[AgendaObjective],
+) -> Vec<ObjectiveProjection> {
+    agenda
+        .iter()
+        .map(|objective| {
+            let graph = graphs.iter().find(|graph| {
+                graph.objective_id.as_str() == objective.id
+                    && objective
+                        .runs
+                        .iter()
+                        .any(|(_, run)| run == graph.run_id.as_str())
+            });
+            let run =
+                graph.and_then(|graph| runs.iter().find(|run| run.run_id == graph.run_id.as_str()));
+            let node = graph.and_then(current_node);
+            let evidence = graph
+                .into_iter()
+                .flat_map(|graph| graph.nodes.iter())
+                .filter_map(|node| node.output_digest.clone())
+                .collect::<BTreeSet<_>>()
+                .into_iter()
+                .collect();
+            ObjectiveProjection {
+                objective_id: objective.id.clone(),
+                project_id: objective.project_id.clone(),
+                title: objective.text.clone(),
+                status: match objective.state {
+                    ObjectiveState::PendingApproval | ObjectiveState::Paused => {
+                        ObjectiveStatus::Blocked
+                    }
+                    ObjectiveState::Approved => ObjectiveStatus::Pending,
+                    ObjectiveState::Running => ObjectiveStatus::Active,
+                    ObjectiveState::Completed => ObjectiveStatus::Succeeded,
+                    ObjectiveState::Cancelled => ObjectiveStatus::Cancelled,
+                    ObjectiveState::Failed => ObjectiveStatus::Failed,
+                },
+                current_task_id: graph.and_then(|graph| {
+                    objective
+                        .runs
+                        .iter()
+                        .find(|(_, run)| run == graph.run_id.as_str())
+                        .map(|(leaf, _)| leaf.clone())
+                }),
+                current_run_id: run.map(|run| run.run_id.clone()),
+                current_node_id: node.map(|node| node.id.as_str().to_owned()),
+                evidence,
+                next_continuation: None,
+                next_wake_at: objective
+                    .next_wake_ms
+                    .and_then(DateTime::from_timestamp_millis),
+                provider_route: node
+                    .and_then(|node| node.worker.as_ref())
+                    .map(|worker| worker.route_id.clone()),
+                budget: node.map(|node| ObjectiveBudgetProjection {
+                    max_joules: node.budget.max_joules,
+                    max_cost_usd: node.budget.max_cost_usd,
+                }),
+                blocker: match objective.state {
+                    ObjectiveState::PendingApproval => Some("pending operator approval".to_owned()),
+                    ObjectiveState::Paused => Some("paused by operator".to_owned()),
+                    _ => None,
+                },
+            }
+        })
         .collect()
 }
 
-fn derive_objective_status(statuses: &[RunStatus]) -> ObjectiveStatus {
-    if statuses.iter().any(|status| {
-        matches!(
-            status,
-            RunStatus::Running | RunStatus::AwaitingApproval | RunStatus::Pending
-        )
-    }) {
-        ObjectiveStatus::Active
-    } else if statuses.contains(&RunStatus::Blocked) {
-        ObjectiveStatus::Blocked
-    } else if !statuses.is_empty()
-        && statuses
-            .iter()
-            .all(|status| *status == RunStatus::Succeeded)
-    {
-        ObjectiveStatus::Succeeded
-    } else if statuses.contains(&RunStatus::Failed) {
-        ObjectiveStatus::Failed
-    } else if statuses.contains(&RunStatus::Cancelled) {
-        ObjectiveStatus::Cancelled
-    } else {
-        ObjectiveStatus::Pending
-    }
+fn current_node(graph: &RunGraph) -> Option<&arda_core::run_graph::RunNode> {
+    graph
+        .nodes
+        .iter()
+        .find(|node| node.state == NodeState::Running)
+        .or_else(|| {
+            graph.nodes.iter().find(|node| {
+                matches!(
+                    node.state,
+                    NodeState::Ready | NodeState::Blocked | NodeState::Pending
+                )
+            })
+        })
+        .or_else(|| graph.nodes.last())
 }
 
 fn project_capabilities(

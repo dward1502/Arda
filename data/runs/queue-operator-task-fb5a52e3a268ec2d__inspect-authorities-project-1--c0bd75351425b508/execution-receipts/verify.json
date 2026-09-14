@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:53180e58cad1824e7d74d28b20f82ef00ee307854694743e9300d252e43947e2",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__inspect-authorities-project-1--c0bd75351425b508-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:82787e1fc8bb040f3ca00bc74558fa9ffe87caa5a7bf44564c4a66e9be30f8b5"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:08479a7db2ecc234b285177ab4659f01426ff36b7296e41d1f7b4c10a3efeeb9",
+  "recorded_at_unix_ms": 1788259119225,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__inspect-authorities-project-1--c0bd75351425b508",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared clean-tree check passed, and project-native status verification reported a clean detached HEAD. No project files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch",
+      "exit_code": 0,
+      "output_digest": "sha256:6504daff6e1cadfe87a4c88628079fa6fdffd231f2f8278d4b75b5f271278c22",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9963,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 253,
+    "provider": "openai-codex",
+    "total_tokens": 10216
+  }
+}

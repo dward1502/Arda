@@ -1,0 +1,14 @@
+{
+  "records": [
+    {
+      "name": "Rust standards and agentic capability assimilation",
+      "question_ids": [
+        "6d4e23ce-35c7-4f62-b8d8-75f0dc46d33d"
+      ],
+      "schema_version": "arda.warden.watchlist.v1",
+      "state": "enabled",
+      "watchlist_id": "e8a7a8ec-a32e-4e15-9cd5-73074f5b9f89"
+    }
+  ],
+  "schema_version": "arda.workbench.research-watchlists.v1"
+}

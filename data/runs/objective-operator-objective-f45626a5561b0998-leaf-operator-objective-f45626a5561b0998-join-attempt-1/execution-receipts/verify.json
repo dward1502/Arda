@@ -1,0 +1,95 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:7c4c9c3e6273ef7986071e071c79adc4c358614c983685d8e969844e842325b5",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:dac39d341ac7b7b6534ae9bafd5a8eca1f6f76cad3d10a3c4ea63df255921578"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:79a206330250f1f6fccd60a9a84315f594670ee24f9ff148fef5e7c4a099e77f",
+  "recorded_at_unix_ms": 1788370237127,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the sole project leaf has canonical close-receipt lineage through the digest-validated successful execute receipt. The declared clean-tree check passed exactly as specified; no files were created or modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git branch --show-current",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:76ce25dbee8297c0997fdd5daf3d14467b2fd1e2c010ebd5427c94c84f8745ad",
+      "tool": "terminal"
+    },
+    {
+      "action": "git log --oneline --decorate -5",
+      "exit_code": 0,
+      "output_digest": "sha256:e5c55f53687381c78b616f6facde486290715ba624f617788b7af1065d69fdee",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md && git show HEAD:INDEX.md",
+      "exit_code": 0,
+      "output_digest": "sha256:94e125ed448178dfa3730a93c9cafcb91627797d576e07500ee30ca983bce3c6",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:Cargo.toml && git show HEAD:src/lib.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:38f26e0d7a855459770ee21082d3f8b2cd386ab57674fd8ed4a2763460a05568",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:tests/target_local.rs && git show HEAD:docs/human-knowledge-ingestion-contract.md",
+      "exit_code": 0,
+      "output_digest": "sha256:6b396487f773201d5536f27d4bbbfab9fab52af403f11d699a27e25b6ee8892c",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c 'import hashlib,json; receipt={\"artifacts\":[],\"node_id\":\"execute\",\"status\":\"succeeded\",\"summary\":\"Completed the objective synthesis node. The declared clean-tree check passed exactly as specified; no files were created or modified.\",\"test_evidence\":[{\"check_id\":\"clean-tree\",\"command\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"status\":\"passed\"}],\"tool_evidence\":[{\"action\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"tool\":\"terminal\"}]}; canonical=json.dumps(receipt,sort_keys=True,separators=(\",\",\":\"),ensure_ascii=False).encode(); actual=\"sha256:\"+hashlib.sha256(canonical).hexdigest(); expected=\"sha256:dac39d341ac7b7b6534ae9bafd5a8eca1f6f76cad3d10a3c4ea63df255921578\"; print(json.dumps({\"canonical_receipt_digest\":actual,\"expected_receipt_digest\":expected,\"matches\":actual==expected},sort_keys=True)); raise SystemExit(0 if actual==expected else 1)'",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "printf '%s' '{\"artifacts\":[],\"node_id\":\"execute\",\"status\":\"succeeded\",\"summary\":\"Completed the objective synthesis node. The declared clean-tree check passed exactly as specified; no files were created or modified.\",\"test_evidence\":[{\"check_id\":\"clean-tree\",\"command\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"status\":\"passed\"}],\"tool_evidence\":[{\"action\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"tool\":\"terminal\"}]}' | sha256sum",
+      "exit_code": 0,
+      "output_digest": "sha256:8330ea25acdef1b7a0f823059495f8526ce20c37724cea851c16949a111a2d17",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 6,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 11496,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2010,
+    "provider": "openai-codex",
+    "total_tokens": 13506
+  }
+}

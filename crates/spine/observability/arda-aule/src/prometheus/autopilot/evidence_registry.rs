@@ -11,6 +11,7 @@ use std::path::Path;
 pub const EVIDENCE_REGISTRY_CONTRACT: &str = "arda.arandur.evidence_registry.v1";
 pub const OPERATOR_EXECUTION_RECEIPT_CONTRACT: &str =
     "arda.arandur.operator_approved_candidates_execution.v1";
+pub const WORKBENCH_EXECUTION_OUTCOME_CONTRACT: &str = "arda.workbench.execution_outcome.v1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EvidenceRecord {
@@ -58,6 +59,13 @@ impl EvidenceRegistry {
             .collect()
     }
 
+    pub fn workbench_outcome_receipts(&self) -> Vec<&EvidenceRecord> {
+        self.evidence
+            .iter()
+            .filter(|record| record.contract == WORKBENCH_EXECUTION_OUTCOME_CONTRACT)
+            .collect()
+    }
+
     fn scan_receipts(&mut self, root: &Path, audit_root: &Path) {
         let mut stack = vec![audit_root.to_path_buf()];
         while let Some(dir) = stack.pop() {
@@ -100,7 +108,7 @@ impl EvidenceRegistry {
                     contract: contract.to_string(),
                     source_record_id: first_string(
                         task,
-                        &["source_record_id", "recommendation_id"],
+                        &["source_record_id", "recommendation_id", "task_id"],
                     ),
                     candidate_id: first_string(task, &["candidate_id", "id"]),
                     approval_packet_id: first_string(task, &["approval_packet_id", "approval_id"]),
@@ -115,8 +123,11 @@ impl EvidenceRegistry {
         } else {
             self.evidence.push(EvidenceRecord {
                 contract: contract.to_string(),
-                source_record_id: first_string(&value, &["source_record_id", "recommendation_id"]),
-                candidate_id: first_string(&value, &["candidate_id", "id"]),
+                source_record_id: first_string(
+                    &value,
+                    &["source_record_id", "recommendation_id", "task_id"],
+                ),
+                candidate_id: first_string(&value, &["candidate_id", "id", "workbench_run_id"]),
                 approval_packet_id: first_string(&value, &["approval_packet_id", "approval_id"]),
                 status: value
                     .get("status")

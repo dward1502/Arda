@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:e55014c6b91121643efe7f95920c0fc9b575bedc0a6436e7d084494f25df3a7a",
+    "summary": "The receipts support the declared git diff --exit-code HEAD -- check, but not the broader completion claim: execution and verification evidence contains only that command, with no project inspection, contract/README comparison, or joined synthesis evidence. The command also does not detect untracked files. Independent inspection found concrete defects: src/lib.rs resolves slash-containing wikilinks by joining unsanitized input to the vault root, allowing ../ traversal outside the vault; its frontmatter model is incompatible with docs/human-knowledge-ingestion-contract.md, including numeric rather than enumerated confidence and omission of required authority/privacy/provenance fields; and MemoryStore::store serializes then discards records, so it provides no durable persistence despite the stated integration purpose."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

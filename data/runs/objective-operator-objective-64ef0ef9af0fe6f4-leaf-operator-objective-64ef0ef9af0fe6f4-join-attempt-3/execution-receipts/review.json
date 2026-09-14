@@ -1,0 +1,57 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:02bc966c35f5e05f804d83329f42ed4b26f459750ac1712d09759e9dbea29679",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:0e4d8da6bb6120daa99efe8259f5e445e82cd53acd6c1e862287cc620908ab02"
+  ],
+  "project_contract_digest": "sha256:af7d3dae3197a59caa74189bcde6418a4e9ba08c4fdcbf29d83dba043d8a98a6",
+  "receipt_digest": "sha256:7f4240a56d476af8ccfafa4429140f8877c902f7a747b2223d45a96ed5b74e05",
+  "recorded_at_unix_ms": 1788330307245,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-join-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent read-only review found no named defects. README.acceptance contains the exact acceptance fixture required by the approved objective, and the digest-validated parent receipt provides successful durable verification evidence. No project files were modified and no declared checks were rerun.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\".\",\"pattern\":\"README*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f6dd97ec6d47bcb354f0f775e25d6276212e574370dc6b14390f3bcd3b9a5740",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6350,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 425,
+    "provider": "openai-codex",
+    "total_tokens": 6775
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:385e56d242af2c416374929e8d0824f1f878c9da204d8c8761954f5e258994f3",
+    "summary": "Unsupported completion: the verification receipt covers the declared test (`cargo test -p arda-core`, exit 0), and the read-only execution receipt provides valid source-read output digests plus no mutating tool calls. However, the projection supplies only an execute-output digest, not the execution result needed to verify that the required prioritized repair backlog was produced or that its claims distinguish implementation, configuration, and live proof. Source recovery is also incomplete: `AUTONOMOUS_TASK_COMPLETION_LOOP.md` identifies `docs/plans/autonomous-task-completion/README.md` as the structured execution authority, but that authoritative plan was not inspected. Concrete stale-context defects found independently: `ARDA_SYSTEM_STATUS_REPORT.md:48` still says the registry has three proof/demo contracts, while `data/workbench/projects.json` contains additional acceptance and reviewed-project contracts; and `docs/audits/2026-08-26-operator-vision-repair-backlog.md:47,162-168` claims the status report omits full verify/review/close execution even though the current report states that full-graph proof at line 47. A context_use_receipt was not required because no governed capsule supplied one, and tool-output digests correctly need not equal source-content digests."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:25b79ff909ab3377de396dc7511e57aeafc4d0f6b3dde5d4e462b9503044b95c",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

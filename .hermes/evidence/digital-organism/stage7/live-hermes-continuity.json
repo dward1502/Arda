@@ -1,0 +1,32 @@
+{
+  "schema_version": "arda.stage7.live-hermes-process-continuity.v1",
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "observed_at_utc": "2026-08-23T12:33:49.208487Z",
+  "source_context_artifact": ".hermes/evidence/digital-organism/stage7/continuation-restart.json",
+  "workers": [
+    {
+      "ordinal": 1,
+      "pid": 2351944,
+      "exit_code": 0,
+      "stdout": "CONTINUED objective:digital-organism-s7-living-mesh-proof sha256:1ce7371b4dcdcfbda2007a9913b9e1e8b0ac2d9f5139272c9bbe0d7e3d742e86",
+      "stderr_tail": "\nsession_id: 20260823_053307_b740f3\n",
+      "objective_seen": true,
+      "capsule_digest_seen": true
+    },
+    {
+      "ordinal": 2,
+      "pid": 2352514,
+      "exit_code": 0,
+      "stdout": "CONTINUED objective:digital-organism-s7-living-mesh-proof sha256:1ce7371b4dcdcfbda2007a9913b9e1e8b0ac2d9f5139272c9bbe0d7e3d742e86",
+      "stderr_tail": "\nsession_id: 20260823_053328_658d57\n",
+      "objective_seen": true,
+      "capsule_digest_seen": true
+    }
+  ],
+  "verification": {
+    "independent_pids": true,
+    "both_exited_successfully": true,
+    "both_recovered_objective": true,
+    "both_recovered_capsule_digest": true
+  }
+}

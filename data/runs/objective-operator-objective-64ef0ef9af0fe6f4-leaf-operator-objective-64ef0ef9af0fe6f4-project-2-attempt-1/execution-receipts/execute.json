@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:492b8b324be99005df286834db021073bd895fe5ee88dcdf11a0e03b84831ded",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-two-project-v5"
+  ],
+  "project_contract_digest": "sha256:9b8dfd99ed150c213045aeb5fd75ee905540fce35e8ed93c096d414bc2d3e3be",
+  "receipt_digest": "sha256:c30359f7d7e7beacf4abe6fac542477e6f112ff336ffc504aa5dcf9e2ff67fe9",
+  "recorded_at_unix_ms": 1788329568506,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "README.acceptance contains the exact declared acceptance line; the bounded source-inspection criterion passes.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 4919,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 165,
+    "provider": "openai-codex",
+    "total_tokens": 5084
+  }
+}

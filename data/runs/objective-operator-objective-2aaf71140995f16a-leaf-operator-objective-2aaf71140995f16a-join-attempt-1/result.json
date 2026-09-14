@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:19296e9cfb766b9e2c533bfa02238af09351bb16a782c543f21f863136600c54",
+    "summary": "VERDICT: APPROVE\nThe two canonical dependency close receipts are succeeded and reported as digest-validated, while the parent verification receipt confirms reviewed leaf closure and a clean worktree before and after read-only inspection. Independent inspection of the attached project found implementation, target-local tests, synthetic fixtures, migration boundaries, and the human-knowledge ingestion contract consistent with the documented tenant scope. No blocking contradiction or evidence invalidation was identified. Declared checks were not rerun, and no files were modified or created."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

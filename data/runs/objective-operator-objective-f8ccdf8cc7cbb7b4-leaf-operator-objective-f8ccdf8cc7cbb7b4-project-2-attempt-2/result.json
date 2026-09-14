@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:80a82d5d67f085e76996d7c6abee252b1ed2b92938f24061465b45e551483542",
+    "summary": "Correctness review found two policy defects. First, src/policy.rs:89 checks require_trace_for_review only when metadata.requires_review is true, but src/policy.rs:129 can independently require review for critical risk; therefore a non-mutating critical tool with requires_review=false and no trace_id receives review_required despite the enabled review-trace requirement. Existing coverage at tests/policy_decisions.rs:56 sets requires_review=true and misses this path. Second, src/policy.rs:160 performs raw prefix matching without target canonicalization, so an allowed pattern such as docs/* also accepts targets such as docs/../secret when downstream adapters interpret targets as paths. The parent receipt authenticates a clean-tree check and a successful cargo test invocation, but those tests do not establish these safety-boundary cases. No files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

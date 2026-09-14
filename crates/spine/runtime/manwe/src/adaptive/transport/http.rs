@@ -17,6 +17,7 @@ use axum::{Json, Router};
 use serde_json::{json, Value};
 use std::convert::Infallible;
 use std::net::SocketAddr;
+use std::path::Path;
 use std::sync::OnceLock;
 use tokio_stream::wrappers::IntervalStream;
 use tokio_stream::{Stream, StreamExt};
@@ -514,6 +515,7 @@ struct ProbeRequest {
 
 async fn probe(
     State(service): State<ManweService>,
+    headers: HeaderMap,
     Json(req): Json<ProbeRequest>,
 ) -> impl IntoResponse {
     map_result_async(async move {
@@ -553,6 +555,13 @@ async fn probe(
                     agent: "manwe".to_string(),
                     message: format!("unknown probe provider `{provider_id}`"),
                 })?;
+            if !authorize_configured_mutation(&headers) {
+                return Err(ArdaError::Agent {
+                    agent: "manwe".to_string(),
+                    message: "forced probe requires configured mutation authorization"
+                        .to_string(),
+                });
+            }
             if let Some(throttle) =
                 probe_throttle_decision(provider, model.as_str(), &recent_events, ignore_throttle)
             {
@@ -673,7 +682,10 @@ async fn probe(
             if !excluded_provider_ids.is_empty() {
                 attempt_body["exclude_provider_ids"] = json!(excluded_provider_ids);
             }
-            let envelope = openai_body_to_envelope(&service, &attempt_body).await?;
+            let mut envelope = openai_body_to_envelope(&service, &attempt_body).await?;
+            if forced_probe {
+                envelope.options["allow_unhealthy_forced_probe"] = Value::Bool(true);
+            }
             let started = std::time::Instant::now();
             let proxy_outcome = service.proxy_openai_passthrough(envelope, attempt_body).await;
             let elapsed_ms = started.elapsed().as_millis() as u64;
@@ -1258,7 +1270,7 @@ async fn provider_result(
     headers: HeaderMap,
     Json(req): Json<ProviderResultRequest>,
 ) -> impl IntoResponse {
-    if !authorize_mutation(&headers) {
+    if !authorize_configured_mutation(&headers) {
         return openai_error(
             StatusCode::UNAUTHORIZED,
             "missing or invalid Authorization header for mutation",
@@ -1279,7 +1291,7 @@ async fn model_streaming_validation(
     headers: HeaderMap,
     Json(req): Json<ModelStreamingValidationRequest>,
 ) -> impl IntoResponse {
-    if !authorize_mutation(&headers) {
+    if !authorize_configured_mutation(&headers) {
         return openai_error(
             StatusCode::UNAUTHORIZED,
             "missing or invalid Authorization header for mutation",
@@ -1304,7 +1316,7 @@ async fn reload_config(
     State(service): State<ManweService>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    if !authorize_mutation(&headers) {
+    if !authorize_configured_mutation(&headers) {
         return openai_error(
             StatusCode::UNAUTHORIZED,
             "missing or invalid Authorization header for mutation",
@@ -1315,8 +1327,19 @@ async fn reload_config(
         .into_response()
 }
 
-async fn reconcile_catalogs(State(service): State<ManweService>) -> impl IntoResponse {
-    map_result_async(async move { service.reconcile_provider_catalogs().await }).await
+async fn reconcile_catalogs(
+    State(service): State<ManweService>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if !authorize_configured_mutation(&headers) {
+        return openai_error(
+            StatusCode::UNAUTHORIZED,
+            "missing or invalid Authorization header for mutation",
+        );
+    }
+    map_result_async(async move { service.reconcile_provider_catalogs().await })
+        .await
+        .into_response()
 }
 
 async fn observability(State(service): State<ManweService>) -> impl IntoResponse {
@@ -2831,14 +2854,26 @@ fn openai_error(status: StatusCode, message: &str) -> Response {
         .into_response()
 }
 
-fn authorize_mutation(headers: &HeaderMap) -> bool {
-    const ENV: &str = "ARDA_MANWE_API_KEY";
-    let Some(expected) = std::env::var(ENV)
+fn authorize_configured_mutation(headers: &HeaderMap) -> bool {
+    configured_mutation_secret()
+        .is_some_and(|expected| authorization_header_matches(headers, &expected))
+}
+
+fn configured_mutation_secret() -> Option<String> {
+    if let Some(secret) = std::env::var("ARDA_MANWE_API_KEY")
         .ok()
         .filter(|value| !value.trim().is_empty())
-    else {
-        return true;
-    };
+    {
+        return Some(secret);
+    }
+    let credential_dir = std::env::var_os("CREDENTIALS_DIRECTORY")?;
+    std::fs::read_to_string(Path::new(&credential_dir).join("arda-manwe-mutation"))
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+fn authorization_header_matches(headers: &HeaderMap, expected: &str) -> bool {
     headers
         .get(axum::http::header::AUTHORIZATION)
         .and_then(|value| value.to_str().ok())
@@ -2954,11 +2989,11 @@ async fn build_event_payload(service: &ManweService) -> Result<Value> {
 #[allow(clippy::await_holding_lock)]
 mod tests {
     use super::{
-        build_event_payload, filter_provider_catalog_models, http_request_limit,
-        openai_body_to_envelope, openai_body_to_envelope_with_headers, openai_chat_completions,
-        openai_completion_to_sse, request_uses_bulk_lane, should_emulate_streaming_tool_response,
-        strip_reasoning_fields, try_run_admitted_async, validate_http_bind,
-        visible_provider_catalog_models,
+        authorization_header_matches, build_event_payload, filter_provider_catalog_models,
+        http_request_limit, openai_body_to_envelope, openai_body_to_envelope_with_headers,
+        openai_chat_completions, openai_completion_to_sse, request_uses_bulk_lane,
+        should_emulate_streaming_tool_response, strip_reasoning_fields, try_run_admitted_async,
+        validate_http_bind, visible_provider_catalog_models,
     };
     use crate::adaptive::service::ManweService;
     use crate::types::{ManweRequestEnvelope, ModelState, ProviderState};
@@ -2973,6 +3008,22 @@ mod tests {
     use tempfile::tempdir;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn mutation_authorization_requires_exact_bearer_secret() {
+        let mut headers = HeaderMap::new();
+        assert!(!authorization_header_matches(&headers, "expected-secret"));
+        headers.insert(
+            axum::http::header::AUTHORIZATION,
+            "Bearer wrong-secret".parse().unwrap(),
+        );
+        assert!(!authorization_header_matches(&headers, "expected-secret"));
+        headers.insert(
+            axum::http::header::AUTHORIZATION,
+            "Bearer expected-secret".parse().unwrap(),
+        );
+        assert!(authorization_header_matches(&headers, "expected-secret"));
+    }
 
     #[test]
     fn http_bind_accepts_loopback_addresses() {
@@ -3056,27 +3107,27 @@ mod tests {
     }
 
     #[test]
-    fn mutation_auth_is_optional_but_requires_exact_bearer_when_configured() {
+    fn mutation_auth_fails_closed_and_requires_exact_bearer() {
         let _guard = ENV_LOCK.lock().expect("env lock");
         let mut headers = HeaderMap::new();
 
         std::env::remove_var("ARDA_MANWE_API_KEY");
-        assert!(super::authorize_mutation(&headers));
+        assert!(!super::authorize_configured_mutation(&headers));
 
         std::env::set_var("ARDA_MANWE_API_KEY", "test-secret");
-        assert!(!super::authorize_mutation(&headers));
+        assert!(!super::authorize_configured_mutation(&headers));
 
         headers.insert(
             axum::http::header::AUTHORIZATION,
             "Bearer wrong-secret".parse().expect("header value"),
         );
-        assert!(!super::authorize_mutation(&headers));
+        assert!(!super::authorize_configured_mutation(&headers));
 
         headers.insert(
             axum::http::header::AUTHORIZATION,
             "Bearer test-secret".parse().expect("header value"),
         );
-        assert!(super::authorize_mutation(&headers));
+        assert!(super::authorize_configured_mutation(&headers));
 
         std::env::remove_var("ARDA_MANWE_API_KEY");
     }

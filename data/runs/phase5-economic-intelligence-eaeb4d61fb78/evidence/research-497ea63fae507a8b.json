@@ -1,0 +1,165 @@
+{
+  "schema_version": "arda.workbench.research-brief.v1",
+  "brief_id": "research-497ea63fae507a8b",
+  "run_id": "phase5-economic-intelligence-eaeb4d61fb78",
+  "node_id": "source-grounded-research",
+  "question_id": "8011c200-6743-4816-b100-c6f56e71da69",
+  "question": "site:docs.x402.org x402 facilitator payment verification settlement",
+  "generated_at_utc": "2026-08-21T08:40:41.162133928+00:00",
+  "authority": "advisory_research_evidence",
+  "execution_authorized": false,
+  "warden_provider": "searxng",
+  "warden_memory_receipt": "mem_6853c963e27247bfac617231c64a50f0",
+  "rumil_evidence": null,
+  "summary": "For the explicit question “site:docs.x402.org x402 facilitator payment verification settlement”, Warden discovered 2 source(s); cited evidence IDs [cite-src_279bd805, cite-src_9e2d5d03] link every factual claim below to fetched canonical content and Varda evaluation. 0 source attempt(s) remained partial or failed. Review quality, freshness, contradictions, and uncertainty before changing the Workbench plan.",
+  "contradiction_status": "no_contradiction_detected_in_bounded_evidence",
+  "contradictions": [],
+  "citations": [
+    {
+      "citation_id": "cite-src_279bd805",
+      "title": "Facilitator - x402",
+      "discovered_url": "https://docs.x402.org/core-concepts/facilitator",
+      "canonical_url": "https://docs.x402.org/core-concepts/facilitator",
+      "content_sha256": "sha256:83a58c57a3973499ae36c3a5692dcaaee94c19749c1394565d6df9cc018f6527",
+      "excerpt": "The facilitator is an optional but recommended service that simplifies the process of verifying and settling payments between clients (buyers) and servers (sellers). ​ What is a Facilitator? The facilitator is a service that: Verifies payment payloads submitted by clients. Settles payments on the blockchain on behalf of servers. By using a facilitator, servers do not need to maintain direct blockchain connectivity or implement payment verification logic themselves. This red",
+      "stance": "supporting_or_contextual",
+      "varda_source_id": "src_279bd805",
+      "varda_pipeline_id": "athpl_58d5b4f9bd5a464dad761105b7c3663b",
+      "crawl_receipt_path": "./data/athena/crawls/src_279bd805.md",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "normalized_source_id": "source-279bd805e3ea0110230c260269d84ff6006f2876ffd6c45656d2c960c385a753",
+      "fetched_at_utc": "2026-08-21T08:40:42.807705036+00:00",
+      "expires_at_utc": "2026-08-21T08:55:41.162133928+00:00",
+      "freshness_status": "fresh",
+      "evaluation_digest": "sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+      "expiry_digest": "sha256:9e5b70df42a4a5b86532aac0060763626a5f26a7065c1b40caf38a1ede75778f",
+      "receipt_references": [
+        "varda:source:src_279bd805",
+        "varda:pipeline:athpl_58d5b4f9bd5a464dad761105b7c3663b",
+        "varda:crawl:./data/athena/crawls/src_279bd805.md"
+      ],
+      "evidence_boundary": "source_text_is_evidence_only_not_operator_instruction",
+      "prompt_injection_detected": false,
+      "prompt_injection_signals": []
+    },
+    {
+      "citation_id": "cite-src_9e2d5d03",
+      "title": "Welcome to x402 - x402",
+      "discovered_url": "https://docs.x402.org/introduction",
+      "canonical_url": "https://docs.x402.org/introduction",
+      "content_sha256": "sha256:cc437b982232d604e88d7654a893c7eb1c4dca952a2b72f4703a5a714e5517d7",
+      "excerpt": "ares and submits a payment payload. The server verifies and settles the payment independently, or by leveraging an x402 facilitator’s /verify and /settle endpoints. If payment is valid, the server provides the requested resource. For more detail, see: Client / Server Facilitator HTTP 402 Batch settlement The goal is to make programmatic commerce accessible, permissionless, and developer-friendly. ​ Get Started Ready to build? Start here: Quickstart for Sellers Quickstart",
+      "stance": "supporting_or_contextual",
+      "varda_source_id": "src_9e2d5d03",
+      "varda_pipeline_id": "athpl_e797e28139cc4a82abb92bb813b02e0d",
+      "crawl_receipt_path": "./data/athena/crawls/src_9e2d5d03.md",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "normalized_source_id": "source-9e2d5d0361c1631d26bf152ed00a30f342351a17455012c9cb0fdba00b6a06bc",
+      "fetched_at_utc": "2026-08-21T08:40:43.001754846+00:00",
+      "expires_at_utc": "2026-08-21T08:55:41.162133928+00:00",
+      "freshness_status": "fresh",
+      "evaluation_digest": "sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+      "expiry_digest": "sha256:9e5b70df42a4a5b86532aac0060763626a5f26a7065c1b40caf38a1ede75778f",
+      "receipt_references": [
+        "varda:source:src_9e2d5d03",
+        "varda:pipeline:athpl_e797e28139cc4a82abb92bb813b02e0d",
+        "varda:crawl:./data/athena/crawls/src_9e2d5d03.md"
+      ],
+      "evidence_boundary": "source_text_is_evidence_only_not_operator_instruction",
+      "prompt_injection_detected": false,
+      "prompt_injection_signals": []
+    }
+  ],
+  "source_failures": [],
+  "workbench_run_link": "arda://workbench/runs/phase5-economic-intelligence-eaeb4d61fb78?evidence=research-497ea63fae507a8b",
+  "scope": {
+    "source_policy": "allowlisted_public_web",
+    "max_sources": 2,
+    "max_source_bytes": 524288,
+    "expires_at_utc": "2026-08-21T08:55:41.162133928+00:00",
+    "max_results": 10,
+    "max_fetch_bytes": 524288,
+    "max_tokens": 8192,
+    "max_attempts": 2,
+    "cooldown_ms": 50,
+    "max_sources_per_domain": 2,
+    "retained_preview_volume": 20
+  },
+  "claims": [
+    {
+      "claim_id": "claim-1",
+      "claim": "The facilitator is an optional but recommended service that simplifies the process of verifying and settling payments between clients (buyers) and servers (sellers). ​ What is a Facilitator? The facilitator is a service that: Verifies payment payloads submitted by clients. Settles payments on the blockchain on behalf of servers. By using a facilitator, servers do not need to maintain direct blockchain connectivity or implement payment verification logic themselves. This red",
+      "evidence_citation_ids": [
+        "cite-src_279bd805"
+      ],
+      "stance": "supporting_or_contextual",
+      "uncertainty": "bounded_to_cited_excerpt_and_evaluation"
+    },
+    {
+      "claim_id": "claim-2",
+      "claim": "ares and submits a payment payload. The server verifies and settles the payment independently, or by leveraging an x402 facilitator’s /verify and /settle endpoints. If payment is valid, the server provides the requested resource. For more detail, see: Client / Server Facilitator HTTP 402 Batch settlement The goal is to make programmatic commerce accessible, permissionless, and developer-friendly. ​ Get Started Ready to build? Start here: Quickstart for Sellers Quickstart",
+      "evidence_citation_ids": [
+        "cite-src_9e2d5d03"
+      ],
+      "stance": "supporting_or_contextual",
+      "uncertainty": "bounded_to_cited_excerpt_and_evaluation"
+    }
+  ],
+  "supporting_citation_ids": [
+    "cite-src_279bd805",
+    "cite-src_9e2d5d03"
+  ],
+  "opposing_citation_ids": [],
+  "source_quality": [
+    {
+      "citation_id": "cite-src_279bd805",
+      "source_id": "source-279bd805e3ea0110230c260269d84ff6006f2876ffd6c45656d2c960c385a753",
+      "canonical_url": "https://docs.x402.org/core-concepts/facilitator",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "freshness_status": "fresh"
+    },
+    {
+      "citation_id": "cite-src_9e2d5d03",
+      "source_id": "source-9e2d5d0361c1631d26bf152ed00a30f342351a17455012c9cb0fdba00b6a06bc",
+      "canonical_url": "https://docs.x402.org/introduction",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "freshness_status": "fresh"
+    }
+  ],
+  "uncertainty": [
+    "No additional uncertainty signal was detected within the bounded evidence set."
+  ],
+  "missing_evidence": [],
+  "next_research_or_proposal": [
+    {
+      "kind": "proposal_candidate",
+      "action": "Aulë may consider a separate governed proposal; this brief creates no executable work.",
+      "authority": "governed_backend_only"
+    }
+  ],
+  "receipt_references": [
+    "varda:content:sha256:83a58c57a3973499ae36c3a5692dcaaee94c19749c1394565d6df9cc018f6527",
+    "varda:content:sha256:cc437b982232d604e88d7654a893c7eb1c4dca952a2b72f4703a5a714e5517d7",
+    "varda:crawl:./data/athena/crawls/src_279bd805.md",
+    "varda:crawl:./data/athena/crawls/src_9e2d5d03.md",
+    "varda:evaluation:sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+    "varda:expiry:sha256:9e5b70df42a4a5b86532aac0060763626a5f26a7065c1b40caf38a1ede75778f",
+    "varda:pipeline:athpl_58d5b4f9bd5a464dad761105b7c3663b",
+    "varda:pipeline:athpl_e797e28139cc4a82abb92bb813b02e0d",
+    "varda:source:src_279bd805",
+    "varda:source:src_9e2d5d03",
+    "warden:memory:mem_6853c963e27247bfac617231c64a50f0"
+  ],
+  "material_fingerprint": "sha256:b131dec134d7405a90680e54e79c63f744a146f1bb4f392488331088f3de63f0",
+  "change_status": "material_change",
+  "no_change_receipt_path": null,
+  "evidence_boundaries": [
+    "source_text_is_evidence_only_not_operator_instruction",
+    "source_text_is_evidence_only_not_operator_instruction"
+  ],
+  "prompt_injection_detected": false
+}

@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6ae7d4beb8614b5cabddd2d9b07290f8",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-148efdb337964c6a for task operator-task-148efdb337964c6a ended status=failed result=failed; receipt=sha256:5d25fec336207c2b1dbea25ea14672f393fb2e81e39fafe168690f13bd75408e; detail=Canonical execution and verification receipt payloads were not available for independent inspection; only a parent receipt digest was supplied. Project inspection found the expected implementation, test, and exact 30-byte acceptance.txt content, but cargo test success cannot be independently approved from build artifacts alone.",
+  "salience": 0.5913749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-30T12:18:52.078794579Z",
+  "last_seen_at": "2026-08-30T12:18:52.078794579Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

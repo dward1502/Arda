@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:3558cb4ce6f43b33bb6d10e41cdbaa7c3988a5286d601f9deb8cc4ecb949e2bf",
+    "summary": "Independent review found no blocking defect. The execution receipt provides authenticated read-only source evidence for the authoritative project registry, active plans, status report, queue lineage, and supporting backlog/index files. Tool-output digests correctly identify exported call envelopes and need not equal source-content digests. No context_use_receipt was required because no governed context capsule was supplied. The absence of mutating tool calls supports the no-modification requirement. The prior verification receipt covers the declared test check: cargo test -p arda-core passed with exit code 0."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:8a73c82a77e67d8f7fd6debcc311cdf41fe74b286c0522f47024113908028c12",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

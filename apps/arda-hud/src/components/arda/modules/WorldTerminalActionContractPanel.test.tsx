@@ -18,7 +18,7 @@ describe('WorldTerminalActionContractPanel', () => {
     ])
     expect(contracts.find((contract) => contract.terminalId === 'terminal_queue')?.safeActionIds).toContain('arda.queue_preview_cleanup')
     expect(contracts.find((contract) => contract.terminalId === 'terminal_tools')?.governedActionIds).toContain('arda.setup_run_repair_flow')
-    expect(contracts.find((contract) => contract.terminalId === 'terminal_status')?.safeActionIds).toContain('arda.manwe_refresh_provider_intelligence')
+    expect(contracts.find((contract) => contract.terminalId === 'terminal_status')?.safeActionIds).toContain('charon.refresh_provider_intelligence')
   })
 
   it('resolves terminal actions into detailed status and receipt evidence', () => {
@@ -77,7 +77,7 @@ describe('WorldTerminalActionContractPanel', () => {
 
     expect(onRunAction).toHaveBeenCalledWith('arda.queue_preview_cleanup')
     expect(onRunAction).toHaveBeenCalledWith('arda.setup_run_readiness_check')
-    expect(onRunAction).toHaveBeenCalledWith('arda.manwe_refresh_provider_intelligence')
+    expect(onRunAction).toHaveBeenCalledWith('charon.refresh_provider_intelligence')
   })
 
   it('shows busy state for a selected terminal action', () => {

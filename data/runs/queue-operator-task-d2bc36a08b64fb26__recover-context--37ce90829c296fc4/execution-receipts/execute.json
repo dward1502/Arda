@@ -1,0 +1,87 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0c7065b7e51469c471bfd46a3a1050808f91794032a836fe2956d431c1cbc0d7",
+  "idempotency_key": "queue-operator-task-d2bc36a08b64fb26__recover-context--37ce90829c296fc4-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-001bd2add18f4222922d1e4bcf26e164"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:ec3f9f35089d5a3eb1191ec0e08b880c08d41c553bd95b9ce9e88acd912162fd",
+  "recorded_at_unix_ms": 1788228728459,
+  "run_id": "queue-operator-task-d2bc36a08b64fb26__recover-context--37ce90829c296fc4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only context recovery found this priority order: P0 complete the current two-real-project objective with project-bound inspection evidence and joined execute/verify/critic/close receipts; P1 bind live Vairë context-use and expose the same canonical objective through Hermes controls; P2 prove deferred or recurring continuation across restart; P3 activate the existing Warden/Varda-to-completion-loop daily improvement path; P4 reconcile installed, source, and status-report truth. Human-visible acceptance is one operator-authored objective spanning both reviewed projects, preserving exact lineage, surviving restart or correction, showing evidence and controls in conversation, and closing only after joined acceptance. The smallest authoritative surfaces are the existing Workbench run graph and queue receipts, data/workbench/projects.json project contracts, Vairë context/outcome receipts, Hermes canonical projection controls, and existing schedule authority; no parallel queue or generated projection should be introduced. No files were modified and the verifier-reserved cargo check was not run.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a159c98c79d489742c3f37070b8463987b1e6eb65fc764b6559e9c5b1fa78f73",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":80,\"offset\":29825,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f9480284e9881c0a7f4efb3256f75f9424e31014bf5eb197efd141c81cc92d17",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":1000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a10908395c3d7b730e6fc1e5b10fa5a1b06c458bc69dacfe736659a6a0d8d8d2",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 81568,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2421,
+    "provider": "openai-codex",
+    "total_tokens": 83989
+  }
+}

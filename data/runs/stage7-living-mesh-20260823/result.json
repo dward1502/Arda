@@ -1,0 +1,30 @@
+{
+  "changes": [],
+  "provider_receipt": null,
+  "tests": [
+    {
+      "details": ".hermes/evidence/digital-organism/stage7/live-placement.json",
+      "duration_ms": null,
+      "name": "adaptive-placement-live",
+      "status": "passed"
+    },
+    {
+      "details": ".hermes/evidence/digital-organism/stage7/a2a-handoff.json",
+      "duration_ms": null,
+      "name": "a2a-two-root-handoff",
+      "status": "passed"
+    },
+    {
+      "details": ".hermes/evidence/digital-organism/stage7/failure-reassignment.json",
+      "duration_ms": null,
+      "name": "worker-kill-bounded-reassignment",
+      "status": "passed"
+    },
+    {
+      "details": ".hermes/evidence/digital-organism/stage7/continuation-restart.json",
+      "duration_ms": null,
+      "name": "vaire-continuation-root-restart",
+      "status": "passed"
+    }
+  ]
+}

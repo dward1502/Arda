@@ -7,6 +7,7 @@ members = [
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-mirromere",
     "crates/spine/interface/arda-orome",
     "crates/spine/observability/arda-aule",
     "apps/arda-launcher/src-tauri",
@@ -27,6 +28,7 @@ default-members = [
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-mirromere",
     "crates/spine/interface/arda-orome",
     "crates/spine/observability/arda-aule",
     "crates/spine/runtime/arda-economics",
@@ -59,6 +61,7 @@ path = "src/main.rs"
 
 [dependencies]
 arda-engine = { workspace = true }
+arda-aule = { workspace = true, features = ["telemetry"] }
 tokio = { workspace = true }
 clap = { workspace = true }
 tracing = { workspace = true }
@@ -87,6 +90,7 @@ anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
 sysinfo = "0.30"
 tempfile = "3"
+rusqlite = { version = "0.32", features = ["bundled"] }
 # --- merged from Annunimas ---
 async-trait = "0.1"
 serde_yaml = "0.9"
@@ -94,6 +98,7 @@ serde_yaml = "0.9"
 arda-core = { path = "crates/spine/governance/arda-core" }
 arda-contract-registry = { path = "crates/spine/contract/arda-contract-registry" }
 arda-governance = { path = "crates/spine/governance/arda-governance" }
+arda-mirromere = { path = "crates/spine/interface/arda-mirromere" }
 arda-orome = { path = "crates/spine/interface/arda-orome" }
 arda-vaire = { path = "crates/spine/memory/arda-vaire" }
 arda-aule = { path = "crates/spine/observability/arda-aule" }

@@ -1,0 +1,57 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1128a83de01bb68f4127a663a3572e758043498df11bba36106bc6df325ec50a",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:15e630ccad350beae5ab48666f1ec408c89f177fa86f20aefc9e05c82c09f298"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:1ecb140bc900b4445fdbb6bf9883f5cd22da4594e78453bf360d09e6aa53a9c2",
+  "recorded_at_unix_ms": 1788329040198,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Defects: the parent receipt proves only that `pwd` succeeded; it provides no evidence validating implementation correctness or scope. The project contains only `README.acceptance`, whose single marker line does not define acceptance criteria or substantiate an implemented resident runtime. Completion is therefore unsupported.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"..\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10581,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 433,
+    "provider": "openai-codex",
+    "total_tokens": 11014
+  }
+}

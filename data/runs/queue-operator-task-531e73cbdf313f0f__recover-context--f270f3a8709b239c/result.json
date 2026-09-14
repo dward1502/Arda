@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:67cfa06b004b7fc3f0ef247989418726deaf3467ca3957b6d8e888c09b5ecadc",
+    "summary": "The declared test check is covered by the prior verification receipt: cargo test -p arda-core passed with exit code 0. Completion is unsupported for the required context_source_digests evidence: the objective plan declares six authoritative sources, including repository state from git status --short, but execution evidence contains no repository-state inspection and does not report or validate the declared source digests against inspected content. Tool-output digests are not source-content digests. No durable execution artifact records the recovered context or closes this evidence gap."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:871a1fb8ce0ce1221aa317caa9770ed1a654dbee88885d074750a2849f50e3a3",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

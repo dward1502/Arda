@@ -52,12 +52,22 @@ fn telemetry_feature_exports_supported_event_api() {
     assert_eq!(telemetry::crate_namespace(), "arda-aule");
     assert_eq!(SCHEMA_VERSION, "arda.telemetry.v1");
 
-    telemetry::emit(
-        TelemetryEvent::new("telemetry.contract.test")
-            .destination(Destination::Both)
-            .attr("crate", "arda-aule")
-            .attr("event", "contract_test"),
-    );
+    // These scoped-subscriber tests must also subscribe the smoke emitter.
+    // With tracing-core's
+    // single-dispatch fast path, first registering a shared callsite on an
+    // unsubscribed thread can cache `never` for a subscribed sibling test.
+    let capture = CaptureLayer::default();
+    let subscriber = tracing_subscriber::registry().with(capture.clone());
+    tracing::subscriber::with_default(subscriber, || {
+        telemetry::emit(
+            TelemetryEvent::new("telemetry.contract.test")
+                .destination(Destination::Both)
+                .attr("crate", "arda-aule")
+                .attr("event", "contract_test"),
+        );
+    });
+    assert_eq!(capture.spans.lock().expect("span capture").len(), 1);
+    assert_eq!(capture.events.lock().expect("event capture").len(), 1);
 }
 
 #[test]
@@ -109,6 +119,11 @@ fn log_destination_preserves_attributes_without_creating_a_trace_span() {
 #[tokio::test]
 async fn configured_opentelemetry_layer_builds_emits_and_shuts_down() {
     std::env::set_var("ARDA_OTLP_ENDPOINT", "http://127.0.0.1:9");
+    std::env::set_var("ARDA_OTLP_PROTOCOL", "http/protobuf");
+    std::env::set_var(
+        "OTEL_EXPORTER_OTLP_HEADERS",
+        "Authorization=Basic%20test-placeholder",
+    );
     let layer = telemetry::tracing_layer().expect("configured OpenTelemetry layer");
     let subscriber = tracing_subscriber::registry().with(layer);
 
@@ -122,4 +137,6 @@ async fn configured_opentelemetry_layer_builds_emits_and_shuts_down() {
 
     telemetry::shutdown();
     std::env::remove_var("ARDA_OTLP_ENDPOINT");
+    std::env::remove_var("ARDA_OTLP_PROTOCOL");
+    std::env::remove_var("OTEL_EXPORTER_OTLP_HEADERS");
 }

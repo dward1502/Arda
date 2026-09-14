@@ -61,7 +61,7 @@ class TargetSpec:
 
 
 TARGETS: dict[str, TargetSpec] = {
-    "HADES": TargetSpec("HADES", "subsystem", "crates/spine/observability/arda-aule", ("Lifecycle hygiene, no-delete organization review, and audit receipts.",), support_paths=("scripts/hades_organization_maintenance.sh", "data/hades"), keywords=("hades", "lifecycle", "archive", "review", "cleanup")),
+    "RUMIL": TargetSpec("RUMIL", "subsystem", "crates/spine/runtime/arda-rumil", ("Project organization, audit evidence, lifecycle review, and no-delete hygiene.",), support_paths=("scripts/rumil_organization_maintenance.sh", "data/rumil"), keywords=("rumil", "lifecycle", "archive", "review", "cleanup")),
     "PROMETHEUS": TargetSpec("PROMETHEUS", "subsystem", "crates/spine/observability/arda-aule", ("Autopilot orchestration, governance gates, and queue posture reporting.",), support_paths=("data/hades/action_queue.jsonl",), keywords=("autopilot", "objective", "governance", "queue", "promote")),
     "MANWE": TargetSpec("MANWE", "agent_crate", "crates/spine/runtime/manwe", ("Delegation, inference routing, provider health, and fallback behavior.",), support_paths=("config/manwe.providers.toml", "scripts/refresh_provider_intelligence.py"), keywords=("provider", "route", "model", "health", "delegation")),
 }
@@ -96,7 +96,7 @@ FOLDER_TARGETS: dict[str, TargetSpec] = {
 
 TARGETS.update(CRATE_TARGETS)
 TARGETS.update(FOLDER_TARGETS)
-PHASE5_TARGETS = ("HADES", "PROMETHEUS", "MANWE") + tuple(CRATE_TARGETS) + tuple(FOLDER_TARGETS)
+PHASE5_TARGETS = ("RUMIL", "PROMETHEUS", "MANWE") + tuple(CRATE_TARGETS) + tuple(FOLDER_TARGETS)
 ALL_TARGETS = tuple(TARGETS)
 
 
@@ -616,7 +616,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--run-id", default=None)
-    parser.add_argument("--targets", nargs="+", default=["HADES", "PROMETHEUS", "MANWE"])
+    parser.add_argument("--targets", nargs="+", default=["RUMIL", "PROMETHEUS", "MANWE"])
     parser.add_argument("--target-set", choices=["explicit", "first-batch", "phase5", "all"], default="explicit")
     return parser.parse_args()
 
@@ -628,7 +628,7 @@ def main() -> None:
     out = args.out or default_output_dir(args.root, run_id, now)
     targets = args.targets
     if args.target_set == "first-batch":
-        targets = ["HADES", "PROMETHEUS", "MANWE"]
+        targets = ["RUMIL", "PROMETHEUS", "MANWE"]
     elif args.target_set == "phase5":
         targets = list(PHASE5_TARGETS)
     elif args.target_set == "all":

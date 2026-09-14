@@ -5,7 +5,7 @@ use crate::service_registry::{
     CapabilityExecutionAdapter, CapabilityHealth, CapabilityMaturity, CapabilityRecord,
     CapabilityRegistry, CapabilityRemovalStatus,
 };
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
@@ -167,13 +167,39 @@ pub struct CheckpointMetadata {
     pub checkpoint_digest: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Provenance {
     pub project_contract_digest: String,
     pub created_by: String,
     #[serde(default)]
     pub parent_receipts: Vec<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ProvenanceWire {
+    project_contract_digest: String,
+    created_by: String,
+    #[serde(default)]
+    parent_receipts: Vec<String>,
+    #[serde(default, rename = "objective_plan")]
+    _objective_plan: Option<serde_json::Value>,
+    #[serde(default, rename = "objective_plan_validation")]
+    _objective_plan_validation: Option<serde_json::Value>,
+}
+
+impl<'de> Deserialize<'de> for Provenance {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = ProvenanceWire::deserialize(deserializer)?;
+        Ok(Self {
+            project_contract_digest: wire.project_contract_digest,
+            created_by: wire.created_by,
+            parent_receipts: wire.parent_receipts,
+        })
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -305,10 +331,12 @@ impl RunGraph {
                     WorkerRole::SecurityPrivacyCritic => {
                         matches!(node.kind, NodeKind::Inspect | NodeKind::Review)
                             && node.authority == AuthorityClass::ReadOnly
+                            && worker.evidence_policy == EvidencePolicy::WorkerReport
                     }
                     WorkerRole::ImplementationRiskCritic => {
                         matches!(node.kind, NodeKind::Inspect | NodeKind::Review)
                             && node.authority == AuthorityClass::ReadOnly
+                            && worker.evidence_policy == EvidencePolicy::WorkerReport
                     }
                     WorkerRole::LocalSummaryClassification => {
                         matches!(node.kind, NodeKind::Inspect | NodeKind::Review)
@@ -331,6 +359,31 @@ impl RunGraph {
                 if !role_matches {
                     return Err(RunGraphError::WorkerRoleMismatch(node.id.clone()));
                 }
+            }
+        }
+
+        for critic in self.nodes.iter().filter(|node| {
+            node.worker.as_ref().is_some_and(|worker| {
+                matches!(
+                    worker.role,
+                    WorkerRole::SecurityPrivacyCritic | WorkerRole::ImplementationRiskCritic
+                )
+            })
+        }) {
+            let critic_worker = critic.worker.as_ref().expect("filtered critic worker");
+            if let Some(conflict) = self.nodes.iter().find(|candidate| {
+                candidate.id != critic.id
+                    && candidate.worker.as_ref().is_some_and(|worker| {
+                        matches!(
+                            worker.role,
+                            WorkerRole::Implementer | WorkerRole::IndependentVerifier
+                        ) && worker.worker_id == critic_worker.worker_id
+                    })
+            }) {
+                return Err(RunGraphError::IndependentCriticIdentityReuse {
+                    critic: critic.id.clone(),
+                    conflict: conflict.id.clone(),
+                });
             }
         }
 
@@ -856,6 +909,8 @@ pub enum RunGraphError {
     WorkerRoleMismatch(NodeId),
     #[error("node {0:?} worker dependencies do not match incoming run-graph edges")]
     WorkerDependencyMismatch(NodeId),
+    #[error("independent critic {critic:?} reuses the worker identity of {conflict:?}")]
+    IndependentCriticIdentityReuse { critic: NodeId, conflict: NodeId },
     #[error("node {node:?} requires an approval parent with a receipt")]
     MissingApprovalParent { node: NodeId },
     #[error("initial executable graph contains a cycle")]

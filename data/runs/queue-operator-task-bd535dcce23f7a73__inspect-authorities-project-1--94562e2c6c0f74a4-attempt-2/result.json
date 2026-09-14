@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:6e9a964bd52f1947f00f4d881442917c6d607e881b3424edf43d4f863b5ab7bf",
+    "summary": "Independent review found unsupported completion and concrete defects. The execute projection contains only an output digest and read-call receipts, not the worker’s reported findings, authority classification, or objective-lineage output, so completion of the source_evidence objective cannot be independently established. The prior verification receipt does cover `git status --short --branch` with exit code 0 and an authenticated output digest; clean-tree is separately recorded as passed. Source defects: `src/lib.rs:184-192` permits absolute paths and `../` traversal in slash-containing wikilinks, allowing resolved backlinks outside the private vault; `src/lib.rs:107-125` ingests every Markdown file without enforcing the documented authority, status, privacy, review, or quarantine rules; `src/lib.rs:56-89` claims to store memory but only serializes and discards the record, providing no durable storage. Tests cover basic link resolution and missing vaults but not vault confinement or ingestion-policy enforcement. No files were modified and no declared checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:872e2dafb1a0760540063bbb468a40dbc9abfdb5cc715cd82a7c2322507db51c",
+    "summary": "Independent review found the governed read-only context-recovery node supported. The execution receipt contains successful read evidence for every declared context source plus repository instructions and Cargo workspace context; the tool-output digests correctly authenticate read-call envelopes and need not equal source-content digests. No context_use_receipt was required because none was supplied by the capsule. The verification receipt is parent-bound to execution and covers the declared test check: cargo test -p arda-core passed with exit code 0. Empty execution artifacts and absence of mutating tool calls support read-only compliance. No defect invalidates this node. Recovered context does expose broader implementation defects for downstream work: the production project registry still mixes proof/demo contracts with the two reviewed projects, and the canonical queue/projection contains extensive duplicate pending execute/verify materialization rather than one canonical next action."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:6e4cf56d2f4d27bb7f6e9bebd1cf13e7fb66b04996fb428a61300a5c72964986",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

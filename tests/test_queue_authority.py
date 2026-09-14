@@ -53,6 +53,19 @@ def test_append_only_guard_checks_canonical_project_queue(tmp_path: Path) -> Non
     assert "core/projects/tasks/queue.jsonl" in result.stdout
 
 
+def test_append_only_guard_allows_first_rows_after_empty_baseline(tmp_path: Path) -> None:
+    queue = _queue_repo(tmp_path)
+    queue.write_text("")
+    _git(tmp_path, "add", "core/projects/tasks/queue.jsonl")
+    _git(tmp_path, "commit", "-qm", "empty queue baseline")
+    queue.write_text('{"id":"operator-objective","status":"pending"}\n')
+
+    result = _run_guard(tmp_path)
+
+    assert result.returncode == 0
+    assert "ok append-only from empty baseline" in result.stdout
+
+
 def test_append_only_guard_blocks_rewritten_canonical_project_queue(tmp_path: Path) -> None:
     queue = _queue_repo(tmp_path)
     queue.write_text('{"id":"replacement","status":"queued"}\n')

@@ -80,6 +80,16 @@ if [[ -z "$LATEST_PATH" ]]; then
 fi
 
 export __NV_DISABLE_EXPLICIT_SYNC="${__NV_DISABLE_EXPLICIT_SYNC:-1}"
+# Prefer the compositor-native WebKitGTK path when the host session exposes a
+# usable Wayland socket. The NVIDIA X11 GBM path has repeatedly produced a
+# native shell with a black webview at fullscreen display resolutions. An
+# explicit operator-provided GDK_BACKEND still wins.
+if [[ -z "${GDK_BACKEND:-}" && "${XDG_SESSION_TYPE:-}" == "wayland" && -n "${WAYLAND_DISPLAY:-}" ]]; then
+  WAYLAND_SOCKET="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/${WAYLAND_DISPLAY}"
+  if [[ -S "$WAYLAND_SOCKET" ]]; then
+    export GDK_BACKEND=wayland
+  fi
+fi
 # GTK sound-event modules are optional and frequently unavailable in
 # containerized/distrobox shells; leaving GTK_MODULES set can print a
 # scary but non-fatal "failed to load module canberra-gtk-module" warning.

@@ -1,9 +1,15 @@
+#[cfg(test)]
+mod presentation_tests;
+
 pub mod browser_capture;
 pub mod contract;
 pub mod monitor_surface;
 pub mod pty_capture;
 pub mod registry;
 pub mod typed;
+pub mod presentation;
+#[cfg(unix)]
+pub mod presentation_socket;
 
 pub use monitor_surface::{
     claim_monitor_slot, push_surface_payload, refresh_monitor_slot_lease, release_monitor_slot,

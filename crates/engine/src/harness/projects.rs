@@ -119,6 +119,16 @@ pub(super) struct ApiError {
 }
 
 impl ApiError {
+    pub(super) fn stopping() -> Self {
+        Self {
+            status: StatusCode::SERVICE_UNAVAILABLE,
+            code: "runtime_stopping",
+            message: "Harness is stopping; durable run evidence is retained".into(),
+            recovery_action:
+                "Wait for runtime readiness and reconcile the original run before retrying.",
+        }
+    }
+
     pub(super) fn bad_request(message: impl Into<String>) -> Self {
         Self {
             status: StatusCode::BAD_REQUEST,
@@ -143,6 +153,16 @@ impl ApiError {
             code: "conflict",
             message: message.into(),
             recovery_action: "Reload authoritative state before retrying the intent.",
+        }
+    }
+
+    pub(super) fn scheduler_conflict(message: impl Into<String>) -> Self {
+        Self {
+            status: StatusCode::CONFLICT,
+            code: "scheduler_not_admitted",
+            message: message.into(),
+            recovery_action:
+                "Wait for deterministic scheduler admission, then inspect canonical run state.",
         }
     }
 

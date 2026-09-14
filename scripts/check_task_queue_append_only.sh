@@ -55,6 +55,14 @@ if [[ "$current" == "$base" ]]; then
   exit 0
 fi
 
+# Command substitution removes trailing newlines, so an intentionally empty
+# committed ledger has no prefix delimiter to match. Any non-empty working copy
+# is necessarily an append to that zero-byte baseline.
+if [[ -z "$base" && -n "$current" ]]; then
+  echo "queue append-only guard: ok append-only from empty baseline $QUEUE_REL"
+  exit 0
+fi
+
 if [[ "$current" == "$base"$'\n'* ]]; then
   echo "queue append-only guard: ok append-only $QUEUE_REL"
   exit 0

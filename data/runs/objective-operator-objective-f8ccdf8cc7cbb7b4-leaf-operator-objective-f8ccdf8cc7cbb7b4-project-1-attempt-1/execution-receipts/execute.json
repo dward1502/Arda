@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0f6071b67b69a7424714a3f3f37bd833b53577867a1275b8acb41f856d16bde3",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:4ac27fc5d73d7f094bf6413449fcf1544ce8999e26fceeeabf9ee277638057c8"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:225dc573dd04c24aae3221e3629312f36f21e6b5f5b0e3ae26e7ba856239c6b8",
+  "recorded_at_unix_ms": 1788405476535,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only two-project integration brief: (1) annunimas-human-tenant provides Obsidian-compatible human knowledge-graph scanning and links notes to persistent-memory contracts (src/lib.rs:1-6, src/lib.rs:92-150). Concrete risk: MemoryStore::store serializes records but discards the result, so scans do not actually persist memory (src/lib.rs:56-89). (2) the upstream Annunimas core/Mnemosyne project supplies the memory contract and intended persistence layer consumed through direct path dependencies (Cargo.toml:12-20; docs/migration-notes.md:3-10). Concrete risk: tenant operation remains coupled to the upstream repository layout and an unfinished compatibility seam (docs/migration-notes.md:9-10). Shared autonomous-agent safety boundary: human material is private and untrusted until classified; agents must distinguish raw, generated, human, governance, and runtime authority, must not silently promote or overwrite human material, and must escalate unresolved conflicts for review rather than guess (docs/human-knowledge-ingestion-contract.md:21-25,49-69,96-114,145-152). Actionable recommendation: introduce the planned tenant-facing memory adapter, replace direct Annunimas path dependencies with that boundary, and make persistence preserve provenance, authority, status, privacy, and review-required metadata before any agent can rely on ingested notes (docs/migration-notes.md:9; docs/human-knowledge-ingestion-contract.md:71-94,115-123). Declared clean-tree check passed exactly as specified; no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 10,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 20905,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1163,
+    "provider": "openai-codex",
+    "total_tokens": 22068
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2075916ee7be54f86987d0e7874f6a757a77ce3cb215def489ddc111399babad",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:1d61e8464720e023476650ef5bd9e6990566b0a6eec07abe50682fe49e81d707"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:80a82d5d67f085e76996d7c6abee252b1ed2b92938f24061465b45e551483542",
+  "recorded_at_unix_ms": 1788405837651,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Correctness review found two policy defects. First, src/policy.rs:89 checks require_trace_for_review only when metadata.requires_review is true, but src/policy.rs:129 can independently require review for critical risk; therefore a non-mutating critical tool with requires_review=false and no trace_id receives review_required despite the enabled review-trace requirement. Existing coverage at tests/policy_decisions.rs:56 sets requires_review=true and misses this path. Second, src/policy.rs:160 performs raw prefix matching without target canonicalization, so an allowed pattern such as docs/* also accepts targets such as docs/../secret when downstream adapters interpret targets as paths. The parent receipt authenticates a clean-tree check and a successful cargo test invocation, but those tests do not establish these safety-boundary cases. No files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:15864db2eef3b87ffaada165f9c01532b4abb62779d69b3f13ade6dea710eb5d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c0256a3d6dbf291b590c0a5ac5cfdaf2e7d871885685f5dc3f2b995f96abbb31",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"schemas\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3b59e0ec7200130924b8a726e77727968a748b94e7dd79363b9e8c7fc1808c0e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"examples\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:92ebcc1b752b7898862293e3cb5bc4bd1f777a660a08813a2704acb1f164580e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"schemas/tool-metadata.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:35b34798fc0ee45dbdc2d037c5409c7cbf2685533d0a16b83653bd1a518ecc4d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/invocation-envelope.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:df13ce4abffeebf7c467567486819a87499114a706499b2026176f38552a9709",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/decision-receipt.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a1011639f677ab4b81db23e43153a7d490978b6bc181400deb3e53a220a39a56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:08cda912f14b26a5ddbe0133fc50b5811267ab7ddd3d162883658041b20bb708",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/readonly-tool.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a511881b8f1fad25fbdd787c5304d808c9744279d2c5a06e03b5425a920984ae",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/mutating-idempotent.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:113fc5cb7fe9d9ce58dd8fa4e0699da6e0f22948628b62be492bdc01e4a09279",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"examples/missing-trace-denied.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fe75db1f74114f3739eb667c107a0d0dfacf60812d6bca0908cdafc868e3afb9",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 26649,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1446,
+    "provider": "openai-codex",
+    "total_tokens": 28095
+  }
+}

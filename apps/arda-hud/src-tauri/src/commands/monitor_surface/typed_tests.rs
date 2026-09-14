@@ -170,3 +170,27 @@ fn typed_state_rejects_corrupt_durable_registry() {
     let error = TypedMonitorSurfaceState::with_persistence_path(path).unwrap_err();
     assert!(error.contains("parse durable monitor session registry"));
 }
+
+#[test]
+fn durable_restore_is_ready_and_ignores_stale_frontend_state() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("monitor-session-registry.json");
+    let state = TypedMonitorSurfaceState::with_persistence_path(path.clone()).unwrap();
+    assert!(state.presentation_ready());
+    let stale = state.snapshot();
+    state
+        .claim_session(record(
+            "monitor_1",
+            "agent-one",
+            serde_json::json!({"kind": "web", "url": "https://example.invalid"}),
+        ))
+        .unwrap();
+    drop(state);
+    let restarted = TypedMonitorSurfaceState::with_persistence_path(path.clone()).unwrap();
+    assert!(restarted.presentation_ready());
+    restarted.restore(stale).unwrap();
+    assert_eq!(restarted.snapshot().sessions.len(), 1);
+    let disk: SessionRegistryDocument =
+        serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+    assert_eq!(disk.sessions.len(), 1);
+}

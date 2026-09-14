@@ -1,0 +1,101 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:db7fdc6d04eec4a38be99880d7e74b7fc38bc6629ff53ad9c6fb2f9247520b72",
+  "idempotency_key": "queue-operator-objective-8d365678b027149f-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:312dece8762d46070333b9189606bf7f91eb5eb80a2c5711f7d48939672e890d"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:d9cd71d347dc1bb3fbcde53296040622188ac19a7b1c42d7f661ddd8d6732f54",
+  "recorded_at_unix_ms": 1788415873563,
+  "run_id": "objective-operator-objective-8d365678b027149f-leaf-operator-objective-8d365678b027149f-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE\nIndependent verification confirmed the parent result. The declared clean-tree check `git diff --exit-code HEAD --` passed exactly as specified. Formatting, all-target tests, Clippy with warnings denied, and documentation with rustdoc warnings denied all passed. Five integration tests passed, covering allow, deny, review-required, receipt schema version, and CLI deny exit behavior. Source inspection supports the reported policy boundary, receipt decisions, and exit-code contract. The tracked tree remains unchanged.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch && git show HEAD:.github/workflows/ci.yml",
+      "exit_code": 0,
+      "output_digest": "sha256:a234cffd4095728f0f3877bd6c847afcfecd5560784d95fdd3951b7ddfabf0a4",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test --all-targets",
+      "exit_code": 0,
+      "output_digest": "sha256:c99612971079320c1433ee5050225448527c5cadc2770708f957fc57d378f771",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo clippy --all-targets --all-features -- -D warnings",
+      "exit_code": 0,
+      "output_digest": "sha256:6378c7d3bafff7f1d1be1e54d35758bae67bc0f6774c5497da4f6acde0e3df27",
+      "tool": "terminal"
+    },
+    {
+      "action": "RUSTDOCFLAGS='-D warnings' cargo doc --no-deps",
+      "exit_code": 0,
+      "output_digest": "sha256:57168480487894100f98620050e4b88d54b6266d2853881cd4f6030b6f8f900f",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:src/policy.rs && git show HEAD:src/types.rs && git show HEAD:src/receipt.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:e12b10fc2b5203102745016ddef1d5cc1396639bba17f9999868a7ba91de8056",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:src/main.rs && git show HEAD:src/lib.rs && git show HEAD:Cargo.toml",
+      "exit_code": 0,
+      "output_digest": "sha256:7466425808551c55cef88fc7f4ef2002ad82f363a47bcd212fb4995124b7695c",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:tests/policy_decisions.rs && git show HEAD:tests/cli_contract.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:db226e00df81e5e61ac6888a394cab91957218b9583c04866fe5fbcb92404b72",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short && git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 17638,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1251,
+    "provider": "openai-codex",
+    "total_tokens": 18889
+  }
+}

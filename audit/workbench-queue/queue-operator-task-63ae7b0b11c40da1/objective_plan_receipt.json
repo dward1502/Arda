@@ -1,0 +1,228 @@
+{
+  "contract": "arda.workbench.objective_plan_receipt.v1",
+  "objective_id": "operator-task-63ae7b0b11c40da1",
+  "plan": {
+    "acceptance_criteria": [
+      "A prioritized repair backlog names concrete human-visible behavior, source evidence, and the smallest authoritative repair surface.",
+      "Every claim distinguishes implemented capability, configured runtime, and live deployed proof.",
+      "No unrelated working-tree artifacts or generated queue projections are modified."
+    ],
+    "approval_required": true,
+    "context_sources": [
+      {
+        "digest": "sha256:f8d322ec36d4b2c7e6afc00c2a39d30e18b67e7db9f1f81b31cb1461ecfd6ecb",
+        "kind": "project_contract",
+        "reference": "data/workbench/projects.json"
+      },
+      {
+        "digest": "sha256:f6d0954d87c166b904b2ef4e0e464469d86d104524129a1e91a351ac8c3250d2",
+        "kind": "operator_plan",
+        "reference": "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md"
+      },
+      {
+        "digest": "sha256:79f49385b5c87e99548c5b86a1a1a199516a39749e23b0284468e4d25ed46763",
+        "kind": "operator_plan",
+        "reference": "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md"
+      },
+      {
+        "digest": "sha256:0c4a39d0e54649efdb9345e927186bdee3534fc35151561152963b5c39b07df9",
+        "kind": "soterion_result",
+        "reference": "ARDA_SYSTEM_STATUS_REPORT.md"
+      },
+      {
+        "digest": "sha256:84cd9ba4dbcb8dc7878b32865c3f534ed112e53e14ea81c0c1b2df9d513b0c6e",
+        "kind": "recent_receipt",
+        "reference": "core/projects/tasks/queue.jsonl"
+      },
+      {
+        "digest": "sha256:2d940c49d21620598f1b10b62408405ec05dacd5dbdfb7a115dfc44bffbb847f",
+        "kind": "repository_state",
+        "reference": "git status --short"
+      }
+    ],
+    "leaf_contracts": {
+      "inspect-authorities-project-1": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "b22c0000-e29b-41d4-a716-446655440002",
+        "timeout_seconds": 300,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "inspect-authorities-project-2": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "c33d0000-e29b-41d4-a716-446655440003",
+        "timeout_seconds": 300,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "produce-outcome": {
+        "authority_class": "execute_with_approval",
+        "evidence_requirements": [
+          "changed_paths",
+          "artifact_identities"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 60.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 300,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "recover-context": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 10.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 300,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "synthesize-findings": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 300,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "verify-acceptance": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "project_check_receipts",
+          "acceptance_observations"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 20.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 300,
+        "verification_checks": [
+          "test"
+        ]
+      }
+    },
+    "objective_id": "operator-task-63ae7b0b11c40da1",
+    "tasks": [
+      {
+        "assigned_agent": "vaire",
+        "depends_on": [],
+        "eta_seconds": 30,
+        "joule_cost": 10.0,
+        "key": "recover-context",
+        "priority": "high",
+        "task_type": "context_recovery",
+        "title": "Recover authoritative project, plan, evidence, receipt, and repository context"
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "recover-context"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "inspect-authorities-project-1",
+        "priority": "high",
+        "task_type": "analysis",
+        "title": "Inspect only bound project `b22c0000-e29b-41d4-a716-446655440002` for project-local evidence needed by: Inspect both registered project authorities in order using project-bound read-only workers, verify source evidence, synthesize findings, and close only after receipt-backed joined acceptance. Do not require sibling project files in this leaf; joined synthesis compares all project leaves."
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "recover-context"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "inspect-authorities-project-2",
+        "priority": "high",
+        "task_type": "analysis",
+        "title": "Inspect only bound project `c33d0000-e29b-41d4-a716-446655440003` for project-local evidence needed by: Inspect both registered project authorities in order using project-bound read-only workers, verify source evidence, synthesize findings, and close only after receipt-backed joined acceptance. Do not require sibling project files in this leaf; joined synthesis compares all project leaves."
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "inspect-authorities-project-1",
+          "inspect-authorities-project-2"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "synthesize-findings",
+        "priority": "high",
+        "task_type": "synthesis",
+        "title": "Synthesize evidence into prioritized findings and smallest authoritative repairs"
+      },
+      {
+        "assigned_agent": "ceo",
+        "depends_on": [
+          "synthesize-findings"
+        ],
+        "eta_seconds": 180,
+        "joule_cost": 10.0,
+        "key": "produce-outcome",
+        "priority": "critical",
+        "task_type": "ops",
+        "title": "Produce the concrete operator-visible outcome for: Inspect both registered project authorities in order using project-bound read-only workers, verify source evidence, synthesize findings, and close only after receipt-backed joined acceptance"
+      },
+      {
+        "assigned_agent": "warden",
+        "depends_on": [
+          "produce-outcome"
+        ],
+        "eta_seconds": 60,
+        "joule_cost": 10.0,
+        "key": "verify-acceptance",
+        "priority": "high",
+        "task_type": "monitor",
+        "title": "Verify objective acceptance criteria and evidence"
+      }
+    ]
+  },
+  "receipt_digest": "sha256:996c8b3a8c08413d76c2d9e07ab1661b82b58c31193463720cb763a7e93753ea",
+  "run_id": "queue-operator-task-63ae7b0b11c40da1",
+  "validation": {
+    "agent_load": {
+      "ceo": 1,
+      "prometheus": 3,
+      "vaire": 1,
+      "warden": 1
+    },
+    "errors": [],
+    "estimated_total_joules": 60.0,
+    "ok": true,
+    "topological_order": [
+      "recover-context",
+      "inspect-authorities-project-1",
+      "inspect-authorities-project-2",
+      "synthesize-findings",
+      "produce-outcome",
+      "verify-acceptance"
+    ],
+    "warnings": []
+  }
+}

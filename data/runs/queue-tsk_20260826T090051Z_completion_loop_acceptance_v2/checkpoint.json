@@ -1,0 +1,227 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2",
+  "objective_id": "tsk_20260826T090051Z_completion_loop_acceptance_v2",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2-plan",
+      "input_digest": null,
+      "output_digest": "apr_completion_loop_acceptance_v2",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2:plan:4",
+        "checkpoint_digest": "sha256:5b59750d8e2cd7862781ba1e43ae931ff3f31106358d289cc105b72dcd5bf12b"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2-approval",
+      "input_digest": null,
+      "output_digest": "apr_completion_loop_acceptance_v2",
+      "parent_receipts": [
+        "apr_completion_loop_acceptance_v2"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2:approval:7",
+        "checkpoint_digest": "sha256:11496c49edccc1c5689127694ecd795e9f3851e0f397763c503f39f445981a2e"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2-execute",
+      "input_digest": null,
+      "output_digest": "sha256:67db53e5b64e00a771f52b7256dbbcfe954d947bc0c298cd7af141faf2d9b6bb",
+      "parent_receipts": [
+        "apr_completion_loop_acceptance_v2"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2:execute:10",
+        "checkpoint_digest": "sha256:b7786c623fffab8d2c64b092039961df94ba17a67f0af27b06ed350914e42775"
+      },
+      "worker": {
+        "role": "implementer",
+        "worker_id": "hermes:queue:tsk_20260826T090051Z_completion_loop_acceptance_v2",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:473c2cd991cd314c05ff7ff11c0cba41c2997343328427bd57e8bd977b77af6f",
+        "allowed_toolsets": [
+          "file",
+          "terminal"
+        ],
+        "dependencies": [
+          "approval"
+        ],
+        "deadline_unix_ms": 1787736110021,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    },
+    {
+      "id": "verify",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2-verify",
+      "input_digest": null,
+      "output_digest": "sha256:4891c76e228867e9e235ae4d5c5c6e7ef272e009e68910caacc7f4e38e874301",
+      "parent_receipts": [
+        "sha256:67db53e5b64e00a771f52b7256dbbcfe954d947bc0c298cd7af141faf2d9b6bb"
+      ],
+      "checkpoint": {
+        "sequence": 14,
+        "recovery_token": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2:verify:14",
+        "checkpoint_digest": "sha256:50b783b50222178cd60b655fded275d19d82e38d1daaaa8a1c69ccb0046b8e10"
+      },
+      "worker": {
+        "role": "independent_verifier",
+        "worker_id": "hermes:queue:tsk_20260826T090051Z_completion_loop_acceptance_v2:verify",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:473c2cd991cd314c05ff7ff11c0cba41c2997343328427bd57e8bd977b77af6f",
+        "allowed_toolsets": [
+          "terminal"
+        ],
+        "dependencies": [
+          "execute"
+        ],
+        "deadline_unix_ms": 1787736110021,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "project_native_checks"
+      }
+    },
+    {
+      "id": "review",
+      "kind": "review",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2-review",
+      "input_digest": null,
+      "output_digest": "sha256:35ec19cd16803cf3fe0c548ffa16d70289d3ef4017b9bd838381e7f233e15d2a",
+      "parent_receipts": [
+        "sha256:4891c76e228867e9e235ae4d5c5c6e7ef272e009e68910caacc7f4e38e874301"
+      ],
+      "checkpoint": {
+        "sequence": 18,
+        "recovery_token": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2:review:18",
+        "checkpoint_digest": "sha256:dee5dcffb48e632c5fc0cbaf0d44ad454d33369c60db3fbe0e6443a9c935c98a"
+      }
+    },
+    {
+      "id": "close",
+      "kind": "close",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2-close",
+      "input_digest": null,
+      "output_digest": "sha256:577fc4c8f6a92fc8d83667268edc5df17c8aa9e08974fe261e96bde3d3860161",
+      "parent_receipts": [
+        "sha256:35ec19cd16803cf3fe0c548ffa16d70289d3ef4017b9bd838381e7f233e15d2a"
+      ],
+      "checkpoint": {
+        "sequence": 21,
+        "recovery_token": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2:close:21",
+        "checkpoint_digest": "sha256:342ac4c8b8d6f19eb5ee6b15682144bc5a6468bc3a5940f13d5454dcd7f3bd0e"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "apr_completion_loop_acceptance_v2"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "apr_completion_loop_acceptance_v2"
+    },
+    {
+      "id": "execute-verify",
+      "from": "execute",
+      "to": "verify",
+      "parent_receipt": "sha256:67db53e5b64e00a771f52b7256dbbcfe954d947bc0c298cd7af141faf2d9b6bb"
+    },
+    {
+      "id": "verify-review",
+      "from": "verify",
+      "to": "review",
+      "parent_receipt": "sha256:4891c76e228867e9e235ae4d5c5c6e7ef272e009e68910caacc7f4e38e874301"
+    },
+    {
+      "id": "review-close",
+      "from": "review",
+      "to": "close",
+      "parent_receipt": "sha256:35ec19cd16803cf3fe0c548ffa16d70289d3ef4017b9bd838381e7f233e15d2a"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": [
+      "apr_completion_loop_acceptance_v2"
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:e0916dfffc7fe20ca370cdaf2b021a69226c5a915eac031d338a78a6b5f359f9",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:1df6472881ffcd6b90c0ad34a44d9a36854a08488ee093626facf4586c7489e3"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:6c19e1006fe436d96f260aed8947911593890511fc7f68ad64764a0e0a19ec7a",
+  "recorded_at_unix_ms": 1788407432972,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-project-2-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the parent result against README.md and src/types.rs. The integration boundary, decision outcomes, policy checks, and stated authentication/sandboxing limitations are accurately represented. The declared clean-tree check passed before and after inspection; no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path\nfor name, ranges in [('README.md', [(1,25),(45,65),(140,165)]), ('src/types.rs', [(1,45)])]:\n print(f'--- {name} ---')\n lines=Path(name).read_text().splitlines()\n for a,b in ranges:\n  for i in range(a,min(b,len(lines))+1): print(f'{i:4}: {lines[i-1]}')\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md",
+      "exit_code": 0,
+      "output_digest": "sha256:592b20a887bd6491f0574a1234ebc52e74f5f4e4fee36620cd205c48f1ec07e6",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:src/types.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:9a810efd9b7f5fff399fc96331acd4e7b60103eb0d2e9bb53d1addb2fe089c46",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 8859,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1054,
+    "provider": "openai-codex",
+    "total_tokens": 9913
+  }
+}

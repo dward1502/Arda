@@ -1,4 +1,7 @@
-use arda_core::run_graph::{NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRouteClass};
+use arda_core::run_graph::{
+    NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRole, WorkerRouteClass,
+};
+use arda_vaire::{ContextAssembly, MnemosyneService};
 use axum::{
     extract::{ConnectInfo, Path, State},
     http::StatusCode,
@@ -47,10 +50,77 @@ static ACTIVE_PROVIDER_CANCELLATIONS: LazyLock<Mutex<HashMap<String, AdapterCanc
 static ACTIVE_PROVIDER_ROUTES: LazyLock<Mutex<HashMap<String, WorkerRouteClass>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
+fn validate_durable_context_assembly(
+    root: &FsPath,
+    assembly: &ContextAssembly,
+    run_id: &str,
+    project_id: &str,
+) -> Result<(), ApiError> {
+    let now_unix_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|error| ApiError::internal(format!("system clock is before Unix epoch: {error}")))?
+        .as_millis();
+    assembly
+        .capsule
+        .validate(now_unix_ms)
+        .map_err(|error| ApiError::conflict(format!("context capsule is invalid: {error}")))?;
+    if !assembly
+        .use_receipt
+        .has_valid_digest()
+        .map_err(|error| ApiError::conflict(format!("context use receipt is invalid: {error}")))?
+    {
+        return Err(ApiError::conflict(
+            "context use receipt failed canonical digest verification",
+        ));
+    }
+    let service = MnemosyneService::new(root.join("data/vaire"))
+        .map_err(|error| ApiError::internal(format!("Vairë context store unavailable: {error}")))?
+        .with_contract_memory_root(root.join("core/state/memory"));
+    let durable = service
+        .context_use_receipt(&assembly.use_receipt.receipt_id)
+        .map_err(|error| ApiError::internal(format!("read Vairë context use receipt: {error}")))?
+        .ok_or_else(|| ApiError::conflict("context use receipt is not durably recorded"))?;
+    if durable != assembly.use_receipt
+        || assembly.use_receipt.capsule_id != assembly.capsule.capsule_id
+        || assembly.use_receipt.capsule_digest != assembly.capsule.capsule_digest
+        || assembly.use_receipt.objective_id
+            != assembly.capsule.context.lineage.objective_id.as_str()
+        || assembly.use_receipt.run_id.as_deref() != Some(run_id)
+        || assembly
+            .capsule
+            .context
+            .lineage
+            .run_id
+            .as_ref()
+            .map(RunId::as_str)
+            != Some(run_id)
+        || assembly
+            .capsule
+            .context
+            .lineage
+            .project_id
+            .as_ref()
+            .is_some_and(|value| value.to_string() != project_id)
+        || assembly.capsule.context.consumer.consumer_id != assembly.use_receipt.consumer_id
+    {
+        return Err(ApiError::conflict(
+            "context assembly does not match durable resident objective authority",
+        ));
+    }
+    service
+        .validate_context_assembly_for_execution(assembly, now_unix_ms)
+        .map_err(|error| {
+            ApiError::conflict(format!("current context authority is invalid: {error}"))
+        })?;
+    Ok(())
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PlanRunRequest {
     project_id: String,
+    #[serde(default)]
+    expected_project_contract_digest: Option<String>,
     graph: RunGraph,
     envelope: MutationEnvelope,
 }
@@ -76,9 +146,11 @@ pub struct CompleteRunNodeRequest {
 pub struct ExecuteProviderNodeRequest {
     envelope: MutationEnvelope,
     objective: String,
+    #[serde(default)]
+    context_assembly: Option<ContextAssembly>,
 }
 
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct RunReviewEvidence {
     changes: Vec<ChangeEvidence>,
@@ -184,6 +256,50 @@ pub struct ExecuteProviderNodeResponse {
     receipt: HermesExecutionReceipt,
 }
 
+fn mark_current_run(root: &FsPath, run_id: &str) -> Result<(), ApiError> {
+    let path = root.join(crate::operator_projection::CURRENT_RUNS_PATH);
+    let mut run_ids = match std::fs::read_to_string(&path) {
+        Ok(raw) => {
+            let value: serde_json::Value = serde_json::from_str(&raw).map_err(|error| {
+                ApiError::internal(format!("failed to parse current-run registry: {error}"))
+            })?;
+            if value["schema_version"] != "arda.workbench.current-runs.v1" {
+                return Err(ApiError::internal(
+                    "unsupported current-run registry version",
+                ));
+            }
+            value["run_ids"]
+                .as_array()
+                .ok_or_else(|| ApiError::internal("current-run registry requires run_ids"))?
+                .iter()
+                .filter_map(|value| value.as_str())
+                .map(str::to_owned)
+                .collect::<std::collections::BTreeSet<_>>()
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Default::default(),
+        Err(error) => {
+            return Err(ApiError::internal(format!(
+                "failed to read current-run registry: {error}"
+            )));
+        }
+    };
+    run_ids.insert(run_id.to_owned());
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|error| {
+            ApiError::internal(format!("failed to create current-run registry: {error}"))
+        })?;
+    }
+    let temporary = path.with_extension(format!("tmp.{}", std::process::id()));
+    let bytes = serde_json::to_vec_pretty(&serde_json::json!({
+        "schema_version": "arda.workbench.current-runs.v1",
+        "run_ids": run_ids,
+    }))
+    .map_err(|error| ApiError::internal(format!("serialize current-run registry: {error}")))?;
+    std::fs::write(&temporary, bytes)
+        .and_then(|_| std::fs::rename(&temporary, &path))
+        .map_err(|error| ApiError::internal(format!("write current-run registry: {error}")))
+}
+
 pub(super) async fn plan_run(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
@@ -205,6 +321,17 @@ pub(super) async fn plan_run(
         .id
         .clone();
     let attached = find_attached_project(&state.workbench_root, &request.project_id)?;
+    let attached_digest = contract_digest(&attached.contract)?;
+    if request
+        .expected_project_contract_digest
+        .as_deref()
+        .is_some_and(|expected| expected != attached_digest)
+    {
+        return Err(ApiError::conflict(format!(
+            "project `{}` contract changed before run planning",
+            request.project_id
+        )));
+    }
 
     let store =
         RunStore::open(&state.workbench_root, request.graph.run_id.clone()).map_err(store_error)?;
@@ -214,6 +341,7 @@ pub(super) async fn plan_run(
             .applied_idempotency_keys
             .contains_key(&request.envelope.idempotency_key)
         {
+            mark_current_run(&state.workbench_root, existing.run_id.as_str())?;
             return Ok((StatusCode::OK, Json(run_response(&store, existing)?)));
         }
         return Err(ApiError::conflict(format!(
@@ -223,7 +351,7 @@ pub(super) async fn plan_run(
     }
 
     let mut graph = request.graph;
-    graph.provenance.project_contract_digest = contract_digest(&attached.contract)?;
+    graph.provenance.project_contract_digest = attached_digest;
     let plan_node_id = graph
         .nodes
         .iter()
@@ -251,6 +379,7 @@ pub(super) async fn plan_run(
         })
         .map_err(store_error)?;
     if matches!(outcome, AppendOutcome::Appended { .. }) {
+        mark_current_run(&state.workbench_root, graph.run_id.as_str())?;
         if let Some(plan_node_id) = plan_node_id {
             for (suffix, next) in [
                 ("ready", NodeState::Ready),
@@ -448,6 +577,16 @@ pub(super) async fn complete_run_node(
 
     let _guard = WORKBENCH_MUTATIONS.lock().await;
     let (store, mut graph) = load_run(&state, &id)?;
+    if graph
+        .nodes
+        .iter()
+        .find(|node| node.id.as_str() == node_id)
+        .is_some_and(|node| node.worker.is_some())
+    {
+        return Err(ApiError::conflict(format!(
+            "provider-owned node `{node_id}` must complete through provider execution"
+        )));
+    }
     let recovered = store.recover().map_err(store_error)?;
     if recovered
         .applied_idempotency_keys
@@ -464,10 +603,8 @@ pub(super) async fn complete_run_node(
                 existing_output.unwrap_or("missing")
             )));
         }
-        project_review_evidence(
+        validate_idempotent_review_evidence(
             &store,
-            &node_id,
-            &request.envelope.idempotency_key,
             &request.receipt_digest,
             request.evidence.as_ref(),
         )?;
@@ -584,14 +721,114 @@ pub(super) async fn complete_run_node(
     Ok(Json(run_response(&store, graph)?))
 }
 
+fn provider_instructions(kind: NodeKind, declared_checks: &[String]) -> String {
+    if kind == NodeKind::Review {
+        format!(
+            "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks. Judge whether the parent receipt's result satisfies this node's bounded objective, and report named defects that contradict the objective or invalidate its evidence. Begin the summary with exactly `VERDICT: APPROVE` and use status `succeeded` only when the bounded result and evidence are approved. Begin with exactly `VERDICT: BLOCK` and use status `failed` when any named defect blocks approval. Requested analytical findings are an output to validate, not defects that fail the run unless they contradict the bounded objective or invalidate its evidence. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: {}",
+            declared_checks.join("; ")
+        )
+    } else if kind == NodeKind::Inspect {
+        format!(
+            "Work only inside the attached project root. Do not commit or modify project files. Use the file tools to read at least one relevant project file and return material file-tool evidence supporting the bounded inspection. Do not run the declared checks; the independent verifier owns project-native check execution. Declared checks reserved for verification: {}",
+            declared_checks.join("; ")
+        )
+    } else {
+        format!(
+            "Work only inside the attached project root. Do not commit. Execute every declared check exactly as printed before any optional exploratory command, and make no changes outside the objective. In test_evidence, reference the terminal tool call that ran the exact declared command; never reference an exploratory command. If a declared check succeeds, do not substitute ls, pwd, or inspection output for its evidence. Declared checks: {}",
+            declared_checks.join("; ")
+        )
+    }
+}
+
+fn dependency_receipt_instructions(
+    store: &RunStore,
+    graph: &RunGraph,
+    node_id: &NodeId,
+) -> Result<Option<String>, ApiError> {
+    let node = graph
+        .nodes
+        .iter()
+        .find(|candidate| candidate.id == *node_id)
+        .ok_or_else(|| ApiError::internal("provider node disappeared while assembling evidence"))?;
+    let mut receipts = Vec::new();
+    for parent_digest in &node.parent_receipts {
+        let Some(parent) = graph
+            .nodes
+            .iter()
+            .find(|candidate| candidate.output_digest.as_deref() == Some(parent_digest.as_str()))
+        else {
+            continue;
+        };
+        let Some(value) = store
+            .read_execution_receipt(&parent.id)
+            .map_err(store_error)?
+        else {
+            continue;
+        };
+        let receipt: HermesExecutionReceipt = serde_json::from_value(value).map_err(|error| {
+            ApiError::internal(format!(
+                "stored parent execution receipt is invalid: {error}"
+            ))
+        })?;
+        if receipt.receipt_digest != *parent_digest
+            || !receipt.has_valid_digest().map_err(|error| {
+                ApiError::internal(format!(
+                    "stored parent execution receipt digest could not be checked: {error}"
+                ))
+            })?
+        {
+            return Err(ApiError::conflict(
+                "stored parent execution receipt failed canonical digest verification",
+            ));
+        }
+        receipts.push(serde_json::json!({
+            "node_id": receipt.node_id,
+            "receipt_digest": receipt.receipt_digest,
+            "status": receipt.status,
+            "summary": receipt.summary,
+            "tool_evidence": receipt.tool_evidence,
+            "test_evidence": receipt.test_evidence,
+            "artifacts": receipt.artifacts,
+        }));
+    }
+    if receipts.is_empty() {
+        return Ok(None);
+    }
+    let payload = serde_json::to_string(&receipts).map_err(|error| {
+        ApiError::internal(format!(
+            "serialize canonical parent receipt evidence: {error}"
+        ))
+    })?;
+    Ok(Some(format!(
+        " Canonical parent execution receipt payloads (loaded from the durable run store and digest-validated before dispatch): {payload}"
+    )))
+}
+
+fn provider_executes_declared_checks(kind: NodeKind) -> bool {
+    !matches!(kind, NodeKind::Inspect | NodeKind::Review)
+}
+
+fn provider_usage_idempotency_key(run_id: &str, receipt_key: &str) -> String {
+    format!("{run_id}:{receipt_key}:provider-usage")
+}
+
+fn provider_ready_idempotency_key(node_key: &str, attempt: u64) -> String {
+    format!("{node_key}:provider-ready:{attempt}")
+}
+
 pub(super) async fn execute_provider_node(
     State(state): State<HarnessState>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
     Path((id, node_id)): Path<(String, String)>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
     Json(request): Json<ExecuteProviderNodeRequest>,
 ) -> Result<Json<ExecuteProviderNodeResponse>, ApiError> {
     require_loopback(peer)?;
     request.envelope.validate()?;
+    let shutdown = shutdown.map(|extension| extension.0).unwrap_or_default();
+    if shutdown.is_triggered() {
+        return Err(ApiError::stopping());
+    }
     if request.objective.trim().is_empty() {
         return Err(ApiError::bad_request("provider objective cannot be empty"));
     }
@@ -609,13 +846,119 @@ pub(super) async fn execute_provider_node(
         .find(|node| node.id == node_id)
         .ok_or_else(|| ApiError::not_found(format!("node `{}` was not found", node_id.as_str())))?
         .clone();
-    if !matches!(node.kind, NodeKind::Execute | NodeKind::Verify) {
+    if !is_provider_execution_kind(node.kind) {
         return Err(ApiError::conflict(format!(
-            "node `{}` is not an execute or verify provider worker",
+            "node `{}` is not an inspect, execute, verify, or review provider worker",
+            node_id.as_str()
+        )));
+    }
+    if node.kind == NodeKind::Review
+        && !node.worker.as_ref().is_some_and(|worker| {
+            matches!(
+                worker.role,
+                WorkerRole::SecurityPrivacyCritic | WorkerRole::ImplementationRiskCritic
+            )
+        })
+    {
+        return Err(ApiError::conflict(format!(
+            "review node `{}` requires an independent critic worker",
             node_id.as_str()
         )));
     }
 
+    let recovered = store.recover().map_err(store_error)?;
+    let project_id = recovered
+        .events
+        .iter()
+        .find_map(|event| match &event.kind {
+            RunEventKind::Planned { project_id, .. } => Some(project_id.clone()),
+            _ => None,
+        })
+        .ok_or_else(|| ApiError::internal("run journal has no planned project identity"))?;
+    let attached = find_attached_project(&state.workbench_root, &project_id)?;
+    let attached_digest = contract_digest(&attached.contract)?;
+    require_current_project_contract(
+        &project_id,
+        &graph.provenance.project_contract_digest,
+        &attached_digest,
+    )?;
+    let project_root = state
+        .workbench_root
+        .join(attached.contract.workspace.root.as_str());
+
+    if let Some(assembly) = request.context_assembly.as_ref() {
+        validate_durable_context_assembly(
+            &state.workbench_root,
+            assembly,
+            graph.run_id.as_str(),
+            &project_id,
+        )?;
+    }
+
+    require_succeeded_dependencies(&graph, &node_id)?;
+    enforce_worker_admission(&state, &store, &graph, &node_id).await?;
+    let approval_receipt = node
+        .parent_receipts
+        .first()
+        .cloned()
+        .ok_or_else(|| ApiError::conflict("provider execution requires an approval receipt"))?;
+    let config_path = provider_config_path(&state.workbench_root);
+
+    let mut ready_node = graph
+        .nodes
+        .iter()
+        .find(|candidate| candidate.id == node_id)
+        .expect("provider node remains present")
+        .clone();
+    ready_node.state = NodeState::Ready;
+    let check_commands = attached
+        .contract
+        .checks
+        .iter()
+        .map(|check| {
+            let command = attached.contract.command(&check.command);
+            let invocation = command
+                .map(|command| {
+                    std::iter::once(command.program.as_str())
+                        .chain(command.args.iter().map(String::as_str))
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                })
+                .unwrap_or_else(|| check.command.clone());
+            (check.id.clone(), invocation)
+        })
+        .collect::<BTreeMap<_, _>>();
+    let declared_checks = check_commands
+        .iter()
+        .map(|(id, command)| format!("{id}: {command}"))
+        .collect::<Vec<_>>();
+    let mut instructions = provider_instructions(ready_node.kind, &declared_checks);
+    if let Some(receipt_instructions) = dependency_receipt_instructions(&store, &graph, &node_id)? {
+        instructions.push_str(&receipt_instructions);
+    }
+    let task = HermesNodeTask {
+        run_id: graph.run_id.clone(),
+        node: ready_node,
+        objective: request.objective.trim().to_string(),
+        instructions,
+        checks: if provider_executes_declared_checks(node.kind) {
+            attached
+                .contract
+                .checks
+                .iter()
+                .map(|check| check.id.clone())
+                .collect()
+        } else {
+            Vec::new()
+        },
+        check_commands: if provider_executes_declared_checks(node.kind) {
+            check_commands
+        } else {
+            BTreeMap::new()
+        },
+        project_contract_digest: graph.provenance.project_contract_digest.clone(),
+        context_assembly: request.context_assembly.clone(),
+    };
     let receipt = if let Some(value) = store
         .read_execution_receipt(&node_id)
         .map_err(store_error)?
@@ -640,8 +983,93 @@ pub(super) async fn execute_provider_node(
                 "stored provider receipt failed canonical digest verification",
             ));
         }
+        if receipt.project_contract_digest != task.project_contract_digest
+            || receipt.parent_receipts != task.node.parent_receipts
+        {
+            return Err(ApiError::conflict(
+                "stored provider receipt does not match current contract and parent authority",
+            ));
+        }
+        let requested_context = request.context_assembly.as_ref().map(|assembly| {
+            (
+                assembly.capsule.capsule_id.as_str(),
+                assembly.capsule.capsule_digest.as_str(),
+                assembly.use_receipt.receipt_ref(),
+            )
+        });
+        let receipt_context = match (
+            receipt.context_capsule_id.as_deref(),
+            receipt.context_capsule_digest.as_deref(),
+            receipt.context_use_receipt_ref.as_deref(),
+        ) {
+            (None, None, None) => None,
+            (Some(id), Some(digest), Some(use_receipt_ref)) => {
+                Some((id, digest, use_receipt_ref.to_string()))
+            }
+            _ => {
+                return Err(ApiError::conflict(
+                    "stored provider receipt has incomplete context authority",
+                ));
+            }
+        };
+        if requested_context != receipt_context {
+            return Err(ApiError::conflict(
+                "stored provider receipt does not match the requested context capsule authority",
+            ));
+        }
+        HermesAdapter::validate_replay(&config_path, &project_root, &task, &receipt).map_err(
+            |error| {
+                ApiError::conflict(format!(
+                    "stored provider receipt failed current authority binding: {error}"
+                ))
+            },
+        )?;
         receipt
     } else {
+        let environment = std::env::vars().collect::<BTreeMap<_, _>>();
+        let objectives = crate::objectives::ObjectiveStore::open(
+            state.workbench_root.join("data/arda/objectives.sqlite3"),
+        )
+        .map_err(|error| ApiError::internal(error.to_string()))?;
+        let retained = objectives
+            .retained_execution(id.as_str(), chrono::Utc::now().timestamp_millis())
+            .map_err(|error| ApiError::conflict(error.to_string()))?;
+        let uses_retained = retained.is_some();
+        let adapter = if let Some(binding) = retained {
+            #[cfg(target_os = "linux")]
+            {
+                HermesAdapter::load_retained(&config_path, &project_root, &environment, binding)
+            }
+            #[cfg(not(target_os = "linux"))]
+            {
+                let _ = binding;
+                return Err(ApiError::conflict("retained execution requires Linux"));
+            }
+        } else {
+            HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
+        }
+        .map_err(|error| {
+            ApiError::internal(format!(
+                "failed to load Workbench provider adapter: {error}"
+            ))
+        })?;
+        if !uses_retained {
+            if let Some(identity) = objectives
+                .execution_workspace_identity(id.as_str())
+                .map_err(|error| ApiError::conflict(error.to_string()))?
+            {
+                adapter
+                    .require_admission_workspace(&identity)
+                    .map_err(|error| ApiError::conflict(error.to_string()))?;
+            } else if id.starts_with("objective-") {
+                return Err(ApiError::conflict(
+                    "resident execution workspace identity is unknown",
+                ));
+            }
+        }
+        adapter.preflight(&task).map_err(|error| {
+            ApiError::conflict(format!("provider task failed bounded preflight: {error}"))
+        })?;
         let cancellation_key = format!("{id}/{}", node_id.as_str());
         if node.state == NodeState::Running {
             if ACTIVE_PROVIDER_CANCELLATIONS
@@ -653,44 +1081,21 @@ pub(super) async fn execute_provider_node(
                     "node `{}` already has an active provider worker",
                     node_id.as_str()
                 )));
+            } else {
+                apply_transition_once(
+                    &store,
+                    &mut graph,
+                    &node_id,
+                    NodeState::Failed,
+                    format!(
+                        "{}:provider-restart-death:{}",
+                        node.idempotency_key, node.checkpoint.sequence
+                    ),
+                    node.input_digest.clone(),
+                )
+                .map_err(store_error)?;
+                node.state = NodeState::Failed;
             }
-            apply_transition_once(
-                &store,
-                &mut graph,
-                &node_id,
-                NodeState::Failed,
-                format!(
-                    "{}:provider-orphaned:{}",
-                    node.idempotency_key, node.checkpoint.sequence
-                ),
-                node.input_digest.clone(),
-            )
-            .map_err(store_error)?;
-            if node.checkpoint.sequence >= u64::from(node.retry.max_attempts) {
-                return Err(ApiError::conflict(format!(
-                    "node `{}` exhausted provider attempts after restart recovery",
-                    node_id.as_str()
-                )));
-            }
-            apply_transition_once(
-                &store,
-                &mut graph,
-                &node_id,
-                NodeState::Ready,
-                format!(
-                    "{}:provider-retry-ready:{}",
-                    node.idempotency_key,
-                    node.checkpoint.sequence + 1
-                ),
-                node.input_digest.clone(),
-            )
-            .map_err(store_error)?;
-            node = graph
-                .nodes
-                .iter()
-                .find(|candidate| candidate.id == node_id)
-                .expect("recovered provider node remains present")
-                .clone();
         }
         if !matches!(
             node.state,
@@ -702,90 +1107,6 @@ pub(super) async fn execute_provider_node(
                 node.state
             )));
         }
-        require_succeeded_dependencies(&graph, &node_id)?;
-        enforce_worker_admission(&state, &store, &graph, &node_id).await?;
-        let approval_receipt =
-            node.parent_receipts.first().cloned().ok_or_else(|| {
-                ApiError::conflict("provider execution requires an approval receipt")
-            })?;
-        if node.state != NodeState::Ready {
-            apply_transition_once(
-                &store,
-                &mut graph,
-                &node_id,
-                NodeState::Ready,
-                format!("{}:provider-ready", node.idempotency_key),
-                Some(approval_receipt),
-            )
-            .map_err(store_error)?;
-        }
-
-        let recovered = store.recover().map_err(store_error)?;
-        let project_id = recovered
-            .events
-            .iter()
-            .find_map(|event| match &event.kind {
-                RunEventKind::Planned { project_id, .. } => Some(project_id.clone()),
-                _ => None,
-            })
-            .ok_or_else(|| ApiError::internal("run journal has no planned project identity"))?;
-        let attached = find_attached_project(&state.workbench_root, &project_id)?;
-        let project_root = state
-            .workbench_root
-            .join(attached.contract.workspace.root.as_str());
-        let config_path = provider_config_path(&state.workbench_root);
-        let environment = std::env::vars().collect::<BTreeMap<_, _>>();
-        let adapter = HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
-            .map_err(|error| {
-                ApiError::internal(format!(
-                    "failed to load Workbench provider adapter at {}: {error}",
-                    config_path.display()
-                ))
-            })?;
-        let ready_node = graph
-            .nodes
-            .iter()
-            .find(|candidate| candidate.id == node_id)
-            .expect("provider node remains present")
-            .clone();
-        let check_commands = attached
-            .contract
-            .checks
-            .iter()
-            .map(|check| {
-                let command = attached.contract.command(&check.command);
-                let invocation = command
-                    .map(|command| {
-                        std::iter::once(command.program.as_str())
-                            .chain(command.args.iter().map(String::as_str))
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                    })
-                    .unwrap_or_else(|| check.command.clone());
-                (check.id.clone(), invocation)
-            })
-            .collect::<BTreeMap<_, _>>();
-        let declared_checks = check_commands
-            .iter()
-            .map(|(id, command)| format!("{id}: {command}"))
-            .collect::<Vec<_>>();
-        let task = HermesNodeTask {
-            run_id: graph.run_id.clone(),
-            node: ready_node,
-            objective: request.objective.trim().to_string(),
-            instructions: format!(
-                "Work only inside the attached project root. Do not commit. Run every declared check and make no changes outside the objective. Declared checks: {}",
-                declared_checks.join("; ")
-            ),
-            checks: attached
-                .contract
-                .checks
-                .iter()
-                .map(|check| check.id.clone())
-                .collect(),
-            check_commands,
-            project_contract_digest: graph.provenance.project_contract_digest.clone(),
-        };
         let attempt = graph
             .nodes
             .iter()
@@ -797,6 +1118,17 @@ pub(super) async fn execute_provider_node(
                 "node `{}` exhausted provider attempts",
                 node_id.as_str()
             )));
+        }
+        if node.state != NodeState::Ready {
+            apply_transition_once(
+                &store,
+                &mut graph,
+                &node_id,
+                NodeState::Ready,
+                provider_ready_idempotency_key(&node.idempotency_key, attempt),
+                Some(approval_receipt),
+            )
+            .map_err(store_error)?;
         }
         graph
             .nodes
@@ -827,7 +1159,18 @@ pub(super) async fn execute_provider_node(
         }
         drop(_mutation_guard.take());
 
-        let execution = adapter.execute(&task, cancellation).await;
+        let execution = adapter.execute(&task, cancellation.clone());
+        tokio::pin!(execution);
+        let (execution, interrupted) = tokio::select! {
+            biased;
+            _ = shutdown.wait() => {
+                cancellation.cancel();
+                // Await cooperative cleanup before HTTP drain can finish. A daemon
+                // stop leaves the original run recoverable, not falsely failed.
+                (execution.await, true)
+            }
+            result = &mut execution => (result, false),
+        };
         ACTIVE_PROVIDER_CANCELLATIONS
             .lock()
             .await
@@ -836,6 +1179,17 @@ pub(super) async fn execute_provider_node(
             .lock()
             .await
             .remove(&cancellation_key);
+        if interrupted && execution.is_err() {
+            return Err(ApiError::stopping());
+        }
+        if matches!(
+            execution,
+            Err(crate::adapters::HermesAdapterError::WorkspaceChanged)
+        ) {
+            return Err(ApiError::conflict(
+                "provider workspace changed; stopped for reconciliation",
+            ));
+        }
         _mutation_guard = Some(WORKBENCH_MUTATIONS.lock().await);
 
         // Cancellation may have updated the journal while the child was
@@ -853,9 +1207,34 @@ pub(super) async fn execute_provider_node(
                 "run `{id}` was cancelled while provider execution was active"
             )));
         }
-        let receipt = execution.map_err(|error| {
-            ApiError::internal(format!("Workbench provider execution failed: {error}"))
-        })?;
+        let receipt = match execution {
+            Ok(receipt) => receipt,
+            Err(error) => {
+                let current = graph
+                    .nodes
+                    .iter()
+                    .find(|candidate| candidate.id == node_id)
+                    .cloned()
+                    .ok_or_else(|| ApiError::internal("provider node disappeared after failure"))?;
+                if current.state == NodeState::Running {
+                    apply_transition_once(
+                        &store,
+                        &mut graph,
+                        &node_id,
+                        NodeState::Failed,
+                        format!(
+                            "{}:provider-error:{}",
+                            current.idempotency_key, current.checkpoint.sequence
+                        ),
+                        None,
+                    )
+                    .map_err(store_error)?;
+                }
+                return Err(ApiError::internal(format!(
+                    "Workbench provider execution failed: {error}"
+                )));
+            }
+        };
         let value = serde_json::to_value(&receipt).map_err(|error| {
             ApiError::internal(format!("failed to serialize provider receipt: {error}"))
         })?;
@@ -864,7 +1243,7 @@ pub(super) async fn execute_provider_node(
             .map_err(store_error)?;
         store
             .append_resource_usage(ResourceUsageDraft {
-                idempotency_key: format!("{}:provider-usage", receipt.idempotency_key),
+                idempotency_key: provider_usage_idempotency_key(&id, &receipt.idempotency_key),
                 source: if receipt.usage.cost_measurement == CostMeasurement::Observed {
                     ResourceMeasurementSource::Observed
                 } else {
@@ -1028,7 +1407,7 @@ async fn enforce_worker_admission(
         .find(|blocked| blocked.node_id == *node_id)
         .map(|blocked| format!("{:?}", blocked.reason))
         .unwrap_or_else(|| "not selected by deterministic scheduler".into());
-    Err(ApiError::conflict(format!(
+    Err(ApiError::scheduler_conflict(format!(
         "worker `{}` was not admitted: {reason}",
         node_id.as_str()
     )))
@@ -1055,6 +1434,43 @@ mod active_provider_cancellation_tests {
             .lock()
             .await
             .remove("run-live/execute");
+    }
+
+    #[test]
+    fn provider_execution_rejects_project_contract_replacement_after_planning() {
+        let result = require_current_project_contract(
+            "550e8400-e29b-41d4-a716-446655440000",
+            "sha256:planned",
+            "sha256:replacement",
+        );
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn provider_execution_accepts_read_only_inspection_workers() {
+        assert!(is_provider_execution_kind(NodeKind::Inspect));
+    }
+}
+
+fn is_provider_execution_kind(kind: NodeKind) -> bool {
+    matches!(
+        kind,
+        NodeKind::Inspect | NodeKind::Execute | NodeKind::Verify | NodeKind::Review
+    )
+}
+
+fn require_current_project_contract(
+    project_id: &str,
+    planned_digest: &str,
+    live_digest: &str,
+) -> Result<(), ApiError> {
+    if live_digest == planned_digest {
+        Ok(())
+    } else {
+        Err(ApiError::conflict(format!(
+            "project `{project_id}` contract changed after run planning"
+        )))
     }
 }
 
@@ -1240,7 +1656,9 @@ pub(super) async fn get_run_events(
 pub(super) async fn stream_run_events(
     State(state): State<HarnessState>,
     Path(id): Path<String>,
+    shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
 ) -> Result<Sse<impl futures_core::Stream<Item = Result<Event, Infallible>>>, ApiError> {
+    let shutdown = shutdown.map(|value| value.0).unwrap_or_default();
     let (store, _) = load_run(&state, &id)?;
     let stream = async_stream::stream! {
         let mut next_sequence = 1_u64;
@@ -1268,6 +1686,7 @@ pub(super) async fn stream_run_events(
             }
         }
     };
+    let stream = futures::StreamExt::take_until(stream, async move { shutdown.wait().await });
     Ok(Sse::new(stream).keep_alive(KeepAlive::new().interval(Duration::from_secs(10))))
 }
 
@@ -1444,6 +1863,46 @@ fn project_review_evidence(
     Ok(())
 }
 
+fn validate_idempotent_review_evidence(
+    store: &RunStore,
+    receipt_digest: &str,
+    evidence: Option<&RunReviewEvidence>,
+) -> Result<(), ApiError> {
+    let Some(evidence) = evidence else {
+        return Ok(());
+    };
+    validate_review_evidence(evidence, receipt_digest)?;
+    let stored: RunReviewEvidence = store
+        .read_result()
+        .map_err(store_error)?
+        .map(serde_json::from_value)
+        .transpose()
+        .map_err(store_error)?
+        .unwrap_or_default();
+    let changes_match = evidence.changes.iter().all(|requested| {
+        stored
+            .changes
+            .iter()
+            .any(|current| current.path == requested.path && current == requested)
+    });
+    let tests_match = evidence.tests.iter().all(|requested| {
+        stored
+            .tests
+            .iter()
+            .any(|current| current.name == requested.name && current == requested)
+    });
+    let provider_matches = evidence
+        .provider_receipt
+        .as_ref()
+        .is_none_or(|requested| stored.provider_receipt.as_ref() == Some(requested));
+    if changes_match && tests_match && provider_matches {
+        return Ok(());
+    }
+    Err(ApiError::conflict(
+        "idempotent completion retry attempted to change canonical review evidence",
+    ))
+}
+
 fn validate_review_evidence(
     evidence: &RunReviewEvidence,
     receipt_digest: &str,
@@ -1550,7 +2009,52 @@ fn store_error(error: impl std::fmt::Display) -> ApiError {
 
 #[cfg(test)]
 mod tests {
-    use super::validate_run_id;
+    use super::{
+        provider_executes_declared_checks, provider_instructions, provider_ready_idempotency_key,
+        provider_usage_idempotency_key, validate_run_id,
+    };
+    use arda_core::run_graph::NodeKind;
+
+    #[test]
+    fn provider_usage_is_scoped_to_the_run() {
+        assert_eq!(
+            provider_usage_idempotency_key("run-b", "task-execute"),
+            "run-b:task-execute:provider-usage"
+        );
+    }
+
+    #[test]
+    fn provider_ready_transition_is_scoped_to_the_attempt() {
+        assert_ne!(
+            provider_ready_idempotency_key("task-execute", 1),
+            provider_ready_idempotency_key("task-execute", 2)
+        );
+    }
+
+    #[test]
+    fn read_only_inspection_instructions_require_file_evidence_without_terminal_checks() {
+        let instructions = provider_instructions(NodeKind::Inspect, &["test: cargo test".into()]);
+
+        assert!(instructions.contains("read at least one relevant project file"));
+        assert!(instructions.contains("material file-tool evidence"));
+        assert!(!instructions.contains("Execute every declared check"));
+        assert!(!provider_executes_declared_checks(NodeKind::Inspect));
+    }
+
+    #[test]
+    fn review_instructions_interpret_read_only_source_evidence_without_false_digest_equality() {
+        let instructions = provider_instructions(NodeKind::Review, &[]);
+
+        assert!(instructions.contains("must not equal source content digests"));
+        assert!(instructions.contains("absence of mutating tool calls"));
+        assert!(instructions.contains("context_use_receipt only when supplied"));
+        assert!(instructions.contains("judge only this node's objective and evidence"));
+        assert!(instructions.contains("VERDICT: APPROVE"));
+        assert!(instructions.contains("VERDICT: BLOCK"));
+        assert!(instructions.contains(
+            "Requested analytical findings are an output to validate, not defects that fail the run"
+        ));
+    }
 
     #[test]
     fn run_ids_cannot_escape_the_run_store() {

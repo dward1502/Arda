@@ -1,0 +1,49 @@
+{
+  "schema_version": "arda.mirromere.surface.v1",
+  "surface_id": "mirromere-hud-preview",
+  "outpost_id": "hud:monitor_3",
+  "display_role": "hud_aperture",
+  "source_mode": "fixture",
+  "scene": {
+    "scene_id": "ambient.idle",
+    "application_id": "arda.mirromere.ambient",
+    "application_version": "1.0.0",
+    "purpose": "Calm ambient local readiness"
+  },
+  "slots": [
+    {
+      "id": "ambient-field",
+      "content": {
+        "kind": "vector_field",
+        "field": "wave",
+        "samples": [0.0, 0.25, 0.1, -0.2, 0.0]
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "source_id": "fixture:lifecycle",
+      "evidence_ref": "fixture://mirromere/ambient-idle",
+      "observed_at": "2026-08-17T12:00:00Z"
+    }
+  ],
+  "generated_at": "2026-08-17T12:00:00Z",
+  "expires_at": "2026-08-17T12:05:00Z",
+  "freshness": "fresh",
+  "availability": "available",
+  "privacy": {
+    "privacy_class": "public_ambient",
+    "visibility_ceiling": "public_ambient"
+  },
+  "allowed_interactions": ["inspect_provenance"],
+  "accessibility": {
+    "description": "A calm wave indicates local readiness.",
+    "reduced_motion": "freeze",
+    "urgency": "ambient"
+  },
+  "transition": {
+    "style": "fade",
+    "duration_ms": 800,
+    "attention_budget": 0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:7a7b022579197097a3ef5b43747afd313cf4822ff6f2d3e80701d7d1bde742ec",
+    "summary": "Defect EVIDENCE-001: the supplied receipt covers only `verify: pwd`, which establishes execution location but does not verify the implementation or the sole project file, README.acceptance. No durable evidence supports implementation correctness or completion, so approval is unsupported. Read-only inspection found no additional implementation or verification artifacts."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

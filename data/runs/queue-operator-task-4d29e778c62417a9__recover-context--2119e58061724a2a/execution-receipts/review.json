@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:b75f9f51015be49552ad3748425b3a95a22fa6e0dfde0dffce6ac56faeaa1489",
+  "idempotency_key": "queue-operator-task-4d29e778c62417a9__recover-context--2119e58061724a2a-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:0bf886fef7c3e4cd00504289fa2b37e4d197753d9b2bb05a8df486c550592317"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:362f9dd33921d380b159226347f4c90fe497b0462c41edf5e228a5664bfb5a16",
+  "recorded_at_unix_ms": 1788253834363,
+  "run_id": "queue-operator-task-4d29e778c62417a9__recover-context--2119e58061724a2a",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent review found the recovery objective and source evidence sufficient. The project registry confirms the declared `test` check is `cargo test -p arda-core` and identifies the two ordered reviewed read-only projects. The supplied verification receipt covers that exact command with exit code 0 and 210 passing tests, so the check was not rerun. The plans and status report corroborate that only bounded implementation/proof exists and that restart-safe continuation, critic correction, joined real-project execution, Vairë continuity, Soterion retrieval, daily improvement, and operator acceptance remain incomplete; the dated runtime snapshot is correctly treated as historical rather than current deployment proof. Named defects are corroborated: `core/projects/tasks/queue.jsonl:46890-46894` materializes and Apollo-submits execute/verify leaves despite `autonomy_readiness_decision` being `hold`, three unmet readiness reasons, and null governance authorization, indicating a P0 fail-open governance path; `core/projects/tasks/queue.jsonl:47720-47752` contains repeated pending execute/verify fan-out for one objective rather than one canonical next action. The execution summary now prioritizes both defects and identifies human-visible behavior and authoritative repair surfaces. Read-output digests appropriately differ from source-content digests because they authenticate different envelopes. No context-use receipt was required by the capsule, and the absence of mutating calls under read-only authority supports no modification. No artifacts were created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":650,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":150,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":12,\"offset\":46888,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ace1edfd74cc27b068e384f6bd52ebf68458af385000fe50751196974d8967e9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":72,\"offset\":47720,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:14668cc8febac2b1a37432d20cd2f4f412fcbc30bb1c4be0e82a7ef992daffce",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 49845,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 778,
+    "provider": "openai-codex",
+    "total_tokens": 50623
+  }
+}

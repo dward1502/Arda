@@ -13,13 +13,15 @@ export default function ResearchCitationDrawer({ citations }: ResearchCitationDr
       {citations.length === 0 ? <p className="research-muted">No fetched citations are attached to this brief.</p> : <ul className="research-citation-list">
         {citations.map((citation) => {
           const state = citation.failure_reason ? 'failed' : citation.rejection_reason ? 'rejected' : citation.fetch_status ?? 'fetched'
+          const canonicalUrl = citation.canonical_url ?? citation.url
+          const sourceIdentity = citation.normalized_source_id ?? citation.source_identity
           return <li key={citation.citation_id}>
             <button type="button" className="research-citation-toggle" aria-expanded={openId === citation.citation_id} onClick={() => setOpenId(openId === citation.citation_id ? null : citation.citation_id)}>
-              <span><strong>{citation.title || citation.source_identity || citation.url}</strong><small>{state} · {citation.quality ?? 'quality undisclosed'} · {citation.freshness ?? 'freshness undisclosed'}</small></span>
+              <span><strong>{citation.title || sourceIdentity || canonicalUrl || citation.citation_id}</strong><small>{state} · {citation.policy_readiness ?? citation.quality ?? 'quality undisclosed'} · {citation.freshness_status ?? citation.freshness ?? 'freshness undisclosed'}</small></span>
               <span aria-hidden="true">{openId === citation.citation_id ? '−' : '+'}</span>
             </button>
             {openId === citation.citation_id ? <div className="research-citation-detail">
-              <a href={citation.url} target="_blank" rel="noreferrer">Open canonical source</a>
+              {canonicalUrl ? <a href={canonicalUrl} target="_blank" rel="noreferrer">Open canonical source</a> : <p role="status">Canonical source URL was not recorded.</p>}
               {citation.excerpt ? <blockquote>{citation.excerpt}</blockquote> : null}
               {citation.rejection_reason ? <p role="status"><strong>Rejected:</strong> {citation.rejection_reason}</p> : null}
               {citation.failure_reason ? <p role="alert"><strong>Failed:</strong> {citation.failure_reason}</p> : null}

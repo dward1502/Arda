@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:e16fc1e017cdf309ddd0a344cf450e0387e92f5d386d23e43295586d738f470f",
+    "summary": "Review found correctness and evidence defects: src/policy.rs:89 checks review-trace requirements only when metadata.requires_review is true, while src/policy.rs:129 can independently make critical-risk invocations review-required; therefore a non-mutating critical tool with requires_review=false can reach review_required without the trace evidence promised by README.md:152. src/types.rs:69-89 accepts any nonblank requested_at_utc value, allowing malformed or non-UTC audit timestamps. src/policy.rs:160-168 performs raw prefix target matching without normalization, so path-like targets containing traversal components can pass an allowed prefix and later resolve outside it. Existing tests do not cover these cases. The parent receipt supports only the declared clean-tree condition and README inspection; it does not provide functional evidence sufficient to approve implementation correctness. No files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

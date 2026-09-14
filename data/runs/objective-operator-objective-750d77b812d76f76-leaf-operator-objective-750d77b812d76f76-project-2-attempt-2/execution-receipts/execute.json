@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f7ff2dbba886252158fbe0f4d236a54ed387a0d2dc0cf672dad193e674380060",
+  "idempotency_key": "queue-operator-objective-750d77b812d76f76-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-two-project-v4"
+  ],
+  "project_contract_digest": "sha256:8ca81428fbf0f74cddd0994a24bc4c893b78293a61abf448ca1cae12449d9707",
+  "receipt_digest": "sha256:09aa43cdc7b0a65785f473c2d23bdbd55aca404f4ae4c159312b1a4092703dab",
+  "recorded_at_unix_ms": 1788329405344,
+  "run_id": "objective-operator-objective-750d77b812d76f76-leaf-operator-objective-750d77b812d76f76-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "README.acceptance contains the exact declared acceptance line, so the bounded source-inspection criterion passes; however, the exact declared verify command failed because its unquoted line was parsed as multiple filenames.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "grep -Fx resident objective acceptance fixture: canonical source inspection required README.acceptance",
+      "exit_code": 2,
+      "output_digest": "sha256:1b11a534deaa292abebf8afc556205910b781678e48d2054f68d9278381d9a44",
+      "status": "failed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "grep -Fx resident objective acceptance fixture: canonical source inspection required README.acceptance",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "grep -Fx resident objective acceptance fixture: canonical source inspection required README.acceptance",
+      "exit_code": 2,
+      "output_digest": "sha256:1b11a534deaa292abebf8afc556205910b781678e48d2054f68d9278381d9a44",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 4720,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 585,
+    "provider": "openai-codex",
+    "total_tokens": 5305
+  }
+}

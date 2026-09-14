@@ -10,6 +10,8 @@ pub mod dashboard;
 pub mod decomposer;
 pub mod delegation;
 pub mod evidence_registry;
+pub mod execution_outcome;
+pub mod executive_cycle;
 pub mod governance_policy;
 pub mod knowledge_triage;
 pub mod learning;
@@ -22,16 +24,19 @@ pub mod queue_operation;
 pub mod queue_writer;
 pub mod reporting;
 pub mod runner;
+pub mod schedule;
 pub mod service_health;
 pub mod source_registry;
 pub mod task_queue;
 pub mod taxonomy;
 pub mod validator;
+pub mod workbench_executor;
 
 pub use a2h::{
     append_pending_authorization, authorize_for_escalation, authorize_for_escalation_with_id,
-    process_h2a_responses, write_message, H2AProcessReport, HumanApprovedObjective,
-    PendingAuthorization, PendingAuthorizationStatus,
+    process_h2a_responses, review_arandur_recommendation, write_message, H2AProcessReport,
+    HumanApprovedObjective, PendingAuthorization, PendingAuthorizationStatus,
+    RecommendationReviewReceipt,
 };
 pub use bootstrap::{load_defaults, load_registry_from_world, LoadedDefaults};
 pub use core_executor_bridge::{
@@ -39,11 +44,21 @@ pub use core_executor_bridge::{
     Dispatch, ExecutionStatus,
 };
 pub use dashboard::{Alert, AlertSeverity, DashboardSnapshot};
-pub use decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
+pub use decomposer::{
+    Objective, ObjectiveContextSource, ObjectiveDecomposer, ObjectivePlan, PlannedTask, Priority,
+};
 pub use delegation::{
     delegate_plan, AgentCapabilities, AgentRegistry, Delegation, DelegationReport,
 };
 pub use evidence_registry::{EvidenceRecord, EvidenceRegistry, EVIDENCE_REGISTRY_CONTRACT};
+pub use execution_outcome::{
+    project_terminal_outcome, ExecutionOutcomeProjectionReceipt, EXECUTION_OUTCOME_CONTRACT,
+};
+pub use executive_cycle::{
+    CouncilMode, ExecutiveCycleError, ExecutiveCycleInput, ExecutiveCycleReceipt,
+    ExecutiveCycleResult, ExecutiveCycleStore, ExecutiveDisposition, ExecutivePhase,
+    ExecutiveResourceBudget, RoleRequest, EXECUTIVE_CYCLE_CONTRACT, EXECUTIVE_CYCLE_LEDGER,
+};
 pub use knowledge_triage::{
     classify_knowledge_source, execute_knowledge_task_queue, promote_knowledge_tasks,
     run_knowledge_triage, AutonomyLane, KnowledgeActionableReviewRecord, KnowledgeClassification,
@@ -73,10 +88,15 @@ pub use runner::{
     ceo_loop, inspect_autonomy_preflight, write_autonomy_preflight, AutonomyPreflightReport,
     AutonomyPreflightSummary, AutopilotConfig, CeoAutopilot, CycleReport, PlanCycle,
 };
+pub use schedule::{ScheduleLedger, ScheduleMode, ScheduleRecord, ScheduleState};
 pub use service_health::{
     ServiceHealth, ServiceHealthMonitor, ServiceHealthReport, SystemdQuery, UserSystemd,
 };
 pub use source_registry::{SourceDescriptor, SourceRegistry, SOURCE_REGISTRY_CONTRACT};
-pub use task_queue::{QueueRecord, TaskQueueAnalyzer, TaskQueueMetrics};
+pub use task_queue::{QueueRecord, QueueRecordStatus, TaskQueueAnalyzer, TaskQueueMetrics};
 pub use taxonomy::{canonical, is_apollo_dispatchable, CANONICAL_TYPES};
 pub use validator::{PlanValidator, ValidationResult};
+pub use workbench_executor::{
+    ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
+    QueueExecutionReceipt, WorkbenchExecutionAdapter,
+};

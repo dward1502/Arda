@@ -1,9 +1,11 @@
-import type { ArdaFreshnessState } from '../../lib/ardaProvenance'
+import type { ArdaFreshnessState, ArdaSourceProvenance } from '../../lib/ardaProvenance'
 import type { BoardroomSlotAssignmentRecord } from '../../lib/boardroomSlotSettings'
 
 export type HudTone = 'cyan' | 'violet' | 'gold' | 'mint' | 'rose'
 
 export type HudInstrumentStatus = 'nominal' | 'watch' | 'external' | 'offline'
+
+export type HudInstrumentTruthState = 'live' | 'snapshot' | 'projected' | 'stale' | 'unavailable' | 'missing'
 
 export type HudInstrumentNodeState = 'good' | 'warn' | 'alert' | 'dim'
 
@@ -31,10 +33,31 @@ export interface HudInstrumentModel {
 
 export interface HudInstrumentSource {
   sourceId: string
+  sourceLabel: string
   sourceIds?: string[]
   sourcePaths: string[]
   observedAtUtc: string | null
   freshness: ArdaFreshnessState
+  sourceKind: ArdaSourceProvenance['sourceKind'] | null
+  truthState: HudInstrumentTruthState
+}
+
+export interface HudInstrumentTruthPresentation {
+  marker: '●' | '□' | '◇' | '!' | '×' | '?'
+  label: 'LIVE' | 'SNAPSHOT' | 'PROJECTED' | 'STALE' | 'UNAVAILABLE' | 'MISSING'
+}
+
+export function resolveHudInstrumentTruthPresentation(
+  truthState: HudInstrumentTruthState,
+): HudInstrumentTruthPresentation {
+  switch (truthState) {
+    case 'live': return { marker: '●', label: 'LIVE' }
+    case 'snapshot': return { marker: '□', label: 'SNAPSHOT' }
+    case 'projected': return { marker: '◇', label: 'PROJECTED' }
+    case 'stale': return { marker: '!', label: 'STALE' }
+    case 'unavailable': return { marker: '×', label: 'UNAVAILABLE' }
+    case 'missing': return { marker: '?', label: 'MISSING' }
+  }
 }
 
 export type BoardroomHudInstrumentMap = Record<string, HudInstrumentModel>
@@ -106,12 +129,16 @@ export interface RoutingHudInput {
 export interface GovernanceHudInput {
   reviewItems: number
   pendingItems: number
+  incidentItems?: number
   source?: HudInstrumentSource
 }
 
 export interface HumanHudInput {
   documents: number
   notes: number
+  businessItems?: number
+  personalItems?: number
+  missingReferences?: number
   source?: HudInstrumentSource
 }
 
@@ -207,8 +234,9 @@ function instrumentStatusFromSource(
   source?: HudInstrumentSource,
 ): HudInstrumentStatus {
   if (!source) return status
-  if (source.freshness === 'missing' || source.freshness === 'blocked' || source.freshness === 'unknown') return 'offline'
-  if (source.freshness === 'stale') return 'watch'
+  if (source.truthState === 'missing' || source.truthState === 'unavailable') return 'offline'
+  if (source.truthState === 'stale') return 'watch'
+  if ((source.truthState === 'snapshot' || source.truthState === 'projected') && status === 'nominal') return 'external'
   return status
 }
 
@@ -256,9 +284,8 @@ export function deriveFleetHudInstrument(input: FleetHudInput): HudInstrumentMod
   const liveTargets = clamp(input.liveTargets, 0, totalTargets || input.liveTargets)
   const unexpectedOffline = Math.max(0, input.unexpectedOffline)
   const intentionalOffline = Math.max(0, input.intentionalOffline)
-  const routableProviders = Math.max(0, input.routableProviders)
   const driftedNodes = Math.max(0, input.runtimeDrift?.driftedNodes ?? 0)
-  const nodeCount = clamp(Math.max(totalTargets, routableProviders, 6), 6, FLEET_NODE_POSITIONS.length)
+  const nodeCount = clamp(Math.max(totalTargets, 6), 6, FLEET_NODE_POSITIONS.length)
   const offlineStart = clamp(liveTargets, 0, nodeCount)
   const intentionalStart = clamp(offlineStart + unexpectedOffline, 0, nodeCount)
   const runtimeStatus: HudInstrumentStatus =
@@ -353,17 +380,18 @@ export function deriveRoutingHudInstrument(input: RoutingHudInput): HudInstrumen
 }
 
 export function deriveGovernanceHudInstrument(input: GovernanceHudInput): HudInstrumentModel {
-  const reviewItems = Math.max(0, input.reviewItems)
   const pendingItems = Math.max(0, input.pendingItems)
+  const incidentItems = Math.max(0, input.incidentItems ?? 0)
+  const pressure = clamp((pendingItems * 2 + incidentItems * 3) / 12, 0, 1)
   return commandInstrument({
     title: 'Governance',
-    eyebrow: 'REVIEW GATES',
+    eyebrow: 'DECISION PRESSURE',
     tone: 'gold',
-    glyph: `${pendingItems}/${reviewItems}`,
+    glyph: `${pendingItems}/${incidentItems}`,
     preset: 'lanes',
-    pressure: Math.max(0.2, clamp(reviewItems / 12, 0, 1)),
-    seed: reviewItems * 5 + pendingItems * 11,
-    warnCount: pendingItems > 0 ? Math.min(3, pendingItems) : 0,
+    pressure: Math.max(0.12, pressure),
+    seed: pendingItems * 11 + incidentItems * 17,
+    warnCount: Math.min(3, pendingItems + incidentItems),
     source: input.source,
   })
 }
@@ -371,14 +399,19 @@ export function deriveGovernanceHudInstrument(input: GovernanceHudInput): HudIns
 export function deriveHumanHudInstrument(input: HumanHudInput): HudInstrumentModel {
   const documents = Math.max(0, input.documents)
   const notes = Math.max(0, input.notes)
+  const businessItems = Math.max(0, input.businessItems ?? 0)
+  const personalItems = Math.max(0, input.personalItems ?? 0)
+  const missingReferences = Math.max(0, input.missingReferences ?? 0)
+  const total = documents + notes + businessItems + personalItems
   return commandInstrument({
-    title: 'Human Realm',
-    eyebrow: 'BUSINESS + PERSONAL',
+    title: 'Continuity',
+    eyebrow: 'HUMAN · BUSINESS · PERSONAL',
     tone: 'mint',
-    glyph: `${documents}/${notes}`,
+    glyph: `${total}/${missingReferences}`,
     preset: 'pulse',
-    pressure: Math.max(0.2, clamp((documents + notes) / 48, 0, 1)),
-    seed: documents * 3 + notes * 7,
+    pressure: Math.max(0.2, clamp((total + missingReferences * 4) / 48, 0, 1)),
+    seed: documents * 3 + notes * 7 + businessItems * 11 + personalItems * 13,
+    warnCount: Math.min(3, missingReferences),
     source: input.source,
   })
 }

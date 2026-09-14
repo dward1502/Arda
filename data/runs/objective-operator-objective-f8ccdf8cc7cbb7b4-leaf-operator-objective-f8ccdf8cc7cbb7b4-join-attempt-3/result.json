@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:91a62945e4c42d4aa7e34f449e26244eb91833a49eba1845832617dad4b33fb0",
+    "summary": "Joined completion is unsupported. The only declared check proves a clean tree, while the supplied functional test evidence records `cargo test --all-targets` exiting 101. Security/privacy defects also contradict the ingestion objective: `src/lib.rs:184-192` permits absolute and `../` wikilinks to resolve outside the private vault, and `src/lib.rs:173-175` exposes any existing external target as a backlink. The implementation does not enforce the documented ingestion contract: `src/lib.rs:13-25` omits authority, privacy, review, provenance, and conflict fields and uses an incompatible numeric confidence type; `src/lib.rs:106-129` ingests every Markdown file without classification; and `src/lib.rs:56-89` serializes then discards memory records rather than persisting them. The second joined close receipt contains only a generic closure assertion and no implementation or verification evidence available within this review scope."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

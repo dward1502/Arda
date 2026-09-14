@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:6c661bfd39d6759765b63a3dbb43e78c65f3846e6023c0930322c13a8b4c8a7e",
+    "summary": "The prior verification receipt covers the declared `test` check: `cargo test -p arda-core` passed with exit code 0. Most synthesized findings are source-backed, including the two project-local defects, duplicate active leaves, mixed registry authority, and incomplete product gates. However, the P0 execution-control repair is materially incorrect: queue.jsonl:52452-52456 records an approval packet and `safe_autonomous` governance, while runner.rs:1665-1729 explicitly permits operator-approved or binding-governance-authorized work to proceed when global autonomy readiness is held; tests at runner.rs:3518-3552 and 3867-3897 assert that behavior. An unconditional instruction to “fail closed before materialization/Apollo submission” would discard the designed approval/governance bypass. The smallest authoritative repair is instead to bind each readiness-hold bypass to an explicit action-class policy and durable scoped waiver, failing closed only when a relevant hold lacks such authority. Because the prioritized backlog mischaracterizes this P0 path and proposes an overbroad repair, the synthesis objective is not fully satisfied. No files were modified and no checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:c0473599c520b82d8351f023d02bcc7cf090fa83afd75ce22e92e23d2d47eae3",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

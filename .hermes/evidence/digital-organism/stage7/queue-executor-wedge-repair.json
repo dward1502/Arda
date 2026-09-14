@@ -1,0 +1,31 @@
+{
+  "schema_version": "arda.stage7.queue-executor-wedge-repair.v1",
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "recorded_at_utc": "2026-08-25T06:25:00Z",
+  "failure_signature": [
+    "systemd unit arda-workbench-queue-executor.service failed on every timer tick since 2026-08-24",
+    "Error: claimed task `digital-organism-s7-living-mesh-proof` omitted `started_at_utc`"
+  ],
+  "root_causes": [
+    {
+      "site": "crates/spine/observability/arda-aule/src/prometheus/autopilot/task_queue.rs attempt_from_claimed_task",
+      "cause": "Orphan reconciliation required top-level executor attempt fields; the governed Workbench approval flow had recorded the Stage 7 claim with lineage only inside meta, so reconciliation hard-failed and wedged the whole queue executor.",
+      "fix": "Reconcile from governed meta fields with bounded fallback lease; regression test governed_workbench_claim_without_executor_stamps_reconciles."
+    },
+    {
+      "site": "crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs classify_existing_run",
+      "cause": "Existing-run classification only recognized node id 'execute'; the Stage 7 acceptance graph uses 'mesh-proof', so an all-succeeded run stayed 'existing_run_active' forever.",
+      "fix": "Fall back to aggregate node-state classification when no execute node exists."
+    }
+  ],
+  "verification": [
+    {"test": "cargo test -p arda-aule --features full-cli --lib prometheus::autopilot::task_queue", "result": "15 passed including new regression"},
+    {"probe": "arda-cli prometheus autopilot execute-approved-task", "result": "status completed / result completed for workbench_run_id stage7-living-mesh-20260823"},
+    {"runtime": "systemctl --user arda-workbench-queue-executor.service", "result": "timer tick Finished successfully; canonical queue terminal record completed at 2026-08-25T06:23:24Z"},
+    {"installed_binary": "/var/home/mythos/.local/bin/arda-cli sha256:a253c5edf883be1b0bdd4160857394bca77aa9ae5fb74d1e7836d7ca333adf5c"}
+  ],
+  "maturity_note": "Stage 7 engineering chain is unblocked and closed on the canonical queue. Operator acceptance per the stage exit gate remains separately required.",
+  "pre_existing_test_failures": [
+    "workbench_executor tests transient_harness_outage_during_restart_preserves_claim and lost_execute_response_preserves_claim_for_run_inspection fail identically on a clean tree (unrelated to this repair)."
+  ]
+}

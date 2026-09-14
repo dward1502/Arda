@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:06c8eafb8371aae4d8bd11ca53064b22fb6b03cd996232bdc19ec629d0de0673",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:a87c1f2f0324abdcf7ec6af53ff256a21fcc35510999efb583b02f0e2b04f56f"
+  ],
+  "project_contract_digest": "sha256:a7aab82586ca55905d73ff90dd6fa31d7f08a8b217bc04f6400b340071b0fe2b",
+  "receipt_digest": "sha256:409ad1c7d1c11f3eecae7c50d3831e11db30852cbefe78fb45ad83fb912277a0",
+  "recorded_at_unix_ms": 1788328697719,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-2-attempt-5",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the exact project workspace using the declared check; pwd completed successfully and reported the supplied project root. No files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "pwd",
+      "exit_code": 0,
+      "output_digest": "sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9340,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 156,
+    "provider": "openai-codex",
+    "total_tokens": 9496
+  }
+}

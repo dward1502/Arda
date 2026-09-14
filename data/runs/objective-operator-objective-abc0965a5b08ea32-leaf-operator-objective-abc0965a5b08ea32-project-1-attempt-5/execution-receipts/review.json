@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:444821fc075e37dd64c667ec84fd903a893c02f4df3df05e0a06cbdc1e637a6f",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:0704dd64e3e581fade6831dcd04ccbca4ed5bbf335391aed05c50ff228d83578"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:bb10d3391cf3178aa24a156a08016e575241094bc184cd307ef4c628b9565efe",
+  "recorded_at_unix_ms": 1788328737456,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-5",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Defect: the project root contains only README.acceptance with the text “isolated installed resident runtime acceptance”; no implementation or durable verification evidence is present to support a correctness or scope review. Defect: the parent receipt proves only that `pwd` succeeded and does not verify any implementation behavior, acceptance criterion, or security/privacy property. Completion is therefore unsupported.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"Cargo.toml\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*\",\"limit\":200,\"output_mode\":\"files_only\",\"path\":\".\",\"pattern\":\".\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5940,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 641,
+    "provider": "openai-codex",
+    "total_tokens": 6581
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b8457b217f45427db0cf8e033900a5b2",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03 for task operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03 ended status=completed result=completed; receipt=sha256:6aef6f300ed44d2955d010dbeaab1018616bcfb47d987f43e9c176fe66141087; detail=Independent source review substantiates the execution findings and identifies concrete defects. NoteFrontmatter omits required contract metadata including authority, owner, privacy, review_required, affected paths, and supersession fields; it also models confidence as u8 although the contract requires low|medium|high, so contract-compliant frontmatter may fail deserialization (src/lib.rs:13-25; docs/human-knowledge-ingestion-contract.md:71-94). scan_vault processes every Markdown file and forwards content into a uniformly human semantic MemoryRecord without authority/status classification, canonical-reliance gating, privacy enforcement, or provenance metadata (src/lib.rs:106-129), contrary to the classification and truth-separation requirements (docs/human-knowledge-ingestion-contract.md:23-25,49-69,115-123). MemoryStore serializes records but never persists them (src/lib.rs:56-89). Tests exercise wikilinks and missing paths only, leaving authority classification, privacy, canonical promotion, provenance, and persistence unverified (tests/target_local.rs:27-63). The prior verification receipt explicitly includes git status --short --branch with exit_code 0 and an authenticated output digest, so the requested declared-check coverage is present; its clean-tree evidence also supports the no-modification claim. No unsupported completion claim was found because the execution reported these implementation gaps rather than claiming contract compliance. No files were modified and no artifacts were created.",
+  "salience": 0.4617249999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T09:17:00.542832118Z",
+  "last_seen_at": "2026-09-01T09:17:00.542832118Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

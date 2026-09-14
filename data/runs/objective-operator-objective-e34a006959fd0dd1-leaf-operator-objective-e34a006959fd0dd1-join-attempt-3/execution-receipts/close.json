@@ -1,0 +1,32 @@
+{
+  "schema_version": "arda.execution-receipt.v3",
+  "receipt_digest": "sha256:c2566016a0892885d604456b01fe13dd252acf247781311374d8d08fd1bbf97a",
+  "authority_binding_digest": "sha256:9300bd81891aca94c12dd600baf9ab883d48d99c3255fbda4cc81d4ec969b022",
+  "run_id": "objective-operator-objective-e34a006959fd0dd1-leaf-operator-objective-e34a006959fd0dd1-join-attempt-3",
+  "node_id": "close",
+  "idempotency_key": "objective-operator-objective-e34a006959fd0dd1-leaf-operator-objective-e34a006959fd0dd1-join-attempt-3-close",
+  "status": "succeeded",
+  "summary": "Workbench closed the reviewed objective leaf.",
+  "tool_evidence": [],
+  "test_evidence": [],
+  "artifacts": [],
+  "usage": {
+    "provider": "arda-workbench",
+    "model": "deterministic-close",
+    "api_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "cost_measurement": "observed",
+    "completed": true,
+    "failed": false
+  },
+  "adapter": "arda-workbench",
+  "adapter_version": "1",
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "parent_receipts": [
+    "sha256:0e540a4aea00537d9d14050cb1671795a86c70df40445c11752b40fd4fafacc8"
+  ],
+  "recorded_at_unix_ms": 1788331714330
+}

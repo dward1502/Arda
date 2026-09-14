@@ -1,0 +1,51 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:aba5b05c2d7ec477eeedbaa652aa2f475e82d573e8bbb226f7759b1b991f7d46",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:372ca1eba99cdfb42aa68b4ea9b0f1fa609be66255cf6f579e8e0c6c89ea5685"
+  ],
+  "project_contract_digest": "sha256:af7d3dae3197a59caa74189bcde6418a4e9ba08c4fdcbf29d83dba043d8a98a6",
+  "receipt_digest": "sha256:562f2727df1ef2bba6cbb4e0bc566939cd8a7505fa438ff85631875147b4ee36",
+  "recorded_at_unix_ms": 1788330010989,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-join-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "No defects found. Independent read-only inspection confirmed README.acceptance contains the required acceptance fixture, consistent with the digest-validated parent verification receipt. No files were modified or created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f6dd97ec6d47bcb354f0f775e25d6276212e574370dc6b14390f3bcd3b9a5740",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 15489,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 316,
+    "provider": "openai-codex",
+    "total_tokens": 15805
+  }
+}

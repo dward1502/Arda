@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:e12da23db2530cec74ed39cc2ba6f9381d4bd3ed2061bdbb6b14ba4dffef1aa3",
+      "path": "docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md"
+    }
+  ],
+  "idempotency_key": "queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__synthesize-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "governance:objective_packet:arda-receipt-acceptance-20260827:arda-receipt-acceptance-20260827:read_only_audit"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:63a718443d9649df5726cbce688f3954c52c6e00b8ffd350ec7b8252c12c8071",
+  "recorded_at_unix_ms": 1787846299041,
+  "run_id": "queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__synthesize",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Updated the post-remediation acceptance report with current scope, gather, and synthesis receipt evidence; retained a bounded acceptance decision and prioritized authoritative repair backlog. The declared arda-core test passed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:a84e4fec60429436ae6485d214e51717e570527ad02139017bc2ce2a7e1112ed",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:a84e4fec60429436ae6485d214e51717e570527ad02139017bc2ce2a7e1112ed",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:877782b557ebd12062494d2141c2b50c4c4dea43205f61d7be75dadc4ec6ffc9",
+      "tool": "terminal"
+    },
+    {
+      "action": "sha256sum data/workbench/projects.json docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md ARDA_SYSTEM_STATUS_REPORT.md core/projects/tasks/queue.jsonl docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md",
+      "exit_code": 0,
+      "output_digest": "sha256:16236d5bde99efeaa58cbb64d20d0dc67dc9c957459bc714d6b2240fac14a241",
+      "tool": "terminal"
+    },
+    {
+      "action": "{\"mode\":\"patch\",\"patch\":\"*** Begin Patch\\n*** Update File: /var/home/mythos/Eregion/Arda/docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md\\n@@\\n-The remediated external objective-plan receipt path is accepted for its bounded claim: governed queue tasks now have live post-remediation receipts outside `RunGraph`, each receipt is identity- and digest-bound, and each digest is the second parent in its live graph provenance. The scope task reached evidence-backed close, the dependent gather task independently reproduced the binding while executing, and the declared project check passed.\\n+The remediated external objective-plan receipt path is accepted for its bounded claim: governed queue tasks now have live post-remediation receipts outside `RunGraph`, each receipt is identity- and digest-bound, and each digest is the second parent in its live graph provenance. The scope and dependent gather tasks reached evidence-backed close, the active synthesize task independently reproduced the binding, and the declared project check passed.\\n@@\\n-This does not close the broader autonomous-completion program. It proves receipt persistence and graph provenance across one terminal task and its currently running dependent task, not terminal objective closure, dependency enforcement by the worker plan, independent review, or durable continuation.\\n+This does not close the broader autonomous-completion program. It proves receipt persistence and graph provenance across two terminal tasks and their currently running dependent synthesis task, not terminal objective closure, dependency enforcement by the worker plan, independent review, or durable continuation.\\n@@\\n-- The supplied completion-loop plan, whole-system plan, status report, and queue digests also matched the files read at gather start: `cbefe9d…`, `b3b556f…`, `ecb62ed…`, and `ebb9d248…` respectively. The earlier scope receipt retains its own `add0efbd…` queue snapshot rather than pretending the append-only ledger had not advanced.\\n+- All six supplied synthesis authorities matched at execution start: the project registry `ce3a769c…`, completion-loop plan `cbefe9d…`, whole-system plan `b3b556f…`, status report `ecb62ed…`, append-only queue `41afa254…`, and `git status --short` snapshot `bd231459…`. Earlier task receipts retain their own queue and repository snapshots rather than pretending the live authorities had not advanced.\\n@@\\n-- The dependent gather run independently persisted receipt `sha256:4c0f2488f2a37cab82bae669ab2efa0a995f35468d22a81af6e6b869dd628807`; its live checkpoint records that digest as the second provenance parent while execute is running (`audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__gather/objective_plan_receipt.json:105-106`; `data/runs/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__gather/checkpoint.json:214-220`).\\n+- The dependent gather run independently persisted receipt `sha256:4c0f2488f2a37cab82bae669ab2efa0a995f35468d22a81af6e6b869dd628807`; its terminal checkpoint records that digest as the second provenance parent, and queue record 103 closes it with `close_complete` (`audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__gather/objective_plan_receipt.json:105-106`; `data/runs/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__gather/checkpoint.json:220-226`; `core/projects/tasks/queue.jsonl:103`).\\n+- The active synthesize run persisted receipt `sha256:041f65da38c7b67a785fb838e9e31c061c12a47e24b217bb497bc31fdba00445`; its checkpoint records that digest as the second graph-provenance parent while execute is running (`audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__synthesize/objective_plan_receipt.json:105-106`; `data/runs/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__synthesize/checkpoint.json:214-220`).\\n@@\\n-Post-remediation acceptance is therefore positive but bounded: external persistence, replay stability, validation, and graph provenance are implemented and live across the closed scope task and running gather task. Terminal acceptance for the overall multi-task objective remains pending, and the wider dependency, continuation, placement, context, and review gaps in `docs/audits/2026-08-27-continuous-governed-execution-gap-report.md` remain open.\\n+Post-remediation acceptance is therefore positive but bounded: external persistence, replay stability, validation, and graph provenance are implemented and live across the closed scope and gather tasks and the running synthesize task. Terminal acceptance for the overall multi-task objective remains pending, and the wider dependency, continuation, placement, context, and review gaps in `docs/audits/2026-08-27-continuous-governed-execution-gap-report.md` remain open.\\n*** End Patch\"}",
+      "exit_code": null,
+      "output_digest": "sha256:cb1657d4b662b2ecaf0e51e02f90ddcb8159539fe598586c08597f22fe563c51",
+      "tool": "patch"
+    },
+    {
+      "action": "sha256sum docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md && git status --short -- docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md",
+      "exit_code": 0,
+      "output_digest": "sha256:33665eb400db8943edc4ef819b69c33cdde452017bea8c70b7d39f2f03a85ebd",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 9,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 93435,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 4943,
+    "provider": "openai-codex",
+    "total_tokens": 98378
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:4be345b4848bf68eb9b2e046fa91a8faa85913ed2e5d2ac234b2f35f92aeffa7",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-installed-real-two-project-v3"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e",
+  "recorded_at_unix_ms": 1788371699178,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Completed the read-only objective synthesis. The declared clean-tree check passed exactly as specified. No project outputs were created. Optional cargo testing was blocked because the package is nested under an undeclared parent Cargo workspace; this did not invalidate the governed check.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch && git log --oneline --decorate -10",
+      "exit_code": 0,
+      "output_digest": "sha256:7457463f9d9093d87524134b25958935159753862d64f99679af972977344460",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test --locked",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14632,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1082,
+    "provider": "openai-codex",
+    "total_tokens": 15714
+  }
+}

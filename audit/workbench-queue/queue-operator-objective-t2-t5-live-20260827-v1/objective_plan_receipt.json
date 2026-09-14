@@ -1,0 +1,200 @@
+{
+  "contract": "arda.workbench.objective_plan_receipt.v1",
+  "objective_id": "operator-objective-t2-t5-live-20260827-v1",
+  "plan": {
+    "acceptance_criteria": [
+      "A prioritized repair backlog names concrete human-visible behavior, source evidence, and the smallest authoritative repair surface.",
+      "Every claim distinguishes implemented capability, configured runtime, and live deployed proof.",
+      "No unrelated working-tree artifacts or generated queue projections are modified."
+    ],
+    "approval_required": true,
+    "context_sources": [
+      {
+        "digest": "sha256:ce3a769c4fb1b74cc2ea3a20bad172d392a3221d995dddaeb17944ce2156e0f4",
+        "kind": "project_contract",
+        "reference": "data/workbench/projects.json"
+      },
+      {
+        "digest": "sha256:cbefe9d817453d2df6d8f5e0520c25285df2b7677036194a61c6d8064e9361a6",
+        "kind": "operator_plan",
+        "reference": "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md"
+      },
+      {
+        "digest": "sha256:b3b556f8a67ebdf2bf2b0992878d9165cfaf44752751e7295eff5e44b9d2721e",
+        "kind": "operator_plan",
+        "reference": "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md"
+      },
+      {
+        "digest": "sha256:ecb62ed522e66a86f315ac7ea38fa338a28045ae4cddfaa8955be4b2ed24436f",
+        "kind": "soterion_result",
+        "reference": "ARDA_SYSTEM_STATUS_REPORT.md"
+      },
+      {
+        "digest": "sha256:a678f8bea08f41341a8f0aca9d58468ab2ab324d98d1b37b9dfe464b5f7cf5e5",
+        "kind": "recent_receipt",
+        "reference": "core/projects/tasks/queue.jsonl"
+      },
+      {
+        "digest": "sha256:dce5f186fec7a53b2fef170dd1fd53a1b7a73dcaba3cb49a1757ed0ffe458ebc",
+        "kind": "repository_state",
+        "reference": "git status --short"
+      }
+    ],
+    "leaf_contracts": {
+      "inspect-authorities": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 120,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "produce-outcome": {
+        "authority_class": "execute_with_approval",
+        "evidence_requirements": [
+          "changed_paths",
+          "artifact_identities"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 60.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 180,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "recover-context": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "context_source_digests"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 10.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 30,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "synthesize-findings": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 120,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "verify-acceptance": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "project_check_receipts",
+          "acceptance_observations"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 20.0,
+        "project_id": "550e8400-e29b-41d4-a716-446655440000",
+        "timeout_seconds": 60,
+        "verification_checks": [
+          "test"
+        ]
+      }
+    },
+    "objective_id": "operator-objective-t2-t5-live-20260827-v1",
+    "tasks": [
+      {
+        "assigned_agent": "vaire",
+        "depends_on": [],
+        "eta_seconds": 30,
+        "joule_cost": 10.0,
+        "key": "recover-context",
+        "priority": "high",
+        "task_type": "context_recovery",
+        "title": "Recover authoritative project, plan, evidence, receipt, and repository context"
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "recover-context"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "inspect-authorities",
+        "priority": "high",
+        "task_type": "analysis",
+        "title": "Inspect live behavior and authorities for: Produce a bounded evidence-backed T2/T5 live acceptance artifact proving durable leaves, timer restart, corrected revision, and structural closure"
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "inspect-authorities"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "synthesize-findings",
+        "priority": "high",
+        "task_type": "synthesis",
+        "title": "Synthesize evidence into prioritized findings and smallest authoritative repairs"
+      },
+      {
+        "assigned_agent": "ceo",
+        "depends_on": [
+          "synthesize-findings"
+        ],
+        "eta_seconds": 180,
+        "joule_cost": 10.0,
+        "key": "produce-outcome",
+        "priority": "critical",
+        "task_type": "ops",
+        "title": "Produce the concrete operator-visible outcome for: Produce a bounded evidence-backed T2/T5 live acceptance artifact proving durable leaves, timer restart, corrected revision, and structural closure"
+      },
+      {
+        "assigned_agent": "warden",
+        "depends_on": [
+          "produce-outcome"
+        ],
+        "eta_seconds": 60,
+        "joule_cost": 10.0,
+        "key": "verify-acceptance",
+        "priority": "high",
+        "task_type": "monitor",
+        "title": "Verify objective acceptance criteria and evidence"
+      }
+    ]
+  },
+  "receipt_digest": "sha256:886ffbb70878c5f38816320f5ce338e8c41c4248580cb15bcd9a1ce9dc4e9e43",
+  "run_id": "queue-operator-objective-t2-t5-live-20260827-v1",
+  "validation": {
+    "agent_load": {
+      "ceo": 1,
+      "prometheus": 2,
+      "vaire": 1,
+      "warden": 1
+    },
+    "errors": [],
+    "estimated_total_joules": 50.0,
+    "ok": true,
+    "topological_order": [
+      "recover-context",
+      "inspect-authorities",
+      "synthesize-findings",
+      "produce-outcome",
+      "verify-acceptance"
+    ],
+    "warnings": []
+  }
+}

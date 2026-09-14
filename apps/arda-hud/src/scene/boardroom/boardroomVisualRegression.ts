@@ -1,7 +1,9 @@
 export type BoardroomVisualLandmark =
   | 'five-upper-monitors'
   | 'five-lower-console-zones'
-  | 'four-physical-controls'
+  | 'command-core-command-bank'
+  | 'command-core-utility-bank'
+  | 'detached-control-row-absent'
   | 'center-avatar-emitter'
   | 'fail-closed-control-state'
 
@@ -17,7 +19,9 @@ export interface BoardroomVisualRegressionScenario {
 const STRUCTURAL_LANDMARKS: BoardroomVisualLandmark[] = [
   'five-upper-monitors',
   'five-lower-console-zones',
-  'four-physical-controls',
+  'command-core-command-bank',
+  'command-core-utility-bank',
+  'detached-control-row-absent',
   'center-avatar-emitter',
 ]
 

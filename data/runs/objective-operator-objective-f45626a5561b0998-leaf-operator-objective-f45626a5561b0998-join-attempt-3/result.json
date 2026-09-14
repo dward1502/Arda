@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:825be7c267a447a45260f21e5de9fc15bd1b6ed9afcb2e97b0df22c48a6c09b6",
+    "summary": "Completion is unsupported. Named defects: (1) src/lib.rs:15-25 cannot deserialize the documented human_knowledge.v1 frontmatter: required contract fields such as authority, source_type, owner, privacy, review_required, supersession, and affected paths/agents are absent, while confidence incorrectly requires u8 although the contract specifies low|medium|high. (2) src/lib.rs:56-89 MemoryStore::store only serializes and discards each record, so scan_vault provides no durable Mnemosyne persistence or provenance despite the stated interface. (3) src/lib.rs:110-114 silently drops WalkDir errors, allowing incomplete vault scans to report success. (4) src/lib.rs:184-192 accepts absolute and parent-traversal wikilinks without enforcing vault containment, and can return paths outside the private vault. (5) src/lib.rs:152-158 does not anchor frontmatter at the start of the file, so body text containing delimiter pairs can be misclassified as metadata. Existing tests cover only basic links and a missing path; they do not exercise the documented ingestion contract, privacy containment, durable persistence, malformed input, or traversal errors. The supplied receipts establish clean-tree state and successful closure lineage but provide no behavioral verification resolving these defects."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

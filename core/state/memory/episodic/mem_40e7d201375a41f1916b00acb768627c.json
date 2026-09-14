@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_40e7d201375a41f1916b00acb768627c",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-f6426b0cd4b718e8 for task operator-task-f6426b0cd4b718e8 ended status=failed result=failed; receipt=sha256:298f46b478c31f079fc2b3c7c17e76af8faf7c654107c5f2d107f246c20de2bf; detail=The declared clean-tree check passed. Read-only inspection found only the annunimas-human tenant in the approved root; the five named authority files and second reviewed project were absent, so a joined two-project comparison could not be completed without violating the root boundary. Prioritized repair backlog: P0 expose both project roots and cited authorities within the approved scope; P1 replace the generated README purpose with the crate’s actual human-vault ingestion role; P2 align NoteFrontmatter and parsing with annunimas.human_knowledge.v1 authority, status, privacy, provenance, and review fields; P3 replace MemoryStore::store’s serialization-only no-op with the tenant-facing memory contract. Smallest authoritative surfaces are project provisioning/project_contract for P0, README.md for P1, src/lib.rs plus contract tests for P2, and Cargo.toml/src/lib.rs plus integration tests for P3. No files were changed.",
+  "salience": 0.5913749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-31T04:10:24.409799653Z",
+  "last_seen_at": "2026-08-31T04:10:24.409799653Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

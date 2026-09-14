@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:531d163e17125599feb939038876fddabcfd551aca2916bfce1967f6582984cc",
+    "summary": "The canonical receipt supports cargo test only. It does not provide durable verification evidence that acceptance.txt contains exactly arda-autonomous-loop-accepted followed by one newline; the unit test checks only acceptance_ready()."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "duration_ms": null,
+      "name": "cargo test",
+      "status": "passed"
+    }
+  ]
+}

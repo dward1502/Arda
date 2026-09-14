@@ -1,0 +1,51 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:8ee78aaf1c6738e6c50e8089adfd11252727f4c11a84c8a423a8d5c51b078a76",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:9dd1b66f1c511f4334005079197e17c76385223d6c74d11a6a2cfd9862b60f0f"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:5f1100957ce7a7314233456e2645ba1898161f99c0238bca6962cb6d042a4442",
+  "recorded_at_unix_ms": 1788330307381,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-10",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Unsupported completion: the project contains only README.acceptance with the statement “isolated installed resident runtime acceptance”; no implementation or durable verification evidence supports that claim. The parent receipt authenticates only a successful `pwd` check in the project root, which establishes location but does not verify installed-runtime isolation or residency. No project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v2\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v2\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:10a648c31d0f9c406cff52634a105a9622e3c1d3731706430afabf6dad7e622a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v2/README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10570,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 457,
+    "provider": "openai-codex",
+    "total_tokens": 11027
+  }
+}

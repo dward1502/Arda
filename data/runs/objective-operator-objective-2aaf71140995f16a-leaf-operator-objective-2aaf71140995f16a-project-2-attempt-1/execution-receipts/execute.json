@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0e2293abb30ae70dd3fc39f830529a794febd6175b9505aa0b4c710b6722982e",
+  "idempotency_key": "queue-operator-objective-2aaf71140995f16a-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-85e7cab453d2a4e7"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:3d635f43b81aa2a66f76e46b5dafd92e9831775c1b3350e39eb755bfc77521e4",
+  "recorded_at_unix_ms": 1788416690094,
+  "run_id": "objective-operator-objective-2aaf71140995f16a-leaf-operator-objective-2aaf71140995f16a-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project c33d0000-e29b-41d4-a716-446655440003 is conditionally integration-ready as a deterministic pre-execution Rust library/CLI. Integration authority is the public evaluate_invocation API plus the CLI check command: callers supply ToolMetadata and InvocationEnvelope JSON, then consume a tool-gate.decision.v1 receipt with allow, deny, or review_required; CLI exit codes are 0, 3, and 2 respectively. Source-backed readiness evidence: Cargo.toml defines the tool-gate 0.1.0 crate; src/lib.rs exports the policy and contract types; src/policy.rs enforces input, target, trace, idempotency, and human-review gates; schemas/ defines all three JSON interfaces; tests cover allow, deny, review-required, receipt schema version, and CLI deny behavior. Exact declared check `git diff --exit-code HEAD --` exited 0 with no output, confirming no tracked differences from HEAD. Named integration blockers/requirements: this crate intentionally does not execute tools and provides no catalog, queue, persistence, authentication, authorization, or sandbox adapter, so the integrating runtime must implement those components and must prevent execution unless it honors the receipt decision. Validation limitation: the only declared check was clean-tree; no build or test command was authorized, so compile/test health was not established by this node. Contract-hardening concern: the JSON schemas do not reject additional properties, requested_at_utc is only typed as a string, and policy_checks items have no declared object shape; strict consumers should coordinate these details before treating the schemas as a fully closed wire contract.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 21,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 25423,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1869,
+    "provider": "openai-codex",
+    "total_tokens": 27292
+  }
+}

@@ -117,6 +117,20 @@ fn chat_body_to_responses_body(model_id: &str, body: &JsonValue) -> JsonValue {
     payload
 }
 
+#[cfg(test)]
+mod framing_regressions {
+    use super::*;
+    #[test]
+    fn terminal_snapshot_with_crlf_preserves_output() {
+        let event = serde_json::json!({"type":"response.completed", "response":{
+            "status":"completed", "output":[{"type":"message","role":"assistant",
+            "content":[{"type":"output_text","text":"review result"}]}]}});
+        let parsed = parse_codex_response_text(&format!("data: {event}\r\n\r\n"));
+        assert_eq!(parsed["output"][0]["content"][0]["text"], "review result");
+        assert!(parse_codex_response_text("garbage").get("error").is_some());
+    }
+}
+
 fn parse_codex_response_text(text: &str) -> JsonValue {
     if let Ok(parsed) = serde_json::from_str::<JsonValue>(text) {
         return parsed;
@@ -124,10 +138,12 @@ fn parse_codex_response_text(text: &str) -> JsonValue {
     if let Some(parsed) = codex_sse_text_to_responses_body(text) {
         return parsed;
     }
-    serde_json::json!({"raw": text})
+    serde_json::json!({"error": {"type": "invalid_response", "message": "Unrecognized Responses payload"}})
 }
 
 fn codex_sse_text_to_responses_body(text: &str) -> Option<JsonValue> {
+    let normalized = text.replace("\r\n", "\n");
+    let text = normalized.as_str();
     if !text
         .lines()
         .any(|line| line.starts_with("data:") || line.starts_with("event:"))
@@ -205,6 +221,12 @@ fn codex_sse_text_to_responses_body(text: &str) -> Option<JsonValue> {
         ) {
             saw_terminal = true;
             if let Some(response) = event.get("response") {
+                // Some endpoints emit only the terminal snapshot, not item deltas.
+                if let Some(items) = response.get("output").and_then(JsonValue::as_array) {
+                    if !items.is_empty() {
+                        output_items = items.clone();
+                    }
+                }
                 usage = response.get("usage").cloned().unwrap_or(JsonValue::Null);
                 response_id = response.get("id").cloned().unwrap_or(JsonValue::Null);
                 if let Some(response_status) = response.get("status").and_then(JsonValue::as_str) {
@@ -241,7 +263,7 @@ fn codex_sse_text_to_responses_body(text: &str) -> Option<JsonValue> {
             "content": [{"type": "output_text", "text": output_text}],
         }));
     }
-    if !saw_terminal && output_items.is_empty() && output_text.is_empty() {
+    if !saw_terminal || (output_items.is_empty() && output_text.is_empty()) {
         return Some(serde_json::json!({
             "error": {
                 "message": "Codex Responses stream did not emit a terminal response",

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:72378c2b21bb17ca2f532e06b7c56e777cbba18e9b6a850a2aec53ab25bb0588",
+    "summary": "Declared check `cargo test -p arda-core` passed with all tests successful and no project files modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:ee68369c414ff31963e3cb1794614f4ac1d220a249b4fe5ade52021c154926b7",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

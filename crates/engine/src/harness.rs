@@ -23,8 +23,13 @@ use tracing::{info, warn};
 
 use crate::supervisor::ServiceRuntimeStatus;
 
+mod adaptive_placement;
+mod continuity;
+mod mesh;
+mod next_action;
 mod operator_messages;
 mod operator_projection;
+mod organism;
 mod personal_briefs;
 pub mod personal_ops;
 pub mod presence;
@@ -75,6 +80,116 @@ pub struct HarnessState {
     pub operator_id: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct TelemetryStatus {
+    configured: bool,
+    transport: &'static str,
+}
+
+fn telemetry_status_from_config(endpoint: Option<&str>, protocol: Option<&str>) -> TelemetryStatus {
+    TelemetryStatus {
+        configured: endpoint.is_some_and(|value| !value.trim().is_empty()),
+        transport: match protocol.map(str::trim).filter(|value| !value.is_empty()) {
+            None | Some("grpc") => "grpc_otlp",
+            Some("http/protobuf") => "http_protobuf_otlp",
+            Some(_) => "unsupported",
+        },
+    }
+}
+
+fn telemetry_status() -> TelemetryStatus {
+    let endpoint = std::env::var("ARDA_OTLP_ENDPOINT")
+        .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT"))
+        .ok();
+    let protocol = std::env::var("ARDA_OTLP_PROTOCOL")
+        .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_TRACES_PROTOCOL"))
+        .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_PROTOCOL"))
+        .ok();
+    telemetry_status_from_config(endpoint.as_deref(), protocol.as_deref())
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct FleetTargetStatus {
+    job: String,
+    instance: String,
+    health: String,
+    last_error: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct FleetObservabilityStatus {
+    prometheus_configured: bool,
+    prometheus_reachable: bool,
+    beelink_targets: Vec<FleetTargetStatus>,
+}
+
+fn project_beelink_targets(value: &serde_json::Value) -> Vec<FleetTargetStatus> {
+    let mut targets = value
+        .pointer("/data/activeTargets")
+        .and_then(serde_json::Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter(|target| {
+            target
+                .pointer("/labels/node")
+                .and_then(serde_json::Value::as_str)
+                == Some("beelink")
+        })
+        .filter_map(|target| {
+            Some(FleetTargetStatus {
+                job: target.pointer("/labels/job")?.as_str()?.to_owned(),
+                instance: target.pointer("/labels/instance")?.as_str()?.to_owned(),
+                health: target.get("health")?.as_str()?.to_owned(),
+                last_error: target
+                    .get("lastError")
+                    .and_then(serde_json::Value::as_str)
+                    .unwrap_or_default()
+                    .to_owned(),
+            })
+        })
+        .collect::<Vec<_>>();
+    targets.sort_by(|left, right| (&left.job, &left.instance).cmp(&(&right.job, &right.instance)));
+    targets
+}
+
+async fn fleet_observability(client: &reqwest::Client) -> FleetObservabilityStatus {
+    let Some(base_url) = std::env::var("ARDA_PROMETHEUS_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return FleetObservabilityStatus {
+            prometheus_configured: false,
+            prometheus_reachable: false,
+            beelink_targets: Vec::new(),
+        };
+    };
+    let target = format!("{}/api/v1/targets", base_url.trim_end_matches('/'));
+    match client
+        .get(target)
+        .timeout(Duration::from_secs(3))
+        .send()
+        .await
+    {
+        Ok(response) if response.status().is_success() => match response.json().await {
+            Ok(value) => FleetObservabilityStatus {
+                prometheus_configured: true,
+                prometheus_reachable: true,
+                beelink_targets: project_beelink_targets(&value),
+            },
+            Err(_) => FleetObservabilityStatus {
+                prometheus_configured: true,
+                prometheus_reachable: true,
+                beelink_targets: Vec::new(),
+            },
+        },
+        _ => FleetObservabilityStatus {
+            prometheus_configured: true,
+            prometheus_reachable: false,
+            beelink_targets: Vec::new(),
+        },
+    }
+}
+
 #[derive(Serialize)]
 struct Status {
     daemon: &'static str,
@@ -85,13 +200,29 @@ struct Status {
     services: Vec<String>,
     service_statuses: Vec<ServiceRuntimeStatus>,
     child_pids: Vec<u32>,
+    telemetry: TelemetryStatus,
+    fleet_observability: FleetObservabilityStatus,
 }
 
 /// Build the axum router for the harness surface.
 fn router(state: HarnessState) -> axum::Router {
     axum::Router::new()
         .route("/health", get(health))
+        .route("/v1/objective-runtime", get(objective_runtime_status))
+        .route("/.well-known/agent-card.json", get(mesh::agent_card))
+        .route("/v1/a2a", post(mesh::receive))
         .route("/v1/status", get(status))
+        .route("/v1/mesh", get(mesh::get_projection))
+        .route("/v1/mesh/enroll", post(mesh::enroll))
+        .route("/v1/mesh/observations", post(mesh::publish_observation))
+        .route("/v1/mesh/:node_id/revoke", post(mesh::revoke))
+        .route("/v1/mesh/dispatch", post(mesh::dispatch))
+        .route(
+            "/v1/adaptive-placement/objectives",
+            post(adaptive_placement::compose_place_execute),
+        )
+        .route("/v1/next-action", get(next_action::get_next_action))
+        .route("/v1/organism/manifest", get(organism::get_manifest))
         .route(
             "/v1/operator-projection",
             get(operator_projection::get_projection),
@@ -138,6 +269,10 @@ fn router(state: HarnessState) -> axum::Router {
         )
         .route("/v1/personal/captures", post(personal_ops::create_capture))
         .route("/v1/personal/inbox", get(personal_ops::get_inbox))
+        .route(
+            "/v1/personal/capabilities",
+            get(personal_ops::get_capabilities),
+        )
         .route(
             "/v1/personal/items/:id/classify",
             post(personal_ops::classify_item),
@@ -186,6 +321,15 @@ fn router(state: HarnessState) -> axum::Router {
             "/v1/operator/messages",
             post(operator_messages::ingest_operator_message),
         )
+        .route("/v1/continuity/events", post(continuity::ingest_event))
+        .route("/v1/continuity/projection", get(continuity::get_projection))
+        .route("/v1/handoffs", post(continuity::create_handoff))
+        .route("/v1/handoffs/:id/accept", post(continuity::accept_handoff))
+        .route("/v1/handoffs/:id", get(continuity::get_handoff))
+        .route(
+            "/v1/continuity/sessions/:lineage",
+            get(continuity::get_session),
+        )
         .route("/v1/runs/plan", post(runs::plan_run))
         .route("/v1/runs", get(runs::list_runs))
         .route("/v1/runs/:id/approve", post(runs::approve_run))
@@ -226,6 +370,29 @@ fn harness_cors_layer() -> CorsLayer {
         ])
 }
 
+/// Live resident observation; HTTP success is not an automation-readiness verdict.
+async fn objective_runtime_status(
+    runtime: Option<
+        axum::Extension<tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>>,
+    >,
+) -> axum::response::Response {
+    if let Some(axum::Extension(runtime)) = runtime {
+        let snapshot = runtime.borrow().clone();
+        if runtime.has_changed().is_ok() {
+            return (StatusCode::OK, Json(snapshot)).into_response();
+        }
+    }
+    (
+        StatusCode::SERVICE_UNAVAILABLE,
+        Json(serde_json::json!({
+            "ready": false, "pending_recovery": null,
+            "phase": "unavailable", "active_leaves": [], "next_wake_ms": null,
+            "last_error": "resident_status_unavailable"
+        })),
+    )
+        .into_response()
+}
+
 /// Liveness probe. Returns 200 once the harness is listening.
 async fn health() -> impl IntoResponse {
     (StatusCode::OK, "ok")
@@ -237,6 +404,7 @@ async fn health() -> impl IntoResponse {
 async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
     let pids = st.child_pids.read().await.clone();
     let service_statuses = st.service_statuses.read().await.clone();
+    let fleet_observability = fleet_observability(&st.client).await;
     let body = Status {
         daemon: "arda",
         operator_id: st.operator_id.clone(),
@@ -246,6 +414,8 @@ async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
         services: (*st.service_names).clone(),
         service_statuses,
         child_pids: pids,
+        telemetry: telemetry_status(),
+        fleet_observability,
     };
     (StatusCode::OK, Json(body))
 }
@@ -382,6 +552,11 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
             "routes": [
                 "/health",
                 "/v1/status",
+                "/v1/mesh",
+                "/v1/mesh/enroll",
+                "/v1/mesh/observations",
+                "/v1/mesh/{node_id}/revoke",
+                "/v1/mesh/dispatch",
                 "/v1/operator-projection",
                 "/v1/models",
                 "/v1/scout/health",
@@ -407,14 +582,52 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
     )
 }
 
+/// Start Harness with retained cancellation for provider work and HTTP drain.
+pub async fn serve_with_shutdown(
+    addr: Option<SocketAddr>,
+    state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    serve_inner(addr, state, shutdown, std::future::pending(), None).await
+}
+
+/// Share the resident's observation channel; Harness never creates another runtime.
+pub async fn serve_with_runtime_status(
+    addr: Option<SocketAddr>,
+    state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    runtime: tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    serve_inner(addr, state, shutdown, std::future::pending(), Some(runtime)).await
+}
+
 /// Start the harness HTTP surface. Uses `addr` when provided, otherwise reads
 /// `ARDA_HARNESS_BIND_ADDR` from the environment, falling back to
 /// `DEFAULT_HARNESS_ADDR`. Returns the bound `SocketAddr` and a
 /// `JoinHandle` for the serving task. The `shutdown` notify stops it.
 pub async fn serve(
     addr: Option<SocketAddr>,
-    mut state: HarnessState,
+    state: HarnessState,
     shutdown: Arc<Notify>,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    serve_inner(
+        addr,
+        state,
+        crate::supervisor::Shutdown::new(),
+        async move {
+            shutdown.notified().await;
+        },
+        None,
+    )
+    .await
+}
+
+async fn serve_inner(
+    addr: Option<SocketAddr>,
+    mut state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    compatibility_stop: impl std::future::Future<Output = ()> + Send + 'static,
+    runtime: Option<tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>>,
 ) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
     let addr = addr
         .or_else(|| std::env::var("ARDA_HARNESS_BIND_ADDR").ok()?.parse().ok())
@@ -429,30 +642,86 @@ pub async fn serve(
     state.harness_addr = bound.to_string();
     info!("harness: listening on {bound}");
     let publisher_root = state.workbench_root.clone();
-    let app = router(state);
-    let publisher_shutdown = shutdown.clone();
+    let app = router(state)
+        .layer(axum::middleware::from_fn(stop_request_ingestion))
+        .layer(axum::Extension(shutdown.clone()));
+    let app = if let Some(runtime) = runtime {
+        app.layer(axum::Extension(runtime))
+    } else {
+        app
+    };
     let handle = tokio::spawn(async move {
-        let publisher = tokio::spawn(operator_projection::publish_continuously(
-            publisher_root,
-            publisher_shutdown,
-        ));
-        axum::serve(
-            listener,
-            app.into_make_service_with_connect_info::<SocketAddr>(),
-        )
-        .with_graceful_shutdown(async move { shutdown.notified().await })
-        .await
-        .ok();
-        publisher.abort();
-        let _ = publisher.await;
+        let publisher = async {
+            tokio::select! {
+                _ = shutdown.wait() => {}
+                _ = operator_projection::publish_continuously(publisher_root, Arc::new(Notify::new())) => {}
+            }
+        };
+        let server_shutdown = shutdown.clone();
+        let server = async {
+            let result = axum::serve(
+                listener,
+                app.into_make_service_with_connect_info::<SocketAddr>(),
+            )
+            .with_graceful_shutdown(async move { server_shutdown.wait().await })
+            .await;
+            shutdown.trigger();
+            result
+        };
+        let stopping = async {
+            tokio::select! {
+                _ = compatibility_stop => shutdown.trigger(),
+                _ = shutdown.wait() => {}
+            }
+        };
+        let (result, (), ()) = tokio::join!(server, publisher, stopping);
+        if let Err(error) = result {
+            tracing::warn!(%error, "harness server failed");
+        }
         info!("harness: stopped");
     });
     Ok((bound, handle))
 }
 
+// Cancel only request ingestion, not an executing handler: provider handlers
+// must retain ownership until their cooperative cancellation has reaped children.
+async fn stop_request_ingestion(
+    axum::Extension(shutdown): axum::Extension<crate::supervisor::Shutdown>,
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::response::IntoResponse;
+    use futures::StreamExt;
+    if shutdown.is_triggered() {
+        return axum::http::StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
+    let (parts, body) = request.into_parts();
+    let stream = futures::stream::unfold(Some(body.into_data_stream()), move |body| {
+        let shutdown = shutdown.clone();
+        async move {
+            let mut body = body?;
+            tokio::select! {
+                biased;
+                _ = shutdown.wait() => Some((Err(axum::Error::new(
+                    std::io::Error::new(std::io::ErrorKind::Interrupted, "Harness stopping")
+                )), None)),
+                chunk = body.next() => chunk.map(|chunk| (chunk, Some(body))),
+            }
+        }
+    });
+    next.run(axum::extract::Request::from_parts(
+        parts,
+        axum::body::Body::from_stream(stream),
+    ))
+    .await
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{serve, HarnessState, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT};
+    use super::{
+        project_beelink_targets, serve, telemetry_status_from_config, HarnessState,
+        TelemetryStatus, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
+    };
     use crate::harness::presence::HarnessPresenceState;
 
     use axum::{
@@ -548,6 +817,53 @@ mod tests {
             .await
             .expect("status body");
         assert_eq!(status["harness_addr"], bound.to_string());
+        assert!(status["telemetry"]["configured"].is_boolean());
+        assert_eq!(status["telemetry"]["transport"], "grpc_otlp");
+
+        assert_eq!(
+            telemetry_status_from_config(None, None),
+            TelemetryStatus {
+                configured: false,
+                transport: "grpc_otlp",
+            }
+        );
+        assert_eq!(
+            telemetry_status_from_config(Some("http://collector:4317"), Some("grpc")),
+            TelemetryStatus {
+                configured: true,
+                transport: "grpc_otlp",
+            }
+        );
+        assert_eq!(
+            telemetry_status_from_config(
+                Some("http://beelink:3001/api/public/otel"),
+                Some("http/protobuf")
+            ),
+            TelemetryStatus {
+                configured: true,
+                transport: "http_protobuf_otlp",
+            }
+        );
+        let targets = project_beelink_targets(&json!({
+            "status": "success",
+            "data": {
+                "activeTargets": [
+                    {
+                        "labels": {"job": "llama-server", "instance": "100.103.125.88:9337", "node": "beelink"},
+                        "health": "up",
+                        "lastError": ""
+                    },
+                    {
+                        "labels": {"job": "node", "instance": "100.78.138.113:9100", "node": "annunimas-core"},
+                        "health": "up",
+                        "lastError": ""
+                    }
+                ]
+            }
+        }));
+        assert_eq!(targets.len(), 1);
+        assert_eq!(targets[0].job, "llama-server");
+        assert_eq!(targets[0].health, "up");
 
         let response: Value = reqwest::Client::new()
             .post(format!("http://{bound}/v1/scout/search"))

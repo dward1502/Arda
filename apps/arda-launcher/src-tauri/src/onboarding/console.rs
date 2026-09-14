@@ -91,7 +91,7 @@ pub fn launch_console(
             },
             "selected_providers": operator_answers.selected_providers,
             "missing_gates": profile.missing_gates,
-            "service_plan": format!("audit/onboarding-runs/latest-service-plan.json"),
+            "service_plan": "audit/onboarding-runs/latest-service-plan.json",
         }),
     )?;
     write_json(

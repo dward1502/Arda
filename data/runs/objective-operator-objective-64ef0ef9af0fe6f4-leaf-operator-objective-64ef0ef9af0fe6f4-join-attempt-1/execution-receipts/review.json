@@ -1,0 +1,51 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:368547c7d601951849f69541250ea385c9c97a8905670fe7d1a9842b7f7c5cb3",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:a1f22d2e6437a1791568f2c3dff554da01f745691c119fcac2d0c709a97e8931"
+  ],
+  "project_contract_digest": "sha256:af7d3dae3197a59caa74189bcde6418a4e9ba08c4fdcbf29d83dba043d8a98a6",
+  "receipt_digest": "sha256:0717534f24143cb2b475406e713457a8887f15205dd35fbc21815fa2e3da9c8e",
+  "recorded_at_unix_ms": 1788329709868,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent read-only review found no defects. README.acceptance contains exactly the required acceptance fixture line, and the digest-validated parent receipt records the declared verification check as passed. No project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v5\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6ee09accecc6de44cd24de6e9806ee87535786c9ce039b03977cd65a7e71ca98",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v5\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v5/README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f6dd97ec6d47bcb354f0f775e25d6276212e574370dc6b14390f3bcd3b9a5740",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 15635,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 396,
+    "provider": "openai-codex",
+    "total_tokens": 16031
+  }
+}

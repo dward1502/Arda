@@ -1,0 +1,141 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:7ef8212ea65516a68b3ca83fab899ede3c9607b275e1142257638b773fed3647",
+  "idempotency_key": "queue-operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:b5e839a8f3e03a32b47b621eee72cb0592dba765bf95527adab19970e9b78901"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:39441b86fd99faba738a17107999400cdf3f5b56692ee6c29c2e14962cd4b53f",
+  "recorded_at_unix_ms": 1788255758415,
+  "run_id": "queue-operator-task-4d29e778c62417a9__synthesize-findings--1fe2f1a471530d7b-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent review confirms the evidence is sufficient and the declared `test` check is covered exactly by the prior verification receipt: `cargo test -p arda-core` passed with exit code 0. P0 is source-supported: runner.rs:1670-1679 treats any approval_packet_id as a readiness bypass, queue_operation.rs:165-192 accepts it as operator-approved authority without a scoped readiness waiver, and queue.jsonl:46890-46894 records promotion and Apollo submission while readiness is `hold`. P1 is also supported: queue_writer.rs:70-126 appends without an identity/idempotency check, while queue.jsonl:46884-46894 contains repeated execute/verify leaves and same-ID Apollo records. The P2 label `stale status authority` is imprecise because ARDA_SYSTEM_STATUS_REPORT.md:16-20 is explicitly dated and delegates canonical authority elsewhere; the supported defect is that this still-active report contains stale current-maturity claims, including three connected contracts at line 48 versus eight registry entries. Its smallest repair should be framed as updating or superseding the active dated report, not merely labeling it as a snapshot because it is already dated. No files were modified, no checks were rerun, and no artifacts were created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":240,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":80,\"offset\":1640,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8a61a1cef3ef1cb596af91268e429a9d63a9a8034881dc422950aa4f20f8803a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":110,\"offset\":130,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/queue_operation.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b02eefd6ee26f855ea1752c9f5e147e2cf9b62d5d40c9abecc337af41c22b533",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":15,\"offset\":46884,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c79dc19cac6a709eb06742aa5f4305afbd167b81953ccce5041d6d3843fde2b1",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":105,\"offset\":35,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b707ccfe34aa14ede49ca4dd82bda446ee91d82d46f721b2863e0b090edf6de9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":70,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":90,\"offset\":25,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f6b52e06c28a31752f3b9b7b09ecafdf93441ecfbc71fa78bf0567c158a6a54a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":700,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":80,\"offset\":1710,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d609a1547691f5c632240c610c919acf4ce6e114059f773e36d273fe1f423c4f",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":4,\"file_glob\":\"*.rs\",\"limit\":80,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot\",\"pattern\":\"append_plan_to_queue_with_gate_metadata|approval_packet_id|task_promotion_allowed\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:cdbb8077031e345121d596d3b8e8dd01cfce6b8ea895f875b530c51b7ee8eeb3",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":4,\"file_glob\":\"*.rs\",\"limit\":80,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus\",\"pattern\":\"apollo_status|submitted|retry_attempt|dispatch\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:340ee1b714f30912274ad04fc7abde5177c63e0822f299c27e4aa1d186db1978",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.md\",\"limit\":80,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/docs\",\"pattern\":\"approval packet|approval_packet_id|readiness override|autonomy readiness|promotion_allowed\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:94fbe21571621535436c85a13c4f0765571667e7744e4055c4da2157fba85774",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":255,\"offset\":232,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/queue_operation.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dc6a4061bb0f542773a1e86307bec197fd923de5500c03d7504beba9c6a41abe",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":40,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:83d7fa22bacc3dcaa999b4e60b3ed8ffc4d74c59e176a41416ffa549bc66ca73",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":125,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/queue_writer.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3fbe0003be7f1199c7599e6f44582b0e8d82a0851d8e1f199b1c89131aa2cd68",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":125,\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot/queue_writer.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6b7d1e9e2ba6101279625c0b46b5efd2e0352aea4257ae5aeea3007d5891af41",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":55,\"offset\":55,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-27-continuous-governed-execution-gap-report.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2310604a35cf20efd6faee26cece9594d73358bc14b077b68e291156faa08a85",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.rs\",\"limit\":50,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/src/prometheus/autopilot\",\"pattern\":\"append_packet_plan_with_authority\\\\(\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:1bf14f4389ab15f174143a90fdff492643dee9eb8e38967e7563b8c801786dae",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 39758,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1966,
+    "provider": "openai-codex",
+    "total_tokens": 41724
+  }
+}

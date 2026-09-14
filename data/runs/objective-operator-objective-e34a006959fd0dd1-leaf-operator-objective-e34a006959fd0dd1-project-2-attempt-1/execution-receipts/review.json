@@ -1,0 +1,165 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3d69341bdeabcee91a491ec2d7321cc31997099175cc3e7b11c3432f6f0672f3",
+  "idempotency_key": "queue-operator-objective-e34a006959fd0dd1-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:b60453e1539d2b0d3f168881e6f491e5aa0b21d7da5eb2da73a3f609b2d1f745"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:91f10b55ea26f2a64eb283847593c8500cc0f677f8ebbee27e26b9acb87c5ac6",
+  "recorded_at_unix_ms": 1788331015110,
+  "run_id": "objective-operator-objective-e34a006959fd0dd1-leaf-operator-objective-e34a006959fd0dd1-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only review completed; the parent clean-tree receipt is digest-identified and reports exit code 0, and this node made no modifications. Named defects: (1) src/policy.rs:89 checks trace requirements only for metadata.requires_review, while src/policy.rs:129 can independently require review for critical risk; therefore a critical non-mutating tool with requires_review=false can reach review_required without a trace even when require_trace_for_review=true. (2) src/policy.rs:160 implements target patterns as raw string-prefix matching, so path-like targets such as scope/../secret satisfy scope/* unless a downstream runtime separately canonicalizes and revalidates them. (3) src/receipt.rs:20 and src/policy.rs:186 produce receipts without invocation_id, tool_id, target, caller, requested_at_utc, or an input digest, so a receipt is not cryptographically or structurally bound to the invocation it purportedly authorizes and can be misassociated or replayed by downstream systems. (4) src/types.rs:69 treats requested_at_utc as any nonblank string and performs no timestamp parsing, freshness, or replay validation despite describing the input as a UTC request time. Existing tests cover only basic allow, missing mutation trace, and explicit critical review paths, leaving these cases unverified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:15864db2eef3b87ffaada165f9c01532b4abb62779d69b3f13ade6dea710eb5d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"..\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"README*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c7929f3c35c0d6202b3928cbff4573221563e5cf2b8217fcf2e4f4ae7930704e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"src\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b216218c2c6b10ec19f0827348a9c43af9a5544facb6faab3b9866199c4b1fa6",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"tests\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d1f0755bc493f7488906cf4ef3cdf189e9ea82570006f0aa73535292a955c69a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\"src\",\"pattern\":\"TODO|FIXME|unsafe|unwrap\\\\(|expect\\\\(|panic!|unimplemented!|todo!\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"schemas\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3b59e0ec7200130924b8a726e77727968a748b94e7dd79363b9e8c7fc1808c0e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"examples\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:92ebcc1b752b7898862293e3cb5bc4bd1f777a660a08813a2704acb1f164580e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"schemas/tool-metadata.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:35b34798fc0ee45dbdc2d037c5409c7cbf2685533d0a16b83653bd1a518ecc4d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/invocation-envelope.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:df13ce4abffeebf7c467567486819a87499114a706499b2026176f38552a9709",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"schemas/decision-receipt.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a1011639f677ab4b81db23e43153a7d490978b6bc181400deb3e53a220a39a56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"file_glob\":\"*.md\",\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"allowed_targets|requested_at_utc|trace_id|target\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f0afe72dcdfe93fbc62e56d16cb01ea919ed70499c9bc7a58593554e28ae8920",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 28750,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1649,
+    "provider": "openai-codex",
+    "total_tokens": 30399
+  }
+}

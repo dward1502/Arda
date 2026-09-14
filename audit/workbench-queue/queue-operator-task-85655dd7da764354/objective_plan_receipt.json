@@ -1,0 +1,228 @@
+{
+  "contract": "arda.workbench.objective_plan_receipt.v1",
+  "objective_id": "operator-task-85655dd7da764354",
+  "plan": {
+    "acceptance_criteria": [
+      "A prioritized repair backlog names concrete human-visible behavior, source evidence, and the smallest authoritative repair surface.",
+      "Every claim distinguishes implemented capability, configured runtime, and live deployed proof.",
+      "No unrelated working-tree artifacts or generated queue projections are modified."
+    ],
+    "approval_required": true,
+    "context_sources": [
+      {
+        "digest": "sha256:d7fe035756b5e1f6cef00d2982d26bfd29faaaa2510fc534ec712512c3746741",
+        "kind": "project_contract",
+        "reference": "data/workbench/projects.json"
+      },
+      {
+        "digest": "sha256:f6d0954d87c166b904b2ef4e0e464469d86d104524129a1e91a351ac8c3250d2",
+        "kind": "operator_plan",
+        "reference": "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md"
+      },
+      {
+        "digest": "sha256:79f49385b5c87e99548c5b86a1a1a199516a39749e23b0284468e4d25ed46763",
+        "kind": "operator_plan",
+        "reference": "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md"
+      },
+      {
+        "digest": "sha256:0c4a39d0e54649efdb9345e927186bdee3534fc35151561152963b5c39b07df9",
+        "kind": "soterion_result",
+        "reference": "ARDA_SYSTEM_STATUS_REPORT.md"
+      },
+      {
+        "digest": "sha256:d9ac92e77750e479b5080397240e102d3623b7bc6365604b1d0e4c85d22fb007",
+        "kind": "recent_receipt",
+        "reference": "core/projects/tasks/queue.jsonl"
+      },
+      {
+        "digest": "sha256:3277aaf811c94399a09f0cc5ed2907b4a5aa5bbde7570e1e1f56ff8ecc073e71",
+        "kind": "repository_state",
+        "reference": "git status --short"
+      }
+    ],
+    "leaf_contracts": {
+      "inspect-authorities-project-1": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "a11c0000-e29b-41d4-a716-446655440001",
+        "timeout_seconds": 120,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "inspect-authorities-project-2": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "a11c0000-e29b-41d4-a716-446655440002",
+        "timeout_seconds": 120,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "produce-outcome": {
+        "authority_class": "execute_with_approval",
+        "evidence_requirements": [
+          "changed_paths",
+          "artifact_identities"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 60.0,
+        "project_id": "a11c0000-e29b-41d4-a716-446655440001",
+        "timeout_seconds": 180,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "recover-context": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "context_source_digests"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 10.0,
+        "project_id": "a11c0000-e29b-41d4-a716-446655440001",
+        "timeout_seconds": 30,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "synthesize-findings": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "source_evidence"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 40.0,
+        "project_id": "a11c0000-e29b-41d4-a716-446655440001",
+        "timeout_seconds": 120,
+        "verification_checks": [
+          "test"
+        ]
+      },
+      "verify-acceptance": {
+        "authority_class": "read_only",
+        "evidence_requirements": [
+          "project_check_receipts",
+          "acceptance_observations"
+        ],
+        "max_attempts": 2,
+        "max_cost_usd": 0.01,
+        "max_joules": 20.0,
+        "project_id": "a11c0000-e29b-41d4-a716-446655440001",
+        "timeout_seconds": 60,
+        "verification_checks": [
+          "test"
+        ]
+      }
+    },
+    "objective_id": "operator-task-85655dd7da764354",
+    "tasks": [
+      {
+        "assigned_agent": "vaire",
+        "depends_on": [],
+        "eta_seconds": 30,
+        "joule_cost": 10.0,
+        "key": "recover-context",
+        "priority": "high",
+        "task_type": "context_recovery",
+        "title": "Recover authoritative project, plan, evidence, receipt, and repository context"
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "recover-context"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "inspect-authorities-project-1",
+        "priority": "high",
+        "task_type": "analysis",
+        "title": "Inspect live behavior and authorities for: Inspect both registered projects read-only, run each declared test command, compare their verified contract surfaces, and return one joined evidence-backed summary. Do not edit files or use network access. (project 1)"
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "recover-context"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "inspect-authorities-project-2",
+        "priority": "high",
+        "task_type": "analysis",
+        "title": "Inspect live behavior and authorities for: Inspect both registered projects read-only, run each declared test command, compare their verified contract surfaces, and return one joined evidence-backed summary. Do not edit files or use network access. (project 2)"
+      },
+      {
+        "assigned_agent": "prometheus",
+        "depends_on": [
+          "inspect-authorities-project-1",
+          "inspect-authorities-project-2"
+        ],
+        "eta_seconds": 120,
+        "joule_cost": 10.0,
+        "key": "synthesize-findings",
+        "priority": "high",
+        "task_type": "synthesis",
+        "title": "Synthesize evidence into prioritized findings and smallest authoritative repairs"
+      },
+      {
+        "assigned_agent": "ceo",
+        "depends_on": [
+          "synthesize-findings"
+        ],
+        "eta_seconds": 180,
+        "joule_cost": 10.0,
+        "key": "produce-outcome",
+        "priority": "critical",
+        "task_type": "ops",
+        "title": "Produce the concrete operator-visible outcome for: Inspect both registered projects read-only, run each declared test command, compare their verified contract surfaces, and return one joined evidence-backed summary. Do not edit files or use network access."
+      },
+      {
+        "assigned_agent": "warden",
+        "depends_on": [
+          "produce-outcome"
+        ],
+        "eta_seconds": 60,
+        "joule_cost": 10.0,
+        "key": "verify-acceptance",
+        "priority": "high",
+        "task_type": "monitor",
+        "title": "Verify objective acceptance criteria and evidence"
+      }
+    ]
+  },
+  "receipt_digest": "sha256:a679af729252ad811297a65e363310f6f7856794431031336ec24648b236b995",
+  "run_id": "queue-operator-task-85655dd7da764354",
+  "validation": {
+    "agent_load": {
+      "ceo": 1,
+      "prometheus": 3,
+      "vaire": 1,
+      "warden": 1
+    },
+    "errors": [],
+    "estimated_total_joules": 60.0,
+    "ok": true,
+    "topological_order": [
+      "recover-context",
+      "inspect-authorities-project-1",
+      "inspect-authorities-project-2",
+      "synthesize-findings",
+      "produce-outcome",
+      "verify-acceptance"
+    ],
+    "warnings": []
+  }
+}

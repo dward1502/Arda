@@ -13,14 +13,15 @@ export type SystemActionId =
   | 'queue_next'
   | 'activate_plan'
   | 'approve_human_augmentation'
+  | 'review_arandur_recommendation'
   | 'record_ceo_council_session'
   | 'arda.chronos_run_provider_checks'
-  | 'arda.manwe_refresh_provider_intelligence'
+  | 'charon.refresh_provider_intelligence'
   | 'arda.queue_preview_cleanup'
   | 'arda.queue_capture_pivot'
-  | 'arda.hades_run_nightly'
-  | 'arda.hades_preview_organization_plan'
-  | 'arda.hades_run_link_check'
+  | 'arda.rumil_run_nightly_organization'
+  | 'arda.rumil_preview_organization_plan'
+  | 'arda.rumil_run_link_check'
   | 'arda.athena_ingest_knowledge'
   | 'arda.athena_refresh_digest'
   | 'arda.athena_promote_policy_ready'
@@ -179,9 +180,9 @@ const SYSTEM_ACTION_DESCRIPTORS: SystemActionDescriptor[] = [
     relatedEvidence: ['core/state/manwe_router.json', 'core/state/provider_intelligence.json'],
   },
   {
-    id: 'arda.manwe_refresh_provider_intelligence',
+    id: 'charon.refresh_provider_intelligence',
     label: 'Refresh Provider Intelligence',
-    owner: 'MANWE',
+    owner: 'CHARON',
     executor: 'scripts/refresh_provider_intelligence.py',
     purpose: 'Refresh provider/model availability intelligence used by routing and readiness surfaces.',
     riskLevel: 'read_only',
@@ -230,55 +231,55 @@ const SYSTEM_ACTION_DESCRIPTORS: SystemActionDescriptor[] = [
     relatedEvidence: ['core/projects/tasks/queue.jsonl'],
   },
   {
-    id: 'arda.hades_run_nightly',
-    label: 'Run HADES Nightly',
-    owner: 'HADES',
-    executor: 'scripts/hades_nightly_operations.sh',
-    purpose: 'Execute nightly audit/setup/organization maintenance receipt generation.',
+    id: 'arda.rumil_run_nightly_organization',
+    label: 'Run Rúmil Nightly Organization Maintenance',
+    owner: 'RUMIL',
+    executor: 'scripts/rumil_organization_maintenance.sh',
+    purpose: 'Generate read-only organization, link-integrity, and storage-hygiene evidence.',
     riskLevel: 'dry_run',
     automationEligible: true,
     userTriggerEligible: true,
     scheduleState: 'scheduled',
-    nextRun: 'next nightly operations window',
+    nextRun: 'next nightly organization window',
     governanceGate: 'audit_receipts_only_no_source_config_service_or_queue_mutation',
     dryRunSupported: true,
-    resultPath: 'data/hades/organization_plan_last.json',
-    receiptPath: 'core/state/hades_nightly_operations.json',
-    relatedEvidence: ['data/hades/organization_plan_last.json', 'data/hades/markdown_link_check_last.md'],
+    resultPath: 'data/rumil/storage_hygiene_last.json',
+    receiptPath: 'data/rumil/storage_hygiene_last.json',
+    relatedEvidence: ['data/rumil/markdown_link_check_last.md', 'data/rumil/storage_hygiene/summary.json'],
   },
   {
-    id: 'arda.hades_preview_organization_plan',
-    label: 'Preview Organization Plan',
-    owner: 'HADES',
-    executor: 'scripts/hades_organization_maintenance.sh --plan-only',
-    purpose: 'Review duplicate, stale, generated, and lifecycle file candidates before mutation.',
+    id: 'arda.rumil_preview_organization_plan',
+    label: 'Preview Organization Findings',
+    owner: 'RUMIL',
+    executor: 'scripts/rumil_organization_maintenance.sh',
+    purpose: 'Review duplicate, stale, generated, and lifecycle file candidates before any separately approved mutation.',
     riskLevel: 'read_only',
     automationEligible: true,
     userTriggerEligible: true,
     scheduleState: 'scheduled',
-    nextRun: 'with HADES organization maintenance',
+    nextRun: 'with Rúmil organization maintenance',
     governanceGate: 'review_only',
     dryRunSupported: true,
-    resultPath: 'data/hades/organization_plan_last.json',
-    receiptPath: 'data/hades/organization_plan_last.json',
-    relatedEvidence: ['core/state/hades_nightly_operations.json'],
+    resultPath: 'data/rumil/storage_hygiene/summary.json',
+    receiptPath: 'data/rumil/storage_hygiene_last.json',
+    relatedEvidence: ['data/rumil/markdown_link_check_last.md'],
   },
   {
-    id: 'arda.hades_run_link_check',
+    id: 'arda.rumil_run_link_check',
     label: 'Run Link Check',
-    owner: 'HADES',
-    executor: 'scripts/hades_organization_maintenance.sh --link-check',
+    owner: 'RUMIL',
+    executor: 'scripts/rumil_markdown_link_check.py',
     purpose: 'Refresh markdown local-link evidence for documentation and file lifecycle review.',
     riskLevel: 'read_only',
     automationEligible: true,
     userTriggerEligible: true,
     scheduleState: 'scheduled',
-    nextRun: 'with HADES organization maintenance',
+    nextRun: 'with Rúmil organization maintenance',
     governanceGate: 'review_only',
     dryRunSupported: true,
-    resultPath: 'data/hades/markdown_link_check_last.md',
-    receiptPath: 'data/hades/markdown_link_check_last.md',
-    relatedEvidence: ['core/state/hades_nightly_operations.json'],
+    resultPath: 'data/rumil/markdown_link_check_last.md',
+    receiptPath: 'data/rumil/markdown_link_check_last.md',
+    relatedEvidence: ['data/rumil/storage_hygiene_last.json'],
   },
   {
     id: 'arda.athena_ingest_knowledge',
@@ -504,7 +505,7 @@ function backendReceiptForDescriptor(
       source = chronosRuntime
       currentStatus = statusFromGate(source?.status) ?? (source ? 'succeeded' : undefined)
       break
-    case 'arda.manwe_refresh_provider_intelligence':
+    case 'charon.refresh_provider_intelligence':
       source = providerIntelligence
       currentStatus = source ? 'succeeded' : undefined
       break
@@ -513,20 +514,20 @@ function backendReceiptForDescriptor(
       source = queueSummary
       currentStatus = source ? (descriptor.riskLevel === 'governed_mutation' ? 'blocked' : 'succeeded') : undefined
       break
-    case 'arda.hades_run_nightly':
+    case 'arda.rumil_run_nightly_organization':
       source = hadesNightlyOperations
       currentStatus = statusFromGate(source?.status)
       break
-    case 'arda.hades_preview_organization_plan':
+    case 'arda.rumil_preview_organization_plan':
       source = hadesNightlyOperations
-      command = commandReceipt(source, 'hades_organization_maintenance')
+      command = commandReceipt(source, 'rumil_organization_maintenance')
       currentStatus = statusFromGate(source?.status)
       resultPath = asString(nestedRecord(source ?? {}, 'artifacts')?.organization_plan) ?? resultPath
       receiptPath = resultPath
       break
-    case 'arda.hades_run_link_check':
+    case 'arda.rumil_run_link_check':
       source = hadesNightlyOperations
-      command = commandReceipt(source, 'hades_organization_maintenance')
+      command = commandReceipt(source, 'rumil_organization_maintenance')
       currentStatus = statusFromGate(source?.status)
       resultPath = asString(nestedRecord(source ?? {}, 'artifacts')?.markdown_link_check) ?? resultPath
       receiptPath = resultPath
@@ -829,9 +830,9 @@ function localActionDefaults(action: SystemActionId): { command: string; receipt
         successMessage: 'CHRONOS provider checks refreshed',
         failureMessage: 'CHRONOS provider checks failed',
       }
-    case 'arda.manwe_refresh_provider_intelligence':
+    case 'charon.refresh_provider_intelligence':
       return {
-        command: 'run_manwe_provider_intelligence_refresh',
+        command: 'run_charon_provider_intelligence_refresh',
         receiptPath: 'core/state/provider_intelligence.json',
         successMessage: 'MANWE provider intelligence refreshed',
         failureMessage: 'MANWE provider intelligence refresh failed',
@@ -843,12 +844,12 @@ function localActionDefaults(action: SystemActionId): { command: string; receipt
         successMessage: 'queue cleanup preview refreshed',
         failureMessage: 'queue cleanup preview failed',
       }
-    case 'arda.hades_run_nightly':
+    case 'arda.rumil_run_nightly_organization':
       return {
-        command: 'run_hades_recurring_maintenance',
-        receiptPath: 'core/state/hades_nightly_operations.json',
-        successMessage: 'HADES recurring maintenance refreshed',
-        failureMessage: 'HADES recurring maintenance failed',
+        command: 'run_rumil_organization_maintenance',
+        receiptPath: 'data/rumil/storage_hygiene_last.json',
+        successMessage: 'Rúmil organization maintenance refreshed',
+        failureMessage: 'Rúmil organization maintenance failed',
       }
     case 'arda.audit_run_repeated_audit':
       return {
@@ -902,11 +903,12 @@ const tauriLocalCliAdapter: SystemActionAdapter = {
   presets: ['local_cli'],
   canHandle: (action) =>
     action === 'approve_human_augmentation' ||
+    action === 'review_arandur_recommendation' ||
     action === 'record_ceo_council_session' ||
     action === 'arda.chronos_run_provider_checks' ||
-    action === 'arda.manwe_refresh_provider_intelligence' ||
+    action === 'charon.refresh_provider_intelligence' ||
     action === 'arda.queue_preview_cleanup' ||
-    action === 'arda.hades_run_nightly' ||
+    action === 'arda.rumil_run_nightly_organization' ||
     action === 'arda.audit_run_repeated_audit' ||
     action === 'arda.setup_run_readiness_check' ||
     action === 'arda.setup_run_repair_flow' ||
@@ -914,6 +916,25 @@ const tauriLocalCliAdapter: SystemActionAdapter = {
     action === 'arda.athena_refresh_digest' ||
     action === 'arda.athena_promote_policy_ready',
   execute: async (action, context) => {
+    if (action === 'review_arandur_recommendation') {
+      const numenorPath = requiredArdaRoot(context.payload)
+      if (!numenorPath) {
+        return { ok: false, provider: 'tauri-local-cli', message: 'Arandur review requires arda_root in the action payload' }
+      }
+      try {
+        const result = await safeTauriInvoke<LocalFileActionInvokeResult>('review_arandur_recommendation_action', {
+          numenorPath,
+          recommendationId: stringPayload(context.payload, 'recommendation_id', 'recommendationId'),
+          decision: stringPayload(context.payload, 'decision'),
+          reviewedBy: stringPayload(context.payload, 'reviewed_by', 'reviewedBy'),
+          note: stringPayload(context.payload, 'note') || null,
+        })
+        return normalizeFileActionResult(action, result, 'Arandur recommendation reviewed', 'Arandur recommendation review failed')
+      } catch (error) {
+        return { ok: false, provider: 'tauri-local-cli', message: `Arandur recommendation review failed: ${formatActionError(error)}` }
+      }
+    }
+
     if (action === 'approve_human_augmentation') {
       const numenorPath = requiredArdaRoot(context.payload)
       if (!numenorPath) {

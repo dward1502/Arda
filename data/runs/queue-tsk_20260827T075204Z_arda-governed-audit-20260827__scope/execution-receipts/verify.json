@@ -1,0 +1,46 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "idempotency_key": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__scope-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:67485d5d9bda17da3d1a4d65d28d8ffcd521755453cda214c39bbc9d36fbf2b1"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:c1e17267aac5d0c282ecb1ec48842382fb9cca6b2853d2f748189607f1b16419",
+  "recorded_at_unix_ms": 1787817789294,
+  "run_id": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__scope",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Declared project-native check passed: cargo test -p arda-core.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:625f9da3b7fcc595866e6a2f3bbbcaebc0ba33d41b3911fb1398915d2473e34a",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:625f9da3b7fcc595866e6a2f3bbbcaebc0ba33d41b3911fb1398915d2473e34a",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10650,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 660,
+    "provider": "openai-codex",
+    "total_tokens": 11310
+  }
+}

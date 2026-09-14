@@ -1,0 +1,63 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:dcbc7192aea93568ebd7264a72b69f62ca3da082437ee2ee2954a0c770bccd60",
+      "path": "target/arda-completion-loop-acceptance.txt"
+    }
+  ],
+  "idempotency_key": "queue-tsk_20260826T082300Z_completion_loop_restart_acceptance-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "approval-user-20260826-completion-loop"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:eca155a9eb69b5d10e3ce9b84ee9c5ad9e6aa2b6c50ad0c8723a11e114a8e8cd",
+  "recorded_at_unix_ms": 1787732667763,
+  "run_id": "queue-tsk_20260826T082300Z_completion_loop_restart_acceptance",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Created the exact requested acceptance artifact and cargo test -p arda-core passed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:52897fb9bb4118a1665e57ec82470c1420dd1a5c59de1b75c643857ec7d4caf2",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:52897fb9bb4118a1665e57ec82470c1420dd1a5c59de1b75c643857ec7d4caf2",
+      "tool": "terminal"
+    },
+    {
+      "action": "{\"content\":\"arda-completion-loop-verified\\n\",\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-completion-loop-acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e83609dc5584f3ab3ad0f60acb60264bc245d3d2c3aa855cfb8cfb5504a4caf5",
+      "tool": "write_file"
+    },
+    {
+      "action": "sha256sum target/arda-completion-loop-acceptance.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:14efbd72283893a94f0c87293d91221903e4824c61bc6c9c61e5df86c150874d",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 8293,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1200,
+    "provider": "openai-codex",
+    "total_tokens": 9493
+  }
+}

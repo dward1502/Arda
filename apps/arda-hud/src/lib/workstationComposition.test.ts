@@ -1,0 +1,69 @@
+import { describe, expect, it } from 'vitest'
+import {
+  getFocusedWorkstationKind,
+  getStaticWorkstationManifest,
+  resolveWorkstationComposition,
+} from './workstationComposition'
+import { sectionToPanelLayout } from './settingsLayout'
+import { getSceneSlotWorkstationTemplates } from '../scene/workstations/sceneSlotWorkstationTemplates'
+
+const canonicalLowerCompositions = {
+  governance_guardhouse: ['governance_controls'],
+  fleet_and_backbone: ['systems', 'operations_and_packages'],
+  routing_and_comms: ['systems'],
+  human_business_personal: ['human_realm'],
+} as const
+
+describe('workstation composition authority', () => {
+  it('owns the canonical module composition for every configurable lower workstation', () => {
+    for (const [sourceZoneId, moduleIds] of Object.entries(canonicalLowerCompositions)) {
+      expect(resolveWorkstationComposition(sourceZoneId, []).moduleIds).toEqual(moduleIds)
+      expect(sectionToPanelLayout(sourceZoneId)).toEqual(moduleIds)
+    }
+  })
+
+  it('drives lower scene-slot fallback templates from the canonical compositions', () => {
+    const templates = getSceneSlotWorkstationTemplates()
+
+    expect(templates.view_desk_l.moduleIds).toEqual(canonicalLowerCompositions.governance_guardhouse)
+    expect(templates.view_desk_control_panel.moduleIds).toEqual(canonicalLowerCompositions.fleet_and_backbone)
+    expect(templates.view_desk_r.moduleIds).toEqual(canonicalLowerCompositions.routing_and_comms)
+    expect(templates.view_desk_aux.moduleIds).toEqual(canonicalLowerCompositions.human_business_personal)
+  })
+
+  it('routes canonical lower source zones to their focused workstation owners', () => {
+    expect(getFocusedWorkstationKind('fleet_and_backbone')).toBe('fleet')
+    expect(getFocusedWorkstationKind('systems_health')).toBe('fleet')
+    expect(getFocusedWorkstationKind('routing_and_comms')).toBe('routing')
+    expect(getFocusedWorkstationKind('human_business_personal')).toBe('continuity')
+    expect(getFocusedWorkstationKind('systems')).toBeNull()
+  })
+
+  it('owns static utility manifests instead of duplicating them in lookup code', () => {
+    expect(getStaticWorkstationManifest('settings')).toMatchObject({
+      id: 'settings_workstation',
+      module_ids: ['settings'],
+      presentation_modes: ['in_scene', 'native_window'],
+    })
+    expect(getStaticWorkstationManifest('hermes_runtime')).toMatchObject({
+      id: 'hermes_dashboard_workstation',
+      module_ids: ['hermes_dashboard', 'operations_and_packages'],
+      presentation_modes: ['in_scene', 'native_window'],
+    })
+    expect(getStaticWorkstationManifest('unknown')).toBeNull()
+  })
+
+  it('keeps governed research reachable from the knowledge workstation', () => {
+    expect(resolveWorkstationComposition('knowledge_and_reasoning', [
+      'research',
+      'memory',
+      'knowledge_triage',
+    ])).toMatchObject({
+      moduleIds: ['research', 'human_realm', 'section_focus'],
+      rejectedPanelIds: [],
+      adapted: true,
+    })
+    expect(sectionToPanelLayout('knowledge_and_reasoning'))
+      .toEqual(['research', 'human_realm', 'section_focus'])
+  })
+})

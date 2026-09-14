@@ -1,0 +1,347 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather",
+  "objective_id": "tsk_20260827T075204Z_arda-governed-audit-20260827__gather",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather-plan",
+      "input_digest": null,
+      "output_digest": "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather:plan:4",
+        "checkpoint_digest": "sha256:001a09b56e37928f2c0863fbea1330a06849707853ec3fa6be5a8c8422c909a2"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather-approval",
+      "input_digest": null,
+      "output_digest": "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit",
+      "parent_receipts": [
+        "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather:approval:7",
+        "checkpoint_digest": "sha256:378b3c63f3b3a21de0dd310d64b650bb6aaa4592eb2261d614708b2b8ee03ce7"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather-execute",
+      "input_digest": null,
+      "output_digest": "sha256:253ad7ff72a0f2079157e9b660835a2133e4c77762c75b0416e8d0c64b791de3",
+      "parent_receipts": [
+        "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather:execute:10",
+        "checkpoint_digest": "sha256:35ee5b444cce0e113dd01e6dd9922ddc74183494197aab9701dd4f5aeed57b99"
+      },
+      "worker": {
+        "role": "implementer",
+        "worker_id": "hermes:queue:tsk_20260827T075204Z_arda-governed-audit-20260827__gather",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:b3d935b5083852ac1eb2c4f401d313a61eeb2cc1a18cb61a47207f46a8e7c745",
+        "allowed_toolsets": [
+          "file",
+          "terminal"
+        ],
+        "dependencies": [
+          "approval"
+        ],
+        "deadline_unix_ms": 1787818989388,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    },
+    {
+      "id": "verify",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather-verify",
+      "input_digest": null,
+      "output_digest": "sha256:fb58b89ec63ed2149d912ba6f256b1832607be3dd7ee8ad5e2b4f7e164406373",
+      "parent_receipts": [
+        "sha256:253ad7ff72a0f2079157e9b660835a2133e4c77762c75b0416e8d0c64b791de3"
+      ],
+      "checkpoint": {
+        "sequence": 14,
+        "recovery_token": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather:verify:14",
+        "checkpoint_digest": "sha256:4b17d942aa164afb592a5425ee42d517c83dae6fc98791fba556f5ead1b22cb2"
+      },
+      "worker": {
+        "role": "independent_verifier",
+        "worker_id": "hermes:queue:tsk_20260827T075204Z_arda-governed-audit-20260827__gather:verify",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:b3d935b5083852ac1eb2c4f401d313a61eeb2cc1a18cb61a47207f46a8e7c745",
+        "allowed_toolsets": [
+          "terminal"
+        ],
+        "dependencies": [
+          "execute"
+        ],
+        "deadline_unix_ms": 1787818989388,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "project_native_checks"
+      }
+    },
+    {
+      "id": "review",
+      "kind": "review",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather-review",
+      "input_digest": null,
+      "output_digest": "sha256:9be0e1b5693cd692945c02184031db94eae386fddd790e3214d07057e1460329",
+      "parent_receipts": [
+        "sha256:fb58b89ec63ed2149d912ba6f256b1832607be3dd7ee8ad5e2b4f7e164406373"
+      ],
+      "checkpoint": {
+        "sequence": 18,
+        "recovery_token": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather:review:18",
+        "checkpoint_digest": "sha256:251764face1ef258e21e5af9e254f34e2eb53ae83fc7bd533d8809585c4648bb"
+      }
+    },
+    {
+      "id": "close",
+      "kind": "close",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather-close",
+      "input_digest": null,
+      "output_digest": "sha256:e9698972ba986beb1c1cb5ea8e1406547a64bc3eaeb2106b451be61f124d9d76",
+      "parent_receipts": [
+        "sha256:9be0e1b5693cd692945c02184031db94eae386fddd790e3214d07057e1460329"
+      ],
+      "checkpoint": {
+        "sequence": 21,
+        "recovery_token": "queue-tsk_20260827T075204Z_arda-governed-audit-20260827__gather:close:21",
+        "checkpoint_digest": "sha256:1a9e3d52c5126a5677f8aba83ecd26e30dc5d66690f17bd3658b33252e9b617a"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit"
+    },
+    {
+      "id": "execute-verify",
+      "from": "execute",
+      "to": "verify",
+      "parent_receipt": "sha256:253ad7ff72a0f2079157e9b660835a2133e4c77762c75b0416e8d0c64b791de3"
+    },
+    {
+      "id": "verify-review",
+      "from": "verify",
+      "to": "review",
+      "parent_receipt": "sha256:fb58b89ec63ed2149d912ba6f256b1832607be3dd7ee8ad5e2b4f7e164406373"
+    },
+    {
+      "id": "review-close",
+      "from": "review",
+      "to": "close",
+      "parent_receipt": "sha256:9be0e1b5693cd692945c02184031db94eae386fddd790e3214d07057e1460329"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": [
+      "governance:objective_packet:arda-governed-audit-20260827:arda-governed-audit-20260827:read_only_audit"
+    ],
+    "objective_plan": {
+      "acceptance_criteria": [
+        "A prioritized repair backlog names concrete human-visible behavior, source evidence, and the smallest authoritative repair surface.",
+        "Every claim distinguishes implemented capability, configured runtime, and live deployed proof.",
+        "No unrelated working-tree artifacts or generated queue projections are modified."
+      ],
+      "approval_required": true,
+      "context_sources": [
+        {
+          "digest": "sha256:ce3a769c4fb1b74cc2ea3a20bad172d392a3221d995dddaeb17944ce2156e0f4",
+          "kind": "project_contract",
+          "reference": "data/workbench/projects.json"
+        },
+        {
+          "digest": "sha256:cbefe9d817453d2df6d8f5e0520c25285df2b7677036194a61c6d8064e9361a6",
+          "kind": "operator_plan",
+          "reference": "docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md"
+        },
+        {
+          "digest": "sha256:b3b556f8a67ebdf2bf2b0992878d9165cfaf44752751e7295eff5e44b9d2721e",
+          "kind": "operator_plan",
+          "reference": "docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md"
+        },
+        {
+          "digest": "sha256:ecb62ed522e66a86f315ac7ea38fa338a28045ae4cddfaa8955be4b2ed24436f",
+          "kind": "soterion_result",
+          "reference": "ARDA_SYSTEM_STATUS_REPORT.md"
+        },
+        {
+          "digest": "sha256:f86603437fa3e4078dd6b675a15e372ec7b79378d0529fe4026061bfd8137cbf",
+          "kind": "recent_receipt",
+          "reference": "core/projects/tasks/queue.jsonl"
+        },
+        {
+          "digest": "sha256:e932d8c19f388169ed06e4777e275d3477a2499c7c24a8e9a9b6cb00eb1f4bdd",
+          "kind": "repository_state",
+          "reference": "git status --short"
+        }
+      ],
+      "objective_id": "tsk_20260827T075204Z_arda-governed-audit-20260827__gather",
+      "tasks": [
+        {
+          "assigned_agent": "vaire",
+          "depends_on": [],
+          "eta_seconds": 30,
+          "joule_cost": 10.0,
+          "key": "recover-context",
+          "priority": "high",
+          "task_type": "context_recovery",
+          "title": "Recover authoritative project, plan, evidence, receipt, and repository context"
+        },
+        {
+          "assigned_agent": "prometheus",
+          "depends_on": [
+            "recover-context"
+          ],
+          "eta_seconds": 120,
+          "joule_cost": 10.0,
+          "key": "inspect-authorities",
+          "priority": "high",
+          "task_type": "analysis",
+          "title": "Inspect live behavior and authorities for: Gather sources and evidence"
+        },
+        {
+          "assigned_agent": "prometheus",
+          "depends_on": [
+            "inspect-authorities"
+          ],
+          "eta_seconds": 120,
+          "joule_cost": 10.0,
+          "key": "synthesize-findings",
+          "priority": "high",
+          "task_type": "synthesis",
+          "title": "Synthesize evidence into prioritized findings and smallest authoritative repairs"
+        },
+        {
+          "assigned_agent": "ceo",
+          "depends_on": [
+            "synthesize-findings"
+          ],
+          "eta_seconds": 180,
+          "joule_cost": 10.0,
+          "key": "produce-outcome",
+          "priority": "critical",
+          "task_type": "ops",
+          "title": "Produce the concrete operator-visible outcome for: Gather sources and evidence"
+        },
+        {
+          "assigned_agent": "warden",
+          "depends_on": [
+            "produce-outcome"
+          ],
+          "eta_seconds": 60,
+          "joule_cost": 10.0,
+          "key": "verify-acceptance",
+          "priority": "high",
+          "task_type": "monitor",
+          "title": "Verify objective acceptance criteria and evidence"
+        }
+      ]
+    },
+    "objective_plan_validation": {
+      "agent_load": {
+        "ceo": 1,
+        "prometheus": 2,
+        "vaire": 1,
+        "warden": 1
+      },
+      "errors": [],
+      "estimated_total_joules": 50.0,
+      "ok": true,
+      "topological_order": [
+        "recover-context",
+        "inspect-authorities",
+        "synthesize-findings",
+        "produce-outcome",
+        "verify-acceptance"
+      ],
+      "warnings": []
+    }
+  }
+}

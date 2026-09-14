@@ -15,12 +15,12 @@ use crate::adaptive::types::{
     RouteGovernanceLens, RouteLoveEquationGuard,
 };
 use arda_core::JouleWorkMeasurementSource;
+use arda_economics::LoveEquation;
 use arda_governance::{
     calculate_resonance_with_governance_chain, evaluate_governance_chain, profile_joulework,
     GateOutcome, GovernanceChainConfig, GovernanceChainResult, GovernanceLensConfig,
     GovernanceReviewMode, TriadPuritySource,
 };
-use arda_economics::LoveEquation;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -750,9 +750,7 @@ fn lane_fitness_prune_hours() -> f64 {
         .unwrap_or(72.0)
 }
 
-fn parse_freeze_until(
-    p: &ProviderState,
-) -> Option<chrono::DateTime<chrono::Utc>> {
+fn parse_freeze_until(p: &ProviderState) -> Option<chrono::DateTime<chrono::Utc>> {
     p.cooldown_until_utc
         .as_deref()?
         .parse::<chrono::DateTime<chrono::Utc>>()
@@ -767,7 +765,11 @@ fn provider_freeze_threshold(p: &ProviderState) -> u32 {
 }
 
 fn model_consecutive_failures(models: &[ModelState]) -> u32 {
-    models.iter().map(|m| m.consecutive_failures).max().unwrap_or(0)
+    models
+        .iter()
+        .map(|m| m.consecutive_failures)
+        .max()
+        .unwrap_or(0)
 }
 
 pub(super) fn provider_freeze_banned(p: &ProviderState) -> bool {
@@ -776,9 +778,7 @@ pub(super) fn provider_freeze_banned(p: &ProviderState) -> bool {
         .unwrap_or(false)
 }
 
-pub(super) fn provider_freeze_gate_blackout_allowed(
-    p: &ProviderState,
-) -> bool {
+pub(super) fn provider_freeze_gate_blackout_allowed(p: &ProviderState) -> bool {
     if provider_freeze_banned(p) {
         return true;
     }
@@ -804,14 +804,13 @@ pub(super) fn provider_freeze_request_has_clear_failure(p: &ProviderState) -> bo
         })
 }
 
-pub(super) fn provider_freeze_record_metadata(
-    p: &ProviderState,
-) -> (String, String) {
+pub(super) fn provider_freeze_record_metadata(p: &ProviderState) -> (String, String) {
     let banned = provider_freeze_banned(p);
     match p.access_tier.as_str() {
-        "paid_cloud" | "local" => {
-            ("heavy_frz".to_string(), if banned { "freeze" } else { "retain" }.to_string())
-        }
+        "paid_cloud" | "local" => (
+            "heavy_frz".to_string(),
+            if banned { "freeze" } else { "retain" }.to_string(),
+        ),
         _ => (
             "light_frz".to_string(),
             if banned { "freeze" } else { "retry" }.to_string(),
@@ -823,10 +822,7 @@ pub(super) fn provider_freeze_failure_class_allowed(p: &ProviderState) -> bool {
     matches!(p.access_tier.as_str(), "paid_cloud" | "local")
 }
 
-pub(super) fn gate_update_freeze_until(
-    p: &mut ProviderState,
-    freeze_until: Option<String>,
-) {
+pub(super) fn gate_update_freeze_until(p: &mut ProviderState, freeze_until: Option<String>) {
     if freeze_until
         .as_deref()
         .is_some_and(|raw| !raw.trim().is_empty())
@@ -959,6 +955,27 @@ pub(super) fn provider_eligible(p: &ProviderState, priority: &str, strict: bool)
     true
 }
 
+/// Eligibility for an explicitly targeted, authenticated health-recovery probe.
+///
+/// This bypasses health and cooldown state so the probe can repair it, but keeps
+/// configuration, credential, and hard quota boundaries intact.
+pub(super) fn provider_eligible_for_forced_probe(p: &ProviderState, strict: bool) -> bool {
+    if !p.enabled || !p.has_api_key {
+        return false;
+    }
+    if p.requests_per_minute
+        .is_some_and(|max| p.requests_used_minute >= max)
+        || p.requests_per_day
+            .is_some_and(|max| p.requests_used_day >= max)
+    {
+        return false;
+    }
+    if strict && near_day_quota(p, 0.85) {
+        return false;
+    }
+    true
+}
+
 /// Same as `provider_eligible` but ignores short transient cooldowns. Used as a
 /// last-resort escape valve when all providers are simultaneously in cooldown.
 ///
@@ -966,7 +983,12 @@ pub(super) fn provider_eligible(p: &ProviderState, priority: &str, strict: bool)
 /// are not transient liveness blips; retrying them just burns attempts and can
 /// starve the fallback chain.
 pub(super) fn provider_eligible_ignoring_cooldown(p: &ProviderState, priority: &str) -> bool {
-    if !p.enabled || !p.has_api_key || !p.healthy {
+    if !p.enabled || !p.has_api_key {
+        return false;
+    }
+    if !p.healthy
+        && (p.consecutive_failures == 0 || p.in_cooldown || p.cooldown_until_utc.is_some())
+    {
         return false;
     }
     if p.cooldown_until_utc
@@ -1046,9 +1068,7 @@ pub(super) fn provider_in_half_open(p: &ProviderState) -> bool {
     let consecutive = p
         .consecutive_failures
         .max(model_consecutive_failures(&p.models));
-    !p.in_cooldown
-        && p.cooldown_until_utc.is_none()
-        && consecutive >= provider_freeze_threshold(p)
+    !p.in_cooldown && p.cooldown_until_utc.is_none() && consecutive >= provider_freeze_threshold(p)
 }
 
 pub(super) fn provider_half_open_probe_allowed(p: &ProviderState) -> bool {

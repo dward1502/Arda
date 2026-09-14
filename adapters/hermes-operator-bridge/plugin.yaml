@@ -1,4 +1,4 @@
 name: arda-operator-bridge
-version: 0.2.0
-description: Authenticated, durable Discord command handoff to the local Arda harness
+version: 0.5.0
+description: Authenticated operator intake, continuity metadata, and private reminder delivery for Arda
 entry_point: __init__:register

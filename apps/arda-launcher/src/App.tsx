@@ -6,6 +6,7 @@ import WorldTree from './scenes/components/WorldTree'
 import ArdaLogo from './components/ArdaLogo'
 import OnboardingPanel from './components/OnboardingPanel'
 import Background from './scenes/Background'
+import LifecyclePanel from './components/LifecyclePanel'
 import {
   invokeOnboardingSnapshot,
   invokeRegistryStatus,
@@ -185,6 +186,7 @@ export default function App() {
         isReady={state.isReady}
       />
       <ArdaLogo show={showLogo} />
+      <LifecyclePanel />
       {state.open === 'open' && (
         <OnboardingPanel
           snapshot={onboarding}

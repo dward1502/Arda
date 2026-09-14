@@ -1,0 +1,220 @@
+{
+  "timestamp": "2026-08-13T18:48:50.981874179+00:00",
+  "queue": {
+    "total": 0,
+    "by_status": {},
+    "by_owner": {},
+    "by_priority": {},
+    "pending": 0,
+    "in_progress": 0,
+    "completed": 0,
+    "failed": 0,
+    "aging_oldest_pending_secs": null,
+    "bottleneck_owner": null,
+    "recent_completions_1h": 0,
+    "recent_completions_24h": 0,
+    "recent_failures_24h": 0,
+    "completion_rate_24h": 1.0
+  },
+  "services": {
+    "services": [
+      {
+        "unit": "arda-aule-autopilot-read-only.service",
+        "load": "loaded",
+        "active": "activating",
+        "sub": "start",
+        "score": 0.85,
+        "note": "timer-backed oneshot running (start)"
+      },
+      {
+        "unit": "arda-crawl4ai.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-manwe-inference-probe.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-metrics-exporter.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-relic-bridge.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-varda-external-lane.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-varda.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-aule-autopilot-read-only.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "timer armed (running)"
+      },
+      {
+        "unit": "arda-manwe-inference-probe.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      },
+      {
+        "unit": "arda-varda-external-lane.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      }
+    ],
+    "healthy": 10,
+    "degraded": 0,
+    "failed": 0,
+    "overall_score": 0.9550000000000001
+  },
+  "dashboard": {
+    "task_completion_rate": 1.0,
+    "avg_aging_pending_secs": 0.0,
+    "recent_completions_1h": 0,
+    "service_overall_score": 0.9550000000000001,
+    "services_failed": 0,
+    "alerts": []
+  },
+  "objective_selection": {
+    "contract": "arda.arandur.objective_selection.v1",
+    "mutation_policy": "read_only_report_only",
+    "objectives_considered": 0,
+    "objectives_selected": 0,
+    "objectives_blocked_by_gate": 0,
+    "effective_queue_open_count": 0,
+    "stale_raw_queue_record_count": 0,
+    "status": "no_action",
+    "no_selection_reason": "no_candidates_available",
+    "selected_objective_id": null,
+    "next_recommended_action": "add a bounded objective to the objective inbox or canonical queue",
+    "blocked_candidate_groups": [],
+    "next_automation_gate_packet": null,
+    "objective_packet_report": {
+      "contract": "arda.arandur.objective_packet_report.v1",
+      "mutation_policy": "read_only_report_only",
+      "packet_count": 0,
+      "selected_packet_count": 0,
+      "selected_candidate_id": null,
+      "canonical_queue_mutation_allowed": false,
+      "packets": []
+    },
+    "candidates": []
+  },
+  "objectives_processed": 0,
+  "plans": [],
+  "outcomes_ingested": 0,
+  "h2a": {
+    "responses_processed": 0,
+    "objectives_resumed": 0,
+    "denials_recorded": 0
+  },
+  "hades_introspection": {
+    "contract": "arda.prometheus.hades_introspection_projection.v1",
+    "source_available": false,
+    "policy_report_path": "/var/home/mythos/Eregion/Arda/data/hades/lifecycle_policy_automation_report.json",
+    "review_queue_path": "/var/home/mythos/Eregion/Arda/data/hades/lifecycle_review_queue.jsonl",
+    "source_contract": null,
+    "generated_at_utc": null,
+    "source_findings_total": 0,
+    "consistency_holds_total": 0,
+    "review_queue_records": 0,
+    "review_queue_projection_recommended": false,
+    "cleanup_authorized": false,
+    "requires_operator_approval_for_mutation": true,
+    "no_file_moves_or_deletes_performed": true,
+    "error": null
+  },
+  "sovereign_adapters": {
+    "contract": "arda.prometheus.sovereign_adapter_projection.v1",
+    "config_path": "/var/home/mythos/Eregion/Arda/config/autonomy_operating_loop.toml",
+    "source_available": false,
+    "adapter_count": 0,
+    "active_runtime_adapter_count": 0,
+    "evidence_only_adapter_count": 0,
+    "missing_required_adapter_count": 0,
+    "adapters": [],
+    "error": null
+  },
+  "council_runtime": {
+    "contract": "arda.prometheus.council_runtime_projection.v1",
+    "ledger_path": "/var/home/mythos/Eregion/Arda/data/council/agent_conversations.jsonl",
+    "source_available": false,
+    "existing_record_count": 0,
+    "appended_record_count": 0,
+    "latest_conversation_id": null,
+    "task_promotion_allowed": false,
+    "evidence_only": true,
+    "error": null
+  },
+  "autonomy_readiness": {
+    "contract": "arda.prometheus.autonomy_readiness_gate.v1",
+    "decision": "hold",
+    "task_promotion_allowed": false,
+    "human_required": false,
+    "preflight_path": "/var/home/mythos/Eregion/Arda/data/prometheus/autonomy_operating_loop_preflight.json",
+    "preflight_source_available": false,
+    "cleanup_approval_packets_path": "/var/home/mythos/Eregion/Arda/data/hades/autonomy_cleanup_approval_packets.json",
+    "cleanup_approval_packets_available": false,
+    "external_source_lane_ledger_path": "/var/home/mythos/Eregion/Arda/data/athena/external_source_lane_ledger.jsonl",
+    "external_source_lane_ledger_available": false,
+    "lane_count": 0,
+    "lane_incomplete_count": 0,
+    "cleanup_packet_count": 0,
+    "external_source_lane_count": 0,
+    "external_source_blocked_count": 0,
+    "sovereign_missing_required_adapter_count": 0,
+    "council_unresolved_escalation_count": 0,
+    "reasons": [
+      "autonomy_preflight_missing",
+      "hades_cleanup_approval_packets_missing",
+      "athena_external_source_lane_ledger_missing",
+      "sovereign_adapter_projection_missing_config"
+    ],
+    "evidence_paths": [
+      "/var/home/mythos/Eregion/Arda/data/prometheus/autonomy_operating_loop_preflight.json",
+      "/var/home/mythos/Eregion/Arda/data/hades/autonomy_cleanup_approval_packets.json",
+      "/var/home/mythos/Eregion/Arda/data/athena/external_source_lane_ledger.jsonl",
+      "/var/home/mythos/Eregion/Arda/data/council/agent_conversations.jsonl",
+      "/var/home/mythos/Eregion/Arda/config/autonomy_operating_loop.toml"
+    ]
+  },
+  "report_path": null,
+  "weekly_report_path": null
+}

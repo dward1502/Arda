@@ -1,0 +1,105 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:21ed1cf29e404e9afbb0aa00ce07ebd019b1b4efe95274aee2f31c2cbfe26e5e",
+  "idempotency_key": "queue-operator-task-c1ee5a9685571df1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:0d76c5b27effb4fbef3c60aa56f684466fc1cc13865c3b227b0936bff3d5c7c9"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:e55014c6b91121643efe7f95920c0fc9b575bedc0a6436e7d084494f25df3a7a",
+  "recorded_at_unix_ms": 1788214359621,
+  "run_id": "queue-operator-task-c1ee5a9685571df1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "The receipts support the declared git diff --exit-code HEAD -- check, but not the broader completion claim: execution and verification evidence contains only that command, with no project inspection, contract/README comparison, or joined synthesis evidence. The command also does not detect untracked files. Independent inspection found concrete defects: src/lib.rs resolves slash-containing wikilinks by joining unsanitized input to the vault root, allowing ../ traversal outside the vault; its frontmatter model is incompatible with docs/human-knowledge-ingestion-contract.md, including numeric rather than enumerated confidence and omission of required authority/privacy/provenance fields; and MemoryStore::store serializes then discards records, so it provides no durable persistence despite the stated integration purpose.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d14c11f6e2985d324da285295709870bea95ce8535612139967a52e511c015d0",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"..\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"clean-tree|project contract|checks\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:248cdd1e292a2128a12e15362b40f9531c5c6e84d84a20600d2ab102bff15a58",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f8c2069b0b18f32e2f3bcf9f751192ca259dc27a86f4f3c00914c708541b919",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e7e68890b8a5be51f9a58aaf65ce02e86102d332f3fb9ce0ced874aa226a112b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2e3224cb6a189b92e96bc08d903516b5deebcd6095c063404918c4c22b123ec2",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12814,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2051,
+    "provider": "openai-codex",
+    "total_tokens": 14865
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2d8f76ecfbaf5c37d00d3f5a7d7a21f39ea10a9ad9a1aefc5401dedf53074910",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:ab0d6abfbf4c0208c81c4854ab15c1b2ed6f05de5c8845b345664f4815d46eec"
+  ],
+  "project_contract_digest": "sha256:a7aab82586ca55905d73ff90dd6fa31d7f08a8b217bc04f6400b340071b0fe2b",
+  "receipt_digest": "sha256:d74e29caa3b37a4ee40d5af7c6234f46496edd074a59edb836dbccf1a12504bc",
+  "recorded_at_unix_ms": 1788330317176,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-2-attempt-10",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only inspection found no named correctness, scope, or receipt-evidence defects. The project contains only README.acceptance with the expected isolated-runtime acceptance marker. The validated parent receipt shows the declared pwd check passed at the supplied project root, and its evidence contains no mutating tool calls. No files were modified or created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\".\",\"pattern\":\".git*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 15282,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 778,
+    "provider": "openai-codex",
+    "total_tokens": 16060
+  }
+}

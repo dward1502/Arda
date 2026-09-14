@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:86d8ada85e0635d3778498f149d0ba46b6c9ee1cda85569e08d7460ceb96498d",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:41e31a501ce80cf12267529f7f30994d54e8538791698d040d6c402a8ab46d3c"
+  ],
+  "project_contract_digest": "sha256:a7aab82586ca55905d73ff90dd6fa31d7f08a8b217bc04f6400b340071b0fe2b",
+  "receipt_digest": "sha256:b14ec111922b4fb63fe2f6ae2558ad245d96e14280193269238100ddfb4422c4",
+  "recorded_at_unix_ms": 1788327847220,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Unsupported completion. Named defect: the project contains only README.acceptance with the statement “isolated installed resident runtime acceptance”; no implementation or durable verification evidence is present to substantiate correctness, isolation, installation, or resident-runtime behavior. The supplied parent receipt digest and covered `verify: pwd` check establish neither implementation correctness nor acceptance behavior.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b-v2\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c100dc60de3fbc72330853e423f4e78642c0a78b2bbe3ee64a9c4801bc818805",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b-v2\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b-v2\",\"pattern\":\"*.json\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b-v2\",\"pattern\":\"*.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b-v2/README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b-v2\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c100dc60de3fbc72330853e423f4e78642c0a78b2bbe3ee64a9c4801bc818805",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*\",\"limit\":200,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-b-v2\",\"pattern\":\"receipt|digest|verify|runtime|acceptance\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3cbc30e533452e59d697bb1617fae16ecad93b3227a6d538c11279fd2734e248",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10396,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 669,
+    "provider": "openai-codex",
+    "total_tokens": 11065
+  }
+}

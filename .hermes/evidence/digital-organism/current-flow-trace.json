@@ -1,0 +1,317 @@
+{
+  "schema_version": "arda.digital-organism.current-flow-trace.v1",
+  "generated_at_utc": "2026-08-22T05:56:15Z",
+  "task_id": "digital-organism-s0-current-flow-trace",
+  "repository": {
+    "git_head": "fd804c55",
+    "branch": "plan/ambient-agent-program"
+  },
+  "selected_queue_objective": {
+    "objective_id": "operator-objective-78370a00190fd9b8",
+    "title": "Review Arda comprehensively and introspectively against the operator vision",
+    "source": "core/projects/tasks/queue.jsonl",
+    "origin": "operator-authored-session-objective",
+    "owner": "operator:mythos",
+    "status": "pending",
+    "authority": "review_required",
+    "next_action_status": "ready_for_operator_review",
+    "arandur_status": "blocked_by_review_gate",
+    "transport_lineage_present": false,
+    "operator_session_record_present": false,
+    "project_id": null,
+    "task_run_id": null,
+    "approval_packet_id": null,
+    "worker_id": null,
+    "manwe_route_id": null,
+    "evidence_ids": [],
+    "vaire_record_ids": [],
+    "terminal_receipt": null
+  },
+  "current_research_lineage": {
+    "queue_objective_id": null,
+    "objective_id": "phase5-source-grounded-economic-intelligence",
+    "run_id": "phase5-economic-intelligence-eaeb4d61fb78",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "plan_approval_id": "operator-phase5-begin",
+    "question_id": "8011c200-6743-4816-b100-c6f56e71da69",
+    "node_id": "source-grounded-research",
+    "node_kind": "research",
+    "node_state": "pending",
+    "worker_contract_present": false,
+    "event_count": 9,
+    "event_types": {
+      "planned": 1,
+      "evidence_linked": 8,
+      "node_transition": 0
+    },
+    "current_brief_id": "research-497ea63fae507a8b",
+    "brief_authority": "advisory_research_evidence",
+    "execution_authorized": false,
+    "citation_count": 2,
+    "receipt_reference_count": 11,
+    "warden_memory_receipt": "mem_6853c963e27247bfac617231c64a50f0",
+    "local_vaire_record_present": false,
+    "hermes_session_id": null,
+    "platform_message_id": null,
+    "manwe_route_id": null,
+    "execution_receipt": null,
+    "output_digest": null,
+    "recovery_token": null,
+    "operator_projection_status": "pending",
+    "hud_research_surface": "current_advisory_brief"
+  },
+  "actual_flows": [
+    {
+      "flow_id": "selected-operator-objective",
+      "stages": [
+        {
+          "sequence": 1,
+          "stage": "operator_intent",
+          "authority": "Hermes CLI session history",
+          "status": "historically_observed",
+          "preserved_ids": [],
+          "lost_ids": ["hermes_session_id", "message_id"],
+          "evidence": ["@session:default/20260820_165722_693cf6"]
+        },
+        {
+          "sequence": 2,
+          "stage": "canonical_queue_append",
+          "authority": "core/projects/tasks/queue.jsonl",
+          "status": "durable",
+          "preserved_ids": ["operator-objective-78370a00190fd9b8"],
+          "lost_ids": ["session_id", "message_id", "project_id", "acceptance_criteria"],
+          "evidence": ["core/projects/tasks/queue.jsonl#operator-objective-78370a00190fd9b8"]
+        },
+        {
+          "sequence": 3,
+          "stage": "next_action_selection",
+          "authority": "arda.next-action.v1",
+          "status": "selected_review_required",
+          "preserved_ids": ["operator-objective-78370a00190fd9b8"],
+          "lost_ids": [],
+          "evidence": ["core/state/next_action.json"]
+        },
+        {
+          "sequence": 4,
+          "stage": "arandur_objective_selection",
+          "authority": "arda.arandur.objective_selection.v1",
+          "status": "blocked_by_review_gate",
+          "preserved_ids": ["operator-objective-78370a00190fd9b8"],
+          "lost_ids": [],
+          "evidence": ["data/ceo/autopilot.state.json"]
+        },
+        {
+          "sequence": 5,
+          "stage": "execution",
+          "authority": null,
+          "status": "not_entered",
+          "preserved_ids": [],
+          "lost_ids": ["approval_packet_id", "run_id", "worker_id", "route_id", "receipt_id"],
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "flow_id": "phase5-research-side-lineage",
+      "stages": [
+        {
+          "sequence": 1,
+          "stage": "manual_phase_authorization",
+          "authority": "run Planned event",
+          "status": "durable_but_not_linked_to_queue_objective",
+          "preserved_ids": ["operator-phase5-begin", "phase5-economic-intelligence-eaeb4d61fb78"],
+          "lost_ids": ["queue_objective_id", "hermes_session_id", "message_id"],
+          "evidence": ["data/runs/phase5-economic-intelligence-eaeb4d61fb78/events.jsonl#1"]
+        },
+        {
+          "sequence": 2,
+          "stage": "research_question_registry",
+          "authority": "arda.workbench.research-questions.v1",
+          "status": "durable_operator_owned",
+          "preserved_ids": ["8011c200-6743-4816-b100-c6f56e71da69"],
+          "lost_ids": ["objective_id", "run_id", "session_id", "message_id"],
+          "evidence": ["data/workbench/research/questions.json"]
+        },
+        {
+          "sequence": 3,
+          "stage": "run_graph",
+          "authority": "arda.run-graph.v1",
+          "status": "planned_pending",
+          "preserved_ids": ["phase5-source-grounded-economic-intelligence", "phase5-economic-intelligence-eaeb4d61fb78", "source-grounded-research"],
+          "lost_ids": ["queue_objective_id", "question_id"],
+          "evidence": ["data/runs/phase5-economic-intelligence-eaeb4d61fb78/checkpoint.json"]
+        },
+        {
+          "sequence": 4,
+          "stage": "research_execution_side_path",
+          "authority": "engine research harness",
+          "status": "executed_without_worker_contract",
+          "preserved_ids": ["phase5-economic-intelligence-eaeb4d61fb78", "source-grounded-research", "8011c200-6743-4816-b100-c6f56e71da69"],
+          "lost_ids": ["worker_id", "route_id", "hermes_session_id", "manwe_route_id"],
+          "evidence": ["crates/engine/src/harness/research.rs:256-493"]
+        },
+        {
+          "sequence": 5,
+          "stage": "warden_discovery",
+          "authority": "remote advisory scout",
+          "status": "completed",
+          "preserved_ids": ["mem_6853c963e27247bfac617231c64a50f0"],
+          "lost_ids": ["organism_memory_use_id"],
+          "evidence": ["research-497ea63fae507a8b.warden_memory_receipt"]
+        },
+        {
+          "sequence": 6,
+          "stage": "varda_fetch_evaluation",
+          "authority": "Varda evidence receipts",
+          "status": "completed_advisory",
+          "preserved_ids": ["src_279bd805", "src_9e2d5d03", "research-497ea63fae507a8b"],
+          "lost_ids": [],
+          "evidence": ["data/runs/phase5-economic-intelligence-eaeb4d61fb78/evidence/research-497ea63fae507a8b.json"]
+        },
+        {
+          "sequence": 7,
+          "stage": "run_evidence_link",
+          "authority": "RunStore append-only journal",
+          "status": "eight_advisory_events_linked",
+          "preserved_ids": ["phase5-economic-intelligence-eaeb4d61fb78", "source-grounded-research"],
+          "lost_ids": [],
+          "evidence": ["data/runs/phase5-economic-intelligence-eaeb4d61fb78/events.jsonl#2-9"]
+        },
+        {
+          "sequence": 8,
+          "stage": "node_transition_and_terminal_receipt",
+          "authority": null,
+          "status": "missing",
+          "preserved_ids": [],
+          "lost_ids": ["output_digest", "execution_receipt", "terminal_state", "recovery_token"],
+          "evidence": []
+        },
+        {
+          "sequence": 9,
+          "stage": "vaire_collective_memory",
+          "authority": "arda-vaire",
+          "status": "no_local_correlated_record_found",
+          "preserved_ids": [],
+          "lost_ids": ["memory_use_receipt", "continuation_record"],
+          "evidence": []
+        },
+        {
+          "sequence": 10,
+          "stage": "operator_and_hud_projection",
+          "authority": "operator projection plus separate research API",
+          "status": "truthful_but_split",
+          "preserved_ids": ["phase5-economic-intelligence-eaeb4d61fb78", "research-497ea63fae507a8b", "8011c200-6743-4816-b100-c6f56e71da69"],
+          "lost_ids": ["selected_queue_objective_id"],
+          "evidence": ["core/state/operator_projection.json", "apps/arda-hud/src/lib/research.ts", "apps/arda-hud/src/lib/personalOps.ts"]
+        }
+      ]
+    }
+  ],
+  "correlation_breaks": [
+    {
+      "id": "B1",
+      "boundary": "Hermes/CLI intent to queue objective",
+      "severity": "high",
+      "finding": "The selected objective preserves no Hermes session, platform message, continuity event, project, or acceptance criteria."
+    },
+    {
+      "id": "B2",
+      "boundary": "queue objective to Arandur packet",
+      "severity": "medium",
+      "finding": "The ID survives, but objective decomposition drops detail, constraints, and success criteria; review metadata is reduced to a gate classification."
+    },
+    {
+      "id": "B3",
+      "boundary": "queue objective to run graph",
+      "severity": "critical",
+      "finding": "No run graph references the selected queue objective. The current run uses a new objective ID and manual approval lineage."
+    },
+    {
+      "id": "B4",
+      "boundary": "research question to run graph",
+      "severity": "high",
+      "finding": "Question and run are linked only inside later research briefs; neither canonical question nor checkpoint references the other."
+    },
+    {
+      "id": "B5",
+      "boundary": "research node to worker placement",
+      "severity": "critical",
+      "finding": "The research node has no worker contract and cannot enter execute_provider_node, which accepts only execute/verify nodes."
+    },
+    {
+      "id": "B6",
+      "boundary": "evidence completion to run state",
+      "severity": "critical",
+      "finding": "EvidenceLinked appends receipts without node transitions; no verifier or terminal convergence step closes the pending research node."
+    },
+    {
+      "id": "B7",
+      "boundary": "Warden/Varda evidence to Vaire",
+      "severity": "high",
+      "finding": "Remote Warden memory receipt exists, but no local Vaire record or memory-use receipt correlates question, run, brief, or objective."
+    },
+    {
+      "id": "B8",
+      "boundary": "backend state to operator surfaces",
+      "severity": "high",
+      "finding": "Next-action, operator projection, and research workspace are individually truthful but present different objective universes without a common ID."
+    },
+    {
+      "id": "B9",
+      "boundary": "continuity to current work",
+      "severity": "medium",
+      "finding": "Continuity is stale/inactive with no action or commitment refs, so restart continuity cannot recover the selected objective/run relationship."
+    }
+  ],
+  "intended_flow": [
+    "authenticated_operator_event",
+    "canonical_objective_with_session_message_project_and_acceptance_lineage",
+    "next_action_and_arandur_review_packet_same_objective_id",
+    "operator_decision_receipt",
+    "run_graph_same_objective_id_with_question_and_project_refs",
+    "capability_composition_and_worker_contract",
+    "node_and_model_placement_receipt",
+    "typed_research_execution_with_worker_or_deterministic_adapter_identity",
+    "evidence_linked",
+    "verification_and_terminal_node_transition",
+    "organism_outcome_and_execution_receipt",
+    "vaire_memory_use_and_continuation_receipts",
+    "single_operator_projection_consumed_by_hermes_and_hud",
+    "same_id_queue_terminal_projection"
+  ],
+  "smallest_alignment_decisions_for_task_3": [
+    "Make the canonical queue objective ID the parent lineage for run objective_id rather than minting an unrelated phase objective.",
+    "Persist session/message/project/acceptance references in a bounded objective envelope, not free-form queue metadata only.",
+    "Represent research execution as either a typed deterministic worker/adapter or a worker contract; do not leave a side path outside placement receipts.",
+    "Add an evidence-to-verification-to-terminal convergence rule; EvidenceLinked alone must never imply completion.",
+    "Emit local Vaire memory-use/continuation receipts after governed evidence consumption, not merely a remote Warden memory ID.",
+    "Converge next-action, run, research, and continuity into one operator projection keyed by the canonical objective ID."
+  ],
+  "verification": [
+    {
+      "command": "cargo test -p arda-engine --test harness_next_action --test next_action_projection --test operator_projection_publisher --test harness_research_operator --test harness_operator_messages -- --test-threads=1",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "command": "pnpm exec vitest run src/components/arda/modules/ResearchModule.test.tsx src/components/arda/modules/PersonalOperationsModule.test.tsx src/lib/operatorProjection.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "command": "live harness run/question/brief/continuity/operator-projection probes",
+      "status": "passed_with_documented_split_lineage"
+    }
+  ],
+  "summary": {
+    "selected_objective_stops_at_review": true,
+    "current_research_is_separate_lineage": true,
+    "current_research_run_terminal": false,
+    "manwe_or_hermes_worker_used_for_current_research": false,
+    "local_vaire_continuity_linked": false,
+    "surfaces_truthful_but_cohesive": false,
+    "actual_flow_documented": true,
+    "intended_flow_documented": true,
+    "next_task": "digital-organism-s0-authority-transport-map"
+  }
+}

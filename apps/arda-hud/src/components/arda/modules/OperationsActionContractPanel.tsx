@@ -3,7 +3,7 @@ import { Play, ShieldCheck, Wrench } from 'lucide-react'
 import type { SystemActionCapabilityStatus, SystemActionDescriptor, SystemActionId } from '../../../lib/systemActionBus'
 
 export interface OperationsActionContract {
-  laneId: 'hades_maintenance' | 'audit_evidence' | 'setup_readiness'
+  laneId: 'rumil_maintenance' | 'audit_evidence' | 'setup_readiness'
   title: string
   operatorQuestion: string
   safeActionIds: SystemActionId[]
@@ -21,12 +21,12 @@ interface OperationsActionContractPanelProps {
 
 const OPERATIONS_ACTION_CONTRACTS: OperationsActionContract[] = [
   {
-    laneId: 'hades_maintenance',
-    title: 'HADES Maintenance',
-    operatorQuestion: 'Which organization and link-check receipts can refresh before lifecycle mutation?',
-    safeActionIds: ['arda.hades_preview_organization_plan', 'arda.hades_run_link_check', 'arda.hades_run_nightly'],
+    laneId: 'rumil_maintenance',
+    title: 'Rúmil Maintenance',
+    operatorQuestion: 'Which organization and link-check receipts can refresh before any separately approved lifecycle mutation?',
+    safeActionIds: ['arda.rumil_preview_organization_plan', 'arda.rumil_run_link_check', 'arda.rumil_run_nightly_organization'],
     governedActionIds: [],
-    evidencePaths: ['core/state/hades_nightly_operations.json', 'data/hades/organization_plan_last.json'],
+    evidencePaths: ['data/rumil/storage_hygiene_last.json', 'data/rumil/markdown_link_check_last.md'],
   },
   {
     laneId: 'audit_evidence',

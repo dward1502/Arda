@@ -1,6 +1,7 @@
 use arda_outpost_protocol::{
-    ContradictionPolicy, ResearchQuestion, ResearchWatchlist, WatchlistBudgets, WatchlistCadence,
-    WatchlistEvidenceRequirements, WatchlistNotificationPolicy, WatchlistSourcePolicy,
+    ContradictionPolicy, ResearchQuestion, ResearchQuestionSpec, ResearchWatchlist,
+    WatchlistBudgets, WatchlistCadence, WatchlistEvidenceRequirements, WatchlistNotificationPolicy,
+    WatchlistSourcePolicy,
 };
 use chrono::{DateTime, Duration, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -223,19 +224,19 @@ fn canonical_question(
     operator_id: &str,
     now: DateTime<Utc>,
 ) -> Result<ResearchQuestion, String> {
-    let mut question = ResearchQuestion::new(
-        operator_id,
-        intent.question,
-        intent.rationale,
-        intent.tags,
-        intent.cadence,
-        now + Duration::days(7),
-        intent.source_policy,
-        intent.evidence_requirements,
-        intent.contradiction_policy,
-        intent.budgets,
-        intent.notification_policy,
-    )
+    let mut question = ResearchQuestion::new(ResearchQuestionSpec {
+        owner: operator_id.to_owned(),
+        question: intent.question,
+        rationale: intent.rationale,
+        tags: intent.tags,
+        cadence: intent.cadence,
+        expires_at_utc: now + Duration::days(7),
+        source_policy: intent.source_policy,
+        evidence_requirements: intent.evidence_requirements,
+        contradiction_policy: intent.contradiction_policy,
+        budgets: intent.budgets,
+        notification_policy: intent.notification_policy,
+    })
     .map_err(|error| error.to_string())?;
     question.question_id = format!(
         "research-question-{:016x}",

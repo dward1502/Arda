@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_103e34ebea6a454a8d41c6bc85429fee",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-c490e577b5d3cf9b for task operator-task-c490e577b5d3cf9b ended status=failed result=cancelled; receipt=none; detail=installed diagnostic run exposed a thirty second provider timeout and is superseded",
+  "salience": 0.5580416666666665,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T01:17:47.723020286Z",
+  "last_seen_at": "2026-09-01T01:17:47.723020286Z",
+  "memory_domain": "system",
+  "evidence_class": "inferred",
+  "memory_scope": "system_continuity"
+}

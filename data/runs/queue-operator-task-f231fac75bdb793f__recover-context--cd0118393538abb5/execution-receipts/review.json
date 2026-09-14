@@ -1,0 +1,93 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:7f286da6bb0376b73748b3926bae39d82689b4c7c7f6e1d94f9101895eb01a7e",
+  "idempotency_key": "queue-operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:beca50fe6ff2585ee08f3ba51f4d9d822117fb37673f573bc5acadda74b7770b"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:89c79d17f719d16d1de8dfb08a63e4e726ca0f6e16fe0fc4af0d375233dbe5ac",
+  "recorded_at_unix_ms": 1788246194490,
+  "run_id": "queue-operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Unsupported completion: the execute receipt proves read-only inspection of the five declared context sources, and its exported read-output digests correctly differ from the corresponding source-content digests, but the projection contains no execution summary or durable output demonstrating the required prioritized repair backlog, concrete human-visible behaviors, source evidence, smallest authoritative repair surfaces, or implemented/configured/live distinctions. The verify receipt does cover the declared `test` check exactly (`cargo test -p arda-core`, exit 0). No mutating tool calls or created artifacts are present, consistent with read-only authority, but the missing governed work product prevents approval.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"offset\":42000,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:04f220571516738a57025d8e197b073a643dcc290ff5cb76cc81879209dda109",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":50,\"offset\":42125,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ad243c0d3af66b29064e75648bc1a9069cf6b0ae6b7cb4cb0e2bcb7666ad84c4",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":0,\"file_glob\":\"queue.jsonl\",\"limit\":20,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5.*(prioritized|backlog|summary|result)\"}",
+      "exit_code": null,
+      "output_digest": "sha256:daab39bf3688d24797ee4fa25f64ebc5eae38dffa29810db08e43387bee25a5a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"*.md\",\"limit\":50,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans\",\"pattern\":\"prioritized repair backlog|recover authoritative project|recover-context\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":0,\"file_glob\":\"queue.jsonl\",\"limit\":10,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"\\\"id\\\":\\\"operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5\\\"\"}",
+      "exit_code": null,
+      "output_digest": "sha256:4c9f887d87c8dc55db0ac8a438b093dd19f9c74b5936762a4f8968ac83d9d523",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 57285,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1202,
+    "provider": "openai-codex",
+    "total_tokens": 58487
+  }
+}

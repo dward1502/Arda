@@ -4,8 +4,8 @@ use super::adaptive_routing::{
 use super::echo_gate::{evaluate_pre_route_governance_with_options, GateAction};
 use super::route_policy::{
     access_tier_class, apply_soft_lane_caps, is_background_priority, is_high_priority,
-    is_local_provider, is_primary_local_surface_provider, parse_model_params_billions,
-    model_request_incompatibilities, provider_eligible, provider_eligible_ignoring_cooldown,
+    is_local_provider, is_primary_local_surface_provider, model_request_incompatibilities,
+    parse_model_params_billions, provider_eligible, provider_eligible_ignoring_cooldown,
     provider_score, provider_supports_request, provider_supports_request_capabilities,
     request_allows_hermes_cli_fast_lane, select_model_for_provider_request, HybridRoutePolicy,
     RouteExecutionProfile, RouteSelectionCandidate,
@@ -579,9 +579,7 @@ impl CharonService {
             let mut fallback: Vec<RouteSelectionCandidate> = providers
                 .iter()
                 .enumerate()
-                .filter(|(_, provider)| {
-                    provider_eligible_ignoring_cooldown(provider, priority)
-                })
+                .filter(|(_, provider)| provider_eligible_ignoring_cooldown(provider, priority))
                 .filter(|(_, provider)| self.provider_agent_quota_available(provider, req))
                 .filter(|(_, provider)| provider_supports_request(provider, req))
                 .filter(|(_, provider)| {
@@ -1111,9 +1109,7 @@ fn default_free_pool_provider_ids() -> Vec<&'static str> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::adaptive::service::{
-        derive_route_execution_profile, resolve_hybrid_route_policy,
-    };
+    use crate::adaptive::service::{derive_route_execution_profile, resolve_hybrid_route_policy};
     use crate::adaptive::types::{ModelCapabilities, ModelState, ProviderState};
     use std::sync::Mutex;
     use tempfile::tempdir;
@@ -1213,10 +1209,7 @@ mod tests {
     #[test]
     fn free_pool_provider_ids_are_env_configurable() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::set_var(
-            "ARDA_MANWE_FREE_POOL_PROVIDER_IDS",
-            "openrouter,google",
-        );
+        std::env::set_var("ARDA_MANWE_FREE_POOL_PROVIDER_IDS", "openrouter,google");
         assert!(configured_free_pool_provider("openrouter"));
         assert!(configured_free_pool_provider("google"));
         assert!(!configured_free_pool_provider("nvidia"));
@@ -1748,10 +1741,7 @@ mod tests {
         let service = CharonService::new(dir.path()).expect("service");
         let mut edge_core = provider_with_model("edge_core", "LFM2.5-8B-A1B-Q4_K_M");
         edge_core.enabled = false;
-        let mut beelink = provider_with_model(
-            "edge_beelink_light",
-            "Ternary-Bonsai-8B-Q2_0",
-        );
+        let mut beelink = provider_with_model("edge_beelink_light", "Ternary-Bonsai-8B-Q2_0");
         beelink.access_tier = "local".to_string();
         beelink.models[0].context_window = 131_072;
         beelink.models[0].capabilities.tools = Some(true);
@@ -1778,7 +1768,10 @@ mod tests {
         );
 
         assert_eq!(candidates.len(), 1);
-        assert_eq!(providers[candidates[0].provider_index].id, "edge_beelink_light");
+        assert_eq!(
+            providers[candidates[0].provider_index].id,
+            "edge_beelink_light"
+        );
         assert_eq!(candidates[0].model.id, "Ternary-Bonsai-8B-Q2_0");
 
         service.cache_route_candidates(
@@ -1808,6 +1801,41 @@ mod tests {
     }
 
     #[test]
+    fn forced_health_probe_can_recover_a_transiently_unhealthy_provider() {
+        let dir = tempdir().expect("tempdir");
+        let service = CharonService::new(dir.path()).expect("service");
+        let mut google = provider_with_model("google", "gemini-2.5-flash");
+        google.healthy = false;
+        google.consecutive_failures = 1;
+        google.in_cooldown = true;
+        google.cooldown_until_utc = Some("2099-01-01T00:00:00Z".to_string());
+        google.last_error = Some("provider google HTTP 503".to_string());
+        let providers = vec![google];
+        let mut req = execution_req();
+        req.options["force_provider_id"] = serde_json::json!("google");
+        req.options["force_model_id"] = serde_json::json!("gemini-2.5-flash");
+        req.options["allow_unhealthy_forced_probe"] = serde_json::json!(true);
+        let policy = resolve_hybrid_route_policy(&req.task_type, &req.options);
+        let profile = derive_route_execution_profile(&req, "normal");
+
+        let candidates = service.build_scored_route_candidates(
+            &providers,
+            &req,
+            "normal",
+            false,
+            Some("google"),
+            Some("gemini-2.5-flash"),
+            &[],
+            &policy,
+            &profile,
+            &package_runtime_signals(),
+        );
+
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(providers[candidates[0].provider_index].id, "google");
+    }
+
+    #[test]
     fn no_compatible_model_diagnostic_names_each_missing_requirement() {
         let dir = tempdir().expect("tempdir");
         let service = CharonService::new(dir.path()).expect("service");
@@ -1823,20 +1851,25 @@ mod tests {
         req.options["response_format"] = serde_json::json!({"type": "json_object"});
         req.options["context_window_target"] = serde_json::json!(64_000);
 
-        let message = route_rejection_error_message(
-            &[provider],
-            &req,
-            "normal",
-            false,
-            None,
-            &[],
-            &service,
-        );
+        let message =
+            route_rejection_error_message(&[provider], &req, "normal", false, None, &[], &service);
 
-        assert!(message.contains("model_role:missing_task_type:code"), "{message}");
-        assert!(message.contains("context_window:required=72192,available=32768"), "{message}");
-        assert!(message.contains("tools:required_but_unsupported"), "{message}");
-        assert!(message.contains("structured_output:required_but_unsupported"), "{message}");
+        assert!(
+            message.contains("model_role:missing_task_type:code"),
+            "{message}"
+        );
+        assert!(
+            message.contains("context_window:required=72192,available=32768"),
+            "{message}"
+        );
+        assert!(
+            message.contains("tools:required_but_unsupported"),
+            "{message}"
+        );
+        assert!(
+            message.contains("structured_output:required_but_unsupported"),
+            "{message}"
+        );
     }
 
     #[test]

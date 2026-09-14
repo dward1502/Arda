@@ -1,0 +1,12 @@
+
+> arda_hud@0.1.0 test /var/home/mythos/Eregion/Arda/apps/arda-hud
+> vitest run
+
+
+ RUN  v4.1.10 /var/home/mythos/Eregion/Arda/apps/arda-hud
+
+
+ Test Files  134 passed (134)
+      Tests  526 passed (526)
+   Start at  03:35:27
+   Duration  18.22s (transform 6.62s, setup 15.08s, import 20.63s, tests 21.04s, environment 110.69s)

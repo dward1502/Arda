@@ -49,6 +49,24 @@ fn graph(nodes: Vec<RunNode>, edges: Vec<RunEdge>) -> RunGraph {
 }
 
 #[test]
+fn legacy_objective_plan_provenance_replays_without_reemitting_retired_fields() {
+    let provenance: Provenance = serde_json::from_value(serde_json::json!({
+        "project_contract_digest": "sha256:project",
+        "created_by": "arda_workbench.queue_executor",
+        "parent_receipts": ["receipt:root"],
+        "objective_plan": {"tasks": [{"key": "inspect"}]},
+        "objective_plan_validation": {"validated": true}
+    }))
+    .expect("known legacy objective-plan provenance must replay");
+
+    assert_eq!(provenance.project_contract_digest, "sha256:project");
+    assert_eq!(provenance.parent_receipts, vec!["receipt:root"]);
+    let serialized = serde_json::to_value(provenance).unwrap();
+    assert!(serialized.get("objective_plan").is_none());
+    assert!(serialized.get("objective_plan_validation").is_none());
+}
+
+#[test]
 fn rejects_cycles_in_initial_executable_dag() {
     let nodes = vec![
         node(
@@ -242,6 +260,77 @@ fn independent_verifier_requires_native_project_evidence() {
 
     assert!(matches!(
         graph(vec![verifier], vec![]).validate(),
+        Err(RunGraphError::WorkerRoleMismatch(_))
+    ));
+}
+
+#[test]
+fn independent_critic_cannot_reuse_verifier_identity() {
+    let worker = |role, dependencies| WorkerExecutionSpec {
+        role,
+        worker_id: "hermes:shared-reviewer".into(),
+        route_id: "hosted:review".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "d".repeat(64)),
+        allowed_toolsets: BTreeSet::from(["terminal".into()]),
+        dependencies,
+        deadline_unix_ms: 1_800_000_000_000,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::WorkerReport,
+    };
+    let mut verify = node(
+        "verify",
+        NodeKind::Verify,
+        AuthorityClass::Verify,
+        "verify-worker",
+    );
+    verify.worker = Some(WorkerExecutionSpec {
+        evidence_policy: EvidencePolicy::ProjectNativeChecks,
+        ..worker(WorkerRole::IndependentVerifier, Vec::new())
+    });
+    let mut review = node(
+        "review",
+        NodeKind::Review,
+        AuthorityClass::ReadOnly,
+        "review-worker",
+    );
+    review.worker = Some(worker(
+        WorkerRole::SecurityPrivacyCritic,
+        vec![NodeId::new("verify").unwrap()],
+    ));
+
+    let result = graph(
+        vec![verify, review],
+        vec![RunEdge::new("verify-review", "verify", "review").unwrap()],
+    )
+    .validate();
+
+    assert!(result.is_err(), "critic identity reuse must fail closed");
+}
+
+#[test]
+fn independent_critic_requires_worker_report_evidence() {
+    let mut review = node(
+        "review",
+        NodeKind::Review,
+        AuthorityClass::ReadOnly,
+        "review-worker",
+    );
+    review.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::SecurityPrivacyCritic,
+        worker_id: "hermes:critic-1".into(),
+        route_id: "hosted:review".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "e".repeat(64)),
+        allowed_toolsets: BTreeSet::from(["file".into()]),
+        dependencies: Vec::new(),
+        deadline_unix_ms: 1_800_000_000_000,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::DeterministicReceipt,
+    });
+
+    assert!(matches!(
+        graph(vec![review], vec![]).validate(),
         Err(RunGraphError::WorkerRoleMismatch(_))
     ));
 }

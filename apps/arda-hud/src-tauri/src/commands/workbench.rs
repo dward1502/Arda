@@ -915,10 +915,13 @@ mod tests {
     fn frontend_cannot_supply_run_graph_or_approval_decision() {
         let request = json!({
             "project_id": "project-1",
-            "objective": {"text": "bounded work", "input_mode": "text"},
+            "objective": {"text": "bounded work", "inputMode": "text"},
             "intent": {"approvalReference": "approval-1"},
             "graph": {"run_id": "frontend-owned"}
         });
+        let mut valid_request = request.clone();
+        valid_request.as_object_mut().unwrap().remove("graph");
+        assert!(serde_json::from_value::<PlanRunRequest>(valid_request).is_ok());
         assert!(serde_json::from_value::<PlanRunRequest>(request).is_err());
 
         let now = chrono::DateTime::parse_from_rfc3339("2026-08-11T16:00:00Z")
@@ -1054,8 +1057,7 @@ mod tests {
 
     #[test]
     fn rejects_unversioned_harness_error_body() {
-        let payload =
-            serde_json::to_vec(&json!({"error": "legacy failure"})).expect("legacy body");
+        let payload = serde_json::to_vec(&json!({"error": "legacy failure"})).expect("legacy body");
         assert_eq!(
             decode_harness_error(reqwest::StatusCode::BAD_REQUEST, &payload),
             "Harness request failed (400 Bad Request): invalid or missing arda.hud.error.v1 envelope"

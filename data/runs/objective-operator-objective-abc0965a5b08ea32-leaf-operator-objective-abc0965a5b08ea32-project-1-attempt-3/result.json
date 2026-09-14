@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:eb7f67a1dfc0ba03c83e740b1a09ae13626c303ec5be7d2424c64df42b3f5e78",
+    "summary": "Review found unsupported completion. Defect 1: the project root contains no implementation to inspect; only README.acceptance is present, containing a one-line acceptance label. Defect 2: no durable verification evidence or receipt material is present for independent correctness, scope, or security/privacy review. The supplied parent receipt digest alone does not expose evidence sufficient to approve this node. The declared pwd check was not rerun. No files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

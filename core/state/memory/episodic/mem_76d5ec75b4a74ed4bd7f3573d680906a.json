@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_76d5ec75b4a74ed4bd7f3573d680906a",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-bd535dcce23f7a73__recover-context--5c647ae4e0911080 for task operator-task-bd535dcce23f7a73__recover-context--5c647ae4e0911080 ended status=completed result=completed; receipt=sha256:b3e17e969ce6989ebd3b7cfda758270d0e2ff1b889a860460ac4719adfcbe8b5; detail=Independent review found the governed read-only context-recovery node supported. The execution receipt contains successful read evidence for every declared context source plus repository instructions and Cargo workspace context; the tool-output digests correctly authenticate read-call envelopes and need not equal source-content digests. No context_use_receipt was required because none was supplied by the capsule. The verification receipt is parent-bound to execution and covers the declared test check: cargo test -p arda-core passed with exit code 0. Empty execution artifacts and absence of mutating tool calls support read-only compliance. No defect invalidates this node. Recovered context does expose broader implementation defects for downstream work: the production project registry still mixes proof/demo contracts with the two reviewed projects, and the canonical queue/projection contains extensive duplicate pending execute/verify materialization rather than one canonical next action.",
+  "salience": 0.6017250000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T07:41:14.544084029Z",
+  "last_seen_at": "2026-09-01T07:41:14.544084029Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

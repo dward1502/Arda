@@ -3,6 +3,10 @@ import {
   getSceneSlotWorkstationManifestById,
   getSceneSlotWorkstationManifestByZoneId,
 } from '../scene/workstations/sceneSlotWorkstationTemplates'
+import {
+  getStaticWorkstationManifest,
+  getStaticWorkstationManifestById,
+} from './workstationComposition'
 import { type ArdaSection, type ArdaSceneZone, type ArdaWorkstationManifest, type ArdaBundle } from './ardaSource'
 import { resolveAgentSigilFromContract } from './soterionRender'
 import {ReviewGateItem, OperatorCockpitSurface} from "../components/arda/types";
@@ -79,26 +83,8 @@ export function getWorkstationManifestByZoneId(
   if (!zoneId) return null
   const sceneSlotManifest = getSceneSlotWorkstationManifestByZoneId(zoneId)
   if (sceneSlotManifest) return sceneSlotManifest
-  if (zoneId === 'settings') {
-    return {
-      id: 'settings_workstation',
-      title: 'Settings',
-      source_zone_id: 'settings',
-      entry_anchor_id: 'settings_workstation_entry',
-      module_ids: ['settings'],
-      presentation_modes: ['in_scene', 'native_window'],
-    }
-  }
-  if (zoneId === 'hermes_runtime') {
-    return {
-      id: 'hermes_dashboard_workstation',
-      title: 'Hermes Dashboard',
-      source_zone_id: 'hermes_runtime',
-      entry_anchor_id: 'hermes_dashboard_entry',
-      module_ids: ['hermes_dashboard', 'operations_and_packages'],
-      presentation_modes: ['in_scene', 'native_window'],
-    }
-  }
+  const staticManifest = getStaticWorkstationManifest(zoneId)
+  if (staticManifest) return staticManifest
   return manifests.find((manifest) => manifest.source_zone_id === zoneId) ?? null
 }
 
@@ -109,26 +95,8 @@ export function getWorkstationManifestById(
   if (!manifestId) return null
   const sceneSlotManifest = getSceneSlotWorkstationManifestById(manifestId)
   if (sceneSlotManifest) return sceneSlotManifest
-  if (manifestId === 'settings_workstation') {
-    return {
-      id: 'settings_workstation',
-      title: 'Settings',
-      source_zone_id: 'settings',
-      entry_anchor_id: 'settings_workstation_entry',
-      module_ids: ['settings'],
-      presentation_modes: ['in_scene', 'native_window'],
-    }
-  }
-  if (manifestId === 'hermes_dashboard_workstation') {
-    return {
-      id: 'hermes_dashboard_workstation',
-      title: 'Hermes Dashboard',
-      source_zone_id: 'hermes_runtime',
-      entry_anchor_id: 'hermes_dashboard_entry',
-      module_ids: ['hermes_dashboard', 'operations_and_packages'],
-      presentation_modes: ['in_scene', 'native_window'],
-    }
-  }
+  const staticManifest = getStaticWorkstationManifestById(manifestId)
+  if (staticManifest) return staticManifest
   return manifests.find((manifest) => manifest.id === manifestId) ?? null
 }
 

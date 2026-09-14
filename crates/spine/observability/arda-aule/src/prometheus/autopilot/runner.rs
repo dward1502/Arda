@@ -14,6 +14,11 @@ use super::dashboard::{build_snapshot, DashboardSnapshot};
 use super::decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
 use super::delegation::{delegate_plan, AgentRegistry, DelegationReport};
 use super::evidence_registry::EvidenceRegistry;
+use super::executive_cycle::{
+    CouncilMode, ExecutiveCycleInput, ExecutiveCycleReceipt, ExecutiveCycleStore,
+    ExecutiveDisposition, ExecutivePhase, ExecutiveResourceBudget, RoleRequest,
+    EXECUTIVE_CYCLE_CONTRACT, EXECUTIVE_CYCLE_LEDGER,
+};
 use super::governance_policy::{GovernanceDecision, GovernanceGate, GovernancePolicy};
 use super::learning::LearningStore;
 use super::oracle_gate::{GateDecision, OracleGate};
@@ -23,7 +28,9 @@ use super::planner::{
     acceptance_criteria_from_report, source_contract_and_type_for_path, ObjectivePacket,
     ObjectivePacketInput, ObjectivePacketReport,
 };
-use super::queue_operation::{append_approved_packet_plan, QueueOperation, QueueOperationStatus};
+use super::queue_operation::{
+    append_packet_plan_with_authority, QueueOperation, QueueOperationStatus,
+};
 use super::queue_writer::append_apollo_dispatch_attempt_to_queue;
 use super::reporting::{write_daily_report, write_weekly_report};
 use super::service_health::{ServiceHealthMonitor, ServiceHealthReport, UserSystemd};
@@ -34,13 +41,68 @@ use super::validator::{PlanValidator, ValidationResult};
 use crate::prometheus::orders::{OrderStatus, OrderStore};
 use crate::prometheus::queue_authority::canonical_project_task_queue;
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
+use futures::{stream, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
+use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
+
+async fn map_bounded_concurrent<I, O, F, Fut>(items: Vec<I>, limit: usize, dispatch: F) -> Vec<O>
+where
+    F: Fn(I) -> Fut,
+    Fut: Future<Output = O>,
+{
+    stream::iter(items)
+        .map(dispatch)
+        .buffered(limit.max(1))
+        .collect()
+        .await
+}
+
+async fn run_bounded_retry_rounds<I, O, F, Fut, R, P>(
+    items: Vec<I>,
+    limit: usize,
+    max_attempts: u32,
+    dispatch: F,
+    retryable: R,
+    mut persist: P,
+) -> Vec<O>
+where
+    I: Clone,
+    F: Fn(I, u32) -> Fut,
+    Fut: Future<Output = O>,
+    R: Fn(&O) -> bool,
+    P: FnMut(&I, u32, &O) -> bool,
+{
+    let mut pending = items
+        .into_iter()
+        .map(|item| (item, 1_u32))
+        .collect::<Vec<_>>();
+    let mut outputs = Vec::new();
+
+    while !pending.is_empty() {
+        let round = map_bounded_concurrent(pending, limit, |(item, attempt)| {
+            let future = dispatch(item.clone(), attempt);
+            async move { (item, attempt, future.await) }
+        })
+        .await;
+        pending = Vec::new();
+
+        for (item, attempt, output) in round {
+            let persisted = persist(&item, attempt, &output);
+            if persisted && retryable(&output) && attempt < max_attempts {
+                pending.push((item, attempt + 1));
+            }
+            outputs.push(output);
+        }
+    }
+
+    outputs
+}
 
 #[derive(Debug, Clone)]
 pub struct AutopilotConfig {
@@ -130,9 +192,50 @@ pub struct CycleReport {
     pub hades_introspection: HadesIntrospectionProjection,
     pub sovereign_adapters: SovereignAdapterProjection,
     pub council_runtime: CouncilRuntimeProjection,
+    pub executive_cycle: ExecutiveCycleProjection,
     pub autonomy_readiness: AutonomyReadinessGateProjection,
     pub report_path: Option<String>,
     pub weekly_report_path: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ExecutiveCycleProjection {
+    pub contract: String,
+    pub status: String,
+    pub ledger_path: String,
+    pub receipt: Option<ExecutiveCycleReceipt>,
+    pub replayed: bool,
+    pub ledger_appended: bool,
+    pub placement_pending: bool,
+    pub error: Option<String>,
+}
+
+impl Default for ExecutiveCycleProjection {
+    fn default() -> Self {
+        Self {
+            contract: EXECUTIVE_CYCLE_CONTRACT.into(),
+            status: "not_evaluated".into(),
+            ledger_path: EXECUTIVE_CYCLE_LEDGER.into(),
+            receipt: None,
+            replayed: false,
+            ledger_appended: false,
+            placement_pending: false,
+            error: None,
+        }
+    }
+}
+
+impl ExecutiveCycleProjection {
+    fn no_action(root: &Path) -> Self {
+        Self {
+            status: "no_selected_objective".into(),
+            ledger_path: ExecutiveCycleStore::from_root(root)
+                .ledger_path()
+                .display()
+                .to_string(),
+            ..Self::default()
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -524,6 +627,122 @@ pub struct PlanCycle {
     pub a2h_emitted: bool,
     pub joule_limited: bool,
     pub pipeline_submitted: bool,
+}
+
+fn project_executive_cycle(
+    cfg: &AutopilotConfig,
+    selection: &ObjectiveSelectionReport,
+    plans: &[PlanCycle],
+) -> ExecutiveCycleProjection {
+    let Some(objective_id) = selection.selected_objective_id.as_deref() else {
+        return ExecutiveCycleProjection::no_action(&cfg.root);
+    };
+    let Some(plan) = plans.iter().find(|plan| plan.objective_id == objective_id) else {
+        return ExecutiveCycleProjection {
+            status: "selected_objective_has_no_plan".into(),
+            error: Some("no plan cycle matched the selected objective".into()),
+            ..ExecutiveCycleProjection::no_action(&cfg.root)
+        };
+    };
+    let selected_candidate = selection.candidates.iter().find(|candidate| {
+        candidate.candidate_id == objective_id || candidate.source_record_id == objective_id
+    });
+    let objective_source_ref = selected_candidate
+        .map(|candidate| format!("{}#{}", candidate.source_path, candidate.source_record_id))
+        .unwrap_or_else(|| format!("{}#{}", cfg.queue_path.display(), objective_id));
+    let queue_operation = plan.queue_operation.as_ref();
+    let cycle_id = queue_operation
+        .map(|operation| operation.source_objective_packet_id.clone())
+        .unwrap_or_else(|| format!("objective:{objective_id}"));
+    let recommendation_id = selection
+        .next_automation_gate_packet
+        .as_ref()
+        .map(|packet| packet.recommendation_id.clone())
+        .or_else(|| queue_operation.map(|operation| operation.source_objective_packet_id.clone()))
+        .unwrap_or_else(|| format!("recommendation:{objective_id}"));
+    let queue_handoff_receipt_refs = queue_operation
+        .filter(|operation| operation.result_status == QueueOperationStatus::Appended)
+        .map(|operation| vec![operation.operation_id.clone()])
+        .unwrap_or_default();
+    let requested_roles = plan
+        .plan
+        .iter()
+        .map(|task| RoleRequest {
+            role: task
+                .assigned_agent
+                .clone()
+                .unwrap_or_else(|| task.task_type.clone()),
+            capabilities: vec![task.task_type.clone()],
+        })
+        .collect::<Vec<_>>();
+    let input = ExecutiveCycleInput {
+        cycle_id,
+        phase: if queue_handoff_receipt_refs.is_empty() {
+            ExecutivePhase::Plan
+        } else {
+            ExecutivePhase::Execute
+        },
+        objective_id: objective_id.into(),
+        objective_source_ref,
+        context_receipt_ref: format!(
+            "{}#/objective_selection/objective_packet_report",
+            cfg.state_path.display()
+        ),
+        recommendation_id,
+        approval_packet_id: queue_operation
+            .and_then(|operation| operation.approval_packet_id.clone()),
+        governance_authorization_id: queue_operation
+            .and_then(|operation| operation.governance_authorization_id.clone()),
+        proposed_action: selection.next_recommended_action.clone(),
+        requested_roles,
+        governance_receipt_ref: queue_operation
+            .filter(|operation| operation.mutation_authorized)
+            .map(|operation| format!("{}#governance", operation.operation_id)),
+        placement_receipt_refs: Vec::new(),
+        queue_handoff_receipt_refs,
+        execution_receipt_refs: Vec::new(),
+        failure_receipt_ref: None,
+        revised_action: None,
+        revised_requested_roles: Vec::new(),
+        acceptance_receipt_refs: Vec::new(),
+        council_mode: CouncilMode::Disabled,
+        full_council_approval_ref: None,
+        resource_budget: ExecutiveResourceBudget {
+            max_roles: cfg.max_per_agent,
+            max_dispatches: cfg.apollo_max_attempts.max(1) as usize * plan.plan.len().max(1),
+            max_joules: cfg.joule_cycle_limit,
+            requested_joules: plan.plan.iter().map(|task| task.joule_cost).sum(),
+            max_council_opinions: 1,
+            requested_council_opinions: 0,
+        },
+        operator_stop_requested: false,
+        read_only: cfg.read_only,
+        parent_receipt_id: None,
+    };
+    let store = ExecutiveCycleStore::from_root(&cfg.root);
+    match store.evaluate(input, Utc::now()) {
+        Ok(result) => ExecutiveCycleProjection {
+            contract: EXECUTIVE_CYCLE_CONTRACT.into(),
+            status: format!("{:?}", result.receipt.disposition).to_lowercase(),
+            ledger_path: store.ledger_path().display().to_string(),
+            placement_pending: result.receipt.disposition == ExecutiveDisposition::HandedOff
+                && result.receipt.placement_receipt_refs.is_empty(),
+            receipt: Some(result.receipt),
+            replayed: result.replayed,
+            ledger_appended: result.ledger_appended,
+            error: None,
+        },
+        Err(error) => ExecutiveCycleProjection {
+            contract: EXECUTIVE_CYCLE_CONTRACT.into(),
+            status: "error".into(),
+            ledger_path: store.ledger_path().display().to_string(),
+            receipt: None,
+            replayed: false,
+            ledger_appended: false,
+            placement_pending: false,
+            error: Some(error.to_string()),
+        },
+    }
 }
 
 pub struct CeoAutopilot {
@@ -1443,12 +1662,21 @@ impl CeoAutopilot {
             }
 
             let plan_joules = plan.iter().map(|task| task.joule_cost).sum::<f64>();
+            let binding_governance_authorized = governance.allowed_to_delegate
+                && matches!(
+                    governance.gate,
+                    GovernanceGate::SafeAutonomous | GovernanceGate::TriadQuorumApproved
+                );
             if validation.ok
                 && gate.allows_delegation()
-                && governance.allowed_to_delegate
+                && (governance.allowed_to_delegate || cycle_obj.human_approved)
                 && !self.cfg.read_only
             {
-                if !autonomy_readiness.task_promotion_allowed {
+                let operator_approved = cycle_obj.objective_packet.approval_packet_id.is_some();
+                if !autonomy_readiness.task_promotion_allowed
+                    && !operator_approved
+                    && !binding_governance_authorized
+                {
                     let mut queue_packet = cycle_obj.objective_packet.clone();
                     queue_packet.canonical_queue_mutation_allowed =
                         queue_packet.approval_packet_id.is_some();
@@ -1484,8 +1712,10 @@ impl CeoAutopilot {
                     };
                     let mut queue_packet = cycle_obj.objective_packet.clone();
                     queue_packet.canonical_queue_mutation_allowed =
-                        queue_packet.approval_packet_id.is_some();
-                    let operation = append_approved_packet_plan(
+                        queue_packet.approval_packet_id.is_some() || binding_governance_authorized;
+                    let governance_action_class =
+                        binding_governance_authorized.then_some(governance.action_class.as_str());
+                    let operation = append_packet_plan_with_authority(
                         &self.cfg.queue_path,
                         &queue_packet,
                         &obj.id,
@@ -1494,7 +1724,8 @@ impl CeoAutopilot {
                         oracle_conditions,
                         &autonomy_readiness.decision,
                         &autonomy_readiness.reasons,
-                        self.cfg.read_only,
+                        governance_action_class,
+                        false,
                     );
                     let ids = if operation.result_status == QueueOperationStatus::Appended {
                         operation.appended_task_ids.clone()
@@ -1518,17 +1749,19 @@ impl CeoAutopilot {
                                 oracle_conditions,
                             )
                             .await;
-                            let _ = append_apollo_dispatch_attempt_to_queue(
+                            let appended = append_apollo_dispatch_attempt_to_queue(
                                 &self.cfg.queue_path,
                                 &obj.id,
                                 pt,
                                 &dr,
                                 attempt,
                                 max_attempts,
-                            );
-                            let should_retry = dispatch_retryable(&dr) && attempt < max_attempts;
+                            )
+                            .unwrap_or(false);
+                            let should_retry =
+                                dispatch_attempt_should_retry(&dr, attempt, max_attempts, appended);
                             let final_failure = dispatch_retryable(&dr) && attempt == max_attempts;
-                            if final_failure {
+                            if !appended || final_failure {
                                 self.escalate_failed_apollo_dispatch(&attempt_qid, pt, &dr);
                             }
                             apollo_dispatches.push(dr);
@@ -1574,6 +1807,7 @@ impl CeoAutopilot {
             &objective_selection,
             &plans,
         );
+        let executive_cycle = project_executive_cycle(&self.cfg, &objective_selection, &plans);
 
         let mut report = CycleReport {
             timestamp: Utc::now().to_rfc3339(),
@@ -1588,6 +1822,7 @@ impl CeoAutopilot {
             hades_introspection,
             sovereign_adapters,
             council_runtime,
+            executive_cycle,
             autonomy_readiness,
             report_path: None,
             weekly_report_path: None,
@@ -1779,21 +2014,29 @@ impl CeoAutopilot {
 
     async fn execute_pending_plan_steps(&self) -> Vec<Dispatch> {
         let steps = load_pending_plan_steps(&self.cfg.queue_path);
-        let mut dispatches = Vec::new();
-        for step in steps {
-            let max_attempts = self.cfg.apollo_max_attempts.max(1);
-            for attempt in 1..=max_attempts {
-                let attempt_qid = if attempt == 1 {
-                    step.queue_id.clone()
-                } else {
-                    format!("{}__retry{}", step.queue_id, attempt)
-                };
-                let dispatch = executor_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await;
+        let worker_capacity = self
+            .registry
+            .agents()
+            .map(|agent| agent.max_concurrent.saturating_sub(agent.current_load))
+            .sum::<usize>()
+            .max(1);
+        let max_attempts = self.cfg.apollo_max_attempts.max(1);
+        run_bounded_retry_rounds(
+            steps,
+            worker_capacity,
+            max_attempts,
+            |step, attempt| async move {
+                let attempt_qid = plan_step_attempt_queue_id(&step.queue_id, attempt);
+                executor_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await
+            },
+            dispatch_retryable,
+            |step, attempt, dispatch| {
+                let attempt_qid = plan_step_attempt_queue_id(&step.queue_id, attempt);
                 let appended = append_apollo_dispatch_attempt_to_queue(
                     &self.cfg.queue_path,
                     &step.objective_id,
                     &step.plan,
-                    &dispatch,
+                    dispatch,
                     attempt,
                     max_attempts,
                 )
@@ -1801,24 +2044,20 @@ impl CeoAutopilot {
                 if !appended {
                     let _ = append_skipped_plan_step_to_queue(
                         &self.cfg.queue_path,
-                        &step,
-                        &dispatch,
+                        step,
+                        dispatch,
                         attempt,
                         max_attempts,
                     );
                 }
-                let should_retry = dispatch_retryable(&dispatch) && attempt < max_attempts;
-                let final_failure = dispatch_retryable(&dispatch) && attempt == max_attempts;
+                let final_failure = dispatch_retryable(dispatch) && attempt == max_attempts;
                 if final_failure || !appended {
-                    self.escalate_failed_apollo_dispatch(&attempt_qid, &step.plan, &dispatch);
+                    self.escalate_failed_apollo_dispatch(&attempt_qid, &step.plan, dispatch);
                 }
-                dispatches.push(dispatch);
-                if !should_retry {
-                    break;
-                }
-            }
-        }
-        dispatches
+                appended
+            },
+        )
+        .await
     }
 
     pub fn observe_outcome(
@@ -1980,6 +2219,9 @@ fn select_cycle_objectives(
         if let Some(objective) = objective_from_queue_record(&record) {
             let candidate_id = objective.id.clone();
             let title = objective.statement.clone();
+            let approval_packet_id = queue_record_approval_packet_id(&record);
+            let human_approved = approval_packet_id.is_some();
+            let requires_review = !human_approved && queue_record_requires_review(&record);
             candidates.push(ObjectiveCandidate {
                 objective,
                 report: ObjectiveCandidateReport {
@@ -1990,17 +2232,27 @@ fn select_cycle_objectives(
                     effective_status: record.status.unwrap_or_else(|| "unknown".into()),
                     owner: record.owner,
                     priority: record.priority,
-                    governance_class: "unclassified".into(),
-                    review_gate: GovernanceGate::ReviewRequired,
+                    governance_class: if human_approved {
+                        "human_approved".into()
+                    } else if requires_review {
+                        "operator_authored_review_required".into()
+                    } else {
+                        "unclassified".into()
+                    },
+                    review_gate: if human_approved {
+                        GovernanceGate::SafeAutonomous
+                    } else {
+                        GovernanceGate::ReviewRequired
+                    },
                     blocked_reason_code: None,
-                    approval_packet_id: None,
+                    approval_packet_id,
                     completion_receipt_path: None,
                     selected_reason: None,
                     rejection_reason: None,
                 },
-                human_approved: false,
+                human_approved,
                 human_conditions: Vec::new(),
-                requires_review: false,
+                requires_review,
             });
         }
     }
@@ -2063,38 +2315,30 @@ fn select_cycle_objectives(
         }
 
         if candidate.requires_review {
-            candidate.report.governance_class = "arandur_recommendation".into();
-            candidate.report.review_gate = GovernanceGate::ReviewRequired;
-            candidate.report.blocked_reason_code =
-                Some("review_gated_recommendation_requires_operator_review".into());
-            if selected.is_some() {
-                candidate.report.rejection_reason =
-                    Some("another higher-priority candidate was selected".into());
-            } else {
-                objectives_blocked_by_gate += 1;
-                candidate.report.rejection_reason = Some(
-                    "blocked_by_gate:ReviewRequired:Arandur recommendation requires operator review before canonical selection"
-                        .into(),
-                );
+            let arandur_recommendation =
+                candidate.report.governance_class == "arandur_recommendation";
+            if candidate.report.governance_class == "unclassified" {
+                candidate.report.governance_class = "review_required".into();
             }
-            reports.push(candidate.report);
-            continue;
-        }
-
-        if candidate.report.governance_class == "arandur_recommendation"
-            && candidate.report.approval_packet_id.is_none()
-        {
             candidate.report.review_gate = GovernanceGate::ReviewRequired;
-            candidate.report.blocked_reason_code = Some("operator_approval_packet_missing".into());
+            candidate.report.blocked_reason_code = Some(
+                if arandur_recommendation {
+                    "review_gated_recommendation_requires_operator_review"
+                } else {
+                    "review_gated_candidate_requires_operator_review"
+                }
+                .into(),
+            );
             if selected.is_some() {
                 candidate.report.rejection_reason =
                     Some("another higher-priority candidate was selected".into());
             } else {
                 objectives_blocked_by_gate += 1;
-                candidate.report.rejection_reason = Some(
-                    "blocked_by_gate:ReviewRequired:Arandur recommendation requires an explicit operator approval packet before canonical selection"
-                        .into(),
-                );
+                candidate.report.rejection_reason = Some(if arandur_recommendation {
+                    "blocked_by_gate:ReviewRequired:Arandur recommendation requires operator review before canonical selection".into()
+                } else {
+                    "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection".into()
+                });
             }
             reports.push(candidate.report);
             continue;
@@ -2112,7 +2356,7 @@ fn select_cycle_objectives(
                 );
                 selected = Some((
                     candidate.objective.clone(),
-                    false,
+                    true,
                     candidate.human_conditions.clone(),
                 ));
             } else {
@@ -2437,6 +2681,36 @@ fn objective_from_queue_record(record: &QueueRecord) -> Option<Objective> {
     })
 }
 
+fn queue_record_approval_packet_id(record: &QueueRecord) -> Option<String> {
+    let meta = record.extra.get("meta").and_then(Value::as_object)?;
+    let approved = meta.get("mutation_risk").and_then(Value::as_str) == Some("operator-approved")
+        && meta.get("execution_authority").and_then(Value::as_str) == Some("arda_workbench")
+        && meta
+            .get("source_objective_packet_id")
+            .and_then(Value::as_str)
+            .is_some_and(|value| !value.trim().is_empty());
+    approved
+        .then(|| meta.get("approval_packet_id").and_then(Value::as_str))
+        .flatten()
+        .filter(|value| !value.trim().is_empty())
+        .map(ToOwned::to_owned)
+}
+
+fn queue_record_requires_review(record: &QueueRecord) -> bool {
+    let meta = record.extra.get("meta").and_then(Value::as_object);
+    let meta_value = |key: &str| meta.and_then(|meta| meta.get(key)).and_then(Value::as_str);
+    let scope = record.extra.get("scope").and_then(Value::as_str);
+
+    record.extra.get("action_class").and_then(Value::as_str) == Some("review_required")
+        || meta_value("mutation_risk") == Some("review_required")
+        || meta_value("execution_authority") == Some("none_until_review")
+        || meta_value("lifecycle_phase") == Some("future-gated")
+        || (meta_value("financial_authority") == Some("none")
+            && scope.is_some_and(|value| value.contains("economic")))
+        || (meta_value("external_account_authority") == Some("none")
+            && scope.is_some_and(|value| value.contains("agent-community")))
+}
+
 fn arandur_recommendation_candidates(path: &Path) -> Vec<ObjectiveCandidate> {
     let Ok(content) = std::fs::read_to_string(path) else {
         return Vec::new();
@@ -2449,6 +2723,9 @@ fn arandur_recommendation_candidates(path: &Path) -> Vec<ObjectiveCandidate> {
                 return None;
             }
             let value = serde_json::from_str::<Value>(trimmed).ok()?;
+            if value.get("review_status").and_then(Value::as_str) == Some("rejected") {
+                return None;
+            }
             let recommendation_id = value
                 .get("recommendation_id")
                 .and_then(Value::as_str)
@@ -2739,6 +3016,14 @@ fn append_skipped_plan_step_to_queue(
     writeln!(f, "{}", record)
 }
 
+fn plan_step_attempt_queue_id(queue_id: &str, attempt: u32) -> String {
+    if attempt == 1 {
+        queue_id.to_owned()
+    } else {
+        format!("{queue_id}__retry{attempt}")
+    }
+}
+
 fn dispatch_retryable(dispatch: &Dispatch) -> bool {
     matches!(
         dispatch,
@@ -2747,6 +3032,15 @@ fn dispatch_retryable(dispatch: &Dispatch) -> bool {
             ..
         }
     )
+}
+
+fn dispatch_attempt_should_retry(
+    dispatch: &Dispatch,
+    attempt: u32,
+    max_attempts: u32,
+    attempt_persisted: bool,
+) -> bool {
+    attempt_persisted && dispatch_retryable(dispatch) && attempt < max_attempts
 }
 
 /// Resolve the Apollo IPC socket path used for autopilot dispatch.
@@ -2842,6 +3136,29 @@ pub async fn ceo_loop(mut autopilot: CeoAutopilot, stop: Arc<AtomicBool>) {
 mod tests {
     use super::super::delegation::AgentCapabilities;
     use super::*;
+
+    #[test]
+    fn canonical_workbench_approval_satisfies_queue_review_gate() {
+        let record: QueueRecord = serde_json::from_value(serde_json::json!({
+            "id": "digital-organism-s7-living-mesh-proof",
+            "title": "Run living mesh proof",
+            "status": "in_progress",
+            "meta": {
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "objective-packet-stage7",
+                "approval_packet_id": "approval-stage7"
+            }
+        }))
+        .expect("approved queue record");
+
+        assert_eq!(
+            queue_record_approval_packet_id(&record).as_deref(),
+            Some("approval-stage7")
+        );
+        assert!(!queue_record_requires_review(&record));
+    }
 
     fn write_allow_readiness_artifacts(root: &Path) {
         std::fs::create_dir_all(
@@ -3176,9 +3493,121 @@ default_policy = "ledger_before_task"
             !pc.apollo_dispatches.is_empty(),
             "operational tasks should dispatch through Apollo"
         );
+        let executive = report
+            .executive_cycle
+            .receipt
+            .as_ref()
+            .expect("approved cycle should emit an executive receipt");
+        assert_eq!(executive.disposition, ExecutiveDisposition::HandedOff);
+        assert!(!executive.queue_mutation_performed_by_arandur);
+        assert!(!executive.placement_performed_by_arandur);
+        assert!(!executive.execution_performed_by_arandur);
+        assert!(report.executive_cycle.placement_pending);
+        assert_eq!(
+            std::fs::read_to_string(&report.executive_cycle.ledger_path)
+                .unwrap()
+                .lines()
+                .count(),
+            1
+        );
 
         let inbox = std::fs::read_to_string(&cfg.objectives_path).unwrap();
         assert!(inbox.trim().is_empty());
+    }
+
+    #[tokio::test]
+    async fn binding_safe_governance_activates_queue_while_readiness_is_held() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let cfg = AutopilotConfig::from_root(dir.path());
+        std::fs::create_dir_all(cfg.queue_path.parent().expect("queue parent")).expect("queue dir");
+        std::fs::write(&cfg.queue_path, "").expect("queue");
+        std::fs::create_dir_all(
+            cfg.arandur_recommendations_path
+                .parent()
+                .expect("recommendations parent"),
+        )
+        .expect("recommendations dir");
+        std::fs::write(
+            &cfg.arandur_recommendations_path,
+            r#"{"recommendation_id":"reco-governed-refactor","review_required":false,"candidate":{"id":"governed_refactor","owner":"prometheus","priority":"high","title":"Refactor module x"}}
+"#,
+        )
+        .expect("recommendation");
+
+        let mut autopilot = CeoAutopilot::new(cfg, AgentRegistry::new());
+        let report = autopilot.run_cycle().await;
+
+        assert_eq!(report.autonomy_readiness.decision, "hold");
+        let plan = report
+            .plans
+            .first()
+            .unwrap_or_else(|| panic!("governed objective was not planned: {report:#?}"));
+        let operation = plan.queue_operation.as_ref().expect("queue operation");
+        assert_eq!(operation.result_status, QueueOperationStatus::Appended);
+        assert!(operation.approval_packet_id.is_none());
+        assert!(operation
+            .governance_authorization_id
+            .as_deref()
+            .is_some_and(|id| id.starts_with("governance:")));
+    }
+
+    #[tokio::test]
+    async fn bounded_dispatch_runs_independent_items_concurrently() {
+        let active = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let peak = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let outputs = map_bounded_concurrent(vec![1_u8, 2, 3, 4], 2, {
+            let active = Arc::clone(&active);
+            let peak = Arc::clone(&peak);
+            move |item| {
+                let active = Arc::clone(&active);
+                let peak = Arc::clone(&peak);
+                async move {
+                    let now = active.fetch_add(1, Ordering::SeqCst) + 1;
+                    peak.fetch_max(now, Ordering::SeqCst);
+                    tokio::time::sleep(Duration::from_millis(20)).await;
+                    active.fetch_sub(1, Ordering::SeqCst);
+                    item
+                }
+            }
+        })
+        .await;
+
+        assert_eq!(peak.load(Ordering::SeqCst), 2);
+        assert_eq!(outputs.len(), 4);
+    }
+
+    #[tokio::test]
+    async fn retry_round_persists_each_attempt_before_dispatching_the_next() {
+        let persisted_attempt = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let outputs = run_bounded_retry_rounds(
+            vec!["task"],
+            1,
+            2,
+            {
+                let persisted_attempt = Arc::clone(&persisted_attempt);
+                move |_task, attempt| {
+                    let persisted_attempt = Arc::clone(&persisted_attempt);
+                    async move {
+                        if attempt == 2 {
+                            assert_eq!(persisted_attempt.load(Ordering::SeqCst), 1);
+                        }
+                        attempt
+                    }
+                }
+            },
+            |attempt| *attempt == 1,
+            {
+                let persisted_attempt = Arc::clone(&persisted_attempt);
+                move |_task, attempt, _output| {
+                    persisted_attempt.store(attempt as usize, Ordering::SeqCst);
+                    true
+                }
+            },
+        )
+        .await;
+
+        assert_eq!(outputs, vec![1, 2]);
+        assert_eq!(persisted_attempt.load(Ordering::SeqCst), 2);
     }
 
     #[tokio::test]
@@ -3207,6 +3636,18 @@ default_policy = "ledger_before_task"
         let report = auto.run_cycle().await;
         assert!(report.plans[0].apollo_dispatches.is_empty());
         assert!(!report.plans[0].a2h_emitted);
+        assert_eq!(
+            report
+                .executive_cycle
+                .receipt
+                .as_ref()
+                .map(|receipt| receipt.disposition),
+            Some(ExecutiveDisposition::ObservedReadOnly)
+        );
+        assert!(!report.executive_cycle.ledger_appended);
+        assert!(!ExecutiveCycleStore::from_root(dir.path())
+            .ledger_path()
+            .exists());
         assert!(!cfg.a2h_path.exists());
         assert_eq!(report.outcomes_ingested, 0);
         assert!(!cfg.outcome_cursor_path.exists());
@@ -3424,6 +3865,38 @@ default_policy = "ledger_before_task"
     }
 
     #[tokio::test]
+    async fn operator_approved_recommendation_activates_queue_while_global_autonomy_is_held() {
+        let dir = tempfile::tempdir().unwrap();
+        let cfg = AutopilotConfig::from_root(dir.path());
+        std::fs::create_dir_all(cfg.arandur_recommendations_path.parent().unwrap()).unwrap();
+        std::fs::write(
+            &cfg.arandur_recommendations_path,
+            r#"{"recommendation_id":"reco-approved","review_required":false,"approval_packet":{"id":"approval-reco-approved","status":"approved","approved_by":"operator","approved_at":"2026-08-13T00:00:00Z"},"candidate":{"id":"approved_task","owner":"prometheus","priority":"high","title":"Monitor approved queue activation"}}
+"#,
+        )
+        .unwrap();
+
+        let mut auto = CeoAutopilot::new(
+            cfg.clone(),
+            super::super::bootstrap::seed_default_registry(),
+        );
+        let report = auto.run_cycle().await;
+
+        assert_eq!(report.autonomy_readiness.decision, "hold");
+        assert_eq!(report.objectives_processed, 1);
+        assert!(!report.plans[0].queued_task_ids.is_empty());
+        assert_eq!(
+            report.plans[0]
+                .queue_operation
+                .as_ref()
+                .map(|operation| &operation.result_status),
+            Some(&QueueOperationStatus::Appended)
+        );
+        let queue = std::fs::read_to_string(cfg.queue_path).unwrap();
+        assert!(queue.contains("\"status\":\"pending\""));
+    }
+
+    #[tokio::test]
     async fn run_cycle_holds_delegation_when_cycle_joule_limit_exceeded() {
         let dir = tempfile::tempdir().unwrap();
         let mut cfg = AutopilotConfig::from_root(dir.path());
@@ -3544,6 +4017,42 @@ default_policy = "ledger_before_task"
     }
 
     #[test]
+    fn objective_selection_honors_nested_operator_review_and_future_gates() {
+        let dir = tempfile::tempdir().unwrap();
+        let cfg = AutopilotConfig::from_root(dir.path());
+        std::fs::create_dir_all(cfg.queue_path.parent().unwrap()).unwrap();
+        std::fs::write(
+            &cfg.queue_path,
+            r#"{"id":"future-agent","title":"Evaluate an agent community listening post","status":"pending","owner":"operator:mythos","scope":"agent-community-research","meta":{"action_class":"operator_authored_objective","lifecycle_phase":"future-gated","mutation_risk":"review_required","execution_authority":"none_until_review","external_account_authority":"none"}}
+"#,
+        )
+        .unwrap();
+
+        let (objectives, report) = select_cycle_objectives(
+            &cfg,
+            &ObjectiveDecomposer::default(),
+            &GovernancePolicy::default(),
+            Vec::new(),
+            Vec::new(),
+        );
+
+        assert!(objectives.is_empty());
+        assert_eq!(report.status, "blocked");
+        assert_eq!(
+            report.candidates[0].governance_class,
+            "operator_authored_review_required"
+        );
+        assert_eq!(
+            report.candidates[0].review_gate,
+            GovernanceGate::ReviewRequired
+        );
+        assert_eq!(
+            report.candidates[0].blocked_reason_code.as_deref(),
+            Some("review_gated_candidate_requires_operator_review")
+        );
+    }
+
+    #[test]
     fn objective_selection_reports_arandur_recommendations_as_review_gated() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let cfg = AutopilotConfig::from_root(dir.path());
@@ -3590,7 +4099,7 @@ default_policy = "ledger_before_task"
     }
 
     #[test]
-    fn objective_selection_requires_approval_packet_for_cleared_arandur_recommendations() {
+    fn objective_selection_routes_cleared_arandur_recommendations_through_governance() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let cfg = AutopilotConfig::from_root(dir.path());
         std::fs::create_dir_all(
@@ -3614,20 +4123,22 @@ default_policy = "ledger_before_task"
             Vec::new(),
         );
 
-        assert!(objectives.is_empty());
-        assert_eq!(report.status, "blocked");
-        assert_eq!(report.objectives_blocked_by_gate, 1);
+        assert_eq!(objectives.len(), 1);
+        assert_eq!(objectives[0].objective.id, "safe_refactor");
+        assert_eq!(report.status, "selected");
+        assert_eq!(report.objectives_selected, 1);
+        assert_eq!(report.objectives_blocked_by_gate, 0);
+        assert!(!objectives[0].human_approved);
         assert_eq!(
-            report.candidates[0].blocked_reason_code.as_deref(),
-            Some("operator_approval_packet_missing")
+            report.candidates[0].review_gate,
+            GovernanceGate::SafeAutonomous
         );
-        assert!(report
-            .blocked_candidate_groups
-            .iter()
-            .any(
-                |group| group.reason_code == "operator_approval_packet_missing"
-                    && group.governance_class == "arandur_recommendation"
-            ));
+        assert!(report.candidates[0].blocked_reason_code.is_none());
+        assert!(
+            !report
+                .objective_packet_report
+                .canonical_queue_mutation_allowed
+        );
     }
 
     #[test]
@@ -3983,8 +4494,21 @@ default_policy = "ledger_before_task"
             transport: "in_process",
         }));
         assert!(!dispatch_retryable(&Dispatch::Skipped {
-            reason: "non-apollo".into(),
+            reason: "not operational".into(),
         }));
+    }
+
+    #[test]
+    fn retry_requires_a_durable_attempt_receipt() {
+        let failed = Dispatch::Submitted {
+            task_id: "failed".into(),
+            status: ExecutionStatus::Failed,
+            joules: 0.0,
+            transport: "in_process",
+        };
+
+        assert!(dispatch_attempt_should_retry(&failed, 1, 2, true));
+        assert!(!dispatch_attempt_should_retry(&failed, 1, 2, false));
     }
 
     #[test]

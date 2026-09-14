@@ -1,16 +1,33 @@
+use arda_core::capability_composition::{
+    CompositionAuthorityClass, DataClass, EgressTarget, RoleKind,
+};
+use arda_core::contract::{MemoryKind, MemoryRecord};
 use arda_core::run_graph::{
     AuthorityClass, Budget, CheckpointMetadata, EvidencePolicy, NodeId, NodeKind, NodeState,
-    RetryPolicy, RunId, RunNode, WorkerExecutionSpec, WorkerRole, WorkerRouteClass,
+    ObjectiveId, RetryPolicy, RunId, RunNode, WorkerExecutionSpec, WorkerRole, WorkerRouteClass,
 };
 use arda_engine::adapters::{
     AdapterCancellation, CostMeasurement, HermesAdapter, HermesAdapterConfig, HermesAdapterError,
-    HermesNodeTask, HermesReceiptStatus,
+    HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus,
+};
+use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
+use arda_vaire::{
+    ContextAssembly, ContextConsumer, ContextLineage, ContextObjective, ContextReturnContract,
+    MnemosyneService, OrganismContext,
 };
 use std::collections::BTreeMap;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 use tempfile::TempDir;
+
+#[cfg(target_os = "linux")]
+#[path = "fixtures/keeper_adapter.rs"]
+mod keeper_adapter;
+#[cfg(target_os = "linux")]
+#[path = "fixtures/retained_adapter.rs"]
+mod retained_adapter;
 
 fn write_fake_hermes(root: &Path) -> PathBuf {
     let executable = root.join("hermes");
@@ -43,8 +60,14 @@ pid_path = os.environ.get("ARDA_PID_PATH")
 if pid_path:
     Path(pid_path).write_text(str(os.getpid()), encoding="utf-8")
 mode = os.environ.get("ARDA_FAKE_MODE", "success")
+if mode.startswith("review_") and "On review nodes, the first line of summary MUST be exactly" not in prompt:
+    print("missing top-level review verdict contract", file=sys.stderr)
+    raise SystemExit(2)
 if mode == "sleep":
-    child = subprocess.Popen(["/usr/bin/python3", "-c", "import time; time.sleep(10)"])
+    import socket
+    peer = socket.socket(socket.AF_UNIX)
+    peer.connect(str(Path(pid_path).with_name("provider.sock")))
+    child = subprocess.Popen(["/usr/bin/python3", "-c", "import socket,time; peer=socket.socket(socket.AF_UNIX); peer.connect('provider.sock'); time.sleep(10)"])
     Path(os.environ["ARDA_CHILD_PID_PATH"]).write_text(str(child.pid), encoding="utf-8")
     time.sleep(10)
     raise SystemExit(0)
@@ -96,9 +119,33 @@ session = {
         },
     ],
 }
+if mode.startswith("review_"):
+    session["messages"] = [
+        {
+            "role": "assistant",
+            "content": None,
+            "tool_calls": [{
+                "id": "call-review-1",
+                "type": "function",
+                "function": {
+                    "name": "read_file",
+                    "arguments": json.dumps({"path": "src/lib.rs"}),
+                },
+            }],
+        },
+        {
+            "role": "tool",
+            "tool_call_id": "call-review-1",
+            "tool_name": "read_file",
+            "content": "reviewed source",
+        },
+    ]
 if mode == "unknown_cost":
     session.pop("estimated_cost_usd")
     session.pop("actual_cost_usd")
+if mode == "missing_provenance":
+    session.pop("model")
+    session.pop("billing_provider")
 transcript_path.write_text(json.dumps(session), encoding="utf-8")
 result = {
     "schema_version": "arda.hermes-job-result.v1",
@@ -113,6 +160,26 @@ result = {
     }],
     "artifacts": [],
 }
+if mode == "review_file":
+    result["summary"] = "VERDICT: APPROVE\nIndependent file-only review found no blocking defects."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "review_block":
+    result["status"] = "failed"
+    result["summary"] = "VERDICT: BLOCK\nThe bounded result lacks required evidence."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "review_block_as_success":
+    result["summary"] = "VERDICT: BLOCK\nThe bounded result lacks required evidence."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "review_approve_with_embedded_block":
+    result["summary"] = "VERDICT: APPROVE\nLater analysis says VERDICT: BLOCK."
+    result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
+    result["test_evidence"] = []
+if mode == "derived_evidence":
+    result["tool_evidence"] = []
+    result["test_evidence"] = []
 if mode == "leak":
     result["session_id"] = "vendor-session-must-not-escape"
 if mode == "forged":
@@ -210,7 +277,82 @@ fn task(timeout_ms: u64) -> HermesNodeTask {
             "/usr/bin/python3 -c 'assert 2 + 2 == 4'".into(),
         )]),
         project_contract_digest: "sha256:project-contract".into(),
+        context_assembly: None,
     }
+}
+
+fn context_assembly(root: &Path, task: &HermesNodeTask) -> ContextAssembly {
+    let now_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    let mut consumer =
+        ConsumerContext::new("hermes:fresh-context-worker", vec![MemoryDomain::System]);
+    consumer.purpose = Some(task.objective.clone());
+    let service = MnemosyneService::new(root.join("vaire"))
+        .unwrap()
+        .with_contract_memory_root(root.join("memory"));
+    let mut memory = MemoryRecord::new(
+        "mem-hermes-next-action",
+        MemoryKind::Semantic,
+        "vaire",
+        "Next action: run the declared Python smoke check and report its evidence.",
+    );
+    memory
+        .extensions
+        .insert("memory_domain".into(), serde_json::json!("system"));
+    service
+        .write_governed_memory(memory, Some(&consumer))
+        .unwrap();
+    service
+        .assemble_organism_context(
+            OrganismContext {
+                schema_version: OrganismContext::SCHEMA_VERSION.into(),
+                organism_id: "arda:mythos:primary".into(),
+                generated_at_unix_ms: now_ms,
+                expires_at_unix_ms: now_ms + 60_000,
+                consumer: ContextConsumer {
+                    consumer_id: consumer.consumer_id.clone(),
+                    role: RoleKind::Worker,
+                    authority_ceiling: CompositionAuthorityClass::ExecuteWithApproval,
+                    operator_authorized: false,
+                    memory_domains: vec![MemoryDomain::System],
+                    data_classes: vec![DataClass::Internal],
+                    permitted_egress: vec![EgressTarget::LocalDevice],
+                    compute_node_refs: vec!["node:arda-root".into()],
+                    agent_ref: Some("hermes:attempt-fresh-1".into()),
+                },
+                lineage: ContextLineage {
+                    objective_id: ObjectiveId::new("objective-hermes-context").unwrap(),
+                    project_id: None,
+                    run_id: Some(task.run_id.clone()),
+                    task_id: Some("digital-organism-s1-context-bootstrap".into()),
+                    session_ref: None,
+                    parent_receipts: task.node.parent_receipts.clone(),
+                },
+                objective: ContextObjective {
+                    requested_outcome: task.objective.clone(),
+                    acceptance_conditions: vec!["run the declared check".into()],
+                    required_capabilities: vec!["terminal".into()],
+                    forbidden_capabilities: vec!["ambient-transcript-read".into()],
+                },
+                evidence_refs: vec!["arda://varda/evidence/python-smoke".into()],
+                memory_refs: vec!["mem-hermes-next-action".into()],
+                unresolved_failures: Vec::new(),
+                return_contract: ContextReturnContract {
+                    schema_version: "arda.organism-outcome.v1".into(),
+                    required_receipt_types: vec![
+                        "arda.hermes-execution-receipt.v1".into(),
+                        "arda.context-use-receipt.v1".into(),
+                        "arda.handoff-receipt.v1".into(),
+                    ],
+                    max_output_bytes: 32_768,
+                },
+            },
+            &consumer,
+            now_ms,
+        )
+        .unwrap()
 }
 
 fn worker_contract(toolsets: &[&str], deadline_unix_ms: u128) -> WorkerExecutionSpec {
@@ -228,6 +370,38 @@ fn worker_contract(toolsets: &[&str], deadline_unix_ms: u128) -> WorkerExecution
     }
 }
 
+fn review_task() -> HermesNodeTask {
+    let mut task = task(800);
+    task.node.id = NodeId::new("review-hermes").unwrap();
+    task.node.kind = NodeKind::Review;
+    task.node.authority = AuthorityClass::ReadOnly;
+    task.node.parent_receipts = vec!["sha256:verification-receipt".into()];
+    task.node.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::SecurityPrivacyCritic,
+        worker_id: "hermes:critic-1".into(),
+        route_id: "hosted:review".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "e".repeat(64)),
+        allowed_toolsets: ["file".into()].into_iter().collect(),
+        dependencies: Vec::new(),
+        deadline_unix_ms: 4_000_000_000_000,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::WorkerReport,
+    });
+    task.instructions = "Inspect source and durable verification evidence without rerunning the declared check. Declared check: python-smoke".into();
+    task.checks.clear();
+    task.check_commands.clear();
+    task
+}
+
+fn inspection_task() -> HermesNodeTask {
+    let mut task = review_task();
+    task.node.id = NodeId::new("inspect-hermes").unwrap();
+    task.node.kind = NodeKind::Inspect;
+    task.node.worker.as_mut().unwrap().role = WorkerRole::LocalSummaryClassification;
+    task
+}
+
 fn adapter(root: &TempDir, mode: &str) -> HermesAdapter {
     write_fake_hermes(root.path());
     let config = write_config(root.path());
@@ -238,20 +412,6 @@ fn adapter(root: &TempDir, mode: &str) -> HermesAdapter {
         &host_environment(root.path(), mode),
     )
     .expect("load bounded Hermes adapter")
-}
-
-fn process_is_alive(pid: u32) -> bool {
-    if let Ok(stat) = fs::read_to_string(format!("/proc/{pid}/stat")) {
-        if stat.split_whitespace().nth(2) == Some("Z") {
-            return false;
-        }
-    }
-    std::process::Command::new("/bin/kill")
-        .args(["-0", &pid.to_string()])
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status()
-        .is_ok_and(|status| status.success())
 }
 
 #[test]
@@ -348,6 +508,18 @@ async fn graph_node_becomes_bounded_hermes_job_and_canonical_receipt() {
         .as_str()
         .unwrap()
         .contains("execute-hermes"));
+    assert!(capture["prompt"]
+        .as_str()
+        .unwrap()
+        .contains("Arda automatically derives tool and test evidence"));
+    assert!(!capture["prompt"]
+        .as_str()
+        .unwrap()
+        .contains("actual-call-id"));
+    assert!(capture["prompt"]
+        .as_str()
+        .unwrap()
+        .contains("never list files merely read as artifacts"));
     let environment = capture["environment"].as_array().unwrap();
     for expected in [
         "ARDA_CAPTURE_PATH",
@@ -360,6 +532,128 @@ async fn graph_node_becomes_bounded_hermes_job_and_canonical_receipt() {
         assert!(environment.contains(&serde_json::json!(expected)));
     }
     assert!(!environment.contains(&serde_json::json!("HOME")));
+}
+
+#[tokio::test]
+async fn provider_receipt_without_provider_and_model_provenance_is_rejected() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "missing_provenance");
+
+    let error = adapter
+        .execute(&task(800), AdapterCancellation::new())
+        .await
+        .expect_err("missing provider/model provenance must fail closed");
+
+    assert!(matches!(error, HermesAdapterError::InvalidResult(_)));
+    assert!(error.to_string().contains("provider and model provenance"));
+}
+
+#[tokio::test]
+async fn legacy_v1_receipt_without_authority_binding_reaches_explicit_schema_rejection() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let task = task(800);
+    let receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .expect("execute graph node");
+    let mut legacy = serde_json::to_value(receipt).expect("serialize receipt");
+    legacy["schema_version"] = serde_json::json!("arda.execution-receipt.v1");
+    legacy
+        .as_object_mut()
+        .expect("receipt object")
+        .remove("authority_binding_digest");
+
+    let legacy: HermesExecutionReceipt =
+        serde_json::from_value(legacy).expect("legacy receipt remains parseable for rejection");
+    let error = adapter
+        .validate_stored_receipt_authority(&task, &legacy)
+        .expect_err("legacy receipt schema must fail closed");
+    assert!(error
+        .to_string()
+        .contains("unsupported execution receipt schema arda.execution-receipt.v1"));
+}
+
+#[tokio::test]
+async fn stored_receipt_is_rejected_when_the_current_objective_drifts() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let original_task = task(800);
+    let receipt = adapter
+        .execute(&original_task, AdapterCancellation::new())
+        .await
+        .expect("execute graph node");
+    let mut changed_task = original_task;
+    changed_task.objective = "A substituted objective must not reuse this receipt.".into();
+
+    let error = adapter
+        .validate_stored_receipt_authority(&changed_task, &receipt)
+        .expect_err("objective drift must fail current task authority binding");
+    assert!(error.to_string().contains("current admitted task"));
+}
+
+#[tokio::test]
+async fn legacy_v2_node_only_authority_binding_reaches_explicit_schema_rejection() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let task = task(800);
+    let mut receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .expect("execute graph node");
+    receipt.schema_version = "arda.execution-receipt.v2".into();
+
+    let error = adapter
+        .validate_stored_receipt_authority(&task, &receipt)
+        .expect_err("legacy v2 receipt schema must fail closed");
+    assert!(error
+        .to_string()
+        .contains("unsupported execution receipt schema arda.execution-receipt.v2"));
+}
+
+#[tokio::test]
+async fn governed_capsule_is_injected_and_bound_to_typed_receipts() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let mut task = task(800);
+    let assembly = context_assembly(root.path(), &task);
+    task.context_assembly = Some(assembly.clone());
+
+    let receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .expect("execute with governed context");
+
+    assert_eq!(
+        receipt.context_capsule_id.as_deref(),
+        Some(assembly.capsule.capsule_id.as_str())
+    );
+    assert_eq!(
+        receipt.context_capsule_digest.as_deref(),
+        Some(assembly.capsule.capsule_digest.as_str())
+    );
+    assert_eq!(
+        receipt.context_use_receipt_ref.as_deref(),
+        Some(assembly.use_receipt.receipt_ref().as_str())
+    );
+    let handoff = receipt
+        .context_handoff
+        .as_ref()
+        .expect("typed Oromë handoff receipt");
+    assert_eq!(handoff.schema_version, "arda.handoff-receipt.v1");
+    assert!(handoff.has_valid_digest().unwrap());
+    assert_eq!(handoff.capsule_id, assembly.capsule.capsule_id);
+
+    let capture: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join("capture.json")).expect("captured invocation"),
+    )
+    .unwrap();
+    let prompt = capture["prompt"].as_str().unwrap();
+    assert!(prompt.contains("organism_context_capsule"));
+    assert!(prompt.contains("context_use_receipt"));
+    assert!(prompt.contains("mem-hermes-next-action"));
+    assert!(!prompt.contains("\"transcript\":"));
+    assert!(!prompt.contains("\"session_id\":"));
 }
 
 #[tokio::test]
@@ -460,6 +754,116 @@ async fn persisted_worker_toolsets_cannot_escalate_beyond_authority() {
 }
 
 #[tokio::test]
+async fn file_only_review_produces_inspection_evidence_without_terminal_checks() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_file");
+
+    let receipt = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect("file-only critic receipt");
+
+    assert_eq!(receipt.status, HermesReceiptStatus::Succeeded);
+    assert_eq!(receipt.tool_evidence.len(), 1);
+    assert_eq!(receipt.tool_evidence[0].tool, "read_file");
+    assert!(receipt.test_evidence.is_empty());
+    let capture: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join("capture.json")).expect("captured invocation"),
+    )
+    .unwrap();
+    assert!(capture["args"]
+        .as_array()
+        .unwrap()
+        .contains(&serde_json::json!("file")));
+    assert!(!capture["args"]
+        .as_array()
+        .unwrap()
+        .contains(&serde_json::json!("terminal")));
+}
+
+#[tokio::test]
+async fn blocking_review_cannot_report_transport_success() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_block_as_success");
+
+    let error = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect_err("blocking review with succeeded status must fail validation");
+
+    assert!(matches!(error, HermesAdapterError::InvalidResult(_)));
+    assert!(error.to_string().contains("VERDICT: BLOCK"));
+}
+
+#[tokio::test]
+async fn approving_review_cannot_embed_blocking_verdict() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_approve_with_embedded_block");
+
+    let error = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect_err("an approving review containing a blocking verdict must fail closed");
+
+    assert!(matches!(error, HermesAdapterError::InvalidResult(_)));
+    assert!(error.to_string().contains("VERDICT: BLOCK"));
+}
+
+#[tokio::test]
+async fn blocking_review_produces_failed_receipt() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn reviewed() {}\n").unwrap();
+    let adapter = adapter(&root, "review_block");
+
+    let receipt = adapter
+        .execute(&review_task(), AdapterCancellation::new())
+        .await
+        .expect("well-formed blocking review receipt");
+
+    assert_eq!(receipt.status, HermesReceiptStatus::Failed);
+    assert!(receipt.summary.starts_with("VERDICT: BLOCK\n"));
+}
+
+#[tokio::test]
+async fn file_only_inspection_derives_material_evidence_from_exported_calls() {
+    let root = TempDir::new().expect("project root");
+    fs::create_dir_all(root.path().join("src")).unwrap();
+    fs::write(root.path().join("src/lib.rs"), "pub fn inspected() {}\n").unwrap();
+    let adapter = adapter(&root, "review_file");
+
+    let receipt = adapter
+        .execute(&inspection_task(), AdapterCancellation::new())
+        .await
+        .expect("file-only inspection must derive evidence from the exported session");
+
+    assert_eq!(receipt.tool_evidence.len(), 1);
+    assert_eq!(receipt.tool_evidence[0].tool, "read_file");
+    assert!(receipt.test_evidence.is_empty());
+}
+
+#[tokio::test]
+async fn execute_derives_declared_evidence_without_opaque_call_ids() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "derived_evidence");
+
+    let receipt = adapter
+        .execute(&task(1_000), AdapterCancellation::new())
+        .await
+        .expect("execute evidence must be derived from the exported session");
+
+    assert_eq!(receipt.tool_evidence.len(), 1);
+    assert_eq!(receipt.test_evidence.len(), 1);
+    assert_eq!(receipt.test_evidence[0].status, "passed");
+}
+
+#[tokio::test]
 async fn elapsed_persisted_worker_deadline_prevents_spawn() {
     let root = TempDir::new().unwrap();
     let adapter = adapter(&root, "success");
@@ -475,35 +879,61 @@ async fn elapsed_persisted_worker_deadline_prevents_spawn() {
 
 #[tokio::test]
 async fn graph_node_timeout_terminates_and_reaps_hermes() {
+    use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
     let root = TempDir::new().expect("project root");
     let adapter = adapter(&root, "sleep");
-
-    // Leave enough startup headroom for the Python fixture to publish both PID
-    // files before the adapter's deadline. The previous 80 ms budget could
-    // expire during interpreter startup under sustained soak load, which tested
-    // scheduler latency rather than descendant termination and reaping.
-    let error = adapter
-        .execute(&task(1_000), AdapterCancellation::new())
-        .await
-        .expect_err("sleeping Hermes process must time out");
-
+    let listener = tokio::net::UnixListener::bind(root.path().join("provider.sock")).unwrap();
+    let is_alive = |fd: &OwnedFd| {
+        let mut poll = libc::pollfd {
+            fd: fd.as_raw_fd(),
+            events: libc::POLLIN,
+            revents: 0,
+        };
+        let result = unsafe { libc::poll(&mut poll, 1, 0) };
+        assert!(result >= 0);
+        result == 0
+    };
+    let collect = async {
+        let mut peers = Vec::new();
+        for _ in 0..2 {
+            let (stream, _) = listener.accept().await.unwrap();
+            // Peer credentials are translated into the host PID namespace.
+            let pid = stream.peer_cred().unwrap().pid().unwrap();
+            let fd = unsafe { libc::syscall(libc::SYS_pidfd_open, pid, 0) };
+            assert!(fd >= 0);
+            let fd = unsafe { OwnedFd::from_raw_fd(fd as i32) };
+            assert!(is_alive(&fd));
+            peers.push(fd);
+        }
+        peers
+    };
+    let task = task(1_000);
+    let (result, peers) = tokio::join!(
+        adapter.execute(&task, AdapterCancellation::new()),
+        tokio::time::timeout(std::time::Duration::from_secs(2), collect)
+    );
+    let survivors = peers
+        .as_ref()
+        .map(|peers| peers.iter().any(&is_alive))
+        .unwrap_or(true);
+    // Preserve the pre-cleanup verdict, but never leave known survivors on RED.
+    if let Ok(peers) = &peers {
+        for fd in peers {
+            unsafe {
+                libc::syscall(
+                    libc::SYS_pidfd_send_signal,
+                    fd.as_raw_fd(),
+                    libc::SIGKILL,
+                    std::ptr::null::<libc::siginfo_t>(),
+                    0,
+                );
+            }
+        }
+    }
+    let error = result.expect_err("sleeping Hermes process must time out");
     assert!(matches!(error, HermesAdapterError::Timeout));
-    let pid: u32 = fs::read_to_string(root.path().join("pid"))
-        .expect("pid file")
-        .parse()
-        .unwrap();
-    assert!(
-        !process_is_alive(pid),
-        "timed-out Hermes pid {pid} survived"
-    );
-    let child_pid: u32 = fs::read_to_string(root.path().join("child-pid"))
-        .expect("child pid file")
-        .parse()
-        .unwrap();
-    assert!(
-        !process_is_alive(child_pid),
-        "timed-out Hermes descendant pid {child_pid} survived"
-    );
+    peers.expect("provider and descendant must start before timeout");
+    assert!(!survivors, "provider or descendant survived timeout");
 }
 
 #[tokio::test]

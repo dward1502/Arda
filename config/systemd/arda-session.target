@@ -1,0 +1,7 @@
+[Unit]
+Description=Arda backend session lifecycle
+Wants=arda.service hermes-gateway.service
+After=network-online.target arda.service hermes-gateway.service
+
+[Install]
+WantedBy=default.target

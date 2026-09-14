@@ -1,8 +1,8 @@
 use super::route_policy::{
     candidate_models_for_provider_request, excluded_model_ids, model_supports_request,
-    provider_eligible, provider_score, provider_supports_request,
-    provider_supports_request_capabilities, HybridRoutePolicy, RouteExecutionProfile,
-    RouteSelectionCandidate,
+    provider_eligible, provider_eligible_for_forced_probe, provider_score,
+    provider_supports_request, provider_supports_request_capabilities, HybridRoutePolicy,
+    RouteExecutionProfile, RouteSelectionCandidate,
 };
 use super::{CharonService, PackageRuntimeSignals};
 use crate::adaptive::types::{ManweRequestEnvelope, ProviderState};
@@ -148,6 +148,11 @@ impl CharonService {
             .get("allow_forced_provider_fallback")
             .and_then(serde_json::Value::as_bool)
             .unwrap_or(false);
+        let allow_unhealthy_forced_probe = req
+            .options
+            .get("allow_unhealthy_forced_probe")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false);
 
         let mut candidates = Vec::with_capacity(cached.candidates.len());
         for cached_candidate in cached.candidates {
@@ -158,7 +163,11 @@ impl CharonService {
             else {
                 continue;
             };
-            if !provider_eligible(provider, priority, strict) {
+            if !provider_eligible(provider, priority, strict)
+                && !(allow_unhealthy_forced_probe
+                    && forced_provider_id == Some(provider.id.as_str())
+                    && provider_eligible_for_forced_probe(provider, strict))
+            {
                 continue;
             }
             if !self.provider_agent_quota_available(provider, req) {
@@ -255,11 +264,21 @@ impl CharonService {
             .get("allow_forced_provider_fallback")
             .and_then(serde_json::Value::as_bool)
             .unwrap_or(false);
+        let allow_unhealthy_forced_probe = req
+            .options
+            .get("allow_unhealthy_forced_probe")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false);
         let mut candidates = Vec::new();
         for (idx, p) in providers
             .iter()
             .enumerate()
-            .filter(|(_, p)| provider_eligible(p, priority, strict))
+            .filter(|(_, p)| {
+                provider_eligible(p, priority, strict)
+                    || (allow_unhealthy_forced_probe
+                        && forced_provider_id == Some(p.id.as_str())
+                        && provider_eligible_for_forced_probe(p, strict))
+            })
             .filter(|(_, p)| self.provider_agent_quota_available(p, req))
             .filter(|(_, p)| provider_supports_request(p, req))
             .filter(|(_, p)| {
@@ -282,11 +301,12 @@ impl CharonService {
                 model_constraint,
                 Some(req),
             ) {
-                let preferred_provider_bonus = if provider_is_forced && allow_forced_provider_fallback {
-                    10_000.0
-                } else {
-                    0.0
-                };
+                let preferred_provider_bonus =
+                    if provider_is_forced && allow_forced_provider_fallback {
+                        10_000.0
+                    } else {
+                        0.0
+                    };
                 let score = provider_score(
                     p,
                     &model,

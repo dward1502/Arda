@@ -129,6 +129,15 @@ start.cwd = "."
 
 #[tokio::test]
 async fn harness_uses_warden_override_and_signal_shutdown_reaps_child() {
+    assert_signal_shutdown("-INT").await;
+}
+
+#[tokio::test]
+async fn systemd_sigterm_shutdown_reaps_child() {
+    assert_signal_shutdown("-TERM").await;
+}
+
+async fn assert_signal_shutdown(signal_name: &str) {
     let temp = TempDir::new().expect("temporary repository");
     let root = temp.path();
     let pid_file = root.join("worker.pid");
@@ -194,6 +203,10 @@ scout_url = "http://fleet.example:8092"
     })
     .await
     .expect("harness startup timeout");
+    assert!(
+        root.join("data/arda/objectives.sqlite3").exists(),
+        "resident daemon must open the canonical ObjectiveStore"
+    );
     assert_eq!(
         status_json["warden_scout_url"], "http://env.example:8092",
         "environment override must take precedence over fleet discovery"
@@ -235,11 +248,20 @@ scout_url = "http://fleet.example:8092"
         child_pid.trim().parse::<u32>().expect("numeric child pid")
     );
 
+    let objective_status = client
+        .get(format!("http://{harness_addr}/v1/objective-runtime"))
+        .send()
+        .await
+        .expect("objective runtime status")
+        .json::<Value>()
+        .await
+        .expect("objective runtime status JSON");
+
     let signal = Command::new("kill")
-        .args(["-INT", &daemon.id().to_string()])
+        .args([signal_name, &daemon.id().to_string()])
         .status()
-        .expect("send SIGINT");
-    assert!(signal.success(), "SIGINT delivery must succeed");
+        .expect("send shutdown signal");
+    assert!(signal.success(), "{signal_name} delivery must succeed");
 
     let daemon_status = tokio::time::timeout(Duration::from_secs(10), async {
         loop {
@@ -250,16 +272,26 @@ scout_url = "http://fleet.example:8092"
         }
     })
     .await
-    .expect("daemon did not stop after SIGINT");
-    assert!(
-        daemon_status.success(),
-        "daemon shutdown failed: {daemon_status}"
-    );
+    .expect("daemon did not stop after shutdown signal");
 
     let child_alive = Command::new("kill")
         .args(["-0", child_pid.trim()])
         .status()
         .map(|status| status.success())
         .unwrap_or(false);
+    if child_alive {
+        let _ = Command::new("kill")
+            .args(["-KILL", child_pid.trim()])
+            .status();
+    }
+    assert!(
+        daemon_status.success(),
+        "daemon shutdown failed: {daemon_status}"
+    );
     assert!(!child_alive, "supervised child survived daemon shutdown");
+    assert_eq!(objective_status["phase"], "waiting");
+    assert_eq!(objective_status["ready"], true);
+    assert_eq!(objective_status["pending_recovery"], 0);
+    assert_eq!(objective_status["active_leaves"], serde_json::json!([]));
+    assert!(objective_status["last_error"].is_null());
 }

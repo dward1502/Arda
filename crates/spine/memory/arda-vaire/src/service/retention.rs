@@ -8,6 +8,18 @@ use chrono::{DateTime, Utc};
 
 const RETRIEVAL_SATURATION_COUNT: f64 = 10.0;
 
+/// Recovery snapshots are retained without automatic expiry. This eligibility
+/// check is only for an explicit authenticated owner deletion, enforced by the
+/// caller. Execution expiry/revocation never authorizes evidence deletion.
+/// Terminal cancellation/failure alone does not prove interrupted work is closed.
+pub fn recovery_snapshot_deletion_allowed(
+    objective_terminal: bool,
+    all_leaves_receipt_closed: bool,
+    has_live_lease: bool,
+) -> bool {
+    objective_terminal && all_leaves_receipt_closed && !has_live_lease
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RetentionScore {
     pub recency: f64,
@@ -113,6 +125,20 @@ mod tests {
     use super::*;
     use arda_core::contract::{MemoryKind, MemoryRecord};
     use chrono::{Duration, TimeZone};
+
+    #[test]
+    fn recovery_evidence_requires_terminal_closed_and_unleased_state() {
+        for terminal in [false, true] {
+            for closed in [false, true] {
+                for leased in [false, true] {
+                    assert_eq!(
+                        recovery_snapshot_deletion_allowed(terminal, closed, leased),
+                        (terminal, closed, leased) == (true, true, false),
+                    );
+                }
+            }
+        }
+    }
 
     fn as_of() -> DateTime<Utc> {
         Utc.with_ymd_and_hms(2026, 8, 5, 0, 0, 0).unwrap()

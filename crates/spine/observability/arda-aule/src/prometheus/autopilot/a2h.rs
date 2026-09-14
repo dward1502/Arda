@@ -214,6 +214,94 @@ fn load_pending_authorizations(
     Ok(latest)
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct RecommendationReviewReceipt {
+    pub contract: String,
+    pub recommendation_id: String,
+    pub decision: String,
+    pub approval_packet_id: Option<String>,
+    pub reviewed_by: String,
+    pub reviewed_at_utc: String,
+    pub ledger_path: String,
+}
+
+pub fn review_arandur_recommendation(
+    path: impl AsRef<Path>,
+    recommendation_id: &str,
+    approved: bool,
+    reviewed_by: &str,
+    note: Option<&str>,
+) -> std::io::Result<RecommendationReviewReceipt> {
+    let path = path.as_ref();
+    let content = std::fs::read_to_string(path)?;
+    let mut latest = None;
+    for line in content.lines().filter(|line| !line.trim().is_empty()) {
+        let Ok(value) = serde_json::from_str::<Value>(line) else {
+            continue;
+        };
+        if value.get("recommendation_id").and_then(Value::as_str) == Some(recommendation_id) {
+            latest = Some(value);
+        }
+    }
+    let mut value = latest.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("recommendation not found: {recommendation_id}"),
+        )
+    })?;
+    let reviewed_by = reviewed_by.trim();
+    if reviewed_by.is_empty() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "reviewed_by cannot be empty",
+        ));
+    }
+    let reviewed_at_utc = Utc::now().to_rfc3339();
+    let approval_packet_id = approved.then(|| format!("arandur-approval-{}", Uuid::new_v4()));
+    let object = value.as_object_mut().ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "recommendation is not an object",
+        )
+    })?;
+    object.insert("review_required".into(), Value::Bool(false));
+    object.insert(
+        "review_status".into(),
+        Value::String(if approved { "approved" } else { "rejected" }.into()),
+    );
+    object.insert("reviewed_by".into(), Value::String(reviewed_by.into()));
+    object.insert(
+        "reviewed_at_utc".into(),
+        Value::String(reviewed_at_utc.clone()),
+    );
+    if let Some(note) = note.filter(|note| !note.trim().is_empty()) {
+        object.insert("review_note".into(), Value::String(note.trim().into()));
+    }
+    if let Some(id) = &approval_packet_id {
+        object.insert(
+            "approval_packet".into(),
+            serde_json::json!({
+                "id": id,
+                "status": "approved",
+                "approved_by": reviewed_by,
+                "approved_at": reviewed_at_utc,
+            }),
+        );
+    } else {
+        object.remove("approval_packet");
+    }
+    append_jsonl(path, &value)?;
+    Ok(RecommendationReviewReceipt {
+        contract: "arda.arandur.recommendation_review.v1".into(),
+        recommendation_id: recommendation_id.into(),
+        decision: if approved { "approved" } else { "rejected" }.into(),
+        approval_packet_id,
+        reviewed_by: reviewed_by.into(),
+        reviewed_at_utc,
+        ledger_path: path.to_string_lossy().to_string(),
+    })
+}
+
 fn parse_approval_response(line: &str) -> Option<ApprovalResponse> {
     let value = serde_json::from_str::<Value>(line).ok()?;
     let request_id = value
@@ -371,5 +459,35 @@ mod tests {
         assert_eq!(report.denials_recorded, 1);
         let (_, second) = process_h2a_responses(&pending, &h2a).unwrap();
         assert_eq!(second.responses_processed, 0);
+    }
+
+    #[test]
+    fn recommendation_review_is_append_only_and_emits_approval_packet() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("recommendations.jsonl");
+        std::fs::write(
+            &path,
+            r#"{"recommendation_id":"reco-1","review_required":true,"candidate":{"id":"task-1","title":"Validate queue activation"}}
+"#,
+        )
+        .unwrap();
+
+        let receipt = review_arandur_recommendation(
+            &path,
+            "reco-1",
+            true,
+            "operator",
+            Some("approved in ARDA Operations"),
+        )
+        .unwrap();
+
+        assert_eq!(receipt.decision, "approved");
+        assert!(receipt.approval_packet_id.is_some());
+        let lines = std::fs::read_to_string(path).unwrap();
+        assert_eq!(lines.lines().count(), 2);
+        let latest: Value = serde_json::from_str(lines.lines().last().unwrap()).unwrap();
+        assert_eq!(latest["review_required"], false);
+        assert_eq!(latest["review_status"], "approved");
+        assert_eq!(latest["approval_packet"]["status"], "approved");
     }
 }

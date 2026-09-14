@@ -23,7 +23,7 @@
     "incoming": {"$ref": "#/$defs/incoming"},
     "content": {"$ref": "#/$defs/content"},
     "operation": {
-      "enum": ["capture", "query", "approve", "reject", "revise", "cancel", "resume"]
+      "enum": ["capture", "query", "control", "approve", "reject", "revise", "cancel", "acknowledge", "defer", "resume"]
     },
     "approval": {
       "oneOf": [

@@ -1,0 +1,75 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:58898dd9884304bf0b3f15aebb827242710d6350587a38bd0443ecd86eaf5137",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-project-2-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:60376ecc908a79e1a3f1f936e753b28d6fba82e3e621f2c5a89cf4a58845d8e1"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:9fe8f5ae95e2f1717b6fa6aa99a37e44fa956df42b45fc01918162f7707840e1",
+  "recorded_at_unix_ms": 1788408391320,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-project-2-attempt-7",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Review found one evidence defect in the parent receipt: README.md and src/types.rs support the documented boundary and data model, but they do not independently establish the claimed policy behavior or receipt construction. Those claims depend on src/policy.rs and src/receipt.rs, which were not included in the parent tool evidence. Independent read-only inspection found the implementation consistent with the brief, but the parent receipt alone does not fully support its completion claim. The clean-tree evidence is valid as declared, and no modifications or artifacts were created.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src\",\"pattern\":\"evaluate_invocation|DecisionReceipt|allowed_targets|requires_review|idempotent\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8c99277cffc7a11a40bf1a5d1c5adfc712a186ed811d4455ba16603f72d6db42",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:aef66110fa1ca568d9298c3b2317f6d820a9bda93f33173511136e3c3f6c763f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12569,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1014,
+    "provider": "openai-codex",
+    "total_tokens": 13583
+  }
+}

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Arda Launcher
+Comment=Start and inspect the governed Arda session
+Exec=@ARDA_LAUNCHER_EXEC@
+Icon=arda-launcher
+Terminal=false
+Categories=Utility;Development;
+StartupNotify=true
+StartupWMClass=arda-launcher
+X-GNOME-SingleWindow=true

@@ -39,6 +39,53 @@ fn proposal_evidence() -> AssimilationEvidence {
 }
 
 #[test]
+fn discovery_can_persist_partial_research_evidence_without_advancing() {
+    let temp = TempDir::new().unwrap();
+    let now = Utc.with_ymd_and_hms(2026, 8, 25, 12, 0, 0).unwrap();
+    let evidence = AssimilationEvidence {
+        canonical_source: Some("https://github.com/rust-lang/rust-clippy".into()),
+        source_digest: Some(
+            "sha256:529a213ed88ab3fe91c29136b0e940a66e2c08fa1e9417ae59cdf74d03a4c9de".into(),
+        ),
+        objective_id: Some("rust-engineering-standards".into()),
+        usage_receipt: Some("data/runs/rust-standards/evidence/research.json".into()),
+        security_classification: Some("untrusted_external_evidence".into()),
+        privacy_classification: Some("public_web".into()),
+        ..AssimilationEvidence::default()
+    };
+
+    let created = AssimilationStore::new(temp.path())
+        .discover_with_evidence(
+            "research-source-clippy",
+            "warden-varda-research",
+            evidence.clone(),
+            now,
+        )
+        .unwrap();
+    assert_eq!(created.state, AssimilationState::Discovered);
+    assert_eq!(created.evidence, evidence);
+    assert_eq!(created.transition_count, 0);
+
+    let restarted = AssimilationStore::new(temp.path());
+    let replayed = restarted
+        .discover_with_evidence(
+            "research-source-clippy",
+            "warden-varda-research",
+            AssimilationEvidence::default(),
+            now + Duration::seconds(1),
+        )
+        .unwrap();
+    assert_eq!(replayed, created);
+    assert_eq!(
+        std::fs::read_to_string(restarted.ledger_path())
+            .unwrap()
+            .lines()
+            .count(),
+        1
+    );
+}
+
+#[test]
 fn hermes_adapter_first_proof_is_restart_safe_and_retains_arda_authority() {
     let temp = TempDir::new().unwrap();
     let now = Utc.with_ymd_and_hms(2026, 8, 9, 12, 0, 0).unwrap();

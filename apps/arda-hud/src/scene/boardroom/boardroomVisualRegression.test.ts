@@ -15,7 +15,9 @@ describe('boardroom visual regression contract', () => {
       expect(scenario.baselinePath).toMatch(/^__visual_baselines__\/.+\.png$/)
       expect(scenario.requiredLandmarks).toContain('five-upper-monitors')
       expect(scenario.requiredLandmarks).toContain('five-lower-console-zones')
-      expect(scenario.requiredLandmarks).toContain('four-physical-controls')
+      expect(scenario.requiredLandmarks).toContain('command-core-command-bank')
+      expect(scenario.requiredLandmarks).toContain('command-core-utility-bank')
+      expect(scenario.requiredLandmarks).toContain('detached-control-row-absent')
     }
   })
 

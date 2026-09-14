@@ -23,10 +23,13 @@ describe('adaptBoardroomHudSource', () => {
 
     expect(source).toEqual({
       sourceId: 'planning:core/state/queue_summary.json',
+      sourceLabel: 'Queue Summary',
       sourceIds: ['planning:core/state/queue_summary.json'],
       sourcePaths: ['core/state/queue_summary.json'],
       observedAtUtc: '2026-07-30T20:01:00Z',
       freshness: 'fresh',
+      sourceKind: 'snapshot',
+      truthState: 'snapshot',
     })
   })
 
@@ -55,6 +58,8 @@ describe('adaptBoardroomHudSource', () => {
     expect(source.sourcePaths).toContain('core/state/manwe_router.json')
     expect(source.observedAtUtc).toBeNull()
     expect(source.freshness).toBe('missing')
+    expect(source.truthState).toBe('missing')
+    expect(source.sourceLabel).toBe('Routing')
   })
 
   it('fails closed when a matched source is blocked', () => {
@@ -72,6 +77,7 @@ describe('adaptBoardroomHudSource', () => {
       'planning:core/projects/tasks/queue.jsonl',
     ])
     expect(source.freshness).toBe('blocked')
+    expect(source.truthState).toBe('unavailable')
   })
 
   it('preserves unknown provenance produced by malformed or unreadable sources', () => {
@@ -81,5 +87,45 @@ describe('adaptBoardroomHudSource', () => {
 
     expect(source.observedAtUtc).toBeNull()
     expect(source.freshness).toBe('unknown')
+    expect(source.truthState).toBe('unavailable')
+  })
+
+  it.each([
+    ['fresh', 'live', 'live'],
+    ['fresh', 'snapshot', 'snapshot'],
+    ['derived', 'derived', 'projected'],
+    ['stale', 'live', 'stale'],
+    ['blocked', 'live', 'unavailable'],
+    ['unknown', 'snapshot', 'unavailable'],
+  ] as const)('maps %s %s provenance to the %s truth state', (state, sourceKind, truthState) => {
+    const source = adaptBoardroomHudSource([provenance({ state, sourceKind })], 'queue')
+
+    expect(source.truthState).toBe(truthState)
+  })
+
+  it('labels a fresh snapshot with declared upstream authorities as projected', () => {
+    const source = adaptBoardroomHudSource([
+      provenance({
+        state: 'fresh',
+        sourceKind: 'snapshot',
+        derivedFrom: ['core/projects/tasks/queue.jsonl'],
+      }),
+    ], 'queue')
+
+    expect(source.truthState).toBe('projected')
+  })
+
+  it('does not promote loaded-but-unmatched data into runtime authority', () => {
+    const source = adaptBoardroomHudSource([
+      provenance({
+        domainId: 'personal:core/state/personal_runtime.json',
+        label: 'Personal Runtime',
+        sourcePaths: ['core/state/personal_runtime.json'],
+        sourceKind: 'live',
+      }),
+    ], 'routing')
+
+    expect(source.truthState).toBe('missing')
+    expect(source.sourceIds).toEqual(['routing'])
   })
 })

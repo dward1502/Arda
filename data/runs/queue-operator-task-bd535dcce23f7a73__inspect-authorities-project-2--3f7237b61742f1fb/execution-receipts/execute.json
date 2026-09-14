@@ -1,0 +1,99 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:435c6c1f8caeb9f02c4fb2aa936971a2aef2e189f2125233659da20f945a0f7b",
+  "idempotency_key": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-2--3f7237b61742f1fb-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-c17e08bbc9d4445c95c56ac74a87e91c"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:bda428f6f0596b08063d9ae41ea29ac87a251a080f570c09a95c35d2bf7c13ee",
+  "recorded_at_unix_ms": 1788249557288,
+  "run_id": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-2--3f7237b61742f1fb",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project-scoped read-only inspection completed. Material evidence shows tool-gate is a deterministic pre-execution policy boundary that emits allow, deny, or review_required receipts without executing tools (README.md:5-13, README.md:51-61). The default policy validates inputs and tool identity, enforces allowed target scope, requires trace evidence for mutating or reviewable actions, requires idempotency for mutation, and routes explicit-review or critical-risk actions to human review (src/types.rs:56-90, src/policy.rs:23-158). Receipts preserve decision, reason, risk, review status, trace ID, and ordered policy checks, with CLI exit codes 0/2/3 for allow/review/deny (src/receipt.rs:19-37). Project tests materially cover allowed scoped reads, denial of mutation without trace evidence, and review of critical traceable operations (tests/policy_decisions.rs:34-64). No files were modified, no artifacts were created, and project-native checks were not run because the independent verifier owns check execution.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":50,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f2e3b3503e82427378cf2d5e2d4759e50de911a22f444a17575d7a3ca6148f05",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":50,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"(?i)authority|tool.?gate|policy|approval\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:cdc2432a3529279664d20ec7d848c77faf90a79ec14d5919507e18a02c1efb79",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"src\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b216218c2c6b10ec19f0827348a9c43af9a5544facb6faab3b9866199c4b1fa6",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"tests\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d1f0755bc493f7488906cf4ef3cdf189e9ea82570006f0aa73535292a955c69a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a31cb67d528727f28d8bef864dba4ec439fd9c9d34a6fe2c7c4cc0437a0e0863",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"offset\":1,\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":220,\"offset\":1,\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":220,\"offset\":1,\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 24634,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 827,
+    "provider": "openai-codex",
+    "total_tokens": 25461
+  }
+}

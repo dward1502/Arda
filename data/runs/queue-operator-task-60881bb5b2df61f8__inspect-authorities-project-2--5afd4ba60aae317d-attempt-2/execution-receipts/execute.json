@@ -1,0 +1,171 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:ae225b44652a1bca049631580a176e007f6aa5603a9788e50c8bacbf8a1d9200",
+  "idempotency_key": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-2--5afd4ba60aae317d-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-bb9ef5281d6a4dc6adf21327959aa55d"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:6180a3ab4e43cb8a5133039f40918c7ac5f02a2240bbaaf8cb9dd3cc1d9c2748",
+  "recorded_at_unix_ms": 1788242298851,
+  "run_id": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-2--5afd4ba60aae317d-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only project-local inspection completed; no files were modified and no declared checks were run. The five live-authority paths named by the node are absent from this bound project, consistent with the leaf constraint that sibling project files are not required, so authority registration and joined acceptance cannot be established from this repository alone. Project-local evidence supports this prioritized repair backlog: P0—establish an authenticated metadata trust boundary. README.md:5-13 says metadata is caller-supplied and adapters are external; src/main.rs:35-50 loads both metadata and invocation from caller-selected paths; src/types.rs:21-30 represents risk, mutation, idempotency, review, and target scope as unproven data; src/policy.rs:49-67,75-130,160-168 trusts those declarations, including wildcard targets. Human-visible behavior required: forged low-risk, non-mutating, no-review metadata with allowed_targets [\"*\"] must fail closed rather than produce allow. Smallest authoritative implementation surface: src/main.rs for trusted catalog resolution and src/policy.rs/src/types.rs for a provenance-validated metadata type that evaluation requires. P1—bind receipts to the evaluated authority and request. src/receipt.rs:19-27 omits tool_id, invocation_id, caller, target, metadata identity/digest, and authority provenance, while src/policy.rs:179-194 constructs that underspecified receipt. Human-visible behavior required: operators and join logic can identify exactly which registered metadata authority and invocation produced every decision and reject mismatched joins. Smallest surface: src/receipt.rs and the receipt constructor in src/policy.rs, plus the decision-receipt schema. P2—make accepted JSON contracts strict. schemas/tool-metadata.schema.json:5-14 and schemas/invocation-envelope.schema.json:5-14 lack additionalProperties:false and semantic constraints; src/types.rs:56-90 checks only blank fields and tool-id equality. Human-visible behavior required: unknown fields, empty target lists/patterns, malformed timestamps, blank trace IDs where required, and ambiguous wildcard patterns are rejected as invalid input. Smallest surface: both input schemas and src/types.rs validation. P3—add adversarial trust-boundary and receipt-binding coverage. tests/policy_decisions.rs:34-64 covers only normal allow, missing-trace deny, and critical review; tests/cli_contract.rs:4-35 covers example allow and deny but not forged metadata. Add tests proving self-declared wildcard metadata cannot authorize an invocation and receipts carry authority/request binding. Required independent verifier check remains cargo test.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:15864db2eef3b87ffaada165f9c01532b4abb62779d69b3f13ade6dea710eb5d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"src/main.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b5aa99615846282aca688467a7f940b41a97c7be2368346cbc24db755739112",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":240,\"offset\":1,\"path\":\"src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":3,\"limit\":200,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"authorit|register|metadata|allowed_targets|risk|idempot\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:bab6e10d766777726cfe958c887a126ccb26c730969f87a2c2d3c7174edebdea",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":230,\"offset\":1,\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":140,\"offset\":1,\"path\":\"tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":40,\"offset\":1,\"path\":\"data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68c135ad504b5552cb21c1a7b818e94c739cf850c18488f4954e5b65a66e99cf",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":40,\"offset\":1,\"path\":\"docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d02c5898dfb99a0f01180df312d3825fe5749e6f17b72e880cef2d1ef78baa00",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":40,\"offset\":1,\"path\":\"docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:15d037d8dffb0b26703a40fa1eea336289151cf3941a8e0c81cddd5635f67140",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":40,\"offset\":1,\"path\":\"ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:612947e0d8ea3118c6da38b2df9d34091e6cfdcb64de33c2f781cf350bf67d42",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":40,\"offset\":1,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:bf9c1d3b6742a806b13b70bde18066ff325f2caf681353bc555240f832d620ea",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c0256a3d6dbf291b590c0a5ac5cfdaf2e7d871885685f5dc3f2b995f96abbb31",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c7929f3c35c0d6202b3928cbff4573221563e5cf2b8217fcf2e4f4ae7930704e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"src/schema.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8ca39356b9f5e1ee77b1b9329ec80a17ea5b7308687ab95288a2db17839eca13",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"schemas/tool-metadata.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:35b34798fc0ee45dbdc2d037c5409c7cbf2685533d0a16b83653bd1a518ecc4d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"schemas/invocation-envelope.schema.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:df13ce4abffeebf7c467567486819a87499114a706499b2026176f38552a9709",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"examples/readonly-tool.metadata.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:08cda912f14b26a5ddbe0133fc50b5811267ab7ddd3d162883658041b20bb708",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"offset\":1,\"path\":\"examples/readonly-tool.invocation.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a511881b8f1fad25fbdd787c5304d808c9744279d2c5a06e03b5425a920984ae",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 30613,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1949,
+    "provider": "openai-codex",
+    "total_tokens": 32562
+  }
+}

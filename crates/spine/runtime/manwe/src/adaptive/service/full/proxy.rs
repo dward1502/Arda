@@ -1,14 +1,13 @@
 use super::{
-    attach_manwe_route_metadata, evaluate_pre_route_governance_with_options,
-    excluded_provider_ids, is_billing_or_credit_error, is_client_payload_error,
-    is_context_overflow_error, is_local_provider, is_reasoning_replay_required_error,
-    is_request_scoped_retry_error, local_payload_requires_structured_tool_history,
-    model_error_should_mark_unavailable, normalize_openai_request_payload_with_policy,
-    normalize_openai_response, provider_error_immediate_cooldown_seconds,
-    provider_error_should_fallback, proxy_max_attempts, slim_local_attempt_body,
-    strip_internal_openai_routing_fields, transport_failure_should_trigger_cooldown,
-    ArdaError, CharonService, GateAction, JsonValue, ProviderState, Result, RouteDecision,
-    StdDuration,
+    attach_manwe_route_metadata, evaluate_pre_route_governance_with_options, excluded_provider_ids,
+    is_billing_or_credit_error, is_client_payload_error, is_context_overflow_error,
+    is_local_provider, is_reasoning_replay_required_error, is_request_scoped_retry_error,
+    local_payload_requires_structured_tool_history, model_error_should_mark_unavailable,
+    normalize_openai_request_payload_with_policy, normalize_openai_response,
+    provider_error_immediate_cooldown_seconds, provider_error_should_fallback, proxy_max_attempts,
+    slim_local_attempt_body, strip_internal_openai_routing_fields,
+    transport_failure_should_trigger_cooldown, ArdaError, CharonService, GateAction, JsonValue,
+    ProviderState, Result, RouteDecision, StdDuration,
 };
 use crate::adaptive::service::adaptive_routing::classify_semantic_outcome;
 use crate::adaptive::service::state_mutation::ToolFitOutcome;
@@ -399,16 +398,13 @@ impl CharonService {
             let base_url = if provider.driver == "hermes_proxy" {
                 super::hermes_proxy_driver::ensure_hermes_proxy(&provider).await?
             } else {
-                provider
-                    .base_url
-                    .clone()
-                    .ok_or_else(|| ArdaError::Agent {
-                        agent: "manwe".to_string(),
-                        message: format!(
-                            "provider {} missing base_url for streaming proxy",
-                            provider.id
-                        ),
-                    })?
+                provider.base_url.clone().ok_or_else(|| ArdaError::Agent {
+                    agent: "manwe".to_string(),
+                    message: format!(
+                        "provider {} missing base_url for streaming proxy",
+                        provider.id
+                    ),
+                })?
             };
             let url = format!(
                 "{}/{}",
@@ -441,6 +437,7 @@ impl CharonService {
                 &mut attempt_body,
                 preserve_reasoning_replay,
             );
+            apply_workstation_generation_defaults(&provider.id, &mut attempt_body);
             if is_local_provider(&provider.id)
                 && !local_payload_requires_structured_tool_history(&attempt_body)
             {
@@ -785,16 +782,13 @@ impl CharonService {
                 let base_url = if provider.driver == "hermes_proxy" {
                     super::hermes_proxy_driver::ensure_hermes_proxy(&provider).await?
                 } else {
-                    provider
-                        .base_url
-                        .clone()
-                        .ok_or_else(|| ArdaError::Agent {
-                            agent: "manwe".to_string(),
-                            message: format!(
-                                "provider {} missing base_url for proxy forwarding",
-                                provider.id
-                            ),
-                        })?
+                    provider.base_url.clone().ok_or_else(|| ArdaError::Agent {
+                        agent: "manwe".to_string(),
+                        message: format!(
+                            "provider {} missing base_url for proxy forwarding",
+                            provider.id
+                        ),
+                    })?
                 };
                 format!(
                     "{}/{}",
@@ -827,6 +821,7 @@ impl CharonService {
                 &mut attempt_body,
                 preserve_reasoning_replay,
             );
+            apply_workstation_generation_defaults(&provider.id, &mut attempt_body);
             if is_local_provider(&provider.id)
                 && !local_payload_requires_structured_tool_history(&attempt_body)
             {
@@ -1229,6 +1224,37 @@ impl CharonService {
             let response = match request.send().await {
                 Ok(response) => response,
                 Err(err) => {
+                    // A request deadline is not evidence that the endpoint is down.
+                    if err.is_timeout() && !err.is_connect() {
+                        let latency_ms = start.elapsed().as_millis() as u64;
+                        let _ = self.release_provider_reservation(&provider.id).await;
+                        push_proxy_attempt(
+                            &mut attempts,
+                            &decision,
+                            &provider.id,
+                            None,
+                            "request_timeout",
+                            format!("request deadline exceeded for {}", provider.id),
+                        );
+                        let _ = self.record_tool_fit_observation(
+                            &decision,
+                            &routed_req,
+                            &attempt_body,
+                            ToolFitOutcome {
+                                ok: false,
+                                latency_ms: Some(latency_ms),
+                                status_code: None,
+                                outcome_class: "request_timeout".into(),
+                                error: Some(err.to_string()),
+                            },
+                        );
+                        excluded.push(provider.id.clone());
+                        routed_req.options["exclude_provider_ids"] = serde_json::json!(excluded);
+                        if forced_provider_id.as_deref() == Some(provider.id.as_str()) {
+                            break;
+                        }
+                        continue;
+                    }
                     let err_msg = format!("proxy request failed to {}: {err}", provider.id);
                     let latency_ms = start.elapsed().as_millis() as u64;
                     let _ = self.record_tool_fit_observation(
@@ -1553,7 +1579,35 @@ fn outcome_class_for_http_error(status: u16, parsed: Option<&JsonValue>) -> Stri
     }
 }
 
+fn apply_workstation_generation_defaults(provider_id: &str, body: &mut JsonValue) {
+    if provider_id != "edge_core" {
+        return;
+    }
+    let Some(obj) = body.as_object_mut() else {
+        return;
+    };
+    // Preserve explicit thinking requests; default the workstation to answers.
+    let kwargs = obj
+        .entry("chat_template_kwargs")
+        .or_insert_with(|| serde_json::json!({}));
+    if let Some(kwargs) = kwargs.as_object_mut() {
+        kwargs
+            .entry("enable_thinking")
+            .or_insert(JsonValue::Bool(false));
+    }
+    let limit = obj
+        .get("max_tokens")
+        .and_then(JsonValue::as_u64)
+        .unwrap_or(2048)
+        .min(2048);
+    obj.insert("max_tokens".into(), serde_json::json!(limit));
+}
+
 pub(crate) fn proxy_timeout_for_provider(provider_id: &str, execution_lane: &str) -> StdDuration {
+    // Workstation prefill plus a bounded completion can exceed 25 seconds.
+    if provider_id == "edge_core" {
+        return StdDuration::from_secs(120);
+    }
     // Hermes tool iterations against the Beelink Ternary lane can spend close
     // to the generic local deadline producing the first tool call. Preserve
     // enough budget for the follow-up instead of cooling down a healthy lane.
@@ -1620,4 +1674,23 @@ pub(crate) fn provider_has_alternate_routable_model(
             && (model.capable_tasks.iter().any(|task| task == task_type) || model.is_default)
             && super::model_supports_request(&provider.id, model, req)
     })
+}
+
+#[cfg(test)]
+mod workstation_tests {
+    use super::*;
+    #[test]
+    fn bounded_defaults_preserve_explicit_thinking() {
+        let mut body = serde_json::json!({"max_tokens":4096});
+        apply_workstation_generation_defaults("edge_core", &mut body);
+        assert_eq!(body["max_tokens"], 2048);
+        assert_eq!(body["chat_template_kwargs"]["enable_thinking"], false);
+        body["chat_template_kwargs"]["enable_thinking"] = serde_json::json!(true);
+        apply_workstation_generation_defaults("edge_core", &mut body);
+        assert_eq!(body["chat_template_kwargs"]["enable_thinking"], true);
+        assert_eq!(
+            proxy_timeout_for_provider("edge_core", "interactive").as_secs(),
+            120
+        );
+    }
 }

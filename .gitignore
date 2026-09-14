@@ -42,9 +42,18 @@ logs
 /data/manwe/
 /data/plutus/
 /data/prometheus/
+/data/rumil/
 data/ceo/autopilot.state.json
 /data/personal/
+/data/vaire/
 /audit/personal-data-deletions/
+/core/state/continuity/
+/core/state/operator_projection.json
+/core/state/next_action.json
+/core/projects/tasks/.workbench-queue-executor.lock
+# Retired runtime history is retained locally, never shipped as source.
+/core/projects/tasks/queue.jsonl
+/core/projects/tasks/schedules.jsonl
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

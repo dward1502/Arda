@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:12bb379aed08ece6d2a7b8dd3c2d06e46311ed45cd4d51a9b3e3c69a2bcaa9eb",
+    "summary": "Unsupported completion. Named defects: (1) the project root contains only README.acceptance, so there is no implementation to inspect for correctness or scope; (2) the supplied parent receipt is only an opaque digest, with no durable receipt payload available to independently verify that `verify: pwd` resolved to the required project root. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:e44bec038a924ea908d4110e7c11a75976bbbda151bd85a96957d9697b52a7cf",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

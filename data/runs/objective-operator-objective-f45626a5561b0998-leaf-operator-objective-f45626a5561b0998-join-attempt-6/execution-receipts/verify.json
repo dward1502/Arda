@@ -1,0 +1,83 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:431badacafc3fa87ecb0c074ddfa6a7253b990c22edfbf51f3179184cb9467be",
+  "idempotency_key": "queue-operator-objective-f45626a5561b0998-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:f75cfa655057ec86eb5618c94a72ffb8d0990d0f7bbc570e0d62332065f539ef",
+  "recorded_at_unix_ms": 1788371783807,
+  "run_id": "objective-operator-objective-f45626a5561b0998-leaf-operator-objective-f45626a5561b0998-join-attempt-6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified that every project leaf has canonical close-receipt lineage. The sole dependency, execute, has a digest-linked succeeded receipt with passing governed check evidence. The declared clean-tree check passed, and no project outputs were created.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch && git ls-files && git log --oneline --decorate -10",
+      "exit_code": 0,
+      "output_digest": "sha256:e56561340e5e974d895799c12b1d0e22ab7bf267647a58f8f2626ad851fe855b",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show HEAD:README.md && printf '\\n--- Cargo.toml ---\\n' && git show HEAD:Cargo.toml && printf '\\n--- src/lib.rs ---\\n' && git show HEAD:src/lib.rs && printf '\\n--- tests/target_local.rs ---\\n' && git show HEAD:tests/target_local.rs && printf '\\n--- contract ---\\n' && git show HEAD:docs/human-knowledge-ingestion-contract.md && printf '\\n--- migration ---\\n' && git show HEAD:docs/migration-notes.md",
+      "exit_code": 0,
+      "output_digest": "sha256:91840bf01a94f621883a5a0106b8244fab6e90a3685abdd4ca84222bbabed8fc",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c 'import hashlib,json; p={\"artifacts\":[],\"node_id\":\"execute\",\"receipt_digest\":\"sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e\",\"status\":\"succeeded\",\"summary\":\"Completed the read-only objective synthesis. The declared clean-tree check passed exactly as specified. No project outputs were created. Optional cargo testing was blocked because the package is nested under an undeclared parent Cargo workspace; this did not invalidate the governed check.\",\"test_evidence\":[{\"check_id\":\"clean-tree\",\"command\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"status\":\"passed\"}],\"tool_evidence\":[{\"action\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"tool\":\"terminal\"},{\"action\":\"git status --short --branch && git log --oneline --decorate -10\",\"exit_code\":0,\"output_digest\":\"sha256:7457463f9d9093d87524134b25958935159753862d64f99679af972977344460\",\"tool\":\"terminal\"},{\"action\":\"cargo test --locked\",\"exit_code\":101,\"output_digest\":\"sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3\",\"tool\":\"terminal\"}]}; claimed=p.pop(\"receipt_digest\"); actual=\"sha256:\"+hashlib.sha256(json.dumps(p,sort_keys=True,separators=(\",\",\":\"),ensure_ascii=False).encode()).hexdigest(); assert actual==claimed,(actual,claimed); assert p[\"node_id\"]==\"execute\" and p[\"status\"]==\"succeeded\"; assert p[\"test_evidence\"][0][\"check_id\"]==\"clean-tree\" and p[\"test_evidence\"][0][\"status\"]==\"passed\" and p[\"test_evidence\"][0][\"exit_code\"]==0; print(\"canonical receipt digest verified:\",actual); print(\"project leaf execute has succeeded close-receipt lineage and passed governed check\")'",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "printf '%s' '{\"artifacts\":[],\"node_id\":\"execute\",\"receipt_digest\":\"sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e\",\"status\":\"succeeded\",\"summary\":\"Completed the read-only objective synthesis. The declared clean-tree check passed exactly as specified. No project outputs were created. Optional cargo testing was blocked because the package is nested under an undeclared parent Cargo workspace; this did not invalidate the governed check.\",\"test_evidence\":[{\"check_id\":\"clean-tree\",\"command\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"status\":\"passed\"}],\"tool_evidence\":[{\"action\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"output_digest\":\"sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451\",\"tool\":\"terminal\"},{\"action\":\"git status --short --branch && git log --oneline --decorate -10\",\"exit_code\":0,\"output_digest\":\"sha256:7457463f9d9093d87524134b25958935159753862d64f99679af972977344460\",\"tool\":\"terminal\"},{\"action\":\"cargo test --locked\",\"exit_code\":101,\"output_digest\":\"sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3\",\"tool\":\"terminal\"}]}' | jq -S -c 'del(.receipt_digest)' | tr -d '\\n' | sha256sum",
+      "exit_code": 0,
+      "output_digest": "sha256:76ad6ee9dfa1f1b7409122c989ef4c26518285d55198624a87296d4f13ee9aa9",
+      "tool": "terminal"
+    },
+    {
+      "action": "printf '%s' '{\"node\":{\"id\":\"verify\",\"dependencies\":[\"execute\"],\"parent_receipts\":[\"sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e\"]},\"receipts\":[{\"node_id\":\"execute\",\"receipt_digest\":\"sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e\",\"status\":\"succeeded\",\"artifacts\":[],\"test_evidence\":[{\"check_id\":\"clean-tree\",\"command\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"status\":\"passed\"}]}]}' | jq -e '(.node.dependencies | length) == (.receipts | length) and all(.node.dependencies[]; . as $dep | any($root.receipts[]; .node_id == $dep and .status == \"succeeded\" and (.receipt_digest | startswith(\"sha256:\") and length == 71) and any(.test_evidence[]; .check_id == \"clean-tree\" and .command == \"git diff --exit-code HEAD --\" and .exit_code == 0 and .status == \"passed\") and any($root.node.parent_receipts[]; . == $root.receipts[0].receipt_digest)))'",
+      "exit_code": 3,
+      "output_digest": "sha256:7aea495ea70b6ffd44824877546e6da13a9895b7725f47cc10443d00146c5b23",
+      "tool": "terminal"
+    },
+    {
+      "action": "printf '%s' '{\"node\":{\"id\":\"verify\",\"dependencies\":[\"execute\"],\"parent_receipts\":[\"sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e\"]},\"receipts\":[{\"node_id\":\"execute\",\"receipt_digest\":\"sha256:205c39fbd4ec30b25f3179c27edd9db74c068211383cc78343aeae5d2b119f4e\",\"status\":\"succeeded\",\"artifacts\":[],\"test_evidence\":[{\"check_id\":\"clean-tree\",\"command\":\"git diff --exit-code HEAD --\",\"exit_code\":0,\"status\":\"passed\"}]}]}' | jq -e '. as $root | (.node.dependencies | length) == (.receipts | length) and all(.node.dependencies[]; . as $dep | any($root.receipts[]; .node_id == $dep and .status == \"succeeded\" and (.receipt_digest | startswith(\"sha256:\") and length == 71) and any(.test_evidence[]; .check_id == \"clean-tree\" and .command == \"git diff --exit-code HEAD --\" and .exit_code == 0 and .status == \"passed\") and any($root.node.parent_receipts[]; . == $root.receipts[0].receipt_digest)))'",
+      "exit_code": 0,
+      "output_digest": "sha256:103013c1400a8703bd48013bfb3551c8d0896a45ea173c1b006804425e52421a",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 8,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 27075,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2994,
+    "provider": "openai-codex",
+    "total_tokens": 30069
+  }
+}

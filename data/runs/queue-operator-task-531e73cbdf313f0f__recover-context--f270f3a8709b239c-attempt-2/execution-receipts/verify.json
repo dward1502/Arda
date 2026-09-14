@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3d6b76b6ff9491071ea8c735ef266fb666a74aa44dddaca15722b44bad49df83",
+  "idempotency_key": "queue-operator-task-531e73cbdf313f0f__recover-context--f270f3a8709b239c-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:90687cc9d0d76a25d0929b2a24167d5e7fb2d0dfbaab727c4be55685ae53877f"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:94f94f404b478e51924fcf426460ee7ce21456f8c2e5febc8806c51cdaf9d60a",
+  "recorded_at_unix_ms": 1788235013990,
+  "run_id": "queue-operator-task-531e73cbdf313f0f__recover-context--f270f3a8709b239c-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared check `cargo test -p arda-core` passed with all tests successful and no project files modified.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:341a8dd057a3b5ac4c0105de8228160f509ca1e316ec3896fd823159b750b1e4",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:341a8dd057a3b5ac4c0105de8228160f509ca1e316ec3896fd823159b750b1e4",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10156,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 142,
+    "provider": "openai-codex",
+    "total_tokens": 10298
+  }
+}

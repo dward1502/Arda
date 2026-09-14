@@ -31,6 +31,8 @@ export default function PersonalOperationsModule({
   const [capture, setCapture] = useState('')
   const [busy, setBusy] = useState(false)
   const [selectedReviewIds, setSelectedReviewIds] = useState<Set<string>>(new Set())
+  const [inboxKinds, setInboxKinds] = useState<Record<string, string>>({})
+  const [scheduleDrafts, setScheduleDrafts] = useState<Record<string, string>>({})
   const [deletePending, setDeletePending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState(client || configuredOperatorId
@@ -115,11 +117,77 @@ export default function PersonalOperationsModule({
     }
   }
 
+  const respondToReminder = async (reminderId: string, state: 'deferred' | 'dismissed') => {
+    if (busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.respondToReminder(reminderId, state)
+      setStatus(`Reminder ${state}`)
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus(`Reminder ${state} action failed`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const classifyInboxItem = async (itemId: string) => {
+    if (busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.confirmClassification(itemId, inboxKinds[itemId] ?? 'task')
+      setStatus('Inbox item classified')
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Inbox classification failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const completeItem = async (itemId: string) => {
+    if (busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.completeItem(itemId)
+      setStatus('Item completed')
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Completion failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const scheduleItem = async (itemId: string) => {
+    const draft = scheduleDrafts[itemId]
+    if (!draft || busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.scheduleItem(itemId, new Date(draft).toISOString())
+      setStatus('Item scheduled')
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Scheduling failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const brief = snapshot?.todayBrief.brief
+  const capabilities = snapshot?.capabilities
   const today = brief?.today ?? []
   const waiting = brief?.waiting ?? []
   const inbox = snapshot?.inbox.inbox ?? []
-  const nextAction = today[0] ?? waiting[0] ?? null
+  const nextAction = snapshot?.nextAction.selected ?? null
   const reviewCandidates = [...today, ...waiting]
     .filter((item, index, items) => item.evidence_class !== 'operator_authored'
       && items.findIndex((candidate) => candidate.item_id === item.item_id) === index)
@@ -191,7 +259,14 @@ export default function PersonalOperationsModule({
       <p className="personal-ops__summary">{snapshot?.resume.resume.summary ?? 'Reconstructing local context…'}</p>
       <section className="personal-ops__next" aria-labelledby="personal-ops-next-action">
         <h3 id="personal-ops-next-action">Next action</h3>
-        <p>{nextAction?.content || 'No explicit next action is scheduled.'}</p>
+        <p>{nextAction?.title || snapshot?.nextAction.reason || 'No current trustworthy action is available.'}</p>
+        {nextAction ? (
+          <>
+            <small>{nextAction.source_kind.replace(/_/g, ' ')} · {nextAction.freshness} · {nextAction.authority_state.replace(/_/g, ' ')}</small>
+            <p>{nextAction.next_operator_action}</p>
+            <small>Source: {nextAction.source_ref}</small>
+          </>
+        ) : null}
       </section>
       <div className="personal-ops__capture">
         <label htmlFor="personal-ops-capture">Rapid capture</label>
@@ -230,21 +305,29 @@ export default function PersonalOperationsModule({
                     <span>{item.kind} · {formatTime(item.scheduled_at ?? item.due_at)}</span>
                     <small>{item.evidence_class.split('_').join(' ')}</small>
                     {awaitingAck ? (
-                      <button
-                        type="button"
-                        disabled={busy}
-                        aria-label={`Acknowledge reminder for ${item.content || 'Untitled capture'}`}
-                        onClick={() => void acknowledge(item.reminder_id as string)}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter' || event.key === ' ') {
-                            event.preventDefault()
-                            void acknowledge(item.reminder_id as string)
-                          }
-                        }}
-                      >
-                        Acknowledge
-                      </button>
+                      <div>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          aria-label={`Acknowledge reminder for ${item.content || 'Untitled capture'}`}
+                          onClick={() => void acknowledge(item.reminder_id as string)}
+                        >
+                          Acknowledge
+                        </button>
+                        <button type="button" disabled={busy} onClick={() => void respondToReminder(item.reminder_id as string, 'deferred')}>Defer</button>
+                        <button type="button" disabled={busy} onClick={() => void respondToReminder(item.reminder_id as string, 'dismissed')}>Dismiss</button>
+                      </div>
                     ) : null}
+                    <label>
+                      Schedule
+                      <input
+                        type="datetime-local"
+                        value={scheduleDrafts[item.item_id] ?? ''}
+                        onChange={(event) => setScheduleDrafts((current) => ({ ...current, [item.item_id]: event.target.value }))}
+                      />
+                    </label>
+                    <button type="button" disabled={busy || !scheduleDrafts[item.item_id]} onClick={() => void scheduleItem(item.item_id)}>Save schedule</button>
+                    <button type="button" disabled={busy} onClick={() => void completeItem(item.item_id)}>Mark complete</button>
                   </li>
                 )
               })}
@@ -256,7 +339,26 @@ export default function PersonalOperationsModule({
           <h3 id="personal-ops-inbox">Inbox</h3>
           {inbox.length === 0 ? <p>Inbox clear.</p> : (
             <ul className="personal-ops__list">
-              {inbox.map((item) => <li key={item.capture_id}>{item.content || 'Audio capture'}</li>)}
+              {inbox.map((item) => (
+                <li key={item.capture_id}>
+                  <span>{item.content || 'Audio capture'}</span>
+                  <label>
+                    Classify as
+                    <select
+                      value={inboxKinds[item.capture_id] ?? 'task'}
+                      onChange={(event) => setInboxKinds((current) => ({ ...current, [item.capture_id]: event.target.value }))}
+                    >
+                      <option value="task">Task</option>
+                      <option value="reminder">Reminder</option>
+                      <option value="note">Note</option>
+                      <option value="appointment">Appointment</option>
+                      <option value="contact">Contact</option>
+                      <option value="health">Health</option>
+                    </select>
+                  </label>
+                  <button type="button" disabled={busy} onClick={() => void classifyInboxItem(item.capture_id)}>Confirm classification</button>
+                </li>
+              ))}
             </ul>
           )}
           <h3>Waiting</h3>
@@ -333,7 +435,19 @@ export default function PersonalOperationsModule({
           : `${brief?.reminders_awaiting_ack ?? 0} reminders awaiting acknowledgement`}
       </div>
       <p className="personal-ops__disclosure">{brief?.uncertainty_disclosure ?? 'Brief reconstructed from the local event log.'}</p>
-      <p className="personal-ops__placeholder">Calendar automation and voice capture remain a supervised-adapter placeholder until configured.</p>
+      <section className="personal-ops__capabilities" aria-labelledby="personal-ops-capabilities">
+        <h3 id="personal-ops-capabilities">Connected capabilities</h3>
+        <p>Calendar: {capabilities?.calendar.state ?? 'unknown'} · {capabilities?.calendar.detail ?? 'Backend status unavailable.'}</p>
+        <p>Voice: {capabilities?.voice.state ?? 'unknown'} · {capabilities?.voice.detail ?? 'Backend status unavailable.'}</p>
+        <p>Reminder delivery: {capabilities?.reminders.state ?? 'unknown'} · {capabilities?.reminders.detail ?? 'Backend status unavailable.'}</p>
+        {capabilities?.reminders ? (
+          <small>
+            Maximum {capabilities.reminders.max_attempts} attempts; minimum {capabilities.reminders.minimum_interval_minutes} minutes between attempts; quiet window {capabilities.reminders.quiet_window
+              ? `${capabilities.reminders.quiet_window.start}–${capabilities.reminders.quiet_window.end} ${capabilities.reminders.quiet_window.timezone}`
+              : 'not configured'}; acknowledgement {capabilities.reminders.acknowledgement_required ? 'required' : 'not required'}.
+          </small>
+        ) : null}
+      </section>
     </ModuleCard>
   )
 }

@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:012488f9dd25ce06d29262e2c8fa1f9263da74ba2854e5511f133c668cc0ba1c",
+  "idempotency_key": "queue-operator-objective-8d365678b027149f-project-2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-634b9a3fd1ddff92"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:312dece8762d46070333b9189606bf7f91eb5eb80a2c5711f7d48939672e890d",
+  "recorded_at_unix_ms": 1788415835373,
+  "run_id": "objective-operator-objective-8d365678b027149f-leaf-operator-objective-8d365678b027149f-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project-local inspection completed without modifications. Integration authority: tool-gate is ARDA’s deterministic pre-execution policy boundary; callers provide ToolMetadata and InvocationEnvelope through the Rust library or CLI, then consume a tool-gate.decision.v1 receipt with allow, deny, or review_required and corresponding CLI exit codes 0, 3, or 2 (README.md:5-13, README.md:51-61, README.md:89-107, src/main.rs:35-70, src/receipt.rs:19-37). Readiness evidence: checked-in JSON schemas define metadata, invocation, and receipt contracts (schemas/*.schema.json); policy code validates inputs and tool identity, target scope, trace requirements, mutation idempotency, and review gates (src/types.rs:56-90, src/policy.rs:23-157); repository tests cover allowed read-only calls, missing-trace denial, critical review, receipt schema version, and CLI deny exit behavior (tests/policy_decisions.rs:34-64, tests/cli_contract.rs:4-35); CI declares formatting, clippy, tests, and documentation checks (.github/workflows/ci.yml:1-12). Declared check outcome: `git diff --exit-code HEAD --` exited 0, confirming the tracked tree matched HEAD before inspection. Named integration blockers: the project intentionally supplies no tool catalog, queue/storage integration, authentication, authorization, sandbox, or execution runtime, so production integration must provide adapters and must enforce that only allow receipts reach execution (README.md:31-33, README.md:58-61, README.md:156-158). This node’s only declared check was clean-tree, so build, test, clippy, formatting, and documentation commands were not executed here and remain unverified runtime readiness signals.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch",
+      "exit_code": 0,
+      "output_digest": "sha256:6504daff6e1cadfe87a4c88628079fa6fdffd231f2f8278d4b75b5f271278c22",
+      "tool": "terminal"
+    },
+    {
+      "action": "git ls-files",
+      "exit_code": 0,
+      "output_digest": "sha256:000f899b41e56cbde280ab253a44359bc7d493915c135627382d93859167be1a",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 26762,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1705,
+    "provider": "openai-codex",
+    "total_tokens": 28467
+  }
+}

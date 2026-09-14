@@ -6,10 +6,10 @@ soterion:
   role: "release_baseline"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-12"
+  last_reviewed: "2026-08-17"
 ---
 
-> 🜏 Soterion: 📜 release_baseline | owner: HADES | status: active | reviewed: 2026-08-12
+> 🜏 Soterion: 📜 release_baseline | owner: HADES | status: active | reviewed: 2026-08-17
 
 # Arda 0.9 Baseline
 
@@ -52,7 +52,7 @@ integrations are optional or deferred and do not block this baseline.
 | HUD authority boundary | implemented and tested | Rust owns health, Workbench, Research, Personal Operations, errors, identity, and monitor sessions; React is not authority. |
 | Five upper monitor sessions | operator-accepted implementation | Native session ownership, workstation continuity, and restart recovery passed; future information-display refinement is not a 0.9 blocker. |
 | Research/watchlists | bounded workflow-proven slice | Authenticated question/watchlist lifecycle and restart recovery pass; broader research expansion remains optional. |
-| Personal Operations | implemented; operator acceptance open | Automated contracts, restart, privacy, export/deletion, and HUD paths exist. Genuine usefulness/burden dogfood remains open through 2026-08-17. |
+| Personal Operations | implemented; operator acceptance open | Automated contracts, restart, privacy, export/deletion, and HUD paths exist. The 2026-08-10–17 dogfood record contained no representative use, so usefulness/burden remains unproven. |
 | Launcher and Linux packaging | package-proven | AppImage, DEB, and RPM have been built; the 0.9 package is an unsigned personal baseline. |
 | Provider/local inference routing | compile/runtime-supported | Manwë is canonical. Individual providers and useful council roles remain configuration- and evidence-dependent. |
 | Phone access | architectural/partial | Phone/desktop shared canonical-state proof is deferred; no 0.9 supported-phone claim is made. |
@@ -73,6 +73,10 @@ The pre-baseline verification completed on 2026-08-12 records:
   reported none; HUD production dependencies retained 1 low and 5 moderate
   findings for assessment, with no high/critical finding reported.
 
+The HUD findings in that 2026-08-12 snapshot were resolved on 2026-08-13 by
+upgrading to `mermaid 11.16.1` and transitive `dompurify 3.4.13`; the post-change
+production audit reports zero findings.
+
 Detailed command and blocker evidence is retained in
 [`u6-audit-and-preflight-20260812.md`](../../evidence/stage-6-1.0/u6-audit-and-preflight-20260812.md).
 This baseline does not turn historical test output into exact-byte qualification
@@ -83,18 +87,22 @@ of a later artifact.
 1. The 0.9 artifact is unsigned and self-qualified.
 2. Independent flow/evaluator review is intentionally omitted for this personal
    baseline and must not be represented as completed.
-3. Personal Operations has not yet received the operator's sustained-use verdict.
+3. Personal Operations did not receive representative use during its first bounded dogfood window and remains unaccepted pending a future genuine-use review.
 4. Phone/desktop canonical-state, some whole-system vertical proofs, and a useful
    independent local-inference council role remain unproven.
 5. The supported package matrix is intentionally narrow; other Linux profiles
    provide compatibility feedback only.
 6. Runtime endpoints are loopback-only; network exposure and multi-user use are
    unsupported.
-7. Older generated/vendored documentation contains a known stale-link backlog;
-   active plan and baseline links are held to the current documentation gate.
-8. Exact signed-byte lifecycle, final accessibility/performance qualification,
+7. Exact signed-byte lifecycle, final accessibility/performance qualification,
    and an independent release-critical security review are deferred to a future
    public/final release decision.
+8. The qualified native candidate's renderer, resource, semantic-control, and
+   accessible-name regressions were repaired before its final
+   `c9ae440b0f5839737a981ea1853975b81d7512e0e5828c0d4a201adcaacb4c2a`
+   rebuild. Later lower-workstation source changes passed separate native and
+   automated qualification but are not claimed as repackaged original 0.9
+   download bytes.
 
 ## Review policy
 
@@ -108,9 +116,11 @@ independent release-critical security/code review, genuine operator acceptance,
 and the required whole-system proofs. Those requirements are deferred, not
 waived or marked complete.
 
-## Remaining work authority
+## Continuing authority
 
-Current work is limited to the finite items in
-[`../../plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](../../plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
-Future `1.0` vision and qualification material is retained under
-`docs/archive/deferred/1.0/` and holds no active 0.9 planning authority.
+The finite 0.9 improvement plan is a completed
+[historical record](../../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
+Personal Operations acceptance remains open in its operational acceptance
+record; further 0.9 implementation is defect-driven. Future `1.0` vision and
+qualification material is retained under `docs/archive/deferred/1.0/` and holds
+no active 0.9 planning authority.

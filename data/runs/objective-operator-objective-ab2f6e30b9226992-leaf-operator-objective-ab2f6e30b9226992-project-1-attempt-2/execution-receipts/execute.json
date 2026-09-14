@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:41d6bb5873068403491774df28c1e1027b2d04c06a776d8dc76c268469871bf6",
+  "idempotency_key": "queue-operator-objective-ab2f6e30b9226992-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:9e19459526538b426346b400bce70f6193d7fca11fc9f494b1b8b4fd3023f56a"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:bd6e19f9313a145ee87e4f8507129db1982d8cadb53678a97c8669d8303f6495",
+  "recorded_at_unix_ms": 1788412278718,
+  "run_id": "objective-operator-objective-ab2f6e30b9226992-leaf-operator-objective-ab2f6e30b9226992-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Integration-readiness brief — annunimas-human-tenant: PASS for its declared project check, `git diff --exit-code HEAD --` (exit 0). The tenant contains local scan and missing-vault tests, but is not independently deployable: Cargo.toml:13-14 still binds it to Annunimas path dependencies, while docs/migration-notes.md:7-10 confirms live vault data and runtime ledgers were not copied and compatibility removal remains gated. Annunimas/annunimas-human: its project-specific compatibility check is `cargo test -p annunimas-human --test target_local` (docs/migration-notes.md:15); outcome in this bounded node is NOT RUN because that project is outside the approved root, so upstream compatibility is unverified here. Shared integration risks are the unresolved cross-project dependency seam, absent tenant runtime/data state, and lack of current upstream compatibility evidence. Recommended operator action: authorize and run the documented `cargo test -p annunimas-human --test target_local` check in the Annunimas project before approving integration or removing the compatibility seam.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 11,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14028,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1668,
+    "provider": "openai-codex",
+    "total_tokens": 15696
+  }
+}

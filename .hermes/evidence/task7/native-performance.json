@@ -1,0 +1,2053 @@
+{
+  "schema_version": "arda.hud.native-performance.v1",
+  "root_pid": 861388,
+  "interval_seconds": 10,
+  "samples": [
+    {
+      "index": 0,
+      "monotonic_seconds": 88482.292078911,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 3197,
+          "memory_kib": {
+            "Pss": 154226,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 26,
+          "memory_kib": {
+            "Pss": 21172,
+            "Shared_Clean": 39484,
+            "Anonymous": 13008,
+            "Private_Dirty": 13008,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53740
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 2991,
+          "memory_kib": {
+            "Pss": 274699,
+            "Shared_Clean": 144872,
+            "Anonymous": 161540,
+            "Private_Dirty": 215564,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373492
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 113,
+          "memory_kib": {
+            "Pss": 163464,
+            "Shared_Clean": 143844,
+            "Anonymous": 93284,
+            "Private_Dirty": 113624,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 261660
+          }
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "monotonic_seconds": 88492.329476479,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 3330,
+          "memory_kib": {
+            "Pss": 154326,
+            "Shared_Clean": 102868,
+            "Anonymous": 75556,
+            "Private_Dirty": 108976,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231620
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 27,
+          "memory_kib": {
+            "Pss": 21120,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 3109,
+          "memory_kib": {
+            "Pss": 275944,
+            "Shared_Clean": 144872,
+            "Anonymous": 162784,
+            "Private_Dirty": 216808,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 374736
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 116,
+          "memory_kib": {
+            "Pss": 163601,
+            "Shared_Clean": 143844,
+            "Anonymous": 93420,
+            "Private_Dirty": 113760,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 261796
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "monotonic_seconds": 88502.368879922,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 3476,
+          "memory_kib": {
+            "Pss": 154226,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 28,
+          "memory_kib": {
+            "Pss": 21120,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 3234,
+          "memory_kib": {
+            "Pss": 273676,
+            "Shared_Clean": 144872,
+            "Anonymous": 160516,
+            "Private_Dirty": 214540,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372468
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 117,
+          "memory_kib": {
+            "Pss": 163805,
+            "Shared_Clean": 143844,
+            "Anonymous": 93624,
+            "Private_Dirty": 113964,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 262000
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "monotonic_seconds": 88512.405325984,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 3622,
+          "memory_kib": {
+            "Pss": 154322,
+            "Shared_Clean": 102868,
+            "Anonymous": 75552,
+            "Private_Dirty": 108972,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231616
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 28,
+          "memory_kib": {
+            "Pss": 21120,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 3369,
+          "memory_kib": {
+            "Pss": 274395,
+            "Shared_Clean": 144872,
+            "Anonymous": 161236,
+            "Private_Dirty": 215260,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373188
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 121,
+          "memory_kib": {
+            "Pss": 164245,
+            "Shared_Clean": 143844,
+            "Anonymous": 94064,
+            "Private_Dirty": 114404,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 262440
+          }
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "monotonic_seconds": 88522.442897234,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 3767,
+          "memory_kib": {
+            "Pss": 154216,
+            "Shared_Clean": 102868,
+            "Anonymous": 75444,
+            "Private_Dirty": 108864,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231508
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 29,
+          "memory_kib": {
+            "Pss": 21179,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 3500,
+          "memory_kib": {
+            "Pss": 273766,
+            "Shared_Clean": 144872,
+            "Anonymous": 160604,
+            "Private_Dirty": 214628,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372556
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 124,
+          "memory_kib": {
+            "Pss": 164579,
+            "Shared_Clean": 143844,
+            "Anonymous": 94396,
+            "Private_Dirty": 114736,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 262772
+          }
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "monotonic_seconds": 88532.479332866,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 3903,
+          "memory_kib": {
+            "Pss": 154228,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 29,
+          "memory_kib": {
+            "Pss": 21159,
+            "Shared_Clean": 39484,
+            "Anonymous": 12992,
+            "Private_Dirty": 12992,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53724
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 3623,
+          "memory_kib": {
+            "Pss": 273946,
+            "Shared_Clean": 144872,
+            "Anonymous": 160784,
+            "Private_Dirty": 214808,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372736
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 127,
+          "memory_kib": {
+            "Pss": 165891,
+            "Shared_Clean": 143844,
+            "Anonymous": 95708,
+            "Private_Dirty": 116048,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 264084
+          }
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "monotonic_seconds": 88542.516405409,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 4041,
+          "memory_kib": {
+            "Pss": 154212,
+            "Shared_Clean": 102868,
+            "Anonymous": 75440,
+            "Private_Dirty": 108860,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231504
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 30,
+          "memory_kib": {
+            "Pss": 21123,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 3752,
+          "memory_kib": {
+            "Pss": 274010,
+            "Shared_Clean": 144872,
+            "Anonymous": 160848,
+            "Private_Dirty": 214872,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372800
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 130,
+          "memory_kib": {
+            "Pss": 165155,
+            "Shared_Clean": 143844,
+            "Anonymous": 94972,
+            "Private_Dirty": 115312,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 263348
+          }
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "monotonic_seconds": 88552.557716043,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 4186,
+          "memory_kib": {
+            "Pss": 154322,
+            "Shared_Clean": 102868,
+            "Anonymous": 75552,
+            "Private_Dirty": 108972,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231616
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 30,
+          "memory_kib": {
+            "Pss": 21176,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 3881,
+          "memory_kib": {
+            "Pss": 275631,
+            "Shared_Clean": 144872,
+            "Anonymous": 162472,
+            "Private_Dirty": 216496,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 374424
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 135,
+          "memory_kib": {
+            "Pss": 159149,
+            "Shared_Clean": 143844,
+            "Anonymous": 88968,
+            "Private_Dirty": 109308,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257344
+          }
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "monotonic_seconds": 88562.593873761,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 4332,
+          "memory_kib": {
+            "Pss": 154226,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 30,
+          "memory_kib": {
+            "Pss": 21120,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4013,
+          "memory_kib": {
+            "Pss": 273860,
+            "Shared_Clean": 144872,
+            "Anonymous": 160700,
+            "Private_Dirty": 214724,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372652
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 137,
+          "memory_kib": {
+            "Pss": 158129,
+            "Shared_Clean": 143844,
+            "Anonymous": 87948,
+            "Private_Dirty": 108288,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 256324
+          }
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "monotonic_seconds": 88572.632688792,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 4478,
+          "memory_kib": {
+            "Pss": 154318,
+            "Shared_Clean": 102868,
+            "Anonymous": 75548,
+            "Private_Dirty": 108968,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231612
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 31,
+          "memory_kib": {
+            "Pss": 21120,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4148,
+          "memory_kib": {
+            "Pss": 275339,
+            "Shared_Clean": 144872,
+            "Anonymous": 162180,
+            "Private_Dirty": 216204,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 374132
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 141,
+          "memory_kib": {
+            "Pss": 157757,
+            "Shared_Clean": 143844,
+            "Anonymous": 87576,
+            "Private_Dirty": 107916,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 255952
+          }
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "monotonic_seconds": 88582.669060134,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 4615,
+          "memory_kib": {
+            "Pss": 154226,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 31,
+          "memory_kib": {
+            "Pss": 21176,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4271,
+          "memory_kib": {
+            "Pss": 273176,
+            "Shared_Clean": 144872,
+            "Anonymous": 160016,
+            "Private_Dirty": 214040,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 371968
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 143,
+          "memory_kib": {
+            "Pss": 158105,
+            "Shared_Clean": 143844,
+            "Anonymous": 87924,
+            "Private_Dirty": 108264,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 256300
+          }
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "monotonic_seconds": 88592.707232714,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 4751,
+          "memory_kib": {
+            "Pss": 154210,
+            "Shared_Clean": 102868,
+            "Anonymous": 75440,
+            "Private_Dirty": 108860,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231504
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 32,
+          "memory_kib": {
+            "Pss": 21120,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4393,
+          "memory_kib": {
+            "Pss": 274784,
+            "Shared_Clean": 144872,
+            "Anonymous": 161624,
+            "Private_Dirty": 215648,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373576
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 146,
+          "memory_kib": {
+            "Pss": 158225,
+            "Shared_Clean": 143844,
+            "Anonymous": 88044,
+            "Private_Dirty": 108384,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 256420
+          }
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "monotonic_seconds": 88602.745140351,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 4897,
+          "memory_kib": {
+            "Pss": 154306,
+            "Shared_Clean": 102868,
+            "Anonymous": 75536,
+            "Private_Dirty": 108956,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231600
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 33,
+          "memory_kib": {
+            "Pss": 21120,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4524,
+          "memory_kib": {
+            "Pss": 275119,
+            "Shared_Clean": 144872,
+            "Anonymous": 161960,
+            "Private_Dirty": 215984,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373912
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 151,
+          "memory_kib": {
+            "Pss": 160145,
+            "Shared_Clean": 143844,
+            "Anonymous": 89964,
+            "Private_Dirty": 110304,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 258340
+          }
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "monotonic_seconds": 88612.784552153,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 5042,
+          "memory_kib": {
+            "Pss": 154231,
+            "Shared_Clean": 102868,
+            "Anonymous": 75460,
+            "Private_Dirty": 108880,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231524
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 33,
+          "memory_kib": {
+            "Pss": 21175,
+            "Shared_Clean": 39484,
+            "Anonymous": 13008,
+            "Private_Dirty": 13008,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53740
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4655,
+          "memory_kib": {
+            "Pss": 275073,
+            "Shared_Clean": 144872,
+            "Anonymous": 161912,
+            "Private_Dirty": 215936,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373864
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 154,
+          "memory_kib": {
+            "Pss": 159339,
+            "Shared_Clean": 143844,
+            "Anonymous": 89156,
+            "Private_Dirty": 109496,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257532
+          }
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "monotonic_seconds": 88622.821540284,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 5179,
+          "memory_kib": {
+            "Pss": 154232,
+            "Shared_Clean": 102868,
+            "Anonymous": 75460,
+            "Private_Dirty": 108880,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231524
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 33,
+          "memory_kib": {
+            "Pss": 21179,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4777,
+          "memory_kib": {
+            "Pss": 276649,
+            "Shared_Clean": 144872,
+            "Anonymous": 163488,
+            "Private_Dirty": 217512,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 375440
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 155,
+          "memory_kib": {
+            "Pss": 159215,
+            "Shared_Clean": 143844,
+            "Anonymous": 89032,
+            "Private_Dirty": 109372,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257408
+          }
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "monotonic_seconds": 88632.858969233,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 5315,
+          "memory_kib": {
+            "Pss": 154311,
+            "Shared_Clean": 102868,
+            "Anonymous": 75540,
+            "Private_Dirty": 108960,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231604
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 34,
+          "memory_kib": {
+            "Pss": 21159,
+            "Shared_Clean": 39484,
+            "Anonymous": 12992,
+            "Private_Dirty": 12992,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53724
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 4902,
+          "memory_kib": {
+            "Pss": 276648,
+            "Shared_Clean": 144872,
+            "Anonymous": 163488,
+            "Private_Dirty": 217512,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 375440
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 160,
+          "memory_kib": {
+            "Pss": 159655,
+            "Shared_Clean": 143844,
+            "Anonymous": 89472,
+            "Private_Dirty": 109812,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257848
+          }
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "monotonic_seconds": 88642.89449911,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 5459,
+          "memory_kib": {
+            "Pss": 154210,
+            "Shared_Clean": 102868,
+            "Anonymous": 75440,
+            "Private_Dirty": 108860,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231504
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 34,
+          "memory_kib": {
+            "Pss": 21172,
+            "Shared_Clean": 39484,
+            "Anonymous": 13008,
+            "Private_Dirty": 13008,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53740
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5035,
+          "memory_kib": {
+            "Pss": 273243,
+            "Shared_Clean": 144872,
+            "Anonymous": 160084,
+            "Private_Dirty": 214108,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372036
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 161,
+          "memory_kib": {
+            "Pss": 159497,
+            "Shared_Clean": 143844,
+            "Anonymous": 89316,
+            "Private_Dirty": 109656,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257692
+          }
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "monotonic_seconds": 88652.931213646,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 5595,
+          "memory_kib": {
+            "Pss": 154226,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 35,
+          "memory_kib": {
+            "Pss": 21176,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5158,
+          "memory_kib": {
+            "Pss": 274640,
+            "Shared_Clean": 144872,
+            "Anonymous": 161480,
+            "Private_Dirty": 215504,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373432
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 163,
+          "memory_kib": {
+            "Pss": 160625,
+            "Shared_Clean": 143844,
+            "Anonymous": 90444,
+            "Private_Dirty": 110784,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 258820
+          }
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "monotonic_seconds": 88662.967907112,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 5741,
+          "memory_kib": {
+            "Pss": 154230,
+            "Shared_Clean": 102868,
+            "Anonymous": 75460,
+            "Private_Dirty": 108880,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231524
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 36,
+          "memory_kib": {
+            "Pss": 21156,
+            "Shared_Clean": 39484,
+            "Anonymous": 12992,
+            "Private_Dirty": 12992,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53724
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5290,
+          "memory_kib": {
+            "Pss": 274628,
+            "Shared_Clean": 144872,
+            "Anonymous": 161468,
+            "Private_Dirty": 215492,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373420
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 167,
+          "memory_kib": {
+            "Pss": 160321,
+            "Shared_Clean": 143844,
+            "Anonymous": 90140,
+            "Private_Dirty": 110480,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 258516
+          }
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "monotonic_seconds": 88673.003968848,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 5878,
+          "memory_kib": {
+            "Pss": 154326,
+            "Shared_Clean": 102868,
+            "Anonymous": 75556,
+            "Private_Dirty": 108976,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231620
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 37,
+          "memory_kib": {
+            "Pss": 21156,
+            "Shared_Clean": 39484,
+            "Anonymous": 12992,
+            "Private_Dirty": 12992,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53724
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5415,
+          "memory_kib": {
+            "Pss": 274655,
+            "Shared_Clean": 144872,
+            "Anonymous": 161496,
+            "Private_Dirty": 215520,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373448
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 169,
+          "memory_kib": {
+            "Pss": 160501,
+            "Shared_Clean": 143844,
+            "Anonymous": 90320,
+            "Private_Dirty": 110660,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 258696
+          }
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "monotonic_seconds": 88683.039576566,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 6013,
+          "memory_kib": {
+            "Pss": 154239,
+            "Shared_Clean": 102868,
+            "Anonymous": 75460,
+            "Private_Dirty": 108880,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231524
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 37,
+          "memory_kib": {
+            "Pss": 21182,
+            "Shared_Clean": 39484,
+            "Anonymous": 13008,
+            "Private_Dirty": 13008,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53740
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5539,
+          "memory_kib": {
+            "Pss": 275756,
+            "Shared_Clean": 144872,
+            "Anonymous": 162584,
+            "Private_Dirty": 216608,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 374536
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 173,
+          "memory_kib": {
+            "Pss": 160260,
+            "Shared_Clean": 143844,
+            "Anonymous": 90068,
+            "Private_Dirty": 110408,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 258444
+          }
+        }
+      ]
+    },
+    {
+      "index": 21,
+      "monotonic_seconds": 88693.079100999,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 6157,
+          "memory_kib": {
+            "Pss": 154335,
+            "Shared_Clean": 102868,
+            "Anonymous": 75556,
+            "Private_Dirty": 108976,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231620
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 37,
+          "memory_kib": {
+            "Pss": 21130,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5672,
+          "memory_kib": {
+            "Pss": 276150,
+            "Shared_Clean": 144872,
+            "Anonymous": 162980,
+            "Private_Dirty": 217004,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 374932
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 177,
+          "memory_kib": {
+            "Pss": 159696,
+            "Shared_Clean": 143844,
+            "Anonymous": 89504,
+            "Private_Dirty": 109844,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257880
+          }
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "monotonic_seconds": 88703.118653702,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 6301,
+          "memory_kib": {
+            "Pss": 154221,
+            "Shared_Clean": 102868,
+            "Anonymous": 75440,
+            "Private_Dirty": 108860,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231504
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 38,
+          "memory_kib": {
+            "Pss": 21133,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5809,
+          "memory_kib": {
+            "Pss": 273310,
+            "Shared_Clean": 144872,
+            "Anonymous": 160136,
+            "Private_Dirty": 214160,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372088
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 179,
+          "memory_kib": {
+            "Pss": 159642,
+            "Shared_Clean": 143844,
+            "Anonymous": 89448,
+            "Private_Dirty": 109788,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257824
+          }
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "monotonic_seconds": 88713.157511993,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 6446,
+          "memory_kib": {
+            "Pss": 154237,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 38,
+          "memory_kib": {
+            "Pss": 21189,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 5941,
+          "memory_kib": {
+            "Pss": 273774,
+            "Shared_Clean": 144872,
+            "Anonymous": 160600,
+            "Private_Dirty": 214624,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372552
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 180,
+          "memory_kib": {
+            "Pss": 159562,
+            "Shared_Clean": 143844,
+            "Anonymous": 89368,
+            "Private_Dirty": 109708,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257744
+          }
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "monotonic_seconds": 88723.1972484,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 6582,
+          "memory_kib": {
+            "Pss": 154257,
+            "Shared_Clean": 102868,
+            "Anonymous": 75476,
+            "Private_Dirty": 108896,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231540
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 38,
+          "memory_kib": {
+            "Pss": 21169,
+            "Shared_Clean": 39484,
+            "Anonymous": 12992,
+            "Private_Dirty": 12992,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53724
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 6066,
+          "memory_kib": {
+            "Pss": 273589,
+            "Shared_Clean": 144872,
+            "Anonymous": 160416,
+            "Private_Dirty": 214440,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372368
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 185,
+          "memory_kib": {
+            "Pss": 159322,
+            "Shared_Clean": 143844,
+            "Anonymous": 89128,
+            "Private_Dirty": 109468,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257504
+          }
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "monotonic_seconds": 88733.238046466,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 6728,
+          "memory_kib": {
+            "Pss": 154351,
+            "Shared_Clean": 102868,
+            "Anonymous": 75572,
+            "Private_Dirty": 108992,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231636
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 39,
+          "memory_kib": {
+            "Pss": 21166,
+            "Shared_Clean": 39484,
+            "Anonymous": 12992,
+            "Private_Dirty": 12992,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53724
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 6199,
+          "memory_kib": {
+            "Pss": 273586,
+            "Shared_Clean": 144872,
+            "Anonymous": 160416,
+            "Private_Dirty": 214440,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 372368
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 187,
+          "memory_kib": {
+            "Pss": 158667,
+            "Shared_Clean": 143844,
+            "Anonymous": 88476,
+            "Private_Dirty": 108816,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 256852
+          }
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "monotonic_seconds": 88743.274134944,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 6872,
+          "memory_kib": {
+            "Pss": 154235,
+            "Shared_Clean": 102868,
+            "Anonymous": 75456,
+            "Private_Dirty": 108876,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231520
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 40,
+          "memory_kib": {
+            "Pss": 21182,
+            "Shared_Clean": 39484,
+            "Anonymous": 13008,
+            "Private_Dirty": 13008,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53740
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 6333,
+          "memory_kib": {
+            "Pss": 277828,
+            "Shared_Clean": 144872,
+            "Anonymous": 164656,
+            "Private_Dirty": 218680,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 376608
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 189,
+          "memory_kib": {
+            "Pss": 159136,
+            "Shared_Clean": 143844,
+            "Anonymous": 88944,
+            "Private_Dirty": 109284,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257320
+          }
+        }
+      ]
+    },
+    {
+      "index": 27,
+      "monotonic_seconds": 88753.311032414,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 7017,
+          "memory_kib": {
+            "Pss": 154255,
+            "Shared_Clean": 102868,
+            "Anonymous": 75476,
+            "Private_Dirty": 108896,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231540
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 40,
+          "memory_kib": {
+            "Pss": 21186,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 6470,
+          "memory_kib": {
+            "Pss": 275087,
+            "Shared_Clean": 144872,
+            "Anonymous": 161916,
+            "Private_Dirty": 215940,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373868
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 192,
+          "memory_kib": {
+            "Pss": 159468,
+            "Shared_Clean": 143844,
+            "Anonymous": 89276,
+            "Private_Dirty": 109616,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257652
+          }
+        }
+      ]
+    },
+    {
+      "index": 28,
+      "monotonic_seconds": 88763.346986978,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 7153,
+          "memory_kib": {
+            "Pss": 154247,
+            "Shared_Clean": 102868,
+            "Anonymous": 75468,
+            "Private_Dirty": 108888,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231532
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 41,
+          "memory_kib": {
+            "Pss": 21130,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 6592,
+          "memory_kib": {
+            "Pss": 276134,
+            "Shared_Clean": 144872,
+            "Anonymous": 162964,
+            "Private_Dirty": 216988,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 374916
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 194,
+          "memory_kib": {
+            "Pss": 158944,
+            "Shared_Clean": 143844,
+            "Anonymous": 88752,
+            "Private_Dirty": 109092,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257128
+          }
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "monotonic_seconds": 88773.383019893,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 7281,
+          "memory_kib": {
+            "Pss": 154239,
+            "Shared_Clean": 102868,
+            "Anonymous": 75460,
+            "Private_Dirty": 108880,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231524
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 41,
+          "memory_kib": {
+            "Pss": 21130,
+            "Shared_Clean": 39484,
+            "Anonymous": 12956,
+            "Private_Dirty": 12956,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53688
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 6710,
+          "memory_kib": {
+            "Pss": 279740,
+            "Shared_Clean": 144872,
+            "Anonymous": 166568,
+            "Private_Dirty": 220592,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 378520
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 197,
+          "memory_kib": {
+            "Pss": 160200,
+            "Shared_Clean": 143844,
+            "Anonymous": 90008,
+            "Private_Dirty": 110348,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 258384
+          }
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "monotonic_seconds": 88783.420112226,
+      "processes": [
+        {
+          "pid": 861388,
+          "comm": "arda_hud",
+          "cpu_ticks": 7426,
+          "memory_kib": {
+            "Pss": 154227,
+            "Shared_Clean": 102868,
+            "Anonymous": 75448,
+            "Private_Dirty": 108868,
+            "Shared_Dirty": 40,
+            "Swap": 0,
+            "Private_Clean": 19736,
+            "Rss": 231512
+          }
+        },
+        {
+          "pid": 861676,
+          "comm": "WebKitNetworkPr",
+          "cpu_ticks": 42,
+          "memory_kib": {
+            "Pss": 21186,
+            "Shared_Clean": 39484,
+            "Anonymous": 13012,
+            "Private_Dirty": 13012,
+            "Shared_Dirty": 4,
+            "Swap": 0,
+            "Private_Clean": 1244,
+            "Rss": 53744
+          }
+        },
+        {
+          "pid": 861698,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 6844,
+          "memory_kib": {
+            "Pss": 274500,
+            "Shared_Clean": 144872,
+            "Anonymous": 161328,
+            "Private_Dirty": 215352,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 13048,
+            "Rss": 373280
+          }
+        },
+        {
+          "pid": 865900,
+          "comm": "WebKitWebProces",
+          "cpu_ticks": 200,
+          "memory_kib": {
+            "Pss": 159784,
+            "Shared_Clean": 143844,
+            "Anonymous": 89592,
+            "Private_Dirty": 109932,
+            "Shared_Dirty": 8,
+            "Swap": 0,
+            "Private_Clean": 4184,
+            "Rss": 257968
+          }
+        }
+      ]
+    }
+  ]
+}

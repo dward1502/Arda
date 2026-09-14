@@ -50,3 +50,32 @@ fn governance_status_command_reports_conservative_readiness() {
     assert!(report.get("recent_ledger").is_some());
     assert!(report.get("metrics").is_some());
 }
+
+#[test]
+fn legacy_queue_execution_and_mutation_commands_are_retired() {
+    for command in [
+        "next-approved-task",
+        "execute-approved-task",
+        "cancel-approved-task",
+        "pause-schedule",
+        "resume-schedule",
+        "reprioritize-task",
+        "revise-objective",
+        "approve-revised-objective",
+        "retry-approved-task",
+    ] {
+        let output = arda_cli()
+            .args(["prometheus", "autopilot", command])
+            .output()
+            .expect("run retired command");
+        assert!(
+            !output.status.success(),
+            "retired legacy queue command remained callable: {command}"
+        );
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("unrecognized subcommand"),
+            "unexpected retirement response for {command}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+}

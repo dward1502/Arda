@@ -2,6 +2,8 @@
 import type { AutomationStatusSurface } from './automationStatus'
 import type { ArdaSourceProvenance } from './ardaProvenance'
 import type { OperatorProjection } from './operatorProjection'
+import type { ContinuityProjection } from './continuity'
+import type { MirromereSurface } from '../features/mirromere/types'
 import type { AgentPresenceState, PresenceLedgerStatus } from '../scene/systems/presenceTypes'
 
 export type JsonRecord = Record<string, unknown>
@@ -82,6 +84,8 @@ export interface ArdaBundle {
   settings: JsonRecord | null
   snapshot: JsonRecord | null
   operatorProjection: OperatorProjection | null
+  continuityProjection?: ContinuityProjection | null
+  mirromereSurface?: MirromereSurface | null
   remoteConfidenceSnapshot: JsonRecord | null
   safeLocalWorkCyclePreflight: JsonRecord | null
   l3ReadinessProjection: JsonRecord | null
@@ -114,6 +118,12 @@ export interface ArdaBundle {
   queueSummary: JsonRecord | null
   queueFederation: JsonRecord | null
   fleetRuntimeDrift: JsonRecord | null
+  fleetRuntime: JsonRecord | null
+  fleetNodes: JsonRecord | null
+  fleetModels: JsonRecord | null
+  fleetHealth: JsonRecord | null
+  fleetHardware: JsonRecord | null
+  fleetBackbone: JsonRecord | null
   taskLifecycleRuntime: JsonRecord | null
   operatorRuntimeStatus: JsonRecord | null
   humanAugmentationRuntime: JsonRecord | null

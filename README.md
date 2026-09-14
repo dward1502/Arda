@@ -4,12 +4,12 @@
 
 Arda helps one sovereign operator organize personal life and projects, preserve context, coordinate hosted and local workers, integrate external systems, and act proactively without taking unearned authority. Workbench, Personal Operations, research, council, economic tools, and device/outpost integrations are composable capabilities over one task, memory, governance, communications, and receipt model—not separate product identities. The canonical Rust workspace lives in this repository; `~/Annunimas` is reference architecture and should not be modified unless explicitly requested.
 
-The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) remains future doctrine rather than active 0.9 execution authority.
+The installed/release support authority remains the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). Cohesive system development follows the [Digital Organism Authority and Transport Map](docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md); the completed planning program is preserved in the [Digital Organism archive](docs/archive/digital-organism/README.md). Hermes remains the primary conversational and worker runtime while Arda composes organism identity, node topology, capability placement, continuity, governance, homeostasis, receipts, and embodiment boundaries. The active [Arda Whole-System Completion Program](docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md) owns autonomous completion, provider convergence, connected projects, and daily improvement; the [Ambient Agent Program](docs/plans/ambient-agent/README.md) remains downstream embodiment planning held behind that verified completion loop. The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) is active product doctrine, not proof that its runtime slices are complete.
 
 ## Current workspace status
 
-- `cargo metadata --no-deps --format-version 1` resolves 18 current workspace
-  packages (16 default members) as of 2026-08-08.
+- `cargo metadata --no-deps --format-version 1` resolves 19 current workspace
+  packages (17 default members) as of 2026-08-30.
 - The root binary is `arda`; the workspace has no `arda-council` package.
 - Installed services and listeners are runtime evidence, not Cargo topology or
   release support. Use `ARDA_SYSTEM_STATUS_REPORT.md` for the latest bounded
@@ -35,6 +35,8 @@ The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASEL
 | `crates/spine/executors/arda-varda` | Rust library | Athena agent + ingest/query/deep-analysis + HTTP transport |
 | `crates/spine/observability/arda-aule` | Rust library + CLI | Prometheus/CEO autopilot, CLI, observability surfaces |
 | `apps/arda-launcher` | Tauri app | Operator desktop launcher |
+| `apps/arda-hud` | Tauri + React app | Desktop embodiment, native workstations, and Mirromere proving ground |
+| `outposts/` | Rust crates | Typed outpost, presence, and RELIC transport boundaries |
 | `config/` | Config | Operator-managed config and generated runtime env files |
 | `docs/` | Docs | Architecture, operations, plans, identity docs |
 
@@ -43,11 +45,14 @@ The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASEL
 1. This file (`README.md`).
 2. `AGENTS.md` — working rules and canonical source layout.
 3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` — product doctrine and capability-composition model.
-4. `docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — finite active improvement and evidence frontier.
-5. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
-6. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,
+4. `docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md` — active authority and transport ownership for the organism architecture.
+5. `docs/archive/digital-organism/README.md` — completed planning program and historical workstream foundation.
+6. `docs/plans/ambient-agent/README.md` — downstream embodiment program held behind the living-mesh proof.
+7. `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — completed finite 0.9 improvement and evidence record.
+8. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
+9. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,
    harness, and supervisor implementation.
-7. `apps/arda-launcher/README.md` — what the launcher is and how to run it.
+10. `apps/arda-launcher/README.md` — current launcher implementation and how to run it.
 
 ## Verification
 

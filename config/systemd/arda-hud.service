@@ -1,0 +1,21 @@
+[Unit]
+Description=Arda native HUD
+Wants=arda-session.target
+After=graphical-session.target arda-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+Environment=__NV_DISABLE_EXPLICIT_SYNC=1
+Environment=ARDA_OPERATOR_ID=operator:mythos
+ExecCondition=/usr/bin/test -x %h/.local/lib/arda/hud/arda_hud
+ExecStart=%h/.local/lib/arda/hud/arda_hud
+Restart=on-failure
+RestartSec=3
+TimeoutStartSec=30
+KillMode=mixed
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+# Intentionally no [Install] section. The launcher starts this static unit only
+# after required lifecycle health passes; it must not auto-start at login.

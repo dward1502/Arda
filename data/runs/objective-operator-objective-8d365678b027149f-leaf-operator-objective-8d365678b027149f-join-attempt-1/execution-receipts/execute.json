@@ -1,0 +1,95 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0b8b472bf2791162c744a4703c9e6b9c781309187c5b76b4cdc4659b47ba5841",
+  "idempotency_key": "queue-operator-objective-8d365678b027149f-join-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-634b9a3fd1ddff92"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:73caed039f04340055b9a3913d2e6bf773c81fbd41c47d9a0f4ee4503e27b76f",
+  "recorded_at_unix_ms": 1788415977096,
+  "run_id": "objective-operator-objective-8d365678b027149f-leaf-operator-objective-8d365678b027149f-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Completed synthesis inspection. The integrated project tree is unchanged, and the declared clean-tree check passed exactly as specified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch && git log -5 --oneline --decorate",
+      "exit_code": 0,
+      "output_digest": "sha256:7457463f9d9093d87524134b25958935159753862d64f99679af972977344460",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test --manifest-path Cargo.toml",
+      "exit_code": 101,
+      "output_digest": "sha256:536c60f8476fe4e666f061364ea0d2fed17100ce8ec7ae7ba53a8cb192c39fc3",
+      "tool": "terminal"
+    },
+    {
+      "action": "{\"mode\":\"patch\",\"patch\":\"*** Begin Patch\\n*** Update File: /var/home/mythos/Eregion/Arda/target/arda-real-projects/human/Cargo.toml\\n@@\\n [dev-dependencies]\\n tempfile = \\\"3\\\"\\n+\\n+# This tenant is tested independently from any workspace that contains it.\\n+[workspace]\\n*** End Patch\"}",
+      "exit_code": null,
+      "output_digest": "sha256:4f405b17312e130c370d0ef8a613238e3ba319c93d99447edb5c8c659bc47048",
+      "tool": "patch"
+    },
+    {
+      "action": "cargo test --manifest-path Cargo.toml",
+      "exit_code": null,
+      "output_digest": "sha256:7a809984c3e078581113f31970dee4c09910fa6ce83fbf343c3ba4cd3cecb37d",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff -- Cargo.toml src/lib.rs && git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:b560144dbcb3054f175660dc261f20d7ef2bab65b3457ff4ee4efc5ce0a213df",
+      "tool": "terminal"
+    },
+    {
+      "action": "git show --stat --oneline --summary HEAD && git diff HEAD^1..HEAD -- Cargo.toml src/lib.rs tests/target_local.rs docs/migration-notes.md && git diff HEAD^2..HEAD -- Cargo.toml src/lib.rs tests/target_local.rs docs/migration-notes.md",
+      "exit_code": 0,
+      "output_digest": "sha256:d663eb3f8cd552327c9299facb073e9548623f1cf8bc5079c02998e3c772780f",
+      "tool": "terminal"
+    },
+    {
+      "action": "{\"mode\":\"patch\",\"patch\":\"*** Begin Patch\\n*** Update File: /var/home/mythos/Eregion/Arda/target/arda-real-projects/human/Cargo.toml\\n@@\\n [dev-dependencies]\\n tempfile = \\\"3\\\"\\n-\\n-# This tenant is tested independently from any workspace that contains it.\\n-[workspace]\\n*** End Patch\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7cb4c4cbf626614ea231564a981b743b090d7410398efcb9c425f61d791bccb2",
+      "tool": "patch"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 11,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 25215,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2306,
+    "provider": "openai-codex",
+    "total_tokens": 27521
+  }
+}

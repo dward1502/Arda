@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:186c5005f87baea2913873e2b88e02cf0ccdee399eea9517c9bf3bc74b86566c",
+    "summary": "The exact declared verify command failed with exit code 2 because the unquoted acceptance text was parsed as multiple file operands; grep reported missing files. No files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=2 output_digest=sha256:1b11a534deaa292abebf8afc556205910b781678e48d2054f68d9278381d9a44",
+      "duration_ms": null,
+      "name": "grep -Fx resident objective acceptance fixture: canonical source inspection required README.acceptance",
+      "status": "failed"
+    }
+  ]
+}

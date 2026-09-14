@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:6bfbd3819f75c22f41dbeb70ce5c763ddded57561c0e33e87aa1d7a948b920cd",
+    "summary": "Prior verification receipt covers declared check `test`: `cargo test -p arda-core` passed with exit code 0. Completion is unsupported for `context_source_digests`: the objective plan declares six context sources, but execution evidence contains only five file reads and omits the declared `repository_state` source (`git status --short`). The `recent_receipt` read of `core/projects/tasks/queue.jsonl` was truncated near the beginning of the 30,934-line ledger, so it did not recover current receipt context. The receipt records tool-output digests rather than binding evidence to the six canonical source digests stored in the objective plan; its summary contains no source-digest mapping. The implementation only converts `context_source_digests` into review prompt text and does not structurally validate that requirement. No files were modified and no checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:6dc864f988009b3b498d7d06560c6da31a633daba727d25c1c03993d38419e47",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

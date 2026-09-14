@@ -10,6 +10,8 @@ describe('workstationRoles', () => {
   it('defines every V1 universal workstation role', () => {
     expect(WORKSTATION_ROLE_IDS).toEqual([
       'fleet',
+      'routing',
+      'continuity',
       'work',
       'decisions',
       'knowledge',

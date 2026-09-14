@@ -1,0 +1,87 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:5e1b3ac55493b452929a6b02789f57cfbd56b68886ea1a895665535598a5f13a",
+  "idempotency_key": "queue-operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:approve-7fb91f11335a438eabf2d3b63ef4b663"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:99b203a02559d6774558a67514dc36505201a81d288b0272439996f10f320c73",
+  "recorded_at_unix_ms": 1788246822353,
+  "run_id": "queue-operator-task-f231fac75bdb793f__recover-context--cd0118393538abb5-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Recovered the five declared live authorities by bounded read-only inspection. Authoritative context: data/workbench/projects.json:448-582 configures the ordered reviewed projects b22c0000-e29b-41d4-a716-446655440002 (arda-human-reviewed, root target/arda-real-projects/human) and c33d0000-e29b-41d4-a716-446655440003 (arda-tool-gate-reviewed, root target/arda-real-projects/tool-gate); both are read-only git-documentation contracts whose declared check is git diff --exit-code HEAD -- and whose provenance says clean_detached_worktree. This is configured authority, not proof that the current objective has inspected or closed either project. docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:23-37 says the core implementation and one bounded installed objective exist, but full acceptance remains open across Hermes objective control, installed scheduling/restart, critic revision, real multi-project execution, and Vairë/operator acceptance. docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:17-55 defines the required human-visible outcome and makes the autonomous loop the first gate; lines 99-108 prohibit treating tests, timers, reports, queue records, or projections as product completion and require dirty repositories to remain read-only. ARDA_SYSTEM_STATUS_REPORT.md:31-55 identifies queue.jsonl as canonical, reports substantial workflow-proven foundations, and still classifies connected projects, retrieval, daily improvement, and whole-system usefulness as incomplete; its 2026-08-25 runtime snapshot is historical and must not be promoted to current live state. The existing evidence-backed backlog at docs/audits/2026-08-26-operator-vision-repair-backlog.md:31-198 supplies the repair classification: P0 establish durable executable objective graphs and truthful project identity, route implementer/verifier/critic through Manwë, make continuation and scheduling executable, persist scoped approval expiry, and replace ceremonial review with independent challenge; P1 retrieve bounded Vairë context, expose one truthful objective/control projection, activate daily improvement and proactive Personal Operations, govern external assimilation, and reconcile installed/source/documentation truth; P2 run a real two-project unattended acceptance and obtain the operator burden verdict before expansion. The concrete human-visible behavior is one objective view showing outcome, ordered projects, current leaf, evidence, selected and actual route, budget, next wake, blocker, and pause/reprioritize/revise/approve/reject/cancel controls. The smallest authoritative repair surfaces are the existing Core/Engine Workbench objective and append-only queue/schedule/receipt contracts, data/workbench/projects.json, Manwë placement, Vairë context-use receipts, and the Engine-owned operator projection—not a parallel queue or coordinator. Current live receipt context at core/projects/tasks/queue.jsonl:41755-41768 shows operator-task-f231fac75bdb793f in progress, the recover-context leaf plus two project-bound read-only inspection leaves, joined synthesis, approved outcome, and verification leaves materialized in dependency order; line 41762 records the objective waiting on those leaves. Therefore the implemented/configured/live distinction is: graph, continuation, and supporting contracts are implemented; two reviewed read-only project contracts are configured; the current joined objective is live but not yet closed, and no present receipt proves downstream project inspections, independent criticism, or joined terminal acceptance. No files were modified, no generated projection was touched, no project-native check was run, and this read-only node created no artifact.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:56c7bbe00b53b3e1908da18ac8e0e5fd912de684b66320d62ec5337fb7d7ae33",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"queue.jsonl\",\"limit\":20,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"queue-operator-task-f231fac75bdb793f|recover-context--cd0118393538abb5\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7b988b01a7d7eab493d8427b25c7f6c741911fe8ab83f4d930f27e184ea29e00",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"*.md\",\"limit\":50,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion\",\"pattern\":\"implemented|installed|configured|live|Hermes|multi-project|Vairë|critic|restart\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c4322409ca8449fb92acc29450af6f3b95f3eb89fae1c4955db2634b65106997",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"offset\":41755,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f8e18d81aba1b83049637be5154c73ddf75e4c6c684e5ec360831dd235b5f9dc",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 68207,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1948,
+    "provider": "openai-codex",
+    "total_tokens": 70155
+  }
+}

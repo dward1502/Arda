@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6a69f9ba99b14dc6a7a59ef87f6a7237",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-60881bb5b2df61f8__recover-context--d5666fcf424d8e0b for task operator-task-60881bb5b2df61f8__recover-context--d5666fcf424d8e0b ended status=completed result=completed; receipt=sha256:6cf36a71461685db086d1b374409dc100c9761a6d0cc812b69cf6987e12689fd; detail=Independent review found no blocking defect. The execution receipt provides authenticated read-only source evidence for the authoritative project registry, active plans, status report, queue lineage, and supporting backlog/index files. Tool-output digests correctly identify exported call envelopes and need not equal source-content digests. No context_use_receipt was required because no governed context capsule was supplied. The absence of mutating tool calls supports the no-modification requirement. The prior verification receipt covers the declared test check: cargo test -p arda-core passed with exit code 0.",
+  "salience": 0.6017250000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T05:37:21.847563937Z",
+  "last_seen_at": "2026-09-01T05:37:21.847563937Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

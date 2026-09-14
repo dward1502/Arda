@@ -238,6 +238,7 @@ impl CharonService {
         };
 
         if ok {
+            provider.healthy = true;
             provider.consecutive_successes += 1;
             provider.consecutive_failures = 0;
             provider.last_error = None;
@@ -245,6 +246,7 @@ impl CharonService {
             provider.cooldown_until_utc = None;
             provider.cooldown_backoff_seconds = 0;
         } else {
+            provider.healthy = false;
             provider.error_count += 1;
             provider.consecutive_failures += 1;
             provider.consecutive_successes = 0;

@@ -132,10 +132,7 @@ impl CharonService {
         let build_cache = self.read_runtime_build_cache_signals();
         let providers_total = providers.len();
         let providers_enabled = providers.iter().filter(|p| p.enabled).count();
-        let providers_ready = providers
-            .iter()
-            .filter(|p| p.enabled && p.has_api_key)
-            .count();
+        let providers_ready = provider_ready_count(&providers, Utc::now());
         let providers_healthy = providers
             .iter()
             .filter(|p| p.healthy && p.enabled && p.has_api_key && !p.in_cooldown)
@@ -619,9 +616,16 @@ fn pressure_rank(level: &str) -> u8 {
     }
 }
 
+fn provider_ready_count(providers: &[ProviderState], now: chrono::DateTime<Utc>) -> usize {
+    providers
+        .iter()
+        .filter(|provider| classify_provider_operational_state(provider, now).state == "ready")
+        .count()
+}
+
 #[cfg(test)]
 mod tests {
-    use super::classify_provider_operational_state;
+    use super::{classify_provider_operational_state, provider_ready_count};
     use crate::adaptive::types::{ModelState, ProviderState};
     use chrono::Utc;
 
@@ -680,6 +684,18 @@ mod tests {
             hermes_provider: None,
             hermes_toolsets: None,
         }
+    }
+
+    #[test]
+    fn ready_count_excludes_enabled_unhealthy_providers() {
+        let ready = provider();
+        let mut unreachable = provider();
+        unreachable.id = "edge_backbone_long".to_string();
+        unreachable.healthy = false;
+        unreachable.consecutive_failures = 1;
+        unreachable.last_error = Some("endpoint timed out".to_string());
+
+        assert_eq!(provider_ready_count(&[ready, unreachable], Utc::now()), 1);
     }
 
     #[test]

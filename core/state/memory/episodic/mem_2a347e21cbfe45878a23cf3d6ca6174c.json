@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2a347e21cbfe45878a23cf3d6ca6174c",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-d2bc36a08b64fb26 for task operator-task-d2bc36a08b64fb26 ended status=failed result=cancelled; receipt=none; detail=--reason Superseded after a transient provider-start failure left the critic run nonterminal despite durable execute and verify receipts",
+  "salience": 0.4113749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T02:33:50.798779734Z",
+  "last_seen_at": "2026-09-01T02:33:50.798779734Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

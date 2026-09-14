@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:99ba3aadef688df35893d173077ecef2811e1bf976451479f8378b59786d5d57",
+  "idempotency_key": "queue-operator-objective-491f27af6c3dbfb4-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:hermes-m4-5b9547697f1f4693"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:4767a3cbe6d2beb5d37f6b463cdb191fef674ad5a58b8d383460afaff1e83c36",
+  "recorded_at_unix_ms": 1788408999578,
+  "run_id": "objective-operator-objective-491f27af6c3dbfb4-leaf-operator-objective-491f27af6c3dbfb4-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Two-project integration brief: annunimas-human-tenant provides an Obsidian-compatible interface for scanning, parsing, linking, and classifying private human knowledge; upstream Annunimas supplies the core memory contract and Mnemosyne integration on which the tenant currently depends. Their shared autonomous-agent safety boundary is that private human material must retain provenance and explicit authority/status, remain untrusted until classified, and never be silently promoted, moved, overwritten, deleted, or converted into high-risk action without review and applicable autonomy governance. Recommended integration: replace the tenant's direct Annunimas path dependencies with a versioned tenant-facing memory adapter that persists MemoryRecord values while preserving source path, authority, status, confidence, and review-required metadata. Tenant risk: MemoryStore::store currently serializes each record and discards it, so scan_vault can appear to ingest knowledge without persisting any memory. Upstream risk: the retained workspace member and direct compatibility seam can diverge from the private tenant implementation, creating ambiguous ownership and inconsistent safety behavior until compatibility removal is completed. The declared clean-tree check passed; inspection was read-only and created no artifacts.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 11,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 11011,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1381,
+    "provider": "openai-codex",
+    "total_tokens": 12392
+  }
+}

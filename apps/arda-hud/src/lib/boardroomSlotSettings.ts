@@ -1228,7 +1228,18 @@ export async function loadPersistedMonitorSurfaceRegistry(): Promise<MonitorSurf
 
 export async function rehydrateMonitorSurfaceRegistry(): Promise<MonitorSurfaceRegistryDescriptor | null> {
   const persisted = await loadPersistedMonitorSurfaceRegistry()
-  if (!persisted) return null
+  if (!persisted) {
+    // A missing key is a fresh start; corrupt/unreadable storage is not.
+    try {
+      if (typeof window === 'undefined' || window.localStorage.getItem(MONITOR_SURFACE_REGISTRY_STORAGE_KEY) !== null) return null
+      await agentRestoreMonitorSurfaceRegistry({
+        schema_version: 'arda.monitor-session-registry.v2',
+        updated_at_utc: new Date().toISOString(),
+        sessions: {},
+      })
+    } catch { /* Leave the native external adapter unready. */ }
+    return null
+  }
   try {
     await agentRestoreMonitorSurfaceRegistry(persisted)
     return persisted

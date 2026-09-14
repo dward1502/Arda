@@ -15,6 +15,10 @@ soterion:
 
 - `README.md`
 - `arda.service` (canonical root runtime; installs `arda-manwe.service` as a compatibility alias)
+- `arda-session.target` (required backend session lifecycle)
+- `arda-hud.service` (static native HUD graphical-session unit)
+- `arda-aule-autopilot.service` (governed reversible-work admission cycle)
+- `arda-aule-autopilot.timer` (10-minute governed admission cadence)
 - `arda-aule-autopilot-read-only.service`
 - `arda-aule-autopilot-read-only.timer`
 - `arda-manwe-inference-probe.service`

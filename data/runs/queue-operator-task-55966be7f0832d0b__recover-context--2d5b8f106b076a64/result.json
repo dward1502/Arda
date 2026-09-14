@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:dd8d1fb5493bbf499e1b5167a300cc620da6341dc0bf067d7c0f39a26984c444",
+    "summary": "Review found unsupported completion. The execution recovered and cited the project registry, active plans, status report, and queue context, and the verification receipt covers the declared `cargo test -p arda-core` check with exit code 0. However, the governed acceptance criterion requires a prioritized repair backlog naming concrete human-visible behavior, source evidence, and the smallest authoritative repair surface. The execution summary only reproduces broad program priorities and downstream cautions; it does not provide that backlog or identify the smallest repair surface for each item. It also does not explicitly classify its recovered claims as implemented capability, configured runtime, or live deployed proof. Read-only evidence is otherwise sufficient: all execution calls were file reads, their exported-output digests appropriately differ from source-content digests, no context_use_receipt was required or supplied, and no created artifacts exist."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:f8e0ceb808d59a3f5873c584bb2712ed20f8fd9250eda186a8ae5a5b6f93c361",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

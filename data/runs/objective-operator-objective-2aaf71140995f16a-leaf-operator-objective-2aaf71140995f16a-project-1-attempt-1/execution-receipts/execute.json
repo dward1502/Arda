@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f95582c2c6e671eaadf0b37f7a7d581ff25018af3d3bfbfbbe1c103fad32ec74",
+  "idempotency_key": "queue-operator-objective-2aaf71140995f16a-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:m4-85e7cab453d2a4e7"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:e7adc956a263d01357f02fed9bc80942e8af6aa9b14f2701faa87bfd2191dc7d",
+  "recorded_at_unix_ms": 1788416664884,
+  "run_id": "objective-operator-objective-2aaf71140995f16a-leaf-operator-objective-2aaf71140995f16a-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project-local inspection completed without modification. Declared check PASS: `git diff --exit-code HEAD --` exited 0 with no output. Integration authority is the active-draft `annunimas.human_knowledge.v1` contract (`docs/human-knowledge-ingestion-contract.md:14-19`), owned by ATHENA / MNEMOSYNE / HADES / PROMETHEUS; it defines `/human` as private by default and permits agent reliance only on canonical knowledge (`docs/human-knowledge-ingestion-contract.md:23-25,49-69`). The Rust integration surface is `HumanKnowledge::new` plus `scan_vault`, which scans Markdown without following links, parses frontmatter, resolves existing wikilinks, and creates semantic `MemoryRecord` values under the `human` namespace (`src/lib.rs:49-89,92-130,152-193`). Local tests specify existing-link resolution and rejection of missing vault paths (`tests/target_local.rs:27-63`), but no test command was declared, so they were inspected rather than executed. Named blockers: (1) the implemented `NoteFrontmatter` schema does not implement the documented contract fields and models `confidence` as `u8`, while the contract requires `low | medium | high`, so contract-shaped notes are not interoperable (`src/lib.rs:13-25`; `docs/human-knowledge-ingestion-contract.md:71-93`); (2) `MemoryStore::store` only serializes a record and discards it, providing no persistence despite the intended MNEMOSYNE integration (`src/lib.rs:56-89`); (3) the tenant still directly depends on Annunimas core and Mnemosyne by relative paths (`Cargo.toml:12-14`), while migration notes identify replacement with a tenant-facing memory contract and removal of the original workspace compatibility seam as pending gates (`docs/migration-notes.md:5-10`); and (4) live vault data and ingestion ledgers were not migrated, so end-to-end ingestion readiness is not established (`docs/migration-notes.md:7-8`).",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 12,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14110,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1653,
+    "provider": "openai-codex",
+    "total_tokens": 15763
+  }
+}

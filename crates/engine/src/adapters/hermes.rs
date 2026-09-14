@@ -9,6 +9,8 @@ use crate::runs::{RunEventDraft, RunEventKind};
 use arda_core::run_graph::{
     AuthorityClass, NodeId, NodeKind, NodeState, RunId, RunNode, WorkerRouteClass,
 };
+use arda_orome::WorkerContextHandoffReceipt;
+use arda_vaire::ContextAssembly;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -24,8 +26,12 @@ use tokio::process::{Child, Command};
 use tokio::time::timeout;
 
 const CONFIG_SCHEMA_VERSION: &str = "arda.hermes-adapter.v1";
+#[cfg(target_os = "linux")]
+mod retained;
+#[cfg(target_os = "linux")]
+mod workspace;
 const RESULT_SCHEMA_VERSION: &str = "arda.hermes-job-result.v1";
-const RECEIPT_SCHEMA_VERSION: &str = "arda.execution-receipt.v1";
+const RECEIPT_SCHEMA_VERSION: &str = "arda.execution-receipt.v3";
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -125,6 +131,20 @@ pub struct HermesNodeTask {
     #[serde(default)]
     pub check_commands: BTreeMap<String, String>,
     pub project_contract_digest: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_assembly: Option<ContextAssembly>,
+}
+
+impl HermesNodeTask {
+    /// Bind a provider receipt to the complete admitted task while excluding
+    /// node fields that record mutable execution progress.
+    pub fn authority_binding_digest(&self) -> Result<String, HermesAdapterError> {
+        let mut admitted = self.clone();
+        admitted.node.state = NodeState::Ready;
+        admitted.node.output_digest = None;
+        admitted.node.checkpoint = Default::default();
+        digest_serializable(&admitted)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -191,6 +211,8 @@ pub enum CostMeasurement {
 pub struct HermesExecutionReceipt {
     pub schema_version: String,
     pub receipt_digest: String,
+    #[serde(default)]
+    pub authority_binding_digest: String,
     pub run_id: String,
     pub node_id: String,
     pub idempotency_key: String,
@@ -204,6 +226,14 @@ pub struct HermesExecutionReceipt {
     pub adapter_version: String,
     pub project_contract_digest: String,
     pub parent_receipts: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_capsule_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_capsule_digest: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_use_receipt_ref: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_handoff: Option<WorkerContextHandoffReceipt>,
     pub recorded_at_unix_ms: u128,
 }
 
@@ -343,16 +373,53 @@ impl From<&HermesSessionExport> for NormalizedHermesUsage {
     }
 }
 
-#[derive(Debug)]
 pub struct HermesAdapter {
     config: HermesAdapterConfig,
     executable: PathBuf,
     project_root: PathBuf,
     cwd: PathBuf,
     environment: BTreeMap<String, String>,
+    #[cfg(target_os = "linux")]
+    workspace: Option<workspace::PinnedWorkspace>,
+    #[cfg(target_os = "linux")]
+    retained: Option<crate::objectives::RetainedExecution>,
+}
+
+impl std::fmt::Debug for HermesAdapter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Environment and retained capabilities must never enter diagnostics.
+        f.debug_struct("HermesAdapter").finish_non_exhaustive()
+    }
 }
 
 impl HermesAdapter {
+    /// Validate durable evidence without acquiring authority to execute again.
+    /// The validation-only instance never escapes this function.
+    pub(crate) fn validate_replay(
+        config_path: &Path,
+        project_root: &Path,
+        task: &HermesNodeTask,
+        receipt: &HermesExecutionReceipt,
+    ) -> Result<(), HermesAdapterError> {
+        let raw = fs::read_to_string(config_path).map_err(|source| HermesAdapterError::Io {
+            context: "read receipt validation config".into(),
+            source,
+        })?;
+        let validator = Self {
+            config: HermesAdapterConfig::from_toml_str(&raw)?,
+            executable: PathBuf::new(),
+            project_root: project_root.to_path_buf(),
+            cwd: project_root.to_path_buf(),
+            environment: BTreeMap::new(),
+            #[cfg(target_os = "linux")]
+            workspace: None,
+            #[cfg(target_os = "linux")]
+            retained: None,
+        };
+        validator.validate_stored_receipt_authority(task, receipt)?;
+        validator.preflight(task)
+    }
+
     pub fn load(
         config_path: impl AsRef<Path>,
         project_root: impl AsRef<Path>,
@@ -365,6 +432,14 @@ impl HermesAdapter {
                 source,
             })?;
         let config = HermesAdapterConfig::from_toml_str(&raw)?;
+        #[cfg(target_os = "linux")]
+        let workspace =
+            workspace::PinnedWorkspace::open(project_root.as_ref()).map_err(|source| {
+                HermesAdapterError::Io {
+                    context: "pin provider workspace".into(),
+                    source,
+                }
+            })?;
         let project_root = canonical_directory(project_root.as_ref(), "project root")?;
         let cwd = canonical_directory(cwd.as_ref(), "working directory")?;
         if !cwd.starts_with(&project_root) {
@@ -377,21 +452,156 @@ impl HermesAdapter {
                 environment.insert(key.clone(), value.clone());
             }
         }
+        // PATH is required for hermes to resolve subcommands and shared
+        // libraries.  Without it the child process hangs silently when
+        // invoked via env_clear().
+        if !environment.contains_key("PATH") {
+            if let Some(path) = host_environment.get("PATH") {
+                environment.insert("PATH".to_owned(), path.clone());
+            }
+        }
         Ok(Self {
             config,
             executable,
             project_root,
             cwd,
             environment,
+            #[cfg(target_os = "linux")]
+            workspace: Some(workspace),
+            #[cfg(target_os = "linux")]
+            retained: None,
         })
     }
 
-    pub async fn execute(
+    fn contained_command(&self) -> Result<Command, HermesAdapterError> {
+        #[cfg(target_os = "linux")]
+        return self
+            .workspace
+            .as_ref()
+            .ok_or(HermesAdapterError::WorkspaceChanged)?
+            .command(
+                &self.executable,
+                &self.cwd,
+                &self.environment,
+                // Preserve existing node/toolset authorization semantics. This
+                // boundary confines filesystem targets, not stage tool policy.
+                true,
+            )
+            .map_err(|source| {
+                if source
+                    .get_ref()
+                    .is_some_and(|error| error.is::<workspace::WorkspaceChanged>())
+                {
+                    HermesAdapterError::WorkspaceChanged
+                } else {
+                    HermesAdapterError::Io {
+                        context: "contain provider workspace".into(),
+                        source,
+                    }
+                }
+            });
+        #[cfg(not(target_os = "linux"))]
+        Err(HermesAdapterError::InvalidConfig(
+            "provider filesystem containment requires Linux".into(),
+        ))
+    }
+
+    pub fn require_admission_workspace(&self, expected: &str) -> Result<(), HermesAdapterError> {
+        #[cfg(target_os = "linux")]
+        {
+            let identity = self
+                .workspace
+                .as_ref()
+                .ok_or(HermesAdapterError::WorkspaceChanged)?
+                .admission_identity()
+                .map_err(|source| HermesAdapterError::Io {
+                    context: "read pinned workspace identity".into(),
+                    source,
+                })?;
+            if identity == expected {
+                return Ok(());
+            }
+        }
+        Err(HermesAdapterError::WorkspaceChanged)
+    }
+
+    async fn run_contained(
         &self,
-        task: &HermesNodeTask,
-        cancellation: AdapterCancellation,
-    ) -> Result<HermesExecutionReceipt, HermesAdapterError> {
-        let toolsets = self.validate_task(task)?;
+        command: Command,
+        duration: Duration,
+        cancellation: &AdapterCancellation,
+        grace_ms: u64,
+        limit: usize,
+    ) -> Result<BoundedProcessOutput, HermesAdapterError> {
+        let execution = run_bounded(command, duration, cancellation, grace_ms, limit);
+        tokio::pin!(execution);
+        #[cfg(target_os = "linux")]
+        {
+            tokio::select! {
+                biased;
+                _ = self.workspace.as_ref().ok_or(HermesAdapterError::WorkspaceChanged)?.changed() => {
+                    cancellation.cancel();
+                    // The namespace is the write boundary; observation requests
+                    // cleanup and must await the existing process-group reaper.
+                    match execution.await {
+                        Ok(_) | Err(HermesAdapterError::Cancelled) => {}
+                        Err(error) => return Err(error),
+                    }
+                    Err(HermesAdapterError::WorkspaceChanged)
+                }
+                result = &mut execution => result,
+            }
+        }
+        #[cfg(not(target_os = "linux"))]
+        execution.await
+    }
+
+    async fn invoke(
+        &self,
+        args: Vec<String>,
+        duration: Duration,
+        cancellation: &AdapterCancellation,
+    ) -> Result<BoundedProcessOutput, HermesAdapterError> {
+        #[cfg(target_os = "linux")]
+        if let Some(binding) = &self.retained {
+            let executable = self.executable.to_str().ok_or_else(|| {
+                HermesAdapterError::InvalidExecutable("non-UTF8 retained executable".into())
+            })?;
+            let argv = std::iter::once(executable.to_owned()).chain(args).collect();
+            return retained::execute(
+                binding,
+                argv,
+                self.environment.clone(),
+                duration,
+                cancellation,
+                self.config.cancellation_grace_ms,
+                self.config.max_output_bytes,
+            )
+            .await;
+        }
+        let mut command = self.contained_command()?;
+        command
+            .args(args)
+            .current_dir(&self.cwd)
+            .env_clear()
+            .envs(&self.environment)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .kill_on_drop(true);
+        configure_process_group(&mut command);
+        self.run_contained(
+            command,
+            duration,
+            cancellation,
+            self.config.cancellation_grace_ms,
+            self.config.max_output_bytes,
+        )
+        .await
+    }
+
+    pub fn preflight(&self, task: &HermesNodeTask) -> Result<(), HermesAdapterError> {
+        self.validate_task(task)?;
         let prompt = self.build_prompt(task)?;
         if prompt.len() > self.config.max_prompt_bytes {
             return Err(HermesAdapterError::PromptTooLarge {
@@ -399,6 +609,50 @@ impl HermesAdapter {
                 limit: self.config.max_prompt_bytes,
             });
         }
+        Ok(())
+    }
+
+    pub fn validate_stored_receipt_authority(
+        &self,
+        task: &HermesNodeTask,
+        receipt: &HermesExecutionReceipt,
+    ) -> Result<(), HermesAdapterError> {
+        if receipt.schema_version != RECEIPT_SCHEMA_VERSION {
+            return Err(HermesAdapterError::InvalidResult(format!(
+                "unsupported execution receipt schema {}",
+                receipt.schema_version
+            )));
+        }
+        if receipt.authority_binding_digest != task.authority_binding_digest()? {
+            return Err(HermesAdapterError::InvalidResult(
+                "stored provider receipt does not match the current admitted task".into(),
+            ));
+        }
+        if receipt.adapter != "hermes-workbench"
+            || receipt.adapter_version != self.config.adapter_version
+        {
+            return Err(HermesAdapterError::InvalidResult(
+                "stored provider receipt does not match the configured adapter route".into(),
+            ));
+        }
+        if receipt.usage.provider.as_deref().is_none_or(str::is_empty)
+            || receipt.usage.model.as_deref().is_none_or(str::is_empty)
+        {
+            return Err(HermesAdapterError::InvalidResult(
+                "stored provider receipt requires observed provider and model identity".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub async fn execute(
+        &self,
+        task: &HermesNodeTask,
+        cancellation: AdapterCancellation,
+    ) -> Result<HermesExecutionReceipt, HermesAdapterError> {
+        self.preflight(task)?;
+        let toolsets = self.validate_task(task)?;
+        let prompt = self.build_prompt(task)?;
         if *cancellation.subscribe().borrow() {
             return Err(HermesAdapterError::Cancelled);
         }
@@ -416,70 +670,67 @@ impl HermesAdapter {
         }
         let total_timeout = Duration::from_millis(timeout_ms);
         let started = tokio::time::Instant::now();
-        let mut command = Command::new(&self.executable);
-        command
-            .arg("chat")
-            .arg("-Q")
-            .arg("--source")
-            .arg("tool")
-            .arg("--max-turns")
-            .arg(self.config.max_turns.to_string())
-            .arg("--ignore-rules")
-            .arg("-t")
-            .arg(toolsets.join(","))
-            .arg("-q")
-            .arg(&prompt)
-            .current_dir(&self.cwd)
-            .env_clear()
-            .envs(&self.environment)
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .kill_on_drop(true);
-        configure_process_group(&mut command);
-        let chat_output = run_bounded(
-            command,
-            total_timeout,
-            &cancellation,
-            self.config.cancellation_grace_ms,
-            self.config.max_output_bytes,
-        )
-        .await?;
+        let chat_output = self
+            .invoke(
+                vec![
+                    "chat".into(),
+                    "-Q".into(),
+                    "--source".into(),
+                    "tool".into(),
+                    "--max-turns".into(),
+                    self.config.max_turns.to_string(),
+                    "--ignore-rules".into(),
+                    "-t".into(),
+                    toolsets.join(","),
+                    "-q".into(),
+                    prompt,
+                ],
+                total_timeout,
+                &cancellation,
+            )
+            .await?;
         let (session_id, result_bytes) =
             split_chat_output(&chat_output.stdout, &chat_output.stderr)?;
         let result = parse_job_result(&result_bytes)?;
         self.validate_result(task, &result)?;
 
+        #[cfg(target_os = "linux")]
+        if let Some(binding) = &self.retained {
+            if !result.artifacts.is_empty() {
+                let remaining = total_timeout
+                    .checked_sub(started.elapsed())
+                    .ok_or(HermesAdapterError::Timeout)?;
+                retained::verify_artifacts(
+                    binding,
+                    &result.artifacts,
+                    remaining,
+                    &cancellation,
+                    self.config.cancellation_grace_ms,
+                )
+                .await?;
+            }
+        }
+
         let remaining = total_timeout
             .checked_sub(started.elapsed())
             .ok_or(HermesAdapterError::Timeout)?;
-        let mut export = Command::new(&self.executable);
-        export
-            .arg("sessions")
-            .arg("export")
-            .arg("-")
-            .arg("--format")
-            .arg("jsonl")
-            .arg("--session-id")
-            .arg(&session_id)
-            .arg("--redact")
-            .arg("--yes")
-            .current_dir(&self.cwd)
-            .env_clear()
-            .envs(&self.environment)
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .kill_on_drop(true);
-        configure_process_group(&mut export);
-        let exported = run_bounded(
-            export,
-            remaining,
-            &cancellation,
-            self.config.cancellation_grace_ms,
-            self.config.max_output_bytes,
-        )
-        .await?;
+        let exported = self
+            .invoke(
+                vec![
+                    "sessions".into(),
+                    "export".into(),
+                    "-".into(),
+                    "--format".into(),
+                    "jsonl".into(),
+                    "--session-id".into(),
+                    session_id.clone(),
+                    "--redact".into(),
+                    "--yes".into(),
+                ],
+                remaining,
+                &cancellation,
+            )
+            .await?;
         let session: HermesSessionExport = serde_json::from_slice(trim_ascii(&exported.stdout))
             .map_err(|error| HermesAdapterError::InvalidUsage(error.to_string()))?;
         if session.id != session_id {
@@ -493,6 +744,19 @@ impl HermesAdapter {
             ));
         }
         let usage = NormalizedHermesUsage::from(&session);
+        if usage
+            .provider
+            .as_deref()
+            .is_none_or(|provider| provider.trim().is_empty())
+            || usage
+                .model
+                .as_deref()
+                .is_none_or(|model| model.trim().is_empty())
+        {
+            return Err(HermesAdapterError::InvalidResult(
+                "provider receipt requires provider and model provenance".into(),
+            ));
+        }
         if !usage.estimated_cost_usd.is_finite()
             || usage.estimated_cost_usd < 0.0
             || usage.estimated_cost_usd > task.node.budget.max_cost_usd
@@ -505,9 +769,29 @@ impl HermesAdapter {
         let (tool_evidence, test_evidence) =
             translate_actual_evidence(task, &result, &session, &self.cwd)?;
 
+        let recorded_at_unix_ms = unix_time_ms()?;
+        let context_handoff = task
+            .context_assembly
+            .as_ref()
+            .map(|assembly| {
+                WorkerContextHandoffReceipt::issue(
+                    assembly.capsule.context.lineage.objective_id.as_str(),
+                    task.run_id.as_str(),
+                    task.node.id.as_str(),
+                    &assembly.capsule.context.consumer.consumer_id,
+                    &assembly.capsule.capsule_id,
+                    &assembly.capsule.capsule_digest,
+                    assembly.use_receipt.receipt_ref(),
+                    task.node.parent_receipts.clone(),
+                    recorded_at_unix_ms,
+                )
+                .map_err(|error| HermesAdapterError::InvalidResult(error.to_string()))
+            })
+            .transpose()?;
         let mut receipt = HermesExecutionReceipt {
             schema_version: RECEIPT_SCHEMA_VERSION.into(),
             receipt_digest: String::new(),
+            authority_binding_digest: task.authority_binding_digest()?,
             run_id: task.run_id.as_str().into(),
             node_id: task.node.id.as_str().into(),
             idempotency_key: task.node.idempotency_key.clone(),
@@ -521,7 +805,20 @@ impl HermesAdapter {
             adapter_version: self.config.adapter_version.clone(),
             project_contract_digest: task.project_contract_digest.clone(),
             parent_receipts: task.node.parent_receipts.clone(),
-            recorded_at_unix_ms: unix_time_ms()?,
+            context_capsule_id: task
+                .context_assembly
+                .as_ref()
+                .map(|assembly| assembly.capsule.capsule_id.clone()),
+            context_capsule_digest: task
+                .context_assembly
+                .as_ref()
+                .map(|assembly| assembly.capsule.capsule_digest.clone()),
+            context_use_receipt_ref: task
+                .context_assembly
+                .as_ref()
+                .map(|assembly| assembly.use_receipt.receipt_ref()),
+            context_handoff,
+            recorded_at_unix_ms,
         };
         receipt.receipt_digest = digest_serializable(&receipt)?;
         Ok(receipt)
@@ -553,6 +850,31 @@ impl HermesAdapter {
         }
         if matches!(task.node.kind, NodeKind::Approval) {
             return Err(HermesAdapterError::HumanApprovalCannotExecute);
+        }
+        if let Some(assembly) = &task.context_assembly {
+            let now = unix_time_ms()?;
+            assembly
+                .capsule
+                .validate(now)
+                .map_err(|error| HermesAdapterError::InvalidTask(error.to_string()))?;
+            if !assembly
+                .use_receipt
+                .has_valid_digest()
+                .map_err(|error| HermesAdapterError::InvalidTask(error.to_string()))?
+                || assembly.use_receipt.capsule_id != assembly.capsule.capsule_id
+                || assembly.use_receipt.capsule_digest != assembly.capsule.capsule_digest
+                || assembly.use_receipt.consumer_id != assembly.capsule.context.consumer.consumer_id
+                || assembly.use_receipt.objective_id
+                    != assembly.capsule.context.lineage.objective_id.as_str()
+                || assembly.use_receipt.run_id.as_deref() != Some(task.run_id.as_str())
+                || assembly.capsule.context.lineage.run_id.as_ref() != Some(&task.run_id)
+                || assembly.capsule.context.objective.requested_outcome != task.objective
+                || assembly.capsule.context.lineage.parent_receipts != task.node.parent_receipts
+            {
+                return Err(HermesAdapterError::InvalidTask(
+                    "Vairë context assembly does not match the Hermes run node".into(),
+                ));
+            }
         }
         let toolsets = match task.node.authority {
             AuthorityClass::ReadOnly => &self.config.toolsets.read_only,
@@ -602,9 +924,11 @@ impl HermesAdapter {
             "checks": task.checks,
             "project_contract_digest": task.project_contract_digest,
             "project_root": self.project_root,
+            "organism_context_capsule": task.context_assembly.as_ref().map(|assembly| &assembly.capsule),
+            "context_use_receipt": task.context_assembly.as_ref().map(|assembly| &assembly.use_receipt),
         });
         Ok(format!(
-            "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Report only tool calls made during this job; Arda will resolve each tool_call_id against Hermes' redacted session export and derive command, exit status, and output digest itself. Include one test_evidence entry for every declared check. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[{{\"tool_call_id\":\"actual-call-id\"}}],\"test_evidence\":[{{\"check_id\":\"declared-check-id\",\"tool_call_id\":\"actual-terminal-call-id\"}}],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
+            "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Arda automatically derives tool and test evidence from Hermes' redacted session export, so leave tool_evidence and test_evidence empty and do not fail merely because opaque tool-call IDs are unavailable. Use status failed only when the governed work or evidence itself fails. On review nodes, the first line of summary MUST be exactly `VERDICT: APPROVE` with status succeeded, or exactly `VERDICT: BLOCK` with status failed; never report transport success for a blocking review. Artifact entries are created outputs only: never list files merely read as artifacts, and use an empty artifacts array for read-only inspection or review work. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[],\"test_evidence\":[],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
             serde_json::to_string(&context)?
         ))
     }
@@ -625,12 +949,21 @@ impl HermesAdapter {
                 "summary cannot be empty".into(),
             ));
         }
-        if matches!(task.node.kind, NodeKind::Execute | NodeKind::Verify)
-            && (result.tool_evidence.is_empty() || result.test_evidence.is_empty())
-        {
-            return Err(HermesAdapterError::InvalidResult(
-                "execute and verify nodes require actual tool and test evidence".into(),
-            ));
+        if task.node.kind == NodeKind::Review {
+            let verdict = result.summary.lines().next().map(str::trim);
+            let contains_block_verdict = result.summary.contains("VERDICT: BLOCK");
+            let valid = match (verdict, result.status) {
+                (Some("VERDICT: APPROVE"), HermesReceiptStatus::Succeeded) => {
+                    !contains_block_verdict
+                }
+                (Some("VERDICT: BLOCK"), HermesReceiptStatus::Failed) => true,
+                _ => false,
+            };
+            if !valid {
+                return Err(HermesAdapterError::InvalidResult(
+                    "review result must begin with `VERDICT: APPROVE` and status succeeded, or `VERDICT: BLOCK` and status failed".into(),
+                ));
+            }
         }
         let mut claimed_call_ids = std::collections::BTreeSet::new();
         for evidence in &result.tool_evidence {
@@ -662,6 +995,11 @@ impl HermesAdapter {
                     "artifact evidence requires a project-relative path and sha256 digest".into(),
                 ));
             }
+            #[cfg(target_os = "linux")]
+            if self.retained.is_some() {
+                // Verified below through the retained worker, never host paths.
+                continue;
+            }
             let canonical = fs::canonicalize(self.project_root.join(path)).map_err(|error| {
                 HermesAdapterError::InvalidResult(format!(
                     "artifact {} cannot be resolved: {error}",
@@ -691,13 +1029,6 @@ impl HermesAdapter {
     }
 }
 
-#[derive(Debug)]
-enum ProcessOutcome {
-    Exited(std::process::ExitStatus),
-    TimedOut,
-    Cancelled,
-}
-
 struct BoundedProcessOutput {
     stdout: Vec<u8>,
     stderr: Vec<u8>,
@@ -710,7 +1041,8 @@ async fn run_bounded(
     cancellation_grace_ms: u64,
     output_limit: usize,
 ) -> Result<BoundedProcessOutput, HermesAdapterError> {
-    if *cancellation.subscribe().borrow() {
+    let mut cancellation_signal = cancellation.subscribe();
+    if *cancellation_signal.borrow() {
         return Err(HermesAdapterError::Cancelled);
     }
     let mut child = command.spawn().map_err(|source| HermesAdapterError::Io {
@@ -725,58 +1057,45 @@ async fn run_bounded(
         .stderr
         .take()
         .ok_or_else(|| HermesAdapterError::InvalidConfig("Hermes stderr was not piped".into()))?;
-    let stdout_task = tokio::spawn(read_bounded(stdout, output_limit));
-    let stderr_task = tokio::spawn(read_bounded(stderr, output_limit));
-    let mut cancellation_signal = cancellation.subscribe();
-    let outcome = tokio::select! {
-        status = child.wait() => ProcessOutcome::Exited(status.map_err(|source| HermesAdapterError::Io {
-            context: "wait for Hermes".into(),
-            source,
-        })?),
-        _ = tokio::time::sleep(process_timeout) => {
-            terminate_and_reap(&mut child, cancellation_grace_ms).await?;
-            ProcessOutcome::TimedOut
-        }
-        changed = cancellation_signal.changed() => {
-            if changed.is_ok() && *cancellation_signal.borrow() {
-                terminate_and_reap(&mut child, cancellation_grace_ms).await?;
-                ProcessOutcome::Cancelled
-            } else {
-                let status = child.wait().await.map_err(|source| HermesAdapterError::Io {
-                    context: "wait for Hermes after cancellation channel closed".into(),
+    let result = {
+        let completion = async {
+            // Own both readers under the process deadline. Keep the leader
+            // unreaped until EOF, reserving its process-group identity while
+            // a descendant may still hold inherited pipes open.
+            let (stdout, stderr) = tokio::try_join!(
+                read_bounded(stdout, output_limit),
+                read_bounded(stderr, output_limit),
+            )?;
+            let status = child
+                .wait()
+                .await
+                .map_err(|source| HermesAdapterError::Io {
+                    context: "wait for Hermes".into(),
                     source,
                 })?;
-                ProcessOutcome::Exited(status)
-            }
+            Ok((status, stdout, stderr))
+        };
+        tokio::select! {
+            biased;
+            result = completion => result,
+            _ = cancellation_signal.wait_for(|cancelled| *cancelled) => Err(HermesAdapterError::Cancelled),
+            _ = tokio::time::sleep(process_timeout) => Err(HermesAdapterError::Timeout),
         }
     };
-    if matches!(
-        outcome,
-        ProcessOutcome::TimedOut | ProcessOutcome::Cancelled
-    ) {
-        stdout_task.abort();
-        stderr_task.abort();
-        return match outcome {
-            ProcessOutcome::TimedOut => Err(HermesAdapterError::Timeout),
-            ProcessOutcome::Cancelled => Err(HermesAdapterError::Cancelled),
-            ProcessOutcome::Exited(_) => unreachable!(),
-        };
-    }
-    let stdout = stdout_task
-        .await
-        .map_err(|error| HermesAdapterError::OutputRead(error.to_string()))??;
-    let stderr = stderr_task
-        .await
-        .map_err(|error| HermesAdapterError::OutputRead(error.to_string()))??;
-    match outcome {
-        ProcessOutcome::Exited(status) if status.success() => {
-            Ok(BoundedProcessOutput { stdout, stderr })
+    let (status, stdout, stderr) = match result {
+        Ok(output) => output,
+        Err(error) => {
+            terminate_and_reap(&mut child, cancellation_grace_ms).await?;
+            return Err(error);
         }
-        ProcessOutcome::Exited(status) => Err(HermesAdapterError::ProcessFailed {
+    };
+    if status.success() {
+        Ok(BoundedProcessOutput { stdout, stderr })
+    } else {
+        Err(HermesAdapterError::ProcessFailed {
             code: status.code(),
             stderr: String::from_utf8_lossy(&stderr).trim().to_owned(),
-        }),
-        ProcessOutcome::TimedOut | ProcessOutcome::Cancelled => unreachable!(),
+        })
     }
 }
 
@@ -933,10 +1252,11 @@ fn translate_actual_evidence(
         .iter()
         .filter(|call_id| {
             calls.get(*call_id).is_some_and(|(tool, _)| {
-                !matches!(
-                    tool.as_str(),
-                    "read_file" | "search_files" | "browser_snapshot" | "browser_vision"
-                )
+                matches!(task.node.kind, NodeKind::Inspect | NodeKind::Review)
+                    || !matches!(
+                        tool.as_str(),
+                        "read_file" | "search_files" | "browser_snapshot" | "browser_vision"
+                    )
             })
         })
         .cloned()
@@ -991,24 +1311,44 @@ fn translate_actual_evidence(
         ));
     }
     let mut actual_checks = std::collections::BTreeSet::new();
-    let mut test_evidence = Vec::with_capacity(result.test_evidence.len());
-    for (index, claim) in result.test_evidence.iter().enumerate() {
-        if !actual_checks.insert(claim.check_id.clone()) {
+    let claimed_checks: Vec<_> = if result.test_evidence.is_empty() {
+        task.checks
+            .iter()
+            .enumerate()
+            .map(|(index, check_id)| {
+                let call_id = terminal_call_ids.get(index).copied().ok_or_else(|| {
+                    HermesAdapterError::InvalidResult(format!(
+                        "check {check_id} has no actual terminal result in Hermes export"
+                    ))
+                })?;
+                Ok((check_id.clone(), (*call_id).clone()))
+            })
+            .collect::<Result<Vec<_>, HermesAdapterError>>()?
+    } else {
+        result
+            .test_evidence
+            .iter()
+            .map(|claim| (claim.check_id.clone(), claim.tool_call_id.clone()))
+            .collect()
+    };
+    let mut test_evidence = Vec::with_capacity(claimed_checks.len());
+    for (index, (check_id, claimed_call_id)) in claimed_checks.iter().enumerate() {
+        if !actual_checks.insert(check_id.clone()) {
             return Err(HermesAdapterError::InvalidResult(format!(
                 "duplicate test evidence for {}",
-                claim.check_id
+                check_id
             )));
         }
         let call_id = if calls
-            .get(&claim.tool_call_id)
+            .get(claimed_call_id)
             .is_some_and(|(tool, _)| tool == "terminal")
         {
-            &claim.tool_call_id
+            claimed_call_id
         } else {
             terminal_call_ids.get(index).copied().ok_or_else(|| {
                 HermesAdapterError::InvalidResult(format!(
                     "check {} has no actual terminal result in Hermes export",
-                    claim.check_id
+                    check_id
                 ))
             })?
         };
@@ -1016,20 +1356,20 @@ fn translate_actual_evidence(
         if evidence.tool != "terminal" || evidence.exit_code.is_none() {
             return Err(HermesAdapterError::InvalidResult(format!(
                 "check {} does not reference an actual terminal result with an exit code",
-                claim.check_id
+                check_id
             )));
         }
         let exit_code = evidence.exit_code.expect("checked above");
-        if let Some(expected_command) = task.check_commands.get(&claim.check_id) {
+        if let Some(expected_command) = task.check_commands.get(check_id) {
             if !matches_declared_check_command(&evidence.action, expected_command, cwd) {
                 return Err(HermesAdapterError::InvalidResult(format!(
                     "check {} referenced terminal command `{}`, expected `{}`",
-                    claim.check_id, evidence.action, expected_command
+                    check_id, evidence.action, expected_command
                 )));
             }
         }
         test_evidence.push(HermesTestEvidence {
-            check_id: claim.check_id.clone(),
+            check_id: check_id.clone(),
             command: evidence.action,
             status: if exit_code == 0 { "passed" } else { "failed" }.into(),
             exit_code,
@@ -1120,7 +1460,9 @@ async fn read_bounded<R: AsyncRead + Unpin>(
 
 async fn terminate_and_reap(child: &mut Child, grace_ms: u64) -> Result<(), HermesAdapterError> {
     #[cfg(unix)]
-    if let Some(pid) = child.id() {
+    let group = child.id();
+    #[cfg(unix)]
+    if let Some(pid) = group {
         // Adapter children are process-group leaders. Terminating the group
         // keeps a tool subprocess from outliving its bounded graph-node job.
         // SAFETY: `pid` comes from the live child we spawned as process-group
@@ -1143,13 +1485,33 @@ async fn terminate_and_reap(child: &mut Child, grace_ms: u64) -> Result<(), Herm
             context: "terminate Hermes".into(),
             source,
         })?;
-    timeout(Duration::from_millis(grace_ms), child.wait())
-        .await
-        .map_err(|_| HermesAdapterError::ReapTimeout)?
-        .map_err(|source| HermesAdapterError::Io {
-            context: "reap Hermes".into(),
-            source,
-        })?;
+    timeout(Duration::from_millis(grace_ms), async {
+        child.wait().await?;
+        // Waiting for bubblewrap's outer supervisor alone is insufficient:
+        // the namespace reaper may still be killing its descendants. A process
+        // group remains allocated until its last member is gone. Only observe
+        // here; never signal a numeric PID reported from inside the namespace.
+        #[cfg(unix)]
+        if let Some(pid) = group {
+            loop {
+                if unsafe { libc::kill(-(pid as i32), 0) } == -1 {
+                    let error = std::io::Error::last_os_error();
+                    if error.raw_os_error() == Some(libc::ESRCH) {
+                        break;
+                    }
+                    return Err(error);
+                }
+                tokio::time::sleep(Duration::from_millis(5)).await;
+            }
+        }
+        Ok(())
+    })
+    .await
+    .map_err(|_| HermesAdapterError::ReapTimeout)?
+    .map_err(|source| HermesAdapterError::Io {
+        context: "reap Hermes".into(),
+        source,
+    })?;
     Ok(())
 }
 
@@ -1241,6 +1603,77 @@ fn trim_ascii(bytes: &[u8]) -> &[u8] {
     &bytes[start..end]
 }
 
+#[cfg(all(test, unix))]
+mod process_lifecycle_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn deadline_includes_output_held_open_after_leader_exits() {
+        use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
+        let root = tempfile::tempdir().unwrap();
+        let socket = root.path().join("descendant.sock");
+        let listener = tokio::net::UnixListener::bind(&socket).unwrap();
+        let mut command = Command::new("/bin/sh");
+        command
+            .args([
+                "-c",
+                "/usr/bin/python3 -c 'import socket,sys,time; s=socket.socket(socket.AF_UNIX); s.connect(sys.argv[1]); s.recv(1); time.sleep(3)' \"$1\" & exit 0",
+                "fixture",
+            ])
+            .arg(&socket)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .kill_on_drop(true);
+        configure_process_group(&mut command);
+        let collect = async {
+            let (mut stream, _) = listener.accept().await.unwrap();
+            let pid = stream.peer_cred().unwrap().pid().unwrap();
+            let raw = unsafe { libc::syscall(libc::SYS_pidfd_open, pid, 0) };
+            assert!(raw >= 0);
+            let fd = unsafe { OwnedFd::from_raw_fd(raw as i32) };
+            use tokio::io::AsyncWriteExt;
+            stream.write_all(b"x").await.unwrap();
+            fd
+        };
+        let cancellation = AdapterCancellation::new();
+        let (result, descendant) = tokio::join!(
+            timeout(
+                Duration::from_millis(1500),
+                run_bounded(
+                    command,
+                    Duration::from_millis(500),
+                    &cancellation,
+                    200,
+                    1024,
+                ),
+            ),
+            timeout(Duration::from_millis(1500), collect)
+        );
+        // Always clean up the deliberately orphaned fixture, including on RED.
+        if let Ok(fd) = &descendant {
+            // An owned pidfd cannot target a reused numeric PID.
+            unsafe {
+                libc::syscall(
+                    libc::SYS_pidfd_send_signal,
+                    fd.as_raw_fd(),
+                    libc::SIGKILL,
+                    std::ptr::null::<libc::siginfo_t>(),
+                    0,
+                );
+            }
+        }
+        assert!(
+            descendant.is_ok(),
+            "descendant did not connect before deadline"
+        );
+        assert!(
+            matches!(result, Ok(Err(HermesAdapterError::Timeout))),
+            "process deadline did not bound inherited output handles"
+        );
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum HermesAdapterError {
     #[error("unsupported Hermes adapter config schema: {0}")]
@@ -1279,6 +1712,8 @@ pub enum HermesAdapterError {
     Timeout,
     #[error("Hermes process was cancelled")]
     Cancelled,
+    #[error("provider workspace changed; reconciliation required")]
+    WorkspaceChanged,
     #[error("Hermes process could not be reaped within the cancellation grace period")]
     ReapTimeout,
     #[error("Hermes exited unsuccessfully with code {code:?}: {stderr}")]

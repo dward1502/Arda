@@ -1,0 +1,118 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "queue-runtime-proof-20260813",
+  "objective_id": "runtime-proof-20260813",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-proof-20260813-plan",
+      "input_digest": null,
+      "output_digest": "runtime-proof-user-directed-20260813",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "queue-runtime-proof-20260813:plan:4",
+        "checkpoint_digest": "sha256:0c5834ba3aba34c78a3eabf526e0b12706197617ce7537e0d6087ef86c6583ab"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-proof-20260813-approval",
+      "input_digest": null,
+      "output_digest": "runtime-proof-user-directed-20260813",
+      "parent_receipts": [
+        "runtime-proof-user-directed-20260813"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "queue-runtime-proof-20260813:approval:7",
+        "checkpoint_digest": "sha256:d983e2e670ab31dd8211ea3a916d7acf2964a050d5d0ad439475f8ab007faebc"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "running",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-proof-20260813-execute",
+      "input_digest": null,
+      "output_digest": null,
+      "parent_receipts": [
+        "runtime-proof-user-directed-20260813"
+      ],
+      "checkpoint": {
+        "sequence": 1,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      },
+      "worker": {
+        "role": "implementer",
+        "worker_id": "hermes:queue:runtime-proof-20260813",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:98d38681e89729b55bdf8dae89eddb6554f88907e9ac3fd83e8273164720f676",
+        "allowed_toolsets": [
+          "file",
+          "terminal"
+        ],
+        "dependencies": [
+          "approval"
+        ],
+        "deadline_unix_ms": 1786665994242,
+        "output_contract": "arda.hermes.execution_receipt.v1",
+        "evidence_policy": "worker_report"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "runtime-proof-user-directed-20260813"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "runtime-proof-user-directed-20260813"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": [
+      "runtime-proof-user-directed-20260813"
+    ]
+  }
+}

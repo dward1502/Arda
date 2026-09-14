@@ -1,0 +1,45 @@
+# Canonical digital-organism identity and authority manifest.
+# Runtime state, health, objectives, sessions, and receipts remain in their owning stores.
+schema_version = "arda.organism-manifest.v1"
+organism_id = "arda:mythos:primary"
+display_name = "Arda"
+mission = "Compose bounded software and hardware nodes into one coherent governed digital organism."
+operator_id = "operator:mythos"
+privacy_domains = ["personal", "business", "system"]
+accepted_transports = [
+  "in_process_rust",
+  "arda_harness_http",
+  "hermes_plugin_hook",
+  "linux_foundation_a2a",
+  "mcp",
+  "manwe_openai_api",
+  "systemd_or_engine_adapter",
+  "outpost_protocol",
+]
+enabled_transports = [
+  "in_process_rust",
+  "arda_harness_http",
+  "hermes_plugin_hook",
+  "manwe_openai_api",
+  "systemd_or_engine_adapter",
+  "outpost_protocol",
+]
+
+[authorities]
+objective = "arda-core"
+run = "arda-engine"
+node = "arda-engine+arda-outpost-protocol"
+session = "hermes-agent"
+agent = "hermes-agent+a2a-agent-card"
+semantic_envelope = "arda-orome"
+a2a_wire = "hermes-a2a"
+model_route = "manwe"
+memory = "arda-vaire"
+evidence = "arda-varda"
+governance = "arda-governance"
+projection = "arda-aule"
+
+[contract_versions]
+organism_manifest = "arda.organism-manifest.v1"
+organism_context = "arda.organism-context.v1"
+organism_outcome = "arda.organism-outcome.v1"

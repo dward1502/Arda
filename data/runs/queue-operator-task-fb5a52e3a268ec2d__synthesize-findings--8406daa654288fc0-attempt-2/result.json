@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:f2bdb50f93a208e3abb33dae48327d671227ec4c90b593b5cb60f000f9929396",
+    "summary": "Independent review accepted the revised prioritized synthesis. Source evidence corroborates the named defects: runner.rs:1675-1678 treats any present approval_packet_id as sufficient to bypass a readiness hold, while workbench_executor.rs:2484-2527 validates only nonempty authority metadata rather than a durable approval packet’s status and scope; queue.jsonl:52440-52456 shows repeated pending execute/verify materialization for one objective; the human project permits vault traversal at src/lib.rs:184-192, discards serialized memory at src/lib.rs:56-89, and ingests Markdown without enforcing the documented authority/privacy contract at src/lib.rs:107-125; the tool-gate project checks trace evidence only for metadata.requires_review at src/policy.rs:89-102 even though critical risk independently produces ReviewRequired at src/policy.rs:129-143. The synthesis now preserves the designed readiness-hold bypass while identifying the smallest repair as policy-bound, durable, scoped authorization rather than unconditional blocking. Registry and plan evidence supports the remaining mixed proof/real project, joined-close, Hermes control, restart, Vairë, operator-acceptance, and daily-loop gaps without claiming those downstream gates are complete. The prior verification receipt exactly covers the declared test check cargo test -p arda-core with exit code 0. Exported read-output digests provide source evidence and appropriately differ from source-content digests; no context_use_receipt was required because no governed capsule supplied one. No mutating tool calls are present under read-only authority, no files were modified, no checks were rerun, and no artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:3d8926098728b7c3a620c710ae3250c31aa6689ab7c2ce7ae6ecda84dafcb53c",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

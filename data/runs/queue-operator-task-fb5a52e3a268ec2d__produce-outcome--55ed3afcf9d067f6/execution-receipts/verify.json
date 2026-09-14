@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:dbc5bbef2130066008040dfe54670ec0e0024c2fd0a637a7294f860a5274f9ba",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:6e25d43caf022c6664d2290e5e4704e6797dc870c527cbdb0b5319b9aff33882"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:e75667afa8664c477166291d6891db593e0b0355dd93751e9649ba902dcbe119",
+  "recorded_at_unix_ms": 1788261513338,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__produce-outcome--55ed3afcf9d067f6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verification succeeded: cargo test -p arda-core passed all tests, and git status --short --branch completed, showing the pre-existing non-clean worktree on branch plan/ambient-agent-program. No project files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:4eda20bb020014fd5ba2b6e6464ee806872fc4f34de74bc1d7d53e171f227523",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:4eda20bb020014fd5ba2b6e6464ee806872fc4f34de74bc1d7d53e171f227523",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch",
+      "exit_code": 0,
+      "output_digest": "sha256:377652848f7ceb11fc35a79f22681f4fbb93c2d672de5b2f955d8aa82cbaac70",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 18978,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 304,
+    "provider": "openai-codex",
+    "total_tokens": 19282
+  }
+}

@@ -139,7 +139,7 @@ export const attachProjectContract = (path: string, intent: MutationIntent) =>
   safeTauriInvoke<AttachedProject>('attach_project_contract', { path, intent })
 
 export const planWorkbenchRun = (projectId: string, objective: WorkbenchObjective, intent: MutationIntent) =>
-  safeTauriInvoke<RunRecord>('plan_workbench_run', { request: { project_id: projectId, objective: { text: objective.text, input_mode: objective.inputMode }, intent } })
+  safeTauriInvoke<RunRecord>('plan_workbench_run', { request: { project_id: projectId, objective: { text: objective.text, inputMode: objective.inputMode }, intent } })
 
 export const approveWorkbenchRun = (runId: string, nodeId: string, intent: MutationIntent) =>
   safeTauriInvoke<RunRecord>('approve_workbench_run', { request: { run_id: runId, node_id: nodeId, intent } })

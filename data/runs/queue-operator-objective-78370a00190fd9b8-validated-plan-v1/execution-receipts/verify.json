@@ -1,0 +1,46 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "idempotency_key": "queue-operator-objective-78370a00190fd9b8-validated-plan-v1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:b71ab26ebef510505f57374b859474f3e883a1ed4aaf9390ba00f31a68c4e492"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:20d58736f801a1900b4f426dc32a17667fd1b3e123f7901c95d02a7c544067de",
+  "recorded_at_unix_ms": 1787768384567,
+  "run_id": "queue-operator-objective-78370a00190fd9b8-validated-plan-v1",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Declared check passed: cargo test -p arda-core.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:dc347d34a4ca45d574a288913023e77f3ed00345b12323beb618573ea575714a",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:dc347d34a4ca45d574a288913023e77f3ed00345b12323beb618573ea575714a",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 8039,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1069,
+    "provider": "openai-codex",
+    "total_tokens": 9108
+  }
+}

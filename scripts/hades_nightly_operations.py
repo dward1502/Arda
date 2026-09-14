@@ -181,14 +181,14 @@ def run_nightly(root: Path, run_id: str, out_dir: Path, now: datetime | None = N
         ],
         root,
     )
-    commands["hades_organization_maintenance"] = run_command(
-        ["bash", "scripts/hades_organization_maintenance.sh"],
+    commands["rumil_organization_maintenance"] = run_command(
+        ["bash", "scripts/rumil_organization_maintenance.sh"],
         root,
     )
-    commands["hades_storage_hygiene_audit"] = run_command(
+    commands["rumil_storage_hygiene_audit"] = run_command(
         [
             "python3",
-            "scripts/hades_storage_hygiene_audit.py",
+            "scripts/rumil_storage_hygiene_audit.py",
             "--out-dir",
             repo_relative(out_dir / "storage_hygiene", root),
             "--state-path",
@@ -216,7 +216,7 @@ def run_nightly(root: Path, run_id: str, out_dir: Path, now: datetime | None = N
 
     org_out.mkdir(parents=True, exist_ok=True)
     for name in ("markdown_link_check_last.md", "storage_hygiene_last.json"):
-        source = root / "data/hades" / name
+        source = root / "data/rumil" / name
         if source.exists():
             target = org_out / name
             target.write_bytes(source.read_bytes())

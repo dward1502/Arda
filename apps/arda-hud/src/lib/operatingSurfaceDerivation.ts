@@ -161,8 +161,8 @@ export function getOperatingSurfaceReports(
 ): OperatingSurfaceLaneReport[] {
   const hadesNightly = asRecord(bundle.hadesNightlyOperations)
   const hadesArtifacts = asRecord(hadesNightly?.artifacts)
-  const hadesCommands = asRecord(hadesNightly?.commands)
-  const hadesOrganization = asRecord(hadesCommands?.hades_organization_maintenance)
+  const rumilCommands = asRecord(hadesNightly?.commands)
+  const rumilOrganization = asRecord(rumilCommands?.rumil_organization_maintenance)
   const athenaCounts = asRecord(asRecord(bundle.athenaRuntime?.knowledge)?.counts)
   const businessCounts = asRecord(asRecord(bundle.businessRuntime)?.counts)
   const configProfiles = asArray(bundle.configWalkthroughProfiles?.profiles)
@@ -173,8 +173,8 @@ export function getOperatingSurfaceReports(
   const hadesStatus = getString(hadesNightly?.status, 'missing')
   const athenaReferenceOnly = knowledgeMap.policySummary.referenceOnlyTotal || getNumber(athenaCounts?.reference_only_recent, bundle.athenaDigest.length)
   const athenaPolicyReady = knowledgeMap.policySummary.policyReadyTotal || getNumber(athenaCounts?.policy_ready_recent, 0)
-  const candidatePreviewTotal = getString(hadesOrganization?.stdout_tail, '').match(/candidate_preview_total=(\d+)/)?.[1] ?? 'unknown'
-  const brokenLocalLinks = getString(hadesOrganization?.stdout_tail, '').match(/broken_local_links=(\d+)/)?.[1] ?? 'unknown'
+  const candidatePreviewTotal = getString(rumilOrganization?.stdout_tail, '').match(/candidate_preview_total=(\d+)/)?.[1] ?? 'unknown'
+  const brokenLocalLinks = getString(rumilOrganization?.stdout_tail, '').match(/broken_local_links=(\d+)/)?.[1] ?? 'unknown'
 
   return [
     {

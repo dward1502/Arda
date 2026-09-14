@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0735e69626c14ac390359ab77cf15f8b",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-fb5a52e3a268ec2d__inspect-authorities-project-2--a3d067604f2755dd for task operator-task-fb5a52e3a268ec2d__inspect-authorities-project-2--a3d067604f2755dd ended status=completed result=completed; receipt=sha256:e82354e27a91586405e5daffaa0540d992260c1acb15cb19622f6d962f86bef5; detail=Independent read-only review completed. The prior verification receipt covers `git status --short --branch` with exit code 0 and reports a clean detached-HEAD worktree; the declared clean-tree check also passed. Source evidence supports the execution summary, but one concrete security defect exists: `src/policy.rs:89-102` requires trace evidence only when `metadata.requires_review` is true, while `src/policy.rs:129-143` can independently require review for critical risk. Consequently, a critical, non-mutating tool with `requires_review=false` and no trace receives `review_required` despite the default `require_trace_for_review=true`, contrary to the documented trace requirement for reviewable actions. Existing coverage at `tests/policy_decisions.rs:55-64` uses both `requires_review=true` and a trace, so it does not detect this path. No checks were rerun, no files were modified, and no artifacts were created.",
+  "salience": 0.5267249999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T10:50:34.674412988Z",
+  "last_seen_at": "2026-09-01T10:50:34.674412988Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

@@ -24,6 +24,7 @@ use std::{
     path::Path,
 };
 
+use crate::adapters::{AssimilationEvidence, AssimilationStore};
 use crate::runs::{RunEventDraft, RunEventKind, RunStore};
 
 use super::{
@@ -39,6 +40,8 @@ const MAX_SOURCES: usize = 5;
 pub struct ResearchBriefRequest {
     run_id: String,
     node_id: String,
+    #[serde(default)]
+    question_id: Option<String>,
     question: String,
     #[serde(default = "default_source_limit")]
     source_limit: usize,
@@ -151,6 +154,8 @@ pub struct ResearchBrief {
     brief_id: String,
     run_id: String,
     node_id: String,
+    #[serde(default)]
+    question_id: Option<String>,
     question: String,
     generated_at_utc: String,
     authority: String,
@@ -315,7 +320,7 @@ pub(super) async fn create_brief(
     for attempt in 0..policy.max_attempts {
         let response = state
             .client
-            .post(format!("{}/search", scout_url.trim_end_matches('/')))
+            .post(format!("{}/discover", scout_url.trim_end_matches('/')))
             .timeout(state.warden_scout_timeout)
             .json(&serde_json::json!({
                 "query": request.question,
@@ -455,6 +460,7 @@ pub(super) async fn create_brief(
         brief_id: brief_id.clone(),
         run_id: request.run_id.clone(),
         node_id: request.node_id.clone(),
+        question_id: request.question_id.clone(),
         question: request.question.clone(),
         generated_at_utc: generated_at.to_rfc3339(),
         authority: "advisory_research_evidence".to_string(),
@@ -515,6 +521,14 @@ pub(super) async fn create_brief(
                     .to_string_lossy()
                     .to_string(),
             );
+            persist_assimilation_discoveries(
+                &state.workbench_root,
+                request.question_id.as_deref().unwrap_or(&request.run_id),
+                &brief_id,
+                &brief_path,
+                &unchanged.citations,
+                generated_at,
+            )?;
             append_evidence_event(
                 &store,
                 node_id,
@@ -528,6 +542,14 @@ pub(super) async fn create_brief(
         }
     }
     write_json_atomic(&brief_path, &brief)?;
+    persist_assimilation_discoveries(
+        &state.workbench_root,
+        request.question_id.as_deref().unwrap_or(&request.run_id),
+        &brief_id,
+        &brief_path,
+        &brief.citations,
+        generated_at,
+    )?;
     append_evidence_event(
         &store,
         node_id,
@@ -810,9 +832,17 @@ fn is_private_ip(ip: std::net::IpAddr) -> bool {
 }
 
 fn visible_text(raw: &str) -> String {
-    let mut out = String::with_capacity(raw.len());
+    let mut filtered = html_element_inner(raw, "main").unwrap_or(raw).to_string();
+    for tag in [
+        "head", "script", "style", "noscript", "template", "svg", "header", "nav", "aside",
+        "footer",
+    ] {
+        filtered = strip_html_element(&filtered, tag);
+    }
+
+    let mut out = String::with_capacity(filtered.len());
     let mut in_tag = false;
-    for ch in raw.chars() {
+    for ch in filtered.chars() {
         match ch {
             '<' => in_tag = true,
             '>' => {
@@ -824,6 +854,75 @@ fn visible_text(raw: &str) -> String {
         }
     }
     out.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn html_element_inner<'a>(raw: &'a str, tag: &str) -> Option<&'a str> {
+    let lower = raw.to_ascii_lowercase();
+    let opening = format!("<{tag}");
+    let closing = format!("</{tag}");
+    let mut cursor = 0;
+    while let Some(relative_start) = lower[cursor..].find(&opening) {
+        let start = cursor + relative_start;
+        let boundary = lower[start + opening.len()..]
+            .chars()
+            .next()
+            .is_none_or(|ch| ch.is_ascii_whitespace() || matches!(ch, '>' | '/'));
+        if !boundary {
+            cursor = start + 1;
+            continue;
+        }
+        let open_end = start + lower[start..].find('>')?;
+        let close_start = open_end + 1 + lower[open_end + 1..].find(&closing)?;
+        return Some(&raw[open_end + 1..close_start]);
+    }
+    None
+}
+
+fn strip_html_element(raw: &str, tag: &str) -> String {
+    let lower = raw.to_ascii_lowercase();
+    let opening = format!("<{tag}");
+    let closing = format!("</{tag}");
+    let mut out = String::with_capacity(raw.len());
+    let mut cursor = 0;
+
+    while let Some(relative_start) = lower[cursor..].find(&opening) {
+        let start = cursor + relative_start;
+        let boundary = lower[start + opening.len()..]
+            .chars()
+            .next()
+            .is_none_or(|ch| ch.is_ascii_whitespace() || matches!(ch, '>' | '/'));
+        if !boundary {
+            out.push_str(&raw[cursor..start + 1]);
+            cursor = start + 1;
+            continue;
+        }
+        out.push_str(&raw[cursor..start]);
+        let Some(relative_open_end) = lower[start..].find('>') else {
+            cursor = raw.len();
+            break;
+        };
+        let open_end = start + relative_open_end;
+        if lower[start..=open_end].trim_end().ends_with("/>") {
+            out.push(' ');
+            cursor = open_end + 1;
+            continue;
+        }
+        let Some(relative_close) = lower[open_end + 1..].find(&closing) else {
+            out.push(' ');
+            cursor = raw.len();
+            break;
+        };
+        let close_start = open_end + 1 + relative_close;
+        let Some(relative_close_end) = lower[close_start..].find('>') else {
+            out.push(' ');
+            cursor = raw.len();
+            break;
+        };
+        out.push(' ');
+        cursor = close_start + relative_close_end + 1;
+    }
+    out.push_str(&raw[cursor..]);
+    out
 }
 
 fn citation_excerpt(text: &str, question: &str) -> String {
@@ -1136,6 +1235,50 @@ fn append_evidence_event(
         .map_err(store_error)
 }
 
+fn persist_assimilation_discoveries(
+    root: &Path,
+    objective_id: &str,
+    brief_id: &str,
+    brief_path: &Path,
+    citations: &[BriefCitation],
+    observed_at: DateTime<Utc>,
+) -> Result<(), ApiError> {
+    let receipt_path = brief_path
+        .strip_prefix(root)
+        .unwrap_or(brief_path)
+        .to_string_lossy();
+    let store = AssimilationStore::new(root);
+    for citation in citations {
+        store
+            .discover_with_evidence(
+                &citation.normalized_source_id,
+                "warden-varda-research",
+                AssimilationEvidence {
+                    canonical_source: Some(citation.canonical_url.clone()),
+                    source_digest: Some(citation.content_sha256.clone()),
+                    objective_id: Some(objective_id.to_string()),
+                    usage_receipt: Some(format!("{receipt_path}#{brief_id}")),
+                    security_classification: Some(
+                        "untrusted_external_evidence_read_only".to_string(),
+                    ),
+                    privacy_classification: Some("public_web".to_string()),
+                    implementation_comparison: Some(format!(
+                        "varda_policy_readiness={}; evaluation_digest={}; freshness={}",
+                        citation.policy_readiness,
+                        citation.evaluation_digest,
+                        citation.freshness_status
+                    )),
+                    ..AssimilationEvidence::default()
+                },
+                observed_at,
+            )
+            .map_err(|error| {
+                ApiError::internal(format!("persist assimilation discovery: {error}"))
+            })?;
+    }
+    Ok(())
+}
+
 fn stable_brief_id(run_id: &str, node_id: &str, question: &str) -> String {
     let digest = Sha256::digest(format!("{run_id}\0{node_id}\0{}", question.trim()).as_bytes());
     format!("research-{:x}", digest)[..25].to_string()
@@ -1176,6 +1319,8 @@ fn store_error(error: impl std::fmt::Display) -> ApiError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::adapters::{AssimilationState, AssimilationStore};
+    use tempfile::TempDir;
 
     #[test]
     fn excerpts_are_bounded_and_contradiction_status_is_explicit() {
@@ -1184,6 +1329,80 @@ mod tests {
         let excerpt = citation_excerpt(text, "documentation behavior");
         assert!(excerpt.len() <= 480);
         assert_eq!(classify_stance(&excerpt), "opposing_or_cautionary");
+    }
+
+    #[test]
+    fn visible_text_excludes_non_content_html_payloads() {
+        let raw = r#"
+            <html>
+              <head>
+                <style>.hidden { display: none; }</style>
+                <script type="application/json">{"oversized":"payload"}</script>
+              </head>
+              <body>
+                <main>x402 enables paid API access.</main>
+                <noscript>duplicate fallback navigation</noscript>
+                <svg><text>decorative icon label</text></svg>
+              </body>
+            </html>
+        "#;
+
+        assert_eq!(visible_text(raw), "x402 enables paid API access.");
+    }
+
+    #[test]
+    fn visible_text_excludes_repeated_page_chrome() {
+        let raw = r#"
+            <body>
+              <header>Product banner</header>
+              <nav>Docs FAQ Getting Started Facilitator</nav>
+              <aside>On this page</aside>
+              <main>A facilitator verifies payments and submits settlements.</main>
+              <footer>Site links and legal notices</footer>
+            </body>
+        "#;
+
+        assert_eq!(
+            visible_text(raw),
+            "A facilitator verifies payments and submits settlements."
+        );
+    }
+
+    #[test]
+    fn visible_text_prefers_the_document_main_region() {
+        let raw = r#"
+            <body>
+              <div class="sidebar">Welcome FAQ Getting Started Facilitator</div>
+              <main><p>The facilitator verifies payments.</p></main>
+              <div class="assistant">Ask the docs assistant</div>
+            </body>
+        "#;
+
+        assert_eq!(visible_text(raw), "The facilitator verifies payments.");
+    }
+
+    #[test]
+    fn brief_request_accepts_a_durable_question_link() {
+        let request = serde_json::from_value::<ResearchBriefRequest>(serde_json::json!({
+            "run_id": "run-1",
+            "node_id": "research",
+            "question_id": "8011c200-6743-4816-b100-c6f56e71da69",
+            "question": "bounded supporting query",
+            "source_limit": 2,
+            "envelope": {
+                "approval": {
+                    "schema_version": "arda.orome.task_approval.v1",
+                    "proposal_id": "proposal-1",
+                    "approval_id": "approval-1",
+                    "ledger_writes": [],
+                    "decision": "policy_safe",
+                    "created_at_utc": "2026-08-21T00:00:00Z"
+                },
+                "idempotency_key": "research-1"
+            }
+        }));
+
+        assert!(request.is_ok(), "question linkage should be accepted");
     }
 
     #[test]
@@ -1203,6 +1422,66 @@ mod tests {
         assert_eq!(
             stable_brief_id("run", "plan", "question"),
             stable_brief_id("run", "plan", "question")
+        );
+    }
+
+    #[test]
+    fn research_citations_become_restart_safe_assimilation_discoveries() {
+        let root = TempDir::new().unwrap();
+        let brief_path = root
+            .path()
+            .join("data/runs/rust-standards/evidence/research.json");
+        let source = citation(
+            "rust-clippy",
+            "supporting_or_contextual",
+            "2099-01-01T00:00:00Z",
+        );
+        let observed_at = DateTime::parse_from_rfc3339("2026-08-25T12:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+
+        persist_assimilation_discoveries(
+            root.path(),
+            "rust-engineering-standards",
+            "research-rust-standards",
+            &brief_path,
+            std::slice::from_ref(&source),
+            observed_at,
+        )
+        .unwrap();
+        persist_assimilation_discoveries(
+            root.path(),
+            "rust-engineering-standards",
+            "research-rust-standards",
+            &brief_path,
+            &[source],
+            observed_at,
+        )
+        .unwrap();
+
+        let candidates = AssimilationStore::new(root.path()).load_all().unwrap();
+        let candidate = candidates.get("source-rust-clippy").unwrap();
+        assert_eq!(candidate.state, AssimilationState::Discovered);
+        assert_eq!(
+            candidate.evidence.objective_id.as_deref(),
+            Some("rust-engineering-standards")
+        );
+        assert_eq!(
+            candidate.evidence.canonical_source.as_deref(),
+            Some("https://example.com/rust-clippy")
+        );
+        assert_eq!(
+            candidate.evidence.usage_receipt.as_deref(),
+            Some("data/runs/rust-standards/evidence/research.json#research-rust-standards")
+        );
+        assert_eq!(candidate.evidence.license, None);
+        assert_eq!(candidate.evidence.sbom_digest, None);
+        assert_eq!(
+            std::fs::read_to_string(AssimilationStore::new(root.path()).ledger_path())
+                .unwrap()
+                .lines()
+                .count(),
+            1
         );
     }
 
@@ -1275,6 +1554,7 @@ mod tests {
             brief_id: "brief".to_string(),
             run_id: "run".to_string(),
             node_id: "node".to_string(),
+            question_id: None,
             question: "question".to_string(),
             generated_at_utc: "2026-08-02T00:00:00Z".to_string(),
             authority: "advisory_research_evidence".to_string(),

@@ -223,7 +223,7 @@ enum MetricsCommands {
         /// Explicit Arda repository or migrated state root.
         #[arg(long, default_value = ".")]
         root: PathBuf,
-        #[arg(long, default_value = "0.0.0.0")]
+        #[arg(long, default_value = "127.0.0.1")]
         bind: String,
         #[arg(long, default_value_t = 9101)]
         port: u16,
@@ -262,6 +262,19 @@ enum AutopilotCommands {
         read_only: bool,
     },
     Status {
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+
+    /// Append an operator decision to the Arandur recommendation ledger.
+    ReviewRecommendation {
+        recommendation_id: String,
+        #[arg(long, value_parser = ["approve", "reject"])]
+        decision: String,
+        #[arg(long)]
+        reviewed_by: String,
+        #[arg(long)]
+        note: Option<String>,
         #[arg(long)]
         root: Option<PathBuf>,
     },
@@ -735,10 +748,20 @@ fn handle_prometheus(command: PrometheusCommands) -> Result<()> {
 }
 
 fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result<()> {
+    // Reject before constructing the legacy world or refreshing projections.
+    // A missing resident store must never reactivate JSONL scheduling.
+    if matches!(
+        command,
+        AutopilotCommands::Once { .. }
+            | AutopilotCommands::Run { .. }
+            | AutopilotCommands::Status { .. }
+    ) {
+        anyhow::bail!("legacy JSONL autopilot is retired; use the resident arda objective runtime and /v1/operator-projection");
+    }
     use arda_aule::prometheus::autopilot::{
         ceo_loop, execute_knowledge_task_queue, inspect_autonomy_preflight,
-        promote_knowledge_tasks, run_knowledge_triage, write_autonomy_preflight, AutopilotConfig,
-        CeoAutopilot, KnowledgeTriageConfig,
+        promote_knowledge_tasks, review_arandur_recommendation, run_knowledge_triage,
+        write_autonomy_preflight, AutopilotConfig, CeoAutopilot, KnowledgeTriageConfig,
     };
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
@@ -800,6 +823,24 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
                     json!({"error": "autopilot state not found", "path": path.display().to_string()})
                 });
             println!("{}", serde_json::to_string_pretty(&value)?);
+        }
+
+        AutopilotCommands::ReviewRecommendation {
+            recommendation_id,
+            decision,
+            reviewed_by,
+            note,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let receipt = review_arandur_recommendation(
+                root.join("data/arandur/recommendations.jsonl"),
+                &recommendation_id,
+                decision == "approve",
+                &reviewed_by,
+                note.as_deref(),
+            )?;
+            println!("{}", serde_json::to_string_pretty(&receipt)?);
         }
         AutopilotCommands::Preflight { root, write } => {
             let root = resolve_root(root);

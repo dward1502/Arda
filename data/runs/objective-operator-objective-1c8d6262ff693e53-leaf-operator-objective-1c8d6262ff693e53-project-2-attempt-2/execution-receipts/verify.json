@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:04c7cd3196f40a482fb1baec5b8c01af2364fe839c2fd0dc36833bcfabb27621",
+  "idempotency_key": "queue-operator-objective-1c8d6262ff693e53-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:a7b36785e6acfcd9f67e8ca6b54df81e7ba697b61ad22a8e45acc2fc9cf20d0f"
+  ],
+  "project_contract_digest": "sha256:e77fc25e9e87310b96c880be1ec1656e832472b5b786b322d1db0a81a45cf4e8",
+  "receipt_digest": "sha256:0bf22ad99daa4bd39dd4249d0220af97d17668e1e36c814d92f951b7f735c1d8",
+  "recorded_at_unix_ms": 1788327643770,
+  "run_id": "objective-operator-objective-1c8d6262ff693e53-leaf-operator-objective-1c8d6262ff693e53-project-2-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared verify check passed: test -f acceptance.txt",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "test -f acceptance.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "test -f acceptance.txt",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "test -f acceptance.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6288,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 230,
+    "provider": "openai-codex",
+    "total_tokens": 6518
+  }
+}

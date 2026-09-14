@@ -125,6 +125,11 @@ The only direct Cargo consumer is Manwe: its `telemetry` feature enables `arda-a
 - Do not expose command variants whose runtime implementation is absent.
 - Keep provider routing in Manwe and task execution in the active core loop/executor; Aule owns
   governance, observability, autopilot coordination, and durable queue/intent production.
+- Keep recommendation decisions append-only in `data/arandur/recommendations.jsonl`; approval
+  records carry the packet consumed by `queue_operation`, while rejected records are excluded from
+  objective selection.
+- Treat a human-approved packet as packet-local authority to append pending universal-queue work;
+  the global readiness hold continues to block proposals without explicit approval.
 - Preserve the currently consumed `annunimas_*` metric names as an external monitoring ABI until
   dashboards, alert rules, runtime consumers, and scrape jobs migrate together; do not add new
   legacy-named series.

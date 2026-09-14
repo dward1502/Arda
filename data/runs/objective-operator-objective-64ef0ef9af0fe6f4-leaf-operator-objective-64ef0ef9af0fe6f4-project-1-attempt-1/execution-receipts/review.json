@@ -1,0 +1,57 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:f94994d78a7898aa4f0ae0bcefe196551edd42a683fe2c0b0a9bd56a25a4131a",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:793cd88567eb31c2616b6a0232b567dbd7c544b2870004b4bcafc5af1924313a"
+  ],
+  "project_contract_digest": "sha256:af7d3dae3197a59caa74189bcde6418a4e9ba08c4fdcbf29d83dba043d8a98a6",
+  "receipt_digest": "sha256:9cb8469aa7b4b6601ad66f796c706b14f1eae0c1c7a22ce4044958005e4cd9f5",
+  "recorded_at_unix_ms": 1788329638372,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "No defects found. Independent read-only inspection confirmed README.acceptance contains the required exact line. The parent verification receipt is scoped to the declared check, reports exit code 0, includes distinct tool-output and test-output digests, and declares no artifacts or modifications.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"..\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"limit\":50,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"resident-objective-acceptance-fixture-ok\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e5d6b7603941fad4fd3d5ad559a53dac79a0eaf4f01c4de63b5b2771cc089aeb",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f6dd97ec6d47bcb354f0f775e25d6276212e574370dc6b14390f3bcd3b9a5740",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10842,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 401,
+    "provider": "openai-codex",
+    "total_tokens": 11243
+  }
+}

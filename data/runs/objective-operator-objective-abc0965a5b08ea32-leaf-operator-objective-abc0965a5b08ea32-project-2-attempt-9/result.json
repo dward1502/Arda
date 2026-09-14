@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:faddfea00025abd0230baabff23129876cbbe0093e72d713e90be28aded08b1c",
+    "summary": "Read-only review completed. Named defects: the project contains no implementation or durable runtime-verification evidence beyond README.acceptance, whose single-line acceptance assertion is unsupported; the parent receipt proves only that `pwd` succeeded in the expected directory and does not verify an isolated, installed, or resident runtime. The receipt is internally consistent for its declared `pwd` check, but it cannot support broader completion claims. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:1d35d4975a4afb933bc3146c01ea3dd31937d3e36ac3b4e834a6b189c08debca",
+      "duration_ms": null,
+      "name": "pwd",
+      "status": "passed"
+    }
+  ]
+}

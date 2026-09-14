@@ -1,0 +1,124 @@
+/* Shared ARDA machine substrate. Domain geometry remains in each adapter. */
+.fleet-focused-view,
+.routing-focused-view,
+.continuity-focused-view,
+.governance-master-detail {
+  position: relative;
+  border-radius: 0.2rem;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 2%),
+    inset 0 -1.2rem 2.8rem rgb(0 0 0 / 14%);
+}
+
+.fleet-focused-view::after,
+.routing-focused-view::after,
+.continuity-focused-view::after,
+.governance-master-detail::after {
+  position: absolute;
+  inset: 0.35rem;
+  border-top: 1px solid var(--arda-vector-line);
+  border-left: 1px solid var(--arda-vector-line);
+  clip-path: polygon(0 0, 2.4rem 0, 2.4rem 1px, 1px 1px, 1px 2.4rem, 0 2.4rem);
+  content: '';
+  pointer-events: none;
+}
+
+/* Detail regions are instrument divisions, not nested dashboard cards. */
+.fleet-focused-view section,
+.routing-focused-view__grid section,
+.continuity-focused-view__hero > div,
+.continuity-focused-view__detail,
+.continuity-focused-view__rail {
+  border-color: var(--arda-vector-line);
+  border-radius: 0.15rem;
+  background-color: transparent;
+}
+
+.fleet-focused-view button,
+.routing-focused-view button,
+.continuity-focused-view button,
+.governance-master-detail button,
+.command-core-terminal button,
+.command-core-terminal__native-screen-target {
+  transition:
+    border-color var(--arda-motion-fast) ease,
+    background-color var(--arda-motion-fast) ease,
+    filter var(--arda-motion-fast) ease;
+}
+
+.fleet-focused-view button:focus-visible,
+.routing-focused-view button:focus-visible,
+.continuity-focused-view button:focus-visible,
+.governance-master-detail button:focus-visible,
+.command-core-terminal button:focus-visible,
+.command-core-terminal__native-screen-target:focus-visible {
+  outline: var(--arda-focus-outline);
+  outline-offset: var(--arda-focus-offset);
+}
+
+/* Source truth stays in the lower-right evidence corner and uses glyph + line style. */
+.arda-source-corner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.38rem 0.8rem;
+  margin-top: auto;
+  border-top: 1px solid var(--arda-vector-line);
+  padding-top: 0.45rem;
+  color: #9cb3bd;
+  font-size: var(--arda-text-min-focused);
+  line-height: 1.35;
+  text-align: right;
+}
+
+.arda-source-corner [data-truth-state] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  border-bottom: 1px solid currentcolor;
+}
+
+.arda-source-corner [data-truth-state]::before {
+  width: 0.8rem;
+  color: currentcolor;
+  content: '•';
+  font-weight: 900;
+  text-align: center;
+}
+
+.arda-source-corner [data-truth-state='fresh'],
+.arda-source-corner [data-truth-state='live'] { color: var(--arda-truth-live); }
+.arda-source-corner [data-truth-state='snapshot'] { color: var(--arda-truth-snapshot); }
+.arda-source-corner [data-truth-state='snapshot']::before { content: '□'; }
+.arda-source-corner [data-truth-state='projected'] {
+  border-bottom-style: dashed;
+  color: var(--arda-truth-projected);
+}
+.arda-source-corner [data-truth-state='projected']::before { content: '◇'; }
+.arda-source-corner [data-truth-state='stale'],
+.arda-source-corner [data-truth-state='stale-snapshot'] { color: var(--arda-truth-stale); }
+.arda-source-corner [data-truth-state='stale']::before,
+.arda-source-corner [data-truth-state='stale-snapshot']::before { content: '△'; }
+.arda-source-corner [data-truth-state='unavailable'] {
+  border-bottom-style: double;
+  color: var(--arda-truth-unavailable);
+}
+.arda-source-corner [data-truth-state='unavailable']::before { content: '—'; }
+.arda-source-corner [data-truth-state='missing'] {
+  border-bottom-style: dotted;
+  color: var(--arda-truth-missing);
+}
+.arda-source-corner [data-truth-state="missing"]::before { content: "×"; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fleet-focused-view *,
+  .routing-focused-view *,
+  .continuity-focused-view *,
+  .governance-master-detail *,
+  .command-core-terminal * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

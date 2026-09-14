@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:5d1f4724a99862a03550e9d1cf92d1316921dcf4c343e29efdfaa984f89d6285",
+  "idempotency_key": "queue-operator-task-85655dd7da764354-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:approve-live-multi-project-bounded-2026-08-31T040038.4217790000"
+  ],
+  "project_contract_digest": "sha256:9774039305b6e8910d79de4365c53daf25f2eb9bddacc6264d0508693939984f",
+  "receipt_digest": "sha256:fae5b86be90e52bbb8e52cbe5cb4eb9f41c49c99c3306ca1854a7e5d00884c4b",
+  "recorded_at_unix_ms": 1788149011613,
+  "run_id": "queue-operator-task-85655dd7da764354-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Declared check failed with exit code 101: Cargo reports this package believes it belongs to the parent workspace but is not registered. No files were changed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -- --test-threads=1",
+      "exit_code": 101,
+      "output_digest": "sha256:b273d0f5345124dc35cdf9a8ef167a86895a980992e325c79b24008b6c3d5919",
+      "status": "failed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -- --test-threads=1",
+      "exit_code": 101,
+      "output_digest": "sha256:b273d0f5345124dc35cdf9a8ef167a86895a980992e325c79b24008b6c3d5919",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9229,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 737,
+    "provider": "openai-codex",
+    "total_tokens": 9966
+  }
+}

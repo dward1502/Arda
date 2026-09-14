@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:92c14fd41ed17226a8483740053945548447ab83de1f664e52f27a969417d36c",
+    "summary": "VERDICT: APPROVE\nIndependent read-only review found no blocking defects. The implementation matches the documented policy boundary, decision-receipt schema, review behavior, and CLI exit-code contract. The digest-validated parent receipt provides successful formatting, test, Clippy, rustdoc, source-inspection, and clean-tree evidence; its five reported integration tests correspond to the inspected test suite. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

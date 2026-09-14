@@ -6,6 +6,10 @@
 //! invokes the existing Workbench mutation surfaces with event-derived
 //! idempotency keys.
 
+use crate::objectives::{
+    ControlAction, LeafExecutionSpec, NewLeaf, NewObjective, ObjectiveState, ObjectiveStore,
+    ProjectAuthority,
+};
 use arda_orome::operator_bridge::{
     ApprovalBinding, ApprovalSingleUseState, Audience, BridgeApproval, BridgeLineage,
     BridgeOperation, BridgeRequest, ContentSensitivity, HermesMessageEvent, HermesPromptResponse,
@@ -13,7 +17,7 @@ use arda_orome::operator_bridge::{
 };
 use axum::{
     extract::{ConnectInfo, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     Json,
 };
 use chrono::{Duration, Utc};
@@ -27,7 +31,7 @@ use crate::{council::CouncilOperatorProjection, runs::RunStore};
 use arda_core::run_graph::RunId;
 
 use super::{
-    projects::{require_loopback, ApiError},
+    projects::{contract_digest, find_attached_project, require_loopback, ApiError},
     HarnessState,
 };
 
@@ -51,11 +55,49 @@ pub struct GatewayOperatorResponse {
 #[derive(Debug)]
 enum Command {
     Capture(String),
+    Research(String),
     Objective {
-        project_id: String,
+        project_ids: Vec<String>,
         text: String,
     },
     Context,
+    Objectives,
+    DeleteRecoveryContext {
+        objective_id: String,
+        run_id: String,
+    },
+    PauseTask {
+        task_id: String,
+        objective_id: String,
+        reason: String,
+    },
+    ResumeTask {
+        task_id: String,
+        objective_id: String,
+        reason: String,
+    },
+    ReprioritizeTask {
+        task_id: String,
+        objective_id: String,
+        priority: String,
+        reason: String,
+    },
+    ReviseObjective {
+        task_id: String,
+        objective_id: String,
+        revised_objective: String,
+        reason: String,
+    },
+    ApproveObjective {
+        task_id: String,
+        objective_id: String,
+        reason: String,
+    },
+    CancelTask {
+        task_id: String,
+        objective_id: String,
+        reason: String,
+    },
     Status {
         run_id: Option<String>,
     },
@@ -94,14 +136,31 @@ enum Command {
 pub(super) async fn ingest_operator_message(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Json(mut incoming): Json<GatewayOperatorMessage>,
 ) -> Result<Json<GatewayOperatorResponse>, ApiError> {
     require_loopback(peer)?;
+    require_gateway_capability(&headers)?;
     if !incoming.operator.authenticated
         || incoming.operator.authentication_method != "gateway_identity"
     {
         return Err(ApiError::forbidden(
             "operator message requires Hermes Gateway identity authentication",
+        ));
+    }
+    if incoming.operator.operator_id != state.operator_id {
+        return Err(ApiError::forbidden(
+            "gateway operator identity does not match configured Arda operator",
+        ));
+    }
+    let authenticated_at =
+        chrono::DateTime::parse_from_rfc3339(&incoming.operator.authenticated_at)
+            .map(|value| value.with_timezone(&Utc))
+            .map_err(|_| ApiError::forbidden("gateway authentication timestamp is invalid"))?;
+    let authentication_age = Utc::now().signed_duration_since(authenticated_at);
+    if authentication_age > Duration::minutes(5) || authentication_age < Duration::minutes(-1) {
+        return Err(ApiError::forbidden(
+            "gateway authentication assertion is stale or from the future",
         ));
     }
     if incoming.event.user_id.as_deref() != Some(incoming.operator.operator_id.as_str()) {
@@ -110,13 +169,32 @@ pub(super) async fn ingest_operator_message(
         ));
     }
 
+    let raw_message_id = incoming
+        .event
+        .message_id
+        .as_deref()
+        .or(incoming.event.source.message_id.as_deref())
+        .ok_or_else(|| ApiError::bad_request("MessageEvent message_id is required"))?;
+    let message_id = gateway_event_id(&incoming, raw_message_id);
+    incoming.event.message_id = Some(message_id.clone());
+    incoming.event.source.message_id = Some(message_id);
+
     let command = parse_command(&incoming.event.text)?;
     let audience = audience(&incoming.event);
     if matches!(
         command,
         Command::Capture(_)
+            | Command::Research(_)
             | Command::Objective { .. }
             | Command::Context
+            | Command::Objectives
+            | Command::DeleteRecoveryContext { .. }
+            | Command::PauseTask { .. }
+            | Command::ResumeTask { .. }
+            | Command::ReprioritizeTask { .. }
+            | Command::ReviseObjective { .. }
+            | Command::ApproveObjective { .. }
+            | Command::CancelTask { .. }
             | Command::Acknowledge { .. }
             | Command::Defer { .. }
     ) && !matches!(audience, Audience::Direct | Audience::OperatorPrivate)
@@ -125,6 +203,7 @@ pub(super) async fn ingest_operator_message(
             "personal operator commands require a private conversation",
         ));
     }
+    preflight_canonical_control(&state, &command)?;
     let session_id = session_id(&incoming.event);
     let run_id = command_run_id(&command).map(str::to_owned);
     let operation = command_operation(&command);
@@ -186,9 +265,9 @@ pub(super) async fn ingest_operator_message(
         operator: incoming.operator.clone(),
         lineage: BridgeLineage {
             session_id: session_id.clone(),
-            objective_id: None,
+            objective_id: command_objective_id(&command).map(str::to_owned),
             project_id: command_project_id(&command).map(str::to_owned),
-            task_id: None,
+            task_id: command_task_id(&command).map(str::to_owned),
             run_id: run_id.clone(),
         },
         adapter_id: incoming.adapter_id.clone(),
@@ -205,6 +284,14 @@ pub(super) async fn ingest_operator_message(
             .join("core/state/orome/operator-session"),
     )
     .map_err(bridge_error)?;
+    // Resident objective mutations are durable and idempotent by gateway event ID.
+    // Apply them before appending the operator-session event so a rejected control
+    // cannot become an unretryable duplicate without changing objective state.
+    let applied = if is_resident_objective_mutation(&command) {
+        Some(apply_command(&state, &incoming, &command).await?)
+    } else {
+        None
+    };
     let session = match pending.as_ref() {
         Some(binding) => runtime
             .ingest_approval(bridge_request, binding, now)
@@ -212,7 +299,10 @@ pub(super) async fn ingest_operator_message(
         None => runtime.ingest(bridge_request, now).map_err(bridge_error)?,
     };
 
-    let (summary, mut evidence_refs) = apply_command(&state, &incoming, &command).await?;
+    let (summary, mut evidence_refs) = match applied {
+        Some(result) => result,
+        None => apply_command(&state, &incoming, &command).await?,
+    };
     evidence_refs.insert(
         0,
         format!("arda://operator-events/{}", session.incoming.event_id),
@@ -224,6 +314,98 @@ pub(super) async fn ingest_operator_message(
         session_id,
         run_id,
     }))
+}
+
+fn require_gateway_capability(headers: &HeaderMap) -> Result<(), ApiError> {
+    let expected = gateway_capability()
+        .ok_or_else(|| ApiError::internal("Hermes Gateway capability is not configured"))?;
+    let presented = headers
+        .get("x-arda-gateway-capability")
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or_default();
+    if !constant_time_eq(expected.as_bytes(), presented.as_bytes()) {
+        return Err(ApiError::forbidden(
+            "Hermes Gateway capability is missing or invalid",
+        ));
+    }
+    Ok(())
+}
+
+fn gateway_capability() -> Option<String> {
+    if let Ok(value) = std::env::var("ARDA_HERMES_GATEWAY_CAPABILITY") {
+        let value = value.trim();
+        if !value.is_empty() {
+            return Some(value.to_owned());
+        }
+    }
+    let directory = std::env::var_os("CREDENTIALS_DIRECTORY")?;
+    let value = std::fs::read_to_string(
+        std::path::Path::new(&directory).join("arda-hermes-gateway-capability"),
+    )
+    .ok()?;
+    let value = value.trim();
+    (!value.is_empty()).then(|| value.to_owned())
+}
+
+fn constant_time_eq(expected: &[u8], presented: &[u8]) -> bool {
+    let mut difference = expected.len() ^ presented.len();
+    let width = expected.len().max(presented.len());
+    for index in 0..width {
+        let left = expected.get(index).copied().unwrap_or_default();
+        let right = presented.get(index).copied().unwrap_or_default();
+        difference |= usize::from(left ^ right);
+    }
+    difference == 0
+}
+
+fn preflight_canonical_control(state: &HarnessState, command: &Command) -> Result<(), ApiError> {
+    match command {
+        Command::PauseTask {
+            task_id,
+            objective_id,
+            ..
+        }
+        | Command::ResumeTask {
+            task_id,
+            objective_id,
+            ..
+        }
+        | Command::ReprioritizeTask {
+            task_id,
+            objective_id,
+            ..
+        }
+        | Command::ReviseObjective {
+            task_id,
+            objective_id,
+            ..
+        }
+        | Command::ApproveObjective {
+            task_id,
+            objective_id,
+            ..
+        }
+        | Command::CancelTask {
+            task_id,
+            objective_id,
+            ..
+        } => {
+            let store = objective_store(state)?;
+            let leaf = store
+                .leaf(task_id)
+                .map_err(objective_store_error)?
+                .ok_or_else(|| {
+                    ApiError::not_found(format!("objective leaf `{task_id}` was not found"))
+                })?;
+            if leaf.objective_id != *objective_id {
+                return Err(ApiError::forbidden(
+                    "operator control objective does not match canonical leaf lineage",
+                ));
+            }
+        }
+        _ => {}
+    }
+    Ok(())
 }
 
 async fn apply_command(
@@ -261,19 +443,71 @@ async fn apply_command(
                 vec![format!("arda://personal/captures/{capture_id}")],
             ))
         }
-        Command::Objective { project_id, text } => {
-            let projects = get_json(state, "/v1/projects").await?;
-            let attached = projects["projects"].as_array().is_some_and(|projects| {
-                projects.iter().any(|project| {
-                    project["contract"]["identity"]["project_id"].as_str()
-                        == Some(project_id.as_str())
-                })
-            });
-            if !attached {
-                return Err(ApiError::not_found(format!(
-                    "project `{project_id}` is not attached"
-                )));
-            }
+        Command::Research(question) => {
+            let digest = format!("{:x}", Sha256::digest(message_id.as_bytes()));
+            let question_id = format!("operator-question-{}", &digest[..16]);
+            let response = post_json(
+                state,
+                "/v1/research/questions",
+                json!({
+                    "question": {
+                        "schema_version": "arda.warden.watchlist.v1",
+                        "question_id": question_id,
+                        "owner": incoming.operator.operator_id,
+                        "question": question,
+                        "rationale": "Explicit operator research request from Hermes Gateway",
+                        "tags": ["operator-authored"],
+                        "cadence": {"kind": "manual"},
+                        "expires_at_utc": (Utc::now() + Duration::days(7)).to_rfc3339(),
+                        "source_policy": {
+                            "policy_id": "public-web",
+                            "allowed_sources": ["https://"],
+                            "max_sources_per_run": 5,
+                            "allow_private_targets": false
+                        },
+                        "evidence_requirements": {
+                            "minimum_canonical_sources": 1,
+                            "require_canonical_fetch": true,
+                            "max_source_age_seconds": 604800
+                        },
+                        "contradiction_policy": "require_disclosure",
+                        "budgets": {
+                            "max_results": 10,
+                            "max_fetch_bytes": 2000000,
+                            "max_tokens": 4000,
+                            "max_attempts": 2
+                        },
+                        "notification_policy": {"enabled": false, "destination": null},
+                        "state": "enabled",
+                        "backend_suggestion_ids": []
+                    },
+                    "read_only": false,
+                    "envelope": envelope
+                }),
+                None,
+                Some(&incoming.operator.operator_id),
+            )
+            .await?;
+            let backend_status = response["backend_status"].as_str().unwrap_or("registered");
+            Ok((
+                format!(
+                    "Research question {question_id} registered; backend status: {backend_status}. No commitment was created."
+                ),
+                vec![format!("arda://research/questions/{question_id}")],
+            ))
+        }
+        Command::Objective { project_ids, text } => {
+            let objective = create_operator_objective(
+                state,
+                project_ids,
+                text,
+                &incoming.operator.operator_id,
+                message_id,
+                &incoming.event.timestamp,
+            )?;
+            let primary_project_id = project_ids
+                .first()
+                .expect("objective parser requires at least one project");
             let capture = post_json(
                 state,
                 "/v1/personal/captures",
@@ -281,7 +515,7 @@ async fn apply_command(
                     "operator_id": incoming.operator.operator_id,
                     "text": text,
                     "audio_reference": null,
-                    "project_id": project_id,
+                    "project_id": primary_project_id,
                     "priority": null,
                     "due_at": null
                 }),
@@ -290,23 +524,222 @@ async fn apply_command(
             )
             .await?;
             let capture_id = required_string(&capture, "capture_id")?;
+            let leaf_id = objective
+                .leaves
+                .first()
+                .map(|leaf| leaf.id.as_str())
+                .ok_or_else(|| ApiError::internal("objective omitted execution leaves"))?;
             Ok((
-                format!("Created objective capture {capture_id} for project {project_id}."),
-                vec![
-                    format!("arda://personal/captures/{capture_id}"),
-                    format!("arda://projects/{project_id}"),
-                ],
+                format!(
+                    "Created objective capture {capture_id} and resident objective {} for attached project(s) {}. Execution still requires review.",
+                    objective.id,
+                    project_ids.join(", ")
+                ),
+                std::iter::once(format!("arda://personal/captures/{capture_id}"))
+                    .chain(
+                        project_ids
+                            .iter()
+                            .map(|project_id| format!("arda://projects/{project_id}")),
+                    )
+                    .chain(std::iter::once(format!(
+                        "arda://objectives/{}",
+                        objective.id
+                    )))
+                    .chain(std::iter::once(format!(
+                        "arda://objectives/{}/leaves/{leaf_id}",
+                        objective.id
+                    )))
+                    .collect(),
             ))
         }
         Command::Context => {
-            let response =
-                get_operator_json(state, "/v1/personal/resume", &incoming.operator.operator_id)
-                    .await?;
-            let summary = response["resume"]["summary"]
-                .as_str()
-                .unwrap_or("No personal resume context is available.")
-                .to_owned();
-            Ok((summary, vec!["arda://personal/resume".into()]))
+            let objectives = objective_store(state)?
+                .list_objectives()
+                .map_err(objective_store_error)?;
+            let selected = objectives.iter().find(|objective| {
+                !matches!(
+                    objective.state,
+                    ObjectiveState::Completed | ObjectiveState::Cancelled | ObjectiveState::Failed
+                )
+            });
+            let Some(selected) = selected else {
+                return Ok((
+                    "No current resident objective is available.".to_owned(),
+                    vec!["arda://objectives".into()],
+                ));
+            };
+            Ok((
+                format!(
+                    "Next resident objective: {} [{}]. Operator step: {}",
+                    selected.text,
+                    selected.state.as_str(),
+                    if selected.state == ObjectiveState::PendingApproval {
+                        "review and approve the authenticated objective"
+                    } else {
+                        "monitor resident execution"
+                    }
+                ),
+                vec![format!("arda://objectives/{}", selected.id)],
+            ))
+        }
+        Command::Objectives => {
+            let objectives = objective_store(state)?
+                .list_objectives()
+                .map_err(objective_store_error)?;
+            let mut lines = vec![format!(
+                "Objectives: {} (authority=resident_objective_store, freshness=live).",
+                objectives.len()
+            )];
+            let mut evidence_refs = vec!["arda://objectives".into()];
+            for objective in objectives {
+                lines.push(format!(
+                    "{} [{}] priority={} revision={} projects={} text={}",
+                    objective.id,
+                    objective.state.as_str(),
+                    objective.priority,
+                    objective.revision,
+                    objective.project_ids.join(","),
+                    objective.text,
+                ));
+                evidence_refs.push(format!("arda://objectives/{}", objective.id));
+            }
+            Ok((lines.join("\n"), evidence_refs))
+        }
+        Command::DeleteRecoveryContext {
+            objective_id,
+            run_id,
+        } => {
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::DeleteRecoveryContext {
+                    run_id: run_id.clone(),
+                },
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!("Removed the resident recovery snapshot for {run_id}; receipt digests and deletion tombstone retained. This does not erase RunStore, Vairë records, backups or SQLite forensic remnants."),
+                vec![format!("arda://objectives/{objective_id}"),
+                     format!("arda://objectives/{objective_id}/controls/{message_id}")],
+            ))
+        }
+        Command::PauseTask {
+            task_id,
+            objective_id,
+            reason,
+        } => {
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::Pause,
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!("Paused resident objective {objective_id}: {reason}"),
+                vec![format!("arda://objectives/{objective_id}/leaves/{task_id}")],
+            ))
+        }
+        Command::ResumeTask {
+            task_id,
+            objective_id,
+            reason,
+        } => {
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::Resume,
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!("Resumed resident objective {objective_id}: {reason}"),
+                vec![format!("arda://objectives/{objective_id}/leaves/{task_id}")],
+            ))
+        }
+        Command::ReprioritizeTask {
+            task_id,
+            objective_id,
+            priority,
+            reason,
+        } => {
+            let priority = objective_priority(priority)?;
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::Reprioritize { priority },
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!("Reprioritized {task_id} to {priority}: {reason}"),
+                vec![format!("arda://objectives/{objective_id}/leaves/{task_id}")],
+            ))
+        }
+        Command::ReviseObjective {
+            task_id,
+            objective_id,
+            revised_objective,
+            reason,
+        } => {
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::Revise {
+                    text: revised_objective.clone(),
+                },
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!(
+                    "Revised resident objective {objective_id}; fresh approval is required: {reason}"
+                ),
+                vec![format!("arda://objectives/{objective_id}/leaves/{task_id}")],
+            ))
+        }
+        Command::ApproveObjective {
+            task_id,
+            objective_id,
+            reason,
+        } => {
+            let store = objective_store(state)?;
+            let revision = store
+                .objective(objective_id)
+                .map_err(objective_store_error)?
+                .ok_or_else(|| {
+                    ApiError::not_found(format!("objective `{objective_id}` was not found"))
+                })?
+                .revision;
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::Approve { revision },
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!("Approved resident objective {objective_id}: {reason}"),
+                vec![format!("arda://objectives/{objective_id}/leaves/{task_id}")],
+            ))
+        }
+        Command::CancelTask {
+            task_id,
+            objective_id,
+            reason,
+        } => {
+            apply_objective_control(
+                state,
+                objective_id,
+                ControlAction::Cancel,
+                message_id,
+                &incoming.operator.operator_id,
+            )?;
+            Ok((
+                format!("Cancelled resident objective {objective_id}: {reason}"),
+                vec![format!("arda://objectives/{objective_id}/leaves/{task_id}")],
+            ))
         }
         Command::Status { run_id: None } => {
             let response = get_json(state, "/v1/runs").await?;
@@ -509,6 +942,161 @@ async fn run_status(state: &HarnessState, run_id: &str) -> Result<(String, Vec<S
     ))
 }
 
+fn create_operator_objective(
+    state: &HarnessState,
+    project_ids: &[String],
+    text: &str,
+    operator_id: &str,
+    message_id: &str,
+    timestamp: &str,
+) -> Result<NewObjective, ApiError> {
+    let mut hasher = Sha256::new();
+    for project_id in project_ids {
+        hasher.update(project_id.as_bytes());
+        hasher.update([0]);
+    }
+    hasher.update(message_id.as_bytes());
+    let digest = format!("{:x}", hasher.finalize());
+    let objective_id = format!("operator-objective-{}", &digest[..16]);
+    let approval_envelope = json!({
+        "approval": {
+            "schema_version": "arda.orome.task_approval.v1",
+            "proposal_id": format!("gateway-proposal:{message_id}"),
+            "approval_id": format!("gateway-approval:{message_id}"),
+            "ledger_writes": ["data/arda/objectives.sqlite3", "data/runs"],
+            "decision": "policy_safe",
+            "created_at_utc": timestamp
+        },
+        "idempotency_key": message_id
+    });
+    let objective_plan_receipt = format!(
+        "sha256:{:x}",
+        Sha256::digest(
+            serde_json::to_vec(&json!({
+                "objective_id": objective_id,
+                "project_ids": project_ids,
+                "text": text,
+                "source_message_id": message_id,
+            }))
+            .map_err(|error| ApiError::internal(format!("serialize objective plan: {error}")))?
+        )
+    );
+
+    let mut projects = Vec::with_capacity(project_ids.len());
+    let mut leaves = Vec::with_capacity(project_ids.len().saturating_add(1));
+    for (index, project_id) in project_ids.iter().enumerate() {
+        let attached = find_attached_project(&state.workbench_root, project_id)?;
+        let project_digest = contract_digest(&attached.contract)?;
+        let workspace_root = state
+            .workbench_root
+            .join(attached.contract.workspace.root.as_str())
+            .to_string_lossy()
+            .into_owned();
+        projects.push(ProjectAuthority {
+            project_id: project_id.clone(),
+            contract_digest: project_digest,
+        });
+        leaves.push(NewLeaf {
+            id: format!("{objective_id}-project-{}", index + 1),
+            project_id: Some(project_id.clone()),
+            workspace_root,
+            authority: "operator_approved_workbench".into(),
+            dependencies: Vec::new(),
+            execution: Some(LeafExecutionSpec {
+                objective: format!(
+                    "Inspect exact project {project_id} for project-local evidence."
+                ),
+                execution_prompt: format!(
+                    "Inspect only exact project {project_id}. Produce source-backed, project-local evidence and exact project-specific check outcomes that can support the approved parent objective. Do not compare sibling projects or require sibling files. Cross-project comparison is reserved for the dependent synthesis leaf. Parent objective context only: {text}"
+                ),
+                verification_prompt: format!(
+                    "Verify the project-local result for exact project {project_id}."
+                ),
+                review_prompt: "Review correctness, scope, and receipt evidence.".into(),
+                approval_envelope: approval_envelope.clone(),
+                objective_plan_receipt: objective_plan_receipt.clone(),
+            }),
+        });
+    }
+    if leaves.len() > 1 {
+        let primary = leaves[0].clone();
+        leaves.push(NewLeaf {
+            id: format!("{objective_id}-join"),
+            project_id: primary.project_id.clone(),
+            workspace_root: primary.workspace_root,
+            authority: "operator_approved_workbench".into(),
+            dependencies: leaves.iter().map(|leaf| leaf.id.clone()).collect(),
+            execution: Some(LeafExecutionSpec {
+                objective: text.to_owned(),
+                execution_prompt:
+                    "Synthesize the completed project leaves into one objective result.".into(),
+                verification_prompt:
+                    "Verify every project leaf has canonical close-receipt lineage.".into(),
+                review_prompt: "Review the joined result against the full approved objective."
+                    .into(),
+                approval_envelope,
+                objective_plan_receipt,
+            }),
+        });
+    }
+    let objective = NewObjective {
+        id: objective_id,
+        source_id: format!("gateway:{message_id}"),
+        idempotency_key: message_id.to_owned(),
+        operator_id: operator_id.to_owned(),
+        text: text.to_owned(),
+        priority: 50,
+        projects,
+        leaves,
+    };
+    objective_store(state)?
+        .create_authenticated_objective(objective.clone(), Utc::now().timestamp_millis())
+        .map_err(objective_store_error)?;
+    Ok(objective)
+}
+
+fn objective_store(state: &HarnessState) -> Result<ObjectiveStore, ApiError> {
+    ObjectiveStore::open(state.workbench_root.join("data/arda/objectives.sqlite3"))
+        .map_err(objective_store_error)
+}
+
+fn objective_store_error(error: anyhow::Error) -> ApiError {
+    ApiError::conflict(format!(
+        "resident objective store rejected mutation: {error}"
+    ))
+}
+
+fn apply_objective_control(
+    state: &HarnessState,
+    objective_id: &str,
+    action: ControlAction,
+    message_id: &str,
+    operator_id: &str,
+) -> Result<(), ApiError> {
+    objective_store(state)?
+        .apply_control(
+            objective_id,
+            action,
+            message_id,
+            operator_id,
+            Utc::now().timestamp_millis(),
+        )
+        .map_err(objective_store_error)?;
+    Ok(())
+}
+
+fn objective_priority(priority: &str) -> Result<i64, ApiError> {
+    match priority.to_ascii_lowercase().as_str() {
+        "critical" => Ok(100),
+        "high" => Ok(75),
+        "normal" | "medium" => Ok(50),
+        "low" => Ok(25),
+        _ => priority.parse::<i64>().map_err(|_| {
+            ApiError::bad_request("priority must be critical, high, normal, low, or an integer")
+        }),
+    }
+}
+
 fn parse_command(text: &str) -> Result<Command, ApiError> {
     let mut parts = text.trim().splitn(3, char::is_whitespace);
     if parts
@@ -534,17 +1122,118 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
                 Ok(Command::Capture(args.to_owned()))
             }
         }
+        "research" => {
+            if args.is_empty() {
+                Err(ApiError::bad_request("research question cannot be empty"))
+            } else {
+                Ok(Command::Research(args.to_owned()))
+            }
+        }
         "objective" => {
-            let (project_id, text) = take_arg(args, "objective project_id")?;
+            let (project_ids, text) = take_arg(args, "objective project_ids")?;
             if text.is_empty() {
                 return Err(ApiError::bad_request("objective text cannot be empty"));
             }
+            let project_ids = project_ids
+                .split(',')
+                .map(str::trim)
+                .map(str::to_owned)
+                .collect::<Vec<_>>();
+            if project_ids.iter().any(String::is_empty) {
+                return Err(ApiError::bad_request(
+                    "objective project_ids must be a comma-separated list without empty entries",
+                ));
+            }
+            let mut unique = std::collections::HashSet::new();
+            if !project_ids
+                .iter()
+                .all(|project_id| unique.insert(project_id))
+            {
+                return Err(ApiError::bad_request(
+                    "objective project_ids must not contain duplicates",
+                ));
+            }
             Ok(Command::Objective {
-                project_id,
+                project_ids,
                 text: text.to_owned(),
             })
         }
         "context" => require_no_args(args).map(|()| Command::Context),
+        "objectives" => require_no_args(args).map(|()| Command::Objectives),
+        "pause-task" | "resume-task" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, reason) = take_arg(rest, "objective_id")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing operator reason"));
+            }
+            if verb == "pause-task" {
+                Ok(Command::PauseTask {
+                    task_id,
+                    objective_id,
+                    reason: reason.to_owned(),
+                })
+            } else {
+                Ok(Command::ResumeTask {
+                    task_id,
+                    objective_id,
+                    reason: reason.to_owned(),
+                })
+            }
+        }
+        "reprioritize" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, rest) = take_arg(rest, "objective_id")?;
+            let (priority, reason) = take_arg(rest, "priority")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing reprioritization reason"));
+            }
+            Ok(Command::ReprioritizeTask {
+                task_id,
+                objective_id,
+                priority,
+                reason: reason.to_owned(),
+            })
+        }
+        "revise-objective" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, revision) = take_arg(rest, "objective_id")?;
+            let (revised_objective, reason) = split_reason(revision)?;
+            Ok(Command::ReviseObjective {
+                task_id,
+                objective_id,
+                revised_objective,
+                reason,
+            })
+        }
+        "approve-objective" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, reason) = take_arg(rest, "objective_id")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing approval reason"));
+            }
+            Ok(Command::ApproveObjective {
+                task_id,
+                objective_id,
+                reason: reason.to_owned(),
+            })
+        }
+        "delete-recovery-context" => {
+            let (objective_id, rest) = take_arg(args, "objective_id")?;
+            let run_id = only_arg(rest, "run_id")?;
+            Ok(Command::DeleteRecoveryContext { objective_id, run_id })
+        }
+        "cancel-task" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, reason) = take_arg(rest, "objective_id")?;
+            if reason.is_empty() {
+                return Err(ApiError::bad_request("missing cancellation reason"));
+            }
+            Ok(Command::CancelTask {
+                task_id,
+                objective_id,
+                reason: reason.to_owned(),
+            })
+        }
         "approve" => {
             let (run_id, rest) = take_arg(args, "approve run_id")?;
             let node_id = only_arg(rest, "approve node_id")?;
@@ -605,7 +1294,7 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
             run_id: only_arg(args, "council run_id")?,
         }),
         _ => Err(ApiError::bad_request(
-            "unsupported operator command; use capture, objective, context, status, approve, reject, revise, cancel, acknowledge, defer, result, or council",
+            "unsupported operator command; use capture, research, objective, objectives, context, status, pause-task, resume-task, reprioritize, revise-objective, approve-objective, cancel-task, approve, reject, revise, cancel, acknowledge, defer, result, or council",
         )),
     }
 }
@@ -637,17 +1326,40 @@ fn require_no_args(input: &str) -> Result<(), ApiError> {
     }
 }
 
+fn split_reason(input: &str) -> Result<(String, String), ApiError> {
+    let (value, reason) = input
+        .split_once(" --reason ")
+        .ok_or_else(|| ApiError::bad_request("objective revision requires `--reason`"))?;
+    let value = value.trim();
+    let reason = reason.trim();
+    if value.is_empty() || reason.is_empty() {
+        return Err(ApiError::bad_request(
+            "objective revision and reason must be non-empty",
+        ));
+    }
+    Ok((value.to_owned(), reason.to_owned()))
+}
+
 fn command_operation(command: &Command) -> BridgeOperation {
     match command {
-        Command::Capture(_) | Command::Objective { .. } => BridgeOperation::Capture,
+        Command::Capture(_) | Command::Research(_) | Command::Objective { .. } => {
+            BridgeOperation::Capture
+        }
         Command::Context
+        | Command::Objectives
         | Command::Status { .. }
         | Command::Result { .. }
         | Command::Council { .. } => BridgeOperation::Query,
         Command::Approve { .. } => BridgeOperation::Approve,
         Command::Reject { .. } => BridgeOperation::Reject,
         Command::Revise { .. } => BridgeOperation::Revise,
-        Command::Cancel { .. } => BridgeOperation::Cancel,
+        Command::PauseTask { .. }
+        | Command::ResumeTask { .. }
+        | Command::ReprioritizeTask { .. }
+        | Command::ReviseObjective { .. }
+        | Command::ApproveObjective { .. }
+        | Command::DeleteRecoveryContext { .. } => BridgeOperation::Control,
+        Command::Cancel { .. } | Command::CancelTask { .. } => BridgeOperation::Cancel,
         Command::Acknowledge { .. } => BridgeOperation::Acknowledge,
         Command::Defer { .. } => BridgeOperation::Defer,
     }
@@ -656,8 +1368,17 @@ fn command_operation(command: &Command) -> BridgeOperation {
 fn command_run_id(command: &Command) -> Option<&str> {
     match command {
         Command::Capture(_)
+        | Command::Research(_)
         | Command::Objective { .. }
         | Command::Context
+        | Command::Objectives
+        | Command::PauseTask { .. }
+        | Command::ResumeTask { .. }
+        | Command::ReprioritizeTask { .. }
+        | Command::ReviseObjective { .. }
+        | Command::ApproveObjective { .. }
+        | Command::CancelTask { .. }
+        | Command::DeleteRecoveryContext { .. }
         | Command::Status { run_id: None }
         | Command::Acknowledge { .. }
         | Command::Defer { .. } => None,
@@ -675,9 +1396,48 @@ fn command_run_id(command: &Command) -> Option<&str> {
 
 fn command_project_id(command: &Command) -> Option<&str> {
     match command {
-        Command::Objective { project_id, .. } => Some(project_id),
+        Command::Objective { project_ids, .. } => project_ids.first().map(String::as_str),
         _ => None,
     }
+}
+
+fn command_task_id(command: &Command) -> Option<&str> {
+    match command {
+        Command::PauseTask { task_id, .. }
+        | Command::ResumeTask { task_id, .. }
+        | Command::ReprioritizeTask { task_id, .. }
+        | Command::ReviseObjective { task_id, .. }
+        | Command::ApproveObjective { task_id, .. }
+        | Command::CancelTask { task_id, .. } => Some(task_id),
+        _ => None,
+    }
+}
+
+fn command_objective_id(command: &Command) -> Option<&str> {
+    match command {
+        Command::PauseTask { objective_id, .. }
+        | Command::ResumeTask { objective_id, .. }
+        | Command::ReprioritizeTask { objective_id, .. }
+        | Command::ReviseObjective { objective_id, .. }
+        | Command::ApproveObjective { objective_id, .. }
+        | Command::CancelTask { objective_id, .. }
+        | Command::DeleteRecoveryContext { objective_id, .. } => Some(objective_id),
+        _ => None,
+    }
+}
+
+fn is_resident_objective_mutation(command: &Command) -> bool {
+    matches!(
+        command,
+        Command::Objective { .. }
+            | Command::PauseTask { .. }
+            | Command::ResumeTask { .. }
+            | Command::ReprioritizeTask { .. }
+            | Command::ReviseObjective { .. }
+            | Command::ApproveObjective { .. }
+            | Command::CancelTask { .. }
+            | Command::DeleteRecoveryContext { .. }
+    )
 }
 
 fn session_id(event: &HermesMessageEvent) -> String {
@@ -687,6 +1447,21 @@ fn session_id(event: &HermesMessageEvent) -> String {
         event.source.chat_id,
         event.source.thread_id.as_deref().unwrap_or("root")
     )
+}
+
+fn gateway_event_id(incoming: &GatewayOperatorMessage, message_id: &str) -> String {
+    let identity = serde_json::json!({
+        "adapter_id": incoming.adapter_id,
+        "platform": incoming.event.source.platform,
+        "chat_id": incoming.event.source.chat_id,
+        "thread_id": incoming.event.source.thread_id,
+        "operator_id": incoming.operator.operator_id,
+        "message_id": message_id,
+    });
+    let digest = Sha256::digest(
+        serde_json::to_vec(&identity).expect("gateway event identity serialization cannot fail"),
+    );
+    format!("gateway-event:{digest:x}")
 }
 
 fn audience(event: &HermesMessageEvent) -> Audience {
@@ -749,20 +1524,6 @@ fn mutation_envelope(message_id: &str, timestamp: &str) -> Value {
 
 async fn get_json(state: &HarnessState, path: &str) -> Result<Value, ApiError> {
     proxy_json(state.client.get(url(state, path))).await
-}
-
-async fn get_operator_json(
-    state: &HarnessState,
-    path: &str,
-    operator_id: &str,
-) -> Result<Value, ApiError> {
-    proxy_json(
-        state
-            .client
-            .get(url(state, path))
-            .header("x-arda-operator-id", operator_id),
-    )
-    .await
 }
 
 async fn post_json(

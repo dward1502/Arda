@@ -1,11 +1,13 @@
 import { ModuleId } from "../components/arda/types"
 import {ArdaSection} from "./ardaSource"
 import { parseJsonOrNull } from './jsonParse'
+import { resolveWorkstationComposition } from './workstationComposition'
 
 export const MODULE_STORAGE_KEY = 'arda.module.order.v1'
 const DEFAULT_MODULE_ORDER: ModuleId[] = [
   'operating_surface',
   'personal_operations',
+  'research',
   'executive_overview',
   'section_focus',
   'human_realm',
@@ -27,7 +29,7 @@ const PANEL_LAYOUTS: Record<string, ModuleId[]> = {
   now_command: ['operating_surface', 'personal_operations', 'executive_overview', 'governance_controls', 'systems'],
   governance_guardhouse: ['governance_controls', 'operating_surface'],
   decisions: ['governance_controls', 'operating_surface'],
-  knowledge_and_reasoning: ['human_realm', 'section_focus'],
+  knowledge_and_reasoning: ['research', 'human_realm', 'section_focus'],
   routing_and_comms: ['section_focus', 'operations_and_packages'],
   systems_health: ['systems', 'operations_and_packages'],
   routing_health: ['operations_and_packages', 'governance_controls'],
@@ -108,6 +110,8 @@ export function moveModule(order: ModuleId[], moduleId: ModuleId, direction: 'up
 
 export function sectionToPanelLayout(sectionId: string | null): ModuleId[] {
   if (!sectionId) return ['executive_overview', 'section_focus']
+  const composition = resolveWorkstationComposition(sectionId, [])
+  if (composition.adapted) return composition.moduleIds
   return PANEL_LAYOUTS[sectionId] ?? ['section_focus', 'systems']
 }
 

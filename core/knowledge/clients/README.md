@@ -6,14 +6,14 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-05-21"
+  last_reviewed: "2026-08-13"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-05-21
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-13
 
 # Clients
 
-**Location:** `/var/home/mythos/Arda/core/clients`
+**Location:** `core/knowledge/clients`
 **Created:** 2026-04-12
 
 ## Overview
@@ -33,7 +33,7 @@ Clients represent external systems or users that interact with Arda.
 ## Key Files
 
 **All Files:**
-- [`_registry.toml`](/var/home/mythos/Arda/core/clients/_registry.toml) - 5,600 bytes
+- [`_registry.toml`](_registry.toml) - client knowledge registry
 
 ## Usage
 
@@ -47,4 +47,4 @@ This directory is managed by the Arda system. Do not modify files directly unles
 
 ## Related Components
 
-- [arda-hermes](/var/home/mythos/Arda/crates/spine/arda-hermes) - Client communication
+- [arda-orome](../../../crates/spine/interface/arda-orome) - Operator interaction and ingress

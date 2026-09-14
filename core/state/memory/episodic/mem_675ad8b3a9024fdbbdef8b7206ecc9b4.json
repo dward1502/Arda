@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_675ad8b3a9024fdbbdef8b7206ecc9b4",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-9c2dbf0767b48237__recover-context--a36766902c197577 for task operator-task-9c2dbf0767b48237__recover-context--a36766902c197577 ended status=failed result=cancelled; receipt=none; detail=parent objective was superseded by fresh installed acceptance objective",
+  "salience": 0.5913749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T00:18:08.864930874Z",
+  "last_seen_at": "2026-09-01T00:18:08.864930874Z",
+  "evidence_class": "inferred",
+  "memory_scope": "system_continuity",
+  "memory_domain": "system"
+}

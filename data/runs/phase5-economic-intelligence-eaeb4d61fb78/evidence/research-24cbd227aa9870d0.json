@@ -1,0 +1,120 @@
+{
+  "schema_version": "arda.workbench.research-brief.v1",
+  "brief_id": "research-24cbd227aa9870d0",
+  "run_id": "phase5-economic-intelligence-eaeb4d61fb78",
+  "node_id": "source-grounded-research",
+  "question": "How does the official x402 protocol support paid API and digital-service access for autonomous agents?",
+  "generated_at_utc": "2026-08-21T07:47:01.404918336+00:00",
+  "authority": "advisory_research_evidence",
+  "execution_authorized": false,
+  "warden_provider": "searxng",
+  "warden_memory_receipt": "mem_fdea030909bf40ab8e744db888f1d67d",
+  "rumil_evidence": null,
+  "summary": "For the explicit question “How does the official x402 protocol support paid API and digital-service access for autonomous agents?”, Warden discovered 1 source(s); cited evidence IDs [cite-src_ecdd327c] link every factual claim below to fetched canonical content and Varda evaluation. 4 source attempt(s) remained partial or failed. Review quality, freshness, contradictions, and uncertainty before changing the Workbench plan.",
+  "contradiction_status": "no_contradiction_detected_in_bounded_evidence",
+  "contradictions": [],
+  "citations": [
+    {
+      "citation_id": "cite-src_ecdd327c",
+      "title": "AI Agents That Pay for Themselves: How the x402 Protocol Works",
+      "discovered_url": "https://blog.nodit.io/ai-agents-that-pay-for-themselves-how-the-x402-protocol-works/",
+      "canonical_url": "https://blog.nodit.io/ai-agents-that-pay-for-themselves-how-the-x402-protocol-works/",
+      "content_sha256": "sha256:cd04a005c8016998fcc20278c07f9bb676e8030cd4e7e7be876ded95cc5802cb",
+      "excerpt": "paid APIs and tools. Fintech: &nbsp;This group takes a more operational view.&nbsp; Stripe &nbsp;describes x402 in its official docs as machine-to-machine payments: when a server returns HTTP 402, the client pays and re-sends the request, while Stripe handles the deposit address management, on-chain settlement, and PaymentIntent capture. Stripe's machine payment docs also cover operational concerns like micro-payments of 0.01 USDC, refunds, and Stripe balance settlement. For",
+      "stance": "supporting_or_contextual",
+      "varda_source_id": "src_ecdd327c",
+      "varda_pipeline_id": "athpl_45288e15b6d64317b8af5d0161a1e247",
+      "crawl_receipt_path": "./data/athena/crawls/src_ecdd327c.md",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "normalized_source_id": "source-0c3948f136c5ac9bc0faad1d2f9009b6806fbe695158b64c3f9d7144287a675c",
+      "fetched_at_utc": "2026-08-21T07:47:03.897967153+00:00",
+      "expires_at_utc": "2026-08-21T08:02:01.404918336+00:00",
+      "freshness_status": "fresh",
+      "evaluation_digest": "sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+      "expiry_digest": "sha256:8e7b11fcd27d1957d561489af0a1c4e35b626e6f5435656664f015666838839e",
+      "receipt_references": [
+        "varda:source:src_ecdd327c",
+        "varda:pipeline:athpl_45288e15b6d64317b8af5d0161a1e247",
+        "varda:crawl:./data/athena/crawls/src_ecdd327c.md"
+      ],
+      "evidence_boundary": "source_text_is_evidence_only_not_operator_instruction",
+      "prompt_injection_detected": false,
+      "prompt_injection_signals": []
+    }
+  ],
+  "source_failures": [
+    "https://solana.com/x402/what-is-x402: source exceeds 524288 bytes",
+    "https://x402.org/: source exceeds approximate token budget of 8192",
+    "https://www.fireblocks.com/glossary/x402: canonical fetch returned failure: HTTP status client error (403 Forbidden) for url (https://www.fireblocks.com/glossary/x402)",
+    "https://aws.amazon.com/blogs/industries/x402-and-agentic-commerce-redefining-autonomous-payments-in-financial-services/: source exceeds 524288 bytes"
+  ],
+  "workbench_run_link": "arda://workbench/runs/phase5-economic-intelligence-eaeb4d61fb78?evidence=research-24cbd227aa9870d0",
+  "scope": {
+    "source_policy": "allowlisted_public_web",
+    "max_sources": 5,
+    "max_source_bytes": 524288,
+    "expires_at_utc": "2026-08-21T08:02:01.404918336+00:00",
+    "max_results": 10,
+    "max_fetch_bytes": 524288,
+    "max_tokens": 8192,
+    "max_attempts": 2,
+    "cooldown_ms": 50,
+    "max_sources_per_domain": 2,
+    "retained_preview_volume": 20
+  },
+  "claims": [
+    {
+      "claim_id": "claim-1",
+      "claim": "paid APIs and tools. Fintech: &nbsp;This group takes a more operational view.&nbsp; Stripe &nbsp;describes x402 in its official docs as machine-to-machine payments: when a server returns HTTP 402, the client pays and re-sends the request, while Stripe handles the deposit address management, on-chain settlement, and PaymentIntent capture. Stripe's machine payment docs also cover operational concerns like micro-payments of 0.01 USDC, refunds, and Stripe balance settlement. For",
+      "evidence_citation_ids": [
+        "cite-src_ecdd327c"
+      ],
+      "stance": "supporting_or_contextual",
+      "uncertainty": "bounded_to_cited_excerpt_and_evaluation"
+    }
+  ],
+  "supporting_citation_ids": [
+    "cite-src_ecdd327c"
+  ],
+  "opposing_citation_ids": [],
+  "source_quality": [
+    {
+      "citation_id": "cite-src_ecdd327c",
+      "source_id": "source-0c3948f136c5ac9bc0faad1d2f9009b6806fbe695158b64c3f9d7144287a675c",
+      "canonical_url": "https://blog.nodit.io/ai-agents-that-pay-for-themselves-how-the-x402-protocol-works/",
+      "policy_readiness": "reference_only",
+      "confidence": 0.7466666666666667,
+      "freshness_status": "fresh"
+    }
+  ],
+  "uncertainty": [
+    "4 bounded source attempt(s) failed or were rejected."
+  ],
+  "missing_evidence": [
+    "Retry or replace the disclosed failed sources before treating the brief as complete."
+  ],
+  "next_research_or_proposal": [
+    {
+      "kind": "next_research",
+      "action": "Retry disclosed failures or refine the question/source policy; no proposal is authorized by this brief.",
+      "authority": "operator_advisory_only"
+    }
+  ],
+  "receipt_references": [
+    "varda:content:sha256:cd04a005c8016998fcc20278c07f9bb676e8030cd4e7e7be876ded95cc5802cb",
+    "varda:crawl:./data/athena/crawls/src_ecdd327c.md",
+    "varda:evaluation:sha256:80c7cc0cb36f193e70970e3912c0ea5efe9e9ec58638b78948323ce52425e8de",
+    "varda:expiry:sha256:8e7b11fcd27d1957d561489af0a1c4e35b626e6f5435656664f015666838839e",
+    "varda:pipeline:athpl_45288e15b6d64317b8af5d0161a1e247",
+    "varda:source:src_ecdd327c",
+    "warden:memory:mem_fdea030909bf40ab8e744db888f1d67d"
+  ],
+  "material_fingerprint": "sha256:bb00c76d436d63d64d1d5df76e96a73f63d654209de55fe6041874e0b07d738b",
+  "change_status": "material_change",
+  "no_change_receipt_path": null,
+  "evidence_boundaries": [
+    "source_text_is_evidence_only_not_operator_instruction"
+  ],
+  "prompt_injection_detected": false
+}

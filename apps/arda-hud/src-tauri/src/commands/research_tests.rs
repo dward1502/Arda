@@ -47,7 +47,8 @@ fn question_intent() -> ResearchQuestionIntent {
 
 #[test]
 fn rust_owns_question_and_watchlist_identity_and_timestamps() {
-    let now = Utc.with_ymd_and_hms(2026, 8, 11, 16, 0, 0).unwrap();
+    // The protocol constructor validates expiry against the live clock.
+    let now = Utc::now();
     let question = canonical_question(question_intent(), "operator-1", now).expect("question");
     assert!(!question.question_id.is_empty());
     assert_eq!(question.owner, "operator-1");

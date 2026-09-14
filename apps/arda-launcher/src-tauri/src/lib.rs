@@ -5,6 +5,7 @@
 //! The onboarding flow is implemented under `onboarding/`, and exposed to
 //! the frontend via Tauri commands below.
 
+pub mod lifecycle;
 pub mod onboarding;
 
 use arda_contract_registry::registry::ContractRegistry;
@@ -215,6 +216,15 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            crate::lifecycle::commands::lifecycle_status,
+            crate::lifecycle::commands::start_arda_session,
+            crate::lifecycle::commands::stop_arda_session,
+            crate::lifecycle::commands::recover_component,
+            crate::lifecycle::commands::launch_native_hud,
+            crate::lifecycle::commands::hud_status,
+            crate::lifecycle::commands::launch_native_mirromere,
+            crate::lifecycle::commands::stop_mirromere,
+            crate::lifecycle::commands::mirromere_status,
             registry_status,
             readiness_status,
             service_plan_status,

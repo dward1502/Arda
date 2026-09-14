@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:01a9b55de96d407017f07ff01a38b0ff6b6736d0221eb970f328bc063085e9f4",
+    "summary": "Independent review succeeded. The verification receipt covers the declared `test` check exactly: `cargo test -p arda-core` passed with exit code 0, 210 tests passed, and 0 failed; it was not rerun. Source evidence is sufficient: authenticated read-output digests cover the registry, active plans, status report, and canonical queue, and correctly differ from source-content digests because they hash exported tool envelopes. No context_use_receipt was required by the capsule, and absence of mutating calls supports the read-only no-modification claim. Concrete defects are correctly named: `core/projects/tasks/queue.jsonl:51077-51163` contains repeated pending execute/verify materialization and duplicate task identities instead of one canonical next action; `core/projects/tasks/queue.jsonl:51159-51163` records execution materialization and Apollo submission while autonomy readiness is `hold` with unmet reasons; and `runner.rs:1675-1679` explicitly bypasses the readiness hold for operator-approved or governance-authorized work, while `runner.rs:3867-3897` tests that bypass as expected behavior. This is an apparent fail-open policy boundary requiring P0 investigation, although the observed records do contain an operator approval packet, so null governance authorization alone is not proof of missing all authority. The status report is also stale relative to the current registry: it reports three proof/demo contracts and 18 unattached repositories while the registry now mixes several proof/target contracts with two reviewed read-only Git projects. The recovered backlog distinguishes bounded implementation evidence from unproven live deployment and operator acceptance and includes the smallest relevant authority surfaces. No artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:62d1398da98f06a64397933bdcc3289d99fdb754d08d8fd28fe9052ae4c5547d",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

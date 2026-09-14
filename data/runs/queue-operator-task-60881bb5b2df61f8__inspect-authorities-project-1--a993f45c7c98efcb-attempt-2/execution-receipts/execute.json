@@ -1,0 +1,135 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:26c44397f992c4913dccc335172f080d52b9b7d71dd2dfa63b069fa7edb117d9",
+  "idempotency_key": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-1--a993f45c7c98efcb-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-bb9ef5281d6a4dc6adf21327959aa55d"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:50bbbf369795a2a6861ad52c8c8e9bbeeebd7707aee5a7666a58f3d1c2872d13",
+  "recorded_at_unix_ms": 1788241904791,
+  "run_id": "queue-operator-task-60881bb5b2df61f8__inspect-authorities-project-1--a993f45c7c98efcb-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only inspection completed for bound project b22c0000-e29b-41d4-a716-446655440002; no files were modified and reserved checks were not run. The named run-level authorities are absent from this project root, as expected for a project-local leaf, so findings use live local evidence only. Prioritized repair backlog: P0—restore standalone Cargo testability by adding this package to the parent workspace members/exclude configuration at the owning workspace authority; human-visible behavior: the documented cargo test command runs instead of failing workspace membership discovery; smallest authoritative surface: parent /var/home/mythos/Eregion/Arda/Cargo.toml, outside this read-only leaf. Evidence: Cargo.toml:1-23 defines a package with path dependencies, while docs/migration-notes.md:12-15 requires a manifest-path cargo test and the prior verifier reported Cargo workspace rejection. P1—align the parser model with the active human knowledge contract before canonical reliance; human-visible behavior: processed notes carrying status, source_type, authority, owner, privacy, review_required, supersession, and affected-path metadata can be ingested and classified without schema rejection or semantic loss; smallest authoritative surface: src/lib.rs:13-25 plus focused parser tests. Evidence: docs/human-knowledge-ingestion-contract.md:71-94 requires those fields, but NoteFrontmatter exposes only title, dates, tags, status, numeric confidence, source, related, and references. P2—prevent scans from failing wholesale on one malformed or unclassified Markdown file and emit review-oriented classification outcomes; human-visible behavior: valid notes remain discoverable while malformed notes are surfaced for quarantine/review rather than aborting the vault scan; smallest authoritative surface: HumanKnowledge::scan_vault and parsing-result types in src/lib.rs:106-164, with tests in tests/target_local.rs. Evidence: scan_vault propagates parse_note errors immediately at src/lib.rs:118, while the contract requires contradiction/quarantine and review handling at docs/human-knowledge-ingestion-contract.md:145-152. P3—replace the no-op memory persistence seam; human-visible behavior: successfully scanned knowledge is retrievable with provenance rather than merely serialized and discarded; smallest authoritative surface: MemoryStore::store in src/lib.rs:56-89 or a tenant-facing memory adapter. Evidence: the method serializes into _serialized and returns success without persistence, conflicting with MNEMOSYNE provenance and retrieval responsibilities at docs/human-knowledge-ingestion-contract.md:115-123 and the migration follow-on noted at docs/migration-notes.md:9. P4—harden wikilink resolution semantics and coverage; human-visible behavior: aliases, headings, explicit extensions, nested notes, and duplicate filenames resolve predictably without malformed .md.md paths; smallest authoritative surface: src/lib.rs:166-193 and tests/target_local.rs. Current tests cover only same-directory existing and missing simple links at tests/target_local.rs:27-49.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68c135ad504b5552cb21c1a7b818e94c739cf850c18488f4954e5b65a66e99cf",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d02c5898dfb99a0f01180df312d3825fe5749e6f17b72e880cef2d1ef78baa00",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:15d037d8dffb0b26703a40fa1eea336289151cf3941a8e0c81cddd5635f67140",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:612947e0d8ea3118c6da38b2df9d34091e6cfdcb64de33c2f781cf350bf67d42",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:bf9c1d3b6742a806b13b70bde18066ff325f2caf681353bc555240f832d620ea",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d14c11f6e2985d324da285295709870bea95ce8535612139967a52e511c015d0",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"authority|authorities|project|repair|status|receipt\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:07109038bc7c6b798e461ceb8710fd43d151a961bdb4144cac4b155dbfa4ca74",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:93aae60082cd912a40f54c0c12db289fc911e703ff04aba4a3352651a243d05d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*.json*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"tests/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2e3224cb6a189b92e96bc08d903516b5deebcd6095c063404918c4c22b123ec2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"src/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e7e68890b8a5be51f9a58aaf65ce02e86102d332f3fb9ce0ced874aa226a112b",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 16034,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1349,
+    "provider": "openai-codex",
+    "total_tokens": 17383
+  }
+}

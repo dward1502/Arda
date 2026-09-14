@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:89c79d17f719d16d1de8dfb08a63e4e726ca0f6e16fe0fc4af0d375233dbe5ac",
+    "summary": "Unsupported completion: the execute receipt proves read-only inspection of the five declared context sources, and its exported read-output digests correctly differ from the corresponding source-content digests, but the projection contains no execution summary or durable output demonstrating the required prioritized repair backlog, concrete human-visible behaviors, source evidence, smallest authoritative repair surfaces, or implemented/configured/live distinctions. The verify receipt does cover the declared `test` check exactly (`cargo test -p arda-core`, exit 0). No mutating tool calls or created artifacts are present, consistent with read-only authority, but the missing governed work product prevents approval."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:58137aa3f429612eef42da71be1d8c9a4ea1cc1336a78879ef3a2824a7e1594c",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

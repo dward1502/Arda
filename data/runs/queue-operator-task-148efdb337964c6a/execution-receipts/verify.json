@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:5f979bec8ff2c1ee9b3cca31ae29b45a74610005c4ae6f54246bcf73510d1749",
+  "idempotency_key": "queue-operator-task-148efdb337964c6a-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:2efed341326505548e6eaf5b9fb6cfcc6d82118571160e2b831ee6186277b394"
+  ],
+  "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+  "receipt_digest": "sha256:c57be96c1104c8e06d844dc312891d603e7630e54859dfe14c827ab75ab63da1",
+  "recorded_at_unix_ms": 1788092285799,
+  "run_id": "queue-operator-task-148efdb337964c6a",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "cargo test passed: 1 unit test and 0 doc-tests failed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test",
+      "exit_code": 0,
+      "output_digest": "sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5259,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 738,
+    "provider": "openai-codex",
+    "total_tokens": 5997
+  }
+}

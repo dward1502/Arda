@@ -1,11 +1,7 @@
 {
-  "updated_at_utc": "2026-07-14T04:56:37.658067Z",
-  "mode": "degraded",
-  "auto_degraded": true,
-  "violations": [
-    "queue_staleness_high",
-    "athena_lookup_stale",
-    "required_ipc_sockets_missing"
-  ],
+  "updated_at_utc": "2026-09-07T07:00:00Z",
+  "mode": "active",
+  "auto_degraded": false,
+  "violations": [],
   "source": "autonomy_error_budget_guard"
 }

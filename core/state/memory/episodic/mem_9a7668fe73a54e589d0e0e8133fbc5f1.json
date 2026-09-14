@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_9a7668fe73a54e589d0e0e8133fbc5f1",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878 for task operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878 ended status=failed result=failed; receipt=sha256:385e56d242af2c416374929e8d0824f1f878c9da204d8c8761954f5e258994f3; detail=Unsupported completion: the verification receipt covers the declared test (`cargo test -p arda-core`, exit 0), and the read-only execution receipt provides valid source-read output digests plus no mutating tool calls. However, the projection supplies only an execute-output digest, not the execution result needed to verify that the required prioritized repair backlog was produced or that its claims distinguish implementation, configuration, and live proof. Source recovery is also incomplete: `AUTONOMOUS_TASK_COMPLETION_LOOP.md` identifies `docs/plans/autonomous-task-completion/README.md` as the structured execution authority, but that authoritative plan was not inspected. Concrete stale-context defects found independently: `ARDA_SYSTEM_STATUS_REPORT.md:48` still says the registry has three proof/demo contracts, while `data/workbench/projects.json` contains additional acceptance and reviewed-project contracts; and `docs/audits/2026-08-26-operator-vision-repair-backlog.md:47,162-168` claims the status report omits full verify/review/close execution even though the current report states that full-graph proof at line 47. A context_use_receipt was not required because no governed capsule supplied one, and tool-output digests correctly need not equal source-content digests.",
+  "salience": 0.6017250000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T06:33:05.874509514Z",
+  "last_seen_at": "2026-09-01T06:33:05.874509514Z",
+  "memory_scope": "system_continuity",
+  "memory_domain": "system",
+  "evidence_class": "inferred"
+}

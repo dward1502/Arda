@@ -38,7 +38,57 @@ export interface PersonalOpsItem {
   current_state: string
 }
 
+export interface PersonalAdapterStatus {
+  state: 'configured' | 'unconfigured' | 'unavailable'
+  adapter: string | null
+  detail: string
+}
+
+export interface PersonalReminderTransportStatus extends PersonalAdapterStatus {
+  quiet_window: { start: string; end: string; timezone: string } | null
+  max_attempts: number
+  minimum_interval_minutes: number
+  acknowledgement_required: boolean
+}
+
+export interface NextActionCandidate {
+  id: string
+  title: string
+  source_kind: 'objective' | 'queue' | 'personal_operations' | 'workbench' | 'research'
+  source_ref: string
+  reason: string
+  freshness: 'fresh' | 'stale' | 'unknown'
+  authority_state: 'ready' | 'review_required' | 'blocked' | 'advisory'
+  next_operator_action: string
+  priority: number
+  operator_authored: boolean
+  terminal: boolean
+  future_gated: boolean
+  inferred_without_review: boolean
+}
+
+export interface NextActionProjection {
+  schema_version: 'arda.next-action.v1'
+  generated_at: string
+  status: 'ready' | 'blocked' | 'empty'
+  selected: NextActionCandidate | null
+  reason: string
+  excluded: {
+    stale: number
+    terminal: number
+    future_gated: number
+    inferred_without_review: number
+  }
+}
+
 export interface PersonalOpsSnapshot {
+  capabilities: {
+    schema_version: 'arda.personal-capabilities.v1'
+    calendar: PersonalAdapterStatus
+    voice: PersonalAdapterStatus
+    reminders: PersonalReminderTransportStatus
+  }
+  nextAction: NextActionProjection
   inbox: {
     schema_version: string
     inbox: PersonalOpsInboxItem[]
@@ -78,7 +128,10 @@ export interface PersonalOpsClient {
   loadSnapshot(): Promise<PersonalOpsSnapshot>
   createCapture(text: string): Promise<{ event_id: string; capture_id: string }>
   confirmClassification(itemId: string, kind: string): Promise<{ event_id: string }>
+  scheduleItem(itemId: string, scheduledAt: string): Promise<{ event_id: string }>
+  completeItem(itemId: string): Promise<{ event_id: string }>
   acknowledgeReminder(reminderId: string): Promise<{ event_id: string }>
+  respondToReminder(reminderId: string, state: 'acknowledged' | 'deferred' | 'dismissed'): Promise<{ event_id: string }>
   exportPersonalData(): Promise<PersonalDataExport>
   deletePersonalData(): Promise<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>
 }
@@ -137,12 +190,14 @@ export function createPersonalOpsClient(
 
   return {
     async loadSnapshot() {
-      const [inbox, resume, todayBrief] = await Promise.all([
+      const [capabilities, nextAction, inbox, resume, todayBrief] = await Promise.all([
+        get<PersonalOpsSnapshot['capabilities']>('/v1/personal/capabilities'),
+        get<NextActionProjection>('/v1/next-action'),
         get<PersonalOpsSnapshot['inbox']>('/v1/personal/inbox'),
         get<PersonalOpsSnapshot['resume']>('/v1/personal/resume'),
         get<PersonalOpsSnapshot['todayBrief']>('/v1/personal/briefs/today'),
       ])
-      return { inbox, resume, todayBrief }
+      return { capabilities, nextAction, inbox, resume, todayBrief }
     },
     createCapture(text) {
       return fetch(url('/v1/personal/captures'), {
@@ -164,11 +219,36 @@ export function createPersonalOpsClient(
         }),
       }).then(readJson<{ event_id: string }>)
     },
+    scheduleItem(itemId, scheduledAt) {
+      return fetch(url(`/v1/personal/items/${encodeURIComponent(itemId)}/schedule`), {
+        method: 'POST',
+        headers: mutationHeaders('schedule'),
+        body: JSON.stringify({
+          operator_id: configuredOperatorId,
+          scheduled_at: scheduledAt,
+          due_at: null,
+        }),
+      }).then(readJson<{ event_id: string }>)
+    },
+    completeItem(itemId) {
+      return fetch(url(`/v1/personal/items/${encodeURIComponent(itemId)}/complete`), {
+        method: 'POST',
+        headers: mutationHeaders('complete'),
+        body: JSON.stringify({ operator_id: configuredOperatorId }),
+      }).then(readJson<{ event_id: string }>)
+    },
     acknowledgeReminder(reminderId) {
       return fetch(url(`/v1/personal/reminders/${encodeURIComponent(reminderId)}/acknowledge`), {
         method: 'POST',
         headers: mutationHeaders('acknowledge'),
         body: JSON.stringify({ operator_id: configuredOperatorId, state: 'acknowledged' }),
+      }).then(readJson<{ event_id: string }>)
+    },
+    respondToReminder(reminderId, state) {
+      return fetch(url(`/v1/personal/reminders/${encodeURIComponent(reminderId)}/acknowledge`), {
+        method: 'POST',
+        headers: mutationHeaders('acknowledge'),
+        body: JSON.stringify({ operator_id: configuredOperatorId, state }),
       }).then(readJson<{ event_id: string }>)
     },
     async exportPersonalData() {

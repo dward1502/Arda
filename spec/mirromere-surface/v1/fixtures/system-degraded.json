@@ -1,0 +1,57 @@
+{
+  "schema_version": "arda.mirromere.surface.v1",
+  "surface_id": "mirromere-hud-preview",
+  "outpost_id": "hud:monitor_3",
+  "display_role": "hud_aperture",
+  "source_mode": "fixture",
+  "scene": {
+    "scene_id": "system.degraded",
+    "application_id": "arda.mirromere.system",
+    "application_version": "1.0.0",
+    "purpose": "Bounded degraded system indication"
+  },
+  "slots": [
+    {
+      "id": "degraded-status",
+      "content": {
+        "kind": "status",
+        "label": "LOCAL MESH",
+        "state": "DEGRADED"
+      }
+    },
+    {
+      "id": "degraded-radar",
+      "content": {
+        "kind": "vector_field",
+        "field": "radar",
+        "samples": [0.1, 0.7, 0.2, -0.4, 0.3]
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "source_id": "fixture:lifecycle",
+      "evidence_ref": "fixture://mirromere/system-degraded",
+      "observed_at": "2026-08-17T12:00:00Z"
+    }
+  ],
+  "generated_at": "2026-08-17T12:00:00Z",
+  "expires_at": "2026-08-17T12:05:00Z",
+  "freshness": "stale",
+  "availability": "available",
+  "privacy": {
+    "privacy_class": "public_ambient",
+    "visibility_ceiling": "public_ambient"
+  },
+  "allowed_interactions": ["inspect_provenance", "dismiss_attention"],
+  "accessibility": {
+    "description": "A bounded amber radar indicates degraded local services.",
+    "reduced_motion": "simplify",
+    "urgency": "normal"
+  },
+  "transition": {
+    "style": "sweep",
+    "duration_ms": 600,
+    "attention_budget": 2
+  }
+}

@@ -1,0 +1,798 @@
+{
+  "timestamp": "2026-08-23T12:48:37.793907191+00:00",
+  "queue": {
+    "total": 15,
+    "by_status": {
+      "completed": 10,
+      "in_progress": 1,
+      "pending": 4
+    },
+    "by_owner": {
+      "arandur": 1,
+      "aule": 1,
+      "hades": 1,
+      "hermes": 2,
+      "manwe": 1,
+      "operator:mythos": 3,
+      "prometheus": 5,
+      "vaire": 1
+    },
+    "by_priority": {
+      "critical": 6,
+      "high": 7,
+      "medium": 2
+    },
+    "pending": 4,
+    "in_progress": 1,
+    "completed": 10,
+    "failed": 0,
+    "aging_oldest_pending_secs": 217240,
+    "bottleneck_owner": "prometheus",
+    "recent_completions_1h": 0,
+    "recent_completions_24h": 3,
+    "recent_failures_24h": 0,
+    "completion_rate_24h": 1.0
+  },
+  "services": {
+    "services": [
+      {
+        "unit": "arda-aule-autopilot-read-only.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-crawl4ai.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-hud.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-manwe-inference-probe.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-metrics-exporter.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-relic-bridge.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-varda-external-lane.service",
+        "load": "loaded",
+        "active": "inactive",
+        "sub": "dead",
+        "score": 0.85,
+        "note": "oneshot awaiting timer"
+      },
+      {
+        "unit": "arda-varda.service",
+        "load": "loaded",
+        "active": "active",
+        "sub": "running",
+        "score": 1.0,
+        "note": "running"
+      },
+      {
+        "unit": "arda-workbench-queue-executor.service",
+        "load": "loaded",
+        "active": "failed",
+        "sub": "failed",
+        "score": 0.0,
+        "note": "failed"
+      },
+      {
+        "unit": "arda-session.target",
+        "load": "loaded",
+        "active": "active",
+        "sub": "active",
+        "score": 0.5,
+        "note": "active/active"
+      },
+      {
+        "unit": "arda-aule-autopilot-read-only.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      },
+      {
+        "unit": "arda-manwe-inference-probe.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      },
+      {
+        "unit": "arda-varda-external-lane.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      },
+      {
+        "unit": "arda-workbench-queue-executor.timer",
+        "load": "loaded",
+        "active": "active",
+        "sub": "waiting",
+        "score": 1.0,
+        "note": "timer armed (waiting)"
+      }
+    ],
+    "healthy": 12,
+    "degraded": 1,
+    "failed": 1,
+    "overall_score": 0.8607142857142858
+  },
+  "dashboard": {
+    "task_completion_rate": 1.0,
+    "avg_aging_pending_secs": 217240.0,
+    "recent_completions_1h": 0,
+    "service_overall_score": 0.8607142857142858,
+    "services_failed": 1,
+    "alerts": [
+      {
+        "severity": "Critical",
+        "message": "1 arda service(s) failed",
+        "source": "systemd"
+      },
+      {
+        "severity": "Warning",
+        "message": "oldest pending task is over 24h old",
+        "source": "queue"
+      }
+    ]
+  },
+  "objective_selection": {
+    "contract": "arda.arandur.objective_selection.v1",
+    "mutation_policy": "read_only_report_only",
+    "objectives_considered": 5,
+    "objectives_selected": 1,
+    "objectives_blocked_by_gate": 4,
+    "effective_queue_open_count": 5,
+    "stale_raw_queue_record_count": 12,
+    "status": "selected",
+    "no_selection_reason": null,
+    "selected_objective_id": "digital-organism-s7-living-mesh-proof",
+    "next_recommended_action": "execute selected supervised objective",
+    "blocked_candidate_groups": [
+      {
+        "reason_code": "review_gated_candidate_requires_operator_review",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "ReviewRequired",
+        "count": 4
+      },
+      {
+        "reason_code": "stale_or_superseded_raw_queue_record",
+        "governance_class": "raw_queue_record",
+        "review_gate": "superseded",
+        "count": 12
+      }
+    ],
+    "next_automation_gate_packet": null,
+    "objective_packet_report": {
+      "contract": "arda.arandur.objective_packet_report.v1",
+      "mutation_policy": "read_only_report_only",
+      "packet_count": 5,
+      "selected_packet_count": 1,
+      "selected_candidate_id": "digital-organism-s7-living-mesh-proof",
+      "canonical_queue_mutation_allowed": false,
+      "packets": [
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:operator-objective-78370a00190fd9b8:operator-objective-78370a00190fd9b8",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "./core/projects/tasks/queue.jsonl",
+          "source_record_id": "operator-objective-78370a00190fd9b8",
+          "candidate_id": "operator-objective-78370a00190fd9b8",
+          "title": "Review Arda comprehensively and introspectively against the operator vision",
+          "owner": "operator:mythos",
+          "priority": "critical",
+          "governance_class": "operator_authored_review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:review_gated_candidate_requires_operator_review",
+            "selection_status:blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:operator-objective-1463cc15ce0ff3cd:operator-objective-1463cc15ce0ff3cd",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "./core/projects/tasks/queue.jsonl",
+          "source_record_id": "operator-objective-1463cc15ce0ff3cd",
+          "candidate_id": "operator-objective-1463cc15ce0ff3cd",
+          "title": "Design governed economic-intelligence routines and a future budgeted agent account",
+          "owner": "operator:mythos",
+          "priority": "high",
+          "governance_class": "operator_authored_review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:review_gated_candidate_requires_operator_review",
+            "selection_status:blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:operator-objective-1b00e78b7eee3c3b:operator-objective-1b00e78b7eee3c3b",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "./core/projects/tasks/queue.jsonl",
+          "source_record_id": "operator-objective-1b00e78b7eee3c3b",
+          "candidate_id": "operator-objective-1b00e78b7eee3c3b",
+          "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post",
+          "owner": "operator:mythos",
+          "priority": "medium",
+          "governance_class": "operator_authored_review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:review_gated_candidate_requires_operator_review",
+            "selection_status:blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:digital-organism-s8-hardware-portability:digital-organism-s8-hardware-portability",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "./core/projects/tasks/queue.jsonl",
+          "source_record_id": "digital-organism-s8-hardware-portability",
+          "candidate_id": "digital-organism-s8-hardware-portability",
+          "title": "Prove portable organism behavior on stronger or specialized hardware",
+          "owner": "aule",
+          "priority": "medium",
+          "governance_class": "operator_authored_review_required",
+          "review_gate": "review_required",
+          "acceptance_criteria": [
+            "resolve_blocked_reason:review_gated_candidate_requires_operator_review",
+            "selection_status:blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+          ],
+          "approval_packet_id": null,
+          "completion_receipt_path": null,
+          "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+          "selected": false,
+          "canonical_queue_mutation_allowed": false
+        },
+        {
+          "contract": "arda.arandur.objective_packet.v1",
+          "packet_id": "objective_packet:digital-organism-s7-living-mesh-proof:digital-organism-s7-living-mesh-proof",
+          "source_contract": "arda.canonical_task_queue.v1",
+          "source_type": "canonical_queue",
+          "source_path": "./core/projects/tasks/queue.jsonl",
+          "source_record_id": "digital-organism-s7-living-mesh-proof",
+          "candidate_id": "digital-organism-s7-living-mesh-proof",
+          "title": "Run and obtain acceptance for the living-mesh proof",
+          "owner": "arandur",
+          "priority": "high",
+          "governance_class": "human_approved",
+          "review_gate": "safe_autonomous",
+          "acceptance_criteria": [
+            "selected_reason:explicit operator approval selected first"
+          ],
+          "approval_packet_id": "approval-stage7-operator-session",
+          "completion_receipt_path": null,
+          "blocked_reason_code": null,
+          "selected": true,
+          "canonical_queue_mutation_allowed": false
+        }
+      ]
+    },
+    "candidates": [
+      {
+        "source_path": "./core/projects/tasks/queue.jsonl",
+        "source_record_id": "operator-objective-78370a00190fd9b8",
+        "candidate_id": "operator-objective-78370a00190fd9b8",
+        "title": "Review Arda comprehensively and introspectively against the operator vision",
+        "effective_status": "pending",
+        "owner": "operator:mythos",
+        "priority": "critical",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+      },
+      {
+        "source_path": "./core/projects/tasks/queue.jsonl",
+        "source_record_id": "operator-objective-1463cc15ce0ff3cd",
+        "candidate_id": "operator-objective-1463cc15ce0ff3cd",
+        "title": "Design governed economic-intelligence routines and a future budgeted agent account",
+        "effective_status": "pending",
+        "owner": "operator:mythos",
+        "priority": "high",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+      },
+      {
+        "source_path": "./core/projects/tasks/queue.jsonl",
+        "source_record_id": "operator-objective-1b00e78b7eee3c3b",
+        "candidate_id": "operator-objective-1b00e78b7eee3c3b",
+        "title": "Evaluate a governed Arandur agent-community presence and Moltbook listening post",
+        "effective_status": "pending",
+        "owner": "operator:mythos",
+        "priority": "medium",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+      },
+      {
+        "source_path": "./core/projects/tasks/queue.jsonl",
+        "source_record_id": "digital-organism-s8-hardware-portability",
+        "candidate_id": "digital-organism-s8-hardware-portability",
+        "title": "Prove portable organism behavior on stronger or specialized hardware",
+        "effective_status": "pending",
+        "owner": "aule",
+        "priority": "medium",
+        "governance_class": "operator_authored_review_required",
+        "review_gate": "review_required",
+        "blocked_reason_code": "review_gated_candidate_requires_operator_review",
+        "approval_packet_id": null,
+        "completion_receipt_path": null,
+        "selected_reason": null,
+        "rejection_reason": "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection"
+      },
+      {
+        "source_path": "./core/projects/tasks/queue.jsonl",
+        "source_record_id": "digital-organism-s7-living-mesh-proof",
+        "candidate_id": "digital-organism-s7-living-mesh-proof",
+        "title": "Run and obtain acceptance for the living-mesh proof",
+        "effective_status": "in_progress",
+        "owner": "arandur",
+        "priority": "high",
+        "governance_class": "human_approved",
+        "review_gate": "safe_autonomous",
+        "blocked_reason_code": null,
+        "approval_packet_id": "approval-stage7-operator-session",
+        "completion_receipt_path": null,
+        "selected_reason": "explicit operator approval selected first",
+        "rejection_reason": null
+      }
+    ]
+  },
+  "objectives_processed": 1,
+  "plans": [
+    {
+      "objective_id": "digital-organism-s7-living-mesh-proof",
+      "plan": [
+        {
+          "key": "plan",
+          "title": "Plan: Run and obtain acceptance for the living-mesh proof",
+          "task_type": "analysis",
+          "depends_on": [],
+          "priority": "medium",
+          "joule_cost": 10.0,
+          "eta_seconds": 60,
+          "assigned_agent": "prometheus"
+        },
+        {
+          "key": "execute",
+          "title": "Execute: Run and obtain acceptance for the living-mesh proof",
+          "task_type": "ops",
+          "depends_on": [
+            "plan"
+          ],
+          "priority": "high",
+          "joule_cost": 10.0,
+          "eta_seconds": 180,
+          "assigned_agent": "ceo"
+        },
+        {
+          "key": "verify",
+          "title": "Verify outcome",
+          "task_type": "monitor",
+          "depends_on": [
+            "execute"
+          ],
+          "priority": "medium",
+          "joule_cost": 10.0,
+          "eta_seconds": 60,
+          "assigned_agent": "warden"
+        }
+      ],
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "warnings": [],
+        "topological_order": [
+          "plan",
+          "execute",
+          "verify"
+        ],
+        "estimated_total_joules": 30.0,
+        "agent_load": {
+          "ceo": 1,
+          "prometheus": 1,
+          "warden": 1
+        }
+      },
+      "governance": {
+        "contract": "arda.action_classification.v1",
+        "objective_id": "digital-organism-s7-living-mesh-proof",
+        "action_class": "review_required",
+        "gate": "review_required",
+        "requires_human": true,
+        "requires_triad": false,
+        "requires_hades_review": false,
+        "confidence": "low",
+        "allowed_to_delegate": false,
+        "reasons": [
+          "action_class 'review_required' is a configured review-only class and cannot delegate"
+        ],
+        "evidence": [
+          "./core/state/governance_runtime.json"
+        ],
+        "triad_quorum": null
+      },
+      "gate": {
+        "Approved": {
+          "resonance": 1.0
+        }
+      },
+      "autonomy_readiness_decision": "hold",
+      "autonomy_readiness_reasons": [
+        "autonomy_preflight_stale",
+        "hades_cleanup_approval_packets_missing",
+        "athena_external_source_lane_ledger_missing"
+      ],
+      "delegation": null,
+      "queued_task_ids": [],
+      "queue_operation": null,
+      "apollo_dispatches": [],
+      "a2h_emitted": false,
+      "joule_limited": false,
+      "pipeline_submitted": false
+    }
+  ],
+  "outcomes_ingested": 0,
+  "h2a": {
+    "responses_processed": 0,
+    "objectives_resumed": 0,
+    "denials_recorded": 0
+  },
+  "hades_introspection": {
+    "contract": "arda.prometheus.hades_introspection_projection.v1",
+    "source_available": false,
+    "policy_report_path": "./data/hades/lifecycle_policy_automation_report.json",
+    "review_queue_path": "./data/hades/lifecycle_review_queue.jsonl",
+    "source_contract": null,
+    "generated_at_utc": null,
+    "source_findings_total": 0,
+    "consistency_holds_total": 0,
+    "review_queue_records": 0,
+    "review_queue_projection_recommended": false,
+    "cleanup_authorized": false,
+    "requires_operator_approval_for_mutation": true,
+    "no_file_moves_or_deletes_performed": true,
+    "error": null
+  },
+  "sovereign_adapters": {
+    "contract": "arda.prometheus.sovereign_adapter_projection.v1",
+    "config_path": "./config/governance/autonomy_operating_loop.toml",
+    "source_available": true,
+    "adapter_count": 6,
+    "active_runtime_adapter_count": 5,
+    "evidence_only_adapter_count": 1,
+    "missing_required_adapter_count": 0,
+    "adapters": [
+      {
+        "id": "governance",
+        "crate_name": "arda-governance",
+        "status": "contract_required",
+        "loop_stages": [
+          "assess",
+          "deliberate",
+          "plan",
+          "task",
+          "audit",
+          "review",
+          "replan"
+        ],
+        "gate": "classify_action_and_required_authority_before_task_or_execute",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/governance_policy.rs",
+        "source_records": 1,
+        "cycle_receipts": 1,
+        "gate_effect": "task_promotion_gate",
+        "evidence_summary": [
+          "plans_classified=1",
+          "blocked=1",
+          "escalated=1",
+          "human_required=1"
+        ]
+      },
+      {
+        "id": "oracle",
+        "crate_name": "arda-oracle",
+        "status": "active_prototype",
+        "loop_stages": [
+          "assess",
+          "deliberate",
+          "plan",
+          "audit",
+          "review",
+          "confirm"
+        ],
+        "gate": "validate_before_high_risk_promotion_and_before_claiming_done",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/oracle_gate.rs",
+        "source_records": 1,
+        "cycle_receipts": 1,
+        "gate_effect": "validation_gate",
+        "evidence_summary": [
+          "oracle_gate_invoked=1",
+          "oracle_rejected=0"
+        ]
+      },
+      {
+        "id": "plutus",
+        "crate_name": "arda-economics",
+        "status": "contract_required",
+        "loop_stages": [
+          "assess",
+          "plan",
+          "task",
+          "execute",
+          "audit",
+          "review"
+        ],
+        "gate": "budget_receipt_before_delegation_and_review_after_execution",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/runner.rs",
+        "source_records": 1,
+        "cycle_receipts": 1,
+        "gate_effect": "budget_gate",
+        "evidence_summary": [
+          "cycle_limit=500.0",
+          "hourly_limit=2000.0",
+          "delegated_joules=0.0",
+          "joule_limited=0"
+        ]
+      },
+      {
+        "id": "ceo",
+        "crate_name": "",
+        "status": "prometheus_cea_autopilot_only",
+        "loop_stages": [
+          "plan",
+          "task",
+          "execute",
+          "audit",
+          "review",
+          "replan",
+          "confirm"
+        ],
+        "gate": "must_not_compete_with_prometheus_ceo_autopilot_until_promoted",
+        "runtime_adapter": true,
+        "source_path": "crates/spine/observability/arda-aule/src/autopilot/runner.rs",
+        "source_records": 1,
+        "cycle_receipts": 1,
+        "gate_effect": "canonical_engine_guard",
+        "evidence_summary": [
+          "prometheus_ceo_autopilot_is_active_runtime_engine"
+        ]
+      },
+      {
+        "id": "human",
+        "crate_name": "arda-human",
+        "status": "contract_required",
+        "loop_stages": [
+          "info",
+          "ingest",
+          "deliberate",
+          "plan",
+          "task",
+          "review",
+          "confirm"
+        ],
+        "gate": "human_required_action_classes_need_explicit_human_approval",
+        "runtime_adapter": true,
+        "source_path": "data/comm/h2a.jsonl",
+        "source_records": 0,
+        "cycle_receipts": 0,
+        "gate_effect": "human_approval_gate",
+        "evidence_summary": [
+          "h2a_responses_processed=0",
+          "h2a_objectives_resumed=0",
+          "h2a_denials_recorded=0",
+          "a2h_emitted=0"
+        ]
+      },
+      {
+        "id": "council",
+        "crate_name": "arda-council",
+        "status": "active_subordinate",
+        "loop_stages": [
+          "deliberate",
+          "assess",
+          "plan",
+          "review",
+          "replan"
+        ],
+        "gate": "evidence_for_governance_not_approval_by_itself",
+        "runtime_adapter": true,
+        "source_path": "./data/council/agent_conversations.jsonl",
+        "source_records": 0,
+        "cycle_receipts": 0,
+        "gate_effect": "evidence_only",
+        "evidence_summary": [
+          "conversation_records=0",
+          "council_output_does_not_approve_execution_by_itself"
+        ]
+      }
+    ],
+    "error": null
+  },
+  "council_runtime": {
+    "contract": "arda.prometheus.council_runtime_projection.v1",
+    "ledger_path": "./data/council/agent_conversations.jsonl",
+    "source_available": false,
+    "existing_record_count": 0,
+    "appended_record_count": 0,
+    "latest_conversation_id": null,
+    "task_promotion_allowed": false,
+    "evidence_only": true,
+    "error": null
+  },
+  "executive_cycle": {
+    "contract": "arda.arandur.executive_cycle_receipt.v1",
+    "status": "observedreadonly",
+    "ledger_path": "./data/arandur/executive_cycles.jsonl",
+    "receipt": {
+      "contract": "arda.arandur.executive_cycle_receipt.v1",
+      "receipt_id": "arandur-cycle-sha256:ad240fea4967512b6",
+      "cycle_id": "objective:digital-organism-s7-living-mesh-proof",
+      "phase": "plan",
+      "objective_id": "digital-organism-s7-living-mesh-proof",
+      "objective_source_ref": "./core/projects/tasks/queue.jsonl#digital-organism-s7-living-mesh-proof",
+      "context_receipt_ref": "./data/ceo/autopilot.state.json#/objective_selection/objective_packet_report",
+      "recommendation_id": "recommendation:digital-organism-s7-living-mesh-proof",
+      "approval_packet_id": null,
+      "input_digest": "sha256:66a15a01986fe728dffba6d797f2a470fc4a1a7966b9d87894bb546e6c2d5490",
+      "disposition": "observed_read_only",
+      "reason": "read-only inspection projected the next action without durable mutation",
+      "proposed_action": "execute selected supervised objective",
+      "requested_roles": [
+        {
+          "role": "prometheus",
+          "capabilities": [
+            "analysis"
+          ]
+        },
+        {
+          "role": "ceo",
+          "capabilities": [
+            "ops"
+          ]
+        },
+        {
+          "role": "warden",
+          "capabilities": [
+            "monitor"
+          ]
+        }
+      ],
+      "revised_action": null,
+      "revised_requested_roles": [],
+      "governance_receipt_ref": null,
+      "placement_receipt_refs": [],
+      "queue_handoff_receipt_refs": [],
+      "execution_receipt_refs": [],
+      "failure_receipt_ref": null,
+      "acceptance_receipt_refs": [],
+      "council_mode": "disabled",
+      "full_council_approval_ref": null,
+      "resource_budget": {
+        "max_roles": 16,
+        "max_dispatches": 6,
+        "max_joules": 500.0,
+        "requested_joules": 30.0,
+        "max_council_opinions": 1,
+        "requested_council_opinions": 0
+      },
+      "queue_mutation_performed_by_arandur": false,
+      "placement_performed_by_arandur": false,
+      "execution_performed_by_arandur": false,
+      "queue_handoff_allowed": false,
+      "execution_observed": false,
+      "operator_can_stop": true,
+      "operator_update": "objective=digital-organism-s7-living-mesh-proof phase=Plan disposition=ObservedReadOnly; read-only inspection projected the next action without durable mutation; next=execute selected supervised objective",
+      "learning_candidate": null,
+      "parent_receipt_id": null,
+      "recorded_at_utc": "2026-08-23T12:48:37.793784229+00:00"
+    },
+    "replayed": false,
+    "ledger_appended": false,
+    "placement_pending": false,
+    "error": null
+  },
+  "autonomy_readiness": {
+    "contract": "arda.prometheus.autonomy_readiness_gate.v1",
+    "decision": "hold",
+    "task_promotion_allowed": false,
+    "human_required": false,
+    "preflight_path": "./data/prometheus/autonomy_operating_loop_preflight.json",
+    "preflight_source_available": true,
+    "cleanup_approval_packets_path": "./data/hades/autonomy_cleanup_approval_packets.json",
+    "cleanup_approval_packets_available": false,
+    "external_source_lane_ledger_path": "./data/athena/external_source_lane_ledger.jsonl",
+    "external_source_lane_ledger_available": false,
+    "lane_count": 12,
+    "lane_incomplete_count": 0,
+    "cleanup_packet_count": 0,
+    "external_source_lane_count": 0,
+    "external_source_blocked_count": 0,
+    "sovereign_missing_required_adapter_count": 0,
+    "council_unresolved_escalation_count": 0,
+    "reasons": [
+      "autonomy_preflight_stale",
+      "hades_cleanup_approval_packets_missing",
+      "athena_external_source_lane_ledger_missing"
+    ],
+    "evidence_paths": [
+      "./data/prometheus/autonomy_operating_loop_preflight.json",
+      "./data/hades/autonomy_cleanup_approval_packets.json",
+      "./data/athena/external_source_lane_ledger.jsonl",
+      "./data/council/agent_conversations.jsonl",
+      "./config/governance/autonomy_operating_loop.toml"
+    ]
+  },
+  "report_path": null,
+  "weekly_report_path": null
+}

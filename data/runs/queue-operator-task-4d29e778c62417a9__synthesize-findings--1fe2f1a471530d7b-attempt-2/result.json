@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:39441b86fd99faba738a17107999400cdf3f5b56692ee6c29c2e14962cd4b53f",
+    "summary": "Independent review confirms the evidence is sufficient and the declared `test` check is covered exactly by the prior verification receipt: `cargo test -p arda-core` passed with exit code 0. P0 is source-supported: runner.rs:1670-1679 treats any approval_packet_id as a readiness bypass, queue_operation.rs:165-192 accepts it as operator-approved authority without a scoped readiness waiver, and queue.jsonl:46890-46894 records promotion and Apollo submission while readiness is `hold`. P1 is also supported: queue_writer.rs:70-126 appends without an identity/idempotency check, while queue.jsonl:46884-46894 contains repeated execute/verify leaves and same-ID Apollo records. The P2 label `stale status authority` is imprecise because ARDA_SYSTEM_STATUS_REPORT.md:16-20 is explicitly dated and delegates canonical authority elsewhere; the supported defect is that this still-active report contains stale current-maturity claims, including three connected contracts at line 48 versus eight registry entries. Its smallest repair should be framed as updating or superseding the active dated report, not merely labeling it as a snapshot because it is already dated. No files were modified, no checks were rerun, and no artifacts were created."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:1d723c64d491419919edadb699912e6ac889a649dad18f158a10ac699f15e695",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

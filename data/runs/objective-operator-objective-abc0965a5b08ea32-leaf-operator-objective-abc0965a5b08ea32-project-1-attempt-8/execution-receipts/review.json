@@ -1,0 +1,57 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:4af40232195f45752a51ef5634d60aa5adb281e074455d5ee9f7ba3f5db324e6",
+  "idempotency_key": "queue-operator-objective-abc0965a5b08ea32-project-1-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:11e9606a5090c64bf28231dfef15e22f38941edade0b7b699c7f13241e591835"
+  ],
+  "project_contract_digest": "sha256:301fb2bbdad7e8faf78907d0c8ede449a56cd6aef102e6411579b1f1bd205bae",
+  "receipt_digest": "sha256:f008397e55698548ecdb15a4841edf6a06fa382dfdf9446fb6beb61cdf5af61a",
+  "recorded_at_unix_ms": 1788329714019,
+  "run_id": "objective-operator-objective-abc0965a5b08ea32-leaf-operator-objective-abc0965a5b08ea32-project-1-attempt-8",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Unsupported completion. Named defects: the project root contains only README.acceptance with a one-line acceptance label and no implementation to inspect; the sole durable verification check is pwd, which confirms the working directory but provides no evidence of implementation correctness, security/privacy properties, or objective scope. The parent receipt is structurally consistent with the declared check, and no modification evidence is present under read-only authority, but these facts cannot substantiate the governed work.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:422aa95fd48f4b260d3540079b64b4b968448dd1fa60f7bfbf7ecf52cabdb6ea",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:773f2a25f789584aa195e3a32e657f7d2dae396448de74ca8d4906c4e127b1f2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:86a870575aa9c111cfa7693d2d3985b62d2c24ed17950aecc40b9bb8abb4054b",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10802,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 517,
+    "provider": "openai-codex",
+    "total_tokens": 11319
+  }
+}

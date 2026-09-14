@@ -9,7 +9,7 @@ describe('OperationsActionContractPanel', () => {
     const contracts = buildOperationsActionContracts()
 
     expect(contracts).toHaveLength(3)
-    expect(contracts.find((contract) => contract.laneId === 'hades_maintenance')?.safeActionIds).toContain('arda.hades_run_link_check')
+    expect(contracts.find((contract) => contract.laneId === 'rumil_maintenance')?.safeActionIds).toContain('arda.rumil_run_link_check')
     expect(contracts.find((contract) => contract.laneId === 'audit_evidence')?.safeActionIds).toContain('arda.audit_run_repeated_audit')
     expect(contracts.find((contract) => contract.laneId === 'setup_readiness')?.governedActionIds).toContain('arda.setup_run_repair_flow')
   })
@@ -39,17 +39,17 @@ describe('OperationsActionContractPanel', () => {
 
     const panel = screen.getByLabelText('Operations action contracts')
     expect(within(panel).getByText('Operations Action Contracts')).toBeTruthy()
-    expect(within(panel).getByText('HADES Maintenance')).toBeTruthy()
+    expect(within(panel).getByText('Rúmil Maintenance')).toBeTruthy()
     expect(within(panel).getByText('Audit Evidence')).toBeTruthy()
     expect(within(panel).getByText('Setup Readiness')).toBeTruthy()
-    expect(within(panel).getByRole('button', { name: /Preview Organization Plan/ })).toBeTruthy()
+    expect(within(panel).getByRole('button', { name: /Preview Organization Findings/ })).toBeTruthy()
     expect(within(panel).getByRole('button', { name: /Run Repeated Audit/ })).toBeTruthy()
     expect(within(panel).getByRole('button', { name: /Run Setup Readiness Check/ })).toBeTruthy()
     expect(within(panel).getByText(/Run Setup Repair Flow: blocked/)).toBeTruthy()
     expect(within(panel).getByText(/operator_approval_required_for_repair/)).toBeTruthy()
 
     fireEvent.click(within(panel).getByRole('button', { name: /Run Link Check/ }))
-    expect(onRunAction).toHaveBeenCalledWith('arda.hades_run_link_check')
+    expect(onRunAction).toHaveBeenCalledWith('arda.rumil_run_link_check')
   })
 
   it('shows busy state for an operations action', () => {

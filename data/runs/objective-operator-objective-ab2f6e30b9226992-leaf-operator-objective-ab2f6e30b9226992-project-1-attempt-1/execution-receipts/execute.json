@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:3291f6c21678025a3d462af749a068434ee7b309ac535d524dcd4d9a7d1474a8",
+  "idempotency_key": "queue-operator-objective-ab2f6e30b9226992-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:9e19459526538b426346b400bce70f6193d7fca11fc9f494b1b8b4fd3023f56a"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:300e75254901e1a4db19925fd825d4b977b78ee98ed969ba9d5538685ec2b9f2",
+  "recorded_at_unix_ms": 1788411974373,
+  "run_id": "objective-operator-objective-ab2f6e30b9226992-leaf-operator-objective-ab2f6e30b9226992-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Integration readiness brief — annunimas-human-tenant: project-specific check `git diff --exit-code HEAD --` passed with exit code 0. Source-backed finding: the tenant crate exists and retains direct path dependencies on `annunimas-core` and `annunimas-mnemosyne`; migration notes state that live vault data and ingestion ledgers were not copied. Annunimas source workspace (`Annunimas/crates/annunimas-human`): its documented project-specific check is `cargo test -p annunimas-human --test target_local`; no outcome was available within this root-only node, so source-workspace readiness remains unverified. The migration notes also state that the original workspace member remains and compatibility removal is a follow-on gate. Shared integration risks are unresolved path coupling, duplicate compatibility surfaces, absent tenant runtime data, and lack of verified source-workspace compatibility evidence. Recommended operator action: in an authorized Annunimas workspace run the documented `target_local` check, then gate replacement of direct path dependencies and removal of the original workspace member on successful checks in both projects.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 10,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 20064,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1492,
+    "provider": "openai-codex",
+    "total_tokens": 21556
+  }
+}

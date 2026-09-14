@@ -1,0 +1,57 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1854bcddbc93eb354a306fff201b37950422dcb86bb2481306ce23dc9fdb1d61",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:96522dc91c6e8135b08132392362c141fd3887836f8356e7ad98f1075bf435dc"
+  ],
+  "project_contract_digest": "sha256:af7d3dae3197a59caa74189bcde6418a4e9ba08c4fdcbf29d83dba043d8a98a6",
+  "receipt_digest": "sha256:8b0f2311b2451f3f63f961d0a77b14e4dbea52469b136579d7a97c296044774a",
+  "recorded_at_unix_ms": 1788330616691,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-join-attempt-4",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent read-only review found no named defects. README.acceptance contains exactly the required acceptance fixture line, consistent with the digest-validated parent verification receipt. No project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v5\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6ee09accecc6de44cd24de6e9806ee87535786c9ce039b03977cd65a7e71ca98",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v5\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v5\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6ee09accecc6de44cd24de6e9806ee87535786c9ce039b03977cd65a7e71ca98",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a-v5/README.acceptance\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f6dd97ec6d47bcb354f0f775e25d6276212e574370dc6b14390f3bcd3b9a5740",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5815,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 432,
+    "provider": "openai-codex",
+    "total_tokens": 6247
+  }
+}

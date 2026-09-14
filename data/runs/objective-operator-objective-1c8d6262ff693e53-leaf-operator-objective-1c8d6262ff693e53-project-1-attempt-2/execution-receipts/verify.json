@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0c7a0f4919d143d6ff8be2b6895b88d4d3116dafda28efeaa70a08ea9587f47a",
+  "idempotency_key": "queue-operator-objective-1c8d6262ff693e53-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:920305718c9e8d794c09dd8de324cacd6b578db602d9950383414d1eb86f4da5"
+  ],
+  "project_contract_digest": "sha256:5051004adef3adf9193554860da4343caee0207ac4fff794a11cd47a8846b7ca",
+  "receipt_digest": "sha256:bb85e04f9be3740106b28c861d1a4218c813f376e9a92840a67db9bcc18d277a",
+  "recorded_at_unix_ms": 1788327638179,
+  "run_id": "objective-operator-objective-1c8d6262ff693e53-leaf-operator-objective-1c8d6262ff693e53-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared verify check passed: acceptance.txt exists in the project root.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "test -f acceptance.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "test -f acceptance.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5241,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 148,
+    "provider": "openai-codex",
+    "total_tokens": 5389
+  }
+}

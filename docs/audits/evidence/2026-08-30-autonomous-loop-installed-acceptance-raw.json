@@ -1,0 +1,309 @@
+{
+  "memory_records": [
+    {
+      "authored_by": "mnemosyne",
+      "created_at_utc": "2026-08-30T12:42:42.567614067+00:00",
+      "hash": "sha256:245900cb344d7895ec9f29a0ca9cacd85e1b0f6e9efd688ceb6a22744533d798",
+      "memory_id": "mem_65318f16b2794990b9ac8b11860ba00d",
+      "schema_version": "arda.mnemosyne.episodic.v1",
+      "sigil": "MNEME_PERIPHERAL",
+      "version": "0.1.0"
+    },
+    {
+      "bacon_lite_confidence": 0.4425,
+      "confidence": 1.0,
+      "content": "Governed Workbench run queue-operator-task-218b6be4e50c73d8-attempt-2 for task operator-task-218b6be4e50c73d8 ended status=completed result=completed; receipt=sha256:ced7cab0e714c23cf78352a924960b74271f7f1f6afe6a8b0a63a6ea7c3ceeeb; detail=No defects found. Independent read-only inspection confirmed acceptance.txt contains exactly the required line with a trailing newline, and the Rust test implementation is consistent with the canonical verification receipt showing cargo test passed. No checks were rerun and no files were modified.",
+      "event_type": "governed_execution_outcome",
+      "joulework": 1.0,
+      "love_eq": 0.5,
+      "memory_scope": "system_continuity",
+      "schema_version": "arda.mnemosyne.episodic.v1",
+      "significance": 0.5913749999999999,
+      "source_crate": "arda-aule",
+      "tags": [
+        "governed",
+        "execution-receipt",
+        "task_id:operator-task-218b6be4e50c73d8",
+        "recommendation_id:operator-objective-218b6be4e50c73d8",
+        "approval_packet_id:gateway:installed-unattended-1788093213-approve",
+        "workbench_run_id:queue-operator-task-218b6be4e50c73d8-attempt-2"
+      ],
+      "triad": false,
+      "trust": 0.22125,
+      "ts_utc": "2026-08-30T12:42:42.562972240+00:00",
+      "type": "episodic"
+    }
+  ],
+  "project_records": [
+    {
+      "approval_id": "installed-autonomous-acceptance-project",
+      "contract": {
+        "artifacts": [
+          {
+            "id": "acceptance-marker",
+            "path": "acceptance.txt"
+          }
+        ],
+        "checks": [
+          {
+            "command": "test",
+            "id": "test"
+          }
+        ],
+        "commands": [
+          {
+            "args": [
+              "test"
+            ],
+            "id": "test",
+            "program": "cargo",
+            "working_dir": "."
+          }
+        ],
+        "identity": {
+          "kind": "rust",
+          "name": "arda-autonomous-acceptance",
+          "project_id": "9b8e8400-e29b-41d4-a716-446655440099"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "permissions": {
+          "authority": "approval_required",
+          "filesystem": {
+            "write": true
+          },
+          "network": {
+            "allow": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "provenance": {
+          "declared_at": "2026-08-30T00:00:00Z",
+          "declared_by": "arda-installed-acceptance",
+          "stage": 4
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "schema_version": "arda.project-contract.v1",
+        "workspace": {
+          "root": "target/arda-autonomous-acceptance-project"
+        }
+      },
+      "idempotency_key": "installed-autonomous-acceptance-project",
+      "proposal_id": "installed-autonomous-acceptance-project"
+    },
+    {
+      "approval_id": "installed-autonomous-acceptance-project:9b8e8400-e29b-41d4-a716-446655440100",
+      "contract": {
+        "artifacts": [
+          {
+            "id": "acceptance-marker",
+            "path": "acceptance.txt"
+          }
+        ],
+        "checks": [
+          {
+            "command": "test",
+            "id": "test"
+          }
+        ],
+        "commands": [
+          {
+            "args": [
+              "test"
+            ],
+            "id": "test",
+            "program": "cargo",
+            "working_dir": "."
+          }
+        ],
+        "identity": {
+          "kind": "rust",
+          "name": "arda-autonomous-acceptance-b",
+          "project_id": "9b8e8400-e29b-41d4-a716-446655440100"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "permissions": {
+          "authority": "approval_required",
+          "filesystem": {
+            "write": true
+          },
+          "network": {
+            "allow": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "provenance": {
+          "declared_at": "2026-08-30T00:00:00Z",
+          "declared_by": "arda-installed-acceptance",
+          "stage": 4
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "schema_version": "arda.project-contract.v1",
+        "workspace": {
+          "root": "target/arda-autonomous-acceptance-project-b"
+        }
+      },
+      "idempotency_key": "installed-autonomous-acceptance-project:9b8e8400-e29b-41d4-a716-446655440100",
+      "proposal_id": "installed-autonomous-acceptance-project:9b8e8400-e29b-41d4-a716-446655440100"
+    }
+  ],
+  "queue_records": [
+    {
+      "closure_receipt_digest": "sha256:531d163e17125599feb939038876fddabcfd551aca2916bfce1967f6582984cc",
+      "completed_at_utc": "2026-08-30T12:36:34.310086264+00:00",
+      "continuation_decision": "revise_task",
+      "contract": "arda.workbench.queue_terminal.v1",
+      "detail": "The canonical receipt supports cargo test only. It does not provide durable verification evidence that acceptance.txt contains exactly arda-autonomous-loop-accepted followed by one newline; the unit test checks only acceptance_ready().",
+      "execution_receipt_digest": "sha256:531d163e17125599feb939038876fddabcfd551aca2916bfce1967f6582984cc",
+      "executor": "arda_workbench.queue_executor",
+      "id": "operator-task-218b6be4e50c73d8",
+      "meta": {
+        "action_class": "approved_autopilot_plan_step",
+        "approval_packet_id": "gateway:installed-unattended-1788093213-approve",
+        "execution_authority": "arda_workbench",
+        "mutation_risk": "operator-approved",
+        "project_id": "9b8e8400-e29b-41d4-a716-446655440099",
+        "source_objective_packet_id": "operator-objective-218b6be4e50c73d8"
+      },
+      "owner": "operator:mythos",
+      "priority": "normal",
+      "result": "failed",
+      "source_objective_packet_id": "operator-objective-218b6be4e50c73d8",
+      "source_record_id": "operator-task-218b6be4e50c73d8",
+      "status": "failed",
+      "title": "Verify the completed disposable acceptance project: run cargo test; confirm acceptance.txt contains exactly arda-autonomous-loop-accepted followed by a newline; do not modify project files or files outside the attached project. Report only receipt-backed evidence.",
+      "workbench_run_id": "queue-operator-task-218b6be4e50c73d8"
+    },
+    {
+      "continuation_decision": "revise_task",
+      "continuation_sequence": 1,
+      "contract": "arda.workbench.executable_continuation.v1",
+      "id": "operator-task-218b6be4e50c73d8",
+      "meta": {
+        "action_class": "approved_autopilot_plan_step",
+        "approval_packet_id": "gateway:installed-unattended-1788093213-approve",
+        "continuation_decision": "revise_task",
+        "continuation_sequence": 1,
+        "execution_authority": "arda_workbench",
+        "mutation_risk": "operator-approved",
+        "project_id": "9b8e8400-e29b-41d4-a716-446655440099",
+        "retry_sequence": 1,
+        "revision_directive": "The canonical receipt supports cargo test only. It does not provide durable verification evidence that acceptance.txt contains exactly arda-autonomous-loop-accepted followed by one newline; the unit test checks only acceptance_ready().",
+        "revision_sequence": 1,
+        "source_objective_packet_id": "operator-objective-218b6be4e50c73d8"
+      },
+      "owner": "operator:mythos",
+      "parent_workbench_run_id": "queue-operator-task-218b6be4e50c73d8",
+      "priority": "normal",
+      "queued_at_utc": "2026-08-30T12:36:34.311018268+00:00",
+      "retry_sequence": 1,
+      "revision_directive": "The canonical receipt supports cargo test only. It does not provide durable verification evidence that acceptance.txt contains exactly arda-autonomous-loop-accepted followed by one newline; the unit test checks only acceptance_ready().",
+      "revision_sequence": 1,
+      "source_record_id": "operator-task-218b6be4e50c73d8",
+      "status": "queued",
+      "title": "Verify the completed disposable acceptance project: run cargo test; confirm acceptance.txt contains exactly arda-autonomous-loop-accepted followed by a newline; do not modify project files or files outside the attached project. Report only receipt-backed evidence.",
+      "workbench_run_id": "queue-operator-task-218b6be4e50c73d8-attempt-2"
+    },
+    {
+      "closure_receipt_digest": "sha256:ced7cab0e714c23cf78352a924960b74271f7f1f6afe6a8b0a63a6ea7c3ceeeb",
+      "completed_at_utc": "2026-08-30T12:42:42.561198604+00:00",
+      "continuation_decision": "close_complete",
+      "contract": "arda.workbench.queue_terminal.v1",
+      "detail": "No defects found. Independent read-only inspection confirmed acceptance.txt contains exactly the required line with a trailing newline, and the Rust test implementation is consistent with the canonical verification receipt showing cargo test passed. No checks were rerun and no files were modified.",
+      "execution_receipt_digest": "sha256:ced7cab0e714c23cf78352a924960b74271f7f1f6afe6a8b0a63a6ea7c3ceeeb",
+      "executor": "arda_workbench.queue_executor",
+      "id": "operator-task-218b6be4e50c73d8",
+      "meta": {
+        "action_class": "approved_autopilot_plan_step",
+        "approval_packet_id": "gateway:installed-unattended-1788093213-approve",
+        "continuation_decision": "revise_task",
+        "continuation_sequence": 1,
+        "execution_authority": "arda_workbench",
+        "mutation_risk": "operator-approved",
+        "project_id": "9b8e8400-e29b-41d4-a716-446655440099",
+        "retry_sequence": 1,
+        "revision_directive": "The canonical receipt supports cargo test only. It does not provide durable verification evidence that acceptance.txt contains exactly arda-autonomous-loop-accepted followed by one newline; the unit test checks only acceptance_ready().",
+        "revision_sequence": 1,
+        "source_objective_packet_id": "operator-objective-218b6be4e50c73d8"
+      },
+      "owner": "operator:mythos",
+      "priority": "normal",
+      "result": "completed",
+      "source_objective_packet_id": "operator-objective-218b6be4e50c73d8",
+      "source_record_id": "operator-task-218b6be4e50c73d8",
+      "status": "completed",
+      "title": "Verify the completed disposable acceptance project: run cargo test; confirm acceptance.txt contains exactly arda-autonomous-loop-accepted followed by a newline; do not modify project files or files outside the attached project. Report only receipt-backed evidence.",
+      "workbench_run_id": "queue-operator-task-218b6be4e50c73d8-attempt-2"
+    },
+    {
+      "closure_receipt_digest": "sha256:e9eec0e5322ada6914018bb537f64a1ec2b2e8ba5de56f87abe6caa0cf609438",
+      "completed_at_utc": "2026-08-30T12:57:01.063001217+00:00",
+      "continuation_decision": "close_complete",
+      "contract": "arda.workbench.queue_terminal.v1",
+      "detail": "No concrete defects, unsupported completion claims, or security/privacy issues found. The canonical verification receipt covers cargo test with exit code 0, 1 test passed, and 0 failed; independent read-only inspection confirmed acceptance.txt contains exactly arda-autonomous-loop-accepted-b and the implementation includes the passing acceptance test. No files were modified and no declared checks were rerun.",
+      "execution_receipt_digest": "sha256:e9eec0e5322ada6914018bb537f64a1ec2b2e8ba5de56f87abe6caa0cf609438",
+      "executor": "arda_workbench.queue_executor",
+      "id": "operator-task-296ca07a057e05a5",
+      "meta": {
+        "action_class": "approved_autopilot_plan_step",
+        "approval_packet_id": "gateway:installed-concurrency-1788094511-1-approve",
+        "execution_authority": "arda_workbench",
+        "mutation_risk": "operator-approved",
+        "project_id": "9b8e8400-e29b-41d4-a716-446655440100",
+        "source_objective_packet_id": "operator-objective-296ca07a057e05a5"
+      },
+      "owner": "operator:mythos",
+      "priority": "normal",
+      "result": "completed",
+      "source_objective_packet_id": "operator-objective-296ca07a057e05a5",
+      "source_record_id": "operator-task-296ca07a057e05a5",
+      "status": "completed",
+      "title": "Verify this attached project by running cargo test and confirming acceptance.txt contains arda-autonomous-loop-accepted-b; do not modify files. Report receipt-backed evidence only.",
+      "workbench_run_id": "queue-operator-task-296ca07a057e05a5"
+    },
+    {
+      "closure_receipt_digest": "sha256:ca0d964cddb7992cdc1856857af2bd438701e66ccbb2dc4cf045a17b528740be",
+      "completed_at_utc": "2026-08-30T12:57:49.708812426+00:00",
+      "continuation_decision": "close_complete",
+      "contract": "arda.workbench.queue_terminal.v1",
+      "detail": "No concrete defect, unsupported completion claim, or security issue found. The canonical verification receipt covers cargo test with exit_code 0; independent read-only inspection confirmed acceptance_ready() returns true, its unit test asserts readiness, and acceptance.txt contains arda-autonomous-loop-accepted.",
+      "execution_receipt_digest": "sha256:ca0d964cddb7992cdc1856857af2bd438701e66ccbb2dc4cf045a17b528740be",
+      "executor": "arda_workbench.queue_executor",
+      "id": "operator-task-be75219e89eea616",
+      "meta": {
+        "action_class": "approved_autopilot_plan_step",
+        "approval_packet_id": "gateway:installed-concurrency-1788094511-0-approve",
+        "execution_authority": "arda_workbench",
+        "mutation_risk": "operator-approved",
+        "project_id": "9b8e8400-e29b-41d4-a716-446655440099",
+        "source_objective_packet_id": "operator-objective-be75219e89eea616"
+      },
+      "owner": "operator:mythos",
+      "priority": "normal",
+      "result": "completed",
+      "source_objective_packet_id": "operator-objective-be75219e89eea616",
+      "source_record_id": "operator-task-be75219e89eea616",
+      "status": "completed",
+      "title": "Verify this attached project by running cargo test and confirming acceptance.txt contains arda-autonomous-loop-accepted; do not modify files. Report receipt-backed evidence only.",
+      "workbench_run_id": "queue-operator-task-be75219e89eea616"
+    }
+  ],
+  "schema_version": "arda.autonomous-loop-installed-acceptance-raw-snapshot.v1"
+}

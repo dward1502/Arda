@@ -2,15 +2,32 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultBoardroomSlotSettings } from '../../lib/boardroomSlotSettings'
 import {
   deriveFleetHudInstrument,
+  deriveGovernanceHudInstrument,
+  deriveHumanHudInstrument,
   deriveBoardroomHudInstruments,
   deriveKnowledgeHudInstrument,
   deriveQueueHudInstrument,
   deriveRoutingHudInstrument,
   previewPresetForSource,
   previewTitleForSource,
+  resolveHudInstrumentTruthPresentation,
   resolveBoardroomHudInstrument,
   type BoardroomHudInstrumentMap,
 } from './boardroomHudInstruments'
+
+describe('deriveGovernanceHudInstrument', () => {
+  it('renders incident and actionable-decision pressure instead of raw record volume', () => {
+    const quietArchive = deriveGovernanceHudInstrument({ reviewItems: 90, pendingItems: 0, incidentItems: 0 })
+    const pressured = deriveGovernanceHudInstrument({ reviewItems: 2, pendingItems: 2, incidentItems: 1 })
+
+    expect(quietArchive.eyebrow).toBe('DECISION PRESSURE')
+    expect(quietArchive.glyph).toBe('0/0')
+    expect(pressured.glyph).toBe('2/1')
+    expect(pressured.nodes.filter((node) => node.state === 'warn')).not.toHaveLength(0)
+    expect(pressured.nodes.filter((node) => node.state === 'warn').length)
+      .toBeGreaterThan(quietArchive.nodes.filter((node) => node.state === 'warn').length)
+  })
+})
 
 describe('deriveFleetHudInstrument', () => {
   it('creates a nominal fleet instrument when targets are live', () => {
@@ -54,22 +71,54 @@ describe('deriveFleetHudInstrument', () => {
       intentionalOffline: 0,
       source: {
         sourceId: 'operator-runtime',
+        sourceLabel: 'Operator Runtime',
         sourcePaths: ['core/state/operator_runtime_status.json'],
         observedAtUtc: '2026-07-30T20:15:00Z',
         freshness: 'fresh',
+        sourceKind: 'live',
+        truthState: 'live',
       },
     })
 
     expect(instrument.source).toEqual({
       sourceId: 'operator-runtime',
+      sourceLabel: 'Operator Runtime',
       sourcePaths: ['core/state/operator_runtime_status.json'],
       observedAtUtc: '2026-07-30T20:15:00Z',
       freshness: 'fresh',
+      sourceKind: 'live',
+      truthState: 'live',
     })
+  })
+
+  it('does not use provider inventory as Fleet topology nodes', () => {
+    const instrument = deriveFleetHudInstrument({
+      liveTargets: 0,
+      totalTargets: 0,
+      routableProviders: 12,
+      unexpectedOffline: 0,
+      intentionalOffline: 0,
+    })
+
+    expect(instrument.nodes).toHaveLength(6)
+    expect(instrument.glyph).toBe('0/6')
   })
 })
 
-describe('resolveBoardroomHudInstrument', () => {
+describe('boardroom HUD instruments', () => {
+  it('keeps the continuity instrument concise while including business, personal, and missing-reference pressure', () => {
+    const model = deriveHumanHudInstrument({
+      documents: 1,
+      notes: 0,
+      businessItems: 3,
+      personalItems: 2,
+      missingReferences: 1,
+    })
+
+    expect(model.glyph).toBe('6/1')
+    expect(model.nodes.filter((node) => node.state === 'warn')).not.toHaveLength(0)
+    expect(model.title).toBe('Continuity')
+  })
   const instrument = deriveFleetHudInstrument({
     liveTargets: 2,
     totalTargets: 2,
@@ -100,9 +149,12 @@ describe('Phase 3 source-backed slot adapters', () => {
   it('maps each compact preview to the persisted workstation meaning and preserves provenance', () => {
     const source = {
       sourceId: 'test-source',
+      sourceLabel: 'Test Source',
       sourcePaths: ['core/state/test.json'],
       observedAtUtc: '2026-07-30T20:15:00Z',
       freshness: 'fresh' as const,
+      sourceKind: 'live' as const,
+      truthState: 'live' as const,
     }
     const assignments = createDefaultBoardroomSlotSettings('2026-08-03T00:00:00Z').assignments
     const instruments = deriveBoardroomHudInstruments({
@@ -121,7 +173,7 @@ describe('Phase 3 source-backed slot adapters', () => {
     expect(instruments.view_desk_l.title).toBe('Governance')
     expect(instruments.view_desk_control_panel.title).toBe('Fleet')
     expect(instruments.view_desk_r.title).toBe('Routing')
-    expect(instruments.view_desk_aux.title).toBe('Human Realm')
+    expect(instruments.view_desk_aux.title).toBe('Continuity')
     expect(instruments.command_core.title).toBe('Daily Command')
     expect(Object.values(instruments).every((instrument) => instrument.source === source)).toBe(true)
   })
@@ -133,9 +185,12 @@ describe('Phase 3 source-backed slot adapters', () => {
       ownerBuckets: 2,
       source: {
         sourceId: 'queue',
+        sourceLabel: 'Queue',
         sourcePaths: ['core/state/queue_summary.json'],
         observedAtUtc: null,
         freshness: 'missing',
+        sourceKind: null,
+        truthState: 'missing',
       },
     })
 
@@ -154,15 +209,29 @@ describe('Phase 3 source-backed slot adapters', () => {
       ownerBuckets: 2,
       source: {
         sourceId: 'planning:core/state/queue_summary.json',
+        sourceLabel: 'Queue Summary',
         sourceIds: ['planning:core/state/queue_summary.json'],
         sourcePaths: ['core/state/queue_summary.json'],
         observedAtUtc: freshness === 'unknown' ? null : '2026-07-30T20:15:00Z',
         freshness,
+        sourceKind: 'snapshot',
+        truthState: freshness === 'stale' ? 'stale' : 'unavailable',
       },
     })
 
     expect(instrument.status).toBe(expectedStatus)
     expect(instrument.status).not.toBe('nominal')
+  })
+
+  it.each([
+    ['live', '●', 'LIVE'],
+    ['snapshot', '□', 'SNAPSHOT'],
+    ['projected', '◇', 'PROJECTED'],
+    ['stale', '!', 'STALE'],
+    ['unavailable', '×', 'UNAVAILABLE'],
+    ['missing', '?', 'MISSING'],
+  ] as const)('gives %s a deterministic non-color cue', (truthState, marker, label) => {
+    expect(resolveHudInstrumentTruthPresentation(truthState)).toEqual({ marker, label })
   })
 })
 

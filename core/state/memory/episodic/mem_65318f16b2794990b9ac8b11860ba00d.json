@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_65318f16b2794990b9ac8b11860ba00d",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-218b6be4e50c73d8-attempt-2 for task operator-task-218b6be4e50c73d8 ended status=completed result=completed; receipt=sha256:ced7cab0e714c23cf78352a924960b74271f7f1f6afe6a8b0a63a6ea7c3ceeeb; detail=No defects found. Independent read-only inspection confirmed acceptance.txt contains exactly the required line with a trailing newline, and the Rust test implementation is consistent with the canonical verification receipt showing cargo test passed. No checks were rerun and no files were modified.",
+  "salience": 0.5913749999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-30T12:42:42.567399634Z",
+  "last_seen_at": "2026-08-30T12:42:42.567399634Z",
+  "evidence_class": "inferred",
+  "memory_scope": "system_continuity",
+  "memory_domain": "system"
+}

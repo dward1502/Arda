@@ -1,0 +1,64 @@
+{
+  "first": {
+    "capsule_digest": "sha256:1883e94cbd20b424e8adb9d8d9552e41c07adb568e13c73f855ee4066f3ca25b",
+    "context_use_receipt_ref": "arda://vaire/context-use/context-use:f0058d4aa50136546b400e42c7f063ef9a747d488b5aa2e09e80c6937afe3433",
+    "handoff_receipt": {
+      "capsule_digest": "sha256:1883e94cbd20b424e8adb9d8d9552e41c07adb568e13c73f855ee4066f3ca25b",
+      "capsule_id": "capsule:1883e94cbd20b424e8adb9d8d9552e41c07adb568e13c73f855ee4066f3ca25b",
+      "context_use_receipt_ref": "arda://vaire/context-use/context-use:f0058d4aa50136546b400e42c7f063ef9a747d488b5aa2e09e80c6937afe3433",
+      "destination_consumer": "execute-first",
+      "node_id": "execute-first",
+      "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+      "parent_receipts": [
+        "approval-context-bootstrap"
+      ],
+      "receipt_digest": "sha256:9d3c5b92048db46d5f1539553894a9f1caf048959b17bc1f9ffdf180ace45a3e",
+      "receipt_id": "handoff:9308d2493c50025e1fb1f6138b0fdd77579dd50c1c6326722c4446d63d5c4d32",
+      "recorded_at_unix_ms": 1787487889316,
+      "run_id": "run-context-first",
+      "schema_version": "arda.handoff-receipt.v1",
+      "source_authority": "vaire:organism-context"
+    },
+    "receipt_digest": "sha256:e5f03526038ef33455e68cb36d908f06757f886b627b88a2c6aab19d75d06648",
+    "run_id": "run-context-first",
+    "worker_id": "execute-first"
+  },
+  "fresh_process_count": 2,
+  "live_hermes": false,
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "replay": {
+    "canonical_receipt_returned": true,
+    "mismatched_capsule_rejected": true
+  },
+  "restart": {
+    "ambient_conversation_inherited": false,
+    "first_harness_stopped_before_second_started": true,
+    "vaire_context_use_receipt_reopened": true
+  },
+  "schema_version": "arda.context-bootstrap-runtime-proof.v1",
+  "second": {
+    "capsule_digest": "sha256:1ce7371b4dcdcfbda2007a9913b9e1e8b0ac2d9f5139272c9bbe0d7e3d742e86",
+    "context_use_receipt_ref": "arda://vaire/context-use/context-use:d16ee89c13c2a72074781aedd2ecf0da424d63bb7ded6f913ba001da1fd4c04d",
+    "explicit_parent_receipt": "sha256:e5f03526038ef33455e68cb36d908f06757f886b627b88a2c6aab19d75d06648",
+    "handoff_receipt": {
+      "capsule_digest": "sha256:1ce7371b4dcdcfbda2007a9913b9e1e8b0ac2d9f5139272c9bbe0d7e3d742e86",
+      "capsule_id": "capsule:1ce7371b4dcdcfbda2007a9913b9e1e8b0ac2d9f5139272c9bbe0d7e3d742e86",
+      "context_use_receipt_ref": "arda://vaire/context-use/context-use:d16ee89c13c2a72074781aedd2ecf0da424d63bb7ded6f913ba001da1fd4c04d",
+      "destination_consumer": "execute-second",
+      "node_id": "execute-second",
+      "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+      "parent_receipts": [
+        "approval-context-bootstrap"
+      ],
+      "receipt_digest": "sha256:dff991615234abf15a59e34474ef36e2166d78348c90146e9416ccbb33b662ca",
+      "receipt_id": "handoff:73c8b89eb5126ac8802afdbb3e1f2ef3c253a83290f301163bac71f6200d74a2",
+      "recorded_at_unix_ms": 1787487889369,
+      "run_id": "run-context-second",
+      "schema_version": "arda.handoff-receipt.v1",
+      "source_authority": "vaire:organism-context"
+    },
+    "receipt_digest": "sha256:45dd2c85ba4b58bd11c7c25961419916ce03334c603481bf2fd733b9e55f6ad1",
+    "run_id": "run-context-second",
+    "worker_id": "execute-second"
+  }
+}

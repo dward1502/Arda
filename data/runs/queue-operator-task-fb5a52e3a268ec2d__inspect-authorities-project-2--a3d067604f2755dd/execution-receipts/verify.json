@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:c8e913e21f3f3855b891229ba682f384a7f58d27e9c757db87caa02f045069f0",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__inspect-authorities-project-2--a3d067604f2755dd-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:64b982dde256ed14ae990e8bd0c7097380b89d72bd13920ebe7b2d960464e515"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:6bf84ab67cebb340db40da62596bb7938f8802c9c444804b8cc02315087e1929",
+  "recorded_at_unix_ms": 1788259748055,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__inspect-authorities-project-2--a3d067604f2755dd",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared clean-tree check passed. Project-native status check passed and reported a clean detached HEAD worktree. No project files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch",
+      "exit_code": 0,
+      "output_digest": "sha256:6504daff6e1cadfe87a4c88628079fa6fdffd231f2f8278d4b75b5f271278c22",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 9962,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 239,
+    "provider": "openai-codex",
+    "total_tokens": 10201
+  }
+}

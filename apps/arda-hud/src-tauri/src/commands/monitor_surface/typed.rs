@@ -17,6 +17,7 @@ const REGISTRY_CHANGED_EVENT: &str = "monitor-surface-registry-changed";
 #[derive(Debug)]
 pub struct TypedMonitorSurfaceState {
     contract: MonitorSurfaceContractState,
+    restored: std::sync::Mutex<bool>,
     persistence_path: Option<PathBuf>,
     mutation_lock: Mutex<()>,
 }
@@ -31,6 +32,7 @@ impl TypedMonitorSurfaceState {
     pub fn new() -> Self {
         Self {
             contract: MonitorSurfaceContractState::new(),
+            restored: std::sync::Mutex::new(false),
             persistence_path: None,
             mutation_lock: Mutex::new(()),
         }
@@ -41,6 +43,7 @@ impl TypedMonitorSurfaceState {
             contract: MonitorSurfaceContractState::new(),
             persistence_path: Some(path.clone()),
             mutation_lock: Mutex::new(()),
+            restored: Mutex::new(false),
         };
         if path.exists() {
             let bytes = fs::read(&path).map_err(|error| {
@@ -60,6 +63,9 @@ impl TypedMonitorSurfaceState {
         } else {
             state.persist_snapshot()?;
         }
+        // Rust has loaded (or durably initialized) the authoritative registry.
+        // A stale frontend restore must not replace it after startup.
+        *state.restored.lock().unwrap() = true;
         Ok(state)
     }
 
@@ -177,15 +183,29 @@ impl TypedMonitorSurfaceState {
         Ok(projection)
     }
 
+    pub fn presentation_ready(&self) -> bool {
+        self.restored.lock().map(|ready| *ready).unwrap_or(false)
+    }
+
     pub fn snapshot(&self) -> SessionRegistryDocument {
         self.contract.session_registry()
     }
 
     pub fn restore(&self, document: SessionRegistryDocument) -> Result<(), String> {
         let _guard = self.mutation_lock.lock().unwrap();
+        let mut restored = self
+            .restored
+            .lock()
+            .map_err(|_| "registry restore lock poisoned")?;
+        // Repeated frontend effects must not overwrite a newer native claim.
+        if *restored {
+            return Ok(());
+        }
         let before = self.contract.session_registry();
         self.contract.restore(document)?;
-        self.persist_or_rollback(before)
+        self.persist_or_rollback(before)?;
+        *restored = true;
+        Ok(())
     }
 }
 
@@ -227,7 +247,7 @@ pub struct MonitorSurfaceRegistryChangedEvent {
     pub session: Option<MonitorSessionRecord>,
 }
 
-fn emit_registry_changed(
+pub(super) fn emit_registry_changed(
     app: &AppHandle,
     operation: &str,
     slot_id: &str,

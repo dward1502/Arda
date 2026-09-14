@@ -1,0 +1,18 @@
+
+> arda_hud@0.1.0 verify:boardroom-assets /var/home/mythos/Eregion/Arda/apps/arda-hud
+> node scripts/check-boardroom-asset-budget.mjs
+
+{
+  "status": "pass",
+  "totalBytes": 30245745,
+  "totalLimit": 37748736,
+  "checkedFiles": 81,
+  "maxima": {
+    ".glb": 2586524,
+    ".png": 989654,
+    ".jpg": 232372,
+    ".jpeg": null,
+    ".hdr": 2097202
+  },
+  "violations": []
+}

@@ -38,11 +38,12 @@ scrape_configs:
           node: annunimas-server
           lane: backbone
           model: Qwen3.6-35B-A3B-UD-Q4_K_XL
-      - targets: ['100.103.125.88:1234']
+      - targets: ['100.103.125.88:9337']
         labels:
           node: beelink
-          lane: standalone
-          model: Carnice-9b-Q6_K
+          fleet_role: edge_worker
+          lane: light
+          model: Ternary-Bonsai-8B-Q2_0
       - targets: ['100.110.85.37:1234']
         labels:
           node: warden

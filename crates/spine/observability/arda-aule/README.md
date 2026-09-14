@@ -23,6 +23,22 @@ The default library surface is deliberately small:
 
 `arda-aule` owns observability projection and durable coordination records. It does not own provider/model selection (Manwe), task execution (core executors), source memory (Vaire), or the governance decisions it observes (`arda-governance`).
 
+## Governed task activation
+
+Arandur recommendations are proposal records, not queue entries. The supported operator path is:
+
+1. a producer appends `data/arandur/recommendations.jsonl` with provenance and `review_required=true`;
+2. ARDA HUD Operations projects that recommendation for human review;
+3. `arda-cli prometheus autopilot review-recommendation` appends the approve/reject decision and, only for approval, a typed approval packet;
+4. the next mutating autopilot cycle selects that approved packet and appends its decomposed tasks to `core/projects/tasks/queue.jsonl` through `arda.arandur.queue_operation.v1`;
+5. pending queue work is eligible for the configured bounded execution authority, with outcomes appended back to the canonical queue.
+
+`arda-cli prometheus autopilot next-approved-task` exposes the next active task carrying the explicit `operator-approved` + `arda_workbench` execution contract. It selects work; the Workbench/Hermes execution service remains a separate runtime authority and must append execution receipts before terminal queue transitions.
+
+An explicit recommendation approval authorizes only that packet. It may activate the queue while the global autonomy-readiness gate is held; unapproved autonomous promotion remains blocked.
+
+Annunimas-era autopilot projections are not current evidence. They are archived with hashes under `data/archive/autopilot/`; `data/ceo/autopilot.state.json` is the current Arda cycle snapshot.
+
 ## Features
 
 - Default / `--no-default-features`: the four stable library modules above.

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:7716116b6aeca2d656df0e881d045058967b8a306d740c7eb1d95143cbc54b6f",
+    "summary": "Review found named security/privacy and contract defects: (1) src/lib.rs:107-124 ingests every Markdown file directly into semantic memory without classifying authority, status, privacy, or review requirements, contrary to docs/human-knowledge-ingestion-contract.md:23-25 and 71-93; (2) src/lib.rs:56-89 does not persist records at all—the constructed record is only serialized and discarded—so the claimed memory integration is ineffective; (3) src/lib.rs:184-192 allows absolute paths and ../ traversal in slash-containing wikilinks, and src/lib.rs:174-175 exposes whether out-of-vault paths exist through backlinks; (4) src/lib.rs:120 uses the note's displayed path as a memory identifier, which can disclose private absolute filesystem paths if persistence is implemented; (5) src/lib.rs:13-25 implements legacy frontmatter incompatible with the active ingestion contract, including numeric confidence instead of low|medium|high and omission of privacy, authority, source_type, owner, review_required, and provenance fields; (6) src/lib.rs:110-114 silently discards traversal errors, allowing incomplete scans to be reported as successful. The durable evidence proves only a clean tracked tree and close-receipt lineage; it does not support functional, security, privacy, or contract-compliance completion. No declared checks were rerun and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

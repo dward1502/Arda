@@ -1,0 +1,123 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:1410c11d522ffadc73f7274c6208c61f2cceff032e8920fd9c9b779029071b45",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:b171f37fc3bdd802aa797cc984c28fa2d3a56d3419441d63354ec36e5c89f351"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:db14c4bed8a35da9e23abfa400500ad220d26be618725c0ec2cb37e8f2c8b456",
+  "recorded_at_unix_ms": 1788408035619,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-join-attempt-6",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Cannot approve the joined result: both dependency close receipts contain only generic closure statements and expose neither the approved leaf objectives nor substantive execution/verification evidence. The parent verify receipt establishes clean-tree status and lineage for this project leaf, but does not demonstrate that either dependency satisfied the full joined objective. Independent source review also found security/privacy defects: src/lib.rs accepts wikilinks containing parent-directory components and can report existing paths outside the vault, while scan_vault processes every Markdown file without enforcing the documented privacy, authority, status, quarantine, or review-required boundaries. Completion is therefore unsupported and the implementation conflicts with its ingestion contract.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d14c11f6e2985d324da285295709870bea95ce8535612139967a52e511c015d0",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":3,\"limit\":200,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"objective|receipt|ingestion|privacy|security|human knowledge|migration\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c1184e9a9f796b85581ae3c3abcdb2a75e89928eb4746610cba32324c66ee676",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f8c2069b0b18f32e2f3bcf9f751192ca259dc27a86f4f3c00914c708541b919",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e7e68890b8a5be51f9a58aaf65ce02e86102d332f3fb9ce0ced874aa226a112b",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"src/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:0834aaacf2bb5ca6d21189f0e3abf1c34d8ffc715de4d92a889c034b8e1751e9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2e3224cb6a189b92e96bc08d903516b5deebcd6095c063404918c4c22b123ec2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"tests/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ae6ec396f2995014738692f50549b52475584993e8487b7ede91d843aec9e0ff",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"fixtures/vault-basic/Main.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eae6aef9fdb063ff4b71fe4dd469648a9cf30106552d33ef19df4af6202d0c74",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"fixtures/vault-basic/Known.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:69c118e182d8ead13c6e04f324e47806c0df7b3a54a6473bc25a2bd40c6e6c56",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 19295,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1047,
+    "provider": "openai-codex",
+    "total_tokens": 20342
+  }
+}

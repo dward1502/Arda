@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:add25b579d1054d8bf9b30b46321c99dea26c94158a98ef2f4478e48ab52a250",
+  "idempotency_key": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-2--3f7237b61742f1fb-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:bda428f6f0596b08063d9ae41ea29ac87a251a080f570c09a95c35d2bf7c13ee"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:a7bb7f29d62df58f22d83ff2a2d34987933ace8a30755a5558bba103a976bd31",
+  "recorded_at_unix_ms": 1788249593149,
+  "run_id": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-2--3f7237b61742f1fb",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared clean-tree check passed; project-native status check reported a clean detached HEAD with no file changes.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short --branch",
+      "exit_code": 0,
+      "output_digest": "sha256:6504daff6e1cadfe87a4c88628079fa6fdffd231f2f8278d4b75b5f271278c22",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6393,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 235,
+    "provider": "openai-codex",
+    "total_tokens": 6628
+  }
+}

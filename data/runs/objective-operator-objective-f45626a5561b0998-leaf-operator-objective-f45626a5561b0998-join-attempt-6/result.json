@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:d50ced756729805c99c895092023a786f5e62b20ecee04768d5b8f26941280a5",
+    "summary": "Review found named blocking defects: (1) src/lib.rs:56-89 does not persist anything—MemoryStore::store serializes each record and discards it, while annunimas-mnemosyne is unused; (2) src/lib.rs:13-25 and 107-124 neither represent nor enforce the documented authority, source_type, privacy, review_required, supersession, and quarantine fields, so raw, working, and canonical notes are ingested identically as semantic human memory; (3) src/lib.rs:184-192 permits ../ traversal and absolute wikilinks to resolve outside the private vault, exposing out-of-scope filesystem paths through backlink results; (4) src/lib.rs:110-118 silently drops directory-walk errors and aborts the entire scan on one malformed Markdown file instead of producing complete evidence or quarantining the file. The supplied closure receipts do not remedy these implementation and privacy failures. No files were modified and no declared checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

@@ -1,10 +1,12 @@
-export type BoardroomRenderProfileId = 'full' | 'low-power' | 'reduced-motion' | 'inactive'
+export type BoardroomRenderProfileId = 'full' | 'native' | 'compatibility' | 'low-power' | 'reduced-motion' | 'inactive'
 
 export interface BoardroomRenderCapabilities {
   active: boolean
   prefersReducedMotion: boolean
   hardwareConcurrency?: number
   deviceMemoryGb?: number
+  nativeWebKit?: boolean
+  softwareRenderer?: boolean
 }
 
 export interface BoardroomRenderProfile {
@@ -35,11 +37,25 @@ export function resolveBoardroomRenderProfile(
   if (capabilities.prefersReducedMotion) {
     return { ...STATIC_PROFILE, id: 'reduced-motion' }
   }
+  if (capabilities.softwareRenderer) {
+    return { ...STATIC_PROFILE, id: 'compatibility', dpr: [1, 1] }
+  }
   if (
     (capabilities.hardwareConcurrency !== undefined && capabilities.hardwareConcurrency <= 4)
     || (capabilities.deviceMemoryGb !== undefined && capabilities.deviceMemoryGb <= 4)
   ) {
     return { ...STATIC_PROFILE, id: 'low-power' }
+  }
+  if (capabilities.nativeWebKit) {
+    return {
+      id: 'native',
+      dpr: [1, 1.25],
+      frameloop: 'always',
+      shadows: false,
+      environmentEnabled: false,
+      motionEnabled: true,
+      postProcessingEnabled: false,
+    }
   }
   return {
     id: 'full',

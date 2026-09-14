@@ -1,0 +1,105 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:577ed190a4c6617629d9801d0a4aa144ca32dc2ed64107d6b20975dec48c50c3",
+  "idempotency_key": "queue-operator-task-fb5a52e3a268ec2d__inspect-authorities-project-2--a3d067604f2755dd-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-e572b27c0d924dd6be9b52b42b1b2768"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:64b982dde256ed14ae990e8bd0c7097380b89d72bd13920ebe7b2d960464e515",
+  "recorded_at_unix_ms": 1788259726188,
+  "run_id": "queue-operator-task-fb5a52e3a268ec2d__inspect-authorities-project-2--a3d067604f2755dd",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project-scoped read-only inspection completed. Material source evidence shows tool-gate is a Rust library and CLI that evaluates caller-supplied tool metadata and invocation envelopes without executing tools (README.md:5-13). Its default policy requires trace evidence for mutation and review, idempotency for mutation, and review for critical risk (src/policy.rs:4-20); evaluation validates inputs and tool identity, enforces allowed target patterns, denies missing trace or idempotency, and otherwise emits allow, deny, or review_required receipts (src/policy.rs:23-158; src/types.rs:56-90). Decision receipts carry schema version, decision, reason, risk, review state, trace ID, and policy checks, with exit codes 0, 2, and 3 (src/receipt.rs:19-37). Project tests materially cover allowed read-only scope, denial of mutation without trace, critical-operation review, receipt schema output, and deny exit code (tests/policy_decisions.rs:34-64; tests/cli_contract.rs:4-35). No files were modified, no outputs were created, and reserved project-native checks were not run.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:74afdeb0f1d75a2ccad8dfa9390899b5481600af75e8ce2a8bba991624a651d2",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate\",\"pattern\":\"AGENTS.md\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:6d0f3fac92c0e6d7583170a15ef95179d4ebbc838094a2ae9747e2e59723af77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate\",\"pattern\":\"src/*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:aef66110fa1ca568d9298c3b2317f6d820a9bda93f33173511136e3c3f6c763f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate\",\"pattern\":\"tests/*.rs\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:aef66110fa1ca568d9298c3b2317f6d820a9bda93f33173511136e3c3f6c763f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9545a12d4a41d15f4d7148144bb1b7933ef8b9fa671311251eeb32303b3893e3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src/policy.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:82bcd0d9d58a2bbff39c58c62f4d8cf56c504d2dae9f8ec7349be232245ac688",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src/types.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8040f76ed689d9cf167616dc53c07daaa9442596e7d5614194e78a48e5a48309",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src/receipt.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eb16d52e110e53ce1aa4d0b5d4adf0a12228938ea67979485bf35bec4e0e9b6d",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:3c52de11d478998590ad7eccf01a3a552955982aad63c33d6f4a4abbf8dece79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/tests/policy_decisions.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68cf56733af2fa424198f7c2922765790bc834ebaf48fc1a63825bb6014cd99e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/tool-gate/tests/cli_contract.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d3390ec8fb5d120620781175db7ec5df35631141fb9ce99e6e9e60452ff85080",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 17087,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1069,
+    "provider": "openai-codex",
+    "total_tokens": 18156
+  }
+}

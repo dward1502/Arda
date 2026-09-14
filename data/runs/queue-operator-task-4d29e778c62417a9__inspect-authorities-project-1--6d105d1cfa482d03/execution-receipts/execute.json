@@ -1,0 +1,87 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:0cbef247623cf91dc07111e2a36426333c775a121de3b59d63b1661fe3c134ff",
+  "idempotency_key": "queue-operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-9e7798e06612459a81836d1e679e5da0"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:f3066ac18a504f26eaee6cde3a3f4131cb5a53299d3ce490454036069ea9d24b",
+  "recorded_at_unix_ms": 1788254146128,
+  "run_id": "queue-operator-task-4d29e778c62417a9__inspect-authorities-project-1--6d105d1cfa482d03",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Project-scoped read-only inspection completed. The active-draft ingestion contract defines five authority levels—raw, agent_generated, human, governance, and runtime—and requires authority to remain distinct from status (docs/human-knowledge-ingestion-contract.md:49-69). It prohibits silent canonical promotion, source deletion/movement, and unapproved overwrite (docs/human-knowledge-ingestion-contract.md:96-113), requires provenance-preserving recall and separation of generated recall from canonical truth (docs/human-knowledge-ingestion-contract.md:115-123), and reserves deletion for explicit policy and proof (docs/human-knowledge-ingestion-contract.md:125-133). Material implementation gap: NoteFrontmatter lacks the contract's authority, owner, privacy, review_required, affected-path, and supersession fields (src/lib.rs:13-25 versus docs/human-knowledge-ingestion-contract.md:71-94), while vault scanning accepts every Markdown note and sends its content to MemoryStore without authority/status gating (src/lib.rs:106-129). MemoryStore currently serializes each MemoryRecord but does not persist it (src/lib.rs:56-89). Tests cover wikilink filtering and rejection of missing vault paths, not authority classification or canonical-reliance controls (tests/target_local.rs:27-63). Migration notes confirm live vault data and ingestion ledgers were excluded and direct path dependencies remain temporary (docs/migration-notes.md:3-10; Cargo.toml:12-19). No files were modified, no artifacts were created, and verifier-owned checks were not run.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:645920a979dc08275a73ecf2d6be68fc62e825f65bea9204d23f122d62297c1e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":50,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human\",\"pattern\":\"*author*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":800,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":800,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":800,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-real-projects/human/INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f8c2069b0b18f32e2f3bcf9f751192ca259dc27a86f4f3c00914c708541b919",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 14814,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 986,
+    "provider": "openai-codex",
+    "total_tokens": 15800
+  }
+}

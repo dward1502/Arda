@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:772dfa8ac756b6eec225deb686394e950541c441d787dc38677b8afd29f226dd",
+    "summary": "Unsupported joined completion. The two dependency close receipts only state that workbench review closed; they provide no implementation findings, outputs, artifacts, checks, or underlying execution evidence against which the full approved objective can be judged. The second receipt also cites project contract digest sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81, which differs from this node's supplied contract digest, without evidence establishing its applicability. The sole verification receipt proves only a clean tree, not objective satisfaction. Independent source inspection also found material unresolved defects: MemoryStore::store serializes and discards records rather than persisting them (src/lib.rs:56-88); slash-containing wikilinks are joined without confinement and may resolve outside the vault (src/lib.rs:184-192); and the implemented frontmatter schema conflicts with the documented ingestion contract, including numeric versus enumerated confidence and omitted required authority, privacy, provenance, and review fields (src/lib.rs:13-25; docs/human-knowledge-ingestion-contract.md:71-94). No files were modified and no declared checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

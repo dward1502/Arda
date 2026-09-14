@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:19a127378a9c99b714d3f0dbccd76e0351d0d1bc54a68c28559611506cb21531",
+    "summary": "Review found four named defects: (1) src/lib.rs:184-192 permits wikilinks containing ../ to resolve outside the private vault and exposes those external paths when they exist; (2) src/lib.rs:56-89 MemoryStore::store only serializes and discards each MemoryRecord, so scan_vault provides no persistent Mnemosyne ingestion despite its stated interface; (3) src/lib.rs:110-114 silently drops WalkDir traversal and permission errors, allowing incomplete scans to report success; (4) src/lib.rs:13-25 requires the legacy numeric-confidence frontmatter shape and cannot ingest documents conforming to docs/human-knowledge-ingestion-contract.md:71-94, which specifies string confidence and additional required classification/privacy fields. Durable verification supports only a clean tree; it provides no behavioral or security evidence addressing these defects. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

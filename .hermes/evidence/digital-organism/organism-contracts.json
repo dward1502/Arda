@@ -1,0 +1,143 @@
+{
+  "schema_version": "arda.digital-organism.organism-contracts-receipt.v1",
+  "task_id": "digital-organism-s1-organism-contracts",
+  "generated_at_utc": "2026-08-22T07:09:44Z",
+  "repository": {
+    "branch": "plan/ambient-agent-program",
+    "base_head": "3d380a7d"
+  },
+  "operator_gate": {
+    "stage_0_authority_map_accepted": true,
+    "accepted_at_utc": "2026-08-22T06:53:16Z",
+    "acceptance_receipt": ".hermes/evidence/digital-organism/authority-transport-map.json"
+  },
+  "contracts": [
+    {
+      "schema_version": "arda.organism-manifest.v1",
+      "canonical_owner": "arda-core",
+      "source": "crates/spine/governance/arda-core/src/organism.rs",
+      "operator_configuration": "config/organism.toml",
+      "root_projection": "GET /v1/organism/manifest",
+      "live_digest": "sha256:60588807d241d47afd02be5fa0534addc32ad72b44a75095cb95306b4b565734",
+      "validation": [
+        "unknown fields rejected",
+        "schema version exact",
+        "identity and text bounded",
+        "authority owners exact",
+        "transport lists duplicate-free",
+        "enabled transports are an accepted subset",
+        "required contract family versions present",
+        "canonical digest order-stable"
+      ]
+    },
+    {
+      "schema_version": "arda.organism-context.v1",
+      "canonical_owner": "arda-vaire",
+      "source": "crates/spine/memory/arda-vaire/src/service/organism_context.rs",
+      "reused_authorities": [
+        "arda_core::run_graph::ObjectiveId",
+        "arda_core::run_graph::RunId",
+        "arda_core::capability_composition::RoleKind",
+        "arda_core::capability_composition::CompositionAuthorityClass",
+        "arda_core::capability_composition::DataClass",
+        "arda_core::capability_composition::EgressTarget",
+        "arda_vaire::service::scope_policy::MemoryDomain"
+      ],
+      "validation": [
+        "unknown fields and transcript copies rejected",
+        "lineage and references bounded",
+        "acceptance conditions required",
+        "capability conflicts rejected",
+        "sensitive external egress denied",
+        "personal context requires explicit operator authority",
+        "duplicate references rejected",
+        "expiry and return-output bounds enforced"
+      ]
+    }
+  ],
+  "root_runtime": {
+    "service": "arda.service",
+    "state": "active/running",
+    "main_pid_at_verification": 544363,
+    "started_at_local": "2026-08-22T00:09:33-07:00",
+    "health": "ok",
+    "unauthenticated_manifest_status": 403,
+    "authenticated_manifest_status": 200,
+    "installed_binary_sha256": "4eaaa96495d7044636a101ff08765d3d7028e2cd4234e7e6f1956000ca08ed51",
+    "release_binary_sha256": "4eaaa96495d7044636a101ff08765d3d7028e2cd4234e7e6f1956000ca08ed51",
+    "manwe_health": "ok"
+  },
+  "source_sha256": {
+    "config/organism.toml": "5d75e0d404aa61f17beca376cf91c5d787789163b7e40c4425efc69bc7ef12c6",
+    "crates/spine/governance/arda-core/src/organism.rs": "09110284835e0b97f288c715fb70f8dbd93406eee791c35d3f07db9a7aa34f98",
+    "crates/spine/memory/arda-vaire/src/service/organism_context.rs": "48718725ab53f50d7e799d3e6ab49671c89f47d758511d6ed8149cd24e7777f4",
+    "crates/engine/src/harness/organism.rs": "b5e0e1a282f412d0ae0c22d22d3e1952751e33be61cdc57cb6a7cbbf8999c988",
+    "crates/spine/governance/arda-core/tests/organism_manifest.rs": "4c078721918d1695ba97f77a6457acefa94f9aea0345b44e040a38586f457b6e",
+    "crates/spine/memory/arda-vaire/tests/organism_context.rs": "9f6ed4dbb2d1d337a8710527ade333316bffac227185dd4dc7406f0f5d01d86c",
+    "crates/engine/tests/harness_organism_manifest.rs": "f914f4de7b8c280d91b173e50f59e448172809e007a9bb20ea51b30d0b7eb170"
+  },
+  "verification": {
+    "tdd_red": [
+      "arda-core unresolved organism module",
+      "arda-vaire unresolved organism context exports",
+      "engine manifest route returned 404",
+      "duplicate unresolved failure identity was accepted before validator hardening"
+    ],
+    "focused_tests": {
+      "passed": 10,
+      "failed": 0
+    },
+    "broad_tests": {
+      "arda_core_passed": 204,
+      "arda_vaire_passed": 85,
+      "arda_engine_passed": 43,
+      "total_passed": 332,
+      "ignored": 1,
+      "failed": 0
+    },
+    "root_compile": "cargo check -p arda passed",
+    "release_build": "cargo build --release -p arda passed",
+    "clippy": {
+      "arda_core": "strict -D warnings passed",
+      "arda_vaire": "strict -D warnings passed",
+      "arda_engine": "-D warnings passed with only pre-existing transitive too_many_arguments and map_or_identity lints allowed"
+    },
+    "format": "exact changed Rust files passed rustfmt --check",
+    "hades_links": {
+      "digital_organism_plan_checked": 18,
+      "architecture_checked": 8,
+      "active_plan_links_checked": 489,
+      "completion_language_issues": 0,
+      "broken": 0
+    },
+    "queue_append_only_guard": "passed",
+    "secret_scan": {
+      "files_scanned": 16,
+      "secret_shaped_matches": 0
+    },
+    "git_diff_check": "passed"
+  },
+  "maturity": {
+    "manifest": [
+      "documented",
+      "implemented",
+      "focused-tested",
+      "root-composed",
+      "installed",
+      "running"
+    ],
+    "context": [
+      "documented",
+      "implemented",
+      "focused-tested",
+      "root-compiled"
+    ]
+  },
+  "held_for_next_task": [
+    "Vaire context assembly and memory-use receipts",
+    "Hermes worker capsule injection",
+    "fresh worker task completion",
+    "gateway/root restart continuation proof"
+  ],
+  "stores_created": []
+}

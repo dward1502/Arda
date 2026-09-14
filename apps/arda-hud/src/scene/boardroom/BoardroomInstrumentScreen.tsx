@@ -1,7 +1,11 @@
 // sigil: REPAIR
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
-import type { HudInstrumentModel, HudTone } from './boardroomHudInstruments'
+import {
+  resolveHudInstrumentTruthPresentation,
+  type HudInstrumentModel,
+  type HudTone,
+} from './boardroomHudInstruments'
 import type { BoardroomPreviewMode, BoardroomVec3 } from './boardroomSpatialLayout'
 
 const TONE_COLORS: Record<HudTone, string> = {
@@ -85,6 +89,7 @@ function drawInstrument(canvas: HTMLCanvasElement, model: HudInstrumentModel): v
   const width = canvas.width
   const height = canvas.height
   const accent = TONE_COLORS[model.tone]
+  const truth = model.source ? resolveHudInstrumentTruthPresentation(model.source.truthState) : null
   const statusColor = model.status === 'nominal'
     ? '#8cffc7'
     : model.status === 'watch'
@@ -102,7 +107,9 @@ function drawInstrument(canvas: HTMLCanvasElement, model: HudInstrumentModel): v
 
   context.strokeStyle = `${accent}66`
   context.lineWidth = 5
+  context.setLineDash(model.source && model.source.truthState !== 'live' ? [18, 10] : [])
   context.strokeRect(7, 7, width - 14, height - 14)
+  context.setLineDash([])
   context.strokeStyle = 'rgba(255,255,255,0.055)'
   context.lineWidth = 2
   for (let x = 64; x < width; x += 64) {
@@ -169,7 +176,10 @@ function drawInstrument(canvas: HTMLCanvasElement, model: HudInstrumentModel): v
   context.textAlign = 'right'
   context.fillStyle = 'rgba(221,248,255,0.66)'
   context.font = '700 22px IBM Plex Sans, sans-serif'
-  context.fillText(model.source?.freshness?.toUpperCase() ?? 'LOCAL SURFACE', width - 44, height - 40)
+  const sourceCaption = truth && model.source
+    ? `${truth.marker} ${truth.label} · ${model.source.sourceLabel}`
+    : 'LOCAL SURFACE'
+  context.fillText(truncate(context, sourceCaption, width * 0.62), width - 44, height - 40)
   context.textAlign = 'left'
 }
 

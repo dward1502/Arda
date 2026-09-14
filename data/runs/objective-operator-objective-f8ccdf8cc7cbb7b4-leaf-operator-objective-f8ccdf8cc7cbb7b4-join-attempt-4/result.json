@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:db13c3295fc633a09c6803a874f9723ec60bf07250b333a50f1935659e182e85",
+    "summary": "Review found unsupported completion and security/privacy defects. The receipt verifies only a clean Git diff; it does not execute either cargo test command declared in docs/migration-notes.md:12-15, so functional completion is unproven. src/lib.rs:184-191 permits absolute and parent-directory wikilinks to escape the vault root and returns existing external paths, violating tenant isolation. src/lib.rs:107-125 scans every Markdown file and processes it without the classification, authority, privacy, or review gates required by docs/human-knowledge-ingestion-contract.md:23-25 and 49-93. NoteFrontmatter at src/lib.rs:14-25 omits required contract metadata and models confidence as u8 although the contract requires low|medium|high, so contract-conforming notes cannot be ingested. MemoryStore::store at src/lib.rs:56-89 serializes each record and discards it, providing no durable Mnemosyne storage despite the stated persistent-memory interface. Existing tests cover neither vault-escape rejection nor ingestion-contract enforcement."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

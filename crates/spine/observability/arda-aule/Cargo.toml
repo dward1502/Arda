@@ -20,6 +20,8 @@ telemetry = [
   "opentelemetry",
   "opentelemetry-otlp",
   "opentelemetry-otlp/grpc-tonic",
+  "opentelemetry-otlp/http-proto",
+  "opentelemetry-otlp/reqwest-blocking-client",
   "opentelemetry-otlp/trace",
   "tracing-opentelemetry",
   "opentelemetry_sdk",

@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_741d7021e3fa4660a00ad230c53b01c1",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-attempt-2 for task operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4 ended status=failed result=failed; receipt=sha256:6e9a964bd52f1947f00f4d881442917c6d607e881b3424edf43d4f863b5ab7bf; detail=Independent review found unsupported completion and concrete defects. The execute projection contains only an output digest and read-call receipts, not the worker’s reported findings, authority classification, or objective-lineage output, so completion of the source_evidence objective cannot be independently established. The prior verification receipt does cover `git status --short --branch` with exit code 0 and an authenticated output digest; clean-tree is separately recorded as passed. Source defects: `src/lib.rs:184-192` permits absolute paths and `../` traversal in slash-containing wikilinks, allowing resolved backlinks outside the private vault; `src/lib.rs:107-125` ingests every Markdown file without enforcing the documented authority, status, privacy, review, or quarantine rules; `src/lib.rs:56-89` claims to store memory but only serializes and discards the record, providing no durable storage. Tests cover basic link resolution and missing vaults but not vault confinement or ingestion-policy enforcement. No files were modified and no declared checks were rerun.",
+  "salience": 0.42172499999999985,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T08:08:03.577257307Z",
+  "last_seen_at": "2026-09-01T08:08:03.577257307Z",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred"
+}

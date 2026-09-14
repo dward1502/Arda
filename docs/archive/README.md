@@ -16,6 +16,14 @@ soterion:
 Purpose: retain completed historical plans without presenting them as active
 work under `docs/plans/`.
 
+## Queue reconciliation — 2026-09-07
+
+- [Deferred ambient requirements](deferred/ambient-agent/README.md): seven documents moved intact from the active queue, **not completed**. Core usefulness/operator acceptance and explicit scope reactivation remain prerequisites; commercial work needs a separate request.
+- [HUD WS3b avatar closeout](arda-hud-visual-pass/03b-avatar-cortana-redesign.md): historical August native visual slice, corroborated by current particle/emitter source; not Mirromere or general-media acceptance.
+- [HUD WS3a assessment](arda-hud-visual-pass/03a-boardroom-workstations-assessment.md): consolidated into the [active visual owner](../plans/arda-hud-visual-pass/README.md); remaining occupied-session/marker checks retained there.
+- [Retired autonomous compatibility index](2026-09-07-autonomous-loop-compatibility-index.md): no independent tasks; the milestone program remains active.
+- [Autonomous evidence history](../audits/autonomous-task-completion-history.md): retained outside the active execution queue with historical/superseded claims identified.
+
 ## Completed closeouts
 
 Deferred, non-1.0 records live under [`deferred/`](deferred/). They preserve
@@ -29,6 +37,17 @@ product adoption research.
   — completed bounded system-unification implementation history; final public-release qualification moved to deferred 1.0 authority.
 - [`2026-08-06-hud-frontend-backend-contract-convergence-plan.md`](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
   — implemented backend authority, monitor lifecycle, and restart-recovery convergence retained as 0.9 evidence.
+- [`2026-08-16-arda-hud-lower-workstations/`](2026-08-16-arda-hud-lower-workstations/)
+  — completed lower-workstation convergence from composition authority through distinct Governance, Fleet, Routing, Continuity, and Command Core surfaces, with optimized native X11 acceptance and Phase 10 closeout evidence.
+- [`2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](2026-08-12-arda-0.9-baseline-and-improvement-plan.md)
+  — completed finite 0.9 dependency, documentation, native qualification, and exact-artifact defect tranche; Personal Operations remains implemented but unaccepted after an empty dogfood window.
+- [`2026-08-17-launcher-local-runtime-plan.md`](2026-08-17-launcher-local-runtime-plan.md)
+  — completed ambient-agent Phase 1 launcher/runtime implementation and post-restart native acceptance; live evidence remains in the operations acceptance record.
+- [`2026-08-17-hermes-continuity-handoff-plan.md`](2026-08-17-hermes-continuity-handoff-plan.md)
+  — completed ambient-agent Phase 2 Hermes phone-to-desktop continuity implementation and genuine operator acceptance; exact identifiers remain private while bounded evidence lives in the operations record.
+- [`2026-08-20-failed-mirromere-projection-implementation.md`](2026-08-20-failed-mirromere-projection-implementation.md)
+  — failed Phase 3 direction retained as a warning: standalone shell and display plumbing were mistaken for Mirromere, first through decorative radar/status scenes and then through an incorrect Hermes-dashboard replacement.
+
 
 ## Deferred future release authorities
 

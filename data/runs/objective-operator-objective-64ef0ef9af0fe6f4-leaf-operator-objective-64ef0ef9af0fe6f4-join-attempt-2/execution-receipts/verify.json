@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:24efa726b7dad1fc769db569d155dbf1bfeb49f9ba5ba28bb3f427939747d75b",
+  "idempotency_key": "queue-operator-objective-64ef0ef9af0fe6f4-join-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:132dbe9d984a9eb30ba77fed8ee8338072ddcd94d9c9de88cf0702ba8da75114"
+  ],
+  "project_contract_digest": "sha256:af7d3dae3197a59caa74189bcde6418a4e9ba08c4fdcbf29d83dba043d8a98a6",
+  "receipt_digest": "sha256:372ca1eba99cdfb42aa68b4ea9b0f1fa609be66255cf6f579e8e0c6c89ea5685",
+  "recorded_at_unix_ms": 1788329981510,
+  "run_id": "objective-operator-objective-64ef0ef9af0fe6f4-leaf-operator-objective-64ef0ef9af0fe6f4-join-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared verify check passed; every project leaf has canonical close-receipt lineage. No files were changed or created.",
+  "test_evidence": [
+    {
+      "check_id": "verify",
+      "command": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "grep -Fx resident-objective-acceptance-fixture-ok README.acceptance",
+      "exit_code": 0,
+      "output_digest": "sha256:926782c47d3f3155b21d45852646bbd66379524434e6d521885a04dca65f18e6",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5191,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 257,
+    "provider": "openai-codex",
+    "total_tokens": 5448
+  }
+}

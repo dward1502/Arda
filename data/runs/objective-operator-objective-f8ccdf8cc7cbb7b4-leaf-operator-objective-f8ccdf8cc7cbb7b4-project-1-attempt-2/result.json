@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:bd7c4ce68f2f21e73de99ee0de88143b0d7d186a1acf765c5ac7ba2424c429a2",
+    "summary": "Review found named defects: (1) src/lib.rs:56-89 constructs and serializes MemoryRecord values but discards them, so scan_vault provides no persistent-memory integration despite the stated interface purpose; annunimas-mnemosyne is unused. (2) src/lib.rs:13-25 is incompatible with the active ingestion contract: confidence is numeric rather than low/medium/high, and required authority, privacy, source_type, owner, review, supersession, and provenance fields are absent, preventing compliant processed notes from being parsed. (3) src/lib.rs:184-192 permits slash-containing wikilinks with parent components or absolute paths to resolve outside the vault; find_backlinks then probes and exposes existing external paths. (4) The field named backlinks at src/lib.rs:34 is populated from outgoing links in the current note, not links from other notes back to it. (5) HumanKnowledge::new checks only existence, so a regular file is accepted as a vault and scan_vault can silently return no notes. The parent receipt authenticates only a clean-tree check and contains no correctness, security, privacy, or contract-conformance evidence. No files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

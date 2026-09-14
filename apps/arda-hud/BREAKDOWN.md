@@ -16,7 +16,7 @@
 - `src/lib/settingsLayout.ts`, `src/lib/worldSurfaceSettings.ts`,
   `src/lib/boardroomSlotSettings.ts`, `src/lib/orderedProjection.ts`: layout/settings
 - `src/lib/ingest/`: parser/registry/types/sources for external data ingestion
-- `src/lib/endpointConfig.ts`, `src/lib/providerRouting.ts`, `src/lib/avatarPersona.ts`,
+- `src/lib/endpointConfig.ts`, `src/lib/avatarPersona.ts`,
   `src/lib/weathertop.ts`, `src/lib/configWalkthrough.ts`: endpoint/provider/auth config
 - `src/lib/statefulPersona.ts`: validated read-only consumer for canonical
   `persona.*` identity projections; static avatar persona helpers remain

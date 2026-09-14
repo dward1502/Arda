@@ -6,14 +6,14 @@ soterion:
   role: "documentation"
   owner: "prometheus"
   status: "active"
-  last_reviewed: "2026-08-02"
+  last_reviewed: "2026-08-21"
 crate: federated-comms
 owner: prometheus
 status: active
-reviewed: "2026-08-02"
+reviewed: "2026-08-21"
 ---
 
-> Arda Federated Comms: 📜 layered communications doctrine | owner: prometheus | status: active | reviewed: 2026-08-02
+> Arda Federated Comms: 📜 layered communications doctrine | owner: prometheus | status: active | reviewed: 2026-08-21
 
 # Federated Communications Architecture
 
@@ -26,7 +26,11 @@ Defines the layered communications doctrine above local sovereign control.
 ## Current Contract
 
 - local control plane remains Unix sockets and loopback
-- trusted device mesh remains Tailscale and internal HTTP/A2A/MCP
+- trusted network posture remains Tailscale with bounded local/remote probes
+- Hermes/Linux Foundation A2A is the cross-process/machine/framework agent wire; it carries Arda work-envelope references but does not mint Arda objectives, approvals, memory, placement, or completion
+- MCP is tool/resource invocation, not organism task, peer-identity, or node-health authority
+- Oromë owns normalized semantic work/handoff envelopes and transport receipts, not a proprietary peer network
+- engine/outpost contracts own enrolled compute-node identity and expiring observations; Hermes profiles/A2A Agent Cards own conversational peer identity
 - Matrix is the leading federated-room candidate
 - Element is the preferred federated client surface
 - Discord remains an optional adapter, not the doctrine anchor
@@ -48,6 +52,7 @@ Defines the layered communications doctrine above local sovereign control.
 
 ## References
 
+- Digital organism authority map: `docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md`
 - Doctrine: `docs/architecture/FEDERATED_COMMS.md`
 - Core runtime: `core/state/federated_comms.json`
 - Runtime state: `core/state/federated_comms_runtime.json`

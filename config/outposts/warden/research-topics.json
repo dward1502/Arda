@@ -2,6 +2,12 @@
   "schema_version": "arda.warden.research-topics.v1",
   "topics": [
     {
+      "id": "rust-engineering-standards",
+      "query": "canonical Rust engineering standards best practices and GitHub open source Rust agentic system tools",
+      "enabled": true,
+      "limit": 8
+    },
+    {
       "id": "agent-runtime-governance",
       "query": "Rust autonomous AI agent runtime governance observability new research",
       "enabled": true,

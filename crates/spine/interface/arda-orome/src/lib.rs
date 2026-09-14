@@ -4,6 +4,7 @@
 //!
 //! Merged surface: resident messaging + A2A/A2H protocol types.
 
+pub mod a2a_mesh;
 #[cfg(feature = "service-runtime")]
 pub mod agent;
 pub mod comm;
@@ -12,6 +13,7 @@ pub mod commercial;
 pub mod context_cache;
 #[cfg(feature = "service-runtime")]
 pub mod context_enrichment;
+pub mod context_handoff;
 #[cfg(feature = "service-runtime")]
 pub mod discord_health;
 #[cfg(feature = "service-runtime")]
@@ -38,14 +40,22 @@ pub mod registry;
 pub mod router;
 #[cfg(feature = "service-runtime")]
 pub mod service;
+pub mod surface_handoff;
 pub mod types;
 pub use comm::{
     A2HMessage, Attachment, AuthPayload, Channel as A2HChannel, ClarifyPayload, CommError,
     CommGovernanceMetadata, HumanResponse, MessageQueue, NotifyPayload, Priority, ResponseAction,
     StatusPayload,
 };
+pub use context_handoff::{
+    WorkerContextHandoffError, WorkerContextHandoffReceipt, WORKER_CONTEXT_HANDOFF_SCHEMA_VERSION,
+};
 pub use governance::GovernanceHooks;
 pub use message::{A2AMessage, A2AMessageType, Envelope};
+pub use surface_handoff::{
+    ConsentState, DataDomain, HandoffConsent, HandoffState, PrivacyClass, SurfaceHandoff,
+    SurfaceHandoffError, SURFACE_HANDOFF_SCHEMA_VERSION,
+};
 pub use types::{
     BoardroomManweRouteEvidence, BoardroomOracleLink, BoardroomPost, BoardroomQuorumDecision,
     BoardroomQuorumPacket, BoardroomTriadScores, CommsEvent, CommsEventRisk, CommsEventType,

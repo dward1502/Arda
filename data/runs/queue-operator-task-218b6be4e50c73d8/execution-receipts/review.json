@@ -1,0 +1,93 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2741793f9b08b6d0c841bd3140291c6b6c360662b6f175ce6e090b6883ac6395",
+  "idempotency_key": "queue-operator-task-218b6be4e50c73d8-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:6818d6d3855d807dba6cb0164e0413cd794b7f16d9416d8e682f9dac41a3140d"
+  ],
+  "project_contract_digest": "sha256:e899b1fa9303314a60b3c351a3a8db2ca4fc243f63ee8f075b201e699170d577",
+  "receipt_digest": "sha256:531d163e17125599feb939038876fddabcfd551aca2916bfce1967f6582984cc",
+  "recorded_at_unix_ms": 1788093394247,
+  "run_id": "queue-operator-task-218b6be4e50c73d8",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "The canonical receipt supports cargo test only. It does not provide durable verification evidence that acceptance.txt contains exactly arda-autonomous-loop-accepted followed by one newline; the unit test checks only acceptance_ready().",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":200,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9e8232959a9eb2e901cc224ba3754c61daf0d8cea2ea616f1521c1e77d8ae5a0",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project\",\"pattern\":\"acceptance.txt\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:be770e260c85f77fd961b82b45acb74d45e0fbcdbf7aa5f27db74cb568c2fe5a",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":20,\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project\",\"pattern\":\"Cargo.toml\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:def7acf441046185d12dccc7638e0ba77c2cf1ff212319979df39d7b7830a56d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7f3fe1dc0cec33dd59c545688d0e06f9e977d33d3a5265a7ab5e294d98e5f21c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:1dae453e8127360c647af7a0cbdc4663c93983910f4f3336fdfec00b53e9e656",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b53d5bfd6e8958af9a78a704490b944958fb518a908b7dbfa735c56ae3dbfab7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/Cargo.lock\"}",
+      "exit_code": null,
+      "output_digest": "sha256:553d4d4ff14d0fbc7ea6ed0af140dedc706790fa70cd5ee184fabf23c40f9241",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:27aa7a8a7413c83724a0e7a65c92e271b36a00584ab8c6a43cdd56de943d02e8",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project/.gitignore\"}",
+      "exit_code": null,
+      "output_digest": "sha256:601de88e661f6f97fcbd4a32348fc0b4e2c7b5a3ab8ddeb086b9fb72e3565306",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":2,\"limit\":50,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-autonomous-acceptance-project\",\"pattern\":\"acceptance_ready|arda-autonomous-loop-accepted\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:09c764abaf03242cb23402b1609e6f53e861bc55c13f146f45a648b5b588dd38",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 15754,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2722,
+    "provider": "openai-codex",
+    "total_tokens": 18476
+  }
+}

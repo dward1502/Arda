@@ -1,6 +1,10 @@
 // sigil: REPAIR
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getStoredWorkstationState, syncWorkstationState, windowManager } from './multiWindow'
+import {
+  getStoredWorkstationState,
+  syncWorkstationState,
+  windowManager,
+} from './multiWindow'
 import { safeTauriInvoke } from '../lib/tauriGuard'
 
 vi.mock('@tauri-apps/api/event', () => ({
@@ -18,6 +22,7 @@ afterEach(() => {
     Object.defineProperty(window, 'localStorage', localStorageDescriptor)
   }
   window.localStorage.clear()
+  vi.clearAllMocks()
 })
 
 describe('multiWindow workstation storage bridge', () => {

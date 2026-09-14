@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c3949819afaf4e79b3b9f6507602024d",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-296ca07a057e05a5 for task operator-task-296ca07a057e05a5 ended status=completed result=completed; receipt=sha256:e9eec0e5322ada6914018bb537f64a1ec2b2e8ba5de56f87abe6caa0cf609438; detail=No concrete defects, unsupported completion claims, or security/privacy issues found. The canonical verification receipt covers cargo test with exit code 0, 1 test passed, and 0 failed; independent read-only inspection confirmed acceptance.txt contains exactly arda-autonomous-loop-accepted-b and the implementation includes the passing acceptance test. No files were modified and no declared checks were rerun.",
+  "salience": 0.731375,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-30T12:57:01.071002814Z",
+  "last_seen_at": "2026-08-30T12:57:01.071002814Z",
+  "memory_scope": "system_continuity",
+  "evidence_class": "inferred",
+  "memory_domain": "system"
+}

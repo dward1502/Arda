@@ -1,0 +1,117 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:e62b5b051c81843f3402859a5aab63c7a018462c926379ef73bf649ac3be4b6d",
+  "idempotency_key": "queue-operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:approve-ece66b43b22d436ead903b2184393739"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:f47c35b33a97b5ab3f866cb873a5f5e0577fded677c8db80594d0e834f4950a0",
+  "recorded_at_unix_ms": 1788244634898,
+  "run_id": "queue-operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Authoritative context recovered read-only. Prioritized repair backlog: P0 — Complete the currently materialized shared-objective, two-project acceptance graph. Evidence: data/workbench/projects.json:448-583 registers the reviewed read-only projects arda-human-reviewed and arda-tool-gate-reviewed; core/projects/tasks/queue.jsonl:40222-40229 materializes recover-context, two project-bound inspections, synthesis, outcome, verification, and joined dependencies under one objective; docs/plans/autonomous-task-completion/04-real-multi-project-execution.md:14-37 says reviewed real projects, shared-objective decomposition, and joined close remain open. Implementation truth: project binding, dependency leaves, provider-backed execution, and disposable-project overlap exist. Configuration truth: the reviewed project contracts are attached with exact roots and clean-tree checks. Live-proof gap: both reviewed projects must be inspected by project-bound read-only workers, independently criticized, and joined under one closure receipt without modifying either worktree. Human-visible behavior: one objective reports evidence for both real projects and closes only when both contracts pass. Smallest authoritative surface: existing data/workbench/projects.json contracts, Engine/Workbench run graph, canonical queue ledger, and objective join logic; create no new queue or coordinator. P1 — Prove one same-objective deferred or recurring wake across restart. Evidence: docs/plans/autonomous-task-completion/README.md:34 and docs/plans/autonomous-task-completion/02-installed-scheduling-restart.md:14-45 identify this as the remaining scheduling gate. Implementation truth: timer execution, pause and terminal suppression, forced restart, verification/review continuation, and unattended correction are proven. Configuration truth: the installed user-systemd scheduler and binary/source identity must be current. Live-proof gap: a canonical deferred or recurring schedule must wake after restart and reach terminal acceptance exactly once. Human-visible behavior: work resumes at its displayed wake time without another instruction and cannot wake after pause, cancellation, or closure. Smallest authoritative surface: core/projects/tasks/schedules.jsonl, the installed timer consumer, RunStore checkpoints, and existing continuation policy. P2 — Bind live Vairë context use and obtain operator acceptance. Evidence: docs/plans/autonomous-task-completion/README.md:37,64-78 and docs/plans/autonomous-task-completion/05-vaire-operator-acceptance.md:14-49 say terminal outcome memory exists but pre-execution context-use, new-session recovery, and the burden verdict remain open. Implementation truth: durable Mnemosyne terminal outcome binding exists. Configuration truth: authorized personal/business/system retrieval scopes must be selected explicitly. Live-proof gap: record a Vairë context-use receipt before execution, recover it in a new Hermes session, and obtain the operator verdict. Human-visible behavior: the operator can return later and receive accurate prior context, current state, and next action without restating the objective. Smallest authoritative surface: Vairë retrieval/context-use receipts, existing Hermes objective projection, and terminal outcome binding. P3 — Close the genuine messaging-platform objective-control gate. Evidence: docs/plans/autonomous-task-completion/01-hermes-objective-control.md:14-55 reports installed loopback control acceptance but leaves a real external-platform receipt open. Implementation truth: intake, projection reads, pause/resume, reprioritization, revision, approval, cancellation, and terminal suppression exist. Configuration truth: a gateway-connected messaging route must be admitted and authenticated. Live-proof gap: exercise the controls through one genuine delivered message and bind the command receipt to canonical records. Human-visible behavior: conversational status and controls operate without IDs or ledger editing. Smallest authoritative surface: Hermes bridge consumption of OperatorProjection plus existing Aulë mutation owners. P4 — Repair active status drift before using documentation as planning evidence. Evidence: ARDA_SYSTEM_STATUS_REPORT.md:47 already states full verify/review/close proof, contradicting docs/audits/2026-08-26-operator-vision-repair-backlog.md:47,162-168, which says the report omits it; ARDA_SYSTEM_STATUS_REPORT.md:48 says the registry has three proof/demo contracts, while data/workbench/projects.json:198-583 contains acceptance, real-project, and reviewed-project contracts beyond the first three. Implementation truth: these are documentation defects, not missing executor features. Configuration truth: the live registry currently contains nine contracts, including two reviewed read-only real-project contracts. Live-proof gap: registry presence does not itself prove successful shared-objective joined execution. Human-visible behavior: status surfaces distinguish implemented, configured/registered, and live-proven capability without stale counts or contradictory maturity claims. Smallest authoritative surface: ARDA_SYSTEM_STATUS_REPORT.md and docs/audits/2026-08-26-operator-vision-repair-backlog.md, derived from the structured program and canonical registry; generated queue projections remain untouched. P5 — After P0-P4, run the single program acceptance objective defined at docs/plans/autonomous-task-completion/README.md:64-78, then proceed to provider convergence, connected-project fabric, daily improvement, external assimilation, and whole-system acceptance in docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:49-97. Milestone 3 needs no repair: docs/plans/autonomous-task-completion/03-live-critic-revision.md:14-40 records completed live rejection, durable revision, corrected execution, and independent acceptance. No project files were modified and the verifier-owned cargo test was intentionally not run.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:fd2799447d05edf42fdd2a0397778b34f18533b8eb87e48144a4fb6d99609b79",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:a10908395c3d7b730e6fc1e5b10fa5a1b06c458bc69dacfe736659a6a0d8d8d2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":300,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"context\":1,\"file_glob\":\"queue.jsonl\",\"limit\":20,\"offset\":0,\"output_mode\":\"content\",\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks\",\"pattern\":\"queue-operator-task-9162d70462cc17b6__recover-context--54d10d804e52f878|operator-task-9162d70462cc17b6\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f6cba7bba0722d6d35929e174f1f3545a52a02140291800fc195b19c6961691f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/01-hermes-objective-control.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e2e701c8d6051c544468bfd93db675c541e695415c995f72111b5f88f97aea94",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/02-installed-scheduling-restart.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:c0840493cdaf2a9df9ee5d5f9a0b312de66a9db444ec0a410678f773bb9b434a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/03-live-critic-revision.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ead414beb69f12f458be94c21a9dafa91133a6bbfe8a9f49b9c9bbcdd9352c5c",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/04-real-multi-project-execution.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e3b48ddee70b43414d59d27dacd6152a701b6b4bf297f25ed9d9f7e96706316e",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":500,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/autonomous-task-completion/05-vaire-operator-acceptance.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:beda8de3fc6239c334bd186845b90ddd9ebbd9f7aa070eed75fe9d824854647f",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 63600,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2430,
+    "provider": "openai-codex",
+    "total_tokens": 66030
+  }
+}

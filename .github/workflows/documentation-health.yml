@@ -5,15 +5,15 @@ on:
     paths:
       - "docs/plans/**"
       - "docs/DEVELOPMENT.md"
-      - "scripts/hades_markdown_link_check.py"
-      - "tests/test_hades_markdown_link_check.py"
+      - "scripts/rumil_markdown_link_check.py"
+      - "tests/test_rumil_markdown_link_check.py"
       - ".github/workflows/documentation-health.yml"
   push:
     paths:
       - "docs/plans/**"
       - "docs/DEVELOPMENT.md"
-      - "scripts/hades_markdown_link_check.py"
-      - "tests/test_hades_markdown_link_check.py"
+      - "scripts/rumil_markdown_link_check.py"
+      - "tests/test_rumil_markdown_link_check.py"
       - ".github/workflows/documentation-health.yml"
 
 permissions:
@@ -26,12 +26,12 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Run HADES Markdown checker tests
-        run: python -m unittest tests.test_hades_markdown_link_check -v
+      - name: Run Rúmil Markdown checker tests
+        run: python -m unittest tests.test_rumil_markdown_link_check -v
 
       - name: Validate active-plan links and completion language
         run: |
-          python scripts/hades_markdown_link_check.py \
+          python scripts/rumil_markdown_link_check.py \
             --root docs/plans \
             --out /tmp/arda-doc-health.md \
             --check-completion-language

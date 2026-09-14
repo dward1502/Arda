@@ -23,7 +23,7 @@ describe('first-level terminal contracts', () => {
       'edge_guardhouse',
       'policy_authority',
     ])).toEqual({
-      moduleIds: ['governance_controls', 'section_focus'],
+      moduleIds: ['governance_controls'],
       rejectedPanelIds: [],
       adapted: true,
     })
@@ -32,7 +32,7 @@ describe('first-level terminal contracts', () => {
       'human_notes',
       'business_ops',
       'personal_growth',
-    ]).moduleIds).toEqual(['human_realm', 'business'])
+    ]).moduleIds).toEqual(['human_realm'])
   })
 
   it('reports unknown source panel labels instead of silently creating an empty workstation', () => {
@@ -41,5 +41,13 @@ describe('first-level terminal contracts', () => {
       rejectedPanelIds: ['unknown_panel'],
       adapted: false,
     })
+  })
+
+  it('keeps personal operations reachable from the personal growth workstation', () => {
+    expect(resolveWorkstationProfile('personal_growth', [
+      'personal_growth',
+      'human_notes',
+      'boardroom',
+    ]).moduleIds).toEqual(['personal_operations', 'personal_growth'])
   })
 })

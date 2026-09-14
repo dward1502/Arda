@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d7f1bbe1f82042258cb09f11b4240218",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-2d67eac585a9b02b for task operator-task-2d67eac585a9b02b ended status=failed result=cancelled; receipt=none; detail=--reason Superseded after installed evidence proved multi-project orchestration leaves were incorrectly bound to the first project root",
+  "salience": 0.5017249999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-01T01:41:35.525766726Z",
+  "last_seen_at": "2026-09-01T01:41:35.525766726Z",
+  "memory_scope": "system_continuity",
+  "memory_domain": "system",
+  "evidence_class": "inferred"
+}

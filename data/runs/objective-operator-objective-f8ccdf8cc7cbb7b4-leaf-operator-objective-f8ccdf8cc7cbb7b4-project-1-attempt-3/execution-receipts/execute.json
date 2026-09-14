@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:350f89e3231a2bcd53d30055576016ff612548e9eafcdb9a11a4f505f58ec20d",
+  "idempotency_key": "queue-operator-objective-f8ccdf8cc7cbb7b4-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:4ac27fc5d73d7f094bf6413449fcf1544ce8999e26fceeeabf9ee277638057c8"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:3f474164b33a625b0b4d9db55b492d18bcb22eb37411f54a0da848d5d9963666",
+  "recorded_at_unix_ms": 1788406139740,
+  "run_id": "objective-operator-objective-f8ccdf8cc7cbb7b4-leaf-operator-objective-f8ccdf8cc7cbb7b4-project-1-attempt-3",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Integration brief — annunimas-human tenant: a private/local human-knowledge interface that scans Obsidian-compatible Markdown vaults, parses metadata and wikilinks, and translates notes into Annunimas memory records (src/lib.rs:1-4, src/lib.rs:37-42, src/lib.rs:106-129). Upstream Annunimas: the source platform from which this tenant was copied and which currently supplies its core memory contracts and Mnemosyne integration through direct path dependencies (docs/migration-notes.md:1-10, Cargo.toml:12-14). Shared autonomous-agent safety boundary: agents must distinguish raw, generated, human, governance, and runtime authority; only canonical material is safe for reliance; unresolved conflicts require review rather than guessing; and agents may not silently promote, overwrite, move, or delete human knowledge (docs/human-knowledge-ingestion-contract.md:21-25, docs/human-knowledge-ingestion-contract.md:49-69, docs/human-knowledge-ingestion-contract.md:96-113, docs/human-knowledge-ingestion-contract.md:145-152). Recommendation: implement the planned tenant-facing memory contract, replace direct Annunimas path dependencies with that boundary, then remove the duplicate upstream workspace member after compatibility verification (docs/migration-notes.md:9-10). Tenant risk: MemoryStore::store serializes each record but discards it, so scans appear successful without durable persistence (src/lib.rs:56-89). Upstream Annunimas risk: the direct path dependencies and retained workspace copy create tight coupling and compatibility-drift risk across the migration seam (Cargo.toml:13-14, docs/migration-notes.md:9-10). Declared clean-tree check passed exactly as specified; no files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 10,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12325,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1458,
+    "provider": "openai-codex",
+    "total_tokens": 13783
+  }
+}

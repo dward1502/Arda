@@ -22,7 +22,7 @@ thiserror = { workspace = true }
 sha2 = "0.10"
 libc = "0.2"
 reqwest = { workspace = true, features = ["blocking"] }
-arda-aule = { workspace = true }
+arda-aule = { workspace = true, features = ["full-cli"] }
 arda-outpost-protocol = { workspace = true }
 arda-mandos = { workspace = true }
 arda-rumil = { workspace = true }
@@ -32,6 +32,9 @@ async-stream = "0.3"
 futures-core = "0.3"
 chrono = { workspace = true }
 uuid = { workspace = true }
+fs2 = { workspace = true }
+futures = { workspace = true }
+rusqlite.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true }
@@ -39,5 +42,5 @@ tracing-subscriber = { workspace = true }
 reqwest = { workspace = true }
 axum = "=0.7.9"
 serde_json = { workspace = true }
-tempfile = { workspace = true }
+tempfile.workspace = true
 uuid = { workspace = true }

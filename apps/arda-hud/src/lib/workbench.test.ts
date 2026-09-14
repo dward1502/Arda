@@ -25,7 +25,7 @@ describe('Workbench intent boundary', () => {
     expect(invoke).toHaveBeenCalledWith('plan_workbench_run', {
       request: {
         project_id: 'project-1',
-        objective: { text: 'Apply one bounded change', input_mode: 'text' },
+        objective: { text: 'Apply one bounded change', inputMode: 'text' },
         intent: { approvalReference: 'approval-1' },
       },
     })

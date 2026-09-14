@@ -1,6 +1,6 @@
 schema_version = "arda.autonomy_operating_loop.v1"
-project_id = "annunimas"
-status = "active_draft"
+project_id = "arda"
+status = "active"
 owner = "prometheus_hades_chronos"
 
 [canonical]
@@ -12,7 +12,7 @@ contract_doc = "docs/contracts/autonomous-operating-loop-contract.md"
 rule = "the loop is the portable policy/config spine; ceo-autopilot remains the orchestration and execution engine"
 
 [loop]
-mode = "continuous_preflight"
+mode = "continuous_execution"
 cadence = "every_10_minutes"
 default_mutation_policy = "no_mutation_without_policy_gate"
 confirm_after_execute = true
@@ -211,7 +211,7 @@ default_policy = "receipt_backed_confirmation_only"
 
 [[sovereign_crates]]
 id = "governance"
-crate = "annunimas-governance"
+crate = "arda-governance"
 role = "policy primitives, action classes, readiness labels, triad and resonance context"
 loop_stages = ["assess", "deliberate", "plan", "task", "audit", "review", "replan"]
 consumes = ["task_intent", "plan_scope", "council_synthesis", "oracle_verdict", "hades_findings", "plutus_budget"]
@@ -221,7 +221,7 @@ status = "contract_required"
 
 [[sovereign_crates]]
 id = "oracle"
-crate = "annunimas-oracle"
+crate = "arda-oracle"
 role = "validation engine for claims, evidence, plan quality, reviews, and confirmation language"
 loop_stages = ["assess", "deliberate", "plan", "audit", "review", "confirm"]
 consumes = ["source_digest", "plan", "task_packet", "council_questions", "hades_findings", "execution_receipts"]
@@ -231,7 +231,7 @@ status = "active_prototype"
 
 [[sovereign_crates]]
 id = "plutus"
-crate = "annunimas-plutus"
+crate = "arda-economics"
 role = "JouleWork accounting, budget pressure, economic constraints, and cost receipts"
 loop_stages = ["assess", "plan", "task", "execute", "audit", "review"]
 consumes = ["objective", "task_estimate", "route_decision", "runtime_usage", "execution_receipts"]
@@ -250,7 +250,7 @@ status = "prometheus_cea_autopilot_only"
 
 [[sovereign_crates]]
 id = "human"
-crate = "annunimas-human"
+crate = "arda-human"
 role = "human knowledge interface, approval lane, vault bridge, and operator decision authority"
 loop_stages = ["info", "ingest", "deliberate", "plan", "task", "review", "confirm"]
 consumes = ["human_notes", "approval_requests", "knowledge_exports", "critical_decision_packets"]
@@ -260,7 +260,7 @@ status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "annunimas-council"
+crate = "arda-council"
 role = "multi-agent deliberation, objections, synthesis, and escalation recommendation"
 loop_stages = ["deliberate", "assess", "plan", "review", "replan"]
 consumes = ["source_digest", "agent_questions", "hades_findings", "oracle_verdict", "governance_context"]

@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:fa328ff08400a902ce222adc6a8e6932731c2b4f7e4841bf98a749421406bd10",
+  "idempotency_key": "queue-operator-objective-968cd6b44e8a2921-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:e48a5e5c80a318713dac3801082f943299c16d78ded3bc68d72b9814b74e9ae9"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:83806b60bbafc8486127d08dde7e0f9569e273f7cdf4ed19cbc80a4a2485900e",
+  "recorded_at_unix_ms": 1788413039453,
+  "run_id": "objective-operator-objective-968cd6b44e8a2921-leaf-operator-objective-968cd6b44e8a2921-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project-local result. Declared clean-tree check `git diff --exit-code HEAD --` passed with exit code 0; no files were changed or created.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 6467,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 248,
+    "provider": "openai-codex",
+    "total_tokens": 6715
+  }
+}

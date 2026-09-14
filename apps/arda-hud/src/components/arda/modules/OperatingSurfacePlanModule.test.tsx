@@ -321,6 +321,6 @@ describe('OperatingSurfacePlanModule', () => {
     expect(within(refreshFlow).queryByRole('button', { name: 'Run Promote Policy-Ready Knowledge' })).toBeNull()
 
     fireEvent.click(within(refreshFlow).getByRole('button', { name: 'Run Refresh Provider Intelligence' }))
-    expect(onRunRefreshAction).toHaveBeenCalledWith('arda.manwe_refresh_provider_intelligence')
+    expect(onRunRefreshAction).toHaveBeenCalledWith('charon.refresh_provider_intelligence')
   })
 })

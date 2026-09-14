@@ -8,6 +8,7 @@ export type ModuleId =
   | 'executive_overview'
   | 'operating_surface'
   | 'personal_operations'
+  | 'research'
   | 'section_focus'
   | 'human_realm'
   | 'systems'

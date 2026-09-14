@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_8e0ac6f27d1f4cba946f9ea620bd889d",
+  "kind": "episodic",
+  "agent": "arda-aule",
+  "content": "Governed Workbench run queue-operator-task-218b6be4e50c73d8 for task operator-task-218b6be4e50c73d8 ended status=failed result=failed; receipt=sha256:531d163e17125599feb939038876fddabcfd551aca2916bfce1967f6582984cc; detail=The canonical receipt supports cargo test only. It does not provide durable verification evidence that acceptance.txt contains exactly arda-autonomous-loop-accepted followed by one newline; the unit test checks only acceptance_ready().",
+  "salience": 0.741725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-08-30T12:36:34.343475932Z",
+  "last_seen_at": "2026-08-30T12:36:34.343475932Z",
+  "evidence_class": "inferred",
+  "memory_domain": "system",
+  "memory_scope": "system_continuity"
+}

@@ -1,14 +1,17 @@
 // sigil: REPAIR
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { getBoardroomSpatialZone } from './boardroomSpatialLayout'
 import {
+  BOARDROOM_COMMAND_CORE_CONTROL_BANKS,
   BOARDROOM_PHYSICAL_CONTROL_ACTIONS,
   deriveBoardroomPhysicalControlState,
+  dispatchBoardroomCommandCoreControl,
+  getBoardroomPhysicalControlAction,
   resolveBoardroomPhysicalControlInteraction,
 } from './boardroomPhysicalControls'
 
 describe('boardroom expanded physical controls', () => {
-  it('types every rendered command-core and tray control with authority and verification metadata', () => {
+  it('types every command-core control and retained health signal with authority and verification metadata', () => {
     expect(BOARDROOM_PHYSICAL_CONTROL_ACTIONS.map((action) => action.id)).toEqual([
       'service_health_status',
       'open_settings',
@@ -20,14 +23,24 @@ describe('boardroom expanded physical controls', () => {
       'open_route_selector',
       'enter_world',
     ])
+    expect(BOARDROOM_COMMAND_CORE_CONTROL_BANKS).toEqual({
+      command: ['open_approval_queue', 'open_emergency_stop', 'open_route_selector', 'enter_world'],
+      utility: ['open_settings', 'open_hermes_cli', 'open_hermes_dashboard'],
+    })
     expect(BOARDROOM_PHYSICAL_CONTROL_ACTIONS).toContainEqual(expect.objectContaining({
-      id: 'service_health_status',
-      zoneId: 'boardroom.button.service_health',
-      label: 'Service Health',
-      shortLabel: 'HEALTH',
-      authority: 'read_only',
-      targetZoneId: 'fleet_and_backbone',
-      verificationPath: 'fleetViewModel.status',
+      id: 'open_settings',
+      zoneId: 'boardroom.control.center.settings',
+      shortLabel: 'SETTINGS',
+    }))
+    expect(BOARDROOM_PHYSICAL_CONTROL_ACTIONS).toContainEqual(expect.objectContaining({
+      id: 'open_hermes_cli',
+      zoneId: 'boardroom.control.center.terminal',
+      shortLabel: 'TERMINAL',
+    }))
+    expect(BOARDROOM_PHYSICAL_CONTROL_ACTIONS).toContainEqual(expect.objectContaining({
+      id: 'open_hermes_dashboard',
+      zoneId: 'boardroom.control.center.hermes',
+      shortLabel: 'HERMES',
     }))
     for (const action of BOARDROOM_PHYSICAL_CONTROL_ACTIONS) {
       expect(action.authority).toMatch(/^(read_only|operator_confirmed|approval_required)$/)
@@ -35,11 +48,12 @@ describe('boardroom expanded physical controls', () => {
       expect(action.targetZoneId.length).toBeGreaterThan(0)
     }
 
-    expect(getBoardroomSpatialZone('boardroom.button.service_health')).toMatchObject({
-      kind: 'physical_button',
-      interaction: 'open_workstation',
-      binding: 'fleet_and_backbone',
+    expect(getBoardroomPhysicalControlAction('service_health_status')).toMatchObject({
+      zoneId: 'boardroom.control.center.health',
+      authority: 'read_only',
+      targetZoneId: 'fleet_and_backbone',
     })
+    expect(getBoardroomSpatialZone('boardroom.button.service_health')).toBeNull()
   })
 
   it('keeps stop/cancel approval-gated and all non-source controls actionable', () => {
@@ -105,14 +119,29 @@ describe('boardroom expanded physical controls', () => {
     })
   })
 
-  it('keeps the health control compact and adjacent to the other embedded controls', () => {
-    const health = getBoardroomSpatialZone('boardroom.button.service_health')!
-    const settings = getBoardroomSpatialZone('boardroom.button.settings')!
-    const healthRightEdge = health.position[0] + health.size[0] / 2
-    const settingsLeftEdge = settings.position[0] - settings.size[0] / 2
+  it('retires the detached control-row zones after moving utilities to the command core', () => {
+    expect(getBoardroomSpatialZone('boardroom.button.service_health')).toBeNull()
+    expect(getBoardroomSpatialZone('boardroom.button.settings')).toBeNull()
+    expect(getBoardroomSpatialZone('boardroom.button.hermes_cli')).toBeNull()
+    expect(getBoardroomSpatialZone('boardroom.button.hermes')).toBeNull()
+  })
 
-    expect(settingsLeftEdge).toBeGreaterThan(healthRightEdge)
-    expect(settings.position[0] - health.position[0]).toBeLessThan(0.5)
-    expect(health.size).toEqual([0.14, 0.045, 0.16])
+  it.each([
+    ['open_settings', 'onOpenSettings'],
+    ['open_hermes_cli', 'onOpenHermesCli'],
+    ['open_hermes_dashboard', 'onOpenHermesDashboard'],
+  ] as const)('dispatches the relocated %s callback exactly once', (actionId, expectedHandler) => {
+    const handlers = {
+      onOpenSettings: vi.fn(),
+      onOpenHermesCli: vi.fn(),
+      onOpenHermesDashboard: vi.fn(),
+      onEnterWorld: vi.fn(),
+      onOpenWorkstation: vi.fn(),
+    }
+
+    dispatchBoardroomCommandCoreControl(getBoardroomPhysicalControlAction(actionId), handlers)
+
+    expect(handlers[expectedHandler]).toHaveBeenCalledOnce()
+    expect(Object.values(handlers).reduce((count, handler) => count + handler.mock.calls.length, 0)).toBe(1)
   })
 })

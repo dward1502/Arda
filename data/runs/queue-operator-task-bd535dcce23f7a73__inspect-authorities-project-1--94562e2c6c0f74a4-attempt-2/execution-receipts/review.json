@@ -1,0 +1,117 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:a547708d7b388a5792b0066d1955def34b1bc9727922d42af03dc758e5a46761",
+  "idempotency_key": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:0ff347288265dc8244b1b147dbd42a4f42931538237e5f2cc6f20166813121ad"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:6e9a964bd52f1947f00f4d881442917c6d607e881b3424edf43d4f863b5ab7bf",
+  "recorded_at_unix_ms": 1788250083450,
+  "run_id": "queue-operator-task-bd535dcce23f7a73__inspect-authorities-project-1--94562e2c6c0f74a4-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Independent review found unsupported completion and concrete defects. The execute projection contains only an output digest and read-call receipts, not the worker’s reported findings, authority classification, or objective-lineage output, so completion of the source_evidence objective cannot be independently established. The prior verification receipt does cover `git status --short --branch` with exit code 0 and an authenticated output digest; clean-tree is separately recorded as passed. Source defects: `src/lib.rs:184-192` permits absolute paths and `../` traversal in slash-containing wikilinks, allowing resolved backlinks outside the private vault; `src/lib.rs:107-125` ingests every Markdown file without enforcing the documented authority, status, privacy, review, or quarantine rules; `src/lib.rs:56-89` claims to store memory but only serializes and discards the record, providing no durable storage. Tests cover basic link resolution and missing vaults but not vault confinement or ingestion-policy enforcement. No files were modified and no declared checks were rerun.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8370d86f7adb6062365c8f59f58e6876c018ebb85d27e15b085ee00435b18339",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":260,\"offset\":1,\"path\":\"docs/human-knowledge-ingestion-contract.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f727a41f0438583102f8d209a72615ce134d69f460b7525f3648e232f0afac53",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":320,\"offset\":1,\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:68031bc00911495ff0108feda1505627462d75c1558de09d127ba0694cf565ba",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":180,\"offset\":1,\"path\":\"tests/target_local.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ab0b42703697e2995af0fac7ca237f7810ab9d1ac2aa974bf61b75fca28027dd",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"docs/migration-notes.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f67b9c5659422fe29e56b51a72f627b0de14d72923fc435a08204c197b921f04",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"Cargo.toml\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f4d611e4778722288869f065494a805f271db34bdf26cf8857cbbd413b6db921",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\".\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:d14c11f6e2985d324da285295709870bea95ce8535612139967a52e511c015d0",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":2,\"file_glob\":\"*.rs\",\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"authority|canonical|quarantine|privacy|review_required|human_knowledge\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:633946440793d831a203118dd7c2c58d05dd6a5efc4027b049d5974724489360",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"context\":1,\"limit\":100,\"output_mode\":\"content\",\"path\":\".\",\"pattern\":\"b22c0000-e29b-41d4-a716-446655440002|authority|project-bound|source evidence\",\"target\":\"content\"}",
+      "exit_code": null,
+      "output_digest": "sha256:8e556796cc46bbd073c83658b1356c07096e185bb7b8902e69d6b3e82e94e214",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"tests/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:2e3224cb6a189b92e96bc08d903516b5deebcd6095c063404918c4c22b123ec2",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"fixtures/vault-basic/Main.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:eae6aef9fdb063ff4b71fe4dd469648a9cf30106552d33ef19df4af6202d0c74",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"fixtures/vault-basic/Known.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:69c118e182d8ead13c6e04f324e47806c0df7b3a54a6473bc25a2bd40c6e6c56",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":160,\"offset\":1,\"path\":\"INDEX.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:9f8c2069b0b18f32e2f3bcf9f751192ca259dc27a86f4f3c00914c708541b919",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":120,\"offset\":1,\"path\":\"src/README.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e7e68890b8a5be51f9a58aaf65ce02e86102d332f3fb9ce0ced874aa226a112b",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 11668,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1432,
+    "provider": "openai-codex",
+    "total_tokens": 13100
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:0d5bd154acd41c9feada8c9393ab9f17be5ece9222cddafdaf2e5ad9aef3cd91",
+    "summary": "Read-only review completed. Named defects: (1) src/lib.rs:56-88 does not persist memory; MemoryStore::store only serializes a MemoryRecord into a discarded local value, contradicting the persistent-memory interface claim. (2) src/lib.rs:13-25 is incompatible with docs/human-knowledge-ingestion-contract.md:71-93: contract-compliant notes use textual confidence and fields such as authority/privacy, while the parser requires numeric confidence plus legacy tags/source/related/references fields, so compliant notes fail deserialization and governance metadata is ignored. (3) src/lib.rs:107-125 scans and attempts to ingest every Markdown file without enforcing classification, authority, status, privacy, quarantine, or review requirements, contrary to the ingestion contract's private-by-default and pre-reliance classification rules. (4) src/lib.rs:184-192 allows absolute and parent-directory wikilinks to resolve outside the vault; existing external paths can be exposed through HumanNote.backlinks. (5) src/lib.rs:110-114 silently discards WalkDir errors, allowing incomplete scans to be reported as successful. (6) src/lib.rs:167-180 labels outbound links found in the current note as backlinks, reversing the conventional and documented field meaning. Tests cover only legacy frontmatter, a simple same-directory link, and a nonexistent vault; they do not cover persistence, contract-compliant metadata, privacy/governance enforcement, traversal containment, or traversal errors. The parent receipt supports only that the tree was clean; it provides no behavioral verification. No project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

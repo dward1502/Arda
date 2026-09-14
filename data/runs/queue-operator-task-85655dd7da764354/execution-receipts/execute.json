@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:71b5952686ea21aa87fd7219a42009df8c9bda7f1230b121b419234bad510ab7",
+  "idempotency_key": "queue-operator-task-85655dd7da764354-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:approve-live-multi-project-bounded-2026-08-31T040038.4217790000"
+  ],
+  "project_contract_digest": "sha256:9774039305b6e8910d79de4365c53daf25f2eb9bddacc6264d0508693939984f",
+  "receipt_digest": "sha256:f02e1655677b929c5a275a17adfa909a2a3a30a34b371544ba221bbab97d92a6",
+  "recorded_at_unix_ms": 1788148948307,
+  "run_id": "queue-operator-task-85655dd7da764354",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Declared check failed because Cargo treated the package as an unregistered member of the parent workspace; no files were changed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -- --test-threads=1",
+      "exit_code": 101,
+      "output_digest": "sha256:b273d0f5345124dc35cdf9a8ef167a86895a980992e325c79b24008b6c3d5919",
+      "status": "failed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -- --test-threads=1",
+      "exit_code": 101,
+      "output_digest": "sha256:b273d0f5345124dc35cdf9a8ef167a86895a980992e325c79b24008b6c3d5919",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5056,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 637,
+    "provider": "openai-codex",
+    "total_tokens": 5693
+  }
+}

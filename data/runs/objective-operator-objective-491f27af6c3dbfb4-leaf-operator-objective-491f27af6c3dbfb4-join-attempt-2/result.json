@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:5d8f76e8dcc52347bce51a2a2cefbb531412ac5b2038c60e7e91939921abdd78",
+    "summary": "Review does not approve the joined result. Defect 1: the supplied verification receipt substantiates only a clean tree for a stated “sole project leaf”; it provides no implementation, test, or artifact evidence that the full two-leaf joined objective was satisfied. Defect 2: the two dependency close receipts contain only generic closure summaries and use different project-contract digests, while the review capsule identifies only the first digest; the second leaf’s governed scope and result cannot be validated. Defect 3: the inspected implementation contradicts its ingestion contract: scan_vault serializes every Markdown note as semantic memory without classifying authority, privacy, status, review requirements, provenance, or conflicts, and MemoryStore::store discards the serialized record rather than persisting it (src/lib.rs:56-88,107-125; docs/human-knowledge-ingestion-contract.md:23-25,71-93,96-123,145-173). Defect 4: the durable evidence includes no behavioral check for these ingestion and persistence requirements; clean-tree evidence proves only absence of project changes, not objective correctness. No declared checks were rerun and no files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

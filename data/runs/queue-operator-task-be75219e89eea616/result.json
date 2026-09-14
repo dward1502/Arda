@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:1032ffd7983afb801999aaa2b555090e8568288ca1b23c4afb4e0f3ac9cae703",
+    "summary": "No concrete defect, unsupported completion claim, or security issue found. The canonical verification receipt covers cargo test with exit_code 0; independent read-only inspection confirmed acceptance_ready() returns true, its unit test asserts readiness, and acceptance.txt contains arda-autonomous-loop-accepted."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:093f184aa37d63ce2fc04c7ddf5ac26ff2a6e24c8a494d7bc30cf11a7b5eb556",
+      "duration_ms": null,
+      "name": "cargo test",
+      "status": "passed"
+    }
+  ]
+}

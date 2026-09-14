@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:500cdcc0692a113c9717765cd2f7ab98b197e8f69f6a5b47e24d0268e4cee276",
+  "idempotency_key": "queue-operator-objective-968cd6b44e8a2921-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:0ce0e6e7e73b8a2326dcf4fe5b1d61e439170885a7d9c2593b7c202757935a22"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:87fc8590c8648cbee97749d090d39ed35a5734a16264f2bffb6b36bf3b568e2a",
+  "recorded_at_unix_ms": 1788413082609,
+  "run_id": "objective-operator-objective-968cd6b44e8a2921-leaf-operator-objective-968cd6b44e8a2921-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Independent verification succeeded. The declared clean-tree check passed, formatting and Clippy passed with warnings denied, all 5 integration tests and doc tests passed, documentation generated successfully, and the final worktree status was clean.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test && cargo doc --no-deps",
+      "exit_code": 0,
+      "output_digest": "sha256:d59e956a260f691a4933b1dc789f091cadadf91b9c593b1b0321e9b908af958f",
+      "tool": "terminal"
+    },
+    {
+      "action": "git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 4,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12039,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 525,
+    "provider": "openai-codex",
+    "total_tokens": 12564
+  }
+}

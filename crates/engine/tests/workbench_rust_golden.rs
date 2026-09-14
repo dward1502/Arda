@@ -226,7 +226,7 @@ cancellation_grace_ms = 100
 max_turns = 8
 max_prompt_bytes = 32768
 max_output_bytes = 65536
-inherit_environment = ["PATH", "ARDA_GOLDEN_TRANSCRIPT", "ARDA_GOLDEN_ATTEMPT", "ARDA_GOLDEN_MUTATION_COUNT"]
+inherit_environment = ["PATH", "HERMES_HOME", "ARDA_GOLDEN_TRANSCRIPT", "ARDA_GOLDEN_ATTEMPT", "ARDA_GOLDEN_MUTATION_COUNT"]
 
 [toolsets]
 read_only = ["file"]
@@ -307,19 +307,22 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
     permissions.set_mode(0o700);
     fs::set_permissions(&executable, permissions).unwrap();
     let config_path = write_adapter_config(temp.path(), &executable);
+    let worker_state = temp.path().join("worker-state");
+    fs::create_dir(&worker_state).unwrap();
     let environment = BTreeMap::from([
+        ("HERMES_HOME".into(), worker_state.display().to_string()),
         ("PATH".into(), std::env::var("PATH").unwrap()),
         (
             "ARDA_GOLDEN_TRANSCRIPT".into(),
-            temp.path().join("transcript.json").display().to_string(),
+            worker_state.join("transcript.json").display().to_string(),
         ),
         (
             "ARDA_GOLDEN_ATTEMPT".into(),
-            temp.path().join("attempt").display().to_string(),
+            worker_state.join("attempt").display().to_string(),
         ),
         (
             "ARDA_GOLDEN_MUTATION_COUNT".into(),
-            temp.path().join("mutation-count").display().to_string(),
+            worker_state.join("mutation-count").display().to_string(),
         ),
     ]);
     HermesAdapterConfig::from_toml_str(&fs::read_to_string(&config_path).unwrap()).unwrap();
@@ -339,6 +342,7 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
             "Perform only the two bounded string replacements, then run cargo test --quiet.".into(),
         checks: vec!["test".into()],
         check_commands: BTreeMap::from([("test".into(), "cargo test --quiet".into())]),
+        context_assembly: None,
         project_contract_digest: contract_digest.clone(),
     };
 
@@ -400,7 +404,7 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
     assert_eq!(receipt.usage.model.as_deref(), Some("fixture-model"));
     assert_eq!(receipt.usage.estimated_cost_usd, 0.001);
     assert_eq!(
-        fs::read_to_string(temp.path().join("mutation-count")).unwrap(),
+        fs::read_to_string(worker_state.join("mutation-count")).unwrap(),
         "1"
     );
 
@@ -513,6 +517,7 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         instructions: "Inspect the resulting diff and run the project-native test without relying on the implementer summary.".into(),
         checks: vec!["test".into()],
         check_commands: BTreeMap::from([("test".into(), "cargo test --quiet".into())]),
+        context_assembly: None,
         project_contract_digest: contract_digest.clone(),
     };
     let verifier_receipt = adapter
@@ -766,6 +771,7 @@ compensate_with_approval = ["file", "terminal"]
             "cargo-test".into(),
             "cargo test --quiet".into(),
         )]),
+        context_assembly: None,
         project_contract_digest: contract_digest.clone(),
     };
     let receipt = adapter

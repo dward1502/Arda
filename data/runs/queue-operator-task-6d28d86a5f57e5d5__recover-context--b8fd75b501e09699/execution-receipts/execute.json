@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:eced7a14b5736f787f52e9531cac709d2d8c5ecdf5178f820ae12649a16a1ec5",
+  "idempotency_key": "queue-operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-d8a632934a924ae8bc98dfa3a41c36ee"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:d8d67575de18fc54226ed5ce9c31936baf8e2cc47a61457ba657f22b8c403f22",
+  "recorded_at_unix_ms": 1788232456754,
+  "run_id": "queue-operator-task-6d28d86a5f57e5d5__recover-context--b8fd75b501e09699",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "Bounded read-only inspection completed without modifying files or running checks. Prioritized backlog: P0 expose canonical objective inspection/control through Hermes using Workbench objective, queue, schedule, and receipt authority; P0 prove same-objective deferred/recurring continuation across restart and real critic-driven revision; P1 connect canonical work to Manwë placement and complete one joined objective across two real project contracts; P1 replace production proof/demo project records with reviewed real-project contracts; P1 bind Vairë context-use receipts and Soterion retrieval to the same operator-visible objective; P2 activate the daily research/project-audit loop and require verified improvement, justified no-change, or rejection outcomes; P3 govern one external-capability assimilation through adoption or justified rejection. Evidence: the active plans explicitly leave Hermes control, restart scheduling, critic revision, multi-project execution, Vairë continuity, operator acceptance, real routing, project attachment, and daily improvement open; the status report identifies the same gaps; the project registry remains dominated by fixtures/proofs; and the queue ledger shows repeated terminal/restarted records for one validated-plan identity. Smallest authoritative surfaces are Workbench objective/queue/schedule records, Manwë placement receipts, the project registry, Vairë context-use receipts, and read-only Hermes/HUD projections. The job is marked failed because the tool runtime did not expose actual tool-call IDs to the assistant, so valid tool_evidence identifiers could not be returned without fabrication.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:7825dac6af7579aa326c63693b5061b5a8826609b80f695c202fbe11792a23f7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":400,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/AGENTS.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b87f259b0382173fac911c60b679834bd2b06e064472b9967af91a39df6ba208",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 40232,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 2184,
+    "provider": "openai-codex",
+    "total_tokens": 42416
+  }
+}

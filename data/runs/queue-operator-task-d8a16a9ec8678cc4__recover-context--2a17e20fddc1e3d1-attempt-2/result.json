@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:e6b248f54a320a767421e11fff258f12b38f3829e2e861963201f21842cc74b4",
+    "summary": "Review rejected unsupported completion. The verification receipt covers the declared test check: cargo test -p arda-core passed with exit code 0. Required source_evidence is insufficient: the execution receipt records read-tool output digests but does not bind them to or prove equality with the six digest-pinned context sources declared by the leaf; context_use_receipt is null; and the declared git status --short repository-state source was not inspected, so the no-modification claim is unsupported. Durable queue evidence also shows this leaf was previously rejected for the same defect and retried without repairing the evidence contract. No files were modified and no checks were rerun."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:b47c12daa2ef42ab19cf52b80a97569daf8caf132455b058cf10a9b8cf5c826d",
+      "duration_ms": null,
+      "name": "cargo test -p arda-core",
+      "status": "passed"
+    }
+  ]
+}

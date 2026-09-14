@@ -117,7 +117,7 @@ where
             break;
         }
         let newline = available.iter().position(|byte| *byte == b'\n');
-        let take = newline.map_or(available.len(), |position| position);
+        let take = newline.unwrap_or(available.len());
         if bytes.len().saturating_add(take) > IPC_MAX_LINE_BYTES {
             return Err(DispatchError::payload_too_large(IPC_MAX_LINE_BYTES));
         }

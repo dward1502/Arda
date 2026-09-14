@@ -1,0 +1,105 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:a1d4d1dd61348a0d35da50abb7bedd33591830dcac908a0724a1a9cf80fdbcba",
+      "path": "docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md"
+    }
+  ],
+  "idempotency_key": "queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "governance:objective_packet:arda-receipt-acceptance-20260827:arda-receipt-acceptance-20260827:read_only_audit"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:ac00c39e601ed365ac9195d0628827877661f8c80c9575a78ba7818a569794c9",
+  "recorded_at_unix_ms": 1787845995829,
+  "run_id": "queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Produced the evidence-backed post-remediation objective-plan receipt acceptance report; verified the live receipt digest and graph provenance, and the declared arda-core check passed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:7f0bd2f4b19254edc3ff49febe0d860251dbd2c0be5e07a223d4a2a9bb92b2be",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:7f0bd2f4b19254edc3ff49febe0d860251dbd2c0be5e07a223d4a2a9bb92b2be",
+      "tool": "terminal"
+    },
+    {
+      "action": "sha256sum data/workbench/projects.json docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md ARDA_SYSTEM_STATUS_REPORT.md core/projects/tasks/queue.jsonl && git status --short",
+      "exit_code": 0,
+      "output_digest": "sha256:36de0cd50493a93596749063b4844e75e3b764d2460e805d103ad01a35ba626e",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 - <<'PY'\nimport hashlib, json, pathlib\np=pathlib.Path('audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/objective_plan_receipt.json')\nr=json.loads(p.read_text())\nclaimed=r.pop('receipt_digest')\ncomputed='sha256:'+hashlib.sha256(json.dumps(r,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()\nprint('claimed', claimed)\nprint('computed', computed)\nprint('match', claimed == computed)\nprint('parent_in_checkpoint', claimed in json.loads(pathlib.Path('data/runs/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/checkpoint.json').read_text())['provenance']['parent_receipts'])\nPY",
+      "exit_code": -1,
+      "output_digest": "sha256:8f8f4dd8fe02b3b024adde00e0a7adc216dd0e89326378b588bbd95ce431805a",
+      "tool": "terminal"
+    },
+    {
+      "action": "cargo test -p arda-aule --features full-cli objective_plan_is_grounded_persisted_and_digest_bound_outside_the_graph -- --nocapture",
+      "exit_code": 0,
+      "output_digest": "sha256:3a120a425e77cdce53c554a819538170509d4dbfd1980a1b5c6ab7e1c76af4a8",
+      "tool": "terminal"
+    },
+    {
+      "action": "python3 -c \"import hashlib,json,pathlib; p=pathlib.Path('audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/objective_plan_receipt.json'); r=json.loads(p.read_text()); claimed=r.pop('receipt_digest'); computed='sha256:'+hashlib.sha256(json.dumps(r,separators=(',',':'),ensure_ascii=False).encode()).hexdigest(); c=json.loads(pathlib.Path('data/runs/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/checkpoint.json').read_text()); print('claimed',claimed); print('computed',computed); print('match',claimed==computed); print('parent_in_checkpoint',claimed in c['provenance']['parent_receipts'])\"",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff -- crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs crates/spine/governance/arda-core/src/run_graph.rs crates/spine/governance/arda-core/src/lib.rs",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    },
+    {
+      "action": "jq -cS 'del(.receipt_digest)' audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/objective_plan_receipt.json | sha256sum && git status --short | sha256sum",
+      "exit_code": 0,
+      "output_digest": "sha256:af6758b3fae729abf30d8d8f7e023f0e1aead8dd5e75478f4e27b8be252a5f13",
+      "tool": "terminal"
+    },
+    {
+      "action": "{\"content\":\"---\\nsoterion:\\n  sigil: \\\"SCROLL\\\"\\n  glyph: \\\"📜\\\"\\n  code_point: \\\"U+1F4DC\\\"\\n  role: \\\"acceptance_audit\\\"\\n  owner: \\\"RUMIL\\\"\\n  status: \\\"active\\\"\\n  reviewed: \\\"2026-08-27\\\"\\n  tags: [\\\"workbench\\\", \\\"objective-plan\\\", \\\"receipt\\\", \\\"post-remediation\\\"]\\n---\\n\\n> 🜏 Soterion: 📜 acceptance_audit | owner: RUMIL | status: active | reviewed: 2026-08-27\\n\\n# Objective-plan receipt post-remediation acceptance\\n\\n## Decision\\n\\nThe remediated external objective-plan receipt path is accepted for its bounded claim: a governed queue task now has a live post-remediation receipt outside `RunGraph`, the receipt is identity- and digest-bound, and its digest is the second parent in the live graph provenance. The declared project check passed, and the focused Aulë receipt regression passed.\\n\\nThis does not close the broader autonomous-completion program. It proves receipt persistence and graph provenance for one currently running execute node, not terminal objective closure, dependency enforcement, independent review, or durable continuation.\\n\\n## Evidence and capability truth\\n\\n### Implemented\\n\\n- `crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs:271-279` persists or reloads the objective plan before graph creation and passes only its receipt digest into graph provenance.\\n- `workbench_executor.rs:778-884` rejects unsafe run IDs, caps receipts at 256 KiB, verifies the stored digest and run/objective identities, revalidates the typed plan, writes through a temporary file, and reuses the persisted plan on restart.\\n- `workbench_executor.rs:1025-1028` adds the objective-plan receipt digest to graph-level parent receipts without extending the Core `RunGraph` schema.\\n- `workbench_executor.rs:1676-1762` covers grounded source digests, external persistence, stable replay after source drift, absence of embedded plan data in the graph, unsafe path rejection, and the size limit.\\n\\n### Configured runtime\\n\\n- `data/workbench/projects.json:18-35` declares check `test` as `cargo test -p arda-core`; its supplied SHA-256 `ce3a769c4fb1b74cc2ea3a20bad172d392a3221d995dddaeb17944ce2156e0f4` matched the live file.\\n- The supplied completion-loop plan, whole-system plan, status report, and queue digests also matched the files read at audit start: `cbefe9d…`, `b3b556f…`, `ecb62ed…`, and `add0efbd…` respectively.\\n- The active plans require source-bound retrieval, durable receipt lineage, declared checks, honest capability labels, and closure only after acceptance evidence (`docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md:65-85`; `docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md:49-64,173-181`).\\n\\n### Live deployed proof\\n\\n- `audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/objective_plan_receipt.json:1-125` is a live `arda.workbench.objective_plan_receipt.v1` for the exact run and task. It records validation `ok: true`, no errors, and topological order `recover-context → inspect-authorities → synthesize-findings → produce-outcome → verify-acceptance`.\\n- The receipt claims `sha256:910ae6439a81e170567bd83d412524d579730a626d84deb5b0188c9c462f04ea`. The live checkpoint binds that exact digest as its second provenance parent at `data/runs/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/checkpoint.json:214-220`.\\n- The checkpoint records plan and approval succeeded and execute running under `execute_with_approval` (`checkpoint.json:7-94`). This is positive post-remediation execution evidence, improving the boundary documented in `docs/audits/2026-08-27-governed-execution-acceptance-closeout.md:26-43`, which correctly said the earlier run predated remediation.\\n- Declared check `cargo test -p arda-core` passed: 113 unit tests plus all package integration and doc-test groups completed with zero failures.\\n- Optional focused check `cargo test -p arda-aule --features full-cli objective_plan_is_grounded_persisted_and_digest_bound_outside_the_graph -- --nocapture` passed 1 test with zero failures.\\n\\n## Prioritized repair backlog\\n\\n### P0 — Make receipt integrity adversarially complete\\n\\nEvidence: the implementation rejects digest, identity, validation, path, and size failures, but the focused regression at `workbench_executor.rs:1676-1762` directly exercises only stable replay, path traversal, and oversize behavior. It does not mutate a stored receipt to prove digest mismatch, cross-run/objective substitution, malformed contract, or stale validation rejection.\\n\\nHuman-visible behavior: a corrupt or substituted objective-plan receipt stops the run with a precise reason before provider dispatch; restart never silently accepts a different plan.\\n\\nSmallest authoritative implementation surface: extend the existing `workbench_executor.rs` test module only. Add table-driven mutations for payload, `run_id`, `objective_id`, `contract`, `validation`, and missing digest. No new schema or store is needed.\\n\\nAcceptance: every mutation fails closed, the untouched receipt replays, and the focused package test passes.\\n\\n### P0 — Bind acceptance artifacts to the objective plan, not optional queue metadata\\n\\nEvidence: this receipt's plan requires a prioritized repair backlog (`objective_plan_receipt.json:5-9`), but the claimed queue task has no `meta.acceptance_artifact`. `validate_task_acceptance_artifact` returns success when metadata is absent (`workbench_executor.rs:552-554`). The report therefore exists because the worker followed the prompt, not because terminal acceptance structurally requires it.\\n\\nHuman-visible behavior: close reports the exact artifact path and digest that satisfied each plan criterion; omission or substitution cannot close the node.\\n\\nSmallest authoritative implementation surface: in `objective_plan_for_task`/receipt construction, derive a typed artifact/evidence requirement from plan acceptance criteria or require the queue admission record to provide it. In `validate_task_acceptance_artifact`, validate against the persisted receipt rather than treating missing optional metadata as success.\\n\\nAcceptance: removing, changing, or omitting the declared report prevents close even when Cargo tests pass; the accepted artifact digest appears in the execution and closure receipts.\\n\\n### P1 — Detect source drift explicitly at dispatch and replay\\n\\nEvidence: the persisted plan intentionally survives source drift (`workbench_executor.rs:1716-1727`), while the worker prompt says to read “live authorities” (`workbench_executor.rs:915-918`). During this audit, the five file authorities matched their receipt digests at the initial read, but current `git status --short` no longer matches the receipt's repository-state digest. The runtime has no typed distinction between acceptable post-plan drift and drift requiring replan.\\n\\nHuman-visible behavior: the operator sees “plan snapshot still valid” or “authority/repository changed; replan required,” with changed source identities. A worker never cites newer bytes as though they were the digest-bound snapshot.\\n\\nSmallest authoritative implementation surface: before execute dispatch, recompute each context-source digest. Apply an explicit policy: immutable authority drift yields `replan_objective`; expected repository/runtime drift is retained as a new evidence observation with both old and current digests. Pass snapshot paths/digests and drift disposition to the worker.\\n\\nAcceptance: an operator-plan mutation blocks stale execution; an allowed runtime-state change is disclosed and receipted; restart behavior remains deterministic.\\n\\n### P1 — Harden concurrent and durable receipt installation\\n\\nEvidence: `workbench_executor.rs:871-883` uses a deterministic `.json.tmp` path and rename. The queue lease reduces expected concurrency, but this receipt boundary itself does not use create-new semantics, synchronize file and parent directory, or arbitrate two writers for the same run.\\n\\nHuman-visible behavior: duplicate dispatches converge on one byte-identical receipt; conflicting writers fail with a named replay/concurrency error; power loss cannot leave a claimed receipt that was never durably installed.\\n\\nSmallest authoritative implementation surface: the receipt writer in `workbench_executor.rs`. Use exclusive temporary creation, compare an existing winner by digest, fsync the file and parent directory where supported, and clean stale temporary files only under the same run lease.\\n\\nAcceptance: a concurrency test produces one canonical receipt, conflicting plans do not overwrite each other, and an interrupted write leaves either the prior valid receipt or no receipt.\\n\\n### P2 — Expose receipt provenance in the operator projection\\n\\nEvidence: the live checkpoint carries the receipt digest, but the current human-readable status authority predates this path (`ARDA_SYSTEM_STATUS_REPORT.md:47,119-130`). Operators must inspect audit and run files to distinguish snapshot, current source state, validation, and drift.\\n\\nHuman-visible behavior: Hermes/HUD shows objective-plan receipt digest, validation state, source snapshot digests, current drift disposition, project-contract digest, and linked artifact evidence beside the current node.\\n\\nSmallest authoritative implementation surface: project the existing receipt and checkpoint fields through the canonical objective projection; do not create another authority or queue.\\n\\nAcceptance: one projection reconstructs this run's plan provenance without reading raw JSON and labels the current proof as running rather than closed.\\n\\n## Dependency order and acceptance boundary\\n\\n1. Add adversarial receipt tests.\\n2. Bind plan acceptance to artifacts/evidence before terminal close.\\n3. Add typed source-drift disposition before execute/replay.\\n4. Harden installation concurrency/durability.\\n5. Project the same canonical evidence to Hermes/HUD.\\n\\nPost-remediation acceptance is therefore positive but bounded: external persistence, replay stability, validation, and graph provenance are implemented, tested, and live for this run. Terminal acceptance remains pending until the run's later verify/review/close nodes finish, and the wider dependency, continuation, placement, context, and review gaps in `docs/audits/2026-08-27-continuous-governed-execution-gap-report.md` remain open.\\n\",\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:f3e78117b2bf6c934d7b9a7d144231a44db4e550407cf1afc5705404f3f5ea60",
+      "tool": "write_file"
+    },
+    {
+      "action": "sha256sum docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md && git status --short -- docs/audits/2026-08-27-objective-plan-receipt-post-remediation-acceptance.md core/state/queue_active.json core/state/queue_summary.json",
+      "exit_code": 0,
+      "output_digest": "sha256:2cc4aad750396eb2be3e226e2cc2afe47b2e25a39e9606ab88c706b1f6f43b8e",
+      "tool": "terminal"
+    },
+    {
+      "action": "jq -cS 'del(.receipt_digest)' audit/workbench-queue/queue-tsk_20260827T154942Z_arda-receipt-acceptance-20260827__scope/objective_plan_receipt.json | tr -d '\\n' | sha256sum",
+      "exit_code": 0,
+      "output_digest": "sha256:c99ed167b1a54a40a0ff48fc06da1bb240a5b4d094453efdeae2be48851b2d06",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 10,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 114891,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 8100,
+    "provider": "openai-codex",
+    "total_tokens": 122991
+  }
+}

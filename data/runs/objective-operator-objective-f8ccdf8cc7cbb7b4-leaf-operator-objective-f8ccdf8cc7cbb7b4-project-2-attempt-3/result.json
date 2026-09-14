@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:8fe68766b09b37d0a070f54a605e302a6a8de32828b0c032d30df422ba219f72",
+    "summary": "Review completed without modifying project files. Implementation correctness is not approved due to named defects: TG-1 (src/policy.rs:89-102,129-143): a critical tool with mutates_state=false and requires_review=false reaches review_required without a trace_id even when require_trace_for_review and critical_always_review are enabled, because trace enforcement occurs before the effective critical-risk review decision and checks only metadata.requires_review. TG-2 (src/receipt.rs:20-27): receipts omit invocation_id, tool_id, target, and caller, so a decision is not cryptographically or structurally bound to the invocation it is intended to authorize and can be substituted or replayed unless an external system supplies unstated binding guarantees. TG-3 (src/types.rs:68-89; schemas/invocation-envelope.schema.json:9): requested_at_utc is validated only as nonblank and the schema declares it as an unrestricted string, allowing malformed or non-UTC timestamps in audit receipts. TG-4 (schemas/tool-metadata.schema.json:4-14; schemas/invocation-envelope.schema.json:4-14; schemas/decision-receipt.schema.json:4-14): the published schemas allow unknown properties, permit blank required strings, and leave policy_checks items unconstrained, so they do not faithfully enforce the implementation's stated structural contract. The parent receipt authenticates only a successful clean-tree check; it provides no build, test, schema-conformance, or behavioral evidence and therefore cannot support broader implementation-completion claims."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

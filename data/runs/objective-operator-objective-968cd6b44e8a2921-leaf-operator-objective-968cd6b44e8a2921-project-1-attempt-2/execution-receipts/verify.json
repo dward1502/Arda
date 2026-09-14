@@ -1,0 +1,53 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:eafca7a990ce94688df4c370a52132082816f8a93620b7c5f0b3008c6ffb783e",
+  "idempotency_key": "queue-operator-objective-968cd6b44e8a2921-project-1-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:c79656f6ae99c2cde96b42a797e69d21dc3f26cc6e9b6af801a9246d5d2c1d0e"
+  ],
+  "project_contract_digest": "sha256:a94de97f4bedec269433dbb64c7357754d6b03cce3838317ebea985e47b91edd",
+  "receipt_digest": "sha256:1608d04da8742921f262829d90362c5e3ac1422c9544e6db4bf6d9ac5444ea7d",
+  "recorded_at_unix_ms": 1788413350244,
+  "run_id": "objective-operator-objective-968cd6b44e8a2921-leaf-operator-objective-968cd6b44e8a2921-project-1-attempt-2",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Declared clean-tree check passed exactly: `git diff --exit-code HEAD --` exited 0 with no output. The project-local result is verified as read-only with no tracked changes.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": null,
+      "output_digest": "sha256:088b908f08c7d4461644ae2dff16bd38ea3ba138dc460ddca5de7b41cdaf2805",
+      "tool": "terminal"
+    },
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 5240,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 483,
+    "provider": "openai-codex",
+    "total_tokens": 5723
+  }
+}

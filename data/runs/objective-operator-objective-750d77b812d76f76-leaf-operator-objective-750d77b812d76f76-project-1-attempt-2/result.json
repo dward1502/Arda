@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:03442d75a66f7343ea4f45799e37828f315c57684ea35cf198344ed795114458",
+    "summary": "README.acceptance contains the exact declared acceptance line, so the bounded source-inspection criterion itself passes. However, the exact required verify command failed with exit code 2 because its unquoted acceptance text was parsed as multiple filenames."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=2 output_digest=sha256:1b11a534deaa292abebf8afc556205910b781678e48d2054f68d9278381d9a44",
+      "duration_ms": null,
+      "name": "grep -Fx resident objective acceptance fixture: canonical source inspection required README.acceptance",
+      "status": "failed"
+    }
+  ]
+}

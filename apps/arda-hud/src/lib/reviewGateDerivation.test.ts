@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ArdaBundle } from './ardaSource'
-import { getCommandConsoleSurface } from './reviewGateDerivation'
+import { getCommandConsoleSurface, getReviewGateItems } from './reviewGateDerivation'
 
 function scoutBundle(): ArdaBundle {
   return {
@@ -61,5 +61,21 @@ describe('scout projection consumer', () => {
       status: 'partial',
     }))
     expect(surface.receipts).toEqual([])
+  })
+})
+
+describe('Arandur recommendation review projection', () => {
+  it('shows only recommendations still awaiting operator review', () => {
+    const bundle = {
+      arandurRecommendations: [
+        { recommendation_id: 'pending', review_required: true, candidate: { title: 'Pending task' } },
+        { recommendation_id: 'approved', review_required: false, review_status: 'approved', candidate: { title: 'Approved task' } },
+      ],
+      arandurMissionApprovalRequests: [],
+      hadesLifecycleReviewQueue: [],
+      athenaPolicyReadiness: [],
+    } as unknown as ArdaBundle
+
+    expect(getReviewGateItems(bundle, []).map((item) => item.id)).toEqual(['pending'])
   })
 })

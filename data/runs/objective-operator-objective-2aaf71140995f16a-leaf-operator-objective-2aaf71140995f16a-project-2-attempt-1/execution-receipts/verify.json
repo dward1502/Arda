@@ -1,0 +1,47 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:82ea4c88a45dc375a27993de814f7f650a3dacffbb77e176245d4ebf85284a8f",
+  "idempotency_key": "queue-operator-objective-2aaf71140995f16a-project-2-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:3d635f43b81aa2a66f76e46b5dafd92e9831775c1b3350e39eb755bfc77521e4"
+  ],
+  "project_contract_digest": "sha256:d59bb85f29bca292fa4c541c5b2872b620afe557ffb0bf589a4fbb2ea149ed81",
+  "receipt_digest": "sha256:b5cf3524074c6543c12f7e7f096f663db450dd2546a340ffc44713c8d35198f3",
+  "recorded_at_unix_ms": 1788416704571,
+  "run_id": "objective-operator-objective-2aaf71140995f16a-leaf-operator-objective-2aaf71140995f16a-project-2-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Verified the project-local result. Exact declared check `git diff --exit-code HEAD --` exited 0 with no output, confirming the tracked worktree matches HEAD. No files were changed. Build and test health were not evaluated because clean-tree was the only declared check.",
+  "test_evidence": [
+    {
+      "check_id": "clean-tree",
+      "command": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "git diff --exit-code HEAD --",
+      "exit_code": 0,
+      "output_digest": "sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 2,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10061,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 310,
+    "provider": "openai-codex",
+    "total_tokens": 10371
+  }
+}

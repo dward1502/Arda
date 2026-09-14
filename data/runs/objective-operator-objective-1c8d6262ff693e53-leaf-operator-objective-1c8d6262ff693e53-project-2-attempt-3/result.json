@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:c4fd46205648ec88c012afd6d92130d9287615bd80e530b1b3d2615380fe64ed",
+    "summary": "No defects found. Read-only inspection confirmed acceptance.txt contains the expected durable acceptance statement; scope is limited to the supplied project root, the declared existence check is covered by the parent verification receipt, and no project files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=verify exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "test -f acceptance.txt",
+      "status": "passed"
+    }
+  ]
+}

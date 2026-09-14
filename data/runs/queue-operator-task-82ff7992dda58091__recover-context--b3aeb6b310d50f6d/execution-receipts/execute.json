@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:746493f5f31b698b8808062150d274583504bd23d2816b4fd70392b7ddd8ee08",
+  "idempotency_key": "queue-operator-task-82ff7992dda58091__recover-context--b3aeb6b310d50f6d-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway:gateway:approve-1b73a9307a70404c9b792570248a2620"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:d6d7cd925e3953f46349ee3d89c5ce8644efb33250af292c1020f633dfc2f3bb",
+  "recorded_at_unix_ms": 1788231837448,
+  "run_id": "queue-operator-task-82ff7992dda58091__recover-context--b3aeb6b310d50f6d",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Read-only inspection recovered the live project contract, completion plans, status report, canonical queue ledger, and existing repair audit. Prioritized backlog: P0—durable executable task graphs, truthful project identity, Manwë worker/reviewer placement, scheduled continuation, scoped approval persistence, and independent review; P1—bounded Vairë context, one truthful objective/control projection, daily improvement, proactive Personal Operations, governed assimilation, and status reconciliation; P2—two-project operator acceptance before expansion. No files were modified and the verifier-reserved check was not run.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/data/workbench/projects.json\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ee6f5a7fd609969846340353f03f79e67fd6b3ddb6ada7bf67c79ddd24813257",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd67ad4045488e2caaf92ebd43471f023355c2c24009480c4e4d9fe2d37c67db",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:e8bc88fb8ff0e673b8cfb6af18c21709d32390c269c0e56482962a6b4a261fd7",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/ARDA_SYSTEM_STATUS_REPORT.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:72f777a9560321593d930b48ad7d5e0d95f8ea9d0fc6bf3be0acd7f42a7ece72",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/core/projects/tasks/queue.jsonl\"}",
+      "exit_code": null,
+      "output_digest": "sha256:907c891a8e52dd1f13bdb849b62b6e3e84a9c69b4e64c2f9085e29abbf5666c9",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"limit\":2000,\"offset\":1,\"path\":\"/var/home/mythos/Eregion/Arda/docs/audits/2026-08-26-operator-vision-repair-backlog.md\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b2e38e5c3f9919fe90b22593c13af88e0bb58941e2c58c4018dfbec56c2fe2d7",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 51134,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1977,
+    "provider": "openai-codex",
+    "total_tokens": 53111
+  }
+}

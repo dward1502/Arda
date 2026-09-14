@@ -16,6 +16,7 @@ import {
   BusinessModule,
   ArandurApprovalWorkstation,
   ExecutiveOverviewModule,
+  GovernanceGuardhouseWorkstation,
   HermesDashboardModule,
   HumanRealmModule,
   LineList,
@@ -33,6 +34,7 @@ import {
   SceneTransitionOverlay,
   PersonalGrowthModule,
   QueueProvenancePanel,
+  ResearchModule,
   ReviewGateWorkstation,
   buildReviewGateDecisionRecordPreview,
   ServiceEmbedModule,
@@ -60,6 +62,7 @@ import { adaptBoardroomHudSource } from './scene/boardroom/boardroomHudSourceAda
 import BoardroomViewport from './scene/boardroom/BoardroomViewport'
 import MonitorSurfaceNativeAcceptance from './scene/boardroom/MonitorSurfaceNativeAcceptance'
 import MonitorSessionWorkstation from './scene/boardroom/MonitorSessionWorkstation'
+import GlobalRapidCapture from './components/arda/GlobalRapidCapture'
 import {
   createMonitorSessionWindowConfig,
   findMonitorSessionRecord,
@@ -71,6 +74,8 @@ import { calculateWorldDistrictUrgencies } from './scene/world/worldDistrictUrge
 import {
   createArdaFleetHealth,
   createArdaFleetViewModel,
+  createArdaContinuityViewModel,
+  createArdaRoutingViewModel,
   type ArdaFleetHealth,
 } from './scene/workstations/adapters/ardaAdapter'
 import {
@@ -106,6 +111,12 @@ import { useBoardroomSlotAssignments } from './components/arda/hooks/useBoardroo
 import { useManweLiveSnapshot } from './components/arda/hooks/useManweLiveSnapshot'
 import { useWorldSurfaceAssignments } from './components/arda/hooks/useWorldSurfaceAssignments'
 import {
+  focusFloatingWorkstation as focusFloatingWorkstationElement,
+  rememberFloatingWorkstationFocusOrigin,
+  restoreFloatingWorkstationFocus,
+  type FloatingWorkstationFocusOrigins,
+} from './components/arda/floatingWorkstationFocus'
+import {
   agentRefreshMonitorLease,
   agentReleaseMonitor,
   agentClaimMonitorSurface,
@@ -138,7 +149,10 @@ import {
 } from './lib/worldSurfaceSettings'
 import { getString, getNumber, getBoolean, getSectionById, getTimestamp, getSceneZoneById, getWorkstationManifestById, getWorkstationManifestByZoneId, formatMetric, formatBytes, formatPercent, asRecord, asArray, getAgents, getGovernanceRuntimeSignals, getHumanDocs, getHumanNotes, getOperationsFlowSummary, getOutputAccounting, getOutputTopology, getPackageEnablement, getPackageRuntimeActivation, getPaperclipAlignment, getPackageTools, getStoragePressureSummary, getStorageStores, getAutonomyReadinessSummary, getEscalationRuntime, getGovernanceSummary, getOperatorCockpitSurface, getQueueSummary,getOperatorActions } from "./lib/ardaSurfaces"
 import type { SceneAnchorDefinition, SceneZoneDefinition, WorkstationManifestDefinition } from './scene/systems/runtimeTypes'
-import type { FleetViewModel } from './scene/workstations/viewModels'
+import { FleetFocusedWorkstationView } from './scene/workstations/fleetWorkstationView'
+import { RoutingFocusedWorkstationView } from './scene/workstations/routingWorkstationView'
+import { ContinuityFocusedWorkstationView } from './scene/workstations/continuityWorkstationView'
+import { getFocusedWorkstationKind } from './lib/workstationComposition'
 import { getCommandConsoleSurface, getCeoCouncilRuntime, getTaskLifecycleRuntime } from "./lib/reviewGateDerivation"
 import { getKnowledgeMap, getOperatingSurfaceReports } from "./lib/operatingSurfaceDerivation"
 import { sectionToPanelLayout, formatProviderLabel, formatSectionStatus, formatPanelStatus, titleForSectionOrPanel, asModuleId, localStorageOrNull, MODULE_STORAGE_KEY, readStoredModuleOrder } from './lib/settingsLayout'
@@ -159,6 +173,12 @@ import {
 } from './components/arda/modules/fleet/focusedWorkstationModuleHelpers'
 import { openHermesRuntimeWindow, ensureHermesRuntimeSpots, describeHermesRuntimeLaunch } from './lib/hermesDashboardLauncher'
 import { companyOpsFromProjection } from './lib/companyOps'
+import {
+  requestMirromereInteraction,
+  type MirromereInteractionReceipt,
+} from './features/mirromere/sceneRegistry'
+import { loadMirromereSurface } from './features/mirromere/source'
+import type { MirromereInteractionId, MirromereSurface } from './features/mirromere/types'
 const THEMES: ThemeOption[] = [
   { id: 'cyberpunk', label: 'Cyberpunk' },
   { id: 'gibson2', label: 'Gibson 2.0' },
@@ -198,70 +218,6 @@ interface FloatingWorkstationState {
   zIndex: number
 }
 
-function FleetFocusedWorkstationView({ fleetViewModel }: { fleetViewModel: FleetViewModel | null }) {
-  if (!fleetViewModel) {
-    return (
-      <div className="fleet-focused-view fleet-focused-view--empty">
-        <span className="fleet-focused-view__eyebrow">Fleet View Model</span>
-        <h3>Fleet projection unavailable</h3>
-        <p>Waiting for operator runtime and Manwe router projections.</p>
-      </div>
-    )
-  }
-
-  const primaryProvider = fleetViewModel.providers.find((provider) => provider.enabled && provider.healthy)
-    ?? fleetViewModel.providers[0]
-    ?? null
-  const offlineMetric = fleetViewModel.metrics.find((metric) => metric.id === 'unexpected_offline')
-
-  return (
-    <div className={`fleet-focused-view fleet-focused-view--${fleetViewModel.status}`}>
-      <div className="fleet-focused-view__hero">
-        <div>
-          <span className="fleet-focused-view__eyebrow">Fleet View Model</span>
-          <h3>{fleetViewModel.title}</h3>
-          {fleetViewModel.summary.map((line) => <p key={line}>{line}</p>)}
-        </div>
-        <span className="fleet-focused-view__status">{fleetViewModel.status}</span>
-      </div>
-      <div className="fleet-focused-view__metrics">
-        {fleetViewModel.metrics.map((metric) => (
-          <span className={`fleet-focused-view__metric fleet-focused-view__metric--${metric.tone ?? 'neutral'}`} key={metric.id}>
-            <b>{metric.value}{metric.unit ?? ''}</b>
-            <small>{metric.label}</small>
-          </span>
-        ))}
-      </div>
-      <div className="fleet-focused-view__grid">
-        <section>
-          <h4>Lane Ownership</h4>
-          {fleetViewModel.laneOwnership.map((lane) => (
-            <div className="fleet-focused-view__row" key={lane.lane}>
-              <span>{lane.priority}</span>
-              <b>{lane.route ? `${lane.route.providerId} / ${lane.route.modelId}` : 'unassigned'}</b>
-            </div>
-          ))}
-        </section>
-        <section>
-          <h4>Providers</h4>
-          {fleetViewModel.providers.slice(0, 4).map((provider) => (
-            <div className="fleet-focused-view__row" key={provider.providerId}>
-              <span>{provider.providerName}</span>
-              <b>{provider.healthy ? 'healthy' : 'check'} · {provider.models.length} models</b>
-            </div>
-          ))}
-          {fleetViewModel.providers.length === 0 ? <p>No routable provider projection.</p> : null}
-        </section>
-      </div>
-      <div className="fleet-focused-view__footer">
-        <span>Primary: {primaryProvider?.providerName ?? 'none'}</span>
-        <span>Unexpected offline: {offlineMetric?.value ?? 0}</span>
-        <span>Sources: {fleetViewModel.sources.map((sourceRef) => sourceRef.freshness.status).join(' / ')}</span>
-      </div>
-    </div>
-  )
-}
-
 export default function App() {
   const searchParams = new URLSearchParams(window.location.search)
   const currentWindowId = searchParams.get('__windowId') ?? 'main'
@@ -283,6 +239,26 @@ export default function App() {
     source,
     onLoaded: onBundleLoaded,
   })
+  const [mirromereSurface, setMirromereSurface] = useState<MirromereSurface | null>(null)
+  useEffect(() => {
+    if (!('__TAURI_INTERNALS__' in window)) return
+    let cancelled = false
+    const refreshMirromereSurface = () => {
+      void loadMirromereSurface()
+        .then((surface) => {
+          if (!cancelled) setMirromereSurface(surface)
+        })
+        .catch(() => {
+          if (!cancelled) setMirromereSurface(null)
+        })
+    }
+    refreshMirromereSurface()
+    const intervalId = window.setInterval(refreshMirromereSurface, 5000)
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
+  }, [])
   const {
     snapshot: manweLiveSnapshot,
     error: manweLiveError,
@@ -470,6 +446,7 @@ export default function App() {
   const [transitionLabel, setTransitionLabel] = useState<string | null>(null)
   const liveRuntime = useArdaRuntimePulse(viewMode !== 'boardroom')
   const [floatingWorkstations, setFloatingWorkstations] = useState<FloatingWorkstationState[]>([])
+  const floatingWorkstationFocusOrigins = useRef<FloatingWorkstationFocusOrigins>(new Map())
   const [workstationModuleById, setWorkstationModuleById] = useState<Record<string, ModuleId>>(() => {
     if (!initialWorkstationId) return {}
     const stored = getStoredWorkstationState(initialWorkstationId)
@@ -484,6 +461,7 @@ export default function App() {
   useEffect(() => {
     initWindowBridge()
   }, [])
+
 
   useEffect(() => {
     const handleWorkstationSync = (event: Event) => {
@@ -543,6 +521,17 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        if (viewMode === 'boardroom' && floatingWorkstations.length > 0) {
+          e.preventDefault()
+          const topWorkstation = floatingWorkstations.reduce((top, workstation) =>
+            workstation.zIndex > top.zIndex ? workstation : top,
+          )
+          setFloatingWorkstations((current) => current.filter((entry) => entry.id !== topWorkstation.id))
+          window.requestAnimationFrame(() => {
+            restoreFloatingWorkstationFocus(floatingWorkstationFocusOrigins.current, topWorkstation.id)
+          })
+          return
+        }
         if (viewMode === 'world' || viewMode === 'panel') {
           runSceneTransition('Returning To Boardroom', 'boardroom')
         } else {
@@ -564,24 +553,10 @@ export default function App() {
         e.preventDefault()
         runSceneTransition('Opening Focused Panel', 'panel')
       }
-      if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.shiftKey) {
-        e.preventDefault()
-        const views: ViewMode[] = ['boardroom', 'world', 'panel']
-        const currentIndex = views.indexOf(viewMode)
-        const nextIndex = (currentIndex + 1) % views.length
-        const nextView = views[nextIndex]
-        const label = nextView === 'boardroom' ? 'Entering Boardroom'
-          : nextView === 'world' ? 'Entering World Mode'
-            : 'Opening Focused Panel'
-        if (nextView === 'panel' && !activeSectionId) {
-          return
-        }
-        runSceneTransition(label, nextView)
-      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [viewMode, activeSectionId, toggleFullscreen])
+  }, [viewMode, activeSectionId, floatingWorkstations, toggleFullscreen])
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -702,10 +677,17 @@ export default function App() {
       unexpectedOffline: 0,
       intentionalOfflineTargets: [],
       unexpectedOfflineTargets: [],
+      unobserved: 0,
+      unreachable: 0,
+      serviceDown: 0,
+      routingDrift: 0,
+      attentionTotal: 0,
     }),
     [bundle],
   )
   const fleetViewModel = useMemo(() => (bundle ? createArdaFleetViewModel(bundle) : null), [bundle])
+  const routingViewModel = useMemo(() => (bundle ? createArdaRoutingViewModel(bundle) : null), [bundle])
+  const continuityViewModel = useMemo(() => (bundle ? createArdaContinuityViewModel(bundle) : null), [bundle])
   const laneOwnership = fleetViewModel?.laneOwnership ?? []
   const laneHeadroom = fleetViewModel?.laneHeadroom ?? []
   const laneFitness = fleetViewModel?.laneFitness ?? []
@@ -759,7 +741,11 @@ export default function App() {
     () => {
       const sourceProvenance = bundle?.sourceProvenance ?? []
       const pendingReviewItems = reviewGateItems.filter((item) =>
+        item.kind !== 'athena_policy_readiness' &&
+        !item.status.toLowerCase().includes('reference_only') &&
         item.status !== 'approved' && item.status !== 'rejected').length
+      const incidentReviewItems = reviewGateItems.filter((item) =>
+        item.kind === 'hades_lifecycle' && item.status !== 'approved' && item.status !== 'rejected').length
       const commandLanes = Object.keys(asRecord(bundle?.operationsFlow) ?? {}).length
       const instruments = deriveBoardroomHudInstruments({
       fleetHealth: {
@@ -783,19 +769,25 @@ export default function App() {
         source: adaptBoardroomHudSource(sourceProvenance, 'knowledge'),
       },
       routing: {
-        routableProviders: routableProviders.length,
-        activeConnections: hottestProvider?.activeConnections ?? 0,
-        constrainedHeadroom: typeof mostConstrainedLane?.headroom === 'number' ? mostConstrainedLane.headroom : null,
+        routableProviders: routingViewModel?.providers.length ?? 0,
+        activeConnections: routingViewModel?.providers.reduce((total, provider) => total + provider.activeConnections, 0) ?? 0,
+        constrainedHeadroom: routingViewModel?.lanes.reduce<number | null>((lowest, lane) => (
+          lane.headroom === null ? lowest : lowest === null ? lane.headroom : Math.min(lowest, lane.headroom)
+        ), null) ?? null,
         source: adaptBoardroomHudSource(sourceProvenance, 'routing'),
       },
       governance: {
         reviewItems: reviewGateItems.length,
         pendingItems: pendingReviewItems,
+        incidentItems: incidentReviewItems,
         source: adaptBoardroomHudSource(sourceProvenance, 'governance'),
       },
       human: {
         documents: docs.length,
         notes: notes.length,
+        businessItems: continuityViewModel?.horizons.find((horizon) => horizon.id === 'business')?.count ?? 0,
+        personalItems: continuityViewModel?.horizons.find((horizon) => horizon.id === 'personal')?.count ?? 0,
+        missingReferences: continuityViewModel?.missingReferenceCount ?? 0,
         source: adaptBoardroomHudSource(sourceProvenance, 'human'),
       },
       dailyCommand: {
@@ -809,7 +801,7 @@ export default function App() {
         return [slotId, configured ? { ...instrument, preset: configured.preset_id } : instrument]
       }))
     },
-    [boardroomSlotDocument, bundle?.operationsFlow, bundle?.sourceProvenance, docs.length, fleetHealth, hottestProvider, mostConstrainedLane, notes.length, planShelf.plans.length, queueSummary, reviewGateItems, routableProviders.length, runtimeDrift],
+    [boardroomSlotDocument, bundle?.operationsFlow, bundle?.sourceProvenance, continuityViewModel, docs.length, fleetHealth, notes.length, planShelf.plans.length, queueSummary, reviewGateItems, routingViewModel, runtimeDrift],
   )
   const worldDistricts = useMemo(
     () =>
@@ -968,6 +960,10 @@ export default function App() {
       title: 'Personal Operations',
       node: <PersonalOperationsModule />,
     },
+    research: {
+      title: 'Governed Research',
+      node: <ResearchModule />,
+    },
     operating_surface: {
       title: 'Operating Surface Review',
       node: (
@@ -1103,275 +1099,70 @@ export default function App() {
       ),
     },
     governance_controls: {
-      title: 'Governance Controls',
+      title: 'Governance + Guardhouse',
       node: (
-        <ModuleCard
-          title="Governance Controls"
-          eyebrow="Adjustable weights"
-          accent="ember"
-          tag={governanceTag}
-          actions={<SourceCoverageBadge coverage={governanceControlsCoverage} />}
-        >
-          <div className="split-stack">
-            <div>
-              <div className="module-subtitle"><Shield size={14} /> Weights</div>
-              <LineList items={governance.weights.slice(0, 8).map((item) => ({ label: item.label, value: formatMetric(item.value) }))} />
-            </div>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Thresholds</div>
-              <LineList items={governance.thresholds.map((item) => ({ label: item.label, value: formatMetric(item.value) }))} />
-            </div>
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><Shield size={14} /> Human Augmentation</div>
-              <LineList items={humanAugmentation.summary.map((item) => ({ label: item.label, value: item.value }))} />
-              <div className="document-list compact" style={{ marginTop: 12 }}>
-                {humanAugmentation.approvals.slice(0, 4).map((approval) => (
-                  <article className="document-list__item" key={approval.id}>
-                    <strong>{approval.decisionClass}</strong>
-                    <span>{approval.approvers} / {approval.status}</span>
-                    <p>{approval.note}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Issue Approval</div>
-              <div style={{ display: 'grid', gap: 10 }}>
-                <select
-                  value={approvalDecisionClass}
-                  onChange={(event) => setApprovalDecisionClass(event.target.value)}
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                >
-                  <option value="provider_reroute">provider_reroute</option>
-                  <option value="strategy_change">strategy_change</option>
-                  <option value="pricing_change">pricing_change</option>
-                  <option value="customer_commitment">customer_commitment</option>
-                  <option value="destructive_delete">destructive_delete</option>
-                </select>
-                <input
-                  value={approvalApprovers}
-                  onChange={(event) => setApprovalApprovers(event.target.value)}
-                  placeholder="approvers: aurelius,bacon"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={approvalEvidence}
-                  onChange={(event) => setApprovalEvidence(event.target.value)}
-                  placeholder="evidence: ticket-123,boardroom-note"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={approvalNote}
-                  onChange={(event) => setApprovalNote(event.target.value)}
-                  placeholder="note"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <button
-                  onClick={() => void submitHumanAugmentationApproval()}
-                  disabled={approvalBusy}
-                  className="rounded border border-[#ff9933] bg-[#ff9933]/10 px-3 py-2 text-sm font-semibold text-[#ffb86b] transition-colors hover:bg-[#ff9933]/20 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {approvalBusy ? 'Recording...' : 'Record Approval'}
-                </button>
-                {approvalMessage ? <div className="text-[11px] text-[#b8c4d4]">{approvalMessage}</div> : null}
-              </div>
-            </div>
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><Shield size={14} /> Autonomy Readiness</div>
-              <LineList items={[
-                { label: 'Posture', value: autonomyReadiness.posture },
-                ...autonomyReadiness.checkpoint.slice(0, 4),
-              ]} />
-              <div className="document-list compact" style={{ marginTop: 12 }}>
-                {autonomyReadiness.evidence.slice(0, 4).map((item) => (
-                  <article className="document-list__item" key={`${item.phase}-${item.title}`}>
-                    <strong>{item.phase} · {item.title}</strong>
-                    <span>{item.status}</span>
-                    <p>{item.source}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Next Unlocks</div>
-              <div className="document-list compact">
-                {autonomyReadiness.nextUnlocks.length > 0 ? autonomyReadiness.nextUnlocks.map((unlock) => (
-                  <article className="document-list__item" key={unlock.title}>
-                    <strong>{unlock.title}</strong>
-                    <span>{unlock.status}</span>
-                    <p>{unlock.requires || 'No additional requirements recorded.'}</p>
-                  </article>
-                )) : (
-                  <article className="document-list__item">
-                    <strong>No unlocks recorded</strong>
-                    <p>Autonomy remains governed by the current checkpoint posture.</p>
-                  </article>
-                )}
-              </div>
-            </div>
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <ArandurApprovalWorkstation
-              approvals={humanAugmentation.approvals}
-              queueWriteRequests={arandurQueueWriteRequests}
-              busy={approvalBusy}
-              message={approvalMessage}
-              rootPath={bundle?.rootPath ?? null}
-              onApprove={(request) => {
-                const item = reviewGateItems.find((candidate) => candidate.id === request.id)
-                if (item) void submitReviewGateDecision(item, 'approved')
-                else setApprovalMessage(`Review packet unavailable for ${request.id}`)
-              }}
-              onReject={(request) => {
-                const item = reviewGateItems.find((candidate) => candidate.id === request.id)
-                if (item) void submitReviewGateDecision(item, 'rejected')
-                else setApprovalMessage(`Review packet unavailable for ${request.id}`)
-              }}
-            />
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <ReviewGateWorkstation
-              approvals={humanAugmentation.approvals}
-              items={reviewGateItems}
-              busy={approvalBusy}
-              message={approvalMessage}
-              sourceProvenance={bundle?.sourceProvenance ?? []}
-              decisionApprovers={approvalApprovers}
-              onApprove={(item) => void submitReviewGateDecision(item, 'approved')}
-              onReject={(item) => void submitReviewGateDecision(item, 'rejected')}
-            />
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><Sparkles size={14} /> CEO Council</div>
-              <LineList items={ceoCouncil.summary.map((item) => ({ label: item.label, value: item.value }))} />
-              <div className="document-list compact" style={{ marginTop: 12 }}>
-                {ceoCouncil.sessions.length > 0 ? ceoCouncil.sessions.slice(0, 4).map((session) => (
-                  <article className="document-list__item" key={session.id}>
-                    <strong>{session.objective}</strong>
-                    <span>{session.loopClass} / {session.decisionClass}</span>
-                    <p>{session.outcomeStatus}</p>
-                  </article>
-                )) : (
-                  <article className="document-list__item">
-                    <strong>No council sessions yet</strong>
-                    <p>Discord ingress and council recording are ready for first live sessions.</p>
-                  </article>
-                )}
-              </div>
-            </div>
-            <div>
-              <div className="module-subtitle"><BookOpenText size={14} /> Validator Garage</div>
-              <LineList items={ceoCouncil.validators.length > 0 ? ceoCouncil.validators : [{ label: 'Pending', value: '0' }]} />
-              <div className="module-subtitle" style={{ marginTop: 16 }}><UserRound size={14} /> Memory Lanes</div>
-              <LineList items={ceoCouncil.memoryLanes.length > 0 ? ceoCouncil.memoryLanes : [{ label: 'Pending', value: '0' }]} />
-            </div>
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Record Council Session</div>
-              <div style={{ display: 'grid', gap: 10 }}>
-                <input
-                  value={councilObjective}
-                  onChange={(event) => setCouncilObjective(event.target.value)}
-                  placeholder="objective"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <select
-                    value={councilLoopClass}
-                    onChange={(event) => setCouncilLoopClass(event.target.value)}
-                    className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                  >
-                    <option value="lightweight">lightweight</option>
-                    <option value="triad">triad</option>
-                  </select>
-                  <select
-                    value={councilDecisionClass}
-                    onChange={(event) => setCouncilDecisionClass(event.target.value)}
-                    className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                  >
-                    <option value="routine_maintenance">routine_maintenance</option>
-                    <option value="provider_reroute">provider_reroute</option>
-                    <option value="strategy_change">strategy_change</option>
-                    <option value="customer_commitment">customer_commitment</option>
-                    <option value="destructive_delete">destructive_delete</option>
-                  </select>
-                </div>
-                <input
-                  value={councilParticipants}
-                  onChange={(event) => setCouncilParticipants(event.target.value)}
-                  placeholder="participants: arandur,warden,steward"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilProposals}
-                  onChange={(event) => setCouncilProposals(event.target.value)}
-                  placeholder="proposals: comma separated"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilObjections}
-                  onChange={(event) => setCouncilObjections(event.target.value)}
-                  placeholder="objections: comma separated"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilValidators}
-                  onChange={(event) => setCouncilValidators(event.target.value)}
-                  placeholder="validators: joulework,love_equation"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilMemoryLanes}
-                  onChange={(event) => setCouncilMemoryLanes(event.target.value)}
-                  placeholder="memory lanes: ceo_private_working,shared_executive"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <textarea
-                  value={councilMemoryWrites}
-                  onChange={(event) => setCouncilMemoryWrites(event.target.value)}
-                  placeholder="memory writes: one per line, optionally lane:content"
-                  rows={3}
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <textarea
-                  value={councilSynthesis}
-                  onChange={(event) => setCouncilSynthesis(event.target.value)}
-                  placeholder="synthesis"
-                  rows={3}
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b8c4d4' }}>
-                    <input type="checkbox" checked={councilTriadRequired} onChange={(event) => setCouncilTriadRequired(event.target.checked)} />
-                    Triad required
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b8c4d4' }}>
-                    <input type="checkbox" checked={councilHumanEscalated} onChange={(event) => setCouncilHumanEscalated(event.target.checked)} />
-                    Human escalated
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b8c4d4' }}>
-                    <input type="checkbox" checked={councilPromotedPrivateMemory} onChange={(event) => setCouncilPromotedPrivateMemory(event.target.checked)} />
-                    Promoted private memory
-                  </label>
-                </div>
-                <button
-                  onClick={() => void submitCeoCouncilSession()}
-                  disabled={councilBusy}
-                  className="rounded border border-[#6ee7b7] bg-[#6ee7b7]/10 px-3 py-2 text-sm font-semibold text-[#9ff5ce] transition-colors hover:bg-[#6ee7b7]/20 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {councilBusy ? 'Recording...' : 'Record Council Session'}
-                </button>
-                {councilMessage ? <div className="text-[11px] text-[#b8c4d4]">{councilMessage}</div> : null}
-              </div>
-            </div>
-          </div>
-        </ModuleCard>
+        <GovernanceGuardhouseWorkstation
+          governance={governance}
+          governanceSignals={governanceSignals}
+          autonomyReadiness={autonomyReadiness}
+          items={reviewGateItems}
+          activeTasks={(bundle?.taskQueueEntries ?? []).map((entry) => ({
+            id: getString(entry.id, getString(entry.task_id, 'unknown')),
+            title: getString(entry.title, 'Untitled task'),
+            owner: getString(entry.owner, 'unassigned'),
+            status: getString(entry.status, 'unknown'),
+            priority: getString(entry.priority, 'medium'),
+            workbenchRunId: getString(entry.workbench_run_id, '') || null,
+            leaseExpiresAtUtc: getString(entry.lease_expires_at_utc, '') || null,
+            executionReceiptDigest: getString(entry.execution_receipt_digest, '') || null,
+            result: getString(entry.result, '') || null,
+            detail: getString(entry.detail, '') || null,
+          })).filter((task) => task.id !== 'unknown')}
+          approvals={humanAugmentation.approvals}
+          sourceProvenance={bundle?.sourceProvenance ?? []}
+          sourceCoverage={governanceControlsCoverage}
+          busy={approvalBusy}
+          message={approvalMessage}
+          decisionApprovers={approvalApprovers}
+          onDefer={(item) => setApprovalMessage(`Deferred ${item.id}; no approval record appended`)}
+          onCancelTask={(task) => {
+            void (async () => {
+              try {
+                setApprovalBusy(true)
+                const { invoke } = await import('@tauri-apps/api/core')
+                await invoke('cancel_approved_queue_task_action', {
+                  ardaRoot: bundle?.rootPath ?? '',
+                  taskId: task.id,
+                  reason: 'operator cancellation from ARDA HUD',
+                })
+                setApprovalMessage(`Cancellation recorded for ${task.id}`)
+              } catch (error) {
+                setApprovalMessage(`Cancellation failed: ${String(error)}`)
+              } finally {
+                setApprovalBusy(false)
+              }
+            })()
+          }}
+          onRetryTask={(task) => {
+            void (async () => {
+              try {
+                setApprovalBusy(true)
+                const { invoke } = await import('@tauri-apps/api/core')
+                await invoke('retry_approved_queue_task_action', {
+                  ardaRoot: bundle?.rootPath ?? '',
+                  taskId: task.id,
+                })
+                setApprovalMessage(`Governed retry queued for ${task.id}`)
+              } catch (error) {
+                setApprovalMessage(`Retry failed: ${String(error)}`)
+              } finally {
+                setApprovalBusy(false)
+              }
+            })()
+          }}
+          onApprove={(item) => void submitReviewGateDecision(item, 'approved')}
+          onReject={(item) => void submitReviewGateDecision(item, 'rejected')}
+        />
       ),
     },
     hermes_dashboard: {
@@ -1867,6 +1658,7 @@ export default function App() {
 
   const buildWorkstationModules = (manifest: ArdaWorkstationManifest | null) => {
     const sourceZoneId = manifest?.source_zone_id ?? null
+    const focusedWorkstationKind = getFocusedWorkstationKind(sourceZoneId)
     const rejectedPanelIds = manifest?.rejected_panel_ids ?? []
     const adapterMissingModule = rejectedPanelIds.length > 0 ? {
       id: 'section_focus' as ModuleId,
@@ -1879,22 +1671,41 @@ export default function App() {
         </section>
       ),
     } : null
-    if (sourceZoneId === 'systems_health' || sourceZoneId === 'routing_health' || sourceZoneId === 'sovereign_world') {
+    if (focusedWorkstationKind === 'fleet') {
       const fleetModule = {
         id: 'systems' as ModuleId,
         title: 'Fleet',
-        node: <FleetFocusedWorkstationView fleetViewModel={fleetViewModel} />,
+        node: <FleetFocusedWorkstationView fleetViewModel={fleetViewModel} onRefresh={() => { void refreshBundle() }} />,
       }
-      const supplementalLayout = (manifest?.module_ids.length ? manifest.module_ids : sectionToPanelLayout(sourceZoneId))
-        .filter((moduleId): moduleId is ModuleId => moduleId in moduleRegistry && moduleId !== 'systems')
-      const modules = [
-        fleetModule,
-        ...supplementalLayout.map((moduleId) => ({
-          id: moduleId,
-          title: moduleRegistry[moduleId].title,
-          node: moduleRegistry[moduleId].node,
-        })),
-      ]
+      const modules = [fleetModule]
+      return adapterMissingModule
+        ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
+        : modules
+    }
+    if (focusedWorkstationKind === 'routing') {
+      const routingModule = {
+        id: 'systems' as ModuleId,
+        title: 'Routing + Communications',
+        node: (
+          <RoutingFocusedWorkstationView
+            busyActionId={refreshActionBusyId}
+            model={routingViewModel}
+            onRunAction={(actionId) => void submitRefreshAction(actionId)}
+          />
+        ),
+      }
+      const modules = [routingModule]
+      return adapterMissingModule
+        ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
+        : modules
+    }
+    if (focusedWorkstationKind === 'continuity') {
+      const continuityModule = {
+        id: 'human_realm' as ModuleId,
+        title: 'Human + Business + Personal',
+        node: <ContinuityFocusedWorkstationView model={continuityViewModel} session={bundle?.continuityProjection ?? null} />,
+      }
+      const modules = [continuityModule]
       return adapterMissingModule
         ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
         : modules
@@ -1922,15 +1733,19 @@ export default function App() {
       label: 'Fleet Guard',
       title: `${fleetHealth.liveTargets}/${fleetHealth.totalTargets} live`,
       value: `${fleetHealth.routableProviders} routable / ${fleetHealth.unexpectedOffline} unexpected offline`,
-      status: fleetHealth.unexpectedOffline > 0 ? 'attention' : 'stable',
+      status: fleetHealth.attentionTotal > 0 ? 'attention' : 'stable',
       metrics: [
         { label: 'Live', value: `${fleetHealth.liveTargets}` },
         { label: 'Routable', value: `${fleetHealth.routableProviders}` },
-        { label: 'Offline', value: `${fleetHealth.intentionalOffline}/${fleetHealth.unexpectedOffline}` },
+        { label: 'Offline', value: `${fleetHealth.intentionalOffline}/${fleetHealth.unreachable}` },
       ],
       trace: [
         `UNEXPECTED :: ${fleetHealth.unexpectedOffline}`,
         `INTENTIONAL :: ${fleetHealth.intentionalOffline}`,
+        `UNOBSERVED :: ${fleetHealth.unobserved}`,
+        `UNREACHABLE :: ${fleetHealth.unreachable}`,
+        `SERVICE DOWN :: ${fleetHealth.serviceDown}`,
+        `ROUTING DRIFT :: ${fleetHealth.routingDrift}`,
       ],
       tag: operatorTag,
     },
@@ -2142,12 +1957,15 @@ export default function App() {
     setApprovalMessage(null)
     const decisionRecord = buildReviewGateDecisionRecordPreview(item, approvalApprovers)
     try {
-      const result = await executeSystemAction('approve_human_augmentation', {
+      const result = await executeSystemAction(item.kind === 'recommendation' ? 'review_arandur_recommendation' : 'approve_human_augmentation', {
         source: 'external',
         persona: 'frankyrache',
         mood: status === 'approved' ? 'success' : 'warning',
         payload: {
           numenor_path: bundle?.rootPath,
+          recommendation_id: item.kind === 'recommendation' ? item.id : undefined,
+          decision: item.kind === 'recommendation' ? (status === 'approved' ? 'approve' : 'reject') : undefined,
+          reviewed_by: item.kind === 'recommendation' ? approvalApprovers : undefined,
           decision_class: decisionRecord.decisionClass,
           command_signature: decisionRecord.commandSignature,
           approvers: decisionRecord.approvers,
@@ -2310,6 +2128,9 @@ export default function App() {
   const spawnFloatingWorkstation = (zoneId: string | null) => {
     const manifest = getWorkstationManifestByZoneId(workstationManifests, zoneId)
     if (!manifest) return
+    const workstationId = `scene-${manifest.id}`
+    rememberFloatingWorkstationFocusOrigin(floatingWorkstationFocusOrigins.current, workstationId)
+    window.requestAnimationFrame(() => focusFloatingWorkstationElement(workstationId))
     setActiveSectionId(manifest.source_zone_id)
     setPanelModeKey(manifest.source_zone_id)
     setViewMode('boardroom')
@@ -2331,7 +2152,7 @@ export default function App() {
 
       const centeredLayout = getFloatingWorkstationCenteredLayout()
       const nextEntry = {
-        id: `scene-${manifest.id}`,
+        id: workstationId,
         manifestId: manifest.id,
         sourceZoneId: manifest.source_zone_id,
         originAnchorId: manifest.entry_anchor_id,
@@ -2479,10 +2300,22 @@ export default function App() {
 
   const closeFloatingWorkstation = (id: string) => {
     setFloatingWorkstations((current) => current.filter((entry) => entry.id !== id))
+    window.requestAnimationFrame(() => {
+      restoreFloatingWorkstationFocus(floatingWorkstationFocusOrigins.current, id)
+    })
   }
 
   const closeAllFloatingWorkstations = () => {
+    const topWorkstation = floatingWorkstations.reduce<FloatingWorkstationState | null>(
+      (top, workstation) => !top || workstation.zIndex > top.zIndex ? workstation : top,
+      null,
+    )
     setFloatingWorkstations([])
+    if (topWorkstation) {
+      window.requestAnimationFrame(() => {
+        restoreFloatingWorkstationFocus(floatingWorkstationFocusOrigins.current, topWorkstation.id)
+      })
+    }
   }
 
   const popoutFloatingWorkstation = (id: string) => {
@@ -2599,6 +2432,17 @@ export default function App() {
 
     return false
   }
+
+  const handleMirromereInteraction = (
+    surface: MirromereSurface,
+    interactionId: MirromereInteractionId,
+    explicitOperatorAction: boolean,
+  ): Promise<MirromereInteractionReceipt> => requestMirromereInteraction(
+    surface,
+    interactionId,
+    explicitOperatorAction,
+  )
+
 
   const handleSceneAnchorActivate = (anchorId: string) => {
     const anchor = (bundle?.sceneAnchors ?? []).find((candidate) => candidate.id === anchorId) ?? null
@@ -2782,6 +2626,8 @@ export default function App() {
             presenceState={bundle?.agentPresenceState}
             presenceStatus={bundle?.agentPresenceStatus}
             rootPath={bundle?.rootPath ?? null}
+            mirromereSurface={mirromereSurface}
+            onMirromereInteraction={handleMirromereInteraction}
             sceneOverlay={floatingWorkstationSceneOverlay}
             onActivate={handleSceneAnchorActivate}
             onOpenWorkstation={spawnFloatingWorkstation}
@@ -2922,6 +2768,7 @@ export default function App() {
         <div style={{ height: '100vh' }}>
         </div>
       ) : null}
+      <GlobalRapidCapture />
       <SceneTransitionOverlay active={transitionLabel !== null} label={transitionLabel ?? ''} />
     </div>
   )

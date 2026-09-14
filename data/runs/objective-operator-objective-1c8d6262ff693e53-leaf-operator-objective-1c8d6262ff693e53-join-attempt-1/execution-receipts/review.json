@@ -1,0 +1,51 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2c80d32675612766142951c36a20f64584b2d2160e886c17edcfe94c7e3726f2",
+  "idempotency_key": "queue-operator-objective-1c8d6262ff693e53-join-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:9e6501ad2716b9b8335291b85180a008ab906942529a4ffa5e1d475c1abc0384"
+  ],
+  "project_contract_digest": "sha256:5051004adef3adf9193554860da4343caee0207ac4fff794a11cd47a8846b7ca",
+  "receipt_digest": "sha256:4c3ae973afb544709d92224ffa86a5c570476df891181d5cd48a0bd1b11bd1e9",
+  "recorded_at_unix_ms": 1788328012753,
+  "run_id": "objective-operator-objective-1c8d6262ff693e53-leaf-operator-objective-1c8d6262ff693e53-join-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "No defects found. Read-only inspection confirmed acceptance.txt is present with the acceptance marker, consistent with the supplied verification receipt for the declared existence check. No project files were modified.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":100,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a\",\"pattern\":\"*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:63d92115628607f82bb178fe4f2d6387ddef914d1ab382af940b696a82692b2f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"limit\":100,\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a\",\"pattern\":\".*\",\"target\":\"files\"}",
+      "exit_code": null,
+      "output_digest": "sha256:63d92115628607f82bb178fe4f2d6387ddef914d1ab382af940b696a82692b2f",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/data/arda/acceptance/m4/project-a/acceptance.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:ba942d13e4367efc797dc7060812a36b3f051d71797e2f9ead27f20bd229eecc",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 3,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 10977,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 376,
+    "provider": "openai-codex",
+    "total_tokens": 11353
+  }
+}

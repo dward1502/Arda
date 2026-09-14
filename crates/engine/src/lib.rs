@@ -10,6 +10,8 @@ pub use arda_orome::provider::{
 pub mod adapters;
 pub mod council;
 pub mod harness;
+pub mod next_action;
+pub mod objectives;
 pub mod observability;
 pub mod operator_projection;
 pub mod orome;

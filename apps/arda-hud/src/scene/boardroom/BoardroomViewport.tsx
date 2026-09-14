@@ -1,6 +1,7 @@
 // sigil: REPAIR
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Environment, Html, OrbitControls, useGLTF, useTexture } from '@react-three/drei'
+import { invoke, isTauri } from '@tauri-apps/api/core'
 import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
 import type { Group } from 'three'
@@ -61,7 +62,9 @@ import {
   deriveAvatarEmitterGeometry,
 } from './boardroomComposition'
 import {
+  BOARDROOM_COMMAND_CORE_CONTROL_BANKS,
   deriveBoardroomPhysicalControlState,
+  dispatchBoardroomCommandCoreControl,
   getBoardroomPhysicalControlAction,
   resolveBoardroomPhysicalControlInteraction,
   type BoardroomPhysicalControlAction,
@@ -77,6 +80,13 @@ import {
   resolveMonitorSurfaceOpenRequest,
   type MonitorSurfacePayloadEvent,
 } from './monitorSurfaceRuntime'
+import BoardroomAccessibilityControls from './BoardroomAccessibilityControls'
+import MirromereAperture, {
+  isMirromereInspectAllowed,
+  shouldRenderMirromereAperture,
+} from '../../features/mirromere/MirromereAperture'
+import type { MirromereInteractionId, MirromereSurface } from '../../features/mirromere/types'
+import type { MirromereInteractionReceipt } from '../../features/mirromere/sceneRegistry'
 
 interface BoardroomViewportProps {
   active: boolean
@@ -97,6 +107,12 @@ interface BoardroomViewportProps {
   presenceState?: AgentPresenceState
   presenceStatus?: PresenceLedgerStatus
   rootPath?: string | null
+  mirromereSurface?: MirromereSurface | null
+  onMirromereInteraction?: (
+    surface: MirromereSurface,
+    interactionId: MirromereInteractionId,
+    explicitOperatorAction: boolean,
+  ) => Promise<MirromereInteractionReceipt>
   sceneOverlay?: ReactNode
   onActivate: (anchorId: string) => void
   onOpenWorkstation: (zoneId: string) => void
@@ -105,6 +121,16 @@ interface BoardroomViewportProps {
   onOpenHermesDashboard: () => void
   onOpenHermesCli: () => void
   onOpenSettings: () => void
+}
+
+export async function requestMirromereInspection(
+  surface: MirromereSurface,
+  requestInteraction: NonNullable<BoardroomViewportProps['onMirromereInteraction']>,
+  openProvenance: () => void,
+): Promise<MirromereInteractionReceipt> {
+  const receipt = await requestInteraction(surface, 'inspect_provenance', false)
+  if (receipt.outcome === 'accepted' && receipt.status === 'requested') openProvenance()
+  return receipt
 }
 
 function SceneAssetModel({
@@ -697,39 +723,66 @@ function CommandCoreSurface({
     links: [],
     rings: [],
   }
-  const controls = [
-    { id: 'open_approval_queue', color: '#8cffc7', position: [0.42, 0.075, -0.17] as Vec3 },
-    { id: 'open_emergency_stop', color: '#ff789c', position: [0.65, 0.075, -0.17] as Vec3 },
-    { id: 'open_route_selector', color: '#5defff', position: [0.42, 0.075, 0.17] as Vec3 },
-    { id: 'enter_world', color: '#b98cff', position: [0.65, 0.075, 0.17] as Vec3 },
+  const commandPositions: Vec3[] = [
+    [0.36, 0.075, -0.2],
+    [0.58, 0.075, -0.2],
+    [0.36, 0.075, 0.02],
+    [0.58, 0.075, 0.02],
   ]
+  const commandColors = ['#8cffc7', '#ff789c', '#5defff', '#b98cff']
+  const utilityPositions: Vec3[] = [
+    [0.34, 0.075, 0.27],
+    [0.48, 0.075, 0.27],
+    [0.62, 0.075, 0.27],
+  ]
+  const utilityColors = ['#d8e7ff', '#22d3ee', '#a855f7']
 
   return (
     <>
-      <group position={[-0.22, 0, 0]}>
+      <group position={[-0.27, 0, -0.02]}>
         <CommandCoreInstrumentScreen
           slotId={zone.id}
-          size={[zone.size[0] * 0.72, zone.size[1], zone.size[2] * 0.9]}
+          size={[zone.size[0] * 0.62, zone.size[1], zone.size[2] * 0.82]}
           model={model}
           onActivate={() => onControl(openAction)}
         />
       </group>
-      {controls.map((control) => {
-        const action = getBoardroomPhysicalControlAction(control.id)
-        const state = deriveBoardroomPhysicalControlState(control.id, null)
-        return (
-          <group key={control.id} position={control.position}>
-            <PhysicalControlButtonSurface
-              label={action.label}
-              size={[0.17, 0.04, 0.17]}
-              color={control.color}
-              controlState={state}
-              title={`${action.authority} · verify ${action.verificationPath}`}
-              onClick={() => onControl(action)}
-            />
-          </group>
-        )
-      })}
+      <group name="command-core-command-bank">
+        {BOARDROOM_COMMAND_CORE_CONTROL_BANKS.command.map((actionId, index) => {
+          const action = getBoardroomPhysicalControlAction(actionId)
+          const state = deriveBoardroomPhysicalControlState(actionId, null)
+          return (
+            <group key={actionId} position={commandPositions[index]}>
+              <PhysicalControlButtonSurface
+                label={action.shortLabel}
+                size={[0.17, 0.04, 0.17]}
+                color={commandColors[index]}
+                controlState={state}
+                title={`${action.authority} · verify ${action.verificationPath}`}
+                onClick={() => onControl(action)}
+              />
+            </group>
+          )
+        })}
+      </group>
+      <group name="command-core-utility-bank">
+        {BOARDROOM_COMMAND_CORE_CONTROL_BANKS.utility.map((actionId, index) => {
+          const action = getBoardroomPhysicalControlAction(actionId)
+          const state = deriveBoardroomPhysicalControlState(actionId, null)
+          return (
+            <group key={actionId} position={utilityPositions[index]}>
+              <PhysicalControlButtonSurface
+                label={action.shortLabel}
+                size={[0.12, 0.04, 0.12]}
+                color={utilityColors[index]}
+                controlState={state}
+                title={`${action.authority} · verify ${action.verificationPath}`}
+                onClick={() => onControl(action)}
+              />
+            </group>
+          )
+        })}
+      </group>
     </>
   )
 }
@@ -783,31 +836,6 @@ function PhysicalControlButtonSurface({
         <boxGeometry args={[size[0] * 0.5, 0.018, size[2] * 0.5]} />
         <meshBasicMaterial color={surfaceColor} transparent opacity={disabled ? 0.18 : hovered ? 0.95 : 0.62} />
       </mesh>
-    </group>
-  )
-}
-
-function HermesCliButtonSurface({
-  action,
-  controlState,
-  onClick,
-  zone,
-}: {
-  action: BoardroomPhysicalControlAction
-  controlState: BoardroomPhysicalControlState
-  onClick: () => void
-  zone: BoardroomSpatialZone
-}) {
-  return (
-    <group position={zone.position} rotation={zone.rotation}>
-      <PhysicalControlButtonSurface
-        label={action.label}
-        size={zone.size}
-        color={zone.color}
-        controlState={controlState}
-        title={`${action.authority} · verify ${action.verificationPath}`}
-        onClick={onClick}
-      />
     </group>
   )
 }
@@ -917,6 +945,8 @@ function BoardroomScene({
   presenceState = DEFAULT_AGENT_PRESENCE_STATE,
   presenceStatus,
   rootPath = null,
+  mirromereSurface = null,
+  onMirromereInteraction,
   debug = false,
   onActivate,
   onOpenWorkstation,
@@ -960,19 +990,7 @@ function BoardroomScene({
     () => BOARDROOM_CONTROL_ZONES.map((zone) => withPositionOverride(zone, zonePositionOverrides)),
     [zonePositionOverrides],
   )
-  const hermesButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.hermes')!, zonePositionOverrides)
-  const hermesCliButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.hermes_cli')!, zonePositionOverrides)
   const commandCoreZone = withPositionOverride(getBoardroomSpatialZone('boardroom.control.center')!, zonePositionOverrides)
-  const settingsButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.settings')!, zonePositionOverrides)
-  const serviceHealthAction = getBoardroomPhysicalControlAction('service_health_status')
-  const settingsAction = getBoardroomPhysicalControlAction('open_settings')
-  const hermesCliAction = getBoardroomPhysicalControlAction('open_hermes_cli')
-  const hermesDashboardAction = getBoardroomPhysicalControlAction('open_hermes_dashboard')
-  const serviceHealthButtonZone = withPositionOverride(getBoardroomSpatialZone(serviceHealthAction.zoneId)!, zonePositionOverrides)
-  const serviceHealthState = deriveBoardroomPhysicalControlState(serviceHealthAction.id, fleetViewModel?.status)
-  const settingsState = deriveBoardroomPhysicalControlState(settingsAction.id, null)
-  const hermesCliState = deriveBoardroomPhysicalControlState(hermesCliAction.id, null)
-  const hermesDashboardState = deriveBoardroomPhysicalControlState(hermesDashboardAction.id, null)
   const avatarEmitterZone = withPositionOverride(getBoardroomSpatialZone('boardroom.avatar.emitter')!, zonePositionOverrides)
   const worldWindowZone = withPositionOverride(getBoardroomSpatialZone('boardroom.world.window')!, zonePositionOverrides)
 
@@ -1032,21 +1050,16 @@ function BoardroomScene({
     if (interaction.kind === 'dispatch') callback()
   }
 
-  const activateServiceHealth = () => activateControl(
-    serviceHealthAction,
-    () => onOpenWorkstation(serviceHealthAction.targetZoneId),
-    fleetViewModel?.status,
-  )
-
-  const activateCommandControl = (action: BoardroomPhysicalControlAction) => activateControl(
+  const activateCommandCoreControl = (action: BoardroomPhysicalControlAction) => activateControl(
     action,
-    () => action.id === 'enter_world'
-      ? onActivate(worldWindowZone.binding ?? worldWindowZone.id)
-      : onOpenWorkstation(action.targetZoneId),
+    () => dispatchBoardroomCommandCoreControl(action, {
+      onOpenSettings,
+      onOpenHermesCli,
+      onOpenHermesDashboard,
+      onEnterWorld: () => onActivate(worldWindowZone.binding ?? worldWindowZone.id),
+      onOpenWorkstation,
+    }),
   )
-  const activateSettings = () => activateControl(settingsAction, onOpenSettings)
-  const activateHermesCli = () => activateControl(hermesCliAction, onOpenHermesCli)
-  const activateHermesDashboard = () => activateControl(hermesDashboardAction, onOpenHermesDashboard)
 
   return (
     <>
@@ -1104,6 +1117,15 @@ function BoardroomScene({
           ? (agentClaims[monitorSlotId] ?? (monitorSlotSources[monitorSlotId]?.claim ?? null))
           : null
         const displayMode = resolveUpperMonitorDisplayMode(Boolean(typedRecord), Boolean(activeClaim))
+        const renderMirromere = shouldRenderMirromereAperture(monitorSlotId, displayMode, mirromereSurface)
+        const inspectMirromere = Boolean(mirromereSurface && renderMirromere && isMirromereInspectAllowed(mirromereSurface))
+        const handleMirromereInspect = inspectMirromere && mirromereSurface && onMirromereInteraction
+          ? () => { void requestMirromereInspection(
+              mirromereSurface,
+              onMirromereInteraction,
+              () => onOpenWorkstation(workstationZoneId),
+            ).catch(() => undefined) }
+          : undefined
         const handleMonitorActivate = () => {
           if (typedRecord && onOpenMonitorSession) {
             onOpenMonitorSession(typedRecord)
@@ -1130,7 +1152,11 @@ function BoardroomScene({
           showHitbox={false}
           draggable={debug}
           onMovePosition={(position) => moveZone(slot.id, position)}
-          onActivate={isUpperMonitorInteractive(displayMode) ? handleMonitorActivate : undefined}
+          onActivate={inspectMirromere
+            ? handleMirromereInspect
+            : isUpperMonitorInteractive(displayMode)
+              ? handleMonitorActivate
+              : undefined}
         >
           {displayMode === 'session' && typedRecord ? (
             <BoardroomApertureSurface
@@ -1147,7 +1173,15 @@ function BoardroomScene({
                 nodes: [],
                 links: [],
                 rings: [],
-                source: { freshness: renderProfile.motionEnabled ? 'fresh' : 'derived', sourceId: typedRecord.surface_session_id, sourcePaths: [], observedAtUtc: typedRecord.updated_at_utc },
+                source: {
+                  freshness: 'fresh',
+                  sourceId: typedRecord.surface_session_id,
+                  sourceLabel: typedRecord.owner,
+                  sourcePaths: [],
+                  observedAtUtc: typedRecord.updated_at_utc,
+                  sourceKind: 'live',
+                  truthState: 'live',
+                },
               }}
               descriptor={typedRecord.content}
               playback={typedRecord.playback}
@@ -1171,12 +1205,28 @@ function BoardroomScene({
                 nodes: [],
                 links: [],
                 rings: [],
-                source: { freshness: renderProfile.motionEnabled ? 'fresh' : 'derived', sourceId: activeClaim.owner, sourcePaths: [], observedAtUtc: new Date().toISOString() },
+                source: {
+                  freshness: 'fresh',
+                  sourceId: activeClaim.owner,
+                  sourceLabel: activeClaim.owner,
+                  sourcePaths: [],
+                  observedAtUtc: new Date().toISOString(),
+                  sourceKind: 'live',
+                  truthState: 'live',
+                },
               }}
               payload={monitorPayloads[monitorSlotId] ?? null}
               motionEnabled={renderProfile.motionEnabled}
               active={!!activeClaim}
               onActivate={handleMonitorActivate}
+            />
+          ) : renderMirromere && mirromereSurface ? (
+            <MirromereAperture
+              surface={mirromereSurface}
+              slotId={monitorSlotId}
+              size={slot.size}
+              motionEnabled={renderProfile.motionEnabled}
+              onActivate={handleMirromereInspect}
             />
           ) : (
             <UpperAmbientMonitorScreen
@@ -1243,7 +1293,7 @@ function BoardroomScene({
       <group position={commandCoreZone.position} rotation={commandCoreZone.rotation}>
         <CommandCoreSurface
           zone={commandCoreZone}
-          onControl={activateCommandControl}
+          onControl={activateCommandCoreControl}
           nowInstrument={instruments.command_core}
           healthInstrument={instruments.view_desk_control_panel}
           routingInstrument={instruments.view_desk_r}
@@ -1251,29 +1301,6 @@ function BoardroomScene({
       </group>
 
 
-      <InteractionPad
-        slotId={serviceHealthButtonZone.id}
-        label={serviceHealthButtonZone.label}
-        detail={serviceHealthButtonZone.detail}
-        position={serviceHealthButtonZone.position}
-        rotation={serviceHealthButtonZone.rotation}
-        size={serviceHealthButtonZone.size}
-        color={serviceHealthButtonZone.color}
-        showLabel={debug}
-        draggable={debug}
-        onMovePosition={(position) => moveZone(serviceHealthButtonZone.id, position)}
-        onActivate={activateServiceHealth}
-      >
-        <PhysicalControlButtonSurface
-          label={serviceHealthAction.shortLabel}
-          size={serviceHealthButtonZone.size}
-          color={serviceHealthButtonZone.color}
-          controlState={serviceHealthState}
-          title={`${serviceHealthAction.authority} · verify ${serviceHealthAction.verificationPath}`}
-          onClick={activateServiceHealth}
-          onBlocked={activateServiceHealth}
-        />
-      </InteractionPad>
 
       {controlFeedback ? (
         <Html position={[0, 0.56, 1.92]} center distanceFactor={6.2}>
@@ -1290,60 +1317,6 @@ function BoardroomScene({
         </Html>
       ) : null}
 
-      <InteractionPad
-        slotId={settingsButtonZone.id}
-        label={settingsButtonZone.label}
-        detail={settingsButtonZone.detail}
-        position={settingsButtonZone.position}
-        rotation={settingsButtonZone.rotation}
-        size={settingsButtonZone.size}
-        color={settingsButtonZone.color}
-        primary={settingsButtonZone.primary}
-        showLabel={debug}
-        draggable={debug}
-        onMovePosition={(position) => moveZone(settingsButtonZone.id, position)}
-        onActivate={activateSettings}
-      >
-        <PhysicalControlButtonSurface
-          label={settingsAction.label}
-          size={settingsButtonZone.size}
-          color="#b98cff"
-          controlState={settingsState}
-          title={`${settingsAction.authority} · verify ${settingsAction.verificationPath}`}
-          onClick={activateSettings}
-        />
-      </InteractionPad>
-
-      <InteractionPad
-        slotId={hermesButtonZone.id}
-        label={hermesButtonZone.label}
-        detail={hermesButtonZone.detail}
-        position={hermesButtonZone.position}
-        rotation={hermesButtonZone.rotation}
-        size={hermesButtonZone.size}
-        color={hermesButtonZone.color}
-        primary={hermesButtonZone.primary}
-        showLabel={debug}
-        draggable={debug}
-        onMovePosition={(position) => moveZone(hermesButtonZone.id, position)}
-        onActivate={activateHermesDashboard}
-      >
-        <PhysicalControlButtonSurface
-          label={hermesDashboardAction.label}
-          size={hermesButtonZone.size}
-          color="#b98cff"
-          controlState={hermesDashboardState}
-          title={`${hermesDashboardAction.authority} · verify ${hermesDashboardAction.verificationPath}`}
-          onClick={activateHermesDashboard}
-        />
-      </InteractionPad>
-
-      <HermesCliButtonSurface
-        action={hermesCliAction}
-        controlState={hermesCliState}
-        onClick={activateHermesCli}
-        zone={hermesCliButtonZone}
-      />
 
       <AvatarEmitterBase
         zone={avatarEmitterZone}
@@ -1428,6 +1401,7 @@ function BoardroomFrameRateProbe() {
 
 export default function BoardroomViewport(props: BoardroomViewportProps) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [softwareRenderer, setSoftwareRenderer] = useState(false)
   const acceptanceEnabled = import.meta.env.DEV && import.meta.env.VITE_MONITOR_ACCEPTANCE === '1'
 
   useEffect(() => {
@@ -1438,12 +1412,23 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
     return () => query.removeEventListener('change', update)
   }, [])
 
+  useEffect(() => {
+    if (!isTauri()) return
+    let cancelled = false
+    void invoke<{ software_renderer: boolean }>('get_hud_render_context').then((context) => {
+      if (!cancelled) setSoftwareRenderer(context.software_renderer)
+    }).catch(() => undefined)
+    return () => { cancelled = true }
+  }, [])
+
   const deviceMemoryGb = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
   const renderProfile = resolveBoardroomRenderProfile({
     active: props.active,
     prefersReducedMotion,
     hardwareConcurrency: navigator.hardwareConcurrency,
     deviceMemoryGb,
+    nativeWebKit: isTauri(),
+    softwareRenderer,
   })
 
   return (
@@ -1464,6 +1449,29 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
           <BoardroomScene {...props} renderProfile={renderProfile} />
         </Suspense>
       </Canvas>
+      <BoardroomAccessibilityControls
+        anchors={props.anchors}
+        workstations={props.workstations}
+        onActivate={props.onActivate}
+        onOpenWorkstation={props.onOpenWorkstation}
+        onOpenHermesDashboard={props.onOpenHermesDashboard}
+        onOpenHermesCli={props.onOpenHermesCli}
+        onOpenSettings={props.onOpenSettings}
+        mirromereSurface={props.mirromereSurface}
+        onInspectMirromere={props.mirromereSurface?.allowed_interactions.includes('inspect_provenance')
+          && props.onMirromereInteraction
+          ? () => {
+              const zoneId = props.slotAssignments.monitor_3
+              if (zoneId && props.mirromereSurface && props.onMirromereInteraction) {
+                void requestMirromereInspection(
+                  props.mirromereSurface,
+                  props.onMirromereInteraction,
+                  () => props.onOpenWorkstation(zoneId),
+                ).catch(() => undefined)
+              }
+            }
+          : undefined}
+      />
       {acceptanceEnabled ? (
         <div style={{ position: 'fixed', right: '1rem', top: '3.5rem', zIndex: 10000, color: '#8cffc7', textAlign: 'right' }}>
           <output id="boardroom-frame-rate-probe">Scene measuring…</output>

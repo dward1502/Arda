@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:0e540a4aea00537d9d14050cb1671795a86c70df40445c11752b40fd4fafacc8",
+    "summary": "Review completed without modifying project files or rerunning the declared check. Completion is not supported by the parent evidence: it proves only a clean tree, not build, test, or behavioral correctness. Named defects: (1) src/lib.rs:87-88 serializes MemoryRecord and immediately discards it, so MemoryStore::store performs no persistent Mnemosyne storage despite the stated interface; (2) src/lib.rs:106-129 ingests every Markdown file as semantic memory without enforcing the documented authority, status, privacy, review, provenance, or canonical-promotion rules, while NoteFrontmatter at src/lib.rs:13-25 is incompatible with the required ingestion contract; (3) src/lib.rs:184-192 permits slash-containing wikilinks with absolute paths or '..' components to escape the vault root, exposing existence and resolved paths outside the private vault; (4) src/lib.rs:110-114 silently discards traversal and permission errors, allowing incomplete scans to report success; (5) src/lib.rs:166-180 labels outbound wikilink targets as backlinks, producing incorrect relationship semantics; (6) src/lib.rs:94-98 accepts any existing filesystem object rather than requiring a directory; and (7) the durable verification receipt contains no build or behavioral test evidence for these paths."
+  },
+  "tests": [
+    {
+      "details": "check_id=clean-tree exit_code=0 output_digest=sha256:708054e20f8345e96aa29aa3d3ae50e6245e6723619f1f57c1486f2c2ef9c451",
+      "duration_ms": null,
+      "name": "git diff --exit-code HEAD --",
+      "status": "passed"
+    }
+  ]
+}

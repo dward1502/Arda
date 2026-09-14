@@ -25,6 +25,7 @@ export type { ArandurQueueWriteRequest, HumanAugmentationApproval } from './modu
 export { default as ReviewGateWorkstation } from './modules/ReviewGateWorkstation'
 export { buildReviewGateDecisionRecordPreview } from './modules/ReviewGateWorkstation'
 export type { ReviewGateDecisionStatus, ReviewGateItem } from './modules/ReviewGateWorkstation'
+export { default as GovernanceGuardhouseWorkstation } from './modules/GovernanceGuardhouseWorkstation'
 export { default as HermesDashboardModule } from './modules/HermesDashboardModule'
 export { default as QueueProvenancePanel } from './modules/QueueProvenancePanel'
 export { default as SourceActionContractPanel } from './modules/SourceActionContractPanel'

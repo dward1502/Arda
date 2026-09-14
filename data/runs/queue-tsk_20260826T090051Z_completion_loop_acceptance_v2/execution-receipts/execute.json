@@ -1,0 +1,69 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [
+    {
+      "digest": "sha256:0fe780361c2621c3340748d41c7fb882d3e8b65065d8c99daf9ef8943600f61c",
+      "path": "target/arda-completion-loop-acceptance-v2.txt"
+    }
+  ],
+  "idempotency_key": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "apr_completion_loop_acceptance_v2"
+  ],
+  "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+  "receipt_digest": "sha256:67db53e5b64e00a771f52b7256dbbcfe954d947bc0c298cd7af141faf2d9b6bb",
+  "recorded_at_unix_ms": 1787734954474,
+  "run_id": "queue-tsk_20260826T090051Z_completion_loop_acceptance_v2",
+  "schema_version": "arda.execution-receipt.v1",
+  "status": "succeeded",
+  "summary": "Created and byte-for-byte verified the requested acceptance artifact; the declared arda-core test check passed.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:b37ec8971a264a39d5f84dd79001fe002e8e20d1e19fc07e9194081a2b9c59ea",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "cargo test -p arda-core",
+      "exit_code": 0,
+      "output_digest": "sha256:b37ec8971a264a39d5f84dd79001fe002e8e20d1e19fc07e9194081a2b9c59ea",
+      "tool": "terminal"
+    },
+    {
+      "action": "{\"content\":\"arda-completion-loop-verified-v2\\n\",\"path\":\"/var/home/mythos/Eregion/Arda/target/arda-completion-loop-acceptance-v2.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:dd0d094839f4617614af85281f2d92a0eceecc94c9ea4f556cbcb37d9831c78b",
+      "tool": "write_file"
+    },
+    {
+      "action": "python3 -c \"from pathlib import Path; p=Path('target/arda-completion-loop-acceptance-v2.txt'); data=p.read_bytes(); assert data == b'arda-completion-loop-verified-v2\\\\n', repr(data)\" && sha256sum target/arda-completion-loop-acceptance-v2.txt",
+      "exit_code": -1,
+      "output_digest": "sha256:a5aa6f70ca01a8141d442123cf510b04d7211f6c9aac63fd73f8f2d0eef37462",
+      "tool": "terminal"
+    },
+    {
+      "action": "printf 'arda-completion-loop-verified-v2\\n' | cmp - target/arda-completion-loop-acceptance-v2.txt && sha256sum target/arda-completion-loop-acceptance-v2.txt",
+      "exit_code": 0,
+      "output_digest": "sha256:4720a4df10d347caaaba7c446da0b9c23775e76a274cd9a025acdce30af5a799",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 5,
+    "completed": true,
+    "cost_measurement": "estimated",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 12504,
+    "model": "gpt-5.6-sol",
+    "output_tokens": 1295,
+    "provider": "openai-codex",
+    "total_tokens": 13799
+  }
+}

@@ -3,7 +3,9 @@
 This guide defines contributor-facing repository rules that complement
 [`AGENTS.md`](../AGENTS.md). Product identity and evidence vocabulary are owned
 by the [Arda 1.0 product doctrine](architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)
-and the [current 0.9 improvement plan](plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
+and the [current 0.9 baseline](releases/0.9/BASELINE.md). The finite
+[0.9 improvement plan](archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)
+is retained as completed history.
 
 ## Active-plan completion claims
 
@@ -44,7 +46,7 @@ not as current-state claims.
 Run the contributor gate before closing plan work:
 
 ```bash
-python scripts/hades_markdown_link_check.py \
+python scripts/rumil_markdown_link_check.py \
   --root docs/plans \
   --out /tmp/arda-doc-health.md \
   --check-completion-language
@@ -54,5 +56,5 @@ The checker reports `unqualified_completion_claim` and
 `missing_evidence_link` with file and line locations. Its focused tests are:
 
 ```bash
-python -m unittest tests.test_hades_markdown_link_check -v
+python -m unittest tests.test_rumil_markdown_link_check -v
 ```

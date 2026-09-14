@@ -107,13 +107,66 @@ pub enum AcknowledgementStatus {
     Rejected,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ObjectiveBudgetProjection {
+    pub max_joules: f64,
+    pub max_cost_usd: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ObjectiveProjection {
     pub objective_id: String,
     pub project_id: Option<String>,
     pub title: String,
     pub status: ObjectiveStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_task_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_run_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_node_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub evidence: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_continuation: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_wake_at: Option<DateTime<Utc>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provider_route: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub budget: Option<ObjectiveBudgetProjection>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub blocker: Option<String>,
+}
+
+impl ObjectiveProjection {
+    /// Creates the stable required objective identity while defaulting additive
+    /// read-only control fields for Rust consumers migrating from the v1 shape.
+    #[must_use]
+    pub fn new(
+        objective_id: impl Into<String>,
+        project_id: Option<String>,
+        title: impl Into<String>,
+        status: ObjectiveStatus,
+    ) -> Self {
+        Self {
+            objective_id: objective_id.into(),
+            project_id,
+            title: title.into(),
+            status,
+            current_task_id: None,
+            current_run_id: None,
+            current_node_id: None,
+            evidence: Vec::new(),
+            next_continuation: None,
+            next_wake_at: None,
+            provider_route: None,
+            budget: None,
+            blocker: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -326,6 +379,48 @@ impl OperatorProjection {
         for objective in &self.objectives {
             require_text("objective_id", &objective.objective_id)?;
             require_text("objective.title", &objective.title)?;
+            if let Some(task_id) = &objective.current_task_id {
+                require_text("objective.current_task_id", task_id)?;
+            }
+            if let Some(run_id) = &objective.current_run_id {
+                if !self
+                    .runs
+                    .iter()
+                    .any(|run| run.run_id == *run_id && run.objective_id == objective.objective_id)
+                {
+                    return Err(OperatorProjectionError::MissingReference {
+                        lane: format!("objective:{}", objective.objective_id),
+                        field: "current_run_id".to_string(),
+                        id: run_id.clone(),
+                    });
+                }
+            }
+            if let Some(node_id) = &objective.current_node_id {
+                require_text("objective.current_node_id", node_id)?;
+                let current_run = objective
+                    .current_run_id
+                    .as_deref()
+                    .and_then(|run_id| self.runs.iter().find(|run| run.run_id == run_id));
+                if !current_run
+                    .is_some_and(|run| run.nodes.iter().any(|node| node.node_id == *node_id))
+                {
+                    return Err(OperatorProjectionError::MissingReference {
+                        lane: format!("objective:{}", objective.objective_id),
+                        field: "current_node_id".to_string(),
+                        id: node_id.clone(),
+                    });
+                }
+            }
+            if let Some(route) = &objective.provider_route {
+                require_text("objective.provider_route", route)?;
+            }
+            if let Some(blocker) = &objective.blocker {
+                require_text("objective.blocker", blocker)?;
+            }
+            if let Some(budget) = &objective.budget {
+                validate_non_negative("objective.budget.max_joules", budget.max_joules)?;
+                validate_non_negative("objective.budget.max_cost_usd", budget.max_cost_usd)?;
+            }
         }
         for run in &self.runs {
             if !objective_ids.contains(run.objective_id.as_str()) {

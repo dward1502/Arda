@@ -121,3 +121,76 @@ fn typed_state_restore_rejects_stale_schema() {
         MONITOR_SESSION_REGISTRY_SCHEMA_VERSION
     );
 }
+
+#[test]
+fn typed_state_restarts_from_durable_five_session_registry() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("monitor-session-registry.json");
+    let descriptors = [
+        serde_json::json!({"kind": "web", "url": "https://example.invalid"}),
+        serde_json::json!({"kind": "youtube", "videoId": "dQw4w9WgXcQ"}),
+        serde_json::json!({"kind": "document", "source": {"kind": "local", "path": "docs/a.md"}, "documentKind": "markdown"}),
+        serde_json::json!({"kind": "terminal", "sessionId": "terminal-main", "readOnly": true}),
+        serde_json::json!({"kind": "remote_session", "sessionId": "remote-main", "streamUrl": "https://example.invalid/live.m3u8", "transport": "hls"}),
+    ];
+
+    {
+        let state = TypedMonitorSurfaceState::with_persistence_path(path.clone()).unwrap();
+        for (index, descriptor) in descriptors.into_iter().enumerate() {
+            state
+                .claim_session(record(
+                    &format!("monitor_{}", index + 1),
+                    &format!("agent-{}", index + 1),
+                    descriptor,
+                ))
+                .unwrap();
+        }
+    }
+
+    let restarted = TypedMonitorSurfaceState::with_persistence_path(path).unwrap();
+    let snapshot = restarted.snapshot();
+    assert_eq!(snapshot.sessions.len(), 5);
+    for index in 1..=5 {
+        let slot = format!("monitor_{index}");
+        assert_eq!(snapshot.sessions[&slot].slot_id, slot);
+        assert_eq!(snapshot.sessions[&slot].owner, format!("agent-{index}"));
+        assert_eq!(
+            snapshot.sessions[&slot].workstation_handoff.session_id,
+            format!("session-monitor_{index}")
+        );
+    }
+}
+
+#[test]
+fn typed_state_rejects_corrupt_durable_registry() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("monitor-session-registry.json");
+    std::fs::write(&path, b"not-json").unwrap();
+
+    let error = TypedMonitorSurfaceState::with_persistence_path(path).unwrap_err();
+    assert!(error.contains("parse durable monitor session registry"));
+}
+
+#[test]
+fn durable_restore_is_ready_and_ignores_stale_frontend_state() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("monitor-session-registry.json");
+    let state = TypedMonitorSurfaceState::with_persistence_path(path.clone()).unwrap();
+    assert!(state.presentation_ready());
+    let stale = state.snapshot();
+    state
+        .claim_session(record(
+            "monitor_1",
+            "agent-one",
+            serde_json::json!({"kind": "web", "url": "https://example.invalid"}),
+        ))
+        .unwrap();
+    drop(state);
+    let restarted = TypedMonitorSurfaceState::with_persistence_path(path.clone()).unwrap();
+    assert!(restarted.presentation_ready());
+    restarted.restore(stale).unwrap();
+    assert_eq!(restarted.snapshot().sessions.len(), 1);
+    let disk: SessionRegistryDocument =
+        serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+    assert_eq!(disk.sessions.len(), 1);
+}

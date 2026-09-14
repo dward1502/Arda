@@ -1,23 +1,22 @@
 export type OperatorWindowId = 'main' | string;
 
 export type HermesRuntimeHealth = {
+  readonly schemaVersion: 'arda.system-health.hermes.v1';
+  readonly state: 'healthy' | 'degraded' | 'starting' | 'unavailable' | 'failed';
+  readonly sourceRevision: string;
+  readonly sourceTimeUtc: string;
   readonly runtimeAvailable: boolean;
   readonly runtimeIdentity: string | null;
   readonly runtimeLaunched: boolean;
   readonly runtimeReady: boolean;
-  readonly runtimeVersion: string | null;
-  readonly sessionDirectory: string | null;
-  readonly spotsCount: number;
-  readonly spotsActive: number;
-  readonly url: string | null;
-  readonly port: number | null;
+  readonly url: string;
+  readonly port: number;
   readonly probes: Readonly<{
     readonly port: boolean;
     readonly identity: boolean;
-    readonly version: boolean;
-    readonly sessionDirectory: boolean;
-    readonly atLeastOneSpot: boolean;
   }>;
+  readonly failure: string | null;
+  readonly recoveryAction: string | null;
 };
 
 export type LaunchHermesRuntimeResult = {
@@ -25,31 +24,30 @@ export type LaunchHermesRuntimeResult = {
   readonly ready: boolean;
   readonly url: string | null;
   readonly port: number | null;
-  readonly identity: string | null;
-  readonly spotCount: number;
+  readonly runtimeIdentity?: string | null;
+  readonly state?: string;
   readonly source?: string | null;
   readonly failure?: string | null;
 };
 
 class OperatorStore {
   #health: HermesRuntimeHealth = {
+    schemaVersion: 'arda.system-health.hermes.v1',
+    state: 'unavailable',
+    sourceRevision: 'unobserved',
+    sourceTimeUtc: '',
     runtimeAvailable: false,
     runtimeIdentity: null,
     runtimeLaunched: false,
     runtimeReady: false,
-    runtimeVersion: null,
-    sessionDirectory: null,
-    spotsCount: 0,
-    spotsActive: 0,
-    url: null,
-    port: null,
+    url: 'http://127.0.0.1:9119',
+    port: 9119,
     probes: {
       port: false,
       identity: false,
-      version: false,
-      sessionDirectory: false,
-      atLeastOneSpot: false,
     },
+    failure: null,
+    recoveryAction: null,
   };
 
   readonly maxSpots: number;
@@ -65,6 +63,13 @@ class OperatorStore {
   patch(
     partial: Partial<HermesRuntimeHealth>,
   ): HermesRuntimeHealth {
+    if (
+      partial.sourceTimeUtc
+      && this.#health.sourceTimeUtc
+      && partial.sourceTimeUtc < this.#health.sourceTimeUtc
+    ) {
+      return this.#health;
+    }
     this.#health = {
       ...this.#health,
       ...partial,
@@ -75,23 +80,22 @@ class OperatorStore {
 
   reset(): void {
     this.#health = {
+      schemaVersion: 'arda.system-health.hermes.v1',
+      state: 'unavailable',
+      sourceRevision: 'unobserved',
+      sourceTimeUtc: '',
       runtimeAvailable: false,
       runtimeIdentity: null,
       runtimeLaunched: false,
       runtimeReady: false,
-      runtimeVersion: null,
-      sessionDirectory: null,
-      spotsCount: 0,
-      spotsActive: 0,
-      url: null,
-      port: null,
+      url: 'http://127.0.0.1:9119',
+      port: 9119,
       probes: {
         port: false,
         identity: false,
-        version: false,
-        sessionDirectory: false,
-        atLeastOneSpot: false,
       },
+      failure: null,
+      recoveryAction: null,
     };
   }
 }

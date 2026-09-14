@@ -100,12 +100,90 @@ struct WorkstationWindowRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct HermesRuntimeWindowResult {
     window_label: String,
     url: String,
     port: u16,
-    launched_process: bool,
-    already_listening: bool,
+    launched: bool,
+    ready: bool,
+    runtime_identity: Option<String>,
+    state: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct HermesRuntimeHealth {
+    schema_version: &'static str,
+    state: &'static str,
+    source_revision: String,
+    source_time_utc: String,
+    runtime_available: bool,
+    runtime_identity: Option<String>,
+    runtime_launched: bool,
+    runtime_ready: bool,
+    url: String,
+    port: u16,
+    probes: HermesRuntimeProbes,
+    failure: Option<String>,
+    recovery_action: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct HermesRuntimeProbes {
+    port: bool,
+    identity: bool,
+}
+
+impl HermesRuntimeStatus {
+    fn health(&self) -> HermesRuntimeHealth {
+        let observed_at = chrono::Utc::now().to_rfc3339();
+        HermesRuntimeHealth {
+            schema_version: "arda.system-health.hermes.v1",
+            state: match self.state.as_str() {
+                "ready" => "healthy",
+                "blocked" => "degraded",
+                "starting" => "starting",
+                _ => "unavailable",
+            },
+            source_revision: format!("native-probe:{observed_at}"),
+            source_time_utc: observed_at,
+            runtime_available: self.identity_verified,
+            runtime_identity: self
+                .identity_verified
+                .then(|| "hermes-dashboard".to_string()),
+            runtime_launched: self.owned_process_running,
+            runtime_ready: self.identity_verified,
+            url: self.url.clone(),
+            port: self.port,
+            probes: HermesRuntimeProbes {
+                port: self.port_open,
+                identity: self.identity_verified,
+            },
+            failure: (!self.identity_verified).then(|| self.message.clone()),
+            recovery_action: match self.state.as_str() {
+                "blocked" => {
+                    Some("Resolve the conflicting listener before launching Hermes".into())
+                }
+                "offline" => Some("Launch Hermes runtime".into()),
+                _ => None,
+            },
+        }
+    }
+
+    fn window_result(&self, launched: bool) -> HermesRuntimeWindowResult {
+        HermesRuntimeWindowResult {
+            window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
+            url: self.url.clone(),
+            port: self.port,
+            launched,
+            ready: self.identity_verified,
+            runtime_identity: self
+                .identity_verified
+                .then(|| "hermes-dashboard".to_string()),
+            state: self.state.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -2495,20 +2573,23 @@ fn read_hermes_runtime_status(
 }
 
 #[tauri::command]
+async fn read_hermes_runtime_health(
+    state: State<'_, HermesRuntimeState>,
+) -> Result<HermesRuntimeHealth, String> {
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || read_hermes_runtime_status_inner(&state).health())
+        .await
+        .map_err(|error| format!("Hermes runtime health task failed: {error}"))
+}
+
+#[tauri::command]
 async fn ensure_hermes_runtime_surface(
     state: State<'_, HermesRuntimeState>,
 ) -> Result<HermesRuntimeWindowResult, String> {
     let state = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let (launched_process, already_listening) = ensure_hermes_runtime_process(&state)?;
-        let config = hermes_runtime_config();
-        Ok(HermesRuntimeWindowResult {
-            window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
-            url: config.url(),
-            port: config.port,
-            launched_process,
-            already_listening,
-        })
+        let (launched_process, _) = ensure_hermes_runtime_process(&state)?;
+        Ok(read_hermes_runtime_status_inner(&state).window_result(launched_process))
     })
     .await
     .map_err(|error| format!("Hermes runtime readiness task failed: {error}"))?
@@ -2520,18 +2601,11 @@ fn open_hermes_runtime_window(
     state: State<'_, HermesRuntimeState>,
 ) -> Result<HermesRuntimeWindowResult, String> {
     if let Some(window) = app.get_webview_window(HERMES_RUNTIME_WINDOW_LABEL) {
-        let (_launched_process, already_listening) = ensure_hermes_runtime_process(&state)?;
-        let config = hermes_runtime_config();
+        let (launched_process, _) = ensure_hermes_runtime_process(&state)?;
         let _ = window.unminimize();
         let _ = window.show();
         window.set_focus().map_err(|e| e.to_string())?;
-        return Ok(HermesRuntimeWindowResult {
-            window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
-            url: config.url(),
-            port: config.port,
-            launched_process: false,
-            already_listening,
-        });
+        return Ok(read_hermes_runtime_status_inner(&state).window_result(launched_process));
     }
 
     let (launched_process, already_listening) = ensure_hermes_runtime_process(&state)?;
@@ -2571,13 +2645,7 @@ fn open_hermes_runtime_window(
         }),
     );
 
-    Ok(HermesRuntimeWindowResult {
-        window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
-        url,
-        port: config.port,
-        launched_process,
-        already_listening,
-    })
+    Ok(read_hermes_runtime_status_inner(&state).window_result(launched_process))
 }
 
 fn hermes_terminal_window_path() -> &'static str {
@@ -2952,6 +3020,55 @@ mod surface_bridge_tests {
     use super::*;
 
     #[test]
+    fn hermes_native_dtos_match_frontend_and_require_identity() {
+        for (state, port_open, verified, owned, expected) in [
+            ("ready", true, true, false, "healthy"),
+            ("blocked", true, false, false, "degraded"),
+            ("starting", false, false, true, "starting"),
+            ("offline", false, false, false, "unavailable"),
+        ] {
+            let status = HermesRuntimeStatus {
+                url: "http://127.0.0.1:9119".into(),
+                host: "127.0.0.1".into(),
+                port: 9119,
+                port_open,
+                identity_verified: verified,
+                owned_process_running: owned,
+                state: state.into(),
+                message: "probe result".into(),
+            };
+            let health = serde_json::to_value(status.health()).unwrap();
+            assert_eq!(health["schemaVersion"], "arda.system-health.hermes.v1");
+            assert_eq!(health["state"], expected);
+            assert_eq!(health["runtimeReady"], verified);
+            assert_eq!(health["runtimeAvailable"], verified);
+            assert_eq!(health["runtimeLaunched"], owned);
+            assert_eq!(health["probes"]["port"], port_open);
+            assert_eq!(health["probes"]["identity"], verified);
+            assert_eq!(health["runtimeIdentity"].is_string(), verified);
+            assert_eq!(health["failure"].is_null(), verified);
+            assert!(health["sourceRevision"]
+                .as_str()
+                .unwrap()
+                .starts_with("native-probe:"));
+            assert!(chrono::DateTime::parse_from_rfc3339(
+                health["sourceTimeUtc"].as_str().unwrap()
+            )
+            .is_ok());
+            let result = serde_json::to_value(status.window_result(owned)).unwrap();
+            assert_eq!(result["windowLabel"], HERMES_RUNTIME_WINDOW_LABEL);
+            assert_eq!(result["launched"], owned);
+            assert_eq!(result["ready"], verified);
+            assert_eq!(result["runtimeIdentity"], health["runtimeIdentity"]);
+            assert_eq!(result["state"], state);
+            assert_eq!(result["url"], health["url"]);
+            assert_eq!(result["port"], health["port"]);
+            assert!(result.get("launched_process").is_none());
+            assert!(result.get("window_label").is_none());
+        }
+    }
+
+    #[test]
     fn test_is_allowed_focus_mode() {
         assert!(is_allowed_focus_mode("in_scene_workstation"));
         assert!(is_allowed_focus_mode("native_window"));
@@ -3010,14 +3127,22 @@ pub fn run() {
         .manage(HermesRuntimeState::default())
         .manage(WorkbenchEventStreamState::default())
         .manage(MonitorSurfaceState::default())
-        .manage(TypedMonitorSurfaceState::new())
         .manage(BrowserCaptureState::default())
         .manage(PtyCaptureState::default())
         .manage(mirromere::MirromereInteractionReceiptState::default())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            let registry_path = app
+                .path()
+                .app_data_dir()?
+                .join("monitor-surface-registry.json");
+            let monitor_state = TypedMonitorSurfaceState::with_persistence_path(registry_path)
+                .map_err(std::io::Error::other)?;
+            app.manage(monitor_state);
             #[cfg(unix)]
-            if let Err(error) = commands::monitor_surface::presentation_socket::start(app.handle().clone()) {
+            if let Err(error) =
+                commands::monitor_surface::presentation_socket::start(app.handle().clone())
+            {
                 eprintln!("HUD presentation adapter unavailable: {error}");
             }
             Ok(())
@@ -3068,6 +3193,8 @@ pub fn run() {
             stop_hud_pulse_stream,
             ensure_hermes_runtime_surface,
             read_hermes_runtime_status,
+            read_hermes_runtime_health,
+            commands::system_health::read_manwe_runtime_projection,
             open_hermes_runtime_window,
             open_hermes_terminal_window,
             open_workstation_window,

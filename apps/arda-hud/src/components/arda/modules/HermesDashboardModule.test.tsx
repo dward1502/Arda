@@ -39,29 +39,30 @@ describe('HermesDashboardModule', () => {
   it('shows verified Hermes dashboard status after launch', async () => {
     readHermesRuntimeHealth.mockResolvedValue({
       health: {
+        schemaVersion: 'arda.system-health.hermes.v1',
+        state: 'healthy',
+        sourceRevision: 'hermes-127.0.0.1-9119-healthy-true',
+        sourceTimeUtc: '2026-08-11T16:30:00Z',
         url: 'http://127.0.0.1:9119',
+        port: 9119,
         runtimeAvailable: true,
         runtimeReady: true,
         runtimeLaunched: true,
-        runtimeIdentity: null,
-        runtimeVersion: null,
-        sessionDirectory: null,
-        spotsCount: 1,
-        spotsActive: 1,
-        probes: { port: true, identity: true, version: true, sessionDirectory: true, atLeastOneSpot: true },
+        runtimeIdentity: 'hermes-dashboard:127.0.0.1:9119',
+        probes: { port: true, identity: true },
         failure: null,
+        recoveryAction: null,
       },
       surfaceAvailable: true,
     })
     ensureHermesRuntimeSpots.mockResolvedValue({
-      window_label: 'arda-workstation-hermes_runtime_workstation',
+      windowLabel: 'arda-workstation-hermes_runtime_workstation',
       url: 'http://127.0.0.1:9119',
       port: 9119,
       launched: true,
       ready: true,
-      identity: null,
-      spotCount: 1,
-      failure: null,
+      runtimeIdentity: 'hermes-dashboard:127.0.0.1:9119',
+      state: 'healthy',
     })
 
     renderModule()
@@ -76,17 +77,19 @@ describe('HermesDashboardModule', () => {
   it('surfaces launch errors and keeps diagnostics visible', async () => {
     readHermesRuntimeHealth.mockResolvedValue({
       health: {
-        url: null,
-        runtimeAvailable: false,
+        schemaVersion: 'arda.system-health.hermes.v1',
+        state: 'degraded',
+        sourceRevision: 'hermes-127.0.0.1-9119-degraded-false',
+        sourceTimeUtc: '2026-08-11T16:31:00Z',
+        url: 'http://127.0.0.1:9119',
+        port: 9119,
+        runtimeAvailable: true,
         runtimeReady: false,
         runtimeLaunched: false,
         runtimeIdentity: null,
-        runtimeVersion: null,
-        sessionDirectory: null,
-        spotsCount: 0,
-        spotsActive: 0,
-        probes: { port: false, identity: false, version: false, sessionDirectory: false, atLeastOneSpot: false },
+        probes: { port: true, identity: false },
         failure: 'Port 9119 is already listening, but it did not identify as Hermes dashboard',
+        recoveryAction: 'Stop the conflicting listener or configure ARDA_HERMES_RUNTIME_PORT',
       },
       surfaceAvailable: false,
     })

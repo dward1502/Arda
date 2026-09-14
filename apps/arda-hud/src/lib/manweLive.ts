@@ -116,24 +116,21 @@ export interface CharonHealthPayload {
 }
 
 export interface ManweLiveSnapshot {
+  schemaVersion: 'arda.system-health.manwe.v1'
+  state: 'healthy' | 'degraded' | 'partial' | 'unavailable'
+  sourceRevision: string
+  sourceTimeUtc: string
+  recoveryAction: string | null
+  sources: Array<{
+    sourceId: 'health' | 'capabilities' | 'provider_candidates'
+    path: string
+    state: 'observed' | 'degraded' | 'unavailable'
+    error: string | null
+  }>
   health: CharonHealthPayload | null
   capabilities: CharonCapabilitiesPayload | null
   providerCandidates: CharonProviderCandidatesPayload | null
   loadedAt: string | null
-}
-
-async function readCharonJson<T>(path: string): Promise<T> {
-  if (IS_TAURI) {
-    return invoke<T>('read_charon_json', { path })
-  }
-  const charonUrl = `${MANWE_BASE_URL}${path}`
-  const response = await fetch(charonUrl, {
-    headers: { Accept: 'application/json' },
-  })
-  if (!response.ok) {
-    throw new Error(`Charon ${path} returned ${response.status}`)
-  }
-  return response.json() as Promise<T>
 }
 
 async function readManweJson<T>(path: string): Promise<T> {
@@ -147,15 +144,54 @@ async function readManweJson<T>(path: string): Promise<T> {
 }
 
 export async function loadManweLiveSnapshot(): Promise<ManweLiveSnapshot> {
-  const [health, capabilities, providerCandidates] = await Promise.all([
-    readManweJson<CharonHealthPayload>('/healthz').catch(() => readCharonJson<CharonHealthPayload>('/health')),
-    readManweJson<CharonCapabilitiesPayload>('/providers/capabilities').catch(() => readCharonJson<CharonCapabilitiesPayload>('/providers/capabilities')),
-    readManweJson<CharonProviderCandidatesPayload>('/provider_candidates').catch(() => readCharonJson<CharonProviderCandidatesPayload>('/provider_candidates')),
-  ])
+  if (IS_TAURI) {
+    const projection = await invoke<Omit<ManweLiveSnapshot, 'loadedAt'>>('read_manwe_runtime_projection')
+    return { ...projection, loadedAt: projection.sourceTimeUtc }
+  }
+
+  const observedAt = new Date().toISOString()
+  const requests = [
+    ['health', '/healthz'],
+    ['capabilities', '/providers/capabilities'],
+    ['provider_candidates', '/provider_candidates'],
+  ] as const
+  const results = await Promise.allSettled(requests.map(([, path]) => readManweJson<unknown>(path)))
+  const values = results.map((result) => result.status === 'fulfilled' ? result.value : null)
+  const sources = results.map((result, index) => ({
+    sourceId: requests[index][0],
+    path: requests[index][1],
+    state: result.status === 'rejected'
+      ? 'unavailable' as const
+      : (result.value as { ok?: boolean }).ok === false
+        ? 'degraded' as const
+        : 'observed' as const,
+    error: result.status === 'rejected' ? (result.reason instanceof Error ? result.reason.message : String(result.reason)) : null,
+  }))
+  const available = values.filter((value) => value !== null).length
+  const state = available === 0
+    ? 'unavailable' as const
+    : available < requests.length
+      ? 'partial' as const
+      : sources.some((source) => source.state === 'degraded')
+        ? 'degraded' as const
+        : 'healthy' as const
+  const recoveryAction = state === 'partial'
+    ? 'Restore the unavailable Manwe projection source; observed sources remain authoritative.'
+    : state === 'degraded'
+      ? 'Inspect Manwe source diagnostics before routing new work.'
+      : state === 'unavailable'
+        ? 'Start or repair the configured Manwe runtime, then refresh system health.'
+        : null
   return {
-    health,
-    capabilities,
-    providerCandidates,
-    loadedAt: new Date().toISOString(),
+    schemaVersion: 'arda.system-health.manwe.v1',
+    state,
+    sourceRevision: `browser-development-${observedAt}`,
+    sourceTimeUtc: observedAt,
+    recoveryAction,
+    sources,
+    health: values[0] as CharonHealthPayload | null,
+    capabilities: values[1] as CharonCapabilitiesPayload | null,
+    providerCandidates: values[2] as CharonProviderCandidatesPayload | null,
+    loadedAt: observedAt,
   }
 }

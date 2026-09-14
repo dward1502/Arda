@@ -72,7 +72,7 @@ export default function CharonCapabilityPanel({ snapshot, error, loading, storag
     })
     .slice(0, 6)
   const visibleCandidates = candidates.slice(0, 6)
-  const liveState = error ? 'blocked' : loading && !snapshot ? 'loading' : snapshot ? 'observed' : 'unknown'
+  const liveState = error ? 'blocked' : loading && !snapshot ? 'loading' : snapshot?.state ?? 'unknown'
   const offlineMode = !snapshot && !loading
   const fallbackNote = offlineMode ? 'Live endpoint unreachable; showing local default until Charon/Hermes endpoints respond.' : ''
 
@@ -86,7 +86,7 @@ export default function CharonCapabilityPanel({ snapshot, error, loading, storag
         <article className={`systems-kpi ${error ? 'systems-kpi--warn' : 'systems-kpi--good'}`}>
           <span className="systems-kpi__label">Live Feed</span>
           <strong className="systems-kpi__value">{liveState}</strong>
-          <span className="systems-kpi__note">{error || `updated ${formatTime(snapshot?.loadedAt)}`}</span>
+          <span className="systems-kpi__note">{error || `source ${formatTime(snapshot?.sourceTimeUtc)}`}</span>
         </article>
         <article className="systems-kpi systems-kpi--idle">
           <span className="systems-kpi__label">Fallback</span>
@@ -129,6 +129,9 @@ export default function CharonCapabilityPanel({ snapshot, error, loading, storag
           active probes {snapshot?.providerCandidates?.promotion_guard.active_capability_probes_enabled ? 'on' : 'off'}
         </span>
       </div>
+      {snapshot?.recoveryAction ? (
+        <p className="systems-panel__note">Recovery: {snapshot.recoveryAction}</p>
+      ) : null}
       <div className="systems-detail-grid">
         <div className="systems-detail-block">
           <div className="systems-detail-block__label">Provider Evidence</div>

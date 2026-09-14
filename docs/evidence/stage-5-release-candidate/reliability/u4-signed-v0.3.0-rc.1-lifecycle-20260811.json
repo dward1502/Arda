@@ -1,0 +1,41 @@
+{
+  "acceptance": {
+    "backup": true,
+    "candidate_default_launch_survived_3s": true,
+    "candidate_launch_survived_3s": true,
+    "diagnostics": true,
+    "final_signed_artifact_exercised": true,
+    "fresh_install": true,
+    "rollback": true,
+    "source_repository_unchanged": true,
+    "state_preserved_after_uninstall": true,
+    "terminal_run_truth_preserved": true,
+    "uninstall": true,
+    "upgrade": true
+  },
+  "artifacts": {
+    "baseline_sha256": "32a176b8f07edb1a67a757465527c3bbbb70db9ae221c888ae1db7a6d814562a",
+    "candidate_sha256": "f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3",
+    "installed_candidate_sha256": "f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3",
+    "restored_baseline_sha256": "32a176b8f07edb1a67a757465527c3bbbb70db9ae221c888ae1db7a6d814562a"
+  },
+  "blocker": null,
+  "contract": "arda.stage5.u4-lifecycle-evidence.v1",
+  "generated_at_utc": "2026-08-11T22:45:40.475002Z",
+  "launch_recovery": {
+    "default_return_code": null,
+    "override": null,
+    "required": false
+  },
+  "mutation_scope": "isolated temporary operator home only",
+  "signing": {
+    "bundle": "arda-launcher_0.3.0-rc.1_amd64.AppImage.sigstore.json",
+    "bundle_sha256": "2ad7c70167fc520bb1315baa3164a4b8956df048984de0c8ee4d22a22c07cc55",
+    "certificate_identity": "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/v0.3.0-rc.1",
+    "certificate_oidc_issuer": "https://token.actions.githubusercontent.com",
+    "status": "pass",
+    "verified": true
+  },
+  "status": "pass-signed-candidate-lifecycle",
+  "supported_profile": "bluefin-lts-10-x86_64"
+}

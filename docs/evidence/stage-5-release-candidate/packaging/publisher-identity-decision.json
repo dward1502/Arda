@@ -1,7 +1,7 @@
 {
   "contract": "arda.stage5.publisher-identity-decision.v1",
-  "generated_at_utc": "2026-08-01T18:49:02Z",
-  "status": "selected-activation-pending",
+  "generated_at_utc": "2026-08-01T19:09:10Z",
+  "status": "activated",
   "decision": {
     "scheme": "sigstore-keyless-github-oidc",
     "rationale": [
@@ -20,8 +20,10 @@
     "actions_enabled": true,
     "allowed_actions": "all",
     "sha_pinning_required_remotely": false,
-    "main_branch_protected": false,
-    "environments": []
+    "main_branch_protected": true,
+    "environments": [
+      "production-release"
+    ]
   },
   "implemented_controls": {
     "action_revisions_pinned": true,
@@ -43,18 +45,21 @@
       "status": "pass"
     },
     "policy_updated": "SECURITY.md",
-    "runbook_updated": "docs/operator/release-candidate-packaging-signing.md"
+    "runbook_updated": "docs/operator/release-candidate-packaging-signing.md",
+    "production_activation_receipt": "docs/evidence/stage-5-release-candidate/packaging/production-signing-activation.json"
   },
-  "activation_gates": [
-    "Commit and push the workflow through normal repository review.",
-    "Create the production-release environment with a required maintainer reviewer.",
-    "Protect main and require review for signing-workflow changes.",
-    "Generate final normalized artifacts and publish a reviewed v* release.",
-    "Require the workflow run and all six identity-bound bundle verifications to pass before distribution."
-  ],
-  "limitations": [
-    "No remote repository settings were changed and no workflow was pushed from this session.",
-    "No production OIDC signature can be generated before the workflow exists on GitHub and is triggered by a release tag.",
-    "Retained candidate-key signatures cover pre-normalization candidate bytes and are not production publisher signatures."
+  "activation": {
+    "release": "https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.0",
+    "workflow_run": "https://github.com/dward1502/Arda/actions/runs/30714060617",
+    "source_commit": "28cde28b9fd97fdc91de36418da872b1628ae41b",
+    "environment_approval": "pass",
+    "identity_bound_bundle_verifications": 6,
+    "independent_bundle_verifications": 6,
+    "status": "pass"
+  },
+  "residual_governance": [
+    "The repository currently has one collaborator, dward1502, so main-branch admin enforcement remains disabled to avoid deadlocking maintenance.",
+    "The production-release environment requires dward1502 approval but permits self-review while no second trusted maintainer exists.",
+    "Retained candidate-key signatures cover pre-normalization candidate bytes; the v0.3.0-rc.0 OIDC bundles are the production publisher signatures."
   ]
 }

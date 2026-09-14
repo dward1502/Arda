@@ -1,0 +1,32 @@
+{
+  "schema_version": "arda.stage6.operator-release-profile-decision.v1",
+  "recorded_at": "2026-08-11",
+  "stage": "stage-6-legitimate-1.0",
+  "decision": {
+    "authority": "operator",
+    "release_profile": "single-operator-local-supported-profile",
+    "independent_user_evaluation_required": false,
+    "independent_user_evaluation_status": "not_performed",
+    "independent_user_evaluation_disposition": "optional_future_confidence_signal",
+    "approved_choice": "Apply the same single-operator local profile to Stage 6; independent-user evidence is optional and unperformed"
+  },
+  "scope": {
+    "applies_to": "Stage 6 independent-user entry and exit gates",
+    "inherits_stage_5_profile": "docs/evidence/stage-5-release-candidate/release-policy/operator-release-profile-decision-20260811.json",
+    "does_not_waive": [
+      "signed-artifact and supported-matrix verification",
+      "compatibility and frozen-contract evidence",
+      "independent security review",
+      "frontend/backend convergence",
+      "five-monitor native acceptance",
+      "performance, accessibility, documentation, licensing, support, or vulnerability gates",
+      "honest first-party application classification"
+    ],
+    "does_not_claim": [
+      "that an independent user or evaluator session occurred",
+      "broader cohort validation",
+      "remote or multi-user support"
+    ]
+  },
+  "result": "pass"
+}

@@ -44,6 +44,9 @@ arda-mirromere = { path = "../../../crates/spine/interface/arda-mirromere" }
 arda-outpost-protocol = { path = "../../../outposts/arda-outpost-protocol" }
 arda-launcher = { path = "../../arda-launcher/src-tauri", package = "arda-launcher" }
 
+[dev-dependencies]
+tempfile = "3"
+
 [lints.rust]
 unsafe_code = "allow"
 

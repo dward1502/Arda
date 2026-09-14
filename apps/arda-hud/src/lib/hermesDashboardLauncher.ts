@@ -2,14 +2,13 @@ import { safeTauriInvoke } from './tauriGuard'
 import operatorStore, { type HermesRuntimeHealth, type LaunchHermesRuntimeResult } from './operatorStore'
 
 export interface HermesRuntimeWindowResult {
-  readonly window_label: string
-  readonly url: string | null
-  readonly port: number | null
+  readonly windowLabel: string
+  readonly url: string
+  readonly port: number
   readonly launched: boolean
   readonly ready: boolean
-  readonly identity: string | null
-  readonly spotCount: number
-  readonly failure: string | null
+  readonly runtimeIdentity: string | null
+  readonly state: string
 }
 
 export interface HermesRuntimeHealthResult {
@@ -22,42 +21,12 @@ export async function ensureHermesRuntimeSpots(): Promise<HermesRuntimeWindowRes
 }
 
 export async function readHermesRuntimeHealth(): Promise<HermesRuntimeHealthResult> {
-  const status = await safeTauriInvoke<{
-    runtimeAvailable: boolean
-    runtimeIdentity: string | null
-    runtimeReady: boolean
-    runtimeLaunched: boolean
-    runtimeVersion: string | null
-    sessionDirectory: string | null
-    spotsCount: number
-    spotsActive: number
-    url: string | null
-    port: number | null
-    probes: {
-      port: boolean
-      identity: boolean
-      version: boolean
-      sessionDirectory: boolean
-      atLeastOneSpot: boolean
-    }
-    failure: string | null
-  }>('read_hermes_runtime_health')
-
-  operatorStore.patch({
-    runtimeAvailable: status.runtimeAvailable,
-    runtimeIdentity: status.runtimeIdentity,
-    runtimeLaunched: status.runtimeLaunched,
-    runtimeReady: status.runtimeReady,
-    runtimeVersion: status.runtimeVersion,
-    sessionDirectory: status.sessionDirectory,
-    spotsCount: status.spotsCount,
-    spotsActive: status.spotsActive,
-    probes: status.probes,
-  })
+  const status = await safeTauriInvoke<HermesRuntimeHealth>('read_hermes_runtime_health')
+  operatorStore.patch(status)
 
   return {
     health: operatorStore.current,
-    surfaceAvailable: true,
+    surfaceAvailable: operatorStore.current.runtimeReady,
   }
 }
 

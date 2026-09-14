@@ -16,9 +16,9 @@ This directory defines the shared C0 fixture boundary for Rust, the Tauri bridge
 
 | Operation | React supplies | Rust supplies |
 |---|---|---|
-| Plan | project ID, objective text/input mode, authenticated session reference, idempotency key | run/objective/node/edge IDs, graph topology, authority, budgets, retry/checkpoint/provenance, revision |
-| Approve/reject | run ID, node ID, requested operator action, authenticated session and authority references, idempotency key | policy decision, approval ID/time, node transition, receipt |
-| Complete | run ID, node ID, authenticated session and authority references, idempotency key | evidence validation, completion truth, receipt digest, terminal transition |
+| Plan | project ID, objective text/input mode | run/objective/node/edge IDs, graph topology, authority, budgets, retry/checkpoint/provenance, idempotency, revision |
+| Approve/reject | run ID, node ID, requested operator action, approval reference | resolved policy decision and lineage, approval time, idempotency, node transition, receipt |
+| Complete | run ID, node ID, approval reference, provider receipt or operator review evidence | resolved authority, idempotency, evidence validation, completion truth, durable transition |
 
 Cancellation, retry, project attachment, Research, Personal Operations, and monitor claims use the same intent/receipt split.
 
@@ -28,12 +28,14 @@ Names remain unchanged during preparation. C0 implementation versions the payloa
 
 | Surface | Current transport names | Rust owner | Prepared change |
 |---|---|---|---|
-| Project | Tauri `validate_project_contract`, `attach_project_contract`; HTTP `POST /v1/projects/validate`, `POST /v1/projects/attach`, `GET /v1/projects` | `arda-engine::harness::projects` | Attachment accepts authenticated intent/authority references instead of a browser-created approval envelope. |
-| Workbench planning and mutation | Tauri `plan_workbench_run`, `approve_workbench_run`, `complete_workbench_run_node`, `execute_workbench_provider_node`, `cancel_workbench_run`; HTTP `/v1/runs/plan` and `/v1/runs/:id/...` | `arda-engine::harness::runs` | Intent-only requests; Rust creates graph/IDs/decision/time/evidence/receipts. |
+| Hermes system health | Tauri `read_hermes_runtime_health`, `ensure_hermes_runtime_surface`, `open_hermes_runtime_window` | HUD Tauri Hermes runtime state projecting `arda.system-health.hermes.v1` | **Implemented contract path:** five explicit states, verified-only stable identity, source revision/time, recovery action, shared launch/health identity predicate, and stale-response rejection. Native workstation continuity remains an acceptance gate. |
+| Manwë system health | Tauri `read_manwe_runtime_projection`; Rust reads `/healthz`, `/providers/capabilities`, `/provider_candidates` | HUD Tauri `commands::system_health` projecting `arda.system-health.manwe.v1` | **Implemented:** one installed producer, deterministic revision/time, per-source diagnostics, bounded partial state, and recovery action. Direct browser HTTP is development fallback only. |
+| Project | Tauri `validate_project_contract`, `attach_project_contract`; HTTP `POST /v1/projects/validate`, `POST /v1/projects/attach`, `GET /v1/projects` | `arda-engine::harness::projects` with HUD Rust approval resolution | **Implemented contract path:** browser submits an approval reference only; Rust requires configured operator identity plus an externally issued, exact-match, policy-safe, non-expired Oromë envelope and derives resource-bound idempotency. |
+| Workbench planning and mutation | Tauri `plan_workbench_run`, `approve_workbench_run`, `complete_workbench_run_node`, `execute_workbench_provider_node`, `cancel_workbench_run`; HTTP `/v1/runs/plan` and `/v1/runs/:id/...` | HUD Rust canonical intent projection plus `arda-engine::harness::runs` durable journal/checkpoint authority | **Implemented contract path:** React sends objective/approval intent only; Rust creates graph/IDs/authority/budgets/retry/checkpoint/provenance/idempotency and forwards resolved approval. React renders returned records. |
 | Workbench reads and stream | Tauri `get_workbench_run`, `get_workbench_run_events`, `start_workbench_run_event_stream`; HTTP `GET /v1/runs/:id`, `/events`, `/events/stream` | run store plus Tauri bridge | Backend cursor, per-run stream ownership, gap reload, deduplication, reconnect, and terminal closure. |
 | Research | Direct HTTP `/v1/research/questions`, `/watchlists`, `/watchlists/:id/{pause,resume,retire}`, `/briefs` | `arda-engine::harness::research_operator` | Authenticated session plus intent/receipt; remove browser-created approval authority. |
 | Personal Operations | Direct HTTP `/v1/personal/...` capture/item/reminder/data/projection endpoints | `arda-engine::harness::personal_ops` | Authenticated session, stable retry key, aggregate revision, common load state and receipt. |
-| Monitor sessions | Tauri `claim_monitor_slot`, `release_monitor_slot`, `push_surface_payload`, `refresh_monitor_slot_lease` | Tauri monitor-session runtime pending durable Rust ownership | Five canonical slots, typed session/content identity, revision/lease, durable reload, same-session handoff. |
+| Monitor sessions | Tauri typed claim/release/refresh/playback/restore commands | Durable Tauri Rust registry under app data | **Implemented contract path:** five canonical slots, typed session/content identity, revision/lease, atomic durable reload, rollback on write failure, and same-session handoff. Native operator acceptance remains separate. |
 
 ## Projection vocabulary
 
@@ -63,7 +65,7 @@ All non-loading projections name source revision/time. Non-healthy states provid
 
 The canonical upper slots are `monitor_left_1`, `monitor_left_2`, `monitor_center`, `monitor_right_1`, and `monitor_right_2`. Each has independent owner/session/revision/lease/content identity. Opening a workstation uses the same `session_id`; it does not create a copy. The shared fixture deliberately covers web, media, document, terminal, and custom content.
 
-Current `arda.arda_boardroom_slots.v1` data exposes only `monitor_left_1` through `monitor_left_4`; that is an implementation gap, not permission to weaken this contract.
+The runtime maps five canonical physical slots to `monitor_1` through `monitor_5`; the contract fixture's semantic left/center/right names remain a portable layout vocabulary rather than a second registry authority.
 
 ## Shared fixtures
 

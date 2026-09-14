@@ -190,7 +190,8 @@ if [[ "$SKIP_RELOAD" != "true" ]]; then
   systemctl_user daemon-reload
   systemctl_user disable --now arda-aule-autopilot-read-only.timer
   systemctl_user disable --now arda-workbench-queue-executor.timer
-  systemctl_user enable --now arda-aule-autopilot.timer
+  # Resident ObjectiveStore owns scheduling. Never re-enable JSONL replay.
+  systemctl_user disable --now arda-aule-autopilot.timer
   [[ "$(systemctl_user show arda-aule-autopilot.timer --property=LoadState --value)" == "loaded" ]]
 fi
 

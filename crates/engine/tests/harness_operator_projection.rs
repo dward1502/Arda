@@ -1,4 +1,6 @@
 use arda_core::operator_projection::OperatorProjection;
+#[path = "fixtures/objective_agenda.rs"]
+mod objective_agenda;
 use arda_engine::harness::presence::HarnessPresenceState;
 use arda_engine::harness::{
     self, HarnessState, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -28,6 +30,14 @@ fn base_state(workbench_root: PathBuf) -> HarnessState {
 }
 
 fn write_run(root: &Path, body: &str) {
+    objective_agenda::seed(root, "objective-api", "operator-0", "running", 70);
+    rusqlite::Connection::open(root.join("data/arda/objectives.sqlite3"))
+        .unwrap()
+        .execute(
+            "UPDATE leaves SET execution_run_id = 'run-api' WHERE id = 'leaf-objective-api'",
+            [],
+        )
+        .unwrap();
     let directory = root.join("data/runs/run-api");
     std::fs::create_dir_all(&directory).unwrap();
     std::fs::write(directory.join("checkpoint.json"), body).unwrap();
@@ -132,9 +142,17 @@ async fn operator_projection_endpoint_exposes_unavailable_and_invalid_source_sta
     let missing = reqwest::get(format!("{base}/v1/operator-projection"))
         .await
         .unwrap();
-    assert_eq!(missing.status(), 404);
+    assert_eq!(missing.status(), 200);
     let missing_body: Value = missing.json().await.unwrap();
-    assert_eq!(missing_body["state"], "unavailable");
+    assert_eq!(missing_body["objectives"], json!([]));
+    assert!(missing_body["dependencies"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(
+            |dependency| dependency["dependency_id"] == "objective_store"
+                && dependency["health"] == "not_configured"
+        ));
 
     write_run(root.path(), "{not-json");
     let invalid = reqwest::get(format!("{base}/v1/operator-projection"))

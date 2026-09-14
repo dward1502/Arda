@@ -6,6 +6,7 @@ pub const NEXT_ACTION_SCHEMA_VERSION: &str = "arda.next-action.v1";
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum NextActionSourceKind {
+    Objective,
     Queue,
     PersonalOperations,
     Workbench,

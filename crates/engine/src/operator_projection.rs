@@ -1,7 +1,5 @@
-use arda_aule::prometheus::autopilot::{
-    QueueRecord, QueueRecordStatus, ScheduleLedger, ScheduleRecord, ScheduleState,
-    TaskQueueAnalyzer,
-};
+use crate::objectives::agenda::{read_agenda, AgendaObjective, OBJECTIVE_STORE_PATH};
+use crate::objectives::ObjectiveState;
 use arda_core::operator_projection::{
     CapabilityProjection, CommunicationProjection, CouncilProjection, DependencyHealth,
     DependencyProjection, EvidenceProjection, JouleWorkProjection, MeasurementSource,
@@ -29,13 +27,31 @@ pub fn publish_operator_projection(
     root: &Path,
     generated_at: DateTime<Utc>,
 ) -> Result<OperatorProjection, OperatorProjectionPublishError> {
-    let run_root = root.join("data/runs");
-    let entries = fs::read_dir(&run_root).map_err(|source| OperatorProjectionPublishError::Io {
-        path: run_root.clone(),
-        source,
+    let agenda = read_agenda(root).map_err(|error| {
+        OperatorProjectionPublishError::InvalidCanonicalInput {
+            path: root.join(OBJECTIVE_STORE_PATH),
+            error: error.to_string(),
+        }
     })?;
+    let run_root = root.join("data/runs");
+    let entries = match fs::read_dir(&run_root) {
+        Ok(entries) => Some(entries),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+        Err(source) => {
+            return Err(OperatorProjectionPublishError::Io {
+                path: run_root,
+                source,
+            })
+        }
+    };
+    let current_run_ids = agenda
+        .iter()
+        .flatten()
+        .flat_map(|objective| objective.runs.iter().map(|(_, run)| run.clone()))
+        .collect::<BTreeSet<_>>();
+    let mut historical_run_count = 0;
     let mut run_directories = Vec::new();
-    for entry in entries {
+    for entry in entries.into_iter().flatten() {
         let entry = entry.map_err(|source| OperatorProjectionPublishError::Io {
             path: run_root.clone(),
             source,
@@ -48,7 +64,11 @@ pub fn publish_operator_projection(
                 source,
             })?;
         if kind.is_dir() {
-            run_directories.push(path);
+            if current_run_ids.contains(&entry.file_name().to_string_lossy().into_owned()) {
+                run_directories.push(path);
+            } else {
+                historical_run_count += 1;
+            }
         }
     }
     run_directories.sort();
@@ -58,7 +78,6 @@ pub fn publish_operator_projection(
         let checkpoint = directory.join("checkpoint.json");
         let raw = match fs::read_to_string(&checkpoint) {
             Ok(raw) => raw,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
             Err(source) => {
                 return Err(OperatorProjectionPublishError::Io {
                     path: checkpoint,
@@ -75,8 +94,6 @@ pub fn publish_operator_projection(
         graphs.push(graph);
     }
 
-    let total_run_count = graphs.len();
-    let current_run_ids = load_current_run_ids(root)?;
     let mut current_directories = Vec::new();
     let mut current_graphs = Vec::new();
     for (directory, graph) in run_directories.iter().zip(graphs.iter()) {
@@ -90,14 +107,12 @@ pub fn publish_operator_projection(
             current_graphs.push(graph.clone());
         }
     }
-    let historical_run_count = total_run_count.saturating_sub(current_graphs.len());
+    historical_run_count += graphs.len().saturating_sub(current_graphs.len());
     let graphs = current_graphs;
     let run_directories = current_directories;
 
     let runs = graphs.iter().map(project_run).collect::<Vec<_>>();
-    let queue_records = load_effective_queue_records(root)?;
-    let schedules = load_effective_schedules(root)?;
-    let objectives = project_objectives(&graphs, &runs, &queue_records, &schedules);
+    let objectives = project_objectives(&graphs, &runs, agenda.as_deref().unwrap_or_default());
     let capabilities = project_capabilities(&run_directories)?;
     let councils = project_councils(&run_directories, &graphs)?;
     let personal_operations = project_personal_operations(root, generated_at)?;
@@ -122,6 +137,11 @@ pub fn publish_operator_projection(
         evidence,
         communications: Vec::<CommunicationProjection>::new(),
         dependencies: vec![
+            dependency(
+                "objective_store",
+                if agenda.is_some() { DependencyHealth::Ready } else { DependencyHealth::NotConfigured },
+                if agenda.is_some() { "current resident objectives; legacy queue is not read" } else { "resident objective store unavailable; no legacy fallback" }.to_string(),
+            ),
             dependency(
                 "run_store",
                 DependencyHealth::Ready,
@@ -166,38 +186,6 @@ pub fn publish_operator_projection(
         .map_err(|error| OperatorProjectionPublishError::InvalidProjection(error.to_string()))?;
     atomic_write_projection(root, &projection)?;
     Ok(projection)
-}
-
-fn load_current_run_ids(root: &Path) -> Result<BTreeSet<String>, OperatorProjectionPublishError> {
-    let path = root.join(CURRENT_RUNS_PATH);
-    let raw = match fs::read_to_string(&path) {
-        Ok(raw) => raw,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(BTreeSet::new()),
-        Err(source) => return Err(OperatorProjectionPublishError::Io { path, source }),
-    };
-    let value: serde_json::Value = serde_json::from_str(&raw).map_err(|error| {
-        OperatorProjectionPublishError::InvalidCanonicalInput {
-            path: path.clone(),
-            error: error.to_string(),
-        }
-    })?;
-    if value["schema_version"] != "arda.workbench.current-runs.v1" {
-        return Err(OperatorProjectionPublishError::InvalidCanonicalInput {
-            path,
-            error: "unsupported current-run registry version".to_string(),
-        });
-    }
-    let ids = value["run_ids"].as_array().ok_or_else(|| {
-        OperatorProjectionPublishError::InvalidCanonicalInput {
-            path: root.join(CURRENT_RUNS_PATH),
-            error: "current-run registry requires a run_ids array".to_string(),
-        }
-    })?;
-    Ok(ids
-        .iter()
-        .filter_map(|value| value.as_str())
-        .map(str::to_owned)
-        .collect())
 }
 
 fn project_run(graph: &RunGraph) -> RunProjection {
@@ -262,304 +250,71 @@ fn derive_run_status(graph: &RunGraph) -> RunStatus {
 fn project_objectives(
     graphs: &[RunGraph],
     runs: &[RunProjection],
-    queue_records: &[QueueRecord],
-    schedules: &BTreeMap<String, ScheduleRecord>,
+    agenda: &[AgendaObjective],
 ) -> Vec<ObjectiveProjection> {
-    let mut grouped = BTreeMap::<String, (Option<String>, Vec<RunStatus>, Vec<usize>)>::new();
-    for (graph, run) in graphs.iter().zip(runs) {
-        let project_id = graph
-            .provenance
-            .project_contract_digest
-            .strip_prefix("project:")
-            .map(ToOwned::to_owned);
-        let entry = grouped
-            .entry(graph.objective_id.as_str().to_string())
-            .or_insert_with(|| (project_id, Vec::new(), Vec::new()));
-        entry.1.push(run.status);
-        entry.2.push(
-            runs.iter()
-                .position(|candidate| candidate.run_id == run.run_id)
-                .expect("run projection belongs to current graph set"),
-        );
-    }
-    let mut objectives = grouped
-        .into_iter()
-        .map(|(objective_id, (project_id, statuses, run_indexes))| {
-            let preferred_queue =
-                select_queue_control_for_runs(queue_records, &objective_id, runs, &run_indexes);
-            let queue_bound_run_index =
-                preferred_queue
-                    .and_then(queue_workbench_run_id)
-                    .and_then(|queue_run_id| {
-                        run_indexes.iter().copied().find(|index| {
-                            runs[*index].run_id == queue_run_id
-                                && !matches!(
-                                    runs[*index].status,
-                                    RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
-                                )
-                        })
-                    });
-            let run_index = queue_bound_run_index.or_else(|| {
-                run_indexes
-                    .iter()
-                    .copied()
-                    .find(|index| {
-                        !matches!(
-                            runs[*index].status,
-                            RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
-                        )
-                    })
-                    .or_else(|| run_indexes.last().copied())
+    agenda
+        .iter()
+        .map(|objective| {
+            let graph = graphs.iter().find(|graph| {
+                graph.objective_id.as_str() == objective.id
+                    && objective
+                        .runs
+                        .iter()
+                        .any(|(_, run)| run == graph.run_id.as_str())
             });
-            let graph = run_index.map(|index| &graphs[index]);
-            let run = run_index.map(|index| &runs[index]);
-            let queue = preferred_queue.filter(|record| match queue_workbench_run_id(record) {
-                Some(queue_run_id) => run.is_some_and(|run| run.run_id == queue_run_id),
-                None => true,
-            });
-            let current_node = graph.and_then(current_node);
-            let mut evidence = graph
+            let run =
+                graph.and_then(|graph| runs.iter().find(|run| run.run_id == graph.run_id.as_str()));
+            let node = graph.and_then(current_node);
+            let evidence = graph
                 .into_iter()
                 .flat_map(|graph| graph.nodes.iter())
                 .filter_map(|node| node.output_digest.clone())
-                .collect::<Vec<_>>();
-            let mut seen_evidence = BTreeSet::new();
-            evidence.retain(|digest| seen_evidence.insert(digest.clone()));
-            if let Some(digest) = queue.and_then(|record| {
-                record
-                    .extra
-                    .get("execution_receipt_digest")
-                    .and_then(serde_json::Value::as_str)
-            }) {
-                if !evidence.iter().any(|item| item == digest) {
-                    evidence.push(digest.to_string());
-                }
-            }
-            let schedule = queue
-                .and_then(|record| schedules.get(&record.id))
-                .filter(|schedule| schedule.objective_id == objective_id);
+                .collect::<BTreeSet<_>>()
+                .into_iter()
+                .collect();
             ObjectiveProjection {
-                title: queue
-                    .and_then(|record| record.title.clone())
-                    .unwrap_or_else(|| objective_id.clone()),
-                objective_id,
-                project_id,
-                status: queue
-                    .map(objective_status_from_queue)
-                    .unwrap_or_else(|| derive_objective_status(&statuses)),
-                current_task_id: queue.map(|record| record.id.clone()),
+                objective_id: objective.id.clone(),
+                project_id: objective.project_id.clone(),
+                title: objective.text.clone(),
+                status: match objective.state {
+                    ObjectiveState::PendingApproval | ObjectiveState::Paused => {
+                        ObjectiveStatus::Blocked
+                    }
+                    ObjectiveState::Approved => ObjectiveStatus::Pending,
+                    ObjectiveState::Running => ObjectiveStatus::Active,
+                    ObjectiveState::Completed => ObjectiveStatus::Succeeded,
+                    ObjectiveState::Cancelled => ObjectiveStatus::Cancelled,
+                    ObjectiveState::Failed => ObjectiveStatus::Failed,
+                },
+                current_task_id: graph.and_then(|graph| {
+                    objective
+                        .runs
+                        .iter()
+                        .find(|(_, run)| run == graph.run_id.as_str())
+                        .map(|(leaf, _)| leaf.clone())
+                }),
                 current_run_id: run.map(|run| run.run_id.clone()),
-                current_node_id: current_node.map(|node| node.id.as_str().to_string()),
+                current_node_id: node.map(|node| node.id.as_str().to_owned()),
                 evidence,
-                next_continuation: queue.and_then(|record| {
-                    record
-                        .extra
-                        .get("continuation_decision")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned)
-                }),
-                next_wake_at: schedule.and_then(|schedule| {
-                    (schedule.state == ScheduleState::Scheduled)
-                        .then_some(schedule.not_before_utc)
-                        .flatten()
-                }),
-                provider_route: current_node
+                next_continuation: None,
+                next_wake_at: objective
+                    .next_wake_ms
+                    .and_then(DateTime::from_timestamp_millis),
+                provider_route: node
                     .and_then(|node| node.worker.as_ref())
                     .map(|worker| worker.route_id.clone()),
-                budget: current_node.map(|node| ObjectiveBudgetProjection {
+                budget: node.map(|node| ObjectiveBudgetProjection {
                     max_joules: node.budget.max_joules,
                     max_cost_usd: node.budget.max_cost_usd,
                 }),
-                blocker: queue.and_then(|record| {
-                    record
-                        .extra
-                        .get("detail")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned)
-                }),
+                blocker: match objective.state {
+                    ObjectiveState::PendingApproval => Some("pending operator approval".to_owned()),
+                    ObjectiveState::Paused => Some("paused by operator".to_owned()),
+                    _ => None,
+                },
             }
         })
-        .collect::<Vec<_>>();
-    let projected_ids = objectives
-        .iter()
-        .map(|objective| objective.objective_id.as_str())
-        .collect::<BTreeSet<_>>();
-    let mut queue_only = BTreeMap::<String, Vec<&QueueRecord>>::new();
-    for record in queue_records {
-        let Some(objective_id) = queue_objective_id(record) else {
-            continue;
-        };
-        if projected_ids.contains(objective_id) || queue_status_is_terminal(record) {
-            continue;
-        }
-        queue_only
-            .entry(objective_id.to_string())
-            .or_default()
-            .push(record);
-    }
-    objectives.extend(
-        queue_only
-            .into_iter()
-            .filter_map(|(objective_id, records)| {
-                let record = records
-                    .into_iter()
-                    .min_by_key(|record| queue_control_priority(record))?;
-                let schedule = schedules
-                    .get(&record.id)
-                    .filter(|schedule| schedule.objective_id == objective_id);
-                let evidence = record
-                    .extra
-                    .get("execution_receipt_digest")
-                    .and_then(serde_json::Value::as_str)
-                    .map(|digest| vec![digest.to_string()])
-                    .unwrap_or_default();
-                Some(ObjectiveProjection {
-                    objective_id,
-                    project_id: queue_project_id(record).map(str::to_owned),
-                    title: record.title.clone().unwrap_or_else(|| record.id.clone()),
-                    status: objective_status_from_queue(record),
-                    current_task_id: Some(record.id.clone()),
-                    current_run_id: None,
-                    current_node_id: None,
-                    evidence,
-                    next_continuation: record
-                        .extra
-                        .get("continuation_decision")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned),
-                    next_wake_at: schedule.and_then(|schedule| {
-                        (schedule.state == ScheduleState::Scheduled)
-                            .then_some(schedule.not_before_utc)
-                            .flatten()
-                    }),
-                    provider_route: None,
-                    budget: None,
-                    blocker: record
-                        .extra
-                        .get("detail")
-                        .and_then(serde_json::Value::as_str)
-                        .map(str::to_owned),
-                })
-            }),
-    );
-    objectives
-}
-
-fn load_effective_queue_records(
-    root: &Path,
-) -> Result<Vec<QueueRecord>, OperatorProjectionPublishError> {
-    let path = root.join("core/projects/tasks/queue.jsonl");
-    if !path.is_file() {
-        return Ok(Vec::new());
-    }
-    TaskQueueAnalyzer::new(&path)
-        .load()
-        .map(TaskQueueAnalyzer::effective_records)
-        .map_err(
-            |error| OperatorProjectionPublishError::InvalidCanonicalInput {
-                path,
-                error: error.to_string(),
-            },
-        )
-}
-
-fn load_effective_schedules(
-    root: &Path,
-) -> Result<BTreeMap<String, ScheduleRecord>, OperatorProjectionPublishError> {
-    let path = root.join("core/projects/tasks/schedules.jsonl");
-    ScheduleLedger::new(&path).effective().map_err(|error| {
-        OperatorProjectionPublishError::InvalidCanonicalInput {
-            path,
-            error: error.to_string(),
-        }
-    })
-}
-
-fn queue_objective_id(record: &QueueRecord) -> Option<&str> {
-    record
-        .extra
-        .get("meta")
-        .and_then(serde_json::Value::as_object)
-        .and_then(|meta| meta.get("objective_id"))
-        .and_then(serde_json::Value::as_str)
-        .or_else(|| {
-            record
-                .extra
-                .get("source_objective_packet_id")
-                .and_then(serde_json::Value::as_str)
-        })
-}
-
-fn queue_workbench_run_id(record: &QueueRecord) -> Option<&str> {
-    record
-        .extra
-        .get("workbench_run_id")
-        .and_then(serde_json::Value::as_str)
-}
-
-fn queue_project_id(record: &QueueRecord) -> Option<&str> {
-    record
-        .extra
-        .get("meta")
-        .and_then(serde_json::Value::as_object)
-        .and_then(|meta| meta.get("project_id"))
-        .and_then(serde_json::Value::as_str)
-}
-
-fn queue_status_is_terminal(record: &QueueRecord) -> bool {
-    record.canonical_status().is_terminal()
-}
-
-fn queue_control_priority(record: &QueueRecord) -> u8 {
-    match record.canonical_status() {
-        QueueRecordStatus::InProgress => 0,
-        QueueRecordStatus::Pending => 1,
-        QueueRecordStatus::Blocked => 2,
-        QueueRecordStatus::Completed
-        | QueueRecordStatus::Failed
-        | QueueRecordStatus::Cancelled
-        | QueueRecordStatus::Other => 3,
-    }
-}
-
-fn select_queue_control_for_runs<'a>(
-    records: &'a [QueueRecord],
-    objective_id: &str,
-    runs: &[RunProjection],
-    run_indexes: &[usize],
-) -> Option<&'a QueueRecord> {
-    records
-        .iter()
-        .filter(|record| {
-            !queue_status_is_terminal(record)
-                && queue_objective_id(record) == Some(objective_id)
-                && queue_workbench_run_id(record).is_none_or(|queue_run_id| {
-                    run_indexes.iter().copied().any(|index| {
-                        runs[index].run_id == queue_run_id
-                            && !matches!(
-                                runs[index].status,
-                                RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
-                            )
-                    })
-                })
-        })
-        .min_by_key(|record| {
-            (
-                queue_control_priority(record),
-                u8::from(queue_workbench_run_id(record).is_none()),
-            )
-        })
-}
-
-fn objective_status_from_queue(record: &QueueRecord) -> ObjectiveStatus {
-    match record.canonical_status() {
-        QueueRecordStatus::InProgress => ObjectiveStatus::Active,
-        QueueRecordStatus::Blocked => ObjectiveStatus::Blocked,
-        QueueRecordStatus::Failed => ObjectiveStatus::Failed,
-        QueueRecordStatus::Cancelled => ObjectiveStatus::Cancelled,
-        QueueRecordStatus::Completed => ObjectiveStatus::Succeeded,
-        QueueRecordStatus::Pending | QueueRecordStatus::Other => ObjectiveStatus::Pending,
-    }
+        .collect()
 }
 
 fn current_node(graph: &RunGraph) -> Option<&arda_core::run_graph::RunNode> {
@@ -576,31 +331,6 @@ fn current_node(graph: &RunGraph) -> Option<&arda_core::run_graph::RunNode> {
             })
         })
         .or_else(|| graph.nodes.last())
-}
-
-fn derive_objective_status(statuses: &[RunStatus]) -> ObjectiveStatus {
-    if statuses.iter().any(|status| {
-        matches!(
-            status,
-            RunStatus::Running | RunStatus::AwaitingApproval | RunStatus::Pending
-        )
-    }) {
-        ObjectiveStatus::Active
-    } else if statuses.contains(&RunStatus::Blocked) {
-        ObjectiveStatus::Blocked
-    } else if !statuses.is_empty()
-        && statuses
-            .iter()
-            .all(|status| *status == RunStatus::Succeeded)
-    {
-        ObjectiveStatus::Succeeded
-    } else if statuses.contains(&RunStatus::Failed) {
-        ObjectiveStatus::Failed
-    } else if statuses.contains(&RunStatus::Cancelled) {
-        ObjectiveStatus::Cancelled
-    } else {
-        ObjectiveStatus::Pending
-    }
 }
 
 fn project_capabilities(

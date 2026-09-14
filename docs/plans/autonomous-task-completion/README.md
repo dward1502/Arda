@@ -36,6 +36,14 @@ The source/package foundation and bounded installed receipts exist, but current 
 
 The [cutover plan](../2026-09-01-arda-objective-runtime-cutover.md) is the implementation dependency for these gates, not another acceptance program. The [legacy loop index](../../archive/2026-09-07-autonomous-loop-compatibility-index.md) owns no separate tasks. Provider transport repairs belong to [provider convergence](../PROVIDER_WORKER_CONVERGENCE.md).
 
+The cutover also owns the legacy replay/resource repair: ordinary background
+projections must not hydrate the retired JSONL queue or all historical runs.
+The [installed repair](../../audits/2026-09-13-legacy-queue-resource-repair.md) reads
+resident SQLite summaries and measured about 18 MiB daemon RSS. Combined-workload
+acceptance and the remaining legacy-producer audit stay in the cutover plan. Runtime
+history is local data, not a source artifact to push to GitHub. This does not close
+the retained-execution or operator-acceptance gates below.
+
 ## Execution order
 
 Complete these milestones in order. A milestone closes only through its human-visible acceptance scenario, not through schema or package tests alone.

@@ -2,10 +2,20 @@ use arda_core::operator_projection::{
     DependencyHealth, MeasurementSource, ObjectiveStatus, RunStatus,
 };
 use arda_engine::operator_projection::publish_operator_projection;
+#[path = "fixtures/objective_agenda.rs"]
+mod objective_agenda;
 use chrono::{TimeZone, Utc};
 use std::fs;
 
 fn write_run(root: &std::path::Path, run_id: &str, state: &str) {
+    objective_agenda::seed(root, "objective-live", "operator:test", "running", 70);
+    rusqlite::Connection::open(root.join("data/arda/objectives.sqlite3"))
+        .unwrap()
+        .execute(
+            "UPDATE leaves SET execution_run_id = ?1 WHERE id = 'leaf-objective-live'",
+            [run_id],
+        )
+        .unwrap();
     let directory = root.join("data/runs").join(run_id);
     fs::create_dir_all(&directory).unwrap();
     fs::write(
@@ -112,24 +122,20 @@ fn corrupt_runtime_input_does_not_replace_last_valid_projection() {
 }
 
 #[test]
-fn corrupt_queue_input_does_not_replace_last_valid_projection() {
+fn corrupt_objective_store_does_not_replace_last_valid_projection() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-live", "pending");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
+    let now = Utc::now();
+    publish_operator_projection(root.path(), now).unwrap();
+    let output = root.path().join("core/state/operator_projection.json");
+    let before = fs::read(&output).unwrap();
     fs::write(
-        &queue,
-        "{\"id\":\"task-live\",\"status\":\"pending\",\"meta\":{\"objective_id\":\"objective-live\"}}\n",
+        root.path().join("data/arda/objectives.sqlite3"),
+        "invalid SQLite",
     )
     .unwrap();
-    let generated_at = Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap();
-    publish_operator_projection(root.path(), generated_at).unwrap();
-    let output_path = root.path().join("core/state/operator_projection.json");
-    let before = fs::read(&output_path).unwrap();
-
-    fs::write(queue, "{not-json\n").unwrap();
-    assert!(publish_operator_projection(root.path(), generated_at).is_err());
-    assert_eq!(fs::read(output_path).unwrap(), before);
+    assert!(publish_operator_projection(root.path(), now).is_err());
+    assert_eq!(fs::read(output).unwrap(), before);
 }
 
 #[test]
@@ -145,7 +151,10 @@ fn missing_queue_and_schedule_inputs_remain_honest_absent_fields() {
     let objective = &projection.objectives[0];
 
     assert_eq!(objective.current_run_id.as_deref(), Some("run-live"));
-    assert!(objective.current_task_id.is_none());
+    assert_eq!(
+        objective.current_task_id.as_deref(),
+        Some("leaf-objective-live")
+    );
     assert!(objective.next_continuation.is_none());
     assert!(objective.next_wake_at.is_none());
     assert!(objective.blocker.is_none());
@@ -229,8 +238,8 @@ fn capability_projection_preserves_versions_and_derives_optional_only_from_recei
 #[test]
 fn historical_terminal_runs_remain_stored_but_are_excluded_from_current_projection() {
     let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-current", "running");
     write_run(root.path(), "runtime-proof-20260813-v2", "succeeded");
+    write_run(root.path(), "run-current", "running");
 
     let projection = publish_operator_projection(
         root.path(),
@@ -252,363 +261,64 @@ fn historical_terminal_runs_remain_stored_but_are_excluded_from_current_projecti
     assert!(run_store.detail.contains("1 historical checkpoint"));
 }
 
+// Queue control/alias/schedule tests were retired with the live queue reader.
+// Current control and scheduling authority is exclusively ObjectiveStore.
 #[test]
-fn objective_projection_exposes_canonical_control_state() {
+fn canonical_objective_without_a_run_is_visible_and_pause_suppresses_wake() {
     let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-live", "running");
-    let checkpoint = root.path().join("data/runs/run-live/checkpoint.json");
-    let raw = fs::read_to_string(&checkpoint).unwrap().replace(
-        "\"output_digest\": null,",
-        concat!(
-            "\"output_digest\": \"sha256:",
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",",
-            "\n    \"worker\": {",
-            "\"role\":\"planner_proposer\",",
-            "\"worker_id\":\"hermes-live\",",
-            "\"route_id\":\"hosted:hermes-workbench\",",
-            "\"route_class\":\"hosted\",",
-            "\"prompt_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",",
-            "\"allowed_toolsets\":[],",
-            "\"dependencies\":[],",
-            "\"deadline_unix_ms\":1,",
-            "\"output_contract\":\"worker-report.v1\",",
-            "\"evidence_policy\":\"worker_report\"},"
-        ),
-    );
-    fs::write(checkpoint, raw).unwrap();
-
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        concat!(
-            "{\"id\":\"task-live\",\"title\":\"Repair live objective\",",
-            "\"status\":\"in_progress\",\"workbench_run_id\":\"run-live\",",
-            "\"continuation_decision\":\"continue_verify\",",
-            "\"execution_receipt_digest\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",",
-            "\"detail\":\"verification is the next required stage\",",
-            "\"meta\":{\"objective_id\":\"objective-live\"}}\n"
-        ),
-    )
-    .unwrap();
-    let schedules = root.path().join("core/projects/tasks/schedules.jsonl");
-    fs::write(
-        schedules,
-        concat!(
-            "{\"contract\":\"arda.workbench.schedule_record.v1\",",
-            "\"task_id\":\"task-live\",\"objective_id\":\"objective-live\",",
-            "\"mode\":\"deferred\",\"state\":\"scheduled\",",
-            "\"not_before_utc\":\"2026-08-10T19:00:00Z\",",
-            "\"recorded_at_utc\":\"2026-08-10T18:00:00Z\"}\n"
-        ),
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let value = serde_json::to_value(projection).unwrap();
-    let objective = &value["objectives"][0];
-
-    assert_eq!(objective["title"], "Repair live objective");
-    assert_eq!(objective["current_task_id"], "task-live");
-    assert_eq!(objective["current_run_id"], "run-live");
-    assert_eq!(objective["current_node_id"], "plan");
-    assert_eq!(objective["next_continuation"], "continue_verify");
-    assert_eq!(objective["next_wake_at"], "2026-08-10T19:00:00Z");
-    assert_eq!(objective["provider_route"], "hosted:hermes-workbench");
-    assert_eq!(objective["budget"]["max_joules"], 40.0);
-    assert_eq!(objective["budget"]["max_cost_usd"], 0.0);
-    assert_eq!(
-        objective["evidence"],
-        serde_json::json!([
-            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-        ])
-    );
-    assert_eq!(
-        objective["blocker"],
-        "verification is the next required stage"
-    );
-}
-
-#[test]
-fn objective_projection_rejects_cross_objective_schedule_lineage() {
-    let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-live", "running");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        "{\"id\":\"task-live\",\"status\":\"in_progress\",\"workbench_run_id\":\"run-live\",\"meta\":{\"objective_id\":\"objective-live\"}}\n",
-    )
-    .unwrap();
-    fs::write(
-        root.path().join("core/projects/tasks/schedules.jsonl"),
-        "{\"contract\":\"arda.workbench.schedule_record.v1\",\"task_id\":\"task-live\",\"objective_id\":\"different-objective\",\"mode\":\"deferred\",\"state\":\"scheduled\",\"not_before_utc\":\"2026-08-10T19:00:00Z\",\"recorded_at_utc\":\"2026-08-10T18:00:00Z\"}\n",
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let value = serde_json::to_value(projection).unwrap();
-
-    assert!(value["objectives"][0].get("next_wake_at").is_none());
-}
-
-#[test]
-fn scheduled_queue_objective_remains_visible_without_a_current_run() {
-    let root = tempfile::tempdir().unwrap();
-    fs::create_dir_all(root.path().join("data/runs")).unwrap();
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        concat!(
-            "{\"id\":\"task-deferred\",\"title\":\"Resume deferred repair\",",
-            "\"status\":\"blocked\",\"continuation_decision\":\"wait_until\",",
-            "\"detail\":\"waiting for the declared dependency window\",",
-            "\"meta\":{\"objective_id\":\"objective-deferred\",",
-            "\"project_id\":\"project-deferred\"}}\n"
-        ),
-    )
-    .unwrap();
-    fs::write(
-        root.path().join("core/projects/tasks/schedules.jsonl"),
-        concat!(
-            "{\"contract\":\"arda.workbench.schedule_record.v1\",",
-            "\"task_id\":\"task-deferred\",\"objective_id\":\"objective-deferred\",",
-            "\"mode\":\"deferred\",\"state\":\"scheduled\",",
-            "\"not_before_utc\":\"2026-08-11T08:00:00Z\",",
-            "\"recorded_at_utc\":\"2026-08-10T18:00:00Z\"}\n"
-        ),
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let value = serde_json::to_value(projection).unwrap();
-    let objective = &value["objectives"][0];
-
-    assert_eq!(objective["objective_id"], "objective-deferred");
-    assert_eq!(objective["project_id"], "project-deferred");
-    assert_eq!(objective["title"], "Resume deferred repair");
-    assert_eq!(objective["status"], "blocked");
-    assert_eq!(objective["current_task_id"], "task-deferred");
-    assert!(objective.get("current_run_id").is_none());
-    assert_eq!(objective["next_continuation"], "wait_until");
-    assert_eq!(objective["next_wake_at"], "2026-08-11T08:00:00Z");
-    assert_eq!(
-        objective["blocker"],
-        "waiting for the declared dependency window"
-    );
-}
-
-#[test]
-fn run_backed_objective_falls_back_to_its_nonterminal_queue_leaf() {
-    let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-live", "running");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        concat!(
-            "{\"id\":\"task-later\",\"title\":\"Lower-priority queued leaf\",",
-            "\"status\":\"pending\",\"meta\":{\"objective_id\":\"objective-live\"}}\n",
-            "{\"id\":\"task-next\",\"title\":\"Continue objective after current run\",",
-            "\"status\":\"in_progress\",\"continuation_decision\":\"wait_until\",",
-            "\"detail\":\"waiting for the next dependency\",",
-            "\"meta\":{\"objective_id\":\"objective-live\"}}\n"
-        ),
-    )
-    .unwrap();
-    fs::write(
-        root.path().join("core/projects/tasks/schedules.jsonl"),
-        concat!(
-            "{\"contract\":\"arda.workbench.schedule_record.v1\",",
-            "\"task_id\":\"task-next\",\"objective_id\":\"objective-live\",",
-            "\"mode\":\"deferred\",\"state\":\"scheduled\",",
-            "\"not_before_utc\":\"2026-08-11T08:00:00Z\",",
-            "\"recorded_at_utc\":\"2026-08-10T18:00:00Z\"}\n"
-        ),
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let value = serde_json::to_value(projection).unwrap();
-    let objective = &value["objectives"][0];
-
-    assert_eq!(objective["current_run_id"], "run-live");
-    assert_eq!(objective["current_task_id"], "task-next");
-    assert_eq!(objective["next_continuation"], "wait_until");
-    assert_eq!(objective["next_wake_at"], "2026-08-11T08:00:00Z");
-}
-
-#[test]
-fn queue_bound_run_selects_the_same_current_run() {
-    let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-first", "running");
-    write_run(root.path(), "run-selected", "running");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        "{\"id\":\"task-selected\",\"status\":\"in_progress\",\"workbench_run_id\":\"run-selected\",\"meta\":{\"objective_id\":\"objective-live\"}}\n",
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
+    let store = objective_agenda::seed(root.path(), "current", "operator:test", "approved", 70);
+    store
+        .put_schedule(
+            arda_engine::objectives::ScheduleSpec {
+                id: "wake".into(),
+                objective_id: "current".into(),
+                next_wake_ms: 5000,
+                recurrence: None,
+                idempotency_key: "wake".into(),
+            },
+            1,
+        )
+        .unwrap();
+    let projection = publish_operator_projection(root.path(), Utc::now()).unwrap();
+    assert_eq!(projection.objectives.len(), 1);
     let objective = &projection.objectives[0];
-
-    assert_eq!(objective.current_run_id.as_deref(), Some("run-selected"));
-    assert_eq!(objective.current_task_id.as_deref(), Some("task-selected"));
+    assert_eq!(objective.title, "Current objective current");
+    assert_eq!(objective.status, ObjectiveStatus::Pending);
+    assert_eq!(objective.next_wake_at.unwrap().timestamp_millis(), 5000);
+    assert!(objective.current_run_id.is_none());
+    store
+        .apply_control(
+            "current",
+            arda_engine::objectives::ControlAction::Pause,
+            "pause",
+            "operator:test",
+            2,
+        )
+        .unwrap();
+    let paused = publish_operator_projection(root.path(), Utc::now()).unwrap();
+    assert_eq!(paused.objectives[0].status, ObjectiveStatus::Blocked);
+    assert!(paused.objectives[0].next_wake_at.is_none());
+    assert_eq!(
+        paused.objectives[0].blocker.as_deref(),
+        Some("paused by operator")
+    );
 }
 
 #[test]
-fn exact_run_bound_leaf_precedes_an_unbound_same_priority_leaf() {
+fn terminal_objectives_and_legacy_only_objectives_do_not_reenter_the_agenda() {
     let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-first", "running");
-    write_run(root.path(), "run-selected", "running");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
+    for state in ["completed", "cancelled", "failed"] {
+        objective_agenda::seed(root.path(), state, "operator:test", state, 100);
+    }
+    let legacy = root.path().join("core/projects/tasks");
+    fs::create_dir_all(&legacy).unwrap();
     fs::write(
-        queue,
-        concat!(
-            "{\"id\":\"task-unbound\",\"status\":\"in_progress\",",
-            "\"meta\":{\"objective_id\":\"objective-live\"}}\n",
-            "{\"id\":\"task-bound\",\"status\":\"in_progress\",",
-            "\"workbench_run_id\":\"run-selected\",",
-            "\"meta\":{\"objective_id\":\"objective-live\"}}\n"
-        ),
+        legacy.join("queue.jsonl"),
+        "{\"id\":\"ghost\",\"status\":\"in_progress\",\"meta\":{\"objective_id\":\"ghost\"}}\n",
     )
     .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let objective = &projection.objectives[0];
-
-    assert_eq!(objective.current_run_id.as_deref(), Some("run-selected"));
-    assert_eq!(objective.current_task_id.as_deref(), Some("task-bound"));
-}
-
-#[test]
-fn nonterminal_queue_status_overrides_a_run_derived_status() {
-    let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-live", "running");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        "{\"id\":\"task-blocked\",\"status\":\"blocked\",\"workbench_run_id\":\"run-live\",\"meta\":{\"objective_id\":\"objective-live\"}}\n",
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let objective = &projection.objectives[0];
-
-    assert_eq!(objective.status, ObjectiveStatus::Blocked);
-    assert_eq!(objective.current_task_id.as_deref(), Some("task-blocked"));
-}
-
-#[test]
-fn canonical_completed_alias_is_not_projected_as_current_work() {
-    let root = tempfile::tempdir().unwrap();
-    fs::create_dir_all(root.path().join("data/runs")).unwrap();
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        "{\"id\":\"task-done\",\"status\":\"done\",\"meta\":{\"objective_id\":\"objective-done\"}}\n",
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-
+    let projection = publish_operator_projection(root.path(), Utc::now()).unwrap();
     assert!(projection.objectives.is_empty());
-}
-
-#[test]
-fn stale_bound_leaf_falls_back_to_a_valid_unbound_leaf() {
-    let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-live", "running");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        concat!(
-            "{\"id\":\"task-stale\",\"status\":\"in_progress\",",
-            "\"workbench_run_id\":\"run-missing\",",
-            "\"meta\":{\"objective_id\":\"objective-live\"}}\n",
-            "{\"id\":\"task-valid\",\"status\":\"pending\",",
-            "\"continuation_decision\":\"continue_execute\",",
-            "\"meta\":{\"objective_id\":\"objective-live\"}}\n"
-        ),
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let objective = &projection.objectives[0];
-
-    assert_eq!(objective.current_run_id.as_deref(), Some("run-live"));
-    assert_eq!(objective.current_task_id.as_deref(), Some("task-valid"));
-    assert_eq!(
-        objective.next_continuation.as_deref(),
-        Some("continue_execute")
-    );
-}
-
-#[test]
-fn nonterminal_continuation_prevents_historical_run_from_closing_objective() {
-    let root = tempfile::tempdir().unwrap();
-    write_run(root.path(), "run-history", "succeeded");
-    let queue = root.path().join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(queue.parent().unwrap()).unwrap();
-    fs::write(
-        queue,
-        "{\"id\":\"task-next\",\"status\":\"blocked\",\"meta\":{\"objective_id\":\"objective-live\"}}\n",
-    )
-    .unwrap();
-
-    let projection = publish_operator_projection(
-        root.path(),
-        Utc.with_ymd_and_hms(2026, 8, 10, 18, 0, 0).unwrap(),
-    )
-    .unwrap();
-    let objective = &projection.objectives[0];
-
-    assert_eq!(objective.status, ObjectiveStatus::Blocked);
-    assert_eq!(objective.current_task_id.as_deref(), Some("task-next"));
 }
 
 #[test]
@@ -645,4 +355,79 @@ fn run_evidence_digests_are_deduplicated() {
         projection.objectives[0].evidence,
         vec!["sha256:shared-evidence"]
     );
+}
+
+#[test]
+fn current_run_comes_from_exact_resident_leaf_binding_not_legacy_or_registry_order() {
+    let root = tempfile::tempdir().unwrap();
+    write_run(root.path(), "a-unbound", "running");
+    write_run(root.path(), "z-bound", "running");
+    fs::remove_file(root.path().join("data/workbench/current-runs.json")).unwrap();
+    let projection = publish_operator_projection(root.path(), Utc::now()).unwrap();
+    assert_eq!(projection.runs.len(), 1);
+    assert_eq!(
+        projection.objectives[0].current_run_id.as_deref(),
+        Some("z-bound")
+    );
+    assert_eq!(
+        projection.objectives[0].current_task_id.as_deref(),
+        Some("leaf-objective-live")
+    );
+}
+
+#[test]
+fn consumed_and_quarantined_schedules_are_not_projected_as_next_wakes() {
+    let root = tempfile::tempdir().unwrap();
+    let store = objective_agenda::seed(root.path(), "current", "operator:test", "approved", 70);
+    for (id, wake) in [("consumed", 100), ("quarantined", 200), ("next", 300)] {
+        store
+            .put_schedule(
+                arda_engine::objectives::ScheduleSpec {
+                    id: id.into(),
+                    objective_id: "current".into(),
+                    next_wake_ms: wake,
+                    recurrence: None,
+                    idempotency_key: id.into(),
+                },
+                1,
+            )
+            .unwrap();
+    }
+    let db = rusqlite::Connection::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
+    db.execute("INSERT INTO schedule_wakes VALUES ('consumed', 100)", [])
+        .unwrap();
+    db.execute(
+        "INSERT INTO schedule_errors VALUES ('quarantined', 'invalid recurrence', 1)",
+        [],
+    )
+    .unwrap();
+    let projection = publish_operator_projection(root.path(), Utc::now()).unwrap();
+    assert_eq!(
+        projection.objectives[0]
+            .next_wake_at
+            .unwrap()
+            .timestamp_millis(),
+        300
+    );
+}
+
+#[test]
+fn projection_reads_do_not_migrate_pre_cutover_state_or_load_execution_payloads() {
+    let root = tempfile::tempdir().unwrap();
+    objective_agenda::seed(root.path(), "current", "operator:test", "approved", 70);
+    let path = root.path().join("data/arda/objectives.sqlite3");
+    let db = rusqlite::Connection::open(&path).unwrap();
+    db.execute_batch(
+        "DROP TABLE schedule_wakes; DROP TABLE schedule_errors;
+        UPDATE leaves SET execution_json = 'invalid payload which summaries must not deserialize';",
+    )
+    .unwrap();
+    let schema_before: i64 = db
+        .query_row("PRAGMA schema_version", [], |row| row.get(0))
+        .unwrap();
+    publish_operator_projection(root.path(), Utc::now()).unwrap();
+    let schema_after: i64 = db
+        .query_row("PRAGMA schema_version", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(schema_before, schema_after);
 }

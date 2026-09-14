@@ -1,3 +1,4 @@
+pub(crate) mod agenda;
 #[cfg(target_os = "linux")]
 pub mod keeper_client;
 mod migrations;

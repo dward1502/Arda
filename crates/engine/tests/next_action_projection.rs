@@ -4,6 +4,8 @@ use arda_core::personal_ops::{
     ItemClassifiedEvent, PersonalItemKind, PersonalOpsEnvelope, PersonalOpsRecord,
 };
 use arda_engine::next_action::publish_next_action_projection;
+#[path = "fixtures/objective_agenda.rs"]
+mod objective_agenda;
 use arda_engine::personal_ops::PersonalOpsLogStore;
 use chrono::{TimeZone, Utc};
 use serde_json::json;
@@ -15,15 +17,15 @@ fn now() -> chrono::DateTime<Utc> {
 }
 
 fn write_queue(root: &std::path::Path, rows: &[serde_json::Value]) {
-    let path = root.join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(path.parent().unwrap()).unwrap();
-    let content = rows
-        .iter()
-        .map(serde_json::Value::to_string)
-        .collect::<Vec<_>>()
-        .join("\n")
-        + "\n";
-    fs::write(path, content).unwrap();
+    for row in rows {
+        objective_agenda::seed(
+            root,
+            row["id"].as_str().unwrap(),
+            "operator:mythos",
+            "approved",
+            if row["priority"] == "low" { 30 } else { 70 },
+        );
+    }
 }
 
 fn write_current_run(root: &std::path::Path, state: &str) {
@@ -115,53 +117,32 @@ fn write_personal_item(root: &std::path::Path, evidence_class: EvidenceClass) ->
 }
 
 #[test]
-fn source_projection_selects_current_operator_queue_and_excludes_future_gate() {
+fn source_projection_selects_only_current_objectives_owned_by_the_operator() {
     let root = tempfile::tempdir().unwrap();
-    write_queue(
+    objective_agenda::seed(
         root.path(),
-        &[
-            json!({
-                "id": "current-critical",
-                "title": "Review Arda against the operator vision",
-                "status": "pending",
-                "priority": "critical",
-                "owner": "operator:mythos",
-                "origin": "operator-authored-session-objective",
-                "meta": {"mutation_risk": "review_required", "execution_authority": "none_until_review", "lifecycle_phase": "current"}
-            }),
-            json!({
-                "id": "future-economic",
-                "title": "Create a funded agent account",
-                "status": "pending",
-                "priority": "critical",
-                "owner": "operator:mythos",
-                "origin": "operator-authored-session-objective",
-                "meta": {"mutation_risk": "review_required", "execution_authority": "none_until_review", "lifecycle_phase": "future-gated"}
-            }),
-            json!({
-                "id": "agent-inferred",
-                "title": "Agent-inferred task without review",
-                "status": "pending",
-                "priority": "critical",
-                "owner": "agent:planner",
-                "origin": "inferred",
-                "meta": {"lifecycle_phase": "current"}
-            }),
-        ],
+        "current-critical",
+        "operator:mythos",
+        "pending_approval",
+        90,
     );
-
+    objective_agenda::seed(
+        root.path(),
+        "other-operator",
+        "operator:other",
+        "approved",
+        100,
+    );
+    objective_agenda::seed(root.path(), "closed", "operator:mythos", "completed", 100);
     let projection = publish_next_action_projection(root.path(), "operator:mythos", now()).unwrap();
-
     assert_eq!(projection.status, NextActionStatus::Ready);
     let selected = projection.selected.unwrap();
     assert_eq!(selected.id, "current-critical");
-    assert_eq!(selected.source_kind, NextActionSourceKind::Queue);
+    assert_eq!(selected.source_kind, NextActionSourceKind::Objective);
     assert_eq!(
         selected.authority_state,
         NextActionAuthorityState::ReviewRequired
     );
-    assert_eq!(projection.excluded.future_gated, 1);
-    assert_eq!(projection.excluded.inferred_without_review, 1);
 }
 
 #[test]
@@ -180,6 +161,18 @@ fn awaiting_workbench_approval_preempts_queue_and_survives_reopen() {
         })],
     );
     write_current_run(root.path(), "pending");
+
+    objective_agenda::seed(
+        root.path(),
+        "objective-current",
+        "operator:mythos",
+        "running",
+        70,
+    );
+    rusqlite::Connection::open(root.path().join("data/arda/objectives.sqlite3")).unwrap()
+        .execute("UPDATE leaves SET execution_run_id = 'run-current' WHERE id = 'leaf-objective-current'", []).unwrap();
+    // The registry is neither required nor a fallback source of authority.
+    fs::remove_file(root.path().join("data/workbench/current-runs.json")).unwrap();
 
     let before = publish_next_action_projection(root.path(), "operator:mythos", now()).unwrap();
     let after = publish_next_action_projection(
@@ -257,4 +250,66 @@ fn research_projection_excludes_expired_question_and_selects_current_hold() {
         NextActionSourceKind::Research
     );
     assert_eq!(projection.excluded.stale, 1);
+}
+
+#[test]
+fn historical_registry_cannot_supply_next_action_without_current_owned_leaf_authority() {
+    for state in [
+        None,
+        Some("completed"),
+        Some("cancelled"),
+        Some("failed"),
+        Some("other_operator"),
+        Some("unbound"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        write_current_run(root.path(), "pending");
+        if let Some(state) = state {
+            let owner = if state == "other_operator" {
+                "operator:other"
+            } else {
+                "operator:mythos"
+            };
+            let objective_state = if matches!(state, "other_operator" | "unbound") {
+                "running"
+            } else {
+                state
+            };
+            objective_agenda::seed(root.path(), "objective-current", owner, objective_state, 70);
+            if state != "unbound" {
+                rusqlite::Connection::open(root.path().join("data/arda/objectives.sqlite3"))
+                    .unwrap()
+                    .execute("UPDATE leaves SET execution_run_id = 'run-current'", [])
+                    .unwrap();
+            }
+        }
+        let projection =
+            publish_next_action_projection(root.path(), "operator:mythos", now()).unwrap();
+        assert!(
+            projection
+                .selected
+                .as_ref()
+                .is_none_or(|candidate| candidate.source_kind != NextActionSourceKind::Workbench),
+            "historical run selected: {state:?}"
+        );
+    }
+}
+
+#[test]
+fn checkpoint_identity_must_match_the_owned_resident_binding() {
+    let root = tempfile::tempdir().unwrap();
+    write_current_run(root.path(), "pending");
+    objective_agenda::seed(
+        root.path(),
+        "different-objective",
+        "operator:mythos",
+        "running",
+        70,
+    );
+    rusqlite::Connection::open(root.path().join("data/arda/objectives.sqlite3"))
+        .unwrap()
+        .execute("UPDATE leaves SET execution_run_id = 'run-current'", [])
+        .unwrap();
+    let error = publish_next_action_projection(root.path(), "operator:mythos", now()).unwrap_err();
+    assert!(error.to_string().contains("checkpoint disagrees"));
 }

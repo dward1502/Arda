@@ -89,12 +89,13 @@ case "$command" in
     ;;
   enable|disable|mask|start|stop)
     action="$command"
-    [[ "${1:-}" == --now ]] && shift
+    now=false
+    if [[ "${1:-}" == --now ]]; then now=true; shift; fi
     for unit in "$@"; do
       read -r enabled active < "$ARDA_TEST_STATE/$unit"
       case "$action" in
         enable) enabled=enabled ;;
-        disable) enabled=disabled ;;
+        disable) enabled=disabled; if [[ "$now" == true ]]; then active=inactive; fi ;;
         mask) enabled=masked ;;
         start) active=active ;;
         stop) active=inactive ;;
@@ -134,5 +135,16 @@ test "$(readlink "$ROLLBACK_SANDBOX/home/.config/systemd/user/arda-aule-autopilo
 grep -Fx 'masked inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot-read-only.timer"
 grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot.timer"
 grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-workbench-queue-executor.timer"
+
+# A successful reinstall must not resurrect either retired replay timer.
+printf 'enabled active\n' > "$ROLLBACK_SANDBOX/state/arda-aule-autopilot.timer"
+HOME="$ROLLBACK_SANDBOX/home" \
+  XDG_CONFIG_HOME="$ROLLBACK_SANDBOX/home/.config" \
+  ARDA_CLI_SOURCE="$SANDBOX/source/arda-cli" \
+  ARDA_SYSTEMCTL_BIN="$ROLLBACK_SANDBOX/bin/systemctl" \
+  ARDA_TEST_STATE="$ROLLBACK_SANDBOX/state" \
+  "$ROOT_DIR/scripts/install_arda_automation_units.sh"
+grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot.timer"
+grep -Fx 'disabled inactive' "$ROLLBACK_SANDBOX/state/arda-aule-autopilot-read-only.timer"
 
 printf 'arda automation installer test: pass\n'

@@ -748,6 +748,16 @@ fn handle_prometheus(command: PrometheusCommands) -> Result<()> {
 }
 
 fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result<()> {
+    // Reject before constructing the legacy world or refreshing projections.
+    // A missing resident store must never reactivate JSONL scheduling.
+    if matches!(
+        command,
+        AutopilotCommands::Once { .. }
+            | AutopilotCommands::Run { .. }
+            | AutopilotCommands::Status { .. }
+    ) {
+        anyhow::bail!("legacy JSONL autopilot is retired; use the resident arda objective runtime and /v1/operator-projection");
+    }
     use arda_aule::prometheus::autopilot::{
         ceo_loop, execute_knowledge_task_queue, inspect_autonomy_preflight,
         promote_knowledge_tasks, review_arandur_recommendation, run_knowledge_triage,

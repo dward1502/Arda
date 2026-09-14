@@ -43,6 +43,7 @@ record above; they must not be reused as qualification of a later candidate.
 | Scheduling | Committed-store notifications, due wakes, recurring unfinished work, quarantine of malformed schedules | Installed due/pause/cancel behavior and quarantine diagnostics |
 | Supervision | Retained stop, bounded resident drain, Harness/provider cancellation and child joining | Exact installed candidate stop/start and stalled-response bounds |
 | Readiness | Scheduler-local phase/activity/wake/error/pending-recovery projection | Provider prerequisites, schedule errors and whole-startup qualification |
+| Legacy replay/resource regression | Installed operator/next-action readers use SQLite summaries; retired CLI replay rejects immediately; autopilot timers disabled; daemon measured at about 18 MiB RSS ([evidence](../audits/2026-09-13-legacy-queue-resource-repair.md)) | Combined game/YouTube/work observation; remaining producer audit and authorized unpublished-history cleanup |
 | Physical admission | Existing exclusion/policy preserved; new pre/post-clone admission identity and staged-root check | New normalization review; original nested-mount race through Harness |
 | Snapshot store/keeper | Real bounded client, independent owner, preparation journal, release ACK persistence, restart-loss rejection exercised by [keeper fixture](../../crates/engine/tests/fixtures/keeper_adapter.rs) | Ownership review, orphan reconciliation, daemon configuration and crash-boundary injection |
 | Snapshot worker/adapter | Retained chat/export/artifact validation, fencing, bounded cancellation; reviewed receipt replay without live lease | Full Harness dispatch fixture, production runtime grants and installed recovery |
@@ -57,6 +58,30 @@ Source entry points:
 [daemon](../../src/main.rs).
 
 ## Remaining execution order
+
+### 0. Remove legacy replay from ordinary background operation
+
+This resource defect is part of the cutover, not a new queue-optimization project.
+The workstation must remain usable alongside Total War: Warhammer III, YouTube
+and development; spare RAM at an idle desktop is not acceptance.
+
+- [x] Remove legacy queue/schedule reads from live operator and next-action
+  projections. Query current ObjectiveStore summaries read-only, without schema
+  migration, historical replay, execution prompts or recovery capsules; absent
+  authority has no legacy fallback. [Regression coverage](../../crates/engine/tests/retired_queue_projection.rs).
+- [x] Reject `autopilot once/run/status` before world/queue hydration, disable
+  installed replay timers, and prevent the automation installer from re-enabling
+  them. [CLI regression](../../crates/spine/observability/arda-aule/tests/retired_autopilot_cli.rs)
+  and [installer regression](../../scripts/test_install_arda_automation_units.sh).
+- [x] Independently review and install the exact repair candidate with rollback;
+  measure daemon RSS, service anonymous/cache accounting and read volume over
+  repeated projection ticks; verify unchanged legacy file size/mtime.
+  [Installed measurement](../audits/2026-09-13-legacy-queue-resource-repair.md).
+- [ ] Confirm background operation remains acceptable during the operator's
+  combined game/YouTube/work workload. Idle-memory proof does not establish frame pacing.
+- [x] Remove the oversized legacy blobs from the four unpublished commits with
+  explicit operator authorization, preserving all other committed paths and local
+  queue/schedule files. A local rollback branch retains the original history.
 
 ### 1. Complete the retained execution path
 

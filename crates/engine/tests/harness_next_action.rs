@@ -2,8 +2,9 @@ use arda_engine::harness::{
     self, presence::HarnessPresenceState, HarnessState, DEFAULT_MANWE_PROXY_TIMEOUT,
     DEFAULT_WARDEN_SCOUT_TIMEOUT,
 };
-use serde_json::{json, Value};
-use std::fs;
+use serde_json::Value;
+#[path = "fixtures/objective_agenda.rs"]
+mod objective_agenda;
 use std::sync::Arc;
 use tokio::sync::{Notify, RwLock};
 
@@ -25,24 +26,14 @@ fn state(root: &std::path::Path) -> HarnessState {
     }
 }
 
-fn write_queue(root: &std::path::Path) {
-    let path = root.join("core/projects/tasks/queue.jsonl");
-    fs::create_dir_all(path.parent().unwrap()).unwrap();
-    fs::write(
-        path,
-        json!({
-            "id": "operator-current",
-            "title": "Review Arda against the operator vision",
-            "status": "pending",
-            "priority": "critical",
-            "owner": "operator:mythos",
-            "origin": "operator-authored-session-objective",
-            "meta": {"mutation_risk": "review_required", "execution_authority": "none_until_review", "lifecycle_phase": "current"}
-        })
-        .to_string()
-            + "\n",
-    )
-    .unwrap();
+fn write_objective(root: &std::path::Path) {
+    objective_agenda::seed(
+        root,
+        "operator-current",
+        "operator:mythos",
+        "pending_approval",
+        90,
+    );
 }
 
 async fn read_next_action(root: &std::path::Path) -> Value {
@@ -70,13 +61,13 @@ async fn read_next_action(root: &std::path::Path) -> Value {
 #[tokio::test]
 async fn next_action_endpoint_uses_configured_identity_and_survives_restart() {
     let root = tempfile::tempdir().unwrap();
-    write_queue(root.path());
+    write_objective(root.path());
 
     let before = read_next_action(root.path()).await;
     let after = read_next_action(root.path()).await;
 
     assert_eq!(before["schema_version"], "arda.next-action.v1");
     assert_eq!(before["selected"]["id"], "operator-current");
-    assert_eq!(before["selected"]["source_kind"], "queue");
+    assert_eq!(before["selected"]["source_kind"], "objective");
     assert_eq!(after["selected"]["id"], "operator-current");
 }

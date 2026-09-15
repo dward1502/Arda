@@ -31,8 +31,12 @@ impl Binding {
         let remaining = lease
             .expires_ms
             .checked_sub(now)
-            .filter(|v| *v > 0)
-            .context("snapshot lease has expired")?;
+            .context("snapshot lease duration overflow")?
+            .max(0);
+        // First delivery can follow expiry of the durable Engine intent. Record
+        // only its exact fence, allowing recovery to advance to a new generation.
+        // remaining() rejects execution even after a backward wall-clock jump;
+        // an identical retry never extends this monotonic deadline.
         let deadline = Instant::now()
             .checked_add(Duration::from_millis(remaining as u64))
             .context("snapshot lease deadline overflow")?;
@@ -93,6 +97,33 @@ mod tests {
             2
         )
         .is_err());
+    }
+    #[test]
+    fn late_first_commit_records_only_an_expired_fence() {
+        let mut binding = None;
+        Binding::commit(&mut binding, lease(), 2000).unwrap();
+        assert!(binding.as_ref().unwrap().remaining(&lease(), 2000).is_err());
+        assert!(binding.as_ref().unwrap().remaining(&lease(), 0).is_err());
+        let deadline = binding.as_ref().unwrap().deadline;
+        Binding::commit(&mut binding, lease(), 0).unwrap();
+        assert_eq!(binding.as_ref().unwrap().deadline, deadline);
+        assert!(Binding::commit(
+            &mut binding,
+            Lease {
+                expires_ms: 3000,
+                ..lease()
+            },
+            2000,
+        )
+        .is_err());
+        let next = Lease {
+            generation: 2,
+            expires_ms: 3000,
+            ..lease()
+        };
+        Binding::commit(&mut binding, next.clone(), 2000).unwrap();
+        assert!(binding.as_ref().unwrap().remaining(&next, 2000).is_ok());
+        assert!(Binding::commit(&mut binding, lease(), 2000).is_err());
     }
     #[test]
     fn acknowledgement_retry_cannot_extend_deadline_or_change_payload() {

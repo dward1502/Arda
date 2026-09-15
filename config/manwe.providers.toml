@@ -53,7 +53,7 @@ max_completion_tokens = 2048
 [[provider]]
 id = "edge_core"
 name = "Annunimas Core (3080 Workstation)"
-base_url = "http://100.78.138.113:9337/v1"
+base_url = "http://100.105.24.100:9337/v1"
 enabled = true
 access_tier = "local"
 quality_band = "high"

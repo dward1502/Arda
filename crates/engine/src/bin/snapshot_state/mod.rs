@@ -71,7 +71,11 @@ fn decode_mount_path(encoded: &[u8]) -> Result<PathBuf> {
 }
 
 impl StateDirectory {
-    pub fn create(state: &Path, root: &Path) -> Result<Self> {
+    pub fn create_excluding(
+        state: &Path,
+        root: &Path,
+        exposed: Option<&std::collections::BTreeSet<u64>>,
+    ) -> Result<Self> {
         if !state.is_absolute()
             || state
                 .components()
@@ -85,6 +89,9 @@ impl StateDirectory {
             bail!("state parent must be owned by worker user and private (0700)");
         }
         // Deliberately conservative support policy: runtime state must live on a
+        if exposed.is_some_and(|devices| devices.contains(&metadata.dev())) {
+            bail!("state filesystem overlaps a configured runtime grant");
+        }
         // separate filesystem, not on any filesystem mounted in the workspace.
         // This also excludes bind aliases whose apparent ancestors are disjoint.
         if metadata.dev() == fs::metadata(root)?.dev()
@@ -107,7 +114,7 @@ impl StateDirectory {
             }
             let target = decode_mount_path(fields[4])?;
             if (target.starts_with(root) && fields[2] == device.as_bytes())
-                || (target.starts_with("/usr") && target != Path::new("/usr"))
+                || (exposed.is_none() && target.starts_with("/usr") && target != Path::new("/usr"))
             {
                 bail!("workspace/state alias or nested runtime mount is unsupported");
             }

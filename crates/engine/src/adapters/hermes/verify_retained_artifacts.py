@@ -9,6 +9,7 @@ import os
 import stat
 import sys
 
+rows = []
 for artifact in json.loads(sys.argv[1]):
     parts = artifact["path"].split("/")
     if any(part in ("", ".", "..") for part in parts):
@@ -28,5 +29,7 @@ for artifact in json.loads(sys.argv[1]):
                 digest.update(chunk)
             if "sha256:" + digest.hexdigest() != artifact["digest"]:
                 raise ValueError("artifact digest mismatch")
+            rows.append({"path": artifact["path"], "sha256": digest.hexdigest()})
     finally:
         os.close(directory)
+print(json.dumps(rows))

@@ -69,6 +69,30 @@ fn write_run(root: &std::path::Path, run_id: &str, state: &str) {
 }
 
 #[test]
+fn projects_leaf_scoped_run_under_its_canonical_objective() {
+    let root = tempfile::tempdir().unwrap();
+    write_run(root.path(), "run-live", "running");
+    let path = root.path().join("data/runs/run-live/checkpoint.json");
+    let mut graph: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+    graph["objective_id"] = "leaf-objective-live".into();
+    fs::write(&path, serde_json::to_vec(&graph).unwrap()).unwrap();
+    let projection = publish_operator_projection(root.path(), Utc::now()).unwrap();
+    assert_eq!(projection.runs[0].objective_id, "objective-live");
+    assert_eq!(
+        projection.objectives[0].current_run_id.as_deref(),
+        Some("run-live")
+    );
+    assert_eq!(
+        projection.objectives[0].current_task_id.as_deref(),
+        Some("leaf-objective-live")
+    );
+    assert_eq!(
+        fs::read(&path).unwrap(),
+        serde_json::to_vec(&graph).unwrap()
+    );
+}
+
+#[test]
 fn publishes_valid_projection_from_canonical_run_and_resource_stores() {
     let root = tempfile::tempdir().unwrap();
     write_run(root.path(), "run-live", "running");

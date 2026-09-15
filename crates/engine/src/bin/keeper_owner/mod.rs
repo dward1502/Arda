@@ -1,11 +1,18 @@
 use super::*;
+pub(crate) mod pending;
+mod qualification;
+mod runtime_state;
 
 pub struct Owner {
-    pub db: Connection,
+    pub managed: Option<super::keeper_managed::Binding>,
+    pub reservations: Option<std::sync::Arc<pending::Reservations>>,
+    pub runtime_policy: Option<ValidatedRuntimePolicy>,
+    pub db: super::keeper_storage::PinnedConnection,
     pub durable: PathBuf,
     pub runtime: PathBuf,
     pub worker: PathBuf,
     pub children: BTreeMap<String, Child>,
+    pub(crate) failed_qualifications: qualification::Cleanup,
 }
 #[derive(Deserialize)]
 struct Inspection {
@@ -45,12 +52,16 @@ impl Owner {
         Ok(())
     }
     pub fn handle(&mut self, request: KeeperRequest) -> Result<KeeperResponse> {
+        let cleanup_pending = self.failed_qualifications.pending();
         let snapshot = match request {
             KeeperRequest::Prepare {
                 run,
                 workspace,
                 identity,
             } => {
+                if cleanup_pending {
+                    bail!("preparation cleanup remains unproven; new admission refused");
+                }
                 if run.is_empty() || run.len() > 1024 {
                     bail!("invalid admission identifier");
                 }
@@ -75,7 +86,58 @@ impl Owner {
                         &[&self.durable, &self.runtime],
                     )?;
                     // FULL synchronous commit before the first process side effect.
-                    self.db.execute("INSERT INTO snapshots(run,workspace,identity,state) VALUES(?1,?2,?3,'preparing')", params![run,workspace.to_str().context("UTF-8 workspace required")?,identity])?;
+                    if let Some(policy) = &self.runtime_policy {
+                        let allocation_base = &policy.policy().grants.iter()
+                            .find(|g| g.role == arda_engine::objectives::runtime_policy::GrantRole::SessionState)
+                            .context("session-state allocation base absent")?.source;
+                        arda_engine::objectives::validate_snapshot_owner_paths(
+                            &workspace,
+                            &[allocation_base],
+                        )?;
+                        for grant in &policy.policy().grants {
+                            if grant.role
+                                != arda_engine::objectives::runtime_policy::GrantRole::SessionState
+                            {
+                                arda_engine::objectives::validate_snapshot_owner_paths(
+                                    &grant.source,
+                                    &[allocation_base],
+                                )?;
+                            }
+                            arda_engine::objectives::validate_snapshot_owner_paths(
+                                &grant.source,
+                                &[&self.durable, &self.runtime],
+                            )?;
+                        }
+                    }
+                    // Persist the lifetime and admission together before any
+                    // allocation or worker side effect; uncertain rows stay fenced.
+                    let transaction = self.db.transaction()?;
+                    super::keeper_managed::save(&transaction, &run, self.managed.as_ref())
+                        .context("managed_binding")?;
+                    transaction.execute("INSERT INTO snapshots(run,workspace,identity,state) VALUES(?1,?2,?3,'preparing')", params![run,workspace.to_str().context("UTF-8 workspace required")?,identity])?;
+                    transaction.commit()?;
+                    let (run_policy, _allocation_pin) =
+                        match self.run_policy(&run).context("runtime_allocation")? {
+                            Some((policy, pin)) => (Some(policy), Some(pin)),
+                            None => (None, None),
+                        };
+                    let pending = run_policy
+                        .as_ref()
+                        .map(|policy| {
+                            pending::PendingAdmission::pin(
+                                self.reservations
+                                    .as_ref()
+                                    .context("missing reservations")?
+                                    .clone(),
+                                &workspace,
+                                &identity,
+                                &run,
+                                policy,
+                            )
+                        })
+                        .transpose()
+                        .context("pending_pins")?;
+
                     let state = self.runtime.join(uuid::Uuid::new_v4().to_string());
                     let endpoint = state.join("control.sock");
                     let parent = unsafe { libc::getpid() };
@@ -88,9 +150,42 @@ impl Owner {
                         .stdin(Stdio::null())
                         .stdout(Stdio::null())
                         .stderr(Stdio::null());
+                    let policy_descriptor = run_policy
+                        .as_ref()
+                        .map(arda_engine::objectives::runtime_policy::transport::seal)
+                        .transpose()?;
+                    use std::os::fd::AsRawFd;
+                    let policy_fd = policy_descriptor.as_ref().map(|file| file.as_raw_fd());
+                    let envelope_descriptor = pending
+                        .as_ref()
+                        .map(|p| {
+                            p.envelope.seal(
+                                run_policy.as_ref().context("missing policy")?,
+                                &run,
+                                &identity,
+                            )
+                        })
+                        .transpose()?;
+                    let envelope_fd = envelope_descriptor.as_ref().map(|file| file.as_raw_fd());
+                    if let Some(fd) = policy_fd {
+                        command.arg(fd.to_string());
+                    }
+                    if let Some(fd) = envelope_fd {
+                        command.arg(fd.to_string());
+                    }
                     // Async-signal-safe parent-death arm, closing the spawn race.
                     unsafe {
                         command.pre_exec(move || {
+                            if let Some(fd) = envelope_fd {
+                                if libc::fcntl(fd, libc::F_SETFD, 0) < 0 {
+                                    return Err(std::io::Error::last_os_error());
+                                }
+                            }
+                            if let Some(fd) = policy_fd {
+                                if libc::fcntl(fd, libc::F_SETFD, 0) < 0 {
+                                    return Err(std::io::Error::last_os_error());
+                                }
+                            }
                             if libc::prctl(libc::PR_SET_PDEATHSIG, libc::SIGKILL) != 0 {
                                 return Err(std::io::Error::last_os_error());
                             }
@@ -100,10 +195,19 @@ impl Owner {
                             Ok(())
                         });
                     }
-                    self.children.insert(run.clone(), command.spawn()?);
+                    let mut qualification = qualification::Qualification {
+                        child: Some(command.spawn().context("worker_spawn")?),
+                        pending,
+                        cleanup: self.failed_qualifications.clone(),
+                    };
                     let deadline = Instant::now() + Duration::from_secs(4);
                     let inspection: Inspection = loop {
-                        self.live(&run)?;
+                        if qualification.child.as_mut().unwrap().try_wait()?.is_some() {
+                            return Err(anyhow::anyhow!(
+                                "snapshot worker lost during qualification"
+                            )
+                            .context("worker_qualification"));
+                        }
                         if endpoint.exists() {
                             break exchange(
                                 &endpoint,
@@ -118,10 +222,18 @@ impl Owner {
                         }
                         std::thread::sleep(Duration::from_millis(5));
                     };
-                    if !inspection.ok
-                        || inspection.manifest.version != 1
-                        || inspection.manifest.root != workspace
-                    {
+                    self.validate_runtime_inspection(
+                        &run,
+                        &inspection.manifest,
+                        run_policy.as_ref(),
+                    )?;
+                    if let Some(pending) = &qualification.pending {
+                        pending.verify_manifest(
+                            run_policy.as_ref().context("missing run policy")?,
+                            &inspection.manifest,
+                        )?;
+                    }
+                    if !inspection.ok || inspection.manifest.root != workspace {
                         bail!("snapshot manifest rejected");
                     }
                     use sha2::{Digest, Sha256};
@@ -141,6 +253,8 @@ impl Owner {
                         "UPDATE snapshots SET state='prepared',authority=?2 WHERE run=?1",
                         params![run, serde_json::to_string(&snapshot)?],
                     )?;
+                    self.children
+                        .insert(run.clone(), qualification.into_child());
                     Some(snapshot)
                 }
             }
@@ -165,7 +279,9 @@ impl Owner {
             }
             KeeperRequest::Release { snapshot, run } => {
                 let state = self.check_saved(&run, &snapshot)?;
-                if state != "released" {
+                if state == "reconciled_revoked" {
+                    super::keeper_reconcile::release_ack(&self.db, &run, &self.runtime)?;
+                } else if state != "released" {
                     if state != "prepared" {
                         bail!("release requires explicit reconciliation");
                     }
@@ -194,8 +310,18 @@ impl Owner {
                     }
                     self.children.remove(&run);
                     // Only a successful teardown ACK and reap justify this record.
-                    self.db
+                    let transaction = self.db.transaction()?;
+                    transaction
                         .execute("UPDATE snapshots SET state='released' WHERE run=?1", [&run])?;
+                    if self.runtime_policy.is_some() {
+                        // Retain session artifacts, but retire their executable
+                        // allocation atomically with the snapshot authority.
+                        transaction.execute(
+                            "UPDATE runtime_allocations SET state='released' WHERE run=?1",
+                            [&run],
+                        )?;
+                    }
+                    transaction.commit()?;
                 }
                 None
             }
@@ -212,7 +338,7 @@ impl Drop for Owner {
         while Instant::now() < deadline {
             self.children
                 .retain(|_, child| !matches!(child.try_wait(), Ok(Some(_))));
-            if self.children.is_empty() {
+            if self.children.is_empty() && !self.failed_qualifications.pending() {
                 break;
             }
             std::thread::sleep(Duration::from_millis(5));

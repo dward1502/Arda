@@ -1,5 +1,6 @@
 //! Linux filesystem containment for an already selected provider workspace.
 //! The descriptor pins the directory; polling only requests bounded cleanup.
+use super::launch::PreparedCommand;
 use std::collections::BTreeMap;
 use std::fs::{self, File};
 use std::io;
@@ -7,6 +8,37 @@ use std::os::fd::AsRawFd;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 use tokio::process::Command;
+mod capture;
+
+#[derive(Clone)]
+pub(super) struct CaptureStop {
+    receiver: tokio::sync::watch::Receiver<bool>,
+    dropped: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+pub(super) struct CaptureGuard(std::sync::Arc<std::sync::atomic::AtomicBool>);
+impl Drop for CaptureGuard {
+    fn drop(&mut self) {
+        self.0.store(true, std::sync::atomic::Ordering::Release);
+    }
+}
+impl CaptureStop {
+    pub(super) fn new(cancellation: &crate::adapters::AdapterCancellation) -> Self {
+        Self {
+            receiver: cancellation.subscribe(),
+            dropped: Default::default(),
+        }
+    }
+    pub(super) fn guard(&self) -> CaptureGuard {
+        CaptureGuard(self.dropped.clone())
+    }
+    pub(super) fn is_cancelled(&self) -> bool {
+        *self.receiver.borrow() || self.dropped.load(std::sync::atomic::Ordering::Acquire)
+    }
+}
+#[cfg(test)]
+mod capture_tests;
+#[cfg(test)]
+mod physical_alias_tests;
 
 #[derive(Debug, thiserror::Error)]
 #[error("provider workspace or mount topology changed")]
@@ -73,19 +105,74 @@ impl PinnedWorkspace {
         }
     }
 
+    #[cfg(test)]
     pub(super) fn command(
         &self,
         executable: &Path,
         cwd: &Path,
         environment: &BTreeMap<String, String>,
         writable: bool,
-    ) -> io::Result<Command> {
+    ) -> io::Result<PreparedCommand> {
+        self.command_until(
+            executable,
+            cwd,
+            environment,
+            writable,
+            std::time::Instant::now() + std::time::Duration::from_secs(5),
+            &CaptureStop::new(&crate::adapters::AdapterCancellation::new()),
+        )
+    }
+
+    pub(super) fn try_clone(&self) -> io::Result<Self> {
+        Ok(Self {
+            supplied: self.supplied.clone(),
+            canonical: self.canonical.clone(),
+            directory: self.directory.try_clone()?,
+            topology: self.topology.clone(),
+        })
+    }
+
+    pub(super) fn command_until(
+        &self,
+        executable: &Path,
+        cwd: &Path,
+        environment: &BTreeMap<String, String>,
+        writable: bool,
+        deadline: std::time::Instant,
+        cancellation: &CaptureStop,
+    ) -> io::Result<PreparedCommand> {
         self.validate()
             .map_err(|_| io::Error::other(WorkspaceChanged))?;
         fs::metadata(executable)?;
-        let root_fd = self.directory.try_clone()?;
-        let mut inherited = vec![root_fd];
-        let mut command = Command::new("/usr/bin/bwrap");
+        let mut grants = vec![(self.canonical.clone(), self.admission_identity()?)];
+        if let Some(home) = environment.get("HERMES_HOME") {
+            let profile = Self::open(Path::new(home))?;
+            crate::objectives::validate_snapshot_owner_paths(
+                &self.canonical,
+                &[&profile.canonical],
+            )
+            .map_err(|error| io::Error::other(error.to_string()))?;
+            if profile.canonical.starts_with(&self.canonical)
+                || self.canonical.starts_with(&profile.canonical)
+            {
+                return Err(io::Error::other(
+                    "worker profile overlaps the project workspace",
+                ));
+            }
+            grants.push((profile.canonical.clone(), profile.admission_identity()?));
+        }
+        let helper = capture::worker()?;
+        let inherited = capture::capture(&helper, &grants, deadline, cancellation)?;
+        let parent_identity = File::open("/dev/null")?;
+        let parent_fd = parent_identity.as_raw_fd();
+
+        let mut command = Command::new(helper);
+        command
+            .arg("--launch-captured")
+            .arg(parent_fd.to_string())
+            .arg(inherited[0].as_raw_fd().to_string())
+            .arg(inherited[1].as_raw_fd().to_string());
+        command.env_clear();
         command.args([
             "--unshare-user",
             "--unshare-pid",
@@ -110,36 +197,34 @@ impl PinnedWorkspace {
             } else {
                 "--ro-bind-fd"
             })
-            .arg(inherited[0].as_raw_fd().to_string())
+            .arg(inherited[2].as_raw_fd().to_string())
             .arg(&self.canonical);
         // Only an explicitly configured worker profile is writable. Never grant
         // the operator's entire HOME as a runtime-state exception.
-        if let Some(home) = environment.get("HERMES_HOME") {
-            let home = Path::new(home).canonicalize()?;
-            if home.starts_with(&self.canonical) || self.canonical.starts_with(&home) {
-                return Err(io::Error::other(
-                    "worker profile overlaps the project workspace",
-                ));
-            }
-            let profile = File::open(&home)?;
-            if !profile.metadata()?.is_dir() {
-                return Err(io::Error::other("worker profile is not a directory"));
-            }
+        if let Some((home, _)) = grants.get(1) {
             command
                 .arg("--bind-fd")
-                .arg(profile.as_raw_fd().to_string())
+                .arg(inherited[3].as_raw_fd().to_string())
                 .arg(home);
-            inherited.push(profile);
+        }
+        // Loader/import settings belong to the provider, never the host-side
+        // containment launcher. Install them only inside the completed sandbox.
+        for (key, value) in environment {
+            command.arg("--setenv").arg(key).arg(value);
         }
         command.arg("--chdir").arg(cwd).arg("--").arg(executable);
         // SAFETY: only raw close_range and async-signal-safe fcntl calls run after fork. The captured
         // files keep the descriptors alive until spawn; bwrap consumes bind FDs.
         unsafe {
             command.pre_exec(move || {
+                crate::objectives::captured_fds::arm_parent_death(parent_fd)?;
                 // Preserve Rust's spawn-error pipe until exec while preventing
                 // arbitrary inherited host directory/file capabilities leaking.
                 // Fail closed on kernels without close_range(CLOEXEC).
                 if libc::syscall(libc::SYS_close_range, 3u32, u32::MAX, 4u32) == -1 {
+                    return Err(io::Error::last_os_error());
+                }
+                if libc::fcntl(parent_fd, libc::F_SETFD, 0) == -1 {
                     return Err(io::Error::last_os_error());
                 }
                 for file in &inherited {
@@ -151,7 +236,7 @@ impl PinnedWorkspace {
                 Ok(())
             });
         }
-        Ok(command)
+        Ok(PreparedCommand::captured(command, parent_identity))
     }
 }
 
@@ -160,6 +245,26 @@ mod tests {
     use super::*;
     use std::os::unix::fs::symlink;
     use std::process::Stdio;
+
+    #[test]
+    fn provider_environment_does_not_reach_containment_loader() {
+        let root = tempfile::tempdir().unwrap();
+        let pinned = PinnedWorkspace::open(root.path()).unwrap();
+        let environment = BTreeMap::from([
+            ("LD_PRELOAD".into(), "/untrusted/provider-library.so".into()),
+            ("PYTHONPATH".into(), "/untrusted/imports".into()),
+        ]);
+        let command = pinned
+            .command(Path::new("/bin/true"), root.path(), &environment, false)
+            .unwrap();
+        assert_eq!(command.as_std().get_envs().count(), 0);
+        let args: Vec<_> = command.as_std().get_args().collect();
+        for (key, value) in &environment {
+            assert!(args.windows(3).any(|args| args[0] == "--setenv"
+                && args[1] == key.as_str()
+                && args[2] == value.as_str()));
+        }
+    }
 
     #[test]
     #[ignore = "requires unshare user/mount namespaces and mount"]
@@ -325,11 +430,11 @@ mod tests {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true);
-        super::super::configure_process_group(&mut command);
+        super::super::configure_process_group(&mut command.command);
         let cancellation = crate::adapters::AdapterCancellation::new();
         let execution = adapter.run_contained(
             command,
-            std::time::Duration::from_secs(5),
+            std::time::Instant::now() + std::time::Duration::from_secs(5),
             &cancellation,
             500,
             1024,
@@ -362,7 +467,12 @@ mod tests {
         // The same classification must hold between chat and export, before
         // another subprocess is spawned (not only inside the polling branch).
         assert!(matches!(
-            adapter.contained_command(),
+            adapter
+                .contained_command(
+                    std::time::Instant::now() + std::time::Duration::from_secs(5),
+                    &crate::adapters::AdapterCancellation::new()
+                )
+                .await,
             Err(super::super::HermesAdapterError::WorkspaceChanged)
         ));
         let replacement = PinnedWorkspace::open(&root).unwrap();

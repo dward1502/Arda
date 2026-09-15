@@ -1,5 +1,6 @@
 #![cfg(target_os = "linux")]
 #[path = "../src/bin/snapshot_admission/mod.rs"]
+#[allow(dead_code)] // Shared production module has additional binary callers.
 mod admission;
 use sha2::{Digest, Sha256};
 use std::{fs, os::unix::fs::MetadataExt, path::Path, process::Command};

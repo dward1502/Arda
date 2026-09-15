@@ -7,11 +7,27 @@ async fn resident_receipt_crash_child() {
         return;
     };
     let root = std::path::PathBuf::from(root);
-    install_fake_hermes(&root);
+    let keeper = std::env::var_os("ARDA_RETAINED_KEEPER_SOCKET").map(std::path::PathBuf::from);
+    let workspace = std::env::var_os("ARDA_RETAINED_TEST_WORKSPACE")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| root.clone());
+    let execution_objective = if keeper.is_some() {
+        "Complete the read-only governed check. Run exactly `python3 verify-context-bootstrap.py` in the supplied project root. Do not modify files and do not run ls or pwd. Return the required Arda result JSON with tool_evidence, test_evidence, and artifacts all empty arrays. The Harness, not your response, derives the actual check evidence; do not emit command/exit_code/output dictionaries."
+    } else {
+        OBJECTIVE
+    };
+    if keeper.is_none() {
+        install_fake_hermes(&root);
+    }
     let (bound, _, _) = start_at(&root).await;
     let client = reqwest::Client::new();
+    let mut project_contract = contract();
+    if keeper.is_some() {
+        project_contract["workspace"]["root"] =
+            json!(workspace.strip_prefix(&root).unwrap().to_str().unwrap());
+    }
     let project: arda_core::project_contract::ProjectContract =
-        serde_json::from_value(contract()).unwrap();
+        serde_json::from_value(project_contract).unwrap();
     let digest = format!(
         "sha256:{:x}",
         Sha256::digest(serde_json::to_vec(&project).unwrap())
@@ -25,6 +41,13 @@ async fn resident_receipt_crash_child() {
         .error_for_status()
         .unwrap();
     let store = ObjectiveStore::open(root.join("data/arda/objectives.sqlite3")).unwrap();
+    let store = if let Some(socket) = &keeper {
+        store.with_snapshot_admission(Arc::new(
+            arda_engine::objectives::keeper_client::KeeperClient::new(socket.clone()),
+        ))
+    } else {
+        store
+    };
     let mut resident_approval = envelope("resident-execution");
     resident_approval["approval"]["ledger_writes"] =
         json!(["data/arda/objectives.sqlite3", "data/runs"]);
@@ -35,7 +58,7 @@ async fn resident_receipt_crash_child() {
                 source_id: "test:resident-crash".into(),
                 idempotency_key: "resident-create".into(),
                 operator_id: "operator-0".into(),
-                text: OBJECTIVE.into(),
+                text: execution_objective.into(),
                 priority: 0,
                 projects: vec![ProjectAuthority {
                     project_id: PROJECT_ID.into(),
@@ -44,20 +67,20 @@ async fn resident_receipt_crash_child() {
                 leaves: vec![NewLeaf {
                     id: "resident-leaf".into(),
                     project_id: Some(PROJECT_ID.into()),
-                    workspace_root: root.to_string_lossy().into_owned(),
+                    workspace_root: workspace.to_string_lossy().into_owned(),
                     authority: "execute_with_approval".into(),
                     dependencies: vec![],
                     execution: Some(LeafExecutionSpec {
-                        objective: OBJECTIVE.into(),
-                        execution_prompt: OBJECTIVE.into(),
-                        verification_prompt: OBJECTIVE.into(),
-                        review_prompt: OBJECTIVE.into(),
+                        objective: execution_objective.into(),
+                        execution_prompt: execution_objective.into(),
+                        verification_prompt: execution_objective.into(),
+                        review_prompt: if keeper.is_some() { "Perform the read-only review using the file tool: read context-bootstrap-input.txt and verify-context-bootstrap.py in the supplied project root. Do not invoke terminal commands. Inspect whether the script checks the required governed-next-action input and whether any blocking issue remains. Return the required Arda JSON with empty tool_evidence, test_evidence, and artifacts arrays; actual file-tool evidence is derived by Harness. For approval, summary's first line must be exactly VERDICT: APPROVE followed by a newline and reasoning. For any blocking finding use VERDICT: BLOCK and failed status.".into() } else { OBJECTIVE.into() },
                         approval_envelope: resident_approval,
                         objective_plan_receipt: format!("sha256:{}", "a".repeat(64)),
                     }),
                 }],
             },
-            100,
+            if keeper.is_some() { chrono::Utc::now().timestamp_millis() } else { 100 },
         )
         .unwrap();
     store
@@ -66,11 +89,24 @@ async fn resident_receipt_crash_child() {
             ControlAction::Approve { revision: 1 },
             "resident-approve",
             "operator-0",
-            110,
+            if keeper.is_some() {
+                chrono::Utc::now().timestamp_millis()
+            } else {
+                110
+            },
         )
         .unwrap();
     let mut claim = store
-        .claim_runnable("crashed-worker", 120, 100, 1)
+        .claim_runnable(
+            "crashed-worker",
+            if keeper.is_some() {
+                chrono::Utc::now().timestamp_millis()
+            } else {
+                120
+            },
+            if keeper.is_some() { 45_000 } else { 100 },
+            1,
+        )
         .unwrap()
         .remove(0);
     if std::env::var("ARDA_RESIDENT_CRASH_POINT").as_deref() == Ok("retry-limit") {
@@ -287,6 +323,29 @@ async fn resident_stage_crash_proxy(
             let (parts, body) = request.into_parts();
             let path = parts.uri.to_string();
             let bytes = axum::body::to_bytes(body, 8 * 1024 * 1024).await.unwrap();
+            if stage == "running-verify" && path.ends_with("/nodes/verify/execute-provider") {
+                let run_id = path.split("/nodes/").next().unwrap().rsplit('/').next().unwrap();
+                let checkpoint = std::path::PathBuf::from(std::env::var_os("ARDA_RESIDENT_CRASH_TEST_ROOT").unwrap())
+                    .join("data/runs").join(run_id).join("checkpoint.json");
+                let dispatch = client.request(parts.method, format!("http://{upstream}{path}"))
+                    .header("content-type", "application/json").body(bytes).send();
+                tokio::pin!(dispatch);
+                tokio::select! {
+                    _ = &mut dispatch => panic!("verify completed before Running crash barrier"),
+                    _ = async {
+                        loop {
+                            if let Ok(bytes) = fs::read(&checkpoint) {
+                                if let Ok(graph) = serde_json::from_slice::<arda_core::run_graph::RunGraph>(&bytes) {
+                                    if graph.nodes.iter().find(|node| node.id.as_str() == "verify").is_some_and(|node| node.state == arda_core::run_graph::NodeState::Running) {
+                                        std::process::exit(75);
+                                    }
+                                }
+                            }
+                            tokio::time::sleep(std::time::Duration::from_millis(2)).await;
+                        }
+                    } => unreachable!(),
+                }
+            }
             let response = client
                 .request(parts.method, format!("http://{upstream}{path}"))
                 .header("content-type", "application/json")

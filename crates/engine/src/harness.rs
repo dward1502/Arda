@@ -32,8 +32,10 @@ mod operator_projection;
 mod organism;
 mod personal_briefs;
 pub mod personal_ops;
+mod prerequisites;
 pub mod presence;
 mod projects;
+pub use prerequisites::RuntimePrerequisites;
 mod research;
 mod research_operator;
 mod runs;
@@ -323,6 +325,7 @@ fn router(state: HarnessState) -> axum::Router {
         )
         .route("/v1/continuity/events", post(continuity::ingest_event))
         .route("/v1/continuity/projection", get(continuity::get_projection))
+        .route("/v1/execution-prerequisites", get(prerequisites::observe))
         .route("/v1/handoffs", post(continuity::create_handoff))
         .route("/v1/handoffs/:id/accept", post(continuity::accept_handoff))
         .route("/v1/handoffs/:id", get(continuity::get_handoff))
@@ -385,7 +388,7 @@ async fn objective_runtime_status(
     (
         StatusCode::SERVICE_UNAVAILABLE,
         Json(serde_json::json!({
-            "ready": false, "pending_recovery": null,
+            "ready": false, "pending_recovery": null, "quarantined_schedules": null,
             "phase": "unavailable", "active_leaves": [], "next_wake_ms": null,
             "last_error": "resident_status_unavailable"
         })),
@@ -588,7 +591,15 @@ pub async fn serve_with_shutdown(
     state: HarnessState,
     shutdown: crate::supervisor::Shutdown,
 ) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
-    serve_inner(addr, state, shutdown, std::future::pending(), None).await
+    serve_inner(
+        addr,
+        state,
+        shutdown,
+        std::future::pending(),
+        None,
+        RuntimePrerequisites::default(),
+    )
+    .await
 }
 
 /// Share the resident's observation channel; Harness never creates another runtime.
@@ -598,7 +609,33 @@ pub async fn serve_with_runtime_status(
     shutdown: crate::supervisor::Shutdown,
     runtime: tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>,
 ) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
-    serve_inner(addr, state, shutdown, std::future::pending(), Some(runtime)).await
+    serve_with_runtime_prerequisites(
+        addr,
+        state,
+        shutdown,
+        runtime,
+        RuntimePrerequisites::default(),
+    )
+    .await
+}
+
+/// Supply the exact configured resident prerequisites, never process-global guesses.
+pub async fn serve_with_runtime_prerequisites(
+    addr: Option<SocketAddr>,
+    state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    runtime: tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>,
+    prerequisites: RuntimePrerequisites,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    serve_inner(
+        addr,
+        state,
+        shutdown,
+        std::future::pending(),
+        Some(runtime),
+        prerequisites,
+    )
+    .await
 }
 
 /// Start the harness HTTP surface. Uses `addr` when provided, otherwise reads
@@ -618,6 +655,7 @@ pub async fn serve(
             shutdown.notified().await;
         },
         None,
+        RuntimePrerequisites::default(),
     )
     .await
 }
@@ -628,6 +666,7 @@ async fn serve_inner(
     shutdown: crate::supervisor::Shutdown,
     compatibility_stop: impl std::future::Future<Output = ()> + Send + 'static,
     runtime: Option<tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>>,
+    prerequisites: RuntimePrerequisites,
 ) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
     let addr = addr
         .or_else(|| std::env::var("ARDA_HARNESS_BIND_ADDR").ok()?.parse().ok())
@@ -643,6 +682,7 @@ async fn serve_inner(
     info!("harness: listening on {bound}");
     let publisher_root = state.workbench_root.clone();
     let app = router(state)
+        .layer(axum::Extension(prerequisites))
         .layer(axum::middleware::from_fn(stop_request_ingestion))
         .layer(axum::Extension(shutdown.clone()));
     let app = if let Some(runtime) = runtime {

@@ -1,0 +1,24 @@
+[Unit]
+Description=Arda retained execution namespace keeper
+After=local-fs.target
+
+[Service]
+Type=notify
+NotifyAccess=main
+TimeoutStartSec=30
+UMask=0077
+Environment=ARDA_KEEPER_SYSTEMD_UNIT=arda-snapshot-keeper.service
+ProtectControlGroups=yes
+Delegate=no
+RuntimeDirectory=arda-snapshot-keeper
+RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=yes
+ExecStart=%h/.local/bin/arda-snapshot-keeper %h/.local/share/arda/retained/keeper %t/arda-snapshot-keeper %h/.local/bin/arda-snapshot-worker --runtime-policy %h/.config/arda/retained/runtime-policy.json
+Restart=on-failure
+RestartSec=3
+KillMode=control-group
+TimeoutStopSec=15
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

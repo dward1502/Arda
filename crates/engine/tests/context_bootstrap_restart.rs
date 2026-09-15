@@ -22,6 +22,7 @@ use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
 
 include!("resident_restart_fixture.rs.inc");
+include!("resident_retained_restart.rs.inc");
 
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 const OBJECTIVE: &str = "Complete the bounded context-bootstrap check using only the governed capsule. Execute `python3 verify-context-bootstrap.py` as the first and only terminal command, then bind test evidence to that exact terminal call. Do not inspect the directory with ls or pwd.";
@@ -41,6 +42,8 @@ async fn start(
     Arc<Notify>,
     tokio::task::JoinHandle<()>,
 ) {
+    arda_engine::objectives::ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3"))
+        .unwrap();
     start_at(root.path()).await
 }
 
@@ -194,7 +197,7 @@ session = {
 }
 transcript.write_text(json.dumps(session), encoding="utf-8")
 result={"schema_version":"arda.hermes-job-result.v1","status":"succeeded","summary":"Fresh worker completed the bounded task from governed context.","tool_evidence":[{"tool_call_id":"call-test-1"}],"test_evidence":[{"check_id":"test","tool_call_id":"call-test-1"}],"artifacts":[]}
-node_context = json.loads(prompt.split("Canonical node context follows:\n", 1)[1])
+node_context = json.JSONDecoder().raw_decode(prompt.split("Canonical node context follows:\n", 1)[1])[0]
 if node_context["node"]["kind"] == "review":
     result["summary"] = "VERDICT: APPROVE\nDeterministic fixture review accepted the bounded result."
     result["test_evidence"] = []

@@ -111,7 +111,29 @@ pub fn publish_operator_projection(
     let graphs = current_graphs;
     let run_directories = current_directories;
 
-    let runs = graphs.iter().map(project_run).collect::<Vec<_>>();
+    let runs = graphs
+        .iter()
+        .map(|graph| {
+            let owner = agenda
+                .iter()
+                .flatten()
+                .find(|objective| {
+                    objective.runs.iter().any(|(leaf, run)| {
+                        run == graph.run_id.as_str()
+                            && (graph.objective_id.as_str() == objective.id
+                                || graph.objective_id.as_str() == leaf)
+                    })
+                })
+                .ok_or_else(|| OperatorProjectionPublishError::InvalidCanonicalInput {
+                    path: root.join(OBJECTIVE_STORE_PATH),
+                    error: format!(
+                        "run {} has no matching canonical objective/leaf binding",
+                        graph.run_id.as_str()
+                    ),
+                })?;
+            Ok(project_run(graph, &owner.id))
+        })
+        .collect::<Result<Vec<_>, OperatorProjectionPublishError>>()?;
     let objectives = project_objectives(&graphs, &runs, agenda.as_deref().unwrap_or_default());
     let capabilities = project_capabilities(&run_directories)?;
     let councils = project_councils(&run_directories, &graphs)?;
@@ -188,10 +210,10 @@ pub fn publish_operator_projection(
     Ok(projection)
 }
 
-fn project_run(graph: &RunGraph) -> RunProjection {
+fn project_run(graph: &RunGraph, objective_id: &str) -> RunProjection {
     RunProjection {
         run_id: graph.run_id.as_str().to_string(),
-        objective_id: graph.objective_id.as_str().to_string(),
+        objective_id: objective_id.to_string(),
         status: derive_run_status(graph),
         nodes: graph
             .nodes
@@ -256,11 +278,11 @@ fn project_objectives(
         .iter()
         .map(|objective| {
             let graph = graphs.iter().find(|graph| {
-                graph.objective_id.as_str() == objective.id
-                    && objective
-                        .runs
-                        .iter()
-                        .any(|(_, run)| run == graph.run_id.as_str())
+                objective.runs.iter().any(|(leaf, run)| {
+                    run == graph.run_id.as_str()
+                        && (graph.objective_id.as_str() == objective.id
+                            || graph.objective_id.as_str() == leaf)
+                })
             });
             let run =
                 graph.and_then(|graph| runs.iter().find(|run| run.run_id == graph.run_id.as_str()));

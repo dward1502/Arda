@@ -1,15 +1,23 @@
 #![cfg(target_os = "linux")]
 #[path = "../src/bin/keeper_storage/mod.rs"]
+#[allow(dead_code)] // Shared production module has additional binary callers.
 mod storage;
+
+fn private_tempdir(path: &str) -> tempfile::TempDir {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir_in(path).unwrap();
+    std::fs::set_permissions(dir.path(), std::fs::Permissions::from_mode(0o700)).unwrap();
+    dir
+}
 
 #[test]
 fn owner_requires_explicit_persistent_initialization_and_preserves_missing_journal() {
-    let volatile = tempfile::tempdir_in("/dev/shm").unwrap();
+    let volatile = private_tempdir("/dev/shm");
     assert!(storage::initialize(volatile.path()).is_err());
     assert!(!volatile.path().join("owner.sqlite3").exists());
     assert!(storage::validate_durable(std::path::Path::new("/usr")).is_err());
-    let durable = tempfile::tempdir_in("/var/tmp").unwrap();
-    let runtime = tempfile::tempdir_in("/dev/shm").unwrap();
+    let durable = private_tempdir("/var/tmp");
+    let runtime = private_tempdir("/dev/shm");
     assert!(storage::open(durable.path(), runtime.path()).is_err());
     storage::initialize(durable.path()).unwrap();
     assert!(storage::initialize(durable.path()).is_err());
@@ -30,9 +38,9 @@ fn owner_requires_explicit_persistent_initialization_and_preserves_missing_journ
 }
 #[test]
 fn endpoint_cannot_be_taken_by_a_different_durable_owner() {
-    let first = tempfile::tempdir_in("/var/tmp").unwrap();
-    let second = tempfile::tempdir_in("/var/tmp").unwrap();
-    let runtime = tempfile::tempdir_in("/dev/shm").unwrap();
+    let first = private_tempdir("/var/tmp");
+    let second = private_tempdir("/var/tmp");
+    let runtime = private_tempdir("/dev/shm");
     storage::initialize(first.path()).unwrap();
     storage::initialize(second.path()).unwrap();
     let owner = storage::open(first.path(), runtime.path()).unwrap();

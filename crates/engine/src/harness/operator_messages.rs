@@ -177,7 +177,20 @@ pub(super) async fn ingest_operator_message(
         .ok_or_else(|| ApiError::bad_request("MessageEvent message_id is required"))?;
     let message_id = gateway_event_id(&incoming, raw_message_id);
     incoming.event.message_id = Some(message_id.clone());
-    incoming.event.source.message_id = Some(message_id);
+    incoming.event.source.message_id = Some(message_id.clone());
+    // Authentication time may refresh on retry; the event payload may not.
+    // Hash before adding derived approval fields with time-dependent expiry.
+    let payload_digest = format!(
+        "{:x}",
+        Sha256::digest(
+            serde_json::to_vec(&json!({
+                "operator_id": incoming.operator.operator_id,
+                "adapter_id": incoming.adapter_id,
+                "event": incoming.event,
+            }))
+            .map_err(|error| ApiError::internal(error.to_string()))?
+        )
+    );
 
     let command = parse_command(&incoming.event.text)?;
     let audience = audience(&incoming.event);
@@ -284,20 +297,24 @@ pub(super) async fn ingest_operator_message(
             .join("core/state/orome/operator-session"),
     )
     .map_err(bridge_error)?;
-    // Resident objective mutations are durable and idempotent by gateway event ID.
-    // Apply them before appending the operator-session event so a rejected control
-    // cannot become an unretryable duplicate without changing objective state.
+    // Validate and lock the transport ledger before any domain mutation. Old
+    // ledger entries remain authoritative even without new SQLite bindings.
+    let prepared =
+        tokio::task::spawn_blocking(move || runtime.prepare(bridge_request, pending.as_ref(), now))
+            .await
+            .map_err(|error| ApiError::internal(error.to_string()))?
+            .map_err(bridge_error)?;
+    objective_store(&state)?
+        .bind_gateway_event(&message_id, &payload_digest)
+        .map_err(objective_store_error)?;
+    // Rejected resident commands remain retryable without consuming the event;
+    // durable payload binding still forbids swapping their command family.
     let applied = if is_resident_objective_mutation(&command) {
         Some(apply_command(&state, &incoming, &command).await?)
     } else {
         None
     };
-    let session = match pending.as_ref() {
-        Some(binding) => runtime
-            .ingest_approval(bridge_request, binding, now)
-            .map_err(bridge_error)?,
-        None => runtime.ingest(bridge_request, now).map_err(bridge_error)?,
-    };
+    let session = prepared.commit().map_err(bridge_error)?;
 
     let (summary, mut evidence_refs) = match applied {
         Some(result) => result,
@@ -1056,7 +1073,7 @@ fn create_operator_objective(
 }
 
 fn objective_store(state: &HarnessState) -> Result<ObjectiveStore, ApiError> {
-    ObjectiveStore::open(state.workbench_root.join("data/arda/objectives.sqlite3"))
+    ObjectiveStore::open_existing(state.workbench_root.join("data/arda/objectives.sqlite3"))
         .map_err(objective_store_error)
 }
 

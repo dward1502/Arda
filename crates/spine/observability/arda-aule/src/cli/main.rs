@@ -755,6 +755,7 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
         AutopilotCommands::Once { .. }
             | AutopilotCommands::Run { .. }
             | AutopilotCommands::Status { .. }
+            | AutopilotCommands::PromoteKnowledgeTasks { .. }
     ) {
         anyhow::bail!("legacy JSONL autopilot is retired; use the resident arda objective runtime and /v1/operator-projection");
     }

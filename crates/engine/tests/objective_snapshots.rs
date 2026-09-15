@@ -75,6 +75,7 @@ impl SnapshotAdmission for Keeper {
 
 fn fixture() -> (tempfile::TempDir, ObjectiveStore, Arc<Keeper>) {
     let temp = tempfile::tempdir().unwrap();
+    std::fs::create_dir(temp.path().join("workspace")).unwrap();
     let database = temp.path().join("objectives.sqlite3");
     let keeper = Arc::new(Keeper {
         database: database.clone(),
@@ -99,7 +100,7 @@ fn fixture() -> (tempfile::TempDir, ObjectiveStore, Arc<Keeper>) {
                 leaves: vec![NewLeaf {
                     id: "leaf".into(),
                     project_id: Some("fixture".into()),
-                    workspace_root: temp.path().to_str().unwrap().into(),
+                    workspace_root: temp.path().join("workspace").to_str().unwrap().into(),
                     authority: "read_only".into(),
                     dependencies: vec![],
                     execution: None,
@@ -120,6 +121,99 @@ fn fixture() -> (tempfile::TempDir, ObjectiveStore, Arc<Keeper>) {
     (temp, store, keeper)
 }
 
+#[test]
+fn retained_reservation_blocks_other_eligible_work_with_spare_capacity() {
+    let (temp, store, keeper) = fixture();
+    let other = temp.path().join("other");
+    std::fs::create_dir(&other).unwrap();
+    store
+        .create_authenticated_objective(
+            NewObjective {
+                id: "other".into(),
+                source_id: "other-source".into(),
+                idempotency_key: "other-ingress".into(),
+                operator_id: "operator".into(),
+                text: "Other eligible work".into(),
+                priority: 0,
+                projects: vec![ProjectAuthority {
+                    project_id: "fixture".into(),
+                    contract_digest: "sha256:fixture".into(),
+                }],
+                leaves: vec![NewLeaf {
+                    id: "other-leaf".into(),
+                    project_id: Some("fixture".into()),
+                    workspace_root: other.to_str().unwrap().into(),
+                    authority: "read_only".into(),
+                    dependencies: vec![],
+                    execution: None,
+                }],
+            },
+            3,
+        )
+        .unwrap();
+    store
+        .apply_control(
+            "other",
+            ControlAction::Approve { revision: 1 },
+            "other-approve",
+            "operator",
+            4,
+        )
+        .unwrap();
+    let first = store.claim_runnable("first", 10, 100, 4).unwrap();
+    assert_eq!(first.len(), 1);
+    assert_eq!(first[0].objective_id, "snapshot");
+    assert!(store
+        .claim_runnable("second", 11, 100, 4)
+        .unwrap()
+        .is_empty());
+    // Pausing keeps the expired capability reserved but removes it as a
+    // runnable recovery candidate. The other objective still cannot start.
+    store
+        .apply_control("snapshot", ControlAction::Pause, "pause", "operator", 20)
+        .unwrap();
+    assert!(store
+        .claim_runnable("second", 111, 100, 4)
+        .unwrap()
+        .is_empty());
+    let attempt: i64 = rusqlite::Connection::open(&keeper.database)
+        .unwrap()
+        .query_row(
+            "SELECT attempt FROM leaves WHERE id='other-leaf'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(attempt, 0);
+    assert_eq!(keeper.state.lock().unwrap().prepares, 1);
+}
+
+#[test]
+fn recovery_does_not_replace_missing_or_mismatched_capabilities() {
+    for mutation in [
+        "UPDATE retained_workspace_snapshots SET run_id='wrong-run'",
+        "DELETE FROM retained_workspace_snapshots",
+        "DELETE FROM lease_workspace_identities",
+    ] {
+        let (temp, store, keeper) = fixture();
+        store.claim_runnable("first", 10, 100, 1).unwrap();
+        std::fs::rename(temp.path().join("workspace"), temp.path().join("original")).unwrap();
+        let db = rusqlite::Connection::open(&keeper.database).unwrap();
+        // Simulate externally corrupted durable state, including broken FKs.
+        db.pragma_update(None, "foreign_keys", false).unwrap();
+        db.execute(mutation, []).unwrap();
+        assert!(
+            store.claim_runnable("second", 111, 100, 1).is_err(),
+            "{mutation}"
+        );
+        let attempt: i64 = db
+            .query_row("SELECT attempt FROM leaves", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(attempt, 1);
+        assert_eq!(keeper.state.lock().unwrap().prepares, 1);
+    }
+}
+
 fn durable(keeper: &Keeper) -> (i64, String, i64) {
     rusqlite::Connection::open(&keeper.database)
         .unwrap()
@@ -134,7 +228,12 @@ fn durable(keeper: &Keeper) -> (i64, String, i64) {
 
 #[test]
 fn snapshot_commit_ack_loss_reopens_same_intent_before_reclaim() {
-    let (_temp, store, keeper) = fixture();
+    recovery_after_root_change(false);
+    recovery_after_root_change(true);
+}
+
+fn recovery_after_root_change(replace: bool) {
+    let (temp, store, keeper) = fixture();
     keeper.state.lock().unwrap().lose_ack = true;
     assert!(store.claim_runnable("worker", 10, 100, 1).is_err());
     let before = durable(&keeper);
@@ -147,6 +246,15 @@ fn snapshot_commit_ack_loss_reopens_same_intent_before_reclaim() {
     let after = durable(&keeper);
     assert_eq!(before.1, after.1);
     assert_eq!((after.0, after.2), (1, 1));
+    let db = rusqlite::Connection::open(&keeper.database).unwrap();
+    let saved: (String, String) = db.query_row(
+        "SELECT execution_run_id, identity_json FROM leaves JOIN lease_workspace_identities ON leaf_id=id",
+        [], |r| Ok((r.get(0)?, r.get(1)?)),
+    ).unwrap();
+    std::fs::rename(temp.path().join("workspace"), temp.path().join("original")).unwrap();
+    if replace {
+        std::fs::create_dir(temp.path().join("workspace")).unwrap();
+    }
     let claim = store
         .claim_runnable("new-worker", 111, 100, 1)
         .unwrap()
@@ -159,6 +267,16 @@ fn snapshot_commit_ack_loss_reopens_same_intent_before_reclaim() {
     assert_eq!(state.commits[2].1, 2);
     assert_eq!(state.commits[2].2, "new-worker");
     assert_eq!(durable(&keeper).1, before.1);
+    let recovered: (String, String) = db.query_row(
+        "SELECT execution_run_id, identity_json FROM leaves JOIN lease_workspace_identities ON leaf_id=id",
+        [], |r| Ok((r.get(0)?, r.get(1)?)),
+    ).unwrap();
+    assert_eq!(saved, recovered);
+    drop(state);
+    assert!(store
+        .claim_runnable("third", 112, 100, 4)
+        .unwrap()
+        .is_empty());
 }
 
 #[test]

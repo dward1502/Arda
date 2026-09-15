@@ -8,7 +8,8 @@ use std::{
 };
 
 type Identity = (u32, PathBuf, PathBuf, Option<(u64, u64)>, String);
-mod physical;
+pub mod grant;
+pub(crate) mod physical;
 
 pub struct Admission {
     root: PathBuf,
@@ -67,11 +68,16 @@ impl Admission {
     pub fn before_clone(root: &Path, encoded: &str) -> Result<Self> {
         let (version, approved, anchor, id, digest): Identity = serde_json::from_str(encoded)?;
         let topology = fs::read("/proc/thread-self/mountinfo")?;
-        if version != 2
-            || approved != root
-            || anchor != approved
-            || digest != format!("{:x}", Sha256::digest(&topology))
-        {
+        if !matches!(version, 2 | 3) || approved != root || anchor != approved {
+            bail!("snapshot admission topology or root does not match");
+        }
+        let physical = physical::Physical::pin(root, &topology)?;
+        let expected = match version {
+            2 => format!("{:x}", Sha256::digest(&topology)),
+            3 => physical.witness()?.digest()?,
+            _ => unreachable!(),
+        };
+        if digest != expected {
             bail!("snapshot admission topology or root does not match");
         }
         let (device, inode) = id.context("snapshot admission requires physical identity")?;
@@ -80,7 +86,7 @@ impl Admission {
             device,
             inode,
             topology: stable(&topology)?,
-            physical: physical::Physical::pin(root, &topology)?,
+            physical,
         };
         admission.check_root(&fs::metadata(root)?)?;
         if topology != fs::read("/proc/thread-self/mountinfo")? {
@@ -88,8 +94,17 @@ impl Admission {
         }
         Ok(admission)
     }
+    pub fn check_descriptor(&self, file: &fs::File) -> Result<()> {
+        let metadata = file.metadata()?;
+        if !metadata.is_dir() || metadata.dev() != self.device || metadata.ino() != self.inode {
+            bail!("captured descriptor differs from admitted workspace");
+        }
+        Ok(())
+    }
+
     pub fn after_clone(&self, root: &Path) -> Result<()> {
-        if root != self.root || stable(&fs::read("/proc/thread-self/mountinfo")?)? != self.topology {
+        if root != self.root || stable(&fs::read("/proc/thread-self/mountinfo")?)? != self.topology
+        {
             bail!("snapshot capture topology changed");
         }
         self.check_root(&fs::metadata(root)?)
@@ -99,6 +114,9 @@ impl Admission {
             bail!("snapshot capture root changed");
         }
         Ok(())
+    }
+    pub fn exposed_devices(&self) -> Result<std::collections::BTreeSet<u64>> {
+        self.physical.exposed_devices()
     }
     pub fn check_capture(&self, staged: &Path) -> Result<()> {
         self.check_root(&fs::metadata(staged)?)?;

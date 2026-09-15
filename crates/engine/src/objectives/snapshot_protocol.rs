@@ -32,11 +32,79 @@ pub struct Manifest {
     pub device: u64,
     pub inode: u64,
     pub topology_digest: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_bundle: Option<RuntimeBundle>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub admission_digest: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RuntimeBundle {
+    pub version: u32,
+    pub policy_digest: String,
+    pub grants: Vec<CapturedRuntimeGrant>,
+}
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CapturedRuntimeGrant {
+    pub id: String,
+    pub destination: PathBuf,
+    pub kind: super::runtime_policy::GrantKind,
+    pub access: super::runtime_policy::GrantAccess,
+    pub device: u64,
+    pub inode: u64,
+    pub topology_digest: String,
+}
+impl Manifest {
+    pub fn validate_runtime(
+        &self,
+        expected: Option<&super::runtime_policy::ValidatedRuntimePolicy>,
+    ) -> anyhow::Result<()> {
+        match (self.version, &self.runtime_bundle, expected) {
+            (1, None, None) if self.admission_digest.is_none() => Ok(()),
+            (2, Some(bundle), Some(policy))
+                if bundle.version == 1 && bundle.policy_digest == policy.digest() =>
+            {
+                anyhow::ensure!(
+                    bundle.grants.len() == policy.policy().grants.len(),
+                    "runtime grant count mismatch"
+                );
+                for (actual, expected) in bundle.grants.iter().zip(&policy.policy().grants) {
+                    anyhow::ensure!(
+                        actual.id == expected.id
+                            && actual.destination.as_os_str() == expected.destination.as_os_str()
+                            && actual.kind == expected.kind
+                            && actual.access == expected.access,
+                        "runtime grant set mismatch"
+                    );
+                    anyhow::ensure!(
+                        actual.inode != 0
+                            && actual.topology_digest.len() == 64
+                            && actual
+                                .topology_digest
+                                .bytes()
+                                .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c)),
+                        "invalid captured runtime identity"
+                    );
+                }
+                Ok(())
+            }
+            _ => anyhow::bail!("runtime manifest version or policy mismatch"),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Request {
+    Runtime {
+        capability: String,
+        lease: Lease,
+        operation: super::runtime_operation::RuntimeOperation,
+        timeout_ms: u64,
+        max_output_bytes: usize,
+    },
     Inspect,
     Commit {
         capability: String,

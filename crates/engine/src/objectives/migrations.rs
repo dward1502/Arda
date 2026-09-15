@@ -7,6 +7,11 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
             r#"
             PRAGMA foreign_keys = ON;
 
+            CREATE TABLE IF NOT EXISTS gateway_event_bindings (
+                event_id TEXT PRIMARY KEY,
+                payload_digest TEXT NOT NULL
+            );
+
             CREATE TABLE IF NOT EXISTS objectives (
                 id TEXT PRIMARY KEY,
                 source_id TEXT NOT NULL UNIQUE,

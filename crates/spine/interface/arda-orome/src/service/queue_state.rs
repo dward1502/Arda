@@ -1,6 +1,5 @@
 use super::*;
 use arda_core::error::Result;
-use chrono::Utc;
 use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
@@ -53,34 +52,6 @@ fn read_queue_values(path: &PathBuf) -> Result<Vec<Value>> {
     Ok(out)
 }
 
-fn write_queue_values(path: &PathBuf, values: &[Value]) -> Result<()> {
-    let mut content = String::new();
-    for value in values {
-        content.push_str(&serde_json::to_string(value)?);
-        content.push('\n');
-    }
-    fs::write(path, content)?;
-    Ok(())
-}
-
-fn mark_completed(value: &mut Value, executed_by: &str) {
-    if let Some(obj) = value.as_object_mut() {
-        obj.insert("status".to_string(), Value::String("completed".to_string()));
-        obj.insert(
-            "completed_at".to_string(),
-            Value::String(Utc::now().to_rfc3339()),
-        );
-        obj.insert(
-            "completed_by".to_string(),
-            Value::String(executed_by.to_string()),
-        );
-        obj.insert(
-            "completion_source".to_string(),
-            Value::String("hermes_decision".to_string()),
-        );
-    }
-}
-
 fn entry_task_id(value: &Value) -> Option<&str> {
     value.get("task_id").and_then(|v| v.as_str())
 }
@@ -121,81 +92,23 @@ impl HermesService {
 
     pub(super) fn complete_queued_task(
         &self,
-        task_id: &str,
-        executed_by: &str,
+        _task_id: &str,
+        _executed_by: &str,
     ) -> Result<QueueMutationResult> {
-        let path = default_task_queue_path();
-        let mut values = read_queue_values(&path)?;
-        let mut found = false;
-        let mut updated = false;
-        let mut title = String::new();
-
-        for value in values.iter_mut() {
-            if entry_task_id(value) == Some(task_id) {
-                found = true;
-                title = entry_title(value).unwrap_or_default();
-                if entry_status(value) == Some("queued") {
-                    mark_completed(value, executed_by);
-                    updated = true;
-                }
-                break;
-            }
-        }
-
-        if updated {
-            write_queue_values(&path, &values)?;
-        }
-
-        Ok(QueueMutationResult {
-            found,
-            updated,
-            task_id: task_id.to_string(),
-            title,
-        })
+        Err(ArdaError::Task(
+            "legacy JSONL queue completion is retired; use authenticated Engine objective control"
+                .to_string(),
+        ))
     }
 
     pub(super) fn drain_queued_tasks(
         &self,
-        limit: usize,
-        executed_by: &str,
+        _limit: usize,
+        _executed_by: &str,
     ) -> Result<QueueDrainResult> {
-        let path = default_task_queue_path();
-        let mut values = read_queue_values(&path)?;
-        let mut completed = Vec::new();
-        let mut attempted = 0usize;
-
-        for value in values.iter_mut() {
-            if completed.len() >= limit {
-                break;
-            }
-            if entry_status(value) != Some("queued") {
-                continue;
-            }
-            attempted += 1;
-            let task_id = entry_task_id(value).unwrap_or_default().to_string();
-            let title = entry_title(value).unwrap_or_default();
-            mark_completed(value, executed_by);
-            completed.push(QueueMutationResult {
-                found: true,
-                updated: true,
-                task_id,
-                title,
-            });
-        }
-
-        if !completed.is_empty() {
-            write_queue_values(&path, &values)?;
-        }
-
-        let remaining = values
-            .iter()
-            .filter(|v| entry_status(v) == Some("queued"))
-            .count();
-
-        Ok(QueueDrainResult {
-            attempted,
-            completed,
-            remaining,
-        })
+        Err(ArdaError::Task(
+            "legacy JSONL queue drain is retired; use authenticated Engine objective control"
+                .to_string(),
+        ))
     }
 }

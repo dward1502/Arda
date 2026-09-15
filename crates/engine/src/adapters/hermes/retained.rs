@@ -7,6 +7,14 @@ use std::collections::BTreeMap;
 use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::net::UnixStream;
+mod dispatch;
+pub(super) use dispatch::invoke;
+
+pub(super) struct ExecutionLimits {
+    pub duration: Duration,
+    pub grace_ms: u64,
+    pub limit: usize,
+}
 
 #[cfg(test)]
 #[path = "retained_tests.rs"]
@@ -42,11 +50,9 @@ impl super::HermesAdapter {
                 "invalid retained workspace or unsupported budgets".into(),
             ));
         }
-        let executable = if std::path::Path::new(&config.executable).is_absolute() {
-            std::path::PathBuf::from(&config.executable)
-        } else {
-            super::resolve_executable(&config.executable, host_environment)?
-        };
+        // Mode discovery is authenticated against the saved manifest at dispatch.
+        // Configured workers need no host executable; only legacy mode resolves it.
+        let executable = std::path::PathBuf::from(&config.executable);
         let mut environment: BTreeMap<_, _> = config
             .inherit_environment
             .iter()
@@ -103,6 +109,34 @@ pub(super) async fn execute(
     grace_ms: u64,
     limit: usize,
 ) -> Result<BoundedProcessOutput, HermesAdapterError> {
+    execute_inner(
+        binding,
+        argv,
+        environment,
+        cancellation,
+        ExecutionLimits {
+            duration,
+            grace_ms,
+            limit,
+        },
+        None,
+    )
+    .await
+}
+
+async fn execute_inner(
+    binding: &RetainedExecution,
+    argv: Vec<String>,
+    environment: BTreeMap<String, String>,
+    cancellation: &AdapterCancellation,
+    limits: ExecutionLimits,
+    operation: Option<crate::objectives::runtime_operation::RuntimeOperation>,
+) -> Result<BoundedProcessOutput, HermesAdapterError> {
+    let ExecutionLimits {
+        duration,
+        grace_ms,
+        limit,
+    } = limits;
     let timeout_ms = u64::try_from(duration.as_millis()).map_err(|_| protocol_error())?;
     if !(1..=wire::MAX_TIMEOUT_MS).contains(&timeout_ms)
         || !(1..=wire::MAX_OUTPUT_BYTES).contains(&limit)
@@ -111,13 +145,23 @@ pub(super) async fn execute(
             "unsupported retained-worker execution limits".into(),
         ));
     }
-    let request = wire::Request::Execute {
-        capability: binding.snapshot.capability.clone(),
-        lease: binding.lease.clone(),
-        argv,
-        environment,
-        timeout_ms,
-        max_output_bytes: limit,
+    let request = if let Some(operation) = operation {
+        wire::Request::Runtime {
+            capability: binding.snapshot.capability.clone(),
+            lease: binding.lease.clone(),
+            operation,
+            timeout_ms,
+            max_output_bytes: limit,
+        }
+    } else {
+        wire::Request::Execute {
+            capability: binding.snapshot.capability.clone(),
+            lease: binding.lease.clone(),
+            argv,
+            environment,
+            timeout_ms,
+            max_output_bytes: limit,
+        }
     };
     let encoded = serde_json::to_vec(&request)?;
     if encoded.len() >= wire::MAX_REQUEST_BYTES {
@@ -202,10 +246,16 @@ pub(super) async fn verify_artifacts(
     cancellation: &AdapterCancellation,
     grace_ms: u64,
 ) -> Result<(), HermesAdapterError> {
+    if artifacts.is_empty() {
+        return Ok(());
+    }
     // Isolated Python is part of the explicitly mounted /usr runtime, not a
     // script or interpreter resolved through provider-controlled workspace/PATH.
-    execute(
+    let output = invoke(
         binding,
+        crate::objectives::runtime_operation::RuntimeOperation::VerifyArtifacts {
+            paths: artifacts.iter().map(|a| a.path.clone()).collect(),
+        },
         vec![
             "/usr/bin/python3".into(),
             "-I".into(),
@@ -214,12 +264,31 @@ pub(super) async fn verify_artifacts(
             serde_json::to_string(artifacts)?,
         ],
         BTreeMap::new(),
-        duration,
         cancellation,
-        grace_ms,
-        65536,
+        ExecutionLimits {
+            duration,
+            grace_ms,
+            limit: 65536,
+        },
     )
     .await?;
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Stamp {
+        path: String,
+        sha256: String,
+    }
+    let stamps: Vec<Stamp> =
+        serde_json::from_slice(&output.stdout).map_err(|_| protocol_error())?;
+    if stamps.len() != artifacts.len()
+        || stamps.iter().zip(artifacts).any(|(stamp, expected)| {
+            stamp.path != expected.path || format!("sha256:{}", stamp.sha256) != expected.digest
+        })
+    {
+        return Err(HermesAdapterError::InvalidResult(
+            "retained artifact digest mismatch".into(),
+        ));
+    }
     Ok(())
 }
 

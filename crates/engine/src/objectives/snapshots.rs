@@ -127,6 +127,15 @@ pub(super) fn prepare(
 }
 
 impl super::store::ObjectiveStore {
+    /// Historical routing only: this never grants a live execution lease.
+    pub fn has_retained_snapshot(&self, run_id: &str) -> Result<bool> {
+        Ok(self.connection()?.query_row(
+            "SELECT EXISTS(SELECT 1 FROM retained_workspace_snapshots WHERE run_id = ?1)",
+            [run_id],
+            |row| row.get(0),
+        )?)
+    }
+
     /// Resolve only an acknowledged, current, live lease. This is read-only and
     /// does not require an admission client on the Harness's reopened store.
     /// None means the legacy/nonresident path, never a missing required snapshot.

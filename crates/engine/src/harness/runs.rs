@@ -2,6 +2,7 @@ use arda_core::run_graph::{
     NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRole, WorkerRouteClass,
 };
 use arda_vaire::{ContextAssembly, MnemosyneService};
+mod retained_dispatch;
 use axum::{
     extract::{ConnectInfo, Path, State},
     http::StatusCode,
@@ -9,6 +10,7 @@ use axum::{
     response::Sse,
     Json,
 };
+use retained_dispatch::require_expected_retained_lease;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::convert::Infallible;
@@ -141,11 +143,13 @@ pub struct CompleteRunNodeRequest {
     evidence: Option<RunReviewEvidence>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ExecuteProviderNodeRequest {
     envelope: MutationEnvelope,
     objective: String,
+    #[serde(default)]
+    expected_retained_lease: Option<crate::objectives::snapshot_protocol::Lease>,
     #[serde(default)]
     context_assembly: Option<ContextAssembly>,
 }
@@ -896,7 +900,13 @@ pub(super) async fn execute_provider_node(
     }
 
     require_succeeded_dependencies(&graph, &node_id)?;
-    enforce_worker_admission(&state, &store, &graph, &node_id).await?;
+    // A persisted Running node is not scheduler-ready. First validate its
+    // retained lease and determine whether its worker is still active; an
+    // orphan must reach the existing Failed -> Ready recovery before admission.
+    let recovering_running = node.state == NodeState::Running;
+    if !recovering_running {
+        enforce_worker_admission(&state, &store, &graph, &node_id).await?;
+    }
     let approval_receipt = node
         .parent_receipts
         .first()
@@ -1017,7 +1027,19 @@ pub(super) async fn execute_provider_node(
                 "stored provider receipt does not match the requested context capsule authority",
             ));
         }
-        HermesAdapter::validate_replay(&config_path, &project_root, &task, &receipt).map_err(
+        let objectives = crate::objectives::ObjectiveStore::open_existing(
+            state.workbench_root.join("data/arda/objectives.sqlite3"),
+        )
+        .map_err(|error| ApiError::internal(error.to_string()))?;
+        let uses_retained = objectives
+            .has_retained_snapshot(id.as_str())
+            .map_err(|error| ApiError::conflict(error.to_string()))?;
+        let replay_config = retained_dispatch::execution_config(
+            &config_path,
+            uses_retained,
+            std::env::var_os("ARDA_HERMES_RETAINED_ADAPTER_CONFIG").as_deref(),
+        );
+        HermesAdapter::validate_replay(&replay_config, &project_root, &task, &receipt).map_err(
             |error| {
                 ApiError::conflict(format!(
                     "stored provider receipt failed current authority binding: {error}"
@@ -1027,18 +1049,32 @@ pub(super) async fn execute_provider_node(
         receipt
     } else {
         let environment = std::env::vars().collect::<BTreeMap<_, _>>();
-        let objectives = crate::objectives::ObjectiveStore::open(
+        let objectives = crate::objectives::ObjectiveStore::open_existing(
             state.workbench_root.join("data/arda/objectives.sqlite3"),
         )
         .map_err(|error| ApiError::internal(error.to_string()))?;
         let retained = objectives
             .retained_execution(id.as_str(), chrono::Utc::now().timestamp_millis())
             .map_err(|error| ApiError::conflict(error.to_string()))?;
+        require_expected_retained_lease(
+            retained.as_ref().map(|binding| &binding.lease),
+            request.expected_retained_lease.as_ref(),
+        )?;
         let uses_retained = retained.is_some();
+        let execution_config = retained_dispatch::execution_config(
+            &config_path,
+            uses_retained,
+            std::env::var_os("ARDA_HERMES_RETAINED_ADAPTER_CONFIG").as_deref(),
+        );
         let adapter = if let Some(binding) = retained {
             #[cfg(target_os = "linux")]
             {
-                HermesAdapter::load_retained(&config_path, &project_root, &environment, binding)
+                HermesAdapter::load_retained(
+                    &execution_config,
+                    &project_root,
+                    &environment,
+                    binding,
+                )
             }
             #[cfg(not(target_os = "linux"))]
             {
@@ -1107,12 +1143,8 @@ pub(super) async fn execute_provider_node(
                 node.state
             )));
         }
-        let attempt = graph
-            .nodes
-            .iter()
-            .find(|candidate| candidate.id == node_id)
-            .map(|candidate| candidate.checkpoint.sequence + 1)
-            .expect("provider node remains present");
+        let attempt =
+            next_provider_attempt(&store.recover().map_err(store_error)?.events, &node_id);
         if attempt > u64::from(node.retry.max_attempts) {
             return Err(ApiError::conflict(format!(
                 "node `{}` exhausted provider attempts",
@@ -1129,6 +1161,9 @@ pub(super) async fn execute_provider_node(
                 Some(approval_receipt),
             )
             .map_err(store_error)?;
+        }
+        if recovering_running {
+            enforce_worker_admission(&state, &store, &graph, &node_id).await?;
         }
         graph
             .nodes
@@ -1294,6 +1329,53 @@ async fn cancel_active_provider_run(run_id: &str) {
     for cancellation in active {
         cancellation.cancel();
     }
+}
+
+fn next_provider_attempt(events: &[RunEvent], node_id: &NodeId) -> u64 {
+    // Checkpoint sequence is the global journal sequence, not a retry counter.
+    // Count durable starts for this node so unrelated transitions neither
+    // consume nor reset its provider budget.
+    1 + events
+        .iter()
+        .filter(|event| {
+            &event.node_id == node_id
+                && matches!(
+                    event.kind,
+                    RunEventKind::NodeTransition {
+                        state: NodeState::Running
+                    }
+                )
+        })
+        .count() as u64
+}
+
+#[test]
+fn provider_attempts_count_starts_not_global_checkpoint_sequences() {
+    let node_id = NodeId::new("verify").unwrap();
+    let events = [
+        ("execute", NodeState::Running),
+        ("verify", NodeState::Ready),
+        ("verify", NodeState::Running),
+        ("verify", NodeState::Failed),
+    ]
+    .into_iter()
+    .enumerate()
+    .map(|(index, (node, state))| RunEvent {
+        schema_version: RunEvent::SCHEMA_VERSION.into(),
+        sequence: 100 + index as u64,
+        run_id: RunId::new("attempt-test").unwrap(),
+        node_id: NodeId::new(node).unwrap(),
+        idempotency_key: format!("event-{index}"),
+        kind: RunEventKind::NodeTransition { state },
+        receipt_digest: None,
+        recorded_at_unix_ms: 0,
+    })
+    .collect::<Vec<_>>();
+    assert_eq!(next_provider_attempt(&events, &node_id), 2);
+    assert_eq!(
+        next_provider_attempt(&events, &NodeId::new("review").unwrap()),
+        1
+    );
 }
 
 async fn enforce_worker_admission(

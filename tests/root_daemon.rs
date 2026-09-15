@@ -129,18 +129,38 @@ start.cwd = "."
 
 #[tokio::test]
 async fn harness_uses_warden_override_and_signal_shutdown_reaps_child() {
-    assert_signal_shutdown("-INT").await;
+    assert_signal_shutdown("-INT", false).await;
 }
 
 #[tokio::test]
 async fn systemd_sigterm_shutdown_reaps_child() {
-    assert_signal_shutdown("-TERM").await;
+    assert_signal_shutdown("-TERM", false).await;
 }
 
-async fn assert_signal_shutdown(signal_name: &str) {
+#[tokio::test]
+async fn configured_keeper_policy_survives_daemon_shutdown() {
+    assert_signal_shutdown("-TERM", true).await;
+}
+
+async fn assert_signal_shutdown(signal_name: &str, retained: bool) {
+    assert_signal_shutdown_with_environment(signal_name, retained, false).await;
+}
+
+#[tokio::test]
+async fn keeper_environment_wiring_persists_required_admission() {
+    assert_signal_shutdown_with_environment("-TERM", true, true).await;
+}
+
+async fn assert_signal_shutdown_with_environment(
+    signal_name: &str,
+    retained: bool,
+    environment: bool,
+) {
     let temp = TempDir::new().expect("temporary repository");
     let root = temp.path();
     let pid_file = root.join("worker.pid");
+    arda_engine::objectives::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))
+        .unwrap();
     let worker = root.join("worker.sh");
     write_executable(
         &worker,
@@ -177,7 +197,19 @@ scout_url = "http://fleet.example:8092"
         listener.local_addr().expect("reserved address").port()
     };
     let harness_addr = format!("127.0.0.1:{port}");
-    let mut daemon = Command::new(arda_bin())
+    let mut command = Command::new(arda_bin());
+    command.env_remove("ARDA_SNAPSHOT_KEEPER_SOCKET");
+    if retained && environment {
+        command.env(
+            "ARDA_SNAPSHOT_KEEPER_SOCKET",
+            root.join("independent-keeper.sock"),
+        );
+    } else if retained {
+        command
+            .arg("--snapshot-keeper-socket")
+            .arg(root.join("independent-keeper.sock"));
+    }
+    let mut daemon = command
         .current_dir(root)
         .env("ARDA_REPO_ROOT", root)
         .env("ARDA_OPERATOR_ID", "root-daemon-test-operator")
@@ -273,6 +305,24 @@ scout_url = "http://fleet.example:8092"
     })
     .await
     .expect("daemon did not stop after shutdown signal");
+
+    if retained {
+        // Dropping the daemon's transport must not permit a reopened store to
+        // silently fall back to live-path admission. No work was dispatched and
+        // no keeper process was spawned by the daemon.
+        let store = arda_engine::objectives::ObjectiveStore::open(
+            root.join("data/arda/objectives.sqlite3"),
+        )
+        .expect("reopen canonical store");
+        let error = store
+            .claim_runnable("unconfigured", 1, 1000, 1)
+            .expect_err("persisted keeper policy must reject unconfigured admission");
+        assert!(
+            error.to_string().contains("keeper is not configured"),
+            "{error}"
+        );
+        assert!(!root.join("independent-keeper.sock").exists());
+    }
 
     let child_alive = Command::new("kill")
         .args(["-0", child_pid.trim()])

@@ -366,6 +366,20 @@ pub struct OperatorBridge {
     sessions_path: PathBuf,
 }
 
+/// Validated event holding the ledger's exclusive lock until commit or drop.
+/// Dropping a preparation does not consume a rejected command's event ID.
+pub struct PreparedOperatorEvent {
+    sessions: File,
+    session: OperatorSessionEvent,
+}
+
+impl PreparedOperatorEvent {
+    pub fn commit(mut self) -> Result<OperatorSessionEvent, BridgeError> {
+        append_locked_json(&mut self.sessions, &self.session)?;
+        Ok(self.session)
+    }
+}
+
 impl OperatorBridge {
     pub fn new(root: impl AsRef<Path>) -> Result<Self, BridgeError> {
         let root = root.as_ref();
@@ -400,6 +414,17 @@ impl OperatorBridge {
         pending_approval: Option<&ApprovalBinding>,
         now: DateTime<Utc>,
     ) -> Result<OperatorSessionEvent, BridgeError> {
+        self.prepare(request, pending_approval, now)?.commit()
+    }
+
+    /// Validate and reserve the ledger before caller-owned mutations. This may
+    /// block on a file lock: async callers must use a blocking worker.
+    pub fn prepare(
+        &self,
+        request: BridgeRequest,
+        pending_approval: Option<&ApprovalBinding>,
+        now: DateTime<Utc>,
+    ) -> Result<PreparedOperatorEvent, BridgeError> {
         validate_request(&request)?;
         let event_id = request
             .event
@@ -478,8 +503,7 @@ impl OperatorBridge {
                 evidence_refs: vec![format!("arda://operator-events/{event_id}")],
             },
         };
-        append_locked_json(&mut sessions, &session)?;
-        Ok(session)
+        Ok(PreparedOperatorEvent { sessions, session })
     }
 
     pub fn correlate_response(

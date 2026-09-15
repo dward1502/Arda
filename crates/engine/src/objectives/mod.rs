@@ -1,13 +1,24 @@
 pub(crate) mod agenda;
 #[cfg(target_os = "linux")]
+pub mod capture_envelope;
+#[cfg(target_os = "linux")]
+#[doc(hidden)]
+pub mod captured_fds;
+#[cfg(target_os = "linux")]
 pub mod keeper_client;
 mod migrations;
 mod model;
+#[cfg(target_os = "linux")]
+pub mod physical_tree;
 mod runtime;
+pub mod runtime_operation;
+pub mod runtime_policy;
 mod scheduling;
 pub mod snapshot_protocol;
 mod snapshots;
 mod store;
+#[cfg(target_os = "linux")]
+pub mod tree_witness;
 mod workbench;
 
 pub use model::{

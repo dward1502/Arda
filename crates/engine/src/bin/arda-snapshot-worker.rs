@@ -19,8 +19,10 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 mod snapshot_child;
+mod snapshot_ephemeral;
 mod snapshot_lease;
 mod snapshot_output;
+mod snapshot_runtime;
 mod snapshot_state;
 
 fn cpath(path: &Path) -> Result<CString> {
@@ -78,6 +80,7 @@ fn same_user(stream: &UnixStream) -> Result<()> {
 struct ExecutionControl<'a> {
     binding: &'a snapshot_lease::Binding,
     client: &'a UnixStream,
+    timeout_ms: u64,
     max_output_bytes: usize,
 }
 
@@ -86,13 +89,14 @@ fn execute(
     root: &Path,
     argv: &[String],
     environment: &BTreeMap<String, String>,
-    timeout_ms: u64,
     control: ExecutionControl<'_>,
     poisoned: &mut bool,
+    runtime: Option<&snapshot_runtime::CapturedRuntime>,
 ) -> Result<serde_json::Value> {
     let ExecutionControl {
         binding,
         client,
+        timeout_ms,
         max_output_bytes,
     } = control;
     if *poisoned {
@@ -105,7 +109,7 @@ fn execute(
     {
         bail!("absolute executable and supported execution/output limits required");
     }
-    if environment.contains_key("HERMES_HOME") {
+    if runtime.is_none() && environment.contains_key("HERMES_HOME") {
         bail!("worker-state grants are not qualified by this root-only snapshot");
     }
     let deadline = Instant::now()
@@ -113,6 +117,9 @@ fn execute(
             .min(binding.remaining(&binding.lease, snapshot_lease::now_ms()?)?);
     let mut command = Command::new(std::env::current_exe()?);
     command.arg("--launch-bwrap");
+    if runtime.is_none() {
+        command.args(["--ro-bind", "/usr", "/usr"]);
+    }
     command
         .env_clear()
         .args([
@@ -124,9 +131,6 @@ fn execute(
             "--disable-userns",
             "--cap-drop",
             "ALL",
-            "--ro-bind",
-            "/usr",
-            "/usr",
             "--symlink",
             "usr/bin",
             "/bin",
@@ -152,6 +156,9 @@ fn execute(
         ])
         .arg(stage.as_raw_fd().to_string())
         .arg(root);
+    if let Some(runtime) = runtime {
+        runtime.mount_arguments(&mut command)?;
+    }
     // Provider-controlled variables must never reach the dynamic loader of
     // bubblewrap itself. They are installed only inside the constructed sandbox.
     for (key, value) in environment {
@@ -170,7 +177,10 @@ fn execute(
     }
     let parent_fd = unsafe { OwnedFd::from_raw_fd(parent_fd as i32) };
     let parent_raw_fd = parent_fd.as_raw_fd();
-    let stage_fd = stage.as_raw_fd();
+    let mut inherited = runtime
+        .map(|runtime| runtime.inherited_descriptors())
+        .unwrap_or_default();
+    inherited.push(stage.as_raw_fd());
 
     unsafe {
         command.pre_exec(move || {
@@ -190,8 +200,10 @@ fn execute(
             if libc::syscall(libc::SYS_close_range, 3u32, u32::MAX, 4u32) == -1 {
                 return Err(std::io::Error::last_os_error());
             }
-            if libc::fcntl(stage_fd, libc::F_SETFD, 0) == -1 {
-                return Err(std::io::Error::last_os_error());
+            for fd in &inherited {
+                if libc::fcntl(*fd, libc::F_SETFD, 0) == -1 {
+                    return Err(std::io::Error::last_os_error());
+                }
             }
             Ok(())
         });
@@ -316,6 +328,8 @@ fn serve(
     state: &Path,
     supplied_root: &Path,
     admission: Option<snapshot_admission::Admission>,
+    runtime: Option<snapshot_runtime::RuntimeAdmission>,
+    expected_capture: Option<arda_engine::objectives::capture_envelope::ExpectedCaptureEnvelope>,
 ) -> Result<()> {
     // unshare normally establishes this already; repeat fail-closed before any
     // capture so incoming host mount propagation cannot modify the staged tree.
@@ -327,7 +341,21 @@ fn serve(
     if !root.is_dir() || root == Path::new("/") {
         bail!("snapshot root must be a non-root directory");
     }
-    let mut owned_state = snapshot_state::StateDirectory::create(state, &root)?;
+    let exposed = if let Some(runtime) = &runtime {
+        runtime.after_clone()?;
+        let mut devices = runtime.exposed_devices()?;
+        devices.extend(
+            admission
+                .as_ref()
+                .context("configured runtime requires workspace admission")?
+                .exposed_devices()?,
+        );
+        Some(devices)
+    } else {
+        None
+    };
+    let mut owned_state =
+        snapshot_state::StateDirectory::create_excluding(state, &root, exposed.as_ref())?;
     let state = owned_state.path();
     let listener = UnixListener::bind(state.join("control.sock"))?;
     let staging = state.join("staging");
@@ -349,14 +377,34 @@ fn serve(
     // Staging is inaccessible from the host namespace and survives host renames.
     let metadata = stage.metadata()?;
 
-    let manifest = Manifest {
-        version: 1,
+    let runtime = runtime
+        .map(|admission| admission.capture(&staging, fs::metadata(&state)?.dev()))
+        .transpose()?;
+    let mut manifest = Manifest {
+        runtime_bundle: runtime.as_ref().map(|runtime| runtime.manifest()),
+        admission_digest: None,
+        version: if runtime.is_some() { 2 } else { 1 },
         capability: uuid::Uuid::new_v4().to_string(),
         root: root.clone(),
         device: metadata.dev(),
         inode: metadata.ino(),
         topology_digest: format!("{:x}", Sha256::digest(fs::read("/proc/self/mountinfo")?)),
     };
+    if let Some(expected) = &expected_capture {
+        let runtime = runtime
+            .as_ref()
+            .context("capture envelope requires runtime policy")?;
+        let workspace_witness = snapshot_admission::physical::Physical::capture_witness(&stage)?;
+        let grants = runtime
+            .grants
+            .iter()
+            .map(|grant| snapshot_admission::physical::Physical::capture_witness(&grant.descriptor))
+            .collect::<Result<Vec<_>>>()?;
+        expected.verify_captures(&runtime.policy, &workspace_witness, &grants)?;
+        manifest.topology_digest = workspace_witness.digest()?;
+        manifest.admission_digest = Some(expected.digest()?);
+    }
+    manifest.validate_runtime(runtime.as_ref().map(|runtime| &runtime.policy))?;
     let encoded = serde_json::to_vec(&manifest)?;
     let digest = format!("{:x}", Sha256::digest(&encoded));
     let mut committed: Option<snapshot_lease::Binding> = None;
@@ -382,10 +430,20 @@ fn serve(
                     Ok(serde_json::json!({"ok": true}))
                 }
                 Request::Execute { capability, lease, argv, environment, timeout_ms, max_output_bytes } => {
+                    if runtime.is_some() { bail!("configured runtime refuses untyped executable dispatch"); }
                     if capability != manifest.capability { bail!("snapshot execution is not admitted"); }
                     let binding = committed.as_ref().context("snapshot execution is not admitted")?;
                     binding.remaining(&lease, snapshot_lease::now_ms()?)?;
-                    execute(&stage, &root, &argv, &environment, timeout_ms, ExecutionControl { binding, client: &stream, max_output_bytes }, &mut poisoned)
+                    execute(&stage, &root, &argv, &environment, ExecutionControl { binding, client: &stream, timeout_ms, max_output_bytes }, &mut poisoned, None)
+                }
+                Request::Runtime { capability, lease, operation, timeout_ms, max_output_bytes } => {
+                    if manifest.admission_digest.is_none() || capability != manifest.capability { bail!("typed runtime needs witnessed admission"); }
+                    let runtime = runtime.as_ref().context("typed runtime requires configured grants")?;
+                    let binding = committed.as_ref().context("snapshot execution is not admitted")?;
+                    binding.remaining(&lease, snapshot_lease::now_ms()?)?;
+                    let argv = runtime.operation_argv(&operation)?;
+                    execute(&stage, &root, &argv, &runtime.policy.policy().fixed_environment,
+                        ExecutionControl { binding, client: &stream, timeout_ms, max_output_bytes }, &mut poisoned, Some(runtime))
                 }
                 Request::Release { capability } => {
                     if capability != manifest.capability { bail!("snapshot capability mismatch"); }
@@ -398,6 +456,7 @@ fn serve(
         if release {
             drop(listener);
             drop(stage);
+            drop(runtime);
             let cleanup = owned_state.cleanup();
             let response = match &cleanup {
                 Ok(()) => serde_json::json!({"ok": true}),
@@ -416,10 +475,16 @@ fn serve(
 
 fn main() -> Result<()> {
     let args: Vec<_> = std::env::args_os().skip(1).collect();
+    if args.first().is_some_and(|arg| arg == "--capture-ephemeral") {
+        return snapshot_ephemeral::capture(&args[1..]);
+    }
+    if args.first().is_some_and(|arg| arg == "--launch-captured") {
+        return snapshot_ephemeral::launch(&args[1..]);
+    }
     if args.first().is_some_and(|arg| arg == "--launch-bwrap") {
         return launch_bwrap(&args[1..]);
     }
-    if !(2..=3).contains(&args.len()) {
+    if !(2..=5).contains(&args.len()) {
         bail!("usage: arda-snapshot-worker NEW_STATE_DIRECTORY WORKSPACE [ADMISSION_IDENTITY]");
     }
     let admission = args
@@ -433,8 +498,40 @@ fn main() -> Result<()> {
             )
         })
         .transpose()?;
+    let runtime = args
+        .get(3)
+        .map(|fd| -> Result<_> {
+            let fd = fd.to_str().context("policy fd")?.parse::<i32>()?;
+            if fd <= 2 {
+                bail!("invalid policy descriptor");
+            }
+            let policy = arda_engine::objectives::runtime_policy::transport::read(unsafe {
+                OwnedFd::from_raw_fd(fd)
+            })?;
+            snapshot_runtime::RuntimeAdmission::before_clone(policy, Path::new(&args[1]))
+        })
+        .transpose()?;
     // This dedicated binary is single-threaded. No alternate/internal entry
     // point can perform mount mutations in the caller's namespace.
+    let expected_capture = args
+        .get(4)
+        .map(|fd| -> Result<_> {
+            let fd = fd.to_str().context("envelope fd")?.parse::<i32>()?;
+            let policy_fd = args[3].to_str().context("policy fd")?.parse::<i32>()?;
+            if fd <= 2 || fd == policy_fd {
+                bail!("invalid envelope descriptor");
+            }
+            let policy = runtime
+                .as_ref()
+                .context("envelope requires policy")?
+                .policy();
+            arda_engine::objectives::capture_envelope::ExpectedCaptureEnvelope::read_worker(
+                unsafe { OwnedFd::from_raw_fd(fd) },
+                policy,
+                args[2].to_str().context("admission identity")?,
+            )
+        })
+        .transpose()?;
     let uid = unsafe { libc::getuid() };
     let gid = unsafe { libc::getgid() };
     if unsafe { libc::unshare(libc::CLONE_NEWUSER | libc::CLONE_NEWNS) } == -1 {
@@ -443,7 +540,13 @@ fn main() -> Result<()> {
     fs::write("/proc/self/setgroups", "deny")?;
     fs::write("/proc/self/uid_map", format!("0 {uid} 1\n"))?;
     fs::write("/proc/self/gid_map", format!("0 {gid} 1\n"))?;
-    serve(Path::new(&args[0]), Path::new(&args[1]), admission)
+    serve(
+        Path::new(&args[0]),
+        Path::new(&args[1]),
+        admission,
+        runtime,
+        expected_capture,
+    )
 }
 
 fn launch_bwrap(args: &[std::ffi::OsString]) -> Result<()> {

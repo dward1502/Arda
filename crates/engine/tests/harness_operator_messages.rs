@@ -33,6 +33,7 @@ async fn start_harness(
     tokio::task::JoinHandle<()>,
 ) {
     std::env::set_var("ARDA_HERMES_GATEWAY_CAPABILITY", GATEWAY_CAPABILITY);
+    ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
     let shutdown = Arc::new(Notify::new());
     let state = HarnessState {
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
@@ -124,6 +125,29 @@ fn created_objective_id(response: &Value) -> &str {
         .filter_map(|reference| reference.strip_prefix("arda://objectives/"))
         .find(|objective_id| !objective_id.contains('/'))
         .expect("resident objective reference")
+}
+
+#[tokio::test]
+async fn gateway_cannot_initialize_lost_authority() {
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let directory = root.path().join("data/arda");
+    if directory.exists() {
+        fs::rename(&directory, root.path().join("saved-arda")).unwrap();
+    }
+    let response = gateway_client()
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message("lost-authority", "arda objectives"))
+        .send()
+        .await
+        .unwrap();
+    assert!(!response.status().is_success());
+    assert!(
+        !directory.exists(),
+        "ingress must not initialize missing authority"
+    );
+    shutdown.notify_waiters();
+    handle.await.unwrap();
 }
 
 #[tokio::test]
@@ -606,6 +630,26 @@ async fn gateway_controls_mutate_only_resident_objective_store() {
         .id
         .clone();
 
+    let before_replay = store.objective(&objective_id).unwrap().unwrap();
+    let event_path = root
+        .path()
+        .join("core/state/orome/operator-session/operator_sessions.jsonl");
+    let events_before = fs::read(&event_path).unwrap();
+    let replay = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message(
+            "discord-controls-objective",
+            &format!("arda cancel-task {task_id} {objective_id} reused creation event"),
+        ))
+        .send()
+        .await
+        .expect("cross-command replay");
+    assert_eq!(replay.status(), reqwest::StatusCode::CONFLICT);
+    let after_replay = store.objective(&objective_id).unwrap().unwrap();
+    assert_eq!(after_replay.state, before_replay.state);
+    assert_eq!(after_replay.updated_at_ms, before_replay.updated_at_ms);
+    assert_eq!(fs::read(&event_path).unwrap(), events_before);
+
     for (message_id, command, expected) in [
         (
             "discord-pause-task",
@@ -733,6 +777,153 @@ async fn gateway_controls_mutate_only_resident_objective_store() {
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn gateway_cross_family_replay_and_invalid_transport_cannot_create_objectives() {
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = gateway_client();
+    let contract: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .unwrap();
+    client
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(&json!({"contract": contract, "envelope": mutation_envelope("attach-replay")}))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let url = format!("http://{bound}/v1/operator/messages");
+    let store =
+        ObjectiveStore::open_existing(root.path().join("data/arda/objectives.sqlite3")).unwrap();
+    let status = gateway_message("cross-family", "arda context");
+    client
+        .post(&url)
+        .json(&status)
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let ledger = root
+        .path()
+        .join("core/state/orome/operator-session/operator_sessions.jsonl");
+    let before = fs::read(&ledger).unwrap();
+    // Pre-cutover ledger entries have no shared SQLite payload binding.
+    rusqlite::Connection::open(root.path().join("data/arda/objectives.sqlite3"))
+        .unwrap()
+        .execute("DELETE FROM gateway_event_bindings", [])
+        .unwrap();
+    let replay = gateway_message(
+        "cross-family",
+        &format!("arda objective {PROJECT_ID} must not be created"),
+    );
+    assert_eq!(
+        client
+            .post(&url)
+            .json(&replay)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        reqwest::StatusCode::CONFLICT
+    );
+    assert!(store.list_objectives().unwrap().is_empty());
+    assert_eq!(before, fs::read(&ledger).unwrap());
+    let mut invalid = gateway_message(
+        "invalid-transport",
+        &format!("arda objective {PROJECT_ID} invalid adapter"),
+    );
+    invalid["adapter_id"] = json!("");
+    assert!(!client
+        .post(&url)
+        .json(&invalid)
+        .send()
+        .await
+        .unwrap()
+        .status()
+        .is_success());
+    assert!(store.list_objectives().unwrap().is_empty());
+    assert_eq!(before, fs::read(&ledger).unwrap());
+
+    // Fail the personal-event append after the resident transaction commits.
+    // No transport event was consumed, but its payload binding must survive.
+    fs::write(
+        root.path().join("data/personal"),
+        b"fixture blocks directory",
+    )
+    .unwrap();
+    let original = gateway_message(
+        "interrupted-event",
+        &format!("arda objective {PROJECT_ID} retain exactly once"),
+    );
+    assert!(!client
+        .post(&url)
+        .json(&original)
+        .send()
+        .await
+        .unwrap()
+        .status()
+        .is_success());
+    assert_eq!(store.list_objectives().unwrap().len(), 1);
+    assert_eq!(before, fs::read(&ledger).unwrap());
+    shutdown.notify_waiters();
+    handle.await.unwrap();
+
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let url = format!("http://{bound}/v1/operator/messages");
+    let mut changed = original.clone();
+    changed["event"]["text"] = json!("arda context");
+    assert_eq!(
+        client
+            .post(&url)
+            .json(&changed)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        reqwest::StatusCode::CONFLICT
+    );
+    fs::remove_file(root.path().join("data/personal")).unwrap();
+    client
+        .post(&url)
+        .json(&original)
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    assert_eq!(store.list_objectives().unwrap().len(), 1);
+
+    let first = gateway_message("race-event", "arda context");
+    let second = gateway_message(
+        "race-event",
+        &format!("arda objective {PROJECT_ID} at most one winner"),
+    );
+    let responses = tokio::time::timeout(std::time::Duration::from_secs(10), async {
+        tokio::join!(
+            client.post(&url).json(&first).send(),
+            client.post(&url).json(&second).send()
+        )
+    })
+    .await
+    .expect("ledger locking must not deadlock the async executor");
+    let first = responses.0.unwrap().status();
+    let second = responses.1.unwrap().status();
+    assert_ne!(first.is_success(), second.is_success());
+    assert_eq!(
+        if first.is_success() { second } else { first },
+        reqwest::StatusCode::CONFLICT
+    );
+    assert_eq!(
+        store.list_objectives().unwrap().len(),
+        if second.is_success() { 2 } else { 1 }
+    );
+    shutdown.notify_waiters();
+    handle.await.unwrap();
 }
 
 #[tokio::test]

@@ -617,6 +617,7 @@ impl ActiveQueueExecutor {
         reason: &str,
     ) -> std::io::Result<QueueRecord> {
         let approval_packet_id = approval_packet_id.trim();
+        super::schedule::require_legacy_schedule_writer()?;
         let reviewed_by = reviewed_by.trim();
         let reason = reason.trim();
         if approval_packet_id.is_empty() || reviewed_by.is_empty() || reason.is_empty() {
@@ -858,6 +859,7 @@ impl ActiveQueueExecutor {
     }
 
     pub fn reconcile_schedules(&self, now: DateTime<Utc>) -> std::io::Result<usize> {
+        super::schedule::require_legacy_schedule_writer()?;
         let ledger = ScheduleLedger::new(&self.schedule_path);
         let effective =
             TaskQueueAnalyzer::effective_records(TaskQueueAnalyzer::new(&self.queue_path).load()?);
@@ -2890,6 +2892,37 @@ fn previous_same_task_record_index(records: &[QueueRecord], index: usize) -> Opt
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn direct_schedule_reconciliation_cannot_provision_missing_history() {
+        let root = tempfile::tempdir().unwrap();
+        let missing = root.path().join("missing-root");
+        let result = ActiveQueueExecutor::new(&missing).reconcile_schedules(chrono::Utc::now());
+        assert!(
+            !missing.exists(),
+            "reconciliation provisioned legacy history"
+        );
+        assert_eq!(
+            result.unwrap_err().kind(),
+            std::io::ErrorKind::PermissionDenied
+        );
+    }
+    // Compare both historical ledger layouts; never seed via a retired writer.
+    fn legacy_authority_history(root: &std::path::Path) -> Vec<Option<Vec<u8>>> {
+        [
+            "queue.jsonl",
+            "schedules.jsonl",
+            "core/projects/tasks/queue.jsonl",
+            "core/projects/tasks/schedules.jsonl",
+        ]
+        .iter()
+        .map(|name| match std::fs::read(root.join(name)) {
+            Ok(bytes) => Some(bytes),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+            Err(error) => panic!("read historical fixture {name}: {error}"),
+        })
+        .collect()
+    }
+
     use super::*;
 
     #[test]
@@ -3139,6 +3172,54 @@ mod tests {
     }
 
     #[test]
+    fn retired_reconciliation_cannot_reactivate_already_advanced_due_recurrence() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let completed_at = Utc::now() - Duration::minutes(1);
+        let task = QueueRecord {
+            id: "mismatched-recurrence".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            completed_at_utc: Some(completed_at.to_rfc3339()),
+            extra: approved_workbench_extra(),
+            ..blank("mismatched-recurrence")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .expect("write queue fixture");
+        std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
+        let due = completed_at + Duration::seconds(30);
+        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
+        ledger
+            .seed_historical(&ScheduleRecord {
+                contract: SCHEDULE_RECORD_CONTRACT.into(),
+                task_id: task.id.clone(),
+                objective_id: "objective-1".into(),
+                mode: ScheduleMode::Recurring,
+                state: ScheduleState::Scheduled,
+                not_before_utc: Some(due),
+                interval_seconds: Some(60),
+                recorded_at_utc: due,
+                reason: None,
+            })
+            .expect("append schedule");
+
+        let history = legacy_authority_history(dir.path());
+        let error = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .reconcile_schedules(Utc::now())
+            .expect_err("retired reconciliation");
+
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert_eq!(legacy_authority_history(dir.path()), history);
+        assert_eq!(
+            ledger.effective().unwrap()[&task.id].not_before_utc,
+            Some(due)
+        );
+    }
+    #[test]
     fn schedule_reconciliation_ignores_mismatched_objective_lineage() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -3161,7 +3242,7 @@ mod tests {
         let due = completed_at - Duration::minutes(1);
         let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
         ledger
-            .append(&ScheduleRecord {
+            .seed_historical(&ScheduleRecord {
                 contract: SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "different-objective".into(),
@@ -3174,11 +3255,13 @@ mod tests {
             })
             .expect("append schedule");
 
-        let activated = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+        let history = legacy_authority_history(dir.path());
+        let error = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
             .reconcile_schedules(Utc::now())
-            .expect("reconcile schedules");
+            .expect_err("retired reconciliation");
 
-        assert_eq!(activated, 0);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert_eq!(legacy_authority_history(dir.path()), history);
         assert_eq!(
             ledger.effective().unwrap()[&task.id].not_before_utc,
             Some(due)
@@ -3203,7 +3286,7 @@ mod tests {
         .expect("write queue fixture");
         std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
         ScheduleLedger::new(dir.path().join("schedules.jsonl"))
-            .append(&ScheduleRecord {
+            .seed_historical(&ScheduleRecord {
                 contract: SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "objective-future".into(),
@@ -4092,7 +4175,7 @@ mod tests {
         .unwrap();
         std::fs::write(&active_path, "{\"active\":[]}").unwrap();
         ScheduleLedger::new(dir.path().join("schedules.jsonl"))
-            .append(&ScheduleRecord {
+            .seed_historical(&ScheduleRecord {
                 contract: SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "objective-1".into(),
@@ -4186,7 +4269,7 @@ mod tests {
             .unwrap();
             std::fs::write(&active_path, "{\"active\":[]}").unwrap();
             ScheduleLedger::new(dir.path().join("schedules.jsonl"))
-                .append(&ScheduleRecord {
+                .seed_historical(&ScheduleRecord {
                     contract: SCHEDULE_RECORD_CONTRACT.into(),
                     task_id,
                     objective_id: "objective-1".into(),
@@ -4977,7 +5060,7 @@ mod tests {
     }
 
     #[test]
-    fn active_queue_executor_appends_same_id_attempt_and_terminal_records() {
+    fn retired_writer_refuses_active_queue_executor_appends_same_id_attempt_and_terminal_records() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -5017,41 +5100,20 @@ mod tests {
             .select_next_safe_local()
             .expect("select next")
             .expect("safe-local task");
-        let attempt = executor.append_attempt(&selected).expect("append attempt");
-        executor
+        let _attempt = executor.append_attempt(&selected).expect("append attempt");
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .append_terminal_completion(&selected, "completed")
-            .expect("append terminal");
-
-        assert_eq!(
-            attempt.contract,
-            "arda.prometheus.active_queue_execution_attempt.v1"
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        let records = TaskQueueAnalyzer::new(&queue_path)
-            .load()
-            .expect("reload queue");
-        let effective = TaskQueueAnalyzer::effective_records(records);
-        assert_eq!(effective.len(), 1);
-        assert_eq!(effective[0].id, "safe-local-task");
-        assert_eq!(effective[0].status.as_deref(), Some("completed"));
-        assert_eq!(effective[0].result.as_deref(), Some("completed"));
-        assert_eq!(
-            effective[0]
-                .extra
-                .get("hades_projection_repair")
-                .and_then(serde_json::Value::as_bool),
-            Some(true)
-        );
-        assert_eq!(
-            ScheduleLedger::new(dir.path().join("schedules.jsonl"))
-                .effective()
-                .unwrap()[&task.id]
-                .state,
-            ScheduleState::Completed
-        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn terminal_completion_advances_the_authoritative_schedule() {
+    fn retired_writer_refuses_terminal_completion_advances_the_authoritative_schedule() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -5069,7 +5131,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").unwrap();
         let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
         ledger
-            .append(&ScheduleRecord {
+            .seed_historical(&ScheduleRecord {
                 contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "objective-1".into(),
@@ -5082,14 +5144,15 @@ mod tests {
             })
             .expect("append schedule");
 
-        ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+        let history = legacy_authority_history(dir.path());
+        let error = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
             .append_workbench_terminal(&task, "completed", "completed", "run-1", None, None)
-            .expect("append terminal");
-
-        assert_eq!(
-            ledger.effective().unwrap()["scheduled-task"].state,
-            ScheduleState::Completed
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
@@ -5166,12 +5229,12 @@ mod tests {
             )
             .expect_err("missing schedule must reject cancellation");
 
-        assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
         assert_eq!(std::fs::read_to_string(&queue_path).unwrap(), before);
     }
 
     #[test]
-    fn terminal_cancellation_blocks_later_completion() {
+    fn retired_writer_refuses_terminal_cancellation_blocks_later_completion() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -5197,7 +5260,8 @@ mod tests {
         );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
 
-        executor
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .append_workbench_terminal(
                 &task,
                 "failed",
@@ -5206,39 +5270,16 @@ mod tests {
                 None,
                 Some("operator cancelled"),
             )
-            .expect("append governed cancellation");
-
-        assert_eq!(
-            ScheduleLedger::new(dir.path().join("schedules.jsonl"))
-                .effective()
-                .unwrap()[&task.id]
-                .state,
-            ScheduleState::Cancelled
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        let before_completion = std::fs::read_to_string(&queue_path).unwrap();
-        let error = executor
-            .append_workbench_terminal(
-                &task,
-                "completed",
-                "completed",
-                "run-cancel",
-                Some("sha256:late"),
-                None,
-            )
-            .expect_err("completion cannot overwrite cancellation");
-        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
-        assert_eq!(
-            std::fs::read_to_string(&queue_path).unwrap(),
-            before_completion
-        );
-        let effective = TaskQueueAnalyzer::effective_records(
-            TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
-        );
-        assert_eq!(effective[0].result.as_deref(), Some("cancelled"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn schedule_reconciliation_repairs_terminal_immediate_schedule() {
+    fn retired_writer_refuses_schedule_reconciliation_repairs_terminal_immediate_schedule() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -5259,7 +5300,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").unwrap();
         let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
         ledger
-            .append(&ScheduleRecord {
+            .seed_historical(&ScheduleRecord {
                 contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "objective-1".into(),
@@ -5273,16 +5314,17 @@ mod tests {
             .expect("append schedule");
 
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
-        assert_eq!(executor.reconcile_schedules(Utc::now()).unwrap(), 0);
-
+        let history = legacy_authority_history(dir.path());
         assert_eq!(
-            ledger.effective().unwrap()["immediate-task"].state,
-            ScheduleState::Completed
+            executor.reconcile_schedules(Utc::now()).unwrap_err().kind(),
+            std::io::ErrorKind::PermissionDenied
         );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn schedule_reconciliation_repairs_terminal_then_reactivates_due_recurrence() {
+    fn retired_writer_refuses_schedule_reconciliation_repairs_terminal_then_reactivates_due_recurrence(
+    ) {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -5304,7 +5346,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").unwrap();
         let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
         ledger
-            .append(&ScheduleRecord {
+            .seed_historical(&ScheduleRecord {
                 contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "objective-1".into(),
@@ -5318,20 +5360,16 @@ mod tests {
             .expect("append schedule");
 
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
-        assert_eq!(executor.reconcile_schedules(now).unwrap(), 1);
-
-        let effective = TaskQueueAnalyzer::effective_records(
-            TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
-        );
-        assert_eq!(effective[0].status.as_deref(), Some("queued"));
+        let history = legacy_authority_history(dir.path());
         assert_eq!(
-            ledger.effective().unwrap()["recurring-task"].not_before_utc,
-            Some(now - Duration::minutes(1))
+            executor.reconcile_schedules(now).unwrap_err().kind(),
+            std::io::ErrorKind::PermissionDenied
         );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn l3_bounded_mutation_harness_selects_edits_receipts_and_completes() {
+    fn retired_writer_refuses_l3_bounded_mutation_harness_selects_edits_receipts_and_completes() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
         let active_path = dir.path().join("core/state/queue_active.json");
@@ -5419,9 +5457,15 @@ mod tests {
             .expect("serialize receipt"),
         )
         .expect("write receipt");
-        executor
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .append_terminal_completion(&selected, "completed")
-            .expect("append terminal");
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
+        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
 
         let effective = TaskQueueAnalyzer::effective_records(
             TaskQueueAnalyzer::new(&queue_path)
@@ -5429,7 +5473,7 @@ mod tests {
                 .expect("load queue"),
         );
         assert_eq!(effective.len(), 1);
-        assert_eq!(effective[0].status.as_deref(), Some("completed"));
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
         let receipt: serde_json::Value =
             serde_json::from_str(&std::fs::read_to_string(&receipt_path).expect("read receipt"))
                 .expect("parse receipt");
@@ -5465,6 +5509,7 @@ mod tests {
         )
         .unwrap();
 
+        let history = legacy_authority_history(dir.path());
         let error = ActiveQueueExecutor::new(dir.path())
             .append_workbench_continuation(
                 &task,
@@ -5475,12 +5520,13 @@ mod tests {
             )
             .unwrap_err();
 
-        assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert_eq!(legacy_authority_history(dir.path()), history);
         assert_eq!(TaskQueueAnalyzer::new(&queue_path).load().unwrap().len(), 1);
     }
 
     #[test]
-    fn workbench_continuation_cannot_reopen_terminal_current_state() {
+    fn retired_terminal_and_continuation_writers_preserve_active_history() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
         std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
@@ -5505,7 +5551,8 @@ mod tests {
             None,
         );
         let executor = ActiveQueueExecutor::new(dir.path());
-        executor
+        let history = legacy_authority_history(dir.path());
+        let terminal_error = executor
             .append_workbench_terminal(
                 &task,
                 "failed",
@@ -5514,17 +5561,19 @@ mod tests {
                 None,
                 Some("terminal before continuation"),
             )
-            .unwrap();
+            .unwrap_err();
+        assert_eq!(terminal_error.kind(), std::io::ErrorKind::PermissionDenied);
 
         let error = executor
             .append_workbench_continuation(&task, "terminal-run", "review", None, "continue_close")
             .unwrap_err();
 
-        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert_eq!(legacy_authority_history(dir.path()), history);
         let effective = TaskQueueAnalyzer::effective_records(
             TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
         );
-        assert_eq!(effective[0].status.as_deref(), Some("failed"));
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
     }
 
     #[test]
@@ -6487,19 +6536,26 @@ mod tests {
         state: ScheduleState,
         not_before_utc: Option<DateTime<Utc>>,
     ) {
-        ScheduleLedger::new(queue_path.with_file_name("schedules.jsonl"))
-            .append(&ScheduleRecord {
-                contract: SCHEDULE_RECORD_CONTRACT.into(),
-                task_id: task_id.into(),
-                objective_id: objective_id.into(),
-                mode,
-                state,
-                not_before_utc,
-                interval_seconds: None,
-                recorded_at_utc: Utc::now(),
-                reason: Some("test fixture schedule authority".into()),
-            })
-            .expect("append test schedule");
+        // Seed historical bytes directly: compatibility tests must not revive
+        // the retired production schedule writer just to prepare a fixture.
+        use std::io::Write;
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(queue_path.with_file_name("schedules.jsonl"))
+            .unwrap();
+        let record = ScheduleRecord {
+            contract: SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: task_id.into(),
+            objective_id: objective_id.into(),
+            mode,
+            state,
+            not_before_utc,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: Some("test fixture schedule authority".into()),
+        };
+        writeln!(file, "{}", serde_json::to_string(&record).unwrap()).unwrap();
     }
 
     #[test]
@@ -6604,7 +6660,8 @@ mod tests {
     }
 
     #[test]
-    fn ordinary_record_after_objective_revision_cannot_restore_or_block_fresh_approval() {
+    fn retired_writer_refuses_ordinary_record_after_objective_revision_cannot_restore_or_block_fresh_approval(
+    ) {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -6656,7 +6713,8 @@ mod tests {
                 .is_none(),
             "ordinary post-revision record restored stale approval"
         );
-        executor
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .approve_revised_objective(
                 "stale-approval-task",
                 "objective-1",
@@ -6664,19 +6722,15 @@ mod tests {
                 "operator@example.test",
                 "fresh approval after ignored stale successor",
             )
-            .expect("ordinary stale successor must not block fresh approval");
-        let approved = executor
-            .select_next_approved()
-            .expect("select freshly approved revision")
-            .expect("freshly approved revision dispatches");
-        assert_eq!(
-            approved.title.as_deref(),
-            Some("Revised operator objective")
-        );
+            .expect_err("legacy approval must refuse");
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn terminal_record_after_objective_revision_cannot_block_fresh_approval() {
+    fn retired_writer_refuses_terminal_record_after_objective_revision_cannot_block_fresh_approval()
+    {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -6722,7 +6776,8 @@ mod tests {
         serde_json::to_writer(&mut file, &terminal).expect("write stale terminal successor");
         writeln!(file).expect("terminate stale terminal successor");
 
-        executor
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .approve_revised_objective(
                 "terminal-successor-task",
                 "objective-1",
@@ -6730,15 +6785,10 @@ mod tests {
                 "operator@example.test",
                 "fresh approval after ignored terminal successor",
             )
-            .expect("terminal successor must not block fresh approval");
-        let approved = executor
-            .select_next_approved()
-            .expect("select freshly approved revision")
-            .expect("freshly approved revision dispatches");
-        assert_eq!(
-            approved.title.as_deref(),
-            Some("Revised operator objective")
-        );
+            .expect_err("legacy approval must refuse");
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
@@ -6887,7 +6937,7 @@ mod tests {
     }
 
     #[test]
-    fn fresh_operator_approval_releases_revised_objective_for_dispatch() {
+    fn retired_writer_refuses_fresh_operator_approval_releases_revised_objective_for_dispatch() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -6924,7 +6974,8 @@ mod tests {
             .expect("revise objective");
         assert!(executor.select_next_approved().unwrap().is_none());
 
-        let approved = executor
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .approve_revised_objective(
                 &task.id,
                 "objective-1",
@@ -6932,33 +6983,10 @@ mod tests {
                 "operator@example.test",
                 "revised objective accepted",
             )
-            .expect("approve revision");
-
-        assert_eq!(
-            approved.title.as_deref(),
-            Some("Revised operator objective")
-        );
-        assert_eq!(
-            approved.extra.get("contract").and_then(Value::as_str),
-            Some("arda.workbench.objective_revision_approval.v1")
-        );
-        assert_eq!(
-            approved.extra["meta"]["approval_packet_id"].as_str(),
-            Some("revision-approval-2")
-        );
-        let selected = executor
-            .select_next_approved()
-            .expect("select approved task")
-            .expect("revised task is dispatchable");
-        assert_eq!(selected.id, task.id);
-        assert_eq!(selected.title, approved.title);
-        assert_eq!(
-            std::fs::read_to_string(&queue_path)
-                .expect("queue ledger")
-                .lines()
-                .count(),
-            3
-        );
+            .expect_err("legacy approval must refuse");
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
@@ -7022,7 +7050,7 @@ mod tests {
     }
 
     #[test]
-    fn terminal_schedule_rejects_revision_approval_before_queue_append() {
+    fn retired_writer_refuses_terminal_schedule_rejects_revision_approval_before_queue_append() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -7057,7 +7085,8 @@ mod tests {
                 "operator correction",
             )
             .unwrap();
-        ScheduleLedger::new(executor.schedule_path.clone())
+        let history = legacy_authority_history(dir.path());
+        let error = ScheduleLedger::new(executor.schedule_path.clone())
             .with_cancellation_transition(
                 &task.id,
                 "objective-1",
@@ -7065,23 +7094,16 @@ mod tests {
                 Some("cancel before approval"),
                 || Ok(()),
             )
-            .unwrap();
-        let before = std::fs::read_to_string(&queue_path).unwrap();
-
-        assert!(executor
-            .approve_revised_objective(
-                &task.id,
-                "objective-1",
-                "approval-after-cancel",
-                "operator@example.test",
-                "must remain cancelled",
-            )
-            .is_err());
-        assert_eq!(std::fs::read_to_string(&queue_path).unwrap(), before);
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
+        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn retry_resumes_a_prepared_revision_approval_schedule() {
+    fn retired_writer_refuses_retry_resumes_a_prepared_revision_approval_schedule() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -7109,7 +7131,7 @@ mod tests {
             )
             .unwrap();
         ScheduleLedger::new(executor.schedule_path.clone())
-            .append(&ScheduleRecord {
+            .seed_historical(&ScheduleRecord {
                 contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "objective-1".into(),
@@ -7122,7 +7144,8 @@ mod tests {
             })
             .unwrap();
 
-        executor
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .approve_revised_objective(
                 &task.id,
                 "objective-1",
@@ -7130,31 +7153,12 @@ mod tests {
                 "operator@example.test",
                 "approve prepared transition",
             )
-            .unwrap();
-
-        assert_eq!(
-            ScheduleLedger::new(executor.schedule_path.clone())
-                .effective()
-                .unwrap()[&task.id]
-                .state,
-            ScheduleState::Scheduled
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        ScheduleLedger::new(executor.schedule_path.clone())
-            .pause(
-                &task.id,
-                "objective-1",
-                Utc::now(),
-                "prepared pending revised-objective approval",
-            )
-            .unwrap();
-        assert_eq!(executor.reconcile_schedules(Utc::now()).unwrap(), 1);
-        assert_eq!(
-            ScheduleLedger::new(executor.schedule_path.clone())
-                .effective()
-                .unwrap()[&task.id]
-                .state,
-            ScheduleState::Scheduled
-        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
@@ -7615,7 +7619,7 @@ mod tests {
     }
 
     #[test]
-    fn forged_approval_metadata_after_valid_revision_is_not_dispatchable() {
+    fn retired_writer_refuses_forged_approval_metadata_after_valid_revision_is_not_dispatchable() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -7686,7 +7690,8 @@ mod tests {
             "approval forged protected metadata after a valid revision"
         );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
-        executor
+        let history = legacy_authority_history(dir.path());
+        let error = executor
             .approve_revised_objective(
                 &task.id,
                 "objective-1",
@@ -7694,12 +7699,10 @@ mod tests {
                 "operator@example.test",
                 "fresh approval after ignored forged successor",
             )
-            .expect("forged successor must not block fresh approval");
-        let approved = executor
-            .select_next_approved()
-            .expect("select freshly approved revision")
-            .expect("freshly approved revision dispatches");
-        assert_eq!(approved.title.as_deref(), Some("Valid revised objective"));
+            .expect_err("legacy approval must refuse");
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]

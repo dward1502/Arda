@@ -580,6 +580,12 @@ pub fn classify_knowledge_source(path: &str, content: &str) -> KnowledgeTriageRe
 pub fn promote_knowledge_tasks(
     cfg: &KnowledgeTriageConfig,
 ) -> std::io::Result<KnowledgeTaskPromotionReport> {
+    if !cfg.dry_run {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::PermissionDenied,
+            "legacy JSONL task promotion is retired; use authenticated resident objective intake",
+        ));
+    }
     let triage = run_knowledge_triage(&cfg.clone().with_dry_run(true))?;
     let mut known_dedupe_keys = load_existing_knowledge_dedupe_keys(&cfg.task_queue_path)?;
     let now = Utc::now();
@@ -2007,7 +2013,25 @@ Next step: add tests for existing crate.",
         let cfg = KnowledgeTriageConfig::for_root(root)
             .with_dry_run(false)
             .with_approval_evidence("operator-approved:test-safe-local-execution-guard");
-        promote_knowledge_tasks(&cfg).unwrap_or_else(|err| panic!("promotion failed: {err}"));
+        // Historical input for the read-only guard, not a live promotion.
+        append_jsonl_values(
+            &cfg.task_queue_path,
+            &[json!({
+                "id": "historical-safe-task",
+                "title": "Add tests for existing crate",
+                "status": "pending",
+                "task_type": "safe_local_knowledge_task",
+                "meta": {
+                    "origin": "prometheus_knowledge_task_promotion",
+                    "source_path": "docs/plans/safe.md",
+                    "autonomy_lane": "auto_create_internal_task",
+                    "risk_class": "safe_local",
+                    "promotion_gate": KNOWLEDGE_SAFE_LOCAL_PROMOTION_GATE,
+                    "no_execution_during_promotion": true
+                }
+            })],
+        )
+        .unwrap();
         let exec_cfg = KnowledgeTriageConfig::for_root(root).with_dry_run(true);
         let report = execute_knowledge_task_queue(&exec_cfg)
             .unwrap_or_else(|err| panic!("execution guard failed: {err}"));
@@ -2072,7 +2096,7 @@ Next step: add tests for existing crate.",
     }
 
     #[test]
-    fn write_promotion_requires_explicit_approval_evidence_before_task_queue_mutation() {
+    fn retired_write_promotion_refuses_without_approval() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let root = dir.path();
         let docs = root.join("docs/plans");
@@ -2086,27 +2110,15 @@ Next step: add tests for existing crate.",
         .unwrap_or_else(|err| panic!("write failed: {err}"));
 
         let cfg = KnowledgeTriageConfig::for_root(root).with_dry_run(false);
-        let report =
-            promote_knowledge_tasks(&cfg).unwrap_or_else(|err| panic!("promotion failed: {err}"));
-
-        assert!(!report.dry_run);
-        assert!(report.approval_evidence_required);
-        assert!(!report.approval_evidence_supplied);
-        assert!(!report.queue_mutation_authorized);
-        assert_eq!(report.tasks_created, 0);
-        assert!(!report.artifacts_written);
+        let error = promote_knowledge_tasks(&cfg).unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
         assert!(!cfg.task_queue_path.exists());
         assert!(!cfg.promotion_receipts_path.exists());
-        assert!(report
-            .receipts
-            .iter()
-            .any(|receipt| receipt.receipt_reason.contains(
-                "explicit approval evidence required before safe-local task queue mutation"
-            )));
     }
 
     #[test]
-    fn write_promotion_appends_safe_local_tasks_and_skips_duplicates() {
+    fn retired_write_promotion_preserves_history_even_with_approval() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let root = dir.path();
         let docs = root.join("docs/plans");
@@ -2122,29 +2134,15 @@ Next step: add tests for existing crate.",
         let cfg = KnowledgeTriageConfig::for_root(root)
             .with_dry_run(false)
             .with_approval_evidence("operator-approved:test-safe-local-promotion");
-        let first = promote_knowledge_tasks(&cfg)
-            .unwrap_or_else(|err| panic!("first promotion failed: {err}"));
-        assert!(first.queue_mutation_authorized);
-        assert!(first.approval_evidence_required);
-        assert!(first.approval_evidence_supplied);
-        assert_eq!(first.tasks_created, 1);
-        assert!(first.artifacts_written);
-        assert!(cfg.task_queue_path.exists());
-        assert!(cfg.promotion_receipts_path.exists());
-
-        let queue = std::fs::read_to_string(&cfg.task_queue_path)
-            .unwrap_or_else(|err| panic!("read queue failed: {err}"));
-        assert_eq!(queue.lines().count(), 1);
-        assert!(queue.contains("operator-approved:test-safe-local-promotion"));
-        assert!(queue.contains("prometheus_knowledge_task_promotion"));
-        assert!(queue.contains("no_execution_during_promotion"));
-
-        let second = promote_knowledge_tasks(&cfg)
-            .unwrap_or_else(|err| panic!("second promotion failed: {err}"));
-        assert_eq!(second.tasks_created, 0);
-        assert_eq!(second.duplicates_skipped, 1);
-        let queue_after = std::fs::read_to_string(&cfg.task_queue_path)
-            .unwrap_or_else(|err| panic!("read queue after failed: {err}"));
-        assert_eq!(queue_after.lines().count(), 1);
+        std::fs::create_dir_all(cfg.task_queue_path.parent().unwrap()).unwrap();
+        let history = b"preserve even malformed historical bytes\n";
+        std::fs::write(&cfg.task_queue_path, history).unwrap();
+        for _ in 0..2 {
+            let error = promote_knowledge_tasks(&cfg).unwrap_err();
+            assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+            assert!(error.to_string().contains("retired"));
+            assert_eq!(std::fs::read(&cfg.task_queue_path).unwrap(), history);
+            assert!(!cfg.promotion_receipts_path.exists());
+        }
     }
 }

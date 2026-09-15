@@ -37,6 +37,13 @@ fn projects_task_queue_path() -> PathBuf {
 }
 
 impl AthenaStore {
+    /// No configuration flag can revive the retired execution authority.
+    fn require_legacy_queue_writer(&self) -> Result<()> {
+        Err(athena_error(
+            "legacy JSONL task promotion is retired; use authenticated resident objective intake",
+        ))
+    }
+
     pub fn policy_readiness(&self, limit: usize) -> Result<Vec<Value>> {
         let content = fs::read_to_string(&self.policy_readiness_path)?;
         let mut items = Vec::new();
@@ -130,6 +137,7 @@ impl AthenaStore {
     }
 
     pub fn generate_planning_tasks(&self, source_id: &str, limit: usize) -> Result<Value> {
+        self.require_legacy_queue_writer()?;
         let source_id = source_id.trim();
         if source_id.is_empty() {
             return Err(athena_error("source_id cannot be empty"));
@@ -370,6 +378,7 @@ impl AthenaStore {
     }
 
     pub fn promote_policy_readiness(&self, limit: usize, reevaluate: bool) -> Result<Value> {
+        self.require_legacy_queue_writer()?;
         let latest = latest_policy_entries(&self.policy_readiness_path)?;
         let mut sources = latest.keys().cloned().collect::<Vec<_>>();
         sources.sort();

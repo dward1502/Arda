@@ -46,6 +46,11 @@ struct Cli {
     /// Stable operator identity used to authorize local HUD mutations.
     #[arg(long)]
     operator_id: Option<String>,
+
+    /// Private socket of the independently supervised retained-snapshot keeper.
+    /// The daemon never starts or stops the keeper.
+    #[arg(long)]
+    snapshot_keeper_socket: Option<PathBuf>,
 }
 
 /// Path to the data-driven service registry.
@@ -53,7 +58,11 @@ const SERVICES_TOML: &str = "services.toml";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let cli = Cli::parse();
+    let mut cli = Cli::parse();
+    if cli.snapshot_keeper_socket.is_none() {
+        cli.snapshot_keeper_socket =
+            std::env::var_os("ARDA_SNAPSHOT_KEEPER_SOCKET").map(PathBuf::from);
+    }
     let env_filter = EnvFilter::try_new(&cli.log).unwrap_or_else(|_| EnvFilter::new("info"));
     tracing_subscriber::registry()
         .with(arda_aule::telemetry::tracing_layer())
@@ -84,7 +93,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Resolve supervised services from data (services.toml). To add/remove an
     // app (launcher, HUD, `manwe` gateway), edit the toml — not this file.
-    let root = repo_root();
+    let root = repo_root()?;
     let reg = Registry::load(&root.join(SERVICES_TOML))
         .map_err(|e| anyhow::anyhow!("{e}\n(running from {root:?}; expected {SERVICES_TOML})"))?;
     let (services, errors) = reg.resolve(&root, cli.no_ui);
@@ -178,8 +187,20 @@ async fn main() -> anyhow::Result<()> {
         .map(|a| a.parse())
         .transpose()
         .map_err(|e| anyhow::anyhow!("invalid --harness-addr: {e}"))?;
-    let objective_store =
-        arda_engine::objectives::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))?;
+    let mut objective_store = arda_engine::objectives::ObjectiveStore::open_existing(
+        root.join("data/arda/objectives.sqlite3"),
+    )?;
+    let runtime_prerequisites = arda_engine::harness::RuntimePrerequisites {
+        keeper_socket: cli.snapshot_keeper_socket.clone(),
+    };
+    if let Some(endpoint) = cli.snapshot_keeper_socket {
+        if !endpoint.is_absolute() {
+            anyhow::bail!("--snapshot-keeper-socket must be absolute");
+        }
+        objective_store = objective_store.with_snapshot_admission(Arc::new(
+            arda_engine::objectives::keeper_client::KeeperClient::new(endpoint),
+        ));
+    }
     let objective_executor = arda_engine::objectives::WorkbenchLeafExecution::new(&root)?;
     let mut objective_runtime = arda_engine::objectives::ObjectiveRuntime::new(
         objective_store,
@@ -189,11 +210,12 @@ async fn main() -> anyhow::Result<()> {
         OBJECTIVE_RUNTIME_LEASE_DURATION_MS,
     );
     let harness_shutdown = Shutdown::new();
-    let (_bound, harness_handle) = arda_engine::harness::serve_with_runtime_status(
+    let (_bound, harness_handle) = arda_engine::harness::serve_with_runtime_prerequisites(
         harness_addr,
         harness_state,
         harness_shutdown.clone(),
         objective_runtime.subscribe_status(),
+        runtime_prerequisites,
     )
     .await?;
     let objective_shutdown = Shutdown::new();
@@ -268,22 +290,16 @@ fn configured_operator_id(cli_value: Option<&str>) -> anyhow::Result<String> {
     })
 }
 
-/// Best-effort repo root: the directory containing `services.toml`. We are
-/// launched with the workspace root as cwd by normal invocation; fall back to
-/// `.` if the marker file is not adjacent.
-fn repo_root() -> PathBuf {
-    if std::path::Path::new(SERVICES_TOML).exists() {
-        PathBuf::from(".")
-    } else {
-        // Walk up to find it (handles `cargo run` from a crate dir).
-        let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-        loop {
-            if dir.join(SERVICES_TOML).exists() {
-                return dir;
-            }
-            if !dir.pop() {
-                return PathBuf::from(".");
-            }
+/// Locate the registry without passing relative roots to retained execution.
+fn repo_root() -> anyhow::Result<PathBuf> {
+    let cwd = std::env::current_dir()?;
+    let mut dir = cwd.clone();
+    loop {
+        if dir.join(SERVICES_TOML).exists() {
+            return Ok(dir);
+        }
+        if !dir.pop() {
+            return Ok(cwd);
         }
     }
 }
@@ -310,6 +326,11 @@ fn discover_warden_scout_url(root: &std::path::Path) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn repository_root_is_absolute_for_retained_dispatch() {
+        assert!(repo_root().unwrap().is_absolute());
+    }
 
     #[test]
     fn harness_only_parallel_owner_profile_is_not_supported() {

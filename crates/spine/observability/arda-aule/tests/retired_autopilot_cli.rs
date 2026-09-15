@@ -7,7 +7,7 @@ fn retired_autopilot_commands_refuse_before_reading_legacy_history() {
     let tasks = root.path().join("core/projects/tasks");
     fs::create_dir_all(&tasks).unwrap();
     fs::write(tasks.join("queue.jsonl"), "not valid JSON\n").unwrap();
-    for command in ["once", "run", "status"] {
+    for command in ["once", "run", "status", "promote-knowledge-tasks"] {
         let output = Command::new(env!("CARGO_BIN_EXE_arda-cli"))
             .args(["prometheus", "autopilot", command, "--root"])
             .arg(root.path())

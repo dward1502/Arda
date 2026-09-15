@@ -119,6 +119,18 @@ session = {
         },
     ],
 }
+if mode == "derived_with_setup":
+    session["messages"][:0] = [
+        {"role":"assistant","content":None,"tool_calls":[{"id":"setup","type":"function","function":{"name":"terminal","arguments":json.dumps({"command":"printf setup"})}}]},
+        {"role":"tool","tool_call_id":"setup","tool_name":"terminal","content":json.dumps({"exit_code":0,"output":"setup"})},
+    ]
+if mode in ("derived_failed_retry", "claimed_failed_retry", "derived_missing_exit"):
+    session["messages"] += [
+        {"role":"assistant","content":None,"tool_calls":[{"id":"retry","type":"function","function":{"name":"terminal","arguments":json.dumps({"command":test_command})}}]},
+        {"role":"tool","tool_call_id":"retry","tool_name":"terminal","content":json.dumps({"exit_code":1,"output":"failed retry"})},
+    ]
+    if mode == "derived_missing_exit":
+        session["messages"][-1]["content"] = json.dumps({"error":"fixture timeout"})
 if mode.startswith("review_"):
     session["messages"] = [
         {
@@ -177,7 +189,7 @@ if mode == "review_approve_with_embedded_block":
     result["summary"] = "VERDICT: APPROVE\nLater analysis says VERDICT: BLOCK."
     result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
     result["test_evidence"] = []
-if mode == "derived_evidence":
+if mode in ("derived_evidence", "derived_with_setup", "derived_failed_retry", "derived_missing_exit"):
     result["tool_evidence"] = []
     result["test_evidence"] = []
 if mode == "leak":
@@ -484,6 +496,11 @@ async fn graph_node_becomes_bounded_hermes_job_and_canonical_receipt() {
     )
     .unwrap();
     assert_eq!(capture["cwd"], root.path().display().to_string());
+    let prompt = capture["prompt"].as_str().unwrap();
+    assert!(prompt.contains("Run each check_commands value verbatim in its own terminal call"));
+    assert!(
+        prompt.contains("Do not combine a declared check with setup, hashing, or other commands")
+    );
     assert!(capture["args"]
         .as_array()
         .unwrap()
@@ -861,6 +878,31 @@ async fn execute_derives_declared_evidence_without_opaque_call_ids() {
     assert_eq!(receipt.tool_evidence.len(), 1);
     assert_eq!(receipt.test_evidence.len(), 1);
     assert_eq!(receipt.test_evidence[0].status, "passed");
+}
+
+#[tokio::test]
+async fn declared_check_is_matched_by_command_not_terminal_position() {
+    let root = TempDir::new().unwrap();
+    let receipt = adapter(&root, "derived_with_setup")
+        .execute(&task(1000), AdapterCancellation::new())
+        .await
+        .unwrap();
+    assert_eq!(receipt.test_evidence[0].status, "passed");
+    let root = TempDir::new().unwrap();
+    assert!(adapter(&root, "derived_failed_retry")
+        .execute(&task(1000), AdapterCancellation::new())
+        .await
+        .is_err());
+    let root = TempDir::new().unwrap();
+    assert!(adapter(&root, "claimed_failed_retry")
+        .execute(&task(1000), AdapterCancellation::new())
+        .await
+        .is_err());
+    let root = TempDir::new().unwrap();
+    assert!(adapter(&root, "derived_missing_exit")
+        .execute(&task(1000), AdapterCancellation::new())
+        .await
+        .is_err());
 }
 
 #[tokio::test]

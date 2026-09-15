@@ -37,6 +37,8 @@ async fn start_harness(
 }
 
 fn harness_state(root: &TempDir) -> HarnessState {
+    arda_engine::objectives::ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3"))
+        .unwrap();
     HarnessState {
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
@@ -73,6 +75,13 @@ async fn runtime_status_projects_shared_channel_and_detects_owner_loss() {
     let first = client.get(&url).send().await.unwrap();
     let first_code = first.status();
     let first_body = first.text().await.unwrap();
+    let prerequisites = client
+        .get(format!("http://{addr}/v1/execution-prerequisites"))
+        .send()
+        .await
+        .unwrap();
+    let prerequisites_code = prerequisites.status();
+    let prerequisites_body = prerequisites.text().await.unwrap();
     sender.send_modify(|status| {
         status.phase = "recovering";
         status.active_leaves = vec!["leaf-recovery".into()];
@@ -90,6 +99,12 @@ async fn runtime_status_projects_shared_channel_and_detects_owner_loss() {
         .unwrap()
         .unwrap();
     assert_eq!(first_code, reqwest::StatusCode::OK);
+    assert_eq!(prerequisites_code, reqwest::StatusCode::OK);
+    let prerequisites: Value = serde_json::from_str(&prerequisites_body).unwrap();
+    assert_eq!(prerequisites["scope"], "prerequisite_observation_only");
+    assert_eq!(prerequisites["provider_catalog"], "unreachable");
+    assert_eq!(prerequisites["keeper_transport"], "not_configured");
+    assert!(prerequisites["execution_ready"].is_null());
     assert_eq!(
         serde_json::from_str::<Value>(&first_body).unwrap()["ready"],
         false
@@ -112,6 +127,84 @@ async fn runtime_status_projects_shared_channel_and_detects_owner_loss() {
         serde_json::from_str::<Value>(&closed_body).unwrap()["phase"],
         "unavailable"
     );
+}
+
+#[tokio::test]
+async fn prerequisite_observations_never_claim_execution_readiness() {
+    use arda_engine::harness::{serve_with_runtime_prerequisites, RuntimePrerequisites};
+    use axum::{routing::get, Router};
+    for (code, body, expected) in [
+        (
+            200,
+            r#"{"data":[{"id":"fixture-model"}]}"#.to_string(),
+            "available",
+        ),
+        (200, r#"{"data":[]}"#.to_string(), "empty"),
+        (200, r#"{"data":[{}]}"#.to_string(), "invalid_response"),
+        (200, "not json".to_string(), "invalid_response"),
+        (401, "private diagnostic".to_string(), "http_refused"),
+        (200, "x".repeat(65_537), "response_too_large"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let mut state = harness_state(&root);
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        state.manwe_url = format!("http://{}", listener.local_addr().unwrap());
+        state.manwe_proxy_bearer = Some("fixture-token".into());
+        let catalog_server = tokio::spawn(async move {
+            axum::serve(
+                listener,
+                Router::new().route(
+                    "/v1/models",
+                    get(move |headers: axum::http::HeaderMap| async move {
+                        assert_eq!(
+                            headers.get("authorization").unwrap(),
+                            "Bearer fixture-token"
+                        );
+                        (axum::http::StatusCode::from_u16(code).unwrap(), body)
+                    }),
+                ),
+            )
+            .await
+            .unwrap();
+        });
+        let socket = root.path().join("keeper.sock");
+        let keeper = tokio::net::UnixListener::bind(&socket).unwrap();
+        let (sender, receiver) =
+            tokio::sync::watch::channel(arda_engine::objectives::ObjectiveRuntimeStatus::default());
+        let shutdown = arda_engine::supervisor::Shutdown::new();
+        let (addr, server) = serve_with_runtime_prerequisites(
+            Some("127.0.0.1:0".parse().unwrap()),
+            state,
+            shutdown.clone(),
+            receiver,
+            RuntimePrerequisites {
+                keeper_socket: Some(socket),
+            },
+        )
+        .await
+        .unwrap();
+        let client = reqwest::Client::new();
+        let url = format!("http://{addr}/v1/execution-prerequisites");
+        let observation: Value = client.get(&url).send().await.unwrap().json().await.unwrap();
+        let (mut peer, _) = keeper.accept().await.unwrap();
+        let mut byte = [0];
+        use tokio::io::AsyncReadExt;
+        let bytes_sent = peer.read(&mut byte).await.unwrap();
+        drop(keeper);
+        let missing: Value = client.get(&url).send().await.unwrap().json().await.unwrap();
+        shutdown.trigger();
+        server.await.unwrap();
+        drop(sender);
+        catalog_server.abort();
+        let _ = catalog_server.await;
+        assert_eq!(observation["provider_catalog"], expected);
+        assert_eq!(observation["keeper_transport"], "same_user_connected");
+        assert!(observation["execution_ready"].is_null());
+        assert_eq!(bytes_sent, 0, "observation sent an admission request");
+        assert_eq!(missing["keeper_transport"], "unreachable");
+        assert!(missing["execution_ready"].is_null());
+        assert!(!observation.to_string().contains("private diagnostic"));
+    }
 }
 
 #[tokio::test]

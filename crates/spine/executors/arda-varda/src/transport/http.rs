@@ -82,22 +82,10 @@ struct ScholarlyReenrichRequest {
 }
 
 #[derive(Debug, Deserialize)]
-struct PolicyPromoteRequest {
-    limit: Option<usize>,
-    reevaluate: Option<bool>,
-}
-
-#[derive(Debug, Deserialize)]
 struct HarvestOppositionRequest {
     source_id: String,
     topic: Option<String>,
     submitted_by: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct GeneratePlanningTasksRequest {
-    source_id: String,
-    limit: Option<usize>,
 }
 
 pub async fn run_http_server(store: AthenaStore, addr: &str) -> Result<()> {
@@ -398,15 +386,18 @@ async fn policy_readiness(
     })
 }
 
-async fn policy_promote(
-    State(store): State<AthenaStore>,
-    Json(req): Json<PolicyPromoteRequest>,
-) -> impl IntoResponse {
-    map_result(|| {
-        let out = store
-            .promote_policy_readiness(req.limit.unwrap_or(25), req.reevaluate.unwrap_or(false))?;
-        Ok(json!({"ok": true, "result": out}))
-    })
+async fn policy_promote() -> impl IntoResponse {
+    retired_task_promotion()
+}
+
+fn retired_task_promotion() -> impl IntoResponse {
+    (
+        StatusCode::GONE,
+        Json(json!({
+            "ok": false,
+            "error": "legacy JSONL task promotion is retired; use authenticated resident objective intake"
+        })),
+    )
 }
 
 async fn harvest_opposition(
@@ -423,14 +414,8 @@ async fn harvest_opposition(
     })
 }
 
-async fn generate_planning_tasks(
-    State(store): State<AthenaStore>,
-    Json(req): Json<GeneratePlanningTasksRequest>,
-) -> impl IntoResponse {
-    map_result(|| {
-        let out = store.generate_planning_tasks(&req.source_id, req.limit.unwrap_or(5))?;
-        Ok(json!({"ok": true, "result": out}))
-    })
+async fn generate_planning_tasks() -> impl IntoResponse {
+    retired_task_promotion()
 }
 
 async fn events(
@@ -854,6 +839,42 @@ mod tests {
         release_tx.send(()).expect("release server");
         crawl.await.expect("crawl task").expect("crawl result");
         server.join().expect("join server");
+    }
+
+    #[tokio::test]
+    async fn retired_queue_routes_refuse_without_touching_history() {
+        let _guard = env_guard();
+        let dir = tempdir().unwrap();
+        let store = AthenaStore::new(dir.path()).unwrap();
+        let policy = dir.path().join("policy_readiness.jsonl");
+        let before = std::fs::read(&policy).unwrap_or_default();
+        let app = build_router(store.clone());
+        for route in ["/generate_planning_tasks", "/policy_promote"] {
+            let response = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .method("POST")
+                        .uri(route)
+                        .header("content-type", "application/json")
+                        .body(Body::from(r#"{"source_id":"missing","limit":1}"#))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(response.status(), StatusCode::GONE);
+            let body = to_bytes(response.into_body(), 4096).await.unwrap();
+            assert!(String::from_utf8_lossy(&body).contains("retired"));
+        }
+        for error in [
+            store.generate_planning_tasks("missing", 1).unwrap_err(),
+            store.promote_policy_readiness(1, true).unwrap_err(),
+        ] {
+            assert!(error
+                .to_string()
+                .contains("legacy JSONL task promotion is retired"));
+        }
+        assert_eq!(std::fs::read(&policy).unwrap_or_default(), before);
     }
 
     #[tokio::test]

@@ -12,6 +12,13 @@ use std::path::{Path, PathBuf};
 
 pub const SCHEDULE_RECORD_CONTRACT: &str = "arda.workbench.schedule_record.v1";
 
+pub(super) fn require_legacy_schedule_writer() -> io::Result<()> {
+    Err(io::Error::new(
+        io::ErrorKind::PermissionDenied,
+        "legacy JSONL scheduling is retired; use authenticated resident objective intake",
+    ))
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ScheduleMode {
@@ -59,6 +66,7 @@ impl ScheduleLedger {
     }
 
     pub fn append(&self, record: &ScheduleRecord) -> io::Result<()> {
+        require_legacy_schedule_writer()?;
         validate_record(record)?;
         if let Some(parent) = self.path.parent() {
             std::fs::create_dir_all(parent)?;
@@ -145,6 +153,7 @@ impl ScheduleLedger {
         reason: &str,
     ) -> io::Result<ScheduleRecord> {
         let reason = reason.trim();
+        require_legacy_schedule_writer()?;
         if reason.is_empty() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
@@ -202,15 +211,13 @@ impl ScheduleLedger {
         &self,
         operation: impl FnOnce(&BTreeMap<String, ScheduleRecord>) -> io::Result<T>,
     ) -> io::Result<T> {
-        if let Some(parent) = self.path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        let file = OpenOptions::new()
-            .create(true)
-            .read(true)
-            .write(true)
-            .truncate(false)
-            .open(&self.path)?;
+        let file = match OpenOptions::new().read(true).open(&self.path) {
+            Ok(file) => file,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {
+                return operation(&BTreeMap::new());
+            }
+            Err(error) => return Err(error),
+        };
         file.lock_shared()?;
         let result = read_effective(&file).and_then(|records| operation(&records));
         let unlock = FileExt::unlock(&file);
@@ -235,6 +242,7 @@ impl ScheduleLedger {
         completed_at_utc: DateTime<Utc>,
         still_current: impl FnOnce(&ScheduleRecord) -> io::Result<bool>,
     ) -> io::Result<Option<ScheduleRecord>> {
+        require_legacy_schedule_writer()?;
         if let Some(parent) = self.path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -317,6 +325,7 @@ impl ScheduleLedger {
         completed_at_utc: DateTime<Utc>,
         append_queue_terminal: impl FnOnce() -> io::Result<T>,
     ) -> io::Result<T> {
+        require_legacy_schedule_writer()?;
         if let Some(parent) = self.path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -363,15 +372,8 @@ impl ScheduleLedger {
         objective_id: &str,
         operation: impl FnOnce() -> io::Result<T>,
     ) -> io::Result<T> {
-        if let Some(parent) = self.path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        let file = OpenOptions::new()
-            .create(true)
-            .read(true)
-            .write(true)
-            .truncate(false)
-            .open(&self.path)?;
+        require_legacy_schedule_writer()?;
+        let file = OpenOptions::new().read(true).open(&self.path)?;
         file.lock_exclusive()?;
         let result = (|| {
             let record = read_effective(&file)?
@@ -395,6 +397,7 @@ impl ScheduleLedger {
         reason: Option<&str>,
         append_queue_terminal: impl FnOnce() -> io::Result<T>,
     ) -> io::Result<T> {
+        require_legacy_schedule_writer()?;
         if let Some(parent) = self.path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -586,6 +589,22 @@ fn validate_transition(
     Ok(())
 }
 
+// Test fixtures represent historical input; they never call retired writers.
+#[cfg(test)]
+impl ScheduleLedger {
+    pub(super) fn seed_historical(&self, record: &ScheduleRecord) -> io::Result<()> {
+        if let Some(parent) = self.path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&self.path)?;
+        serde_json::to_writer(&mut file, record).map_err(io::Error::other)?;
+        writeln!(file)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -612,8 +631,8 @@ mod tests {
         paused.recorded_at_utc = Utc::now();
         paused.reason = Some("operator pause".into());
 
-        ledger.append(&scheduled).expect("append schedule");
-        ledger.append(&paused).expect("append pause");
+        ledger.seed_historical(&scheduled).expect("append schedule");
+        ledger.seed_historical(&paused).expect("append pause");
 
         let raw = std::fs::read_to_string(dir.path().join("schedules.jsonl"))
             .expect("read append-only ledger");
@@ -623,226 +642,92 @@ mod tests {
     }
 
     #[test]
-    fn operator_pause_and_resume_append_transitions_without_changing_schedule_contract() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let path = dir.path().join("schedules.jsonl");
-        let ledger = ScheduleLedger::new(&path);
-        let due = Utc::now() + Duration::hours(1);
-        let scheduled = ScheduleRecord {
-            contract: SCHEDULE_RECORD_CONTRACT.into(),
-            task_id: "task-1".into(),
-            objective_id: "objective-1".into(),
-            mode: ScheduleMode::Deferred,
-            state: ScheduleState::Scheduled,
-            not_before_utc: Some(due),
-            interval_seconds: None,
-            recorded_at_utc: Utc::now(),
-            reason: None,
-        };
-        ledger.append(&scheduled).expect("append schedule");
-
-        let paused_at = Utc::now();
-        let paused = ledger
-            .pause("task-1", "objective-1", paused_at, "operator maintenance")
-            .expect("pause schedule");
-        assert_eq!(paused.state, ScheduleState::Paused);
-        assert_eq!(paused.reason.as_deref(), Some("operator maintenance"));
-        assert_eq!(paused.recorded_at_utc, paused_at);
-        assert_eq!(paused.mode, scheduled.mode);
-        assert_eq!(paused.not_before_utc, scheduled.not_before_utc);
-        assert_eq!(paused.interval_seconds, scheduled.interval_seconds);
-
-        let resumed_at = Utc::now();
-        let resumed = ledger
-            .resume("task-1", "objective-1", resumed_at, "operator resumed")
-            .expect("resume schedule");
-        assert_eq!(resumed.state, ScheduleState::Scheduled);
-        assert_eq!(resumed.reason.as_deref(), Some("operator resumed"));
-        assert_eq!(resumed.recorded_at_utc, resumed_at);
-        assert_eq!(resumed.mode, scheduled.mode);
-        assert_eq!(resumed.not_before_utc, scheduled.not_before_utc);
-        assert_eq!(resumed.interval_seconds, scheduled.interval_seconds);
-
-        let raw = std::fs::read_to_string(path).expect("read schedule ledger");
-        assert_eq!(raw.lines().count(), 3);
-        assert_eq!(ledger.effective().unwrap()["task-1"], resumed);
-    }
-
-    #[test]
-    fn operator_schedule_control_rejects_invalid_authority_without_append() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let path = dir.path().join("schedules.jsonl");
-        let ledger = ScheduleLedger::new(&path);
-        let scheduled = ScheduleRecord {
-            contract: SCHEDULE_RECORD_CONTRACT.into(),
-            task_id: "task-1".into(),
-            objective_id: "objective-1".into(),
-            mode: ScheduleMode::Immediate,
-            state: ScheduleState::Scheduled,
-            not_before_utc: None,
-            interval_seconds: None,
-            recorded_at_utc: Utc::now(),
-            reason: None,
-        };
-        ledger.append(&scheduled).expect("append schedule");
-        let original = std::fs::read(&path).expect("read original ledger");
-
-        let wrong_objective = ledger
-            .pause("task-1", "objective-2", Utc::now(), "operator pause")
-            .expect_err("wrong objective must fail closed");
-        assert_eq!(wrong_objective.kind(), io::ErrorKind::PermissionDenied);
-        assert_eq!(std::fs::read(&path).unwrap(), original);
-
-        let empty_reason = ledger
-            .pause("task-1", "objective-1", Utc::now(), "  ")
-            .expect_err("empty reason must fail closed");
-        assert_eq!(empty_reason.kind(), io::ErrorKind::InvalidInput);
-        assert_eq!(std::fs::read(&path).unwrap(), original);
-
-        let missing = ledger
-            .resume("missing", "objective-1", Utc::now(), "operator resume")
-            .expect_err("missing schedule must fail closed");
-        assert_eq!(missing.kind(), io::ErrorKind::NotFound);
-        assert_eq!(std::fs::read(&path).unwrap(), original);
-
-        let invalid_source = ledger
-            .resume("task-1", "objective-1", Utc::now(), "operator resume")
-            .expect_err("scheduled record cannot be resumed");
-        assert_eq!(invalid_source.kind(), io::ErrorKind::InvalidInput);
-        assert_eq!(std::fs::read(&path).unwrap(), original);
-    }
-
-    #[test]
-    fn paused_schedule_remains_cancellable_under_same_objective_authority() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let path = dir.path().join("schedules.jsonl");
-        let ledger = ScheduleLedger::new(&path);
-        ledger
-            .append(&ScheduleRecord {
-                contract: SCHEDULE_RECORD_CONTRACT.into(),
-                task_id: "task-1".into(),
-                objective_id: "objective-1".into(),
-                mode: ScheduleMode::Immediate,
-                state: ScheduleState::Scheduled,
-                not_before_utc: None,
-                interval_seconds: None,
-                recorded_at_utc: Utc::now(),
-                reason: None,
-            })
-            .expect("append schedule");
-        ledger
-            .pause("task-1", "objective-1", Utc::now(), "operator maintenance")
-            .expect("pause schedule");
-        let queue_appends = std::cell::Cell::new(0);
-
-        ledger
-            .with_cancellation_transition(
-                "task-1",
-                "objective-1",
-                Utc::now(),
-                Some("operator cancelled paused work"),
-                || {
-                    queue_appends.set(queue_appends.get() + 1);
-                    Ok(())
-                },
-            )
-            .expect("cancel paused schedule");
-
-        assert_eq!(queue_appends.get(), 1);
-        let effective = ledger.effective().expect("effective schedules");
-        assert_eq!(effective["task-1"].state, ScheduleState::Cancelled);
-        assert_eq!(
-            effective["task-1"].reason.as_deref(),
-            Some("operator cancelled paused work")
-        );
-        assert_eq!(std::fs::read_to_string(path).unwrap().lines().count(), 3);
-    }
-
-    #[test]
-    fn recurring_schedule_advances_past_the_completed_tick() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
-        let completed_at = Utc::now();
-        let due = completed_at - Duration::minutes(3);
-        ledger
-            .append(&ScheduleRecord {
-                contract: SCHEDULE_RECORD_CONTRACT.into(),
-                task_id: "task-1".into(),
-                objective_id: "objective-1".into(),
-                mode: ScheduleMode::Recurring,
-                state: ScheduleState::Scheduled,
-                not_before_utc: Some(due),
-                interval_seconds: Some(60),
-                recorded_at_utc: due,
-                reason: None,
-            })
-            .expect("append recurring schedule");
-
-        let advanced = ledger
-            .advance_after_completion("task-1", completed_at)
-            .expect("advance recurring schedule");
-
-        assert_eq!(advanced.state, ScheduleState::Scheduled);
-        assert_eq!(advanced.not_before_utc, Some(due + Duration::minutes(4)));
-        assert_eq!(
-            ledger.effective().unwrap()["task-1"].not_before_utc,
-            advanced.not_before_utc
-        );
-    }
-
-    #[test]
-    fn one_shot_schedule_becomes_terminal_after_completion() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
-        let completed_at = Utc::now();
-        ledger
-            .append(&ScheduleRecord {
-                contract: SCHEDULE_RECORD_CONTRACT.into(),
-                task_id: "task-1".into(),
-                objective_id: "objective-1".into(),
-                mode: ScheduleMode::Once,
-                state: ScheduleState::Scheduled,
-                not_before_utc: Some(completed_at - Duration::minutes(1)),
-                interval_seconds: None,
-                recorded_at_utc: completed_at - Duration::minutes(1),
-                reason: None,
-            })
-            .expect("append one-shot schedule");
-
-        let completed = ledger
-            .advance_after_completion("task-1", completed_at)
-            .expect("complete one-shot schedule");
-
-        assert_eq!(completed.state, ScheduleState::Completed);
-        assert_eq!(ledger.effective().unwrap()["task-1"], completed);
-    }
-
-    #[test]
-    fn completion_transition_predicate_can_abort_stale_advance() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
-        let completed_at = Utc::now();
-        let scheduled = ScheduleRecord {
-            contract: SCHEDULE_RECORD_CONTRACT.into(),
-            task_id: "task-1".into(),
-            objective_id: "objective-1".into(),
-            mode: ScheduleMode::Recurring,
-            state: ScheduleState::Scheduled,
-            not_before_utc: Some(completed_at - Duration::minutes(1)),
-            interval_seconds: Some(60),
-            recorded_at_utc: completed_at - Duration::minutes(1),
-            reason: None,
-        };
-        ledger
-            .append(&scheduled)
-            .expect("append recurring schedule");
-
-        let advanced = ledger
-            .advance_after_completion_when("task-1", completed_at, |_| Ok(false))
-            .expect("veto stale completion transition");
-
-        assert!(advanced.is_none());
-        assert_eq!(ledger.effective().unwrap()["task-1"], scheduled);
+    fn retired_transitions_preserve_every_historical_mode_and_state() {
+        for mode in [
+            ScheduleMode::Immediate,
+            ScheduleMode::Once,
+            ScheduleMode::Recurring,
+            ScheduleMode::Deferred,
+        ] {
+            for state in [
+                ScheduleState::Scheduled,
+                ScheduleState::Paused,
+                ScheduleState::Cancelled,
+                ScheduleState::Completed,
+            ] {
+                let dir = tempfile::tempdir().unwrap();
+                let path = dir.path().join("schedules.jsonl");
+                let ledger = ScheduleLedger::new(&path);
+                let now = Utc::now();
+                let record = ScheduleRecord {
+                    contract: SCHEDULE_RECORD_CONTRACT.into(),
+                    task_id: "task".into(),
+                    objective_id: "objective".into(),
+                    mode,
+                    state,
+                    not_before_utc: Some(now - Duration::minutes(3)),
+                    interval_seconds: (mode == ScheduleMode::Recurring).then_some(60),
+                    recorded_at_utc: now,
+                    reason: None,
+                };
+                ledger.seed_historical(&record).unwrap();
+                let history = std::fs::read(&path).unwrap();
+                for objective in ["objective", "wrong-objective"] {
+                    for reason in ["operator request", ""] {
+                        assert_eq!(
+                            ledger
+                                .pause("task", objective, now, reason)
+                                .unwrap_err()
+                                .kind(),
+                            io::ErrorKind::PermissionDenied
+                        );
+                        assert_eq!(
+                            ledger
+                                .resume("task", objective, now, reason)
+                                .unwrap_err()
+                                .kind(),
+                            io::ErrorKind::PermissionDenied
+                        );
+                    }
+                }
+                assert_eq!(
+                    ledger
+                        .advance_after_completion_when("task", now, |_| panic!(
+                            "retired predicate invoked"
+                        ))
+                        .unwrap_err()
+                        .kind(),
+                    io::ErrorKind::PermissionDenied
+                );
+                assert_eq!(
+                    ledger
+                        .with_completion_transition(
+                            "task",
+                            "objective",
+                            now,
+                            || -> io::Result<()> { panic!("retired completion invoked") }
+                        )
+                        .unwrap_err()
+                        .kind(),
+                    io::ErrorKind::PermissionDenied
+                );
+                assert_eq!(
+                    ledger
+                        .with_cancellation_transition(
+                            "task",
+                            "objective",
+                            now,
+                            None,
+                            || -> io::Result<()> { panic!("retired cancellation invoked") }
+                        )
+                        .unwrap_err()
+                        .kind(),
+                    io::ErrorKind::PermissionDenied
+                );
+                assert_eq!(std::fs::read(&path).unwrap(), history);
+                assert_eq!(ledger.effective().unwrap()["task"], record);
+            }
+        }
     }
 
     #[test]
@@ -858,48 +743,42 @@ mod tests {
             })
             .expect_err("missing canonical authority must fail closed");
 
-        assert_eq!(error.kind(), io::ErrorKind::NotFound);
+        assert_eq!(error.kind(), io::ErrorKind::PermissionDenied);
         assert!(!queue_appended.get());
     }
 
     #[test]
     fn timed_schedule_requires_a_due_time() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
-        let error = ledger
-            .append(&ScheduleRecord {
-                contract: SCHEDULE_RECORD_CONTRACT.into(),
-                task_id: "task-1".into(),
-                objective_id: "objective-1".into(),
-                mode: ScheduleMode::Deferred,
-                state: ScheduleState::Scheduled,
-                not_before_utc: None,
-                interval_seconds: None,
-                recorded_at_utc: Utc::now(),
-                reason: None,
-            })
-            .expect_err("reject timed schedule without due time");
+        let error = validate_record(&ScheduleRecord {
+            contract: SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: "task-1".into(),
+            objective_id: "objective-1".into(),
+            mode: ScheduleMode::Deferred,
+            state: ScheduleState::Scheduled,
+            not_before_utc: None,
+            interval_seconds: None,
+            recorded_at_utc: Utc::now(),
+            reason: None,
+        })
+        .expect_err("reject timed schedule without due time");
 
         assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
     }
 
     #[test]
     fn recurring_schedule_requires_a_positive_interval() {
-        let dir = tempfile::tempdir().expect("create tempdir");
-        let ledger = ScheduleLedger::new(dir.path().join("schedules.jsonl"));
-        let error = ledger
-            .append(&ScheduleRecord {
-                contract: SCHEDULE_RECORD_CONTRACT.into(),
-                task_id: "task-1".into(),
-                objective_id: "objective-1".into(),
-                mode: ScheduleMode::Recurring,
-                state: ScheduleState::Scheduled,
-                not_before_utc: Some(Utc::now()),
-                interval_seconds: Some(0),
-                recorded_at_utc: Utc::now(),
-                reason: None,
-            })
-            .expect_err("reject zero recurring interval");
+        let error = validate_record(&ScheduleRecord {
+            contract: SCHEDULE_RECORD_CONTRACT.into(),
+            task_id: "task-1".into(),
+            objective_id: "objective-1".into(),
+            mode: ScheduleMode::Recurring,
+            state: ScheduleState::Scheduled,
+            not_before_utc: Some(Utc::now()),
+            interval_seconds: Some(0),
+            recorded_at_utc: Utc::now(),
+            reason: None,
+        })
+        .expect_err("reject zero recurring interval");
 
         assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
     }
@@ -919,13 +798,18 @@ mod tests {
             recorded_at_utc: Utc::now(),
             reason: None,
         };
-        ledger.append(&record).expect("append initial schedule");
+        ledger
+            .seed_historical(&record)
+            .expect("append initial schedule");
         record.objective_id = "objective-2".into();
         record.recorded_at_utc = Utc::now();
 
-        let error = ledger
-            .append(&record)
-            .expect_err("reject cross-objective rewrite");
+        let error = validate_transition(
+            &ledger.effective().unwrap()["task-1"],
+            &record,
+            io::ErrorKind::InvalidInput,
+        )
+        .expect_err("reject cross-objective rewrite");
 
         assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
         assert_eq!(
@@ -989,11 +873,14 @@ mod tests {
         cancelled.state = ScheduleState::Cancelled;
         cancelled.reason = Some("operator cancelled".into());
 
-        ledger.append(&scheduled).expect("append scheduled");
-        ledger.append(&cancelled).expect("append cancelled");
+        ledger
+            .seed_historical(&scheduled)
+            .expect("append scheduled");
+        ledger
+            .seed_historical(&cancelled)
+            .expect("append cancelled");
 
-        let error = ledger
-            .append(&scheduled)
+        let error = validate_transition(&cancelled, &scheduled, io::ErrorKind::InvalidInput)
             .expect_err("cancelled schedule must remain terminal");
         assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
     }
@@ -1016,12 +903,13 @@ mod tests {
                 recorded_at_utc: Utc::now(),
                 reason: Some("authoritative terminal reason".into()),
             };
-            ledger.append(&terminal).expect("append terminal schedule");
+            ledger
+                .seed_historical(&terminal)
+                .expect("append terminal schedule");
             let mut mutated = terminal.clone();
             mutated.reason = Some("rewritten terminal reason".into());
 
-            let error = ledger
-                .append(&mutated)
+            let error = validate_transition(&terminal, &mutated, io::ErrorKind::InvalidInput)
                 .expect_err("terminal schedule record must be immutable");
 
             assert_eq!(error.kind(), io::ErrorKind::InvalidInput);

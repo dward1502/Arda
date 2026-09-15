@@ -1,0 +1,15 @@
+{
+  "model": {"provider": "retained-manwe", "default": "Qwen3.5-9B-Q4_K_M", "context_length": 73728},
+  "custom_providers": [{"name": "retained-manwe", "base_url": "http://127.0.0.1:7171/v1", "api_mode": "chat_completions", "model": "Qwen3.5-9B-Q4_K_M", "extra_body": {
+    "routing": {"local_only": true, "inference_origin": "local", "origin_preference": "local", "force_provider_id": "edge_core", "force_model_id": "Qwen3.5-9B-Q4_K_M", "allow_forced_provider_fallback": false, "tool_use_required": true}
+  }}],
+  "fallback_providers": [],
+  "terminal": {"backend": "local", "cwd": "auto", "timeout": 180, "persistent_shell": false},
+  "memory": {"memory_enabled": false, "user_profile_enabled": false, "provider": ""},
+  "compression": {"enabled": false},
+  "auxiliary": {"background_review": {"enabled": false}},
+  "plugins": {"enabled": []},
+  "mcp_servers": {},
+  "security": {"redact_secrets": true},
+  "database": {"journal_mode": "wal"}
+}

@@ -19,6 +19,8 @@ pub struct ObjectiveRuntimeStatus {
     pub ready: bool,
     /// Last completed store scan; None means unknown, never zero.
     pub pending_recovery: Option<u64>,
+    /// Last completed quarantine scan; None is unknown, not an empty quarantine.
+    pub quarantined_schedules: Option<u64>,
     pub phase: &'static str,
     pub active_leaves: Vec<String>,
     pub next_wake_ms: Option<i64>,
@@ -30,6 +32,7 @@ impl Default for ObjectiveRuntimeStatus {
         Self {
             ready: false,
             pending_recovery: None,
+            quarantined_schedules: None,
             phase: "not_started",
             active_leaves: Vec::new(),
             next_wake_ms: None,
@@ -50,6 +53,7 @@ impl StatusScope {
         error: Option<&'static str>,
         pending: Option<u64>,
         next_wake: Option<i64>,
+        quarantined: Option<u64>,
     ) {
         // Phase and its error classification are one observable snapshot.
         self.status.send_modify(|status| {
@@ -62,7 +66,9 @@ impl StatusScope {
                 "waiting"
             };
             status.pending_recovery = pending;
-            status.ready = !draining && error.is_none() && pending == Some(0);
+            status.quarantined_schedules = quarantined;
+            status.ready =
+                !draining && error.is_none() && pending == Some(0) && quarantined == Some(0);
             if error.is_some() {
                 status.last_error = error;
             } else if status.ready {
@@ -105,7 +111,7 @@ mod status_tests {
             status: sender,
             finished: false,
         };
-        scope.finish_round(None, Some(0), None);
+        scope.finish_round(None, Some(0), None, Some(0));
         assert!(!receiver.borrow().ready);
         assert_eq!(receiver.borrow().phase, "draining");
     }
@@ -123,7 +129,12 @@ mod status_tests {
                 status: sender.clone(),
                 finished: false,
             };
-            scope.finish_round(failed.then_some("objective_round_failed"), Some(0), None);
+            scope.finish_round(
+                failed.then_some("objective_round_failed"),
+                Some(0),
+                None,
+                Some(0),
+            );
             let snapshot = receiver.borrow().clone();
             assert_eq!(snapshot.phase, if failed { "degraded" } else { "waiting" });
             assert_eq!(
@@ -139,6 +150,16 @@ mod status_tests {
 }
 
 pub trait LeafExecution: Send + Sync {
+    /// Read-only inspection before a separately budgeted execution retry.
+    /// Unlike exhausted receipt-only recovery, incomplete running work may be
+    /// continued only through the executor's normal authority checks.
+    fn inspect_retry(
+        &self,
+        claim: ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<LeafExecutionResult>>> + Send>> {
+        self.reconcile(claim)
+    }
+
     /// Retrieve completed evidence only; never fall back to provider execution.
     fn reconcile(
         &self,
@@ -319,10 +340,15 @@ where
         let result = self.run_round_inner(now_ms).await;
         let pending = self.store.pending_recovery();
         let next_wake = self.store.next_wake_ms(now_ms);
+        let quarantined = self.store.quarantined_schedule_count();
         let error = if result.is_err() || pending.is_err() {
             Some("objective_round_failed")
         } else if next_wake.is_err() {
             Some("timer_lookup_failed")
+        } else if quarantined.is_err() {
+            Some("schedule_quarantine_lookup_failed")
+        } else if quarantined.as_ref().is_ok_and(|count| *count > 0) {
+            Some("schedule_quarantined")
         } else {
             None
         };
@@ -330,10 +356,12 @@ where
             error,
             pending.as_ref().ok().copied(),
             next_wake.as_ref().ok().copied().flatten(),
+            quarantined.as_ref().ok().copied(),
         );
         result.and_then(|outcomes| {
             pending?;
             next_wake?;
+            quarantined?;
             Ok(outcomes)
         })
     }
@@ -397,7 +425,7 @@ where
                         // error is not permission to execute; explicit unbound
                         // claims retain their first-context recovery path.
                         if retry.attempt > 1 && !unbound? {
-                            if let Some(result) = executor.reconcile(retry.clone()).await? {
+                            if let Some(result) = executor.inspect_retry(retry.clone()).await? {
                                 return Ok(Some(result));
                             }
                         }

@@ -57,6 +57,64 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
 #[tokio::test]
+async fn quarantine_is_visible_after_restart() {
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let path = dir.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    store
+        .create_authenticated_objective(objective(dir.path()), 100)
+        .unwrap();
+    store
+        .put_schedule(
+            arda_engine::objectives::ScheduleSpec {
+                id: "quarantined".into(),
+                objective_id: "objective-runtime-1".into(),
+                next_wake_ms: 101,
+                recurrence: Some("PT1S".into()),
+                idempotency_key: "quarantined".into(),
+            },
+            100,
+        )
+        .unwrap();
+    store
+        .apply_control(
+            "objective-runtime-1",
+            ControlAction::Approve { revision: 1 },
+            "approve-quarantine",
+            "operator-1",
+            101,
+        )
+        .unwrap();
+    rusqlite::Connection::open(&path).unwrap().execute(
+        "UPDATE schedules SET recurrence = 'invalid historical format' WHERE id = 'quarantined'", [],
+    ).unwrap();
+    drop(store);
+    for _ in 0..2 {
+        let mut runtime = ObjectiveRuntime::new(
+            ObjectiveStore::open_existing(&path).unwrap(),
+            RecordingExecutor {
+                active: Arc::new(AtomicUsize::new(0)),
+                maximum: Arc::new(AtomicUsize::new(0)),
+                fail_leaf: None,
+            },
+            "quarantine-status",
+            4,
+            1000,
+        );
+        let status = runtime.subscribe_status();
+        assert_eq!(status.borrow().quarantined_schedules, None);
+        runtime.run_round(200).await.unwrap();
+        assert_eq!(status.borrow().quarantined_schedules, Some(1));
+        assert_eq!(status.borrow().last_error, Some("schedule_quarantined"));
+        assert!(!status.borrow().ready);
+        assert!(status.borrow().next_wake_ms.is_none());
+    }
+}
+
+#[tokio::test]
 async fn runtime_status_tracks_idle_and_retained_stop() {
     let dir = tempfile::tempdir().unwrap();
     let mut runtime = ObjectiveRuntime::new(
@@ -97,6 +155,69 @@ async fn runtime_status_tracks_idle_and_retained_stop() {
         false
     );
     assert!(status.borrow().active_leaves.is_empty());
+}
+
+#[test]
+fn ingress_key_cannot_change_command_kind() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let input = objective(dir.path());
+    let key = input.idempotency_key.clone();
+    let created = store
+        .create_authenticated_objective(input.clone(), 100)
+        .unwrap();
+    let error = store
+        .apply_control(
+            &input.id,
+            ControlAction::Approve { revision: 1 },
+            &key,
+            &input.operator_id,
+            101,
+        )
+        .expect_err("creation event must not authorize a control");
+    assert!(error.to_string().contains("idempotency conflict"));
+    assert_eq!(
+        store.objective(&input.id).unwrap().unwrap().state,
+        created.state
+    );
+    store
+        .apply_control(
+            &input.id,
+            ControlAction::Approve { revision: 1 },
+            "control-only",
+            &input.operator_id,
+            102,
+        )
+        .unwrap();
+    drop(store);
+    let store = ObjectiveStore::open(&path).unwrap();
+    let mut other = input.clone();
+    other.id = "other-objective".into();
+    other.idempotency_key = "control-only".into();
+    for leaf in &mut other.leaves {
+        leaf.id = format!("other-{}", leaf.id);
+        for dependency in &mut leaf.dependencies {
+            *dependency = format!("other-{dependency}");
+        }
+    }
+    let error = store
+        .create_authenticated_objective(other.clone(), 103)
+        .expect_err("control event must not create an objective after restart");
+    assert!(error.to_string().contains("idempotency conflict"));
+    assert!(store.objective(&other.id).unwrap().is_none());
+    store
+        .create_authenticated_objective(input.clone(), 104)
+        .unwrap();
+    store
+        .apply_control(
+            &input.id,
+            ControlAction::Approve { revision: 1 },
+            "control-only",
+            &input.operator_id,
+            105,
+        )
+        .unwrap();
 }
 
 struct BlockOneExecutor(RecordingExecutor);
@@ -195,6 +316,45 @@ async fn scheduler_readiness_fails_closed_on_store_loss_and_recovers() {
     assert!(status.borrow().ready);
     assert_eq!(status.borrow().pending_recovery, Some(0));
     assert!(status.borrow().last_error.is_none());
+}
+
+#[tokio::test]
+async fn missing_database_does_not_get_recreated_by_resident_access() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("objectives.sqlite3");
+    let saved = dir.path().join("saved.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    store
+        .create_authenticated_objective(objective(dir.path()), 100)
+        .unwrap();
+    let mut runtime = ObjectiveRuntime::new(
+        store.clone(),
+        RecordingExecutor {
+            active: Arc::new(AtomicUsize::new(0)),
+            maximum: Arc::new(AtomicUsize::new(0)),
+            fail_leaf: None,
+        },
+        "missing-file",
+        1,
+        1000,
+    );
+    let status = runtime.subscribe_status();
+    runtime.run_round(101).await.unwrap();
+    std::fs::rename(&path, &saved).unwrap();
+    assert!(runtime.run_round(102).await.is_err());
+    assert_eq!(status.borrow().quarantined_schedules, None);
+    assert!(!status.borrow().ready);
+    assert!(store.list_objectives().is_err());
+    assert!(
+        !path.exists(),
+        "routine access must not recreate lost authority"
+    );
+    assert!(!path.with_extension("sqlite3-wal").exists());
+    assert!(!path.with_extension("sqlite3-shm").exists());
+    std::fs::rename(&saved, &path).unwrap();
+    runtime.run_round(103).await.unwrap();
+    assert!(status.borrow().ready);
+    assert_eq!(store.list_objectives().unwrap().len(), 1);
 }
 
 #[tokio::test]
@@ -458,6 +618,13 @@ impl LeafExecution for RetryProbe {
         &self,
         _: arda_engine::objectives::ClaimedLeaf,
     ) -> Pin<Box<dyn Future<Output = Result<Option<LeafExecutionResult>>> + Send>> {
+        panic!("budgeted retries must use retry inspection, not exhausted reconciliation")
+    }
+
+    fn inspect_retry(
+        &self,
+        _: arda_engine::objectives::ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<LeafExecutionResult>>> + Send>> {
         self.probes.fetch_add(1, Ordering::SeqCst);
         let unavailable = self.unavailable;
         Box::pin(async move {
@@ -563,6 +730,16 @@ async fn bound_retry_continues_only_after_successful_receipt_lookup() {
 }
 
 impl LeafExecution for DelayedReconciliation {
+    fn inspect_retry(
+        &self,
+        claim: arda_engine::objectives::ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<LeafExecutionResult>>> + Send>> {
+        // This fixture's normal retry is attempt two; its exhausted cases
+        // must stay on receipt-only reconciliation.
+        assert_eq!(claim.attempt, 2);
+        self.reconcile(claim)
+    }
+
     fn execute(
         &self,
         _: arda_engine::objectives::ClaimedLeaf,

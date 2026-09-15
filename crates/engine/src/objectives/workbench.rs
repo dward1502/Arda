@@ -2,6 +2,7 @@ use super::model::{ClaimedLeaf, ReceiptStage, StageReceipt};
 use super::runtime::{LeafExecution, LeafExecutionResult};
 use crate::adapters::{HermesExecutionReceipt, HermesReceiptStatus};
 use anyhow::{anyhow, bail, Context, Result};
+use arda_aule::prometheus::autopilot::workbench_executor::ExplicitWorkspaceAuthorization;
 use arda_aule::prometheus::autopilot::{
     ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
     WorkbenchExecutionAdapter,
@@ -22,8 +23,24 @@ use futures::future::BoxFuture;
 use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
+mod retained_authorization;
 
 pub trait ExplicitWorkbenchExecution: Send + Sync {
+    fn inspect_retry_explicit<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
+        self.reconcile_explicit(item)
+    }
+    fn execute_explicit_authorized<'a>(
+        &'a self,
+        _item: &'a ExplicitWorkbenchWorkItem,
+        _authority: &'a dyn ExplicitWorkspaceAuthorization,
+    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
+        Box::pin(
+            async move { bail!("executor does not implement retained workspace authorization") },
+        )
+    }
     fn reconcile_explicit<'a>(
         &'a self,
         _item: &'a ExplicitWorkbenchWorkItem,
@@ -38,6 +55,19 @@ pub trait ExplicitWorkbenchExecution: Send + Sync {
 }
 
 impl ExplicitWorkbenchExecution for WorkbenchExecutionAdapter {
+    fn inspect_retry_explicit<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
+        Box::pin(async move { self.reconcile_for_retry(item).await })
+    }
+    fn execute_explicit_authorized<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+        authority: &'a dyn ExplicitWorkspaceAuthorization,
+    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
+        Box::pin(async move { self.execute_authorized(item, authority).await })
+    }
     fn reconcile_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
@@ -76,12 +106,19 @@ impl<E> WorkbenchLeafExecution<E> {
     }
 }
 
+#[derive(Clone, Copy)]
+enum ClaimExecutionMode {
+    Execute,
+    ReceiptOnly,
+    RetryInspection,
+}
+
 impl<E> LeafExecution for WorkbenchLeafExecution<E>
 where
     E: ExplicitWorkbenchExecution + Clone + 'static,
 {
     fn execute(&self, claim: ClaimedLeaf) -> BoxFuture<'static, Result<LeafExecutionResult>> {
-        let execution = self.run_claim(claim, false);
+        let execution = self.run_claim(claim, ClaimExecutionMode::Execute);
         Box::pin(async move { execution.await?.context("execution returned no outcome") })
     }
 
@@ -89,7 +126,14 @@ where
         &self,
         claim: ClaimedLeaf,
     ) -> BoxFuture<'static, Result<Option<LeafExecutionResult>>> {
-        self.run_claim(claim, true)
+        self.run_claim(claim, ClaimExecutionMode::ReceiptOnly)
+    }
+
+    fn inspect_retry(
+        &self,
+        claim: ClaimedLeaf,
+    ) -> BoxFuture<'static, Result<Option<LeafExecutionResult>>> {
+        self.run_claim(claim, ClaimExecutionMode::RetryInspection)
     }
 }
 
@@ -100,15 +144,12 @@ where
     fn run_claim(
         &self,
         claim: ClaimedLeaf,
-        reconciliation_only: bool,
+        mode: ClaimExecutionMode,
     ) -> BoxFuture<'static, Result<Option<LeafExecutionResult>>> {
+        let reconciliation_only = !matches!(mode, ClaimExecutionMode::Execute);
         let root = self.root.clone();
         let adapter = self.adapter.clone();
         Box::pin(async move {
-            if !reconciliation_only {
-                super::store::require_workspace_access(Path::new(&claim.workspace_root))
-                    .context("workspace is not available for execution")?;
-            }
             let execution = claim.execution.as_ref().ok_or_else(|| {
                 anyhow!("claimed leaf `{}` omitted execution payload", claim.leaf_id)
             })?;
@@ -134,8 +175,32 @@ where
                     "execution": execution, "dependencies": claim.dependency_receipts,
                 }))?)
             );
-            let store =
-                super::store::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))?;
+            let database = root.join("data/arda/objectives.sqlite3");
+            // Missing durable state cannot contain a retained capability. Keep
+            // the ordinary missing-workspace rejection ahead of store creation.
+            if !reconciliation_only && !database.try_exists()? {
+                super::store::require_workspace_access(Path::new(&claim.workspace_root))
+                    .context("workspace is not available for execution")?;
+            }
+            let store = super::store::ObjectiveStore::open_existing(&database)?;
+            let mut has_retained_authority = false;
+            if !reconciliation_only {
+                match store.retained_execution(&run_id, chrono::Utc::now().timestamp_millis())? {
+                    Some(binding) => {
+                        if binding.lease.generation != claim.attempt
+                            || binding.lease.owner != claim.lease_owner
+                            || binding.lease.expires_ms != claim.lease_expires_ms
+                        {
+                            bail!("claimed leaf is fenced by a different retained lease");
+                        }
+                        has_retained_authority = true;
+                    }
+                    None => {
+                        super::store::require_workspace_access(Path::new(&claim.workspace_root))
+                            .context("workspace is not available for execution")?
+                    }
+                }
+            }
             let memory = MnemosyneService::new(root.join("data/vaire"))?
                 .with_contract_memory_root(root.join("core/state/memory"));
             let context_assembly = match store.resident_context(&run_id, &request_digest)? {
@@ -192,10 +257,24 @@ where
                 context_assembly: Some(context_assembly.clone()),
             };
             let outcome = if reconciliation_only {
-                match adapter.reconcile_explicit(&item).await? {
+                let evidence = if matches!(mode, ClaimExecutionMode::RetryInspection) {
+                    adapter.inspect_retry_explicit(&item).await?
+                } else {
+                    adapter.reconcile_explicit(&item).await?
+                };
+                match evidence {
                     Some(outcome) => outcome,
                     None => return Ok(None),
                 }
+            } else if has_retained_authority {
+                let authorize = retained_authorization::RetainedAuthorization::new(
+                    store.clone(),
+                    claim.clone(),
+                    &item,
+                )?;
+                adapter
+                    .execute_explicit_authorized(&item, &authorize)
+                    .await?
             } else {
                 adapter.execute_explicit(&item).await?
             };

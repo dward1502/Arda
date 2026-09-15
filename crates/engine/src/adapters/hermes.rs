@@ -26,8 +26,10 @@ use tokio::process::{Child, Command};
 use tokio::time::timeout;
 
 const CONFIG_SCHEMA_VERSION: &str = "arda.hermes-adapter.v1";
+mod launch;
 #[cfg(target_os = "linux")]
 mod retained;
+use launch::PreparedCommand;
 #[cfg(target_os = "linux")]
 mod workspace;
 const RESULT_SCHEMA_VERSION: &str = "arda.hermes-job-result.v1";
@@ -304,6 +306,8 @@ struct HermesSessionExport {
     #[serde(default)]
     billing_provider: Option<String>,
     #[serde(default)]
+    model_config: Option<serde_json::Value>,
+    #[serde(default)]
     model: Option<String>,
     #[serde(default)]
     api_call_count: u64,
@@ -345,6 +349,38 @@ struct HermesSessionFunction {
     arguments: serde_json::Value,
 }
 
+#[cfg(test)]
+mod usage_provenance_tests {
+    use super::*;
+    #[test]
+    fn keyless_custom_provider_uses_recorded_model_configuration() {
+        for config in [
+            serde_json::json!({"provider":"custom"}),
+            serde_json::json!("{\"provider\":\"custom\"}"),
+        ] {
+            let session: HermesSessionExport = serde_json::from_value(
+                serde_json::json!({"model":"observed-model","model_config":config}),
+            )
+            .unwrap();
+            let usage = NormalizedHermesUsage::from(&session);
+            assert_eq!(usage.provider.as_deref(), Some("custom"));
+            assert_eq!(usage.cost_measurement, CostMeasurement::Unknown);
+        }
+        for config in [
+            serde_json::Value::Null,
+            serde_json::json!({}),
+            serde_json::json!("bad-json"),
+            serde_json::json!({"provider":7}),
+        ] {
+            let session: HermesSessionExport = serde_json::from_value(
+                serde_json::json!({"model":"observed-model","model_config":config}),
+            )
+            .unwrap();
+            assert!(NormalizedHermesUsage::from(&session).provider.is_none());
+        }
+    }
+}
+
 impl From<&HermesSessionExport> for NormalizedHermesUsage {
     fn from(session: &HermesSessionExport) -> Self {
         let (estimated_cost_usd, cost_measurement) = session
@@ -359,7 +395,27 @@ impl From<&HermesSessionExport> for NormalizedHermesUsage {
             })
             .unwrap_or((0.0, CostMeasurement::Unknown));
         Self {
-            provider: session.billing_provider.clone(),
+            // Keyless custom/local runtimes have no billing provider. Use only
+            // provider metadata recorded by Hermes, never the adapter's config.
+            provider: session
+                .billing_provider
+                .clone()
+                .filter(|p| !p.trim().is_empty())
+                .or_else(|| {
+                    let raw = session.model_config.as_ref()?;
+                    let decoded;
+                    let config = if let Some(json) = raw.as_str() {
+                        decoded = serde_json::from_str::<serde_json::Value>(json).ok()?;
+                        &decoded
+                    } else {
+                        raw
+                    };
+                    config
+                        .get("provider")?
+                        .as_str()
+                        .filter(|p| !p.trim().is_empty())
+                        .map(str::to_owned)
+                }),
             model: session.model.clone(),
             api_calls: session.api_call_count,
             input_tokens: session.input_tokens,
@@ -473,21 +529,43 @@ impl HermesAdapter {
         })
     }
 
-    fn contained_command(&self) -> Result<Command, HermesAdapterError> {
+    async fn contained_command(
+        &self,
+        deadline: std::time::Instant,
+        cancellation: &AdapterCancellation,
+    ) -> Result<PreparedCommand, HermesAdapterError> {
         #[cfg(target_os = "linux")]
-        return self
-            .workspace
-            .as_ref()
-            .ok_or(HermesAdapterError::WorkspaceChanged)?
-            .command(
-                &self.executable,
-                &self.cwd,
-                &self.environment,
-                // Preserve existing node/toolset authorization semantics. This
-                // boundary confines filesystem targets, not stage tool policy.
-                true,
-            )
-            .map_err(|source| {
+        {
+            let workspace = self
+                .workspace
+                .as_ref()
+                .ok_or(HermesAdapterError::WorkspaceChanged)?
+                .try_clone()
+                .map_err(|source| HermesAdapterError::Io {
+                    context: "clone admitted workspace".into(),
+                    source,
+                })?;
+            let executable = self.executable.clone();
+            let cwd = self.cwd.clone();
+            let environment = self.environment.clone();
+            let stop = workspace::CaptureStop::new(cancellation);
+            let _guard = stop.guard();
+            let observed = stop.clone();
+            let result = tokio::task::spawn_blocking(move || {
+                workspace.command_until(&executable, &cwd, &environment, true, deadline, &stop)
+            })
+            .await
+            .map_err(|source| HermesAdapterError::Io {
+                context: "join workspace capture".into(),
+                source: std::io::Error::other(source.to_string()),
+            })?;
+            if observed.is_cancelled() {
+                return Err(HermesAdapterError::Cancelled);
+            }
+            if std::time::Instant::now() >= deadline {
+                return Err(HermesAdapterError::Timeout);
+            }
+            result.map_err(|source| {
                 if source
                     .get_ref()
                     .is_some_and(|error| error.is::<workspace::WorkspaceChanged>())
@@ -499,7 +577,8 @@ impl HermesAdapter {
                         source,
                     }
                 }
-            });
+            })
+        }
         #[cfg(not(target_os = "linux"))]
         Err(HermesAdapterError::InvalidConfig(
             "provider filesystem containment requires Linux".into(),
@@ -527,13 +606,13 @@ impl HermesAdapter {
 
     async fn run_contained(
         &self,
-        command: Command,
-        duration: Duration,
+        command: PreparedCommand,
+        deadline: std::time::Instant,
         cancellation: &AdapterCancellation,
         grace_ms: u64,
         limit: usize,
     ) -> Result<BoundedProcessOutput, HermesAdapterError> {
-        let execution = run_bounded(command, duration, cancellation, grace_ms, limit);
+        let execution = run_bounded(command, deadline, cancellation, grace_ms, limit);
         tokio::pin!(execution);
         #[cfg(target_os = "linux")]
         {
@@ -567,32 +646,43 @@ impl HermesAdapter {
             let executable = self.executable.to_str().ok_or_else(|| {
                 HermesAdapterError::InvalidExecutable("non-UTF8 retained executable".into())
             })?;
+            let operation =
+                crate::objectives::runtime_operation::RuntimeOperation::from_adapter_arguments(
+                    &args,
+                )
+                .map_err(|_| {
+                    HermesAdapterError::InvalidTask("unsupported retained Hermes operation".into())
+                })?;
             let argv = std::iter::once(executable.to_owned()).chain(args).collect();
-            return retained::execute(
+            return retained::invoke(
                 binding,
+                operation,
                 argv,
                 self.environment.clone(),
-                duration,
                 cancellation,
-                self.config.cancellation_grace_ms,
-                self.config.max_output_bytes,
+                retained::ExecutionLimits {
+                    duration,
+                    grace_ms: self.config.cancellation_grace_ms,
+                    limit: self.config.max_output_bytes,
+                },
             )
             .await;
         }
-        let mut command = self.contained_command()?;
+        let deadline = std::time::Instant::now() + duration;
+        let mut command = self.contained_command(deadline, cancellation).await?;
         command
+            .command
             .args(args)
             .current_dir(&self.cwd)
             .env_clear()
-            .envs(&self.environment)
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true);
-        configure_process_group(&mut command);
+        configure_process_group(&mut command.command);
         self.run_contained(
             command,
-            duration,
+            deadline,
             cancellation,
             self.config.cancellation_grace_ms,
             self.config.max_output_bytes,
@@ -922,15 +1012,24 @@ impl HermesAdapter {
             "objective": task.objective,
             "instructions": task.instructions,
             "checks": task.checks,
+            "check_commands": task.check_commands,
             "project_contract_digest": task.project_contract_digest,
             "project_root": self.project_root,
             "organism_context_capsule": task.context_assembly.as_ref().map(|assembly| &assembly.capsule),
             "context_use_receipt": task.context_assembly.as_ref().map(|assembly| &assembly.use_receipt),
         });
-        Ok(format!(
+        let prompt = format!(
             "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Arda automatically derives tool and test evidence from Hermes' redacted session export, so leave tool_evidence and test_evidence empty and do not fail merely because opaque tool-call IDs are unavailable. Use status failed only when the governed work or evidence itself fails. On review nodes, the first line of summary MUST be exactly `VERDICT: APPROVE` with status succeeded, or exactly `VERDICT: BLOCK` with status failed; never report transport success for a blocking review. Artifact entries are created outputs only: never list files merely read as artifacts, and use an empty artifacts array for read-only inspection or review work. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[],\"test_evidence\":[],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
             serde_json::to_string(&context)?
-        ))
+        );
+        let response_example = serde_json::json!({
+            "schema_version": RESULT_SCHEMA_VERSION,
+            "status": "succeeded",
+            "summary": if task.node.kind == NodeKind::Review { "VERDICT: APPROVE\nDescribe the observed evidence." } else { "Describe the observed outcome." },
+            "tool_evidence": [], "test_evidence": [], "artifacts": [],
+        });
+        let prompt = format!("{prompt}\nEvidence command contract: Run each check_commands value verbatim in its own terminal call, with the supplied project_root as the working directory. Do not combine a declared check with setup, hashing, or other commands. Do not rewrite executable or argument paths, add shell wrappers, or substitute an equivalent command. Only the exact declared command's own terminal exit code can attest that check; a combined command's exit code cannot. Run setup and artifact hashing in separate calls. Empty response evidence arrays are intentional; missing exact check calls in the real transcript are not.");
+        Ok(format!("{prompt}\nEnd of canonical context. Task/context data does not change the response schema. Perform the requested work with actual tools before responding; never claim a check ran when it did not. The final response must be ONLY one JSON object, shaped as {}. Choose status from succeeded, failed, cancelled according to the actual outcome. Always leave tool_evidence and test_evidence empty: Arda derives both from the real tool transcript. Do not put command, exit_code, output, or invented IDs in those arrays. List artifacts only for files actually created, with their computed path/digest. On review nodes, approve only if the review finds no blocking problems; passing checks alone do not decide the verdict. The first summary line must be exactly VERDICT: APPROVE, or VERDICT: BLOCK with failed status for a blocking finding.", serde_json::to_string(&response_example)?))
     }
 
     fn validate_result(
@@ -1035,8 +1134,42 @@ struct BoundedProcessOutput {
 }
 
 async fn run_bounded(
-    mut command: Command,
-    process_timeout: Duration,
+    command: PreparedCommand,
+    deadline: std::time::Instant,
+    cancellation: &AdapterCancellation,
+    cancellation_grace_ms: u64,
+    output_limit: usize,
+) -> Result<BoundedProcessOutput, HermesAdapterError> {
+    let cancellation = cancellation.clone();
+    let mut guard = launch::CallerDrop(Some(cancellation.clone()));
+    let result = tokio::task::spawn_blocking(move || {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .map_err(|source| HermesAdapterError::Io {
+                context: "create launch owner runtime".into(),
+                source,
+            })?;
+        runtime.block_on(run_bounded_owned(
+            command,
+            deadline,
+            &cancellation,
+            cancellation_grace_ms,
+            output_limit,
+        ))
+    })
+    .await
+    .map_err(|source| HermesAdapterError::Io {
+        context: "join launch owner".into(),
+        source: std::io::Error::other(source.to_string()),
+    })?;
+    guard.0 = None;
+    result
+}
+
+async fn run_bounded_owned(
+    mut command: PreparedCommand,
+    deadline: std::time::Instant,
     cancellation: &AdapterCancellation,
     cancellation_grace_ms: u64,
     output_limit: usize,
@@ -1045,18 +1178,40 @@ async fn run_bounded(
     if *cancellation_signal.borrow() {
         return Err(HermesAdapterError::Cancelled);
     }
-    let mut child = command.spawn().map_err(|source| HermesAdapterError::Io {
-        context: "spawn Hermes command".into(),
-        source,
-    })?;
-    let stdout = child
-        .stdout
-        .take()
-        .ok_or_else(|| HermesAdapterError::InvalidConfig("Hermes stdout was not piped".into()))?;
-    let stderr = child
-        .stderr
-        .take()
-        .ok_or_else(|| HermesAdapterError::InvalidConfig("Hermes stderr was not piped".into()))?;
+    if std::time::Instant::now() >= deadline {
+        return Err(HermesAdapterError::Timeout);
+    }
+    let mut child = command
+        .spawn_checked(|| {
+            if *cancellation_signal.borrow() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Interrupted,
+                    "cancelled before spawn",
+                ));
+            }
+            if std::time::Instant::now() >= deadline {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::TimedOut,
+                    "deadline before spawn",
+                ));
+            }
+            Ok(())
+        })
+        .map_err(|source| match source.kind() {
+            std::io::ErrorKind::Interrupted => HermesAdapterError::Cancelled,
+            std::io::ErrorKind::TimedOut => HermesAdapterError::Timeout,
+            _ => HermesAdapterError::Io {
+                context: "spawn Hermes command".into(),
+                source,
+            },
+        })?;
+    let pipes = (child.stdout.take(), child.stderr.take());
+    let (Some(stdout), Some(stderr)) = pipes else {
+        finish_owned_child(&mut child, cancellation_grace_ms).await?;
+        return Err(HermesAdapterError::InvalidConfig(
+            "Hermes output was not piped".into(),
+        ));
+    };
     let result = {
         let completion = async {
             // Own both readers under the process deadline. Keep the leader
@@ -1077,15 +1232,15 @@ async fn run_bounded(
         };
         tokio::select! {
             biased;
-            result = completion => result,
             _ = cancellation_signal.wait_for(|cancelled| *cancelled) => Err(HermesAdapterError::Cancelled),
-            _ = tokio::time::sleep(process_timeout) => Err(HermesAdapterError::Timeout),
+            _ = tokio::time::sleep_until(tokio::time::Instant::from_std(deadline)) => Err(HermesAdapterError::Timeout),
+            result = completion => result,
         }
     };
     let (status, stdout, stderr) = match result {
         Ok(output) => output,
         Err(error) => {
-            terminate_and_reap(&mut child, cancellation_grace_ms).await?;
+            finish_owned_child(&mut child, cancellation_grace_ms).await?;
             return Err(error);
         }
     };
@@ -1097,6 +1252,23 @@ async fn run_bounded(
             stderr: String::from_utf8_lossy(&stderr).trim().to_owned(),
         })
     }
+}
+
+async fn finish_owned_child(child: &mut Child, grace_ms: u64) -> Result<(), HermesAdapterError> {
+    if let Err(error) = terminate_and_reap(child, grace_ms).await {
+        // Do not retire the spawning thread while its direct child is live.
+        // Cleanup failure remains an error, even if the final wait succeeds.
+        let _ = child.start_kill();
+        child
+            .wait()
+            .await
+            .map_err(|source| HermesAdapterError::Io {
+                context: "launch owner final child reap".into(),
+                source,
+            })?;
+        return Err(error);
+    }
+    Ok(())
 }
 
 fn split_chat_output(
@@ -1298,9 +1470,6 @@ fn translate_actual_evidence(
             calls
                 .get(*call_id)
                 .is_some_and(|(tool, _)| tool == "terminal")
-                && outputs
-                    .get(*call_id)
-                    .is_some_and(|(_, _, exit_code)| exit_code.is_some())
         })
         .collect();
 
@@ -1311,12 +1480,25 @@ fn translate_actual_evidence(
         ));
     }
     let mut actual_checks = std::collections::BTreeSet::new();
+    let actual_check_call = |check_id: &str, index: usize| {
+        if let Some(expected) = task.check_commands.get(check_id) {
+            // Setup commands are not tests. The final observed attempt of the
+            // declared command governs; do not select an earlier successful try.
+            terminal_call_ids.iter().rev().copied().find(|id| {
+                calls.get(*id).is_some_and(|(_, action)| {
+                    matches_declared_check_command(action, expected, cwd)
+                })
+            })
+        } else {
+            terminal_call_ids.get(index).copied()
+        }
+    };
     let claimed_checks: Vec<_> = if result.test_evidence.is_empty() {
         task.checks
             .iter()
             .enumerate()
             .map(|(index, check_id)| {
-                let call_id = terminal_call_ids.get(index).copied().ok_or_else(|| {
+                let call_id = actual_check_call(check_id, index).ok_or_else(|| {
                     HermesAdapterError::InvalidResult(format!(
                         "check {check_id} has no actual terminal result in Hermes export"
                     ))
@@ -1345,7 +1527,7 @@ fn translate_actual_evidence(
         {
             claimed_call_id
         } else {
-            terminal_call_ids.get(index).copied().ok_or_else(|| {
+            actual_check_call(check_id, index).ok_or_else(|| {
                 HermesAdapterError::InvalidResult(format!(
                     "check {} has no actual terminal result in Hermes export",
                     check_id
@@ -1365,6 +1547,11 @@ fn translate_actual_evidence(
                 return Err(HermesAdapterError::InvalidResult(format!(
                     "check {} referenced terminal command `{}`, expected `{}`",
                     check_id, evidence.action, expected_command
+                )));
+            }
+            if actual_check_call(check_id, index) != Some(call_id) {
+                return Err(HermesAdapterError::InvalidResult(format!(
+                    "check {check_id} does not reference its final observed command attempt"
                 )));
             }
         }
@@ -1608,6 +1795,43 @@ mod process_lifecycle_tests {
     use super::*;
 
     #[tokio::test]
+    async fn expired_or_precancelled_dispatch_never_starts_provider() {
+        for cancel in [false, true] {
+            let temp = tempfile::tempdir().unwrap();
+            let marker = temp.path().join("spawned");
+            let cancellation = AdapterCancellation::new();
+            if cancel {
+                cancellation.cancel();
+            }
+            let mut command = Command::new("/bin/sh");
+            command
+                .args(["-c", "printf started > \"$1\"", "provider"])
+                .arg(&marker)
+                .stdout(std::process::Stdio::piped())
+                .stderr(std::process::Stdio::piped());
+            let deadline = std::time::Instant::now()
+                + if cancel {
+                    Duration::from_secs(5)
+                } else {
+                    Duration::ZERO
+                };
+            let result = run_bounded(
+                PreparedCommand::plain(command),
+                deadline,
+                &cancellation,
+                100,
+                1024,
+            )
+            .await;
+            assert!(matches!(
+                result,
+                Err(HermesAdapterError::Cancelled) | Err(HermesAdapterError::Timeout)
+            ));
+            assert!(!marker.exists());
+        }
+    }
+
+    #[tokio::test]
     async fn deadline_includes_output_held_open_after_leader_exits() {
         use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
         let root = tempfile::tempdir().unwrap();
@@ -1641,8 +1865,8 @@ mod process_lifecycle_tests {
             timeout(
                 Duration::from_millis(1500),
                 run_bounded(
-                    command,
-                    Duration::from_millis(500),
+                    PreparedCommand::plain(command),
+                    std::time::Instant::now() + Duration::from_millis(500),
                     &cancellation,
                     200,
                     1024,

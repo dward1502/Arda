@@ -770,7 +770,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn decision_action_marks_queued_task_completed() {
+    async fn decision_action_refuses_retired_queue_completion() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -791,18 +791,17 @@ mod tests {
             selected_label: "Execute".to_string(),
         };
 
-        service
+        let before = fs::read(&queue_path).unwrap();
+        let error = service
             .execute_decision_action("discord", &msg, &ctx)
             .await
-            .expect("execute");
-
-        let updated = fs::read_to_string(&queue_path).expect("queue read");
-        assert!(updated.contains("\"status\":\"completed\""));
-        assert!(updated.contains("\"completion_source\":\"hermes_decision\""));
+            .expect_err("legacy queue completion must refuse");
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(fs::read(&queue_path).unwrap(), before);
     }
 
     #[tokio::test]
-    async fn decision_action_drains_queued_tasks_with_limit() {
+    async fn decision_action_refuses_retired_queue_drain() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -828,19 +827,43 @@ mod tests {
             selected_label: "Drain".to_string(),
         };
 
-        service
+        let before = fs::read(&queue_path).unwrap();
+        let error = service
             .execute_decision_action("discord", &msg, &ctx)
             .await
-            .expect("execute");
+            .expect_err("legacy queue drain must refuse");
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(fs::read(&queue_path).unwrap(), before);
+    }
 
-        let updated = fs::read_to_string(&queue_path).expect("queue read");
-        assert_eq!(updated.matches("\"status\":\"completed\"").count(), 2);
-        let third = updated
-            .lines()
-            .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
-            .find(|value| value.get("task_id").and_then(|v| v.as_str()) == Some("tsk_test_3"))
-            .expect("third task");
-        assert_eq!(third.get("status").and_then(|v| v.as_str()), Some("queued"));
+    #[test]
+    fn retired_queue_writers_refuse_before_reading_or_provisioning() {
+        let _guard = env_guard();
+        let dir = tempdir().unwrap();
+        let service = HermesService::new(dir.path()).unwrap();
+        let queue = dir.path().join("missing/queue.jsonl");
+        std::env::set_var("ANNUNIMAS_TASK_QUEUE_PATH", &queue);
+        for historical in [false, true] {
+            if historical {
+                fs::create_dir_all(queue.parent().unwrap()).unwrap();
+                fs::write(&queue, b"malformed historical bytes\n").unwrap();
+            }
+            assert!(service
+                .complete_queued_task("task", "operator")
+                .unwrap_err()
+                .to_string()
+                .contains("retired"));
+            assert!(service
+                .drain_queued_tasks(5, "operator")
+                .unwrap_err()
+                .to_string()
+                .contains("retired"));
+            if historical {
+                assert_eq!(fs::read(&queue).unwrap(), b"malformed historical bytes\n");
+            } else {
+                assert!(!queue.parent().unwrap().exists());
+            }
+        }
     }
 
     #[test]

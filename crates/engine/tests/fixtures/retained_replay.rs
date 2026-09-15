@@ -96,7 +96,7 @@ async fn stored_receipt_replays_after_retained_lease_expiry_and_release() {
             .json()
             .await
             .unwrap();
-        let receipt = stored_review_receipt(
+        let mut receipt = stored_review_receipt(
             &run_id,
             planned["graph"]["provenance"]["project_contract_digest"]
                 .as_str()
@@ -104,6 +104,13 @@ async fn stored_receipt_replays_after_retained_lease_expiry_and_release() {
             vec!["receipt:verify".into()],
             "Replay durable receipt",
         );
+        if std::env::var_os("ARDA_TEST_RETAINED_REPLAY_OVERRIDE").is_some() {
+            receipt.adapter_version = "retained-test".into();
+            receipt.receipt_digest = receipt.computed_digest().unwrap();
+            if phase == "released" {
+                fs::remove_file(root.path().join("config/adapters/hermes-workbench.toml")).unwrap();
+            }
+        }
         write_stored_review_receipt(&root, &receipt);
         drop(objectives);
         let objectives = ObjectiveStore::open(&database)
@@ -131,4 +138,31 @@ async fn stored_receipt_replays_after_retained_lease_expiry_and_release() {
         shutdown.notify_waiters();
         handle.await.unwrap();
     }
+}
+
+#[test]
+fn retained_replay_uses_override_after_expiry_and_release() {
+    let root = TempDir::new().unwrap();
+    write_file_only_hermes_config(&root);
+    let config = root.path().join("config/adapters/hermes-workbench.toml");
+    let raw = fs::read_to_string(&config).unwrap().replace(
+        "adapter_version = \"1\"",
+        "adapter_version = \"retained-test\"",
+    );
+    fs::write(&config, raw).unwrap();
+    let output = std::process::Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--exact",
+            "retained_replay::stored_receipt_replays_after_retained_lease_expiry_and_release",
+            "--nocapture",
+        ])
+        .env("ARDA_TEST_RETAINED_REPLAY_OVERRIDE", "1")
+        .env("ARDA_HERMES_RETAINED_ADAPTER_CONFIG", &config)
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stdout)
+    );
 }

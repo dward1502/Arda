@@ -2783,7 +2783,7 @@ mod tests {
     }
 
     #[test]
-    fn generate_planning_tasks_from_evidence() {
+    fn evidence_cannot_reactivate_retired_planning_task_writer() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -2802,8 +2802,10 @@ mod tests {
             .expect("ingest");
         let out = store
             .generate_planning_tasks(&record.id, 8)
-            .expect("generate tasks");
-        assert!(out["queued_tasks"].as_u64().unwrap_or_default() >= 4);
+            .expect_err("retired task writer");
+        assert!(out.to_string().contains("retired"));
+        assert!(!queue_path.exists());
+        std::env::remove_var("ARDA_PROJECT_TASK_QUEUE_PATH");
     }
 
     #[test]
@@ -2842,7 +2844,7 @@ mod tests {
     }
 
     #[test]
-    fn github_repo_implementation_brief_generates_execution_tasks() {
+    fn github_repo_implementation_brief_cannot_write_legacy_execution_tasks() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -2866,8 +2868,10 @@ mod tests {
 
         let out = store
             .generate_planning_tasks(&record.id, 8)
-            .expect("generate tasks");
-        assert!(out["queued_tasks"].as_u64().unwrap_or_default() >= 2);
+            .expect_err("retired task writer");
+        assert!(out.to_string().contains("retired"));
+        assert!(!queue_path.exists());
+        std::env::remove_var("ARDA_PROJECT_TASK_QUEUE_PATH");
     }
 
     #[test]
@@ -3137,21 +3141,10 @@ mod tests {
         }
         let store = AthenaStore::new(dir.path()).expect("store");
 
-        let out = store.promote_policy_readiness(4, false).expect("promote");
-        assert_eq!(
-            out.get("queued_tasks").and_then(|value| value.as_u64()),
-            Some(0)
-        );
-        assert_eq!(
-            out.get("policy_ready_recent")
-                .and_then(|value| value.as_u64()),
-            Some(0)
-        );
-        assert_eq!(
-            out.get("promotion_receipt_available")
-                .and_then(|value| value.as_bool()),
-            Some(false)
-        );
+        let out = store
+            .promote_policy_readiness(4, false)
+            .expect_err("retired promotion");
+        assert!(out.to_string().contains("retired"));
         std::thread::sleep(Duration::from_millis(150));
         let plutus_status = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -3184,7 +3177,7 @@ mod tests {
     }
 
     #[test]
-    fn policy_promote_emits_plutus_relationship_signal_when_receipt_available() {
+    fn retired_policy_promotion_does_not_emit_plutus_relationship_signals() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
@@ -3202,27 +3195,32 @@ mod tests {
             )
             .expect("ingest");
         let _ = store.deep_analyze(&record.id).expect("deep");
-        let task_emission = store
+        std::thread::sleep(Duration::from_millis(150));
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let before = runtime.block_on(async {
+            PlutusService::from_home(&plutus_home)
+                .unwrap()
+                .status()
+                .await
+                .unwrap()
+        });
+        let policy_before = fs::read(&store.policy_readiness_path).unwrap();
+        assert!(store
             .generate_planning_tasks(&record.id, 8)
-            .expect("task emission");
-        assert!(task_emission["receipts_total"].as_u64().unwrap_or_default() > 0);
-
-        let out = store.promote_policy_readiness(4, true).expect("promote");
+            .unwrap_err()
+            .to_string()
+            .contains("retired"));
+        assert!(store
+            .promote_policy_readiness(4, true)
+            .unwrap_err()
+            .to_string()
+            .contains("retired"));
         assert_eq!(
-            out.get("promotion_receipt_available")
-                .and_then(|value| value.as_bool()),
-            Some(true)
-        );
-        assert!(
-            out.get("policy_ready_recent")
-                .and_then(|value| value.as_u64())
-                .unwrap_or_default()
-                > 0
-                || out
-                    .get("task_emission_receipts_total")
-                    .and_then(|value| value.as_u64())
-                    .unwrap_or_default()
-                    > 0
+            fs::read(&store.policy_readiness_path).unwrap(),
+            policy_before
         );
         std::thread::sleep(Duration::from_millis(150));
         let plutus_status = tokio::runtime::Builder::new_current_thread()
@@ -3236,17 +3234,13 @@ mod tests {
                     .await
                     .expect("plutus status")
             });
-        assert!(
-            plutus_status["love_equation"]["relationships_total"]
-                .as_u64()
-                .unwrap_or_default()
-                >= 1
+        assert_eq!(
+            plutus_status["love_equation"]["relationships_total"],
+            before["love_equation"]["relationships_total"]
         );
-        assert!(
-            plutus_status["governance"]["records_total"]
-                .as_u64()
-                .unwrap_or_default()
-                >= 1
+        assert_eq!(
+            plutus_status["governance"]["records_total"],
+            before["governance"]["records_total"]
         );
         // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.

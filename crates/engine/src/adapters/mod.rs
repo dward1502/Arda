@@ -138,11 +138,32 @@ impl AdapterCancellation {
     }
 
     pub fn cancel(&self) {
-        let _ = self.sender.send(true);
+        self.sender.send_replace(true);
     }
 
     pub(crate) fn subscribe(&self) -> watch::Receiver<bool> {
         self.sender.subscribe()
+    }
+}
+
+#[cfg(test)]
+mod cancellation_tests {
+    use super::AdapterCancellation;
+
+    #[test]
+    fn cancellation_survives_absent_and_replaced_subscribers() {
+        let cancellation = AdapterCancellation::new();
+        cancellation.cancel();
+        assert!(*cancellation.subscribe().borrow());
+
+        let cancellation = AdapterCancellation::new();
+        let first = cancellation.subscribe();
+        drop(first);
+        cancellation.cancel();
+        let next = cancellation.subscribe();
+        assert!(*next.borrow());
+        drop(next);
+        assert!(*cancellation.subscribe().borrow());
     }
 }
 

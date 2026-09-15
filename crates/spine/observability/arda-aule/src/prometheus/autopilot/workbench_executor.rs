@@ -68,6 +68,7 @@ pub struct QueueExecutionReceipt {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ExplicitWorkbenchWorkItem {
     pub objective_id: String,
     pub leaf_id: String,
@@ -86,6 +87,9 @@ pub struct ExplicitWorkbenchWorkItem {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub context_assembly: Option<ContextAssembly>,
 }
+
+mod workspace_authority;
+pub use workspace_authority::ExplicitWorkspaceAuthorization;
 
 impl ExplicitWorkbenchWorkItem {
     /// Recompute a stage binding without recalling memory or granting authority.
@@ -151,12 +155,32 @@ impl WorkbenchExecutionAdapter {
         })
     }
 
+    /// Inspect existing evidence before a separately authorized, budgeted retry.
+    pub async fn reconcile_for_retry(
+        &self,
+        item: &ExplicitWorkbenchWorkItem,
+    ) -> Result<Option<ExplicitExecutionOutcome>> {
+        self.reconcile_internal(item, true).await
+    }
+
     /// Read an already completed run. No planning, approval, binding or provider POST.
     pub async fn reconcile(
         &self,
         item: &ExplicitWorkbenchWorkItem,
     ) -> Result<Option<ExplicitExecutionOutcome>> {
-        validate_explicit_work_item(&self.root, item)?;
+        self.reconcile_internal(item, false).await
+    }
+
+    async fn reconcile_internal(
+        &self,
+        item: &ExplicitWorkbenchWorkItem,
+        for_retry: bool,
+    ) -> Result<Option<ExplicitExecutionOutcome>> {
+        validate_explicit_work_item_mode(
+            &self.root,
+            item,
+            workspace_authority::Validation::Reconcile,
+        )?;
         let response = self
             .client
             .get(format!("{}/v1/runs/{}", self.harness_url, item.run_id))
@@ -167,6 +191,7 @@ impl WorkbenchExecutionAdapter {
             return Ok(None);
         }
         let run = response_error(response, "inspect completed explicit Workbench run").await?;
+        workspace_authority::run(item, &run)?;
         let nodes = run
             .pointer("/graph/nodes")
             .and_then(Value::as_array)
@@ -188,9 +213,10 @@ impl WorkbenchExecutionAdapter {
             serde_json::from_value::<arda_core::run_graph::NodeState>(state)
                 .with_context(|| format!("malformed canonical run state for {stage}"))?;
         }
-        if ["execute", "verify", "review", "close"]
-            .iter()
-            .any(|stage| node_state(&run, stage) == Some("running"))
+        if !for_retry
+            && ["execute", "verify", "review", "close"]
+                .iter()
+                .any(|stage| node_state(&run, stage) == Some("running"))
         {
             return Err(anyhow!(
                 "canonical run is still running; defer receipt reconciliation"
@@ -209,7 +235,35 @@ impl WorkbenchExecutionAdapter {
         &self,
         item: &ExplicitWorkbenchWorkItem,
     ) -> Result<ExplicitExecutionOutcome> {
-        validate_explicit_work_item(&self.root, item)?;
+        self.execute_internal(item, None).await
+    }
+
+    /// Process-local callers must revalidate retained authority for this exact item.
+    pub async fn execute_authorized(
+        &self,
+        item: &ExplicitWorkbenchWorkItem,
+        authority: &dyn ExplicitWorkspaceAuthorization,
+    ) -> Result<ExplicitExecutionOutcome> {
+        self.execute_internal(item, Some(authority)).await
+    }
+
+    async fn execute_internal(
+        &self,
+        item: &ExplicitWorkbenchWorkItem,
+        authorization: Option<&dyn ExplicitWorkspaceAuthorization>,
+    ) -> Result<ExplicitExecutionOutcome> {
+        validate_explicit_work_item_mode(
+            &self.root,
+            item,
+            if authorization.is_some() {
+                workspace_authority::Validation::Retained
+            } else {
+                workspace_authority::Validation::Fresh
+            },
+        )?;
+        if let Some(authority) = authorization {
+            authority.authorize(item)?;
+        }
         let response = self
             .client
             .get(format!("{}/v1/runs/{}", self.harness_url, item.run_id))
@@ -220,6 +274,7 @@ impl WorkbenchExecutionAdapter {
             .as_str()
             .ok_or_else(|| anyhow!("explicit Workbench approval id missing"))?;
         let mut run = if response.status() == reqwest::StatusCode::NOT_FOUND {
+            workspace_authority::reauthorize(authorization, item)?;
             let graph = run_graph_with_objective_plan_receipt(
                 &item.run_id,
                 &item.leaf_id,
@@ -244,8 +299,9 @@ impl WorkbenchExecutionAdapter {
         } else {
             response_error(response, "inspect explicit Workbench run").await?
         };
-
+        workspace_authority::run(item, &run)?;
         if node_state(&run, "approval") != Some("succeeded") {
+            workspace_authority::reauthorize(authorization, item)?;
             let response = self
                 .client
                 .post(format!(
@@ -260,6 +316,7 @@ impl WorkbenchExecutionAdapter {
                 .await
                 .context("approve explicit Workbench run")?;
             run = response_error(response, "approve explicit Workbench run").await?;
+            workspace_authority::run(item, &run)?;
         }
 
         for (stage, prompt) in [
@@ -269,18 +326,24 @@ impl WorkbenchExecutionAdapter {
             if node_state(&run, stage) == Some("succeeded") {
                 continue;
             }
+            workspace_authority::reauthorize(authorization, item)?;
             let context = bind_explicit_stage_context(&self.root, item, &run, stage)?;
+            let provider_body = workspace_authority::provider_body(
+                authorization,
+                item,
+                json!({
+                    "objective": prompt,
+                    "envelope": explicit_stage_envelope(item, stage)?,
+                    "context_assembly": context,
+                }),
+            )?;
             let response = self
                 .client
                 .post(format!(
                     "{}/v1/runs/{}/nodes/{stage}/execute-provider",
                     self.harness_url, item.run_id
                 ))
-                .json(&json!({
-                    "objective": prompt,
-                    "envelope": explicit_stage_envelope(item, stage)?,
-                    "context_assembly": context,
-                }))
+                .json(&provider_body)
                 .send()
                 .await
                 .with_context(|| format!("execute explicit Workbench {stage} stage"))?;
@@ -288,6 +351,7 @@ impl WorkbenchExecutionAdapter {
                 require_scheduler_admission_conflict(response, stage).await?;
                 run = wait_for_explicit_stage(&self.client, &self.harness_url, &item.run_id, stage)
                     .await?;
+                workspace_authority::run(item, &run)?;
                 continue;
             }
             let value = response_error(
@@ -296,25 +360,33 @@ impl WorkbenchExecutionAdapter {
             )
             .await?;
             if value["receipt"]["status"] != "succeeded" {
+                workspace_authority::run(item, &value["run"])?;
                 return explicit_failed_outcome(&self.root, item, &run, &value);
             }
             run = value["run"].clone();
+            workspace_authority::run(item, &run)?;
         }
 
         if node_state(&run, "review") != Some("succeeded") {
+            workspace_authority::reauthorize(authorization, item)?;
             let review_prompt = review_prompt_with_dependency_receipts(&self.root, item)?;
             let context = bind_explicit_stage_context(&self.root, item, &run, "review")?;
+            let provider_body = workspace_authority::provider_body(
+                authorization,
+                item,
+                json!({
+                    "objective": review_prompt,
+                    "envelope": explicit_stage_envelope(item, "review")?,
+                    "context_assembly": context,
+                }),
+            )?;
             let response = self
                 .client
                 .post(format!(
                     "{}/v1/runs/{}/nodes/review/execute-provider",
                     self.harness_url, item.run_id
                 ))
-                .json(&json!({
-                    "objective": review_prompt,
-                    "envelope": explicit_stage_envelope(item, "review")?,
-                    "context_assembly": context,
-                }))
+                .json(&provider_body)
                 .send()
                 .await
                 .context("execute explicit Workbench review stage")?;
@@ -331,13 +403,16 @@ impl WorkbenchExecutionAdapter {
                 let value =
                     response_error(response, "execute explicit Workbench review stage").await?;
                 if value["receipt"]["status"] != "succeeded" {
+                    workspace_authority::run(item, &value["run"])?;
                     return explicit_failed_outcome(&self.root, item, &run, &value);
                 }
                 run = value["run"].clone();
             }
         }
 
+        workspace_authority::run(item, &run)?;
         if node_state(&run, "close") != Some("succeeded") {
+            workspace_authority::reauthorize(authorization, item)?;
             let parent = node_output_digest(&run, "review")
                 .ok_or_else(|| anyhow!("explicit Workbench close omitted review receipt"))?;
             let close_receipt = canonical_explicit_close_receipt(item, parent)?;
@@ -345,6 +420,7 @@ impl WorkbenchExecutionAdapter {
             // terminal. A crash may leave an unreferenced file, but cannot
             // leave a succeeded run whose canonical close receipt is absent.
             persist_explicit_close_receipt(&self.root, item, &close_receipt)?;
+            workspace_authority::reauthorize(authorization, item)?;
             let response = self
                 .client
                 .post(format!(
@@ -359,6 +435,7 @@ impl WorkbenchExecutionAdapter {
                 .await
                 .context("complete explicit Workbench close stage")?;
             run = response_error(response, "complete explicit Workbench close stage").await?;
+            workspace_authority::run(item, &run)?;
             if node_output_digest(&run, "close") != Some(close_receipt.receipt_digest.as_str()) {
                 return Err(anyhow!(
                     "explicit Workbench close node did not retain its canonical receipt digest"
@@ -633,6 +710,17 @@ fn explicit_failed_outcome(
 }
 
 fn validate_explicit_work_item(root: &Path, item: &ExplicitWorkbenchWorkItem) -> Result<()> {
+    validate_explicit_work_item_mode(root, item, workspace_authority::Validation::Fresh)
+}
+
+fn validate_explicit_work_item_mode(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+    mode: workspace_authority::Validation,
+) -> Result<()> {
+    if !workspace_authority::safe_run_id(&item.run_id) {
+        bail!("unsafe explicit run id");
+    }
     for (name, value) in [
         ("objective_id", item.objective_id.as_str()),
         ("leaf_id", item.leaf_id.as_str()),
@@ -696,14 +784,7 @@ fn validate_explicit_work_item(root: &Path, item: &ExplicitWorkbenchWorkItem) ->
             "explicit work item approval does not authorize only resident Arda state"
         ));
     }
-    let canonical_root = root.canonicalize().context("canonicalize Arda root")?;
-    let workspace_root = item
-        .workspace_root
-        .canonicalize()
-        .context("canonicalize explicit work-item workspace")?;
-    if !workspace_root.starts_with(&canonical_root) {
-        return Err(anyhow!("explicit work-item workspace escapes Arda root"));
-    }
+    workspace_authority::workspace(root, &item.workspace_root, mode)?;
     Ok(())
 }
 
@@ -903,6 +984,7 @@ impl WorkbenchQueueExecutor {
     }
 
     fn prepare_execution_round(&self) -> Result<()> {
+        refuse_retired_continuation_writer()?;
         // Serialize only canonical reconciliation and claim selection. The
         // target locks then preserve project/worktree exclusion for dispatch.
         let executor_coordinator_lock = acquire_executor_lock(&self.root)?;
@@ -914,6 +996,7 @@ impl WorkbenchQueueExecutor {
     }
 
     async fn execute_prepared_once(&self) -> Result<QueueExecutionReceipt> {
+        refuse_retired_continuation_writer()?;
         let executor_coordinator_lock = acquire_executor_lock(&self.root)?;
         let queue = ActiveQueueExecutor::new(&self.root);
         let Some((claim, target_locks)) =
@@ -1103,6 +1186,7 @@ impl WorkbenchQueueExecutor {
     }
 
     pub async fn cancel_task(&self, task_id: &str, reason: &str) -> Result<Value> {
+        refuse_retired_continuation_writer()?;
         let _executor_lock = acquire_executor_lock(&self.root)?;
         let task = self
             .effective_task(task_id)?
@@ -2535,7 +2619,40 @@ fn objective_leaf_id(objective_id: &str, leaf_key: &str) -> String {
     format!("{prefix}--{}", &digest[..16])
 }
 
+fn refuse_retired_continuation_writer() -> Result<()> {
+    Err(anyhow!(
+        "legacy JSONL continuations are retired; use resident objective authority"
+    ))
+}
+
+#[test]
+fn retired_continuation_writers_preserve_history_and_missing_roots() {
+    let root = tempfile::tempdir().unwrap();
+    let missing = root.path().join("missing");
+    let value = serde_json::json!({"id": "historical-objective"});
+    for path in [&missing, root.path()] {
+        let history = path.join("core/projects/tasks/queue.jsonl");
+        if path == root.path() {
+            std::fs::create_dir_all(history.parent().unwrap()).unwrap();
+            std::fs::write(&history, b"historical bytes\n").unwrap();
+        }
+        for result in [
+            append_queue_value(path, value.clone()),
+            append_queue_values(path, &[value.clone(), value.clone()]),
+            append_objective_terminal_once(path, "historical-objective", value.clone()),
+        ] {
+            assert!(result.unwrap_err().to_string().contains("retired"));
+        }
+        if path == root.path() {
+            assert_eq!(std::fs::read(history).unwrap(), b"historical bytes\n");
+        } else {
+            assert!(!missing.exists());
+        }
+    }
+}
+
 fn append_queue_values(root: &Path, values: &[Value]) -> Result<()> {
+    refuse_retired_continuation_writer()?;
     let path = root.join("core/projects/tasks/queue.jsonl");
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -2573,6 +2690,7 @@ fn is_canonical_workbench_run_id(value: &str) -> bool {
 }
 
 fn append_objective_terminal_once(root: &Path, objective_id: &str, value: Value) -> Result<()> {
+    refuse_retired_continuation_writer()?;
     use std::io::{BufRead, BufReader, Write};
 
     let path = root.join("core/projects/tasks/queue.jsonl");
@@ -3707,11 +3825,70 @@ fn workbench_run_id(task_id: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    // Compare both historical ledger layouts; never seed via a retired writer.
+    fn legacy_authority_history(root: &std::path::Path) -> Vec<Option<Vec<u8>>> {
+        [
+            "queue.jsonl",
+            "schedules.jsonl",
+            "core/projects/tasks/queue.jsonl",
+            "core/projects/tasks/schedules.jsonl",
+        ]
+        .iter()
+        .map(|name| match std::fs::read(root.join(name)) {
+            Ok(bytes) => Some(bytes),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+            Err(error) => panic!("read historical fixture {name}: {error}"),
+        })
+        .collect()
+    }
+
     use super::*;
     use crate::prometheus::autopilot::TaskQueueAnalyzer;
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    pub(super) fn bind_test_run(item: &ExplicitWorkbenchWorkItem, mut value: Value) -> Value {
+        if value.get("run").is_some() {
+            let nested = value["run"].take();
+            value["run"] = bind_test_run(item, nested);
+        }
+        if value.get("graph").is_some() {
+            value["graph"]["run_id"] = json!(item.run_id);
+            value["graph"]["objective_id"] = json!(item.leaf_id);
+            value["graph"]["provenance"] = json!({"project_contract_digest": item.project_contract_digest, "parent_receipts": [item.approval_envelope["approval"]["approval_id"], item.objective_plan_receipt]});
+            if let Some(nodes) = value["graph"]["nodes"].as_array_mut() {
+                for node in nodes {
+                    if node.get("kind").is_none() {
+                        node["kind"] = node["id"].clone();
+                    }
+                }
+            }
+        }
+        value
+    }
+
+    async fn scripted_explicit_harness(
+        item: &ExplicitWorkbenchWorkItem,
+        responses: Vec<Option<(u16, String)>>,
+    ) -> (String, tokio::task::JoinHandle<Vec<String>>) {
+        scripted_harness(
+            responses
+                .into_iter()
+                .map(|entry| {
+                    entry.map(|(status, body)| {
+                        let body = if status == 200 {
+                            bind_test_run(item, serde_json::from_str(&body).unwrap()).to_string()
+                        } else {
+                            body
+                        };
+                        (status, body)
+                    })
+                })
+                .collect(),
+        )
+        .await
+    }
 
     #[tokio::test]
     async fn execution_round_polls_independent_claims_concurrently() {
@@ -3849,7 +4026,7 @@ mod tests {
             );
             assert_eq!(server.await.unwrap().len(), 1);
         }
-        let (harness_url, server) = scripted_harness(vec![Some((
+        let (harness_url, server) = scripted_explicit_harness(&item, vec![Some((
             200,
             json!({
                 "graph": {"nodes": [
@@ -3933,7 +4110,7 @@ mod tests {
                 {"id": "close", "state": "succeeded", "output_digest": close_receipt.receipt_digest}
             ]}
         });
-        let (harness_url, server) = scripted_harness(vec![
+        let (harness_url, server) = scripted_explicit_harness(&item, vec![
             Some((200, initial.to_string())),
             Some((
                 409,
@@ -3990,12 +4167,12 @@ mod tests {
         let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
         let run = |close_state: &str, close_digest: Option<String>| {
             json!({
-                "graph": {"nodes": [
-                    {"id": "approval", "state": "succeeded", "output_digest": digest('a')},
-                    {"id": "execute", "state": "succeeded", "output_digest": digest('b')},
-                    {"id": "verify", "state": "succeeded", "output_digest": digest('c')},
-                    {"id": "review", "state": "succeeded", "output_digest": digest('d')},
-                    {"id": "close", "state": close_state, "output_digest": close_digest}
+                "graph": {"run_id": "objective-close-conflict-leaf-close-conflict-attempt-1", "objective_id": "leaf-close-conflict", "provenance": {"project_contract_digest": digest('f'), "parent_receipts": ["operator-approval-close-conflict", digest('1')]}, "nodes": [
+                    {"id": "approval", "kind": "approval", "state": "succeeded", "output_digest": digest('a')},
+                    {"id": "execute", "kind": "execute", "state": "succeeded", "output_digest": digest('b')},
+                    {"id": "verify", "kind": "verify", "state": "succeeded", "output_digest": digest('c')},
+                    {"id": "review", "kind": "review", "state": "succeeded", "output_digest": digest('d')},
+                    {"id": "close", "kind": "close", "state": close_state, "output_digest": close_digest}
                 ]}
             })
         };
@@ -4112,12 +4289,13 @@ mod tests {
                     let state = if completed.contains(&stage) { "succeeded" } else { "pending" };
                     json!({
                         "id": stage,
+                        "kind": stage,
                         "state": state,
                         "output_digest": if state == "succeeded" { Some(digest(stage.chars().next().unwrap())) } else { None }
                     })
                 })
                 .collect::<Vec<_>>();
-            json!({"graph": {"nodes": nodes}})
+            json!({"graph": {"run_id": "objective-2-leaf-2-attempt-1", "objective_id": "leaf-2", "provenance": {"project_contract_digest": digest('f'), "parent_receipts": ["operator-approval-2", digest('1')]}, "nodes": nodes}})
         };
         let provider = |completed: &[&str], stage: &str| {
             json!({
@@ -4577,7 +4755,7 @@ mod tests {
         crate::prometheus::autopilot::schedule::ScheduleLedger::new(
             dir.path().join("core/projects/tasks/schedules.jsonl"),
         )
-        .append(&crate::prometheus::autopilot::schedule::ScheduleRecord {
+        .seed_historical(&crate::prometheus::autopilot::schedule::ScheduleRecord {
             contract: crate::prometheus::autopilot::schedule::SCHEDULE_RECORD_CONTRACT.into(),
             task_id: orphan_predecessor.id.clone(),
             objective_id: "objective-orphan".into(),
@@ -4958,7 +5136,7 @@ mod tests {
             super::super::schedule::ScheduleLedger::new(
                 dir.path().join("core/projects/tasks/schedules.jsonl"),
             )
-            .append(&super::super::schedule::ScheduleRecord {
+            .seed_historical(&super::super::schedule::ScheduleRecord {
                 contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: format!("objective-{}", task.id),
@@ -5036,7 +5214,7 @@ mod tests {
             super::super::schedule::ScheduleLedger::new(
                 dir.path().join("core/projects/tasks/schedules.jsonl"),
             )
-            .append(&super::super::schedule::ScheduleRecord {
+            .seed_historical(&super::super::schedule::ScheduleRecord {
                 contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: format!("objective-{}", task.id),
@@ -5098,10 +5276,7 @@ mod tests {
             format!("{{\"active\":[{{\"id\":\"{task_id}\"}}]}}\n"),
         )
         .unwrap();
-        super::super::schedule::ScheduleLedger::new(
-            root.join("core/projects/tasks/schedules.jsonl"),
-        )
-        .append(&super::super::schedule::ScheduleRecord {
+        let historical_schedule = super::super::schedule::ScheduleRecord {
             contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
             task_id: task_id.into(),
             objective_id: "objective-reconciliation".into(),
@@ -5111,7 +5286,11 @@ mod tests {
             interval_seconds: None,
             recorded_at_utc: Utc::now(),
             reason: Some("approved queue test fixture".into()),
-        })
+        };
+        std::fs::write(
+            root.join("core/projects/tasks/schedules.jsonl"),
+            format!("{}\n", serde_json::to_string(&historical_schedule).unwrap()),
+        )
         .unwrap();
         write_execution_project_registry(root, &[(DEFAULT_PROJECT_ID, ".")]);
         for relative_path in [
@@ -5140,7 +5319,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn timer_execution_materializes_governed_objective_before_provider_dispatch() {
+    async fn retired_writer_refuses_timer_execution_materializes_governed_objective_before_provider_dispatch(
+    ) {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "timer-objective");
         let mut root: Value = serde_json::from_str(
@@ -5157,67 +5337,21 @@ mod tests {
         root["meta"]["project_id"] = Value::String(DEFAULT_PROJECT_ID.into());
         std::fs::write(&queue_path, format!("{root}\n")).unwrap();
 
-        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), "http://127.0.0.1:9".into())
             .execute_once()
             .await
-            .unwrap();
-
-        assert_eq!(receipt.status, "waiting");
-        assert_eq!(receipt.result, "objective_decomposed");
-        assert_eq!(
-            receipt.continuation_decision.as_deref(),
-            Some("continue_next_task")
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-                .load()
-                .unwrap(),
-        );
-        assert_eq!(
-            effective
-                .iter()
-                .filter(|record| record.extra["meta"]["objective_leaf"] == true)
-                .count(),
-            5
-        );
-        let schedules = super::super::schedule::ScheduleLedger::new(
-            dir.path().join("core/projects/tasks/schedules.jsonl"),
-        )
-        .effective()
-        .expect("replay materialized leaf schedules");
-        let leaves = effective
-            .iter()
-            .filter(|record| record.extra["meta"]["objective_leaf"] == true)
-            .collect::<Vec<_>>();
-        assert_eq!(schedules.len(), leaves.len() + 1);
-        for leaf in leaves {
-            let schedule = schedules
-                .get(&leaf.id)
-                .expect("objective leaf schedule authority");
-            assert_eq!(
-                schedule.mode,
-                super::super::schedule::ScheduleMode::Immediate
-            );
-            assert_eq!(
-                schedule.state,
-                super::super::schedule::ScheduleState::Scheduled
-            );
-            assert_eq!(
-                Some(schedule.objective_id.as_str()),
-                super::super::task_queue::queue_objective_id(leaf)
-            );
-        }
-        assert_eq!(
-            effective
-                .iter()
-                .find(|record| record.id == "timer-objective")
-                .and_then(|record| record.status.as_deref()),
-            Some("waiting")
-        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[tokio::test]
-    async fn timer_execution_decomposes_multi_project_objective_without_artifact_markers() {
+    async fn retired_writer_refuses_timer_execution_decomposes_multi_project_objective_without_artifact_markers(
+    ) {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "multi-project-objective");
         let project_one = "550e8400-e29b-41d4-a716-446655440001";
@@ -5238,81 +5372,21 @@ mod tests {
         std::fs::write(&queue_path, format!("{root}\n")).unwrap();
         write_execution_project_registry(dir.path(), &[(project_one, "."), (project_two, ".")]);
 
-        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), "http://127.0.0.1:9".into())
             .execute_once()
             .await
-            .expect("multi-project objective must decompose before provider dispatch");
-
-        assert_eq!(receipt.status, "waiting");
-        assert_eq!(receipt.result, "objective_decomposed");
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-                .load()
-                .unwrap(),
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        let leaves = effective
-            .iter()
-            .filter(|record| record.extra["meta"]["objective_leaf"] == true)
-            .collect::<Vec<_>>();
-        assert_eq!(leaves.len(), 6);
-        assert_eq!(
-            leaves
-                .iter()
-                .filter(|leaf| leaf.id.contains("__inspect-authorities-project-"))
-                .filter_map(|leaf| leaf.extra["meta"]["project_id"].as_str())
-                .filter(|project_id| matches!(*project_id, value if value == project_one || value == project_two))
-                .count(),
-            2
-        );
-        assert_eq!(
-            leaves
-                .iter()
-                .filter(|leaf| !leaf.id.contains("__inspect-authorities-project-"))
-                .filter(|leaf| leaf.extra["meta"]["project_id"] == DEFAULT_PROJECT_ID)
-                .count(),
-            4
-        );
-        assert!(leaves
-            .iter()
-            .filter(|record| record.id.contains("__inspect-authorities-project-"))
-            .all(|record| record.extra["meta"]["verification_checks"]
-                .as_array()
-                .is_some_and(|checks| {
-                    checks
-                        .iter()
-                        .any(|check| check.as_str() == Some("git status --short --branch"))
-                        && checks
-                            .iter()
-                            .all(|check| check.as_str() != Some("cargo test -p arda-core"))
-                })));
-        let outcome = leaves
-            .iter()
-            .find(|record| record.id.contains("__produce-outcome--"))
-            .expect("outcome leaf");
-        assert_eq!(outcome.extra["meta"]["authority_class"], "read_only");
-        let recover = leaves
-            .iter()
-            .find(|record| record.id.contains("__recover-context--"))
-            .unwrap();
-        let plan: ObjectivePlan =
-            serde_json::from_value(recover.extra["meta"]["objective_plan"].clone()).unwrap();
-        let prompt = objective_execution_prompt(&plan, "reviewed objective", recover);
-        assert!(prompt.contains("evidence-backed context summary"));
-        assert!(!prompt.contains("prioritized repair backlog"));
-
-        let inspection_leaf = leaves
-            .iter()
-            .find(|record| record.id.contains("inspect-authorities-project-1"))
-            .unwrap();
-        let inspection_prompt =
-            objective_execution_prompt(&plan, "reviewed objective", inspection_leaf);
-        assert!(inspection_prompt.contains("Inspect only the bound project"));
-        assert!(!inspection_prompt.contains("Context sources:\n"));
-        assert!(!inspection_prompt.contains("data/workbench/projects.json=sha256:"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[tokio::test]
-    async fn joined_objective_uses_acceptance_leaf_receipt_without_synthetic_marker() {
+    async fn retired_writer_refuses_joined_objective_uses_acceptance_leaf_receipt_without_synthetic_marker(
+    ) {
         assert!(is_canonical_workbench_run_id("queue-objective-run-1"));
         assert!(!is_canonical_workbench_run_id("../escape"));
         assert!(!is_canonical_workbench_run_id("/absolute"));
@@ -5332,192 +5406,20 @@ mod tests {
         root["meta"]["project_id"] = Value::String(project_one.into());
         std::fs::write(&queue_path, format!("{root}\n")).unwrap();
         write_execution_project_registry(dir.path(), &[(project_one, "."), (project_two, ".")]);
-        test_executor(dir.path(), "http://127.0.0.1:9".into())
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), "http://127.0.0.1:9".into())
             .execute_once()
             .await
-            .expect("objective decomposition");
-        let leaves = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(&queue_path)
-                .load()
-                .unwrap(),
-        )
-        .into_iter()
-        .filter(|record| record.extra["meta"]["objective_leaf"] == true)
-        .collect::<Vec<_>>();
-        let mut acceptance_provider_digest = String::new();
-        let mut acceptance_authority_binding = String::new();
-        for (index, leaf) in leaves.iter().enumerate() {
-            let run_id = format!("joined-leaf-{index}");
-            let task_digest = format!("sha256:{:064x}", index + 101);
-            let receipt_path = dir
-                .path()
-                .join("data/runs")
-                .join(&run_id)
-                .join("execution-receipts/review.json");
-            std::fs::create_dir_all(receipt_path.parent().unwrap()).unwrap();
-            let mut receipt: CanonicalHermesExecutionReceipt = serde_json::from_value(json!({
-                "schema_version": "arda.execution-receipt.v3",
-                "run_id": run_id,
-                "node_id": "review",
-                "idempotency_key": format!("review-{index}"),
-                "status": "succeeded",
-                "receipt_digest": "",
-                "authority_binding_digest": task_digest,
-                "summary": "approved",
-                "tool_evidence": [],
-                "test_evidence": [],
-                "artifacts": [],
-                "usage": {
-                    "provider": null,
-                    "model": null,
-                    "api_calls": 0,
-                    "input_tokens": 0,
-                    "output_tokens": 0,
-                    "total_tokens": 0,
-                    "estimated_cost_usd": 0.0,
-                    "cost_measurement": "unknown",
-                    "completed": true,
-                    "failed": false
-                },
-                "adapter": "hermes",
-                "adapter_version": "test",
-                "project_contract_digest": format!("sha256:{:064x}", 777),
-                "parent_receipts": [],
-                "recorded_at_unix_ms": 1
-            }))
-            .unwrap();
-            receipt.receipt_digest = receipt.computed_digest().unwrap();
-            let provider_digest = receipt.receipt_digest.clone();
-            if leaf.id.contains("__verify-acceptance--") {
-                acceptance_provider_digest = provider_digest.clone();
-                acceptance_authority_binding = task_digest.clone();
-            }
-            std::fs::write(&receipt_path, serde_json::to_vec_pretty(&receipt).unwrap()).unwrap();
-            std::fs::write(
-                dir.path()
-                    .join("data/runs")
-                    .join(&run_id)
-                    .join("result.json"),
-                serde_json::to_vec_pretty(&json!({
-                    "provider_receipt": {
-                        "receipt_digest": provider_digest,
-                        "authority_binding_digest": task_digest
-                    }
-                }))
-                .unwrap(),
-            )
-            .unwrap();
-            std::fs::write(
-                dir.path()
-                    .join("data/runs")
-                    .join(&run_id)
-                    .join("checkpoint.json"),
-                serde_json::to_vec_pretty(&json!({
-                    "run_id": run_id,
-                    "objective_id": leaf.id
-                }))
-                .unwrap(),
-            )
-            .unwrap();
-            let mut value = serde_json::to_value(leaf).unwrap();
-            value["status"] = Value::String("completed".into());
-            value["result"] = Value::String("completed".into());
-            value["workbench_run_id"] = Value::String(run_id);
-            value["execution_receipt_digest"] = Value::String(format!(
-                "sha256:{:x}",
-                Sha256::digest(std::fs::read(&receipt_path).unwrap())
-            ));
-            append_queue_value(dir.path(), value).unwrap();
-        }
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(&queue_path)
-                .load()
-                .unwrap(),
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        let completed = effective
-            .iter()
-            .find(|record| record.id.contains("__verify-acceptance--"))
-            .unwrap();
-
-        let acceptance_result = dir.path().join("data/runs/joined-leaf-5/result.json");
-        std::fs::write(
-            &acceptance_result,
-            serde_json::to_vec_pretty(&json!({
-                "provider_receipt": {
-                    "receipt_digest": format!("sha256:{:064x}", 999),
-                    "authority_binding_digest": format!("sha256:{:064x}", 106)
-                }
-            }))
-            .unwrap(),
-        )
-        .unwrap();
-        let error = advance_objective_after_leaf(dir.path(), completed).unwrap_err();
-        assert!(error.to_string().contains("receipt digest mismatch"));
-        std::fs::write(
-            &acceptance_result,
-            serde_json::to_vec_pretty(&json!({
-                "provider_receipt": {
-                    "receipt_digest": acceptance_provider_digest,
-                    "authority_binding_digest": acceptance_authority_binding
-                }
-            }))
-            .unwrap(),
-        )
-        .unwrap();
-
-        let barrier = std::sync::Arc::new(std::sync::Barrier::new(8));
-        let root_path = dir.path().to_path_buf();
-        std::thread::scope(|scope| {
-            let mut handles = Vec::new();
-            for _ in 0..8 {
-                let barrier = barrier.clone();
-                let root_path = &root_path;
-                handles.push(scope.spawn(move || {
-                    barrier.wait();
-                    advance_objective_after_leaf(root_path, completed)
-                }));
-            }
-            for handle in handles {
-                handle.join().unwrap().expect("receipt-backed join");
-            }
-        });
-
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-                .load()
-                .unwrap(),
-        );
-        let root = effective
-            .iter()
-            .find(|record| record.id == "receipt-backed-join")
-            .unwrap();
-        assert_eq!(root.status.as_deref(), Some("completed"));
-        assert_eq!(
-            root.extra["acceptance_artifact"],
-            "data/runs/joined-leaf-5/execution-receipts/review.json"
-        );
-        for leaf in &leaves {
-            advance_objective_after_leaf(dir.path(), leaf).unwrap();
-        }
-        let terminal_roots = super::super::task_queue::TaskQueueAnalyzer::new(
-            dir.path().join("core/projects/tasks/queue.jsonl"),
-        )
-        .load()
-        .unwrap()
-        .into_iter()
-        .filter(|record| {
-            record.id == "receipt-backed-join"
-                && record
-                    .extra
-                    .get("contract")
-                    .is_some_and(|contract| contract == "arda.workbench.objective_terminal.v1")
-        })
-        .count();
-        assert_eq!(terminal_roots, 1);
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[tokio::test]
-    async fn timer_tick_reconciles_due_recurring_objective_before_claim() {
+    async fn retired_writer_refuses_timer_tick_reconciles_due_recurring_objective_before_claim() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "recurring-objective");
         let now = Utc::now();
@@ -5540,7 +5442,7 @@ mod tests {
         super::super::schedule::ScheduleLedger::new(
             dir.path().join("core/projects/tasks/schedules.jsonl"),
         )
-        .append(&super::super::schedule::ScheduleRecord {
+        .seed_historical(&super::super::schedule::ScheduleRecord {
             contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
             task_id: "recurring-objective".into(),
             objective_id: "objective-reconciliation".into(),
@@ -5553,16 +5455,19 @@ mod tests {
         })
         .unwrap();
 
-        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), "http://127.0.0.1:9".into())
             .execute_once()
             .await
-            .unwrap();
-
-        assert_eq!(receipt.status, "waiting");
-        assert_eq!(receipt.result, "objective_decomposed");
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
+        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
-    async fn scripted_harness(
+    pub(super) async fn scripted_harness(
         responses: Vec<Option<(u16, String)>>,
     ) -> (String, tokio::task::JoinHandle<Vec<String>>) {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -5634,7 +5539,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transient_harness_outage_during_restart_preserves_claim() {
+    async fn retired_writer_refuses_transient_harness_outage_during_restart_preserves_claim() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "outage-task");
         ActiveQueueExecutor::new(dir.path())
@@ -5651,7 +5556,7 @@ mod tests {
             .await
             .unwrap_err();
 
-        assert!(format!("{error:#}").contains("inspect existing Workbench run"));
+        assert!(format!("{error:#}").contains("retired"));
         assert_eq!(std::fs::read(&queue_path).unwrap(), before);
         let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
             super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
@@ -5662,7 +5567,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn lost_execute_response_preserves_claim_for_run_inspection() {
+    async fn retired_writer_refuses_lost_execute_response_preserves_claim_for_run_inspection() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "lost-response-task");
         let (harness_url, server) = scripted_harness(vec![
@@ -5673,29 +5578,22 @@ mod tests {
         ])
         .await;
 
+        let history = legacy_authority_history(dir.path());
         let error = test_executor(dir.path(), harness_url)
             .execute_once()
             .await
             .unwrap_err();
-        let requests = server.await.unwrap();
-
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
         assert!(
-            format!("{error:#}").contains("dispatch approved Workbench execute provider"),
-            "unexpected error: {error:#}"
+            server.await.unwrap().is_empty(),
+            "retired executor contacted the harness"
         );
-        assert_eq!(requests.len(), 4);
-        assert!(requests[3]
-            .starts_with("POST /v1/runs/queue-lost-response-task/nodes/execute/execute-provider "));
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-                .load()
-                .unwrap(),
-        );
-        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+        assert!(queue_path.exists());
     }
 
     #[tokio::test]
-    async fn existing_deterministic_run_still_running_remains_recoverable() {
+    async fn retired_writer_refuses_existing_deterministic_run_still_running_remains_recoverable() {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "running-task");
         let (harness_url, server) = scripted_harness(vec![Some((
@@ -5708,20 +5606,18 @@ mod tests {
         ))])
         .await;
 
-        let receipt = test_executor(dir.path(), harness_url)
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), harness_url)
             .execute_once()
             .await
-            .unwrap();
-        server.await.unwrap();
-
-        assert_eq!(receipt.status, "in_progress");
-        assert_eq!(receipt.result, "existing_run_active");
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-                .load()
-                .unwrap(),
+            .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
+        assert!(
+            server.await.unwrap().is_empty(),
+            "retired executor contacted the harness"
         );
-        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+        assert!(queue_path.exists());
     }
 
     #[tokio::test]
@@ -5769,10 +5665,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn execute_once_materializes_future_wait_until_after_terminal_failure() {
+    async fn retired_writer_refuses_execute_once_materializes_future_wait_until_after_terminal_failure(
+    ) {
         let dir = tempfile::tempdir().unwrap();
         let queue_path = approved_queue_fixture(dir.path(), "waiting-objective");
-        let due = Utc::now() + chrono::Duration::minutes(30);
         let mut objective: Value = serde_json::from_str(
             std::fs::read_to_string(&queue_path)
                 .unwrap()
@@ -5786,86 +5682,23 @@ mod tests {
         objective["meta"]["acceptance_markers"] = json!(["waiting evidence"]);
         objective["meta"]["project_id"] = Value::String(DEFAULT_PROJECT_ID.into());
         std::fs::write(&queue_path, format!("{objective}\n")).unwrap();
-        let decomposition = test_executor(dir.path(), "http://127.0.0.1:9".into())
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), "http://127.0.0.1:9".into())
             .execute_once()
             .await
-            .unwrap();
-        assert_eq!(decomposition.result, "objective_decomposed");
-        let mut waiting_leaf = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(&queue_path)
-                .load()
-                .unwrap(),
-        )
-        .into_iter()
-        .find(|record| record.extra["meta"]["objective_leaf"] == true)
-        .expect("durable objective leaf");
-        waiting_leaf.extra["meta"]["wait_until_utc"] = Value::String(due.to_rfc3339());
-        waiting_leaf.extra["meta"]["budget"] = json!({"max_attempts": 2});
-        let waiting_leaf_id = waiting_leaf.id.clone();
-        let mut queue_file = std::fs::OpenOptions::new()
-            .append(true)
-            .open(&queue_path)
-            .unwrap();
-        serde_json::to_writer(&mut queue_file, &waiting_leaf).unwrap();
-        std::io::Write::write_all(&mut queue_file, b"\n").unwrap();
-        queue_file.sync_data().unwrap();
-        let (harness_url, server) = scripted_harness(vec![Some((
-            200,
-            json!({
-                "graph": {"nodes": [
-                    {"id": "execute", "state": "failed"},
-                    {"id": "verify", "state": "blocked"},
-                    {"id": "review", "state": "blocked"},
-                    {"id": "close", "state": "failed", "output_digest": "sha256:failed"}
-                ]},
-                "review": {"provider_receipt": null}
-            })
-            .to_string(),
-        ))])
-        .await;
-
-        let receipt = test_executor(dir.path(), harness_url)
-            .execute_once()
-            .await
-            .unwrap();
-        server.await.unwrap();
-
-        assert_eq!(
-            receipt.continuation_decision.as_deref(),
-            Some("wait_until"),
-            "unexpected executor receipt: {receipt:?}"
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        assert_eq!(receipt.task_id.as_deref(), Some(waiting_leaf_id.as_str()));
-        let schedule = super::super::schedule::ScheduleLedger::new(
-            dir.path().join("core/projects/tasks/schedules.jsonl"),
-        )
-        .effective()
-        .unwrap()
-        .remove(&waiting_leaf_id)
-        .expect("deferred schedule authority");
-        assert_eq!(
-            schedule.mode,
-            super::super::schedule::ScheduleMode::Deferred
-        );
-        assert_eq!(schedule.not_before_utc, Some(due));
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-                .load()
-                .unwrap(),
-        );
-        assert_eq!(
-            effective
-                .iter()
-                .find(|record| record.id == waiting_leaf_id)
-                .and_then(|record| record.status.as_deref()),
-            Some("queued")
-        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[tokio::test]
-    async fn restart_after_execute_resumes_verify_review_close_and_persists_decision() {
+    async fn retired_writer_refuses_restart_after_execute_resumes_verify_review_close_and_persists_decision(
+    ) {
         let dir = tempfile::tempdir().unwrap();
-        let queue_path = approved_queue_fixture(dir.path(), "restart-completion-task");
+        approved_queue_fixture(dir.path(), "restart-completion-task");
         let receipt_root = dir
             .path()
             .join("data/runs/queue-restart-completion-task/execution-receipts");
@@ -5930,7 +5763,7 @@ mod tests {
         }
         let execute_digest = receipt_digests["execute"].clone();
         let verify_digest = receipt_digests["verify"].clone();
-        let (harness_url, server) = scripted_harness(vec![
+        let (harness_url, _server) = scripted_harness(vec![
             Some((
                 200,
                 json!({
@@ -6007,55 +5840,16 @@ mod tests {
         ])
         .await;
 
-        let receipt = test_executor(dir.path(), harness_url)
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), harness_url)
             .execute_once()
             .await
-            .unwrap();
-        let requests = server.await.unwrap();
-
-        assert_eq!(receipt.status, "completed");
-        assert_eq!(
-            receipt.execution_receipt_digest.as_deref(),
-            Some("sha256:close")
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        assert_eq!(
-            receipt.continuation_decision.as_deref(),
-            Some("close_complete")
-        );
-        assert!(requests[1].contains("/nodes/verify/execute-provider"));
-        assert!(requests[2].contains("/nodes/review/execute-provider"));
-        assert!(requests[2].contains("provider-execute"));
-        assert!(requests[2].contains("model-verify"));
-        assert!(requests[2].contains("sha256:execute-authority"));
-        assert!(requests[2].contains("sha256:verify"));
-        assert!(requests[2].contains("cargo-test"));
-        assert!(requests[2].contains("passed"));
-        assert!(requests[3].contains("/nodes/close/complete"));
-        let records = super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-            .load()
-            .unwrap();
-        assert!(records.iter().any(|record| {
-            record
-                .extra
-                .get("continuation_decision")
-                .and_then(Value::as_str)
-                == Some("continue_review")
-                && record.extra.get("workbench_run_id").and_then(Value::as_str)
-                    == Some("queue-restart-completion-task")
-        }));
-        assert!(records.iter().any(|record| {
-            record
-                .extra
-                .get("continuation_decision")
-                .and_then(Value::as_str)
-                == Some("continue_close")
-                && record.extra.get("workbench_run_id").and_then(Value::as_str)
-                    == Some("queue-restart-completion-task")
-        }));
-        let terminal = records.last().unwrap();
-        assert_eq!(terminal.status.as_deref(), Some("completed"));
-        assert_eq!(terminal.extra["continuation_decision"], "close_complete");
-        assert_eq!(terminal.extra["closure_receipt_digest"], "sha256:close");
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
@@ -6191,7 +5985,7 @@ mod tests {
         super::super::schedule::ScheduleLedger::new(
             dir.path().join("core/projects/tasks/schedules.jsonl"),
         )
-        .append(&super::super::schedule::ScheduleRecord {
+        .seed_historical(&super::super::schedule::ScheduleRecord {
             contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
             task_id: "pre-dispatch-crash-task".into(),
             objective_id: "objective-crash-proof".into(),
@@ -6206,7 +6000,7 @@ mod tests {
         super::super::schedule::ScheduleLedger::new(
             dir.path().join("core/projects/tasks/schedules.jsonl"),
         )
-        .append(&super::super::schedule::ScheduleRecord {
+        .seed_historical(&super::super::schedule::ScheduleRecord {
             contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
             task_id: "post-crash-distinct-task".into(),
             objective_id: "objective-distinct-proof".into(),
@@ -6489,7 +6283,7 @@ mod tests {
     }
 
     #[test]
-    fn future_wait_until_materializes_deferred_schedule_authority() {
+    fn retired_writer_refuses_future_wait_until_materializes_deferred_schedule_authority() {
         let dir = tempfile::tempdir().unwrap();
         let due = Utc::now() + chrono::Duration::minutes(30);
         let task: QueueRecord = serde_json::from_value(json!({
@@ -6514,49 +6308,27 @@ mod tests {
             0,
         );
         assert_eq!(decision, "wait_until");
-        materialize_continuation(
+        let history = legacy_authority_history(dir.path());
+        let error = materialize_continuation(
             dir.path(),
             &task,
             "queue-waiting-leaf",
             decision,
             "external dependency unavailable",
         )
-        .unwrap();
-
-        let schedule = super::super::schedule::ScheduleLedger::new(
-            dir.path().join("core/projects/tasks/schedules.jsonl"),
-        )
-        .effective()
-        .unwrap()
-        .remove("waiting-leaf")
-        .expect("deferred schedule");
-        assert_eq!(
-            schedule.mode,
-            super::super::schedule::ScheduleMode::Deferred
+        .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        assert_eq!(
-            schedule.state,
-            super::super::schedule::ScheduleState::Scheduled
-        );
-        assert_eq!(schedule.not_before_utc, Some(due));
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(
-                dir.path().join("core/projects/tasks/queue.jsonl"),
-            )
-            .load()
-            .unwrap(),
-        );
-        assert_eq!(effective[0].status.as_deref(), Some("queued"));
-        assert_eq!(
-            effective[0].extra["continuation_decision"].as_str(),
-            Some("wait_until")
-        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn restart_does_not_materialize_leaf_replan_for_terminal_root_task() {
+    fn retired_writer_refuses_restart_does_not_materialize_leaf_replan_for_terminal_root_task() {
         let dir = tempfile::tempdir().unwrap();
-        append_queue_value(
+        let history = legacy_authority_history(dir.path());
+        let error = append_queue_value(
             dir.path(),
             json!({
                 "id": "terminal-root-objective",
@@ -6573,22 +6345,21 @@ mod tests {
                 }
             }),
         )
-        .unwrap();
-
-        reconcile_terminal_objective_leaves(dir.path())
-            .expect("terminal root reconciliation must not require leaf-only metadata");
-
-        let queue =
-            std::fs::read_to_string(dir.path().join("core/projects/tasks/queue.jsonl")).unwrap();
-        assert_eq!(queue.lines().count(), 1);
+        .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
+        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn restart_reconciles_terminal_leaf_successor_activation() {
+    fn retired_writer_refuses_restart_reconciles_terminal_leaf_successor_activation() {
         let dir = tempfile::tempdir().unwrap();
         let first_id = objective_leaf_id("objective-crash", "first");
         let second_id = objective_leaf_id("objective-crash", "second");
-        append_queue_values(
+        let history = legacy_authority_history(dir.path());
+        let error = append_queue_values(
             dir.path(),
             &[
                 json!({
@@ -6616,41 +6387,17 @@ mod tests {
                 }),
             ],
         )
-        .unwrap();
-
-        reconcile_terminal_objective_leaves(dir.path()).unwrap();
-
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(
-                dir.path().join("core/projects/tasks/queue.jsonl"),
-            )
-            .load()
-            .unwrap(),
+        .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        assert_eq!(
-            effective
-                .iter()
-                .find(|record| record.id == second_id)
-                .unwrap()
-                .status
-                .as_deref(),
-            Some("queued")
-        );
-        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
-        let records_after_repair = std::fs::read_to_string(&queue_path)
-            .unwrap()
-            .lines()
-            .count();
-        reconcile_terminal_objective_leaves(dir.path()).unwrap();
-        assert_eq!(
-            std::fs::read_to_string(queue_path).unwrap().lines().count(),
-            records_after_repair,
-            "restart reconciliation must not append duplicate successor records"
-        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn multi_project_objective_creates_parallel_project_bound_inspection_leaves() {
+    fn retired_writer_refuses_multi_project_objective_creates_parallel_project_bound_inspection_leaves(
+    ) {
         let dir = tempfile::tempdir().unwrap();
         for path in [
             "data/workbench/projects.json",
@@ -6716,28 +6463,24 @@ mod tests {
                 "inspect-authorities-project-2"
             ]
         );
-        let leaves = materialize_objective_leaves(
+        let history = legacy_authority_history(dir.path());
+        let error = materialize_objective_leaves(
             dir.path(),
             &task,
             &plan,
             "sha256:multi-project-plan",
             "queue-objective-multi-project",
         )
-        .unwrap();
-        let materialized_project_ids = leaves
-            .iter()
-            .filter(|leaf| {
-                leaf.extra["meta"]["objective_leaf_key"]
-                    .as_str()
-                    .is_some_and(|key| key.starts_with("inspect-authorities-project-"))
-            })
-            .map(|leaf| leaf.extra["meta"]["project_id"].as_str().unwrap())
-            .collect::<Vec<_>>();
-        assert_eq!(materialized_project_ids, ["project-one", "project-two"]);
+        .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
+        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn objective_leaves_and_corrected_revision_survive_executor_restart() {
+    fn retired_writer_refuses_objective_leaves_and_corrected_revision_survive_executor_restart() {
         let dir = tempfile::tempdir().unwrap();
         for path in [
             "data/workbench/projects.json",
@@ -6775,313 +6518,24 @@ mod tests {
             persisted_objective_plan_for_task(dir.path(), "queue-objective-durable", &task)
                 .unwrap();
 
-        let leaves = materialize_objective_leaves(
+        let history = legacy_authority_history(dir.path());
+        let error = materialize_objective_leaves(
             dir.path(),
             &task,
             &plan,
             &plan_receipt,
             "queue-objective-durable",
         )
-        .unwrap();
-        assert_eq!(leaves.len(), 5);
-
-        let restarted = super::super::task_queue::TaskQueueAnalyzer::new(
-            dir.path().join("core/projects/tasks/queue.jsonl"),
+        .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            restarted.load().unwrap(),
-        );
-        assert_eq!(
-            effective
-                .iter()
-                .filter(|record| record.extra["meta"]["objective_leaf"] == true)
-                .count(),
-            5
-        );
-        assert_eq!(
-            effective
-                .iter()
-                .filter(|record| record.status.as_deref() == Some("queued"))
-                .count(),
-            1
-        );
-        assert!(leaves.iter().all(|leaf| {
-            let meta = &leaf.extra["meta"];
-            meta["objective_id"] == "objective-durable"
-                && meta["project_id"] == DEFAULT_PROJECT_ID
-                && meta["authority_class"].is_string()
-                && meta["verification_checks"]
-                    .as_array()
-                    .is_some_and(|v| !v.is_empty())
-                && meta["evidence_requirements"]
-                    .as_array()
-                    .is_some_and(|v| !v.is_empty())
-                && meta["budget"]["max_joules"]
-                    .as_f64()
-                    .is_some_and(|v| v > 0.0)
-        }));
-        let producer = leaves
-            .iter()
-            .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "produce-outcome")
-            .unwrap();
-        assert_eq!(producer.extra["meta"]["authority_class"], "read_only");
-        assert_eq!(
-            producer.extra["meta"]["acceptance_artifact"],
-            "docs/audits/acceptance.md"
-        );
-        let acceptance = leaves
-            .iter()
-            .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "verify-acceptance")
-            .unwrap();
-        assert_eq!(acceptance.extra["meta"]["authority_class"], "read_only");
-        assert_eq!(
-            acceptance.extra["meta"]["acceptance_artifact"],
-            "docs/audits/acceptance.md"
-        );
-        assert_eq!(
-            objective_plan_for_claim(dir.path(), acceptance).unwrap().1,
-            plan_receipt
-        );
-        let mut tampered = acceptance.clone();
-        tampered.extra["meta"]["objective_plan"]["tasks"][0]["title"] =
-            Value::String("tampered task".into());
-        assert!(objective_plan_for_claim(dir.path(), &tampered)
-            .unwrap_err()
-            .to_string()
-            .contains("does not match its persisted plan receipt"));
-
-        let failed_leaf = leaves
-            .iter()
-            .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == "verify-acceptance")
-            .unwrap();
-        append_queue_value(
-            dir.path(),
-            json!({
-                "id": failed_leaf.id,
-                "source_record_id": failed_leaf.id,
-                "title": failed_leaf.title,
-                "owner": failed_leaf.owner,
-                "priority": failed_leaf.priority,
-                "status": "failed",
-                "result": "failed",
-                "workbench_run_id": "queue-objective-durable__verify-acceptance",
-                "meta": failed_leaf.extra["meta"],
-            }),
-        )
-        .unwrap();
-        materialize_continuation(
-            dir.path(),
-            failed_leaf,
-            "queue-objective-durable__verify-acceptance",
-            "revise_task",
-            "acceptance criteria were not satisfied",
-        )
-        .unwrap();
-
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            restarted.load().unwrap(),
-        );
-        let revised = effective
-            .iter()
-            .find(|record| record.id == failed_leaf.id)
-            .unwrap();
-        assert_eq!(revised.status.as_deref(), Some("queued"));
-        assert_eq!(revised.extra["continuation_decision"], "revise_task");
-        assert_eq!(revised.extra["revision_sequence"], 1);
-        assert_eq!(
-            revised.extra["workbench_run_id"],
-            attempt_workbench_run_id(&failed_leaf.id, 1)
-        );
-        assert_eq!(revised.extra["meta"]["objective_id"], "objective-durable");
-        assert!(revised.extra["revision_directive"]
-            .as_str()
-            .unwrap()
-            .contains("acceptance criteria"));
-        assert!(revised.extra["meta"]["revision_directive"]
-            .as_str()
-            .unwrap()
-            .contains("acceptance criteria"));
-        let revised_prompt =
-            objective_execution_prompt(&plan, revised.title.as_deref().unwrap(), revised);
-        assert!(revised_prompt.contains("Correct the prior failed attempt"));
-        assert!(revised_prompt.contains("acceptance criteria were not satisfied"));
-        assert!(revised_prompt.contains("Required project-native checks: test"));
-
-        let revised_contract = objective_leaf_contract(&plan, revised).unwrap();
-        let revised_graph = run_graph_with_objective_plan_receipt(
-            "queue-objective-durable__verify-acceptance-attempt-2",
-            &revised.id,
-            revised.title.as_deref().unwrap(),
-            "approval-durable",
-            &plan_receipt,
-            Some(revised_contract),
-        );
-        let execute = revised_graph["nodes"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .find(|node| node["id"] == "execute")
-            .unwrap();
-        assert_eq!(
-            execute["budget"]["max_joules"],
-            revised.extra["meta"]["budget"]["max_joules"]
-        );
-        assert_eq!(
-            execute["budget"]["max_cost_usd"],
-            revised.extra["meta"]["budget"]["max_cost_usd"]
-        );
-        assert_eq!(
-            execute["retry"]["max_attempts"],
-            revised.extra["meta"]["budget"]["max_attempts"]
-        );
-        assert_eq!(
-            execute["timeout_ms"].as_u64(),
-            revised.extra["meta"]["budget"]["timeout_seconds"]
-                .as_u64()
-                .map(|seconds| seconds * 1_000)
-        );
-
-        for (index, planned) in plan.tasks.iter().enumerate() {
-            let leaf = leaves
-                .iter()
-                .find(|leaf| leaf.extra["meta"]["objective_leaf_key"] == planned.key)
-                .unwrap();
-            let run_id = format!("durable-leaf-{index}");
-            let mut receipt_digest = format!("sha256:leaf-{index}");
-            if planned.key == "verify-acceptance" {
-                let receipt_path = dir
-                    .path()
-                    .join("data/runs")
-                    .join(&run_id)
-                    .join("execution-receipts/review.json");
-                std::fs::create_dir_all(receipt_path.parent().unwrap()).unwrap();
-                let authority_binding =
-                    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-                let mut receipt: CanonicalHermesExecutionReceipt =
-                    serde_json::from_value(json!({
-                        "schema_version": "arda.execution-receipt.v3",
-                        "run_id": run_id,
-                        "node_id": "review",
-                        "idempotency_key": "durable-review",
-                        "status": "succeeded",
-                        "receipt_digest": "",
-                        "authority_binding_digest": authority_binding,
-                        "summary": "approved",
-                        "tool_evidence": [],
-                        "test_evidence": [],
-                        "artifacts": [],
-                        "usage": {
-                            "provider": null,
-                            "model": null,
-                            "api_calls": 0,
-                            "input_tokens": 0,
-                            "output_tokens": 0,
-                            "total_tokens": 0,
-                            "estimated_cost_usd": 0.0,
-                            "cost_measurement": "unknown",
-                            "completed": true,
-                            "failed": false
-                        },
-                        "adapter": "hermes",
-                        "adapter_version": "test",
-                        "project_contract_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-                        "parent_receipts": [],
-                        "recorded_at_unix_ms": 1
-                    }))
-                    .unwrap();
-                receipt.receipt_digest = receipt.computed_digest().unwrap();
-                let provider_digest = receipt.receipt_digest.clone();
-                std::fs::write(&receipt_path, serde_json::to_vec_pretty(&receipt).unwrap())
-                    .unwrap();
-                std::fs::write(
-                    dir.path()
-                        .join("data/runs")
-                        .join(&run_id)
-                        .join("result.json"),
-                    serde_json::to_vec_pretty(&json!({
-                        "provider_receipt": {
-                            "receipt_digest": provider_digest,
-                            "authority_binding_digest": authority_binding
-                        }
-                    }))
-                    .unwrap(),
-                )
-                .unwrap();
-                std::fs::write(
-                    dir.path()
-                        .join("data/runs")
-                        .join(&run_id)
-                        .join("checkpoint.json"),
-                    serde_json::to_vec_pretty(&json!({
-                        "run_id": run_id,
-                        "objective_id": leaf.id
-                    }))
-                    .unwrap(),
-                )
-                .unwrap();
-                receipt_digest = format!(
-                    "sha256:{:x}",
-                    Sha256::digest(std::fs::read(receipt_path).unwrap())
-                );
-            }
-            append_queue_value(
-                dir.path(),
-                json!({
-                    "id": leaf.id,
-                    "source_record_id": leaf.id,
-                    "title": leaf.title,
-                    "status": "completed",
-                    "result": "completed",
-                    "workbench_run_id": run_id,
-                    "execution_receipt_digest": receipt_digest,
-                    "meta": leaf.extra["meta"],
-                }),
-            )
-            .unwrap();
-            advance_objective_after_leaf(dir.path(), leaf).unwrap();
-            if let Some(next) = plan.tasks.get(index + 1) {
-                let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-                    restarted.load().unwrap(),
-                );
-                let next_id = objective_leaf_id("objective-durable", &next.key);
-                assert_eq!(
-                    effective
-                        .iter()
-                        .find(|record| record.id == next_id)
-                        .and_then(|record| record.status.as_deref()),
-                    Some("queued")
-                );
-            }
-        }
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            restarted.load().unwrap(),
-        );
-        let closed = effective
-            .iter()
-            .find(|record| record.id == "objective-durable")
-            .unwrap();
-        assert_eq!(closed.status.as_deref(), Some("completed"));
-        assert_eq!(closed.extra["continuation_decision"], "close_complete");
-        assert_eq!(
-            closed.extra["closure_evidence_receipts"]
-                .as_array()
-                .unwrap()
-                .len(),
-            5
-        );
-        let acceptance_index = plan
-            .tasks
-            .iter()
-            .position(|task| task.key == "verify-acceptance")
-            .unwrap();
-        assert_eq!(
-            closed.extra["acceptance_artifact"],
-            format!("data/runs/durable-leaf-{acceptance_index}/execution-receipts/review.json")
-        );
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
-    fn direct_task_critic_rejection_materializes_revise_continuation() {
+    fn retired_writer_refuses_direct_task_critic_rejection_materializes_revise_continuation() {
         let dir = tempfile::tempdir().unwrap();
         let task: QueueRecord = serde_json::from_value(json!({
             "id": "direct-task",
@@ -7096,38 +6550,14 @@ mod tests {
             }
         }))
         .unwrap();
-        append_queue_value(dir.path(), serde_json::to_value(&task).unwrap()).unwrap();
-        append_queue_value(
-            dir.path(),
-            json!({
-                "id": task.id,
-                "source_record_id": task.id,
-                "title": task.title,
-                "status": "failed",
-                "result": "failed",
-                "continuation_decision": "revise_task",
-                "workbench_run_id": "queue-direct-task",
-                "meta": task.extra["meta"],
-            }),
-        )
-        .unwrap();
-
-        reconcile_terminal_objective_leaves(dir.path()).unwrap();
-
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(
-                dir.path().join("core/projects/tasks/queue.jsonl"),
-            )
-            .load()
-            .unwrap(),
+        let history = legacy_authority_history(dir.path());
+        let error = append_queue_value(dir.path(), serde_json::to_value(&task).unwrap())
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        let revised = effective
-            .iter()
-            .find(|record| record.id == "direct-task")
-            .unwrap();
-        assert_eq!(revised.status.as_deref(), Some("queued"));
-        assert_eq!(revised.extra["continuation_decision"], "revise_task");
-        assert_eq!(revised.extra["revision_sequence"], 1);
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
@@ -7256,7 +6686,7 @@ mod tests {
             .unwrap_err();
 
         assert!(
-            error.to_string().contains("schedule not found"),
+            error.to_string().contains("retired"),
             "authority must fail before network dispatch: {error:#}"
         );
         let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
@@ -7270,7 +6700,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn cancellation_retry_repairs_queue_terminal_without_network_dispatch() {
+    async fn retired_cancellation_cannot_repair_history_or_dispatch_network() {
         let dir = tempfile::tempdir().unwrap();
         approved_queue_fixture(dir.path(), "cancel-after-schedule");
         let schedule_path = dir.path().join("core/projects/tasks/schedules.jsonl");
@@ -7284,28 +6714,18 @@ mod tests {
                 || Err::<(), _>(std::io::Error::other("simulated queue append failure")),
             )
             .unwrap_err();
-        assert_eq!(append_error.kind(), std::io::ErrorKind::Other);
+        assert_eq!(append_error.kind(), std::io::ErrorKind::PermissionDenied);
         assert_eq!(
             ledger.effective().unwrap()["cancel-after-schedule"].state,
-            super::super::schedule::ScheduleState::Cancelled
+            super::super::schedule::ScheduleState::Scheduled
         );
-
-        let receipt = test_executor(dir.path(), "http://127.0.0.1:9".into())
+        let history = legacy_authority_history(dir.path());
+        let error = test_executor(dir.path(), "http://127.0.0.1:9".into())
             .cancel_task("cancel-after-schedule", "operator cancellation")
             .await
-            .unwrap();
-
-        assert_eq!(receipt["status"], "cancelled");
-        assert_eq!(receipt["reconciled"], true);
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(
-                dir.path().join("core/projects/tasks/queue.jsonl"),
-            )
-            .load()
-            .unwrap(),
-        );
-        assert_eq!(effective[0].status.as_deref(), Some("failed"));
-        assert_eq!(effective[0].result.as_deref(), Some("cancelled"));
+            .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]
@@ -7334,7 +6754,7 @@ mod tests {
             dir.path().join("core/projects/tasks/schedules.jsonl"),
         );
         ledger
-            .append(&super::super::schedule::ScheduleRecord {
+            .seed_historical(&super::super::schedule::ScheduleRecord {
                 contract: super::super::schedule::SCHEDULE_RECORD_CONTRACT.into(),
                 task_id: task.id.clone(),
                 objective_id: "objective-wait".into(),
@@ -7406,7 +6826,7 @@ mod tests {
         )
         .unwrap_err();
         assert!(
-            error.to_string().contains("directory") || error.to_string().contains("queue.jsonl"),
+            error.to_string().contains("retired"),
             "expected queue publication failure, got: {error:#}"
         );
 
@@ -7422,11 +6842,11 @@ mod tests {
     }
 
     #[test]
-    fn restart_reconciles_prepared_wait_until_continuation() {
+    fn retired_writer_refuses_restart_reconciles_prepared_wait_until_continuation() {
         let dir = tempfile::tempdir().unwrap();
+        let due = Utc::now() + chrono::Duration::minutes(30);
         let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
         std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
-        let due = Utc::now() + chrono::Duration::minutes(30);
         std::fs::write(
             &queue_path,
             format!(
@@ -7452,26 +6872,14 @@ mod tests {
         )
         .unwrap();
 
-        reconcile_terminal_objective_leaves(dir.path()).unwrap();
-
-        let schedule = super::super::schedule::ScheduleLedger::new(
-            dir.path().join("core/projects/tasks/schedules.jsonl"),
-        )
-        .effective()
-        .unwrap()
-        .remove("prepared-wait")
-        .expect("reconciled deferred schedule");
-        assert_eq!(
-            schedule.mode,
-            super::super::schedule::ScheduleMode::Deferred
+        let history = legacy_authority_history(dir.path());
+        let error = reconcile_terminal_objective_leaves(dir.path())
+            .expect_err("retired writer must refuse");
+        assert!(
+            format!("{error:#}").contains("retired"),
+            "unexpected refusal: {error:#}"
         );
-        assert_eq!(schedule.not_before_utc, Some(due));
-        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
-            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
-                .load()
-                .unwrap(),
-        );
-        assert_eq!(effective[0].status.as_deref(), Some("queued"));
+        assert_eq!(legacy_authority_history(dir.path()), history);
     }
 
     #[test]

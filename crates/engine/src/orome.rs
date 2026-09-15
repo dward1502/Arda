@@ -21,6 +21,15 @@ pub struct OromeOperatorRuntime {
 }
 
 impl OromeOperatorRuntime {
+    pub fn prepare(
+        &self,
+        request: BridgeRequest,
+        pending: Option<&ApprovalBinding>,
+        now: DateTime<Utc>,
+    ) -> Result<arda_orome::operator_bridge::PreparedOperatorEvent, BridgeError> {
+        self.bridge.prepare(request, pending, now)
+    }
+
     pub fn new(state_root: impl AsRef<Path>) -> Result<Self, BridgeError> {
         Ok(Self {
             bridge: OperatorBridge::new(state_root)?,

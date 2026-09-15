@@ -4,7 +4,9 @@ use super::model::{
     ObjectiveRecord, ObjectiveState, ReceiptStage, ScheduleSpec, StageReceipt,
 };
 use anyhow::{anyhow, bail, Context, Result};
-use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
+use rusqlite::{
+    params, Connection, OpenFlags, OptionalExtension, Transaction, TransactionBehavior,
+};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
@@ -13,9 +15,12 @@ use std::sync::{Arc, Mutex, OnceLock, Weak};
 use std::time::Duration;
 use tokio::sync::watch;
 
+mod authority;
+
 #[derive(Clone)]
 pub struct ObjectiveStore {
     path: PathBuf,
+    authority: authority::Authority,
     changes: Arc<watch::Sender<()>>,
     pub(super) snapshot_admission: Option<Arc<dyn super::snapshots::SnapshotAdmission>>,
 }
@@ -59,14 +64,35 @@ impl ObjectiveStore {
         }
     }
 
+    /// Explicit offline provisioning or legacy adoption. Runtime callers must
+    /// use `open_existing`; loss of a provisioned database is never reset here.
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
-        let path = path.as_ref().to_path_buf();
+        Self::provision(path.as_ref(), false)
+    }
+
+    /// Provision a new database only; never adopt or reset an existing one.
+    pub fn initialize(path: impl AsRef<Path>) -> Result<Self> {
+        Self::provision(path.as_ref(), true)
+    }
+
+    fn provision(path: &Path, new_only: bool) -> Result<Self> {
+        let path = path.to_path_buf();
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
                 .with_context(|| format!("create ObjectiveStore directory {}", parent.display()))?;
         }
+        let path = authority::normalize(&path)?;
+        authority::provision(&path, new_only)?;
+        Self::open_existing(path)
+    }
+
+    /// Reopen provisioned authority without creating a database or marker.
+    pub fn open_existing(path: impl AsRef<Path>) -> Result<Self> {
+        let path = authority::normalize(path.as_ref())?;
+        let authority = authority::Authority::load(&path)?;
         let mut store = Self {
             path,
+            authority,
             changes: Arc::new(watch::channel(()).0),
             snapshot_admission: None,
         };
@@ -88,6 +114,37 @@ impl ObjectiveStore {
 
     pub(crate) fn subscribe_changes(&self) -> watch::Receiver<()> {
         self.changes.subscribe()
+    }
+
+    /// Bind every gateway command family before side effects, including retries
+    /// after a crash between command application and transport-ledger commit.
+    pub fn bind_gateway_event(&self, event_id: &str, payload_digest: &str) -> Result<()> {
+        if event_id.is_empty() || payload_digest.is_empty() {
+            bail!("gateway event identity and payload digest are required");
+        }
+        let mut connection = self.connection()?;
+        let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let existing: Option<String> = transaction
+            .query_row(
+                "SELECT payload_digest FROM gateway_event_bindings WHERE event_id=?1",
+                [event_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        match existing {
+            Some(existing) if existing != payload_digest => {
+                bail!("gateway event replay changed payload or command family")
+            }
+            Some(_) => (),
+            None => {
+                transaction.execute(
+                    "INSERT INTO gateway_event_bindings(event_id,payload_digest) VALUES(?1,?2)",
+                    params![event_id, payload_digest],
+                )?;
+            }
+        }
+        transaction.commit()?;
+        Ok(())
     }
 
     /// Unfinished prior attempts in schedulable objectives, including live
@@ -212,6 +269,19 @@ impl ObjectiveStore {
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .context("begin objective creation")?;
+
+        // Both command kinds share the authenticated ingress namespace. Check
+        // under the write transaction so concurrent commands cannot claim it.
+        if transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM controls WHERE idempotency_key = ?1)",
+            [&objective.idempotency_key],
+            |row| row.get::<_, bool>(0),
+        )? {
+            bail!(
+                "objective idempotency conflict for {}",
+                objective.idempotency_key
+            );
+        }
 
         if let Some((existing_id, existing_digest)) = transaction
             .query_row(
@@ -386,6 +456,14 @@ impl ObjectiveStore {
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .context("begin objective control")?;
+
+        if transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM objectives WHERE ingress_key = ?1)",
+            [idempotency_key],
+            |row| row.get::<_, bool>(0),
+        )? {
+            bail!("control idempotency conflict for {idempotency_key}");
+        }
 
         if let Some((stored_objective, stored_operator, stored_action)) = transaction
             .query_row(
@@ -718,6 +796,22 @@ impl ObjectiveStore {
         }
         let candidate_limit = capacity.saturating_mul(8).saturating_add(32) as i64;
 
+        // Retained trees still share filesystem objects, even when their host
+        // path has disappeared. Until historical overlap can be proven, reserve
+        // them exclusively rather than resolving a replacement path as authority.
+        let retained_live: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM leaves l
+             JOIN retained_workspace_snapshots s ON s.leaf_id = l.id
+             WHERE l.lease_expires_ms > ?1
+               AND l.stage IN ('execute','verify','review','close'))",
+            [now_ms],
+            |row| row.get(0),
+        )?;
+        if retained_live {
+            transaction.commit()?;
+            return Ok(Vec::new());
+        }
+
         // Resolve live leases inside the same immediate transaction as admission.
         // Stored contract spelling is preserved; aliases are not separate capacity.
         let topology = read_topology()?;
@@ -833,8 +927,6 @@ impl ObjectiveStore {
                     [&leaf_id],
                     |row| Ok((row.get(0)?, row.get(1)?)),
                 )?;
-                let physical_root = physical_workspace_root(&workspace)?;
-                let identity = workspace_identity(&physical_root, &topology)?;
                 let saved: Option<String> = transaction
                     .query_row(
                         "SELECT identity_json FROM lease_workspace_identities WHERE leaf_id = ?1",
@@ -842,11 +934,53 @@ impl ObjectiveStore {
                         |row| row.get(0),
                     )
                     .optional()?;
-                if (attempt > 0 && saved.is_none())
-                    || saved.as_ref().is_some_and(|saved| saved != &identity)
-                {
-                    bail!("recovery workspace identity changed or is unknown; admission blocked");
+                let retained: Option<bool> = transaction.query_row(
+                    "SELECT COALESCE(s.run_id = l.execution_run_id, 0)
+                       AND NOT EXISTS (SELECT 1 FROM retained_snapshot_releases r WHERE r.leaf_id = l.id)
+                     FROM retained_workspace_snapshots s JOIN leaves l ON l.id = s.leaf_id
+                     WHERE l.id = ?1",
+                    [&leaf_id], |row| row.get(0),
+                ).optional()?;
+                if retained == Some(false) || (retained.is_some() && attempt == 0) {
+                    bail!("retained recovery binding invalid; reconciliation required");
                 }
+                let recovering_retained = retained == Some(true);
+                let (physical_root, identity) = if recovering_retained {
+                    if !occupied_roots.is_empty() {
+                        continue;
+                    }
+                    (
+                        PathBuf::from(&workspace),
+                        saved
+                            .clone()
+                            .context("retained recovery identity missing")?,
+                    )
+                } else {
+                    let held: bool = transaction.query_row(
+                        "SELECT EXISTS(SELECT 1 FROM retained_workspace_snapshots s
+                         WHERE NOT EXISTS (SELECT 1 FROM retained_snapshot_releases r WHERE r.leaf_id = s.leaf_id))",
+                        [], |row| row.get(0),
+                    )?;
+                    if held {
+                        continue;
+                    }
+                    let physical = physical_workspace_root(&workspace)?;
+                    let identity =
+                        if self.snapshot_admission.is_some() && saved.is_none() && attempt == 0 {
+                            retained_workspace_identity(&physical, &topology)?
+                        } else {
+                            // Never upgrade historical v2 admissions from current paths.
+                            workspace_identity(&physical, &topology)?
+                        };
+                    if (attempt > 0 && saved.is_none())
+                        || saved.as_ref().is_some_and(|saved| saved != &identity)
+                    {
+                        bail!(
+                            "recovery workspace identity changed or is unknown; admission blocked"
+                        );
+                    }
+                    (physical, identity)
+                };
                 let mut overlaps = false;
                 for root in &occupied_roots {
                     if workspace_roots_overlap(&physical_root, root, &topology)? {
@@ -1231,6 +1365,13 @@ impl ObjectiveStore {
         schedule_in(&connection, schedule_id)
     }
 
+    /// Persisted schedule failures, including historical and paused objectives.
+    pub fn quarantined_schedule_count(&self) -> Result<u64> {
+        self.connection()?
+            .query_row("SELECT COUNT(*) FROM schedule_errors", [], |row| row.get(0))
+            .context("read schedule quarantine count")
+    }
+
     /// Earliest actionable timer; paused/terminal objectives do not wake workers.
     pub fn next_wake_ms(&self, now_ms: i64) -> Result<Option<i64>> {
         let connection = self.connection()?;
@@ -1286,8 +1427,16 @@ impl ObjectiveStore {
     }
 
     pub(super) fn connection(&self) -> Result<Connection> {
-        let connection = Connection::open(&self.path)
-            .with_context(|| format!("open ObjectiveStore {}", self.path.display()))?;
+        if authority::Authority::load(&self.path)? != self.authority {
+            bail!("ObjectiveStore authority binding changed");
+        }
+        let connection = Connection::open_with_flags(
+            &self.path,
+            OpenFlags::default() & !OpenFlags::SQLITE_OPEN_CREATE,
+        )
+        .with_context(|| format!("open ObjectiveStore {}", self.path.display()))?;
+        self.authority.check_path(&self.path)?;
+        self.authority.check_connection(&connection)?;
         connection.busy_timeout(Duration::from_secs(5))?;
         connection.pragma_update(None, "foreign_keys", "ON")?;
         connection.pragma_update(None, "journal_mode", "WAL")?;
@@ -1449,6 +1598,31 @@ fn workspace_identity(root: &Path, topology: &[u8]) -> Result<String> {
         .context("encode workspace identity")
 }
 
+fn retained_workspace_identity(root: &Path, topology: &[u8]) -> Result<String> {
+    #[cfg(target_os = "linux")]
+    {
+        require_workspace_access(root)?;
+        let physical = super::physical_tree::Physical::pin(root, topology)?;
+        let witness = physical.witness()?;
+        physical.revalidate_coordinate()?;
+        if topology != read_workspace_topology()? {
+            bail!("retained admission topology changed during pinning");
+        }
+        let object = &witness.mounts[0].object;
+        Ok(serde_json::to_string(&(
+            3,
+            root,
+            root,
+            Some((object.device, object.inode)),
+            witness.digest()?,
+        ))?)
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        workspace_identity(root, topology)
+    }
+}
+
 fn read_workspace_topology() -> Result<Vec<u8>> {
     #[cfg(target_os = "linux")]
     return std::fs::read("/proc/self/mountinfo").context("read admission mount topology");
@@ -1513,6 +1687,9 @@ pub fn validate_snapshot_owner_paths(workspace: &Path, state: &[&Path]) -> Resul
         if workspace_roots_overlap(workspace, path, &topology)? {
             bail!("snapshot owner state overlaps execution workspace");
         }
+    }
+    if std::fs::read("/proc/self/mountinfo")? != topology {
+        bail!("mount topology changed during execution-grant overlap validation");
     }
     Ok(())
 }
@@ -1636,7 +1813,7 @@ fn workspace_subtrees_overlap(left: &Path, right: &Path) -> Result<bool> {
             for ancestor in root.ancestors() {
                 match std::fs::metadata(ancestor) {
                     Ok(metadata) => {
-                        if !metadata.is_dir() {
+                        if !metadata.is_dir() && !(ancestor == root && metadata.is_file()) {
                             bail!("workspace ancestor is not a directory");
                         }
                         entries.push((

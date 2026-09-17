@@ -70,6 +70,9 @@ pub struct QueueExecutionReceipt {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ExplicitWorkbenchWorkItem {
+    /// Narrow the execution graph to file-only inspection. Never grants authority.
+    #[serde(default)]
+    pub read_only: bool,
     pub objective_id: String,
     pub leaf_id: String,
     pub run_id: String,
@@ -89,7 +92,7 @@ pub struct ExplicitWorkbenchWorkItem {
 }
 
 mod workspace_authority;
-pub use workspace_authority::ExplicitWorkspaceAuthorization;
+pub use workspace_authority::{ExplicitRecoveryWindow, ExplicitWorkspaceAuthorization};
 
 impl ExplicitWorkbenchWorkItem {
     /// Recompute a stage binding without recalling memory or granting authority.
@@ -109,7 +112,29 @@ impl ExplicitWorkbenchWorkItem {
             "close" => return Ok(Some(original.clone())),
             _ => bail!("unsupported explicit Workbench context stage"),
         };
+        // Vairë and the provider adapter share the bounded purpose projection.
+        // The full stage payload remains separately retained in this work item.
         Ok(Some(original.for_run_stage(stage, &purpose, parents)?))
+    }
+
+    /// Deterministic payload construction only; this does not authorize dispatch.
+    pub fn provider_request_body(
+        &self,
+        root: &Path,
+        stage: &str,
+        context: Option<ContextAssembly>,
+    ) -> Result<Value> {
+        let prompt = match stage {
+            "execute" => self.execution_prompt.clone(),
+            "verify" => self.verification_prompt.clone(),
+            "review" => review_prompt_with_dependency_receipts(root, self)?,
+            _ => bail!("unsupported explicit provider stage {stage}"),
+        };
+        Ok(json!({
+            "objective": prompt,
+            "envelope": explicit_stage_envelope(self, stage)?,
+            "context_assembly": context,
+        }))
     }
 }
 
@@ -264,6 +289,18 @@ impl WorkbenchExecutionAdapter {
         if let Some(authority) = authorization {
             authority.authorize(item)?;
         }
+        let recovery = authorization
+            .map(|authority| authority.recovery_window(item))
+            .transpose()?
+            .flatten();
+        if let Some(window) = &recovery {
+            window.validate()?;
+            anyhow::ensure!(item.read_only, "recovery requires read-only scope");
+            anyhow::ensure!(
+                item.context_assembly.is_some(),
+                "recovery requires retained context"
+            );
+        }
         let response = self
             .client
             .get(format!("{}/v1/runs/{}", self.harness_url, item.run_id))
@@ -274,15 +311,9 @@ impl WorkbenchExecutionAdapter {
             .as_str()
             .ok_or_else(|| anyhow!("explicit Workbench approval id missing"))?;
         let mut run = if response.status() == reqwest::StatusCode::NOT_FOUND {
+            anyhow::ensure!(recovery.is_none(), "recovery cannot plan a missing run");
             workspace_authority::reauthorize(authorization, item)?;
-            let graph = run_graph_with_objective_plan_receipt(
-                &item.run_id,
-                &item.leaf_id,
-                &item.objective,
-                approval_id,
-                &item.objective_plan_receipt,
-                None,
-            );
+            let graph = explicit_run_graph(item, approval_id);
             let response = self
                 .client
                 .post(format!("{}/v1/runs/plan", self.harness_url))
@@ -301,6 +332,10 @@ impl WorkbenchExecutionAdapter {
         };
         workspace_authority::run(item, &run)?;
         if node_state(&run, "approval") != Some("succeeded") {
+            anyhow::ensure!(
+                recovery.is_none(),
+                "recovery cannot approve an unfinished run"
+            );
             workspace_authority::reauthorize(authorization, item)?;
             let response = self
                 .client
@@ -319,23 +354,23 @@ impl WorkbenchExecutionAdapter {
             workspace_authority::run(item, &run)?;
         }
 
-        for (stage, prompt) in [
-            ("execute", item.execution_prompt.as_str()),
-            ("verify", item.verification_prompt.as_str()),
-        ] {
+        if recovery.is_some() {
+            anyhow::ensure!(
+                node_state(&run, "execute") == Some("succeeded"),
+                "recovery requires preserved successful execution"
+            );
+        }
+        for stage in ["execute", "verify"] {
             if node_state(&run, stage) == Some("succeeded") {
                 continue;
             }
             workspace_authority::reauthorize(authorization, item)?;
-            let context = bind_explicit_stage_context(&self.root, item, &run, stage)?;
+            let context =
+                bind_explicit_stage_context(&self.root, item, &run, stage, recovery.as_ref())?;
             let provider_body = workspace_authority::provider_body(
                 authorization,
                 item,
-                json!({
-                    "objective": prompt,
-                    "envelope": explicit_stage_envelope(item, stage)?,
-                    "context_assembly": context,
-                }),
+                item.provider_request_body(&self.root, stage, context)?,
             )?;
             let response = self
                 .client
@@ -369,16 +404,12 @@ impl WorkbenchExecutionAdapter {
 
         if node_state(&run, "review") != Some("succeeded") {
             workspace_authority::reauthorize(authorization, item)?;
-            let review_prompt = review_prompt_with_dependency_receipts(&self.root, item)?;
-            let context = bind_explicit_stage_context(&self.root, item, &run, "review")?;
+            let context =
+                bind_explicit_stage_context(&self.root, item, &run, "review", recovery.as_ref())?;
             let provider_body = workspace_authority::provider_body(
                 authorization,
                 item,
-                json!({
-                    "objective": review_prompt,
-                    "envelope": explicit_stage_envelope(item, "review")?,
-                    "context_assembly": context,
-                }),
+                item.provider_request_body(&self.root, "review", context)?,
             )?;
             let response = self
                 .client
@@ -421,16 +452,20 @@ impl WorkbenchExecutionAdapter {
             // leave a succeeded run whose canonical close receipt is absent.
             persist_explicit_close_receipt(&self.root, item, &close_receipt)?;
             workspace_authority::reauthorize(authorization, item)?;
+            let mut close_body = json!({
+                "envelope": explicit_stage_envelope(item, "close")?,
+                "receipt_digest": close_receipt.receipt_digest,
+            });
+            if recovery.is_some() {
+                close_body = workspace_authority::provider_body(authorization, item, close_body)?;
+            }
             let response = self
                 .client
                 .post(format!(
                     "{}/v1/runs/{}/nodes/close/complete",
                     self.harness_url, item.run_id
                 ))
-                .json(&json!({
-                    "envelope": explicit_stage_envelope(item, "close")?,
-                    "receipt_digest": close_receipt.receipt_digest,
-                }))
+                .json(&close_body)
                 .send()
                 .await
                 .context("complete explicit Workbench close stage")?;
@@ -451,6 +486,7 @@ fn bind_explicit_stage_context(
     item: &ExplicitWorkbenchWorkItem,
     run: &Value,
     stage: &str,
+    recovery: Option<&ExplicitRecoveryWindow>,
 ) -> Result<Option<ContextAssembly>> {
     let Some(original) = &item.context_assembly else {
         return Ok(None);
@@ -467,6 +503,17 @@ fn bind_explicit_stage_context(
         .context("stage context missing")?;
     let memory = MnemosyneService::new(root.join("data/vaire"))?
         .with_contract_memory_root(root.join("core/state/memory"));
+    if let Some(window) = recovery {
+        window.validate()?;
+        return Ok(Some(memory.bind_run_stage_context_for_recovery(
+            original,
+            stage,
+            &expected.use_receipt.purpose,
+            parents,
+            Utc::now().timestamp_millis().max(0) as u128,
+            u128::from(window.activated_at_unix_ms)..u128::from(window.expires_at_unix_ms),
+        )?));
+    }
     Ok(Some(memory.bind_run_stage_context(
         original,
         stage,
@@ -784,7 +831,7 @@ fn validate_explicit_work_item_mode(
             "explicit work item approval does not authorize only resident Arda state"
         ));
     }
-    workspace_authority::workspace(root, &item.workspace_root, mode)?;
+    workspace_authority::bound_workspace(root, item, mode)?;
     Ok(())
 }
 
@@ -1661,15 +1708,12 @@ fn resolve_execution_target(root: &Path, task: &QueueRecord) -> Result<Execution
     let canonical_root = root
         .canonicalize()
         .with_context(|| format!("canonicalize Workbench root `{}`", root.display()))?;
-    let workspace_root = canonical_root
-        .join(attached.contract.workspace.root.as_str())
-        .canonicalize()
-        .with_context(|| format!("canonicalize registered workspace for project `{project_id}`"))?;
-    if !workspace_root.starts_with(&canonical_root) {
-        return Err(anyhow!(
-            "registered workspace for project `{project_id}` escapes Workbench root"
-        ));
-    }
+    let workspace_root = attached
+        .contract
+        .workspace
+        .root
+        .resolve(&canonical_root)
+        .with_context(|| format!("resolve registered workspace for project `{project_id}`"))?;
     if let Some(declared_worktree) = task_worktree_path(task) {
         let declared = Path::new(declared_worktree);
         let declared = if declared.is_absolute() {
@@ -3682,6 +3726,32 @@ fn run_graph_with_objective_plan_receipt(
     )
 }
 
+fn explicit_run_graph(item: &ExplicitWorkbenchWorkItem, approval_id: &str) -> Value {
+    let mut graph = run_graph_with_objective_plan_receipt(
+        &item.run_id,
+        &item.leaf_id,
+        &item.objective,
+        approval_id,
+        &item.objective_plan_receipt,
+        None,
+    );
+    if item.read_only {
+        for node in graph["nodes"].as_array_mut().expect("generated nodes") {
+            match node["id"].as_str() {
+                Some("execute") => {
+                    node["kind"] = json!("inspect");
+                    node["authority"] = json!("read_only");
+                    node["worker"]["role"] = json!("local_summary_classification");
+                    node["worker"]["allowed_toolsets"] = json!(["file"]);
+                }
+                Some("verify") => node["worker"]["allowed_toolsets"] = json!(["file"]),
+                _ => {}
+            }
+        }
+    }
+    graph
+}
+
 fn run_graph_value(
     run_id: &str,
     task_id: &str,
@@ -3935,6 +4005,7 @@ mod tests {
     fn join_review_loads_and_validates_canonical_dependency_close_receipts() {
         let root = tempfile::tempdir().unwrap();
         let mut dependency = ExplicitWorkbenchWorkItem {
+            read_only: false,
             objective_id: "objective-1".into(),
             leaf_id: "leaf-a".into(),
             run_id: "run-a".into(),
@@ -3987,6 +4058,7 @@ mod tests {
         let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
         let item = ExplicitWorkbenchWorkItem {
             objective_id: "objective-1".into(),
+            read_only: false,
             leaf_id: "leaf-1".into(),
             run_id: "objective-1-leaf-1-attempt-1".into(),
             objective: "Inspect exact project authority".into(),
@@ -4075,6 +4147,7 @@ mod tests {
         });
         let item = ExplicitWorkbenchWorkItem {
             objective_id: "objective-conflict".into(),
+            read_only: false,
             leaf_id: "leaf-conflict".into(),
             run_id: "objective-conflict-leaf-conflict-attempt-1".into(),
             objective: "Inspect exact project authority".into(),
@@ -4185,6 +4258,7 @@ mod tests {
         let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
         let item = ExplicitWorkbenchWorkItem {
             objective_id: "objective-close-conflict".into(),
+            read_only: false,
             leaf_id: "leaf-close-conflict".into(),
             run_id: "objective-close-conflict-leaf-close-conflict-attempt-1".into(),
             objective: "Inspect exact project authority".into(),
@@ -4231,6 +4305,7 @@ mod tests {
         let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
         let item = ExplicitWorkbenchWorkItem {
             objective_id: "objective-forged-close".into(),
+            read_only: false,
             leaf_id: "leaf-forged-close".into(),
             run_id: "objective-forged-close-leaf-forged-close-attempt-1".into(),
             objective: "Inspect exact project authority".into(),
@@ -4334,6 +4409,7 @@ mod tests {
         let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
         let item = ExplicitWorkbenchWorkItem {
             objective_id: "objective-2".into(),
+            read_only: false,
             leaf_id: "leaf-2".into(),
             run_id: "objective-2-leaf-2-attempt-1".into(),
             objective: "Inspect exact project authority".into(),

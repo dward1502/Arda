@@ -308,6 +308,173 @@ fn capsule_rejects_revoked_or_out_of_scope_memory() {
 }
 
 #[test]
+fn recovery_window_preserves_context_receipts_and_current_revocation_checks() {
+    let temp = TempDir::new().unwrap();
+    let service = service(&temp);
+    let now = 1_787_340_000_000;
+    write_memory(&service, "mem-recovery", "retained content");
+    let assembly = service
+        .assemble_organism_context(context(now, vec!["mem-recovery".into()]), &consumer(), now)
+        .unwrap();
+    let path = temp.path().join("vaire/context_use_receipts.jsonl");
+    let before = std::fs::read(&path).unwrap();
+    let starts = now + 60_000;
+    let ends = starts + 30 * 60_000;
+    assert!(service
+        .validate_context_assembly_for_execution(&assembly, starts)
+        .is_err());
+    service
+        .validate_context_assembly_for_recovery(&assembly, starts, starts, ends)
+        .unwrap();
+    assert!(service
+        .validate_context_assembly_for_recovery(&assembly, starts - 1, starts, ends)
+        .is_err());
+    assert!(service
+        .validate_context_assembly_for_recovery(&assembly, ends, starts, ends)
+        .is_err());
+    assert!(service
+        .validate_context_assembly_for_recovery(&assembly, starts, starts, ends + 1)
+        .is_err());
+    let mut tampered = assembly.clone();
+    tampered.capsule.context.expires_at_unix_ms = ends;
+    assert!(service
+        .validate_context_assembly_for_recovery(&tampered, starts, starts, ends)
+        .is_err());
+    let mut revoked = service
+        .recall_governed_memories(Some(&consumer()))
+        .unwrap()
+        .remove(0);
+    revoked.state = MemoryState::Revoked;
+    service
+        .write_governed_memory(revoked, Some(&consumer()))
+        .unwrap();
+    assert!(service
+        .validate_context_assembly_for_recovery(&assembly, starts, starts, ends)
+        .is_err());
+    assert_eq!(std::fs::read(&path).unwrap(), before);
+}
+
+#[test]
+fn recovery_window_rechecks_changed_content_and_domain() {
+    for changed_domain in [false, true] {
+        let temp = TempDir::new().unwrap();
+        let service = service(&temp);
+        let now = 1_787_340_000_000;
+        write_memory(&service, "mem-changed", "original retained content");
+        let assembly = service
+            .assemble_organism_context(context(now, vec!["mem-changed".into()]), &consumer(), now)
+            .unwrap();
+        let path = temp.path().join("vaire/context_use_receipts.jsonl");
+        let before = std::fs::read(&path).unwrap();
+        let starts = now + 60_000;
+        let ends = starts + 30 * 60_000;
+        service
+            .validate_context_assembly_for_recovery(&assembly, starts, starts, ends)
+            .unwrap();
+        let mut changed = service
+            .recall_governed_memories(Some(&consumer()))
+            .unwrap()
+            .remove(0);
+        if changed_domain {
+            changed
+                .extensions
+                .insert("memory_domain".into(), serde_json::json!("personal"));
+        } else {
+            changed.content = "replaced canonical content".into();
+        }
+        service
+            .write_governed_memory(changed, Some(&consumer()))
+            .unwrap();
+        assert!(service
+            .validate_context_assembly_for_recovery(&assembly, starts, starts, ends)
+            .is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+    }
+}
+
+#[test]
+fn recovery_stage_binding_preserves_expired_snapshot_and_durable_lineage() {
+    let temp = TempDir::new().unwrap();
+    let service = service(&temp);
+    let original = service
+        .assemble_organism_context(context(1000, vec![]), &consumer(), 1000)
+        .unwrap();
+    let window = 70_000..1_870_000;
+    let parents = vec!["receipt:successful-execute".into()];
+    assert!(service
+        .bind_run_stage_context(
+            &original,
+            "verify",
+            "Verify only",
+            parents.clone(),
+            window.start
+        )
+        .is_err());
+    for stage in ["verify", "review"] {
+        let expected = original
+            .for_run_stage(stage, "Verify only", parents.clone())
+            .unwrap();
+        let bound = service
+            .bind_run_stage_context_for_recovery(
+                &original,
+                stage,
+                "Verify only",
+                parents.clone(),
+                window.start,
+                window.clone(),
+            )
+            .unwrap();
+        assert_eq!(bound, expected);
+        assert_eq!(
+            bound.capsule.context.expires_at_unix_ms,
+            original.capsule.context.expires_at_unix_ms
+        );
+        assert_eq!(
+            service
+                .bind_run_stage_context_for_recovery(
+                    &original,
+                    stage,
+                    "Verify only",
+                    parents.clone(),
+                    window.start + 1,
+                    window.clone()
+                )
+                .unwrap(),
+            bound
+        );
+        service
+            .validate_context_assembly_for_recovery(&bound, window.start, window.start, window.end)
+            .unwrap();
+    }
+    let path = temp.path().join("vaire/context_use_receipts.jsonl");
+    let before = std::fs::read(&path).unwrap();
+    for (stage, now) in [
+        ("execute", window.start),
+        ("close", window.start),
+        ("verify", window.end),
+        ("verify", window.start - 1),
+    ] {
+        assert!(service
+            .bind_run_stage_context_for_recovery(
+                &original,
+                stage,
+                "Verify only",
+                parents.clone(),
+                now,
+                window.clone()
+            )
+            .is_err());
+    }
+    assert_eq!(std::fs::read(&path).unwrap(), before);
+    assert_eq!(
+        service
+            .context_use_receipt(&original.use_receipt.receipt_id)
+            .unwrap(),
+        Some(original.use_receipt)
+    );
+}
+
+#[test]
 fn context_use_receipt_and_capsule_identity_survive_service_restart() {
     let temp = TempDir::new().unwrap();
     let now_ms = 1_787_340_000_000;

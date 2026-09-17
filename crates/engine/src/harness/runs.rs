@@ -731,6 +731,8 @@ fn provider_instructions(kind: NodeKind, declared_checks: &[String]) -> String {
             "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks. Judge whether the parent receipt's result satisfies this node's bounded objective, and report named defects that contradict the objective or invalidate its evidence. Begin the summary with exactly `VERDICT: APPROVE` and use status `succeeded` only when the bounded result and evidence are approved. Begin with exactly `VERDICT: BLOCK` and use status `failed` when any named defect blocks approval. Requested analytical findings are an output to validate, not defects that fail the run unless they contradict the bounded objective or invalidate its evidence. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: {}",
             declared_checks.join("; ")
         )
+    } else if kind == NodeKind::Verify && declared_checks.is_empty() {
+        "Work only inside the attached project root. Do not commit or modify project files. No project-native checks are declared: do not invent checks or claim tests passed. Independently verify the parent inspection summary against relevant project files using the allowed file tools; return material file-tool evidence and cited findings. Keep test_evidence and artifacts empty. Fail if the parent result is unsupported.".into()
     } else if kind == NodeKind::Inspect {
         format!(
             "Work only inside the attached project root. Do not commit or modify project files. Use the file tools to read at least one relevant project file and return material file-tool evidence supporting the bounded inspection. Do not run the declared checks; the independent verifier owns project-native check execution. Declared checks reserved for verification: {}",
@@ -921,10 +923,14 @@ pub(super) async fn execute_provider_node(
         .expect("provider node remains present")
         .clone();
     ready_node.state = NodeState::Ready;
+    // File-only Verify is source inspection, not permission to execute checks.
+    let executes_checks = provider_executes_declared_checks(node.kind)
+        && !HermesNodeTask::file_only_verification_scope(&ready_node);
     let check_commands = attached
         .contract
         .checks
         .iter()
+        .filter(|_| executes_checks)
         .map(|check| {
             let command = attached.contract.command(&check.command);
             let invocation = command
@@ -949,9 +955,9 @@ pub(super) async fn execute_provider_node(
     let task = HermesNodeTask {
         run_id: graph.run_id.clone(),
         node: ready_node,
-        objective: request.objective.trim().to_string(),
+        objective: request.objective.clone(),
         instructions,
-        checks: if provider_executes_declared_checks(node.kind) {
+        checks: if executes_checks {
             attached
                 .contract
                 .checks
@@ -961,7 +967,7 @@ pub(super) async fn execute_provider_node(
         } else {
             Vec::new()
         },
-        check_commands: if provider_executes_declared_checks(node.kind) {
+        check_commands: if executes_checks {
             check_commands
         } else {
             BTreeMap::new()
@@ -1082,6 +1088,14 @@ pub(super) async fn execute_provider_node(
                 return Err(ApiError::conflict("retained execution requires Linux"));
             }
         } else {
+            attached
+                .contract
+                .workspace
+                .root
+                .resolve(&state.workbench_root)
+                .map_err(|error| {
+                    ApiError::conflict(format!("invalid project workspace: {error}"))
+                })?;
             HermesAdapter::load(&config_path, &project_root, &project_root, &environment)
         }
         .map_err(|error| {
@@ -1560,6 +1574,22 @@ fn provider_config_path(root: &std::path::Path) -> PathBuf {
     std::env::var_os("ARDA_HERMES_ADAPTER_CONFIG")
         .map(PathBuf::from)
         .unwrap_or_else(|| root.join("config/adapters/hermes-workbench.toml"))
+}
+
+/// Admission has no retained lease yet; conservatively check both configured
+/// dispatch paths. Reuses dispatch's resolver without pinning a workspace.
+pub(super) fn admission_provider_config_paths(root: &std::path::Path) -> Vec<PathBuf> {
+    let ordinary = provider_config_path(root);
+    let retained = retained_dispatch::execution_config(
+        &ordinary,
+        true,
+        std::env::var_os("ARDA_HERMES_RETAINED_ADAPTER_CONFIG").as_deref(),
+    );
+    if retained == ordinary {
+        vec![ordinary]
+    } else {
+        vec![ordinary, retained]
+    }
 }
 
 fn require_succeeded_dependencies(graph: &RunGraph, node_id: &NodeId) -> Result<(), ApiError> {

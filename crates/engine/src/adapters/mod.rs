@@ -4,6 +4,8 @@ pub mod assimilation;
 pub mod catalog;
 mod company;
 mod hermes;
+#[cfg(target_os = "linux")]
+pub use hermes::RecoveryDispatchGate;
 pub mod homeostasis;
 mod jsonl;
 pub mod knowledge_delta;

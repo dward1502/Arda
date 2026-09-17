@@ -3,7 +3,7 @@ use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 #[cfg(test)]
 mod tests;
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(tag = "operation", rename_all = "snake_case", deny_unknown_fields)]
 pub enum RuntimeOperation {
     Probe {},
@@ -11,6 +11,9 @@ pub enum RuntimeOperation {
         query: String,
         max_turns: u32,
         toolsets: Vec<String>,
+        /// Per-invocation workspace authority; omitted legacy requests fail closed.
+        #[serde(default)]
+        workspace_writable: bool,
     },
     Export {
         session_id: String,
@@ -36,6 +39,7 @@ impl RuntimeOperation {
                     query: query.clone(),
                     max_turns: turns.parse()?,
                     toolsets: tools.split(',').map(str::to_owned).collect(),
+                    workspace_writable: false,
                 })
             }
             [sessions, export, output, format_flag, format, session_flag, session, redact, yes]
@@ -62,6 +66,7 @@ impl RuntimeOperation {
                 query,
                 max_turns,
                 toolsets,
+                ..
             } => {
                 if query.is_empty()
                     || query
@@ -129,6 +134,7 @@ impl RuntimeOperation {
                 query,
                 max_turns,
                 toolsets,
+                ..
             } => vec![
                 "chat".into(),
                 "-Q".into(),

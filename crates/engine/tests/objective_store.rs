@@ -2,6 +2,250 @@ use arda_engine::objectives::{
     ControlAction, LeafStage, NewLeaf, NewObjective, ObjectiveState, ObjectiveStore,
     ProjectAuthority, ReceiptStage, ScheduleSpec, StageReceipt,
 };
+mod admission_recovery;
+#[path = "objective_store/recovery_fence.rs"]
+mod recovery_fence;
+
+#[test]
+fn repeated_stops_are_monotonic_but_exact_replays_and_resume_are_not_new_stops() {
+    let temp = TempDir::new().unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let input = objective("stop-fence", "stop-ingress");
+    let owner = input.operator_id.clone();
+    store.create_authenticated_objective(input, 100).unwrap();
+    let db = rusqlite::Connection::open(&path).unwrap();
+    let generation = || {
+        db.query_row(
+            "SELECT stop_generation FROM objectives WHERE id='stop-fence'",
+            [],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap()
+    };
+    assert_eq!(generation(), 0);
+    for (key, action, expected) in [
+        ("pause-1", ControlAction::Pause, 1),
+        ("pause-1", ControlAction::Pause, 1),
+        ("pause-2", ControlAction::Pause, 2),
+        ("resume", ControlAction::Resume, 2),
+        ("pause-3", ControlAction::Pause, 3),
+        ("cancel", ControlAction::Cancel, 4),
+        ("cancel", ControlAction::Cancel, 4),
+    ] {
+        store
+            .apply_control("stop-fence", action, key, &owner, 101)
+            .unwrap();
+        assert_eq!(generation(), expected);
+        let recorded: i64 = db
+            .query_row(
+                "SELECT stop_generation FROM controls WHERE idempotency_key=?1",
+                [key],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(recorded, expected);
+    }
+    assert!(store
+        .apply_control("stop-fence", ControlAction::Pause, "rejected", &owner, 101)
+        .is_err());
+    assert_eq!(generation(), 4);
+    drop(store);
+    ObjectiveStore::open(&path).unwrap();
+    assert_eq!(generation(), 4);
+}
+
+#[test]
+fn stop_fence_migration_preserves_legacy_controls_without_inventing_sequence() {
+    let temp = TempDir::new().unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let input = objective("legacy-stop", "legacy-stop-ingress");
+    let owner = input.operator_id.clone();
+    store.create_authenticated_objective(input, 100).unwrap();
+    store
+        .apply_control(
+            "legacy-stop",
+            ControlAction::Pause,
+            "legacy-pause",
+            &owner,
+            101,
+        )
+        .unwrap();
+    let db = rusqlite::Connection::open(&path).unwrap();
+    let before: String = db
+        .query_row("SELECT action_json FROM controls", [], |row| row.get(0))
+        .unwrap();
+    db.execute_batch("ALTER TABLE controls DROP COLUMN stop_generation; ALTER TABLE objectives DROP COLUMN stop_generation;").unwrap();
+    drop(store);
+    let reopened = ObjectiveStore::open(&path).unwrap();
+    let saved: (String, Option<i64>, i64) = db.query_row("SELECT action_json, stop_generation, (SELECT stop_generation FROM objectives) FROM controls", [], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?))).unwrap();
+    assert_eq!(saved, (before, None, 0));
+    reopened
+        .apply_control(
+            "legacy-stop",
+            ControlAction::Pause,
+            "new-pause",
+            &owner,
+            101,
+        )
+        .unwrap();
+    let generation: i64 = db
+        .query_row("SELECT stop_generation FROM objectives", [], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    assert_eq!(generation, 1);
+}
+
+#[test]
+fn stop_generation_overflow_rolls_back_state_and_audit() {
+    let temp = TempDir::new().unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let input = objective("stop-overflow", "overflow-ingress");
+    let owner = input.operator_id.clone();
+    store.create_authenticated_objective(input, 100).unwrap();
+    let db = rusqlite::Connection::open(&path).unwrap();
+    db.execute("UPDATE objectives SET stop_generation=?1", [i64::MAX])
+        .unwrap();
+    assert!(store
+        .apply_control(
+            "stop-overflow",
+            ControlAction::Cancel,
+            "overflow",
+            &owner,
+            101
+        )
+        .is_err());
+    let state: String = db
+        .query_row("SELECT state FROM objectives", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(state, "pending_approval");
+    let count: i64 = db
+        .query_row("SELECT COUNT(*) FROM controls", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(count, 0);
+    assert!(db
+        .execute("UPDATE objectives SET stop_generation=-1", [])
+        .is_err());
+    assert!(db
+        .execute("UPDATE objectives SET stop_generation=1.5", [])
+        .is_err());
+}
+
+#[test]
+fn original_admission_survives_restart_and_controls_without_reconstruction() {
+    let temp = TempDir::new().unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let mut input = objective("admission", "admission-key");
+    input.leaves[0].execution = Some(arda_engine::objectives::LeafExecutionSpec {
+        objective: input.text.clone(),
+        execution_prompt: "fixture evidence bytes: \"quoted\"\nVairë — untrusted advisory".into(),
+        verification_prompt: "fixture verification evidence".into(),
+        review_prompt: "fixture review evidence".into(),
+        approval_envelope: serde_json::json!({"fixture": true}),
+        objective_plan_receipt: "fixture-plan-receipt".into(),
+    });
+    store
+        .create_authenticated_objective(input.clone(), 100)
+        .unwrap();
+    store
+        .apply_control(
+            "admission",
+            ControlAction::Reprioritize { priority: 77 },
+            "priority-change",
+            &input.operator_id,
+            110,
+        )
+        .unwrap();
+    drop(store);
+    let reopened = ObjectiveStore::open_existing(&path).unwrap();
+    assert_eq!(
+        reopened
+            .authenticated_admission("admission-key", &input.operator_id)
+            .unwrap(),
+        Some(input.clone())
+    );
+    assert!(reopened
+        .authenticated_admission("admission-key", "other-owner")
+        .is_err());
+    assert!(reopened
+        .authenticated_admission("missing", &input.operator_id)
+        .unwrap()
+        .is_none());
+    let mut changed = input.clone();
+    changed.text.push_str(" changed retry");
+    assert!(reopened
+        .create_authenticated_objective(changed, 120)
+        .is_err());
+    assert_eq!(
+        reopened
+            .authenticated_admission("admission-key", &input.operator_id)
+            .unwrap(),
+        Some(input.clone())
+    );
+    let db = rusqlite::Connection::open(&path).unwrap();
+    let mut tampered = input.clone();
+    tampered.text.push_str(" forged snapshot");
+    db.execute(
+        "UPDATE objective_admissions SET input_json=?1 WHERE objective_id='admission'",
+        [serde_json::to_string(&tampered).unwrap()],
+    )
+    .unwrap();
+    assert!(reopened
+        .authenticated_admission("admission-key", &input.operator_id)
+        .is_err());
+    db.execute(
+        "DELETE FROM objective_admissions WHERE objective_id='admission'",
+        [],
+    )
+    .unwrap();
+    assert!(
+        reopened
+            .authenticated_admission("admission-key", &input.operator_id)
+            .is_err(),
+        "missing legacy snapshots must not be reconstructed from mutable objective state"
+    );
+}
+
+#[test]
+fn admission_snapshot_rolls_back_with_failed_objective_creation() {
+    let temp = TempDir::new().unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let db = rusqlite::Connection::open(&path).unwrap();
+    db.execute_batch("CREATE TRIGGER fixture_reject_leaf BEFORE INSERT ON leaves BEGIN SELECT RAISE(ABORT, 'fixture leaf failure'); END;").unwrap();
+    let input = objective("atomic-admission", "atomic-admission-key");
+    assert!(store
+        .create_authenticated_objective(input.clone(), 100)
+        .is_err());
+    let counts: (i64, i64) = db
+        .query_row(
+            "SELECT (SELECT COUNT(*) FROM objectives), (SELECT COUNT(*) FROM objective_admissions)",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(counts, (0, 0));
+    assert!(store
+        .authenticated_admission(&input.idempotency_key, &input.operator_id)
+        .unwrap()
+        .is_none());
+    db.execute_batch("DROP TRIGGER fixture_reject_leaf")
+        .unwrap();
+    store
+        .create_authenticated_objective(input.clone(), 110)
+        .unwrap();
+    assert_eq!(
+        store
+            .authenticated_admission(&input.idempotency_key, &input.operator_id)
+            .unwrap(),
+        Some(input)
+    );
+}
+
 #[test]
 fn deferred_schedule_gates_admission_and_consumes_once_across_restart() {
     let temp = TempDir::new().unwrap();

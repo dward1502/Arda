@@ -88,20 +88,83 @@ pub struct ProjectIdentity {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkspaceBoundary {
-    pub root: SafeRelativePath,
+    pub root: WorkspaceRoot,
+}
+
+/// An explicitly attached project root, distinct from paths inside that project.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(transparent)]
+pub struct WorkspaceRoot(String);
+
+impl WorkspaceRoot {
+    pub fn new(path: impl Into<String>) -> Result<Self, ProjectContractError> {
+        let path = path.into();
+        if path.contains('\0') {
+            return Err(ProjectContractError::InvalidRelativePath { path });
+        }
+        let parsed = Path::new(&path);
+        if parsed.is_absolute() {
+            if parsed.parent().is_none()
+                || path.contains('\0')
+                || parsed
+                    .components()
+                    .any(|c| matches!(c, Component::ParentDir))
+                || parsed
+                    .components()
+                    .collect::<std::path::PathBuf>()
+                    .as_os_str()
+                    != parsed.as_os_str()
+            {
+                return Err(ProjectContractError::PathEscapesWorkspace { path });
+            }
+        } else {
+            SafeRelativePath::new(path.clone())?;
+        }
+        Ok(Self(path))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+
+    /// Fresh admission only: retained execution must use its captured authority.
+    pub fn resolve(&self, base: &Path) -> Result<std::path::PathBuf, std::io::Error> {
+        let declared = Path::new(&self.0);
+        let base = base.canonicalize()?;
+        let resolved = base.join(declared).canonicalize()?;
+        if !resolved.is_dir()
+            || (declared.is_absolute() && resolved != declared)
+            || (!declared.is_absolute() && !resolved.starts_with(base))
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::PermissionDenied,
+                "project root must be its exact approved directory; relative roots cannot escape",
+            ));
+        }
+        Ok(resolved)
+    }
+}
+
+impl<'de> Deserialize<'de> for WorkspaceRoot {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        Self::new(String::deserialize(deserializer)?).map_err(serde::de::Error::custom)
+    }
 }
 
 impl WorkspaceBoundary {
-    pub fn canonical_path(&self, path: &str) -> Result<SafeRelativePath, ProjectContractError> {
+    pub fn canonical_path(&self, path: &str) -> Result<WorkspaceRoot, ProjectContractError> {
         let child = SafeRelativePath::new(path)?;
         if self.root.as_str() == "." {
-            Ok(child)
+            WorkspaceRoot::new(child.as_str())
         } else {
-            SafeRelativePath::new(format!(
-                "{}/{}",
-                self.root.as_str().trim_end_matches('/'),
-                child.as_str()
-            ))
+            WorkspaceRoot::new(
+                Path::new(self.root.as_str())
+                    .join(child.as_str())
+                    .components()
+                    .collect::<std::path::PathBuf>()
+                    .to_string_lossy()
+                    .into_owned(),
+            )
         }
     }
 }

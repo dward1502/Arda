@@ -171,6 +171,41 @@ fn canonical_rust_type_accepts_the_fixed_cross_language_fixture() {
 }
 
 #[test]
+fn explicit_absolute_workspace_keeps_child_paths_relative() {
+    let mut value: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string("examples/rust-project.json").unwrap())
+            .unwrap();
+    value["workspace"]["root"] = "/srv/projects/real-project".into();
+    let contract = ProjectContract::from_json_str(&value.to_string())
+        .expect("an explicitly attached project can live outside the daemon root");
+    assert_eq!(
+        contract.workspace.root.as_str(),
+        "/srv/projects/real-project"
+    );
+    assert!(contract.workspace.canonical_path("../sibling").is_err());
+    assert!(contract.workspace.canonical_path("/etc/passwd").is_err());
+    assert!(contract.workspace.canonical_path("src/lib.rs").is_ok());
+    value["commands"][0]["working_dir"] = "/etc".into();
+    assert!(ProjectContract::from_json_str(&value.to_string()).is_err());
+}
+
+#[test]
+fn workspace_root_shared_cases() {
+    let cases: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(spec_fixture("workspace-root-cases.json")).unwrap(),
+    )
+    .unwrap();
+    for case in cases.as_array().unwrap() {
+        let root = case["root"].as_str().unwrap();
+        assert_eq!(
+            arda_core::project_contract::WorkspaceRoot::new(root).is_ok(),
+            case["valid"].as_bool().unwrap(),
+            "root: {root:?}"
+        );
+    }
+}
+
+#[test]
 fn canonical_rust_type_rejects_fixed_invalid_project_fixtures() {
     let incompatible =
         std::fs::read_to_string(spec_fixture("invalid-schema-version.json")).unwrap();

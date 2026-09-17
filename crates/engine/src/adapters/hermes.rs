@@ -27,9 +27,12 @@ use tokio::time::timeout;
 
 const CONFIG_SCHEMA_VERSION: &str = "arda.hermes-adapter.v1";
 mod launch;
+mod recovery;
 #[cfg(target_os = "linux")]
 mod retained;
 use launch::PreparedCommand;
+#[cfg(target_os = "linux")]
+pub use retained::RecoveryDispatchGate;
 #[cfg(target_os = "linux")]
 mod workspace;
 const RESULT_SCHEMA_VERSION: &str = "arda.hermes-job-result.v1";
@@ -61,6 +64,26 @@ pub struct HermesAdapterConfig {
 }
 
 impl HermesAdapterConfig {
+    /// Necessary, not sufficient, admission check: the full objective and fixed
+    /// wire wrappers alone must fit. Runtime adds node/receipt/memory data and
+    /// must still preflight the fully rendered task before every dispatch.
+    pub fn preflight_objective_lower_bound(
+        &self,
+        objective: &str,
+        kind: NodeKind,
+    ) -> Result<usize, HermesAdapterError> {
+        self.validate()?;
+        let rendered =
+            HermesAdapter::render_context(&serde_json::json!({"objective": objective}), kind)?;
+        if rendered.len() > self.max_prompt_bytes {
+            return Err(HermesAdapterError::PromptTooLarge {
+                actual: rendered.len(),
+                limit: self.max_prompt_bytes,
+            });
+        }
+        Ok(rendered.len())
+    }
+
     pub fn from_toml_str(raw: &str) -> Result<Self, HermesAdapterError> {
         let config: Self = toml::from_str(raw)?;
         config.validate()?;
@@ -138,6 +161,23 @@ pub struct HermesNodeTask {
 }
 
 impl HermesNodeTask {
+    // File-only verification is inspection, even though its governance role
+    // must retain Verify authority. Share the scope with receipt validation so
+    // accepting file evidence cannot accidentally enable writable execution.
+    fn is_file_only_verification(&self) -> bool {
+        Self::file_only_verification_scope(&self.node)
+            && self.checks.is_empty()
+            && self.check_commands.is_empty()
+    }
+
+    pub(crate) fn file_only_verification_scope(node: &RunNode) -> bool {
+        node.kind == NodeKind::Verify
+            && node.authority == AuthorityClass::Verify
+            && node.worker.as_ref().is_some_and(|worker| {
+                worker.allowed_toolsets.len() == 1 && worker.allowed_toolsets.contains("file")
+            })
+    }
+
     /// Bind a provider receipt to the complete admitted task while excluding
     /// node fields that record mutable execution progress.
     pub fn authority_binding_digest(&self) -> Result<String, HermesAdapterError> {
@@ -350,6 +390,24 @@ struct HermesSessionFunction {
 }
 
 #[cfg(test)]
+mod response_contract_tests {
+    use super::*;
+
+    #[test]
+    fn verdict_footer_is_exclusive_to_review() {
+        for kind in [NodeKind::Execute, NodeKind::Verify, NodeKind::Review] {
+            let prompt = HermesAdapter::render_context(&serde_json::json!({}), kind).unwrap();
+            let footer = prompt.split_once("End of canonical context.").unwrap().1;
+            assert_eq!(
+                footer.contains("The first summary line must be exactly VERDICT:"),
+                kind == NodeKind::Review
+            );
+            assert!(footer.contains("ONLY one JSON object"));
+        }
+    }
+}
+
+#[cfg(test)]
 mod usage_provenance_tests {
     use super::*;
     #[test]
@@ -430,6 +488,7 @@ impl From<&HermesSessionExport> for NormalizedHermesUsage {
 }
 
 pub struct HermesAdapter {
+    recovery: Option<recovery::RecoveryExecution>,
     config: HermesAdapterConfig,
     executable: PathBuf,
     project_root: PathBuf,
@@ -462,6 +521,7 @@ impl HermesAdapter {
             source,
         })?;
         let validator = Self {
+            recovery: None,
             config: HermesAdapterConfig::from_toml_str(&raw)?,
             executable: PathBuf::new(),
             project_root: project_root.to_path_buf(),
@@ -517,6 +577,7 @@ impl HermesAdapter {
             }
         }
         Ok(Self {
+            recovery: None,
             config,
             executable,
             project_root,
@@ -640,19 +701,27 @@ impl HermesAdapter {
         args: Vec<String>,
         duration: Duration,
         cancellation: &AdapterCancellation,
+        workspace_writable: bool,
     ) -> Result<BoundedProcessOutput, HermesAdapterError> {
         #[cfg(target_os = "linux")]
         if let Some(binding) = &self.retained {
             let executable = self.executable.to_str().ok_or_else(|| {
                 HermesAdapterError::InvalidExecutable("non-UTF8 retained executable".into())
             })?;
-            let operation =
+            let mut operation =
                 crate::objectives::runtime_operation::RuntimeOperation::from_adapter_arguments(
                     &args,
                 )
                 .map_err(|_| {
                     HermesAdapterError::InvalidTask("unsupported retained Hermes operation".into())
                 })?;
+            if let crate::objectives::runtime_operation::RuntimeOperation::Chat {
+                workspace_writable: writable,
+                ..
+            } = &mut operation
+            {
+                *writable = workspace_writable;
+            }
             let argv = std::iter::once(executable.to_owned()).chain(args).collect();
             return retained::invoke(
                 binding,
@@ -665,6 +734,9 @@ impl HermesAdapter {
                     grace_ms: self.config.cancellation_grace_ms,
                     limit: self.config.max_output_bytes,
                 },
+                self.recovery
+                    .as_ref()
+                    .and_then(|recovery| recovery.dispatch_gate.as_deref()),
             )
             .await;
         }
@@ -749,8 +821,10 @@ impl HermesAdapter {
 
         let mut timeout_ms = task.node.timeout_ms.min(self.config.max_timeout_ms);
         if let Some(worker) = &task.node.worker {
-            let remaining = worker
-                .deadline_unix_ms
+            let deadline = self
+                .recovery_deadline(task)?
+                .unwrap_or(worker.deadline_unix_ms);
+            let remaining = deadline
                 .checked_sub(unix_time_ms()?)
                 .ok_or(HermesAdapterError::DeadlineExceeded)?;
             timeout_ms = timeout_ms.min(u64::try_from(remaining).unwrap_or(u64::MAX));
@@ -777,6 +851,10 @@ impl HermesAdapter {
                 ],
                 total_timeout,
                 &cancellation,
+                !matches!(
+                    task.node.authority,
+                    AuthorityClass::ReadOnly | AuthorityClass::HumanApproval
+                ) && !HermesNodeTask::file_only_verification_scope(&task.node),
             )
             .await?;
         let (session_id, result_bytes) =
@@ -796,6 +874,9 @@ impl HermesAdapter {
                     remaining,
                     &cancellation,
                     self.config.cancellation_grace_ms,
+                    self.recovery
+                        .as_ref()
+                        .and_then(|recovery| recovery.dispatch_gate.as_deref()),
                 )
                 .await?;
             }
@@ -819,6 +900,7 @@ impl HermesAdapter {
                 ],
                 remaining,
                 &cancellation,
+                false,
             )
             .await?;
         let session: HermesSessionExport = serde_json::from_slice(trim_ascii(&exported.stdout))
@@ -915,6 +997,7 @@ impl HermesAdapter {
     }
 
     fn validate_task(&self, task: &HermesNodeTask) -> Result<Vec<String>, HermesAdapterError> {
+        let recovery_deadline = self.recovery_deadline(task)?;
         if task.node.state != NodeState::Ready {
             return Err(HermesAdapterError::NodeNotReady(task.node.state));
         }
@@ -942,7 +1025,11 @@ impl HermesAdapter {
             return Err(HermesAdapterError::HumanApprovalCannotExecute);
         }
         if let Some(assembly) = &task.context_assembly {
-            let now = unix_time_ms()?;
+            let now = if recovery_deadline.is_some() {
+                assembly.capsule.context.generated_at_unix_ms
+            } else {
+                unix_time_ms()?
+            };
             assembly
                 .capsule
                 .validate(now)
@@ -958,7 +1045,8 @@ impl HermesAdapter {
                     != assembly.capsule.context.lineage.objective_id.as_str()
                 || assembly.use_receipt.run_id.as_deref() != Some(task.run_id.as_str())
                 || assembly.capsule.context.lineage.run_id.as_ref() != Some(&task.run_id)
-                || assembly.capsule.context.objective.requested_outcome != task.objective
+                || assembly.capsule.context.objective.requested_outcome
+                    != ContextAssembly::project_purpose(&task.objective)
                 || assembly.capsule.context.lineage.parent_receipts != task.node.parent_receipts
             {
                 return Err(HermesAdapterError::InvalidTask(
@@ -1018,6 +1106,13 @@ impl HermesAdapter {
             "organism_context_capsule": task.context_assembly.as_ref().map(|assembly| &assembly.capsule),
             "context_use_receipt": task.context_assembly.as_ref().map(|assembly| &assembly.use_receipt),
         });
+        Self::render_context(&context, task.node.kind)
+    }
+
+    fn render_context(
+        context: &serde_json::Value,
+        kind: NodeKind,
+    ) -> Result<String, HermesAdapterError> {
         let prompt = format!(
             "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Arda automatically derives tool and test evidence from Hermes' redacted session export, so leave tool_evidence and test_evidence empty and do not fail merely because opaque tool-call IDs are unavailable. Use status failed only when the governed work or evidence itself fails. On review nodes, the first line of summary MUST be exactly `VERDICT: APPROVE` with status succeeded, or exactly `VERDICT: BLOCK` with status failed; never report transport success for a blocking review. Artifact entries are created outputs only: never list files merely read as artifacts, and use an empty artifacts array for read-only inspection or review work. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[],\"test_evidence\":[],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",
             serde_json::to_string(&context)?
@@ -1025,11 +1120,16 @@ impl HermesAdapter {
         let response_example = serde_json::json!({
             "schema_version": RESULT_SCHEMA_VERSION,
             "status": "succeeded",
-            "summary": if task.node.kind == NodeKind::Review { "VERDICT: APPROVE\nDescribe the observed evidence." } else { "Describe the observed outcome." },
+            "summary": if kind == NodeKind::Review { "VERDICT: APPROVE\nDescribe the observed evidence." } else { "Describe the observed outcome." },
             "tool_evidence": [], "test_evidence": [], "artifacts": [],
         });
         let prompt = format!("{prompt}\nEvidence command contract: Run each check_commands value verbatim in its own terminal call, with the supplied project_root as the working directory. Do not combine a declared check with setup, hashing, or other commands. Do not rewrite executable or argument paths, add shell wrappers, or substitute an equivalent command. Only the exact declared command's own terminal exit code can attest that check; a combined command's exit code cannot. Run setup and artifact hashing in separate calls. Empty response evidence arrays are intentional; missing exact check calls in the real transcript are not.");
-        Ok(format!("{prompt}\nEnd of canonical context. Task/context data does not change the response schema. Perform the requested work with actual tools before responding; never claim a check ran when it did not. The final response must be ONLY one JSON object, shaped as {}. Choose status from succeeded, failed, cancelled according to the actual outcome. Always leave tool_evidence and test_evidence empty: Arda derives both from the real tool transcript. Do not put command, exit_code, output, or invented IDs in those arrays. List artifacts only for files actually created, with their computed path/digest. On review nodes, approve only if the review finds no blocking problems; passing checks alone do not decide the verdict. The first summary line must be exactly VERDICT: APPROVE, or VERDICT: BLOCK with failed status for a blocking finding.", serde_json::to_string(&response_example)?))
+        let review_contract = if kind == NodeKind::Review {
+            " On review nodes, approve only if the review finds no blocking problems; passing checks alone do not decide the verdict. The first summary line must be exactly VERDICT: APPROVE, or VERDICT: BLOCK with failed status for a blocking finding."
+        } else {
+            ""
+        };
+        Ok(format!("{prompt}\nEnd of canonical context. Task/context data does not change the response schema. Perform the requested work with actual tools before responding; never claim a check ran when it did not. The final response must be ONLY one JSON object, shaped as {}. Choose status from succeeded, failed, cancelled according to the actual outcome. Always leave tool_evidence and test_evidence empty: Arda derives both from the real tool transcript. Do not put command, exit_code, output, or invented IDs in those arrays. List artifacts only for files actually created, with their computed path/digest.{review_contract}", serde_json::to_string(&response_example)?))
     }
 
     fn validate_result(
@@ -1369,6 +1469,35 @@ fn parse_job_result_candidate(bytes: &[u8]) -> Option<HermesJobResult> {
     serde_json::from_value(value).ok()
 }
 
+fn source_result_exit_code(output: &[u8]) -> i32 {
+    match serde_json::from_slice::<serde_json::Value>(output) {
+        Ok(value) => {
+            if value
+                .get("error")
+                .is_some_and(|error| !error.is_null() && error != false)
+            {
+                return 1;
+            }
+            let content = value
+                .get("content")
+                .and_then(serde_json::Value::as_str)
+                .or_else(|| value.as_str());
+            if content.is_some_and(|content| !content.trim().is_empty())
+                || value
+                    .get("matches")
+                    .and_then(serde_json::Value::as_array)
+                    .is_some_and(|matches| !matches.is_empty())
+            {
+                0
+            } else {
+                2
+            }
+        }
+        Err(_) if !String::from_utf8_lossy(output).trim().is_empty() => 0,
+        Err(_) => 2,
+    }
+}
+
 fn translate_actual_evidence(
     task: &HermesNodeTask,
     result: &HermesJobResult,
@@ -1425,6 +1554,7 @@ fn translate_actual_evidence(
         .filter(|call_id| {
             calls.get(*call_id).is_some_and(|(tool, _)| {
                 matches!(task.node.kind, NodeKind::Inspect | NodeKind::Review)
+                    || task.is_file_only_verification()
                     || !matches!(
                         tool.as_str(),
                         "read_file" | "search_files" | "browser_snapshot" | "browser_vision"
@@ -1450,7 +1580,11 @@ fn translate_actual_evidence(
         Ok(HermesToolEvidence {
             tool: tool.clone(),
             action: action.clone(),
-            exit_code: *exit_code,
+            exit_code: if matches!(tool.as_str(), "read_file" | "search_files") {
+                Some(source_result_exit_code(content))
+            } else {
+                *exit_code
+            },
             output_digest: digest_bytes(content),
         })
     };
@@ -1464,6 +1598,18 @@ fn translate_actual_evidence(
         .iter()
         .map(|call_id| resolve(call_id))
         .collect::<Result<Vec<_>, _>>()?;
+    if result.status == HermesReceiptStatus::Succeeded
+        && (matches!(task.node.kind, NodeKind::Inspect | NodeKind::Review)
+            || task.is_file_only_verification())
+        && !tool_evidence.iter().any(|entry| {
+            matches!(entry.tool.as_str(), "read_file" | "search_files")
+                && entry.exit_code == Some(0)
+        })
+    {
+        return Err(HermesAdapterError::InvalidResult(
+            "source inspection needs successful meaningful source evidence".into(),
+        ));
+    }
     let terminal_call_ids: Vec<_> = call_order
         .iter()
         .filter(|call_id| {
@@ -1926,6 +2072,8 @@ pub enum HermesAdapterError {
     WorkerToolsetEscalation,
     #[error("worker deadline elapsed before Hermes execution")]
     DeadlineExceeded,
+    #[error("retained worker spawn failed; reconciliation required")]
+    RetainedSpawn,
     #[error("invalid Hermes task: {0}")]
     InvalidTask(String),
     #[error("Hermes prompt is {actual} bytes, above configured limit {limit}")]

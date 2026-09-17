@@ -25,6 +25,8 @@ use tempfile::TempDir;
 #[cfg(target_os = "linux")]
 #[path = "fixtures/keeper_adapter.rs"]
 mod keeper_adapter;
+#[path = "fixtures/recovery_window.rs"]
+mod recovery_window;
 #[cfg(target_os = "linux")]
 #[path = "fixtures/retained_adapter.rs"]
 mod retained_adapter;
@@ -152,6 +154,14 @@ if mode.startswith("review_"):
             "content": "reviewed source",
         },
     ]
+if mode in ("review_denied", "review_denied_then_success"):
+    import copy
+    success = copy.deepcopy(session["messages"])
+    session["messages"][-1]["content"] = json.dumps({"error":"source-only scope denied"})
+    if mode == "review_denied_then_success":
+        success[0]["tool_calls"][0]["id"] = "call-review-2"
+        success[1]["tool_call_id"] = "call-review-2"
+        session["messages"] += success
 if mode == "unknown_cost":
     session.pop("estimated_cost_usd")
     session.pop("actual_cost_usd")
@@ -172,7 +182,7 @@ result = {
     }],
     "artifacts": [],
 }
-if mode == "review_file":
+if mode in ("review_file", "review_denied", "review_denied_then_success"):
     result["summary"] = "VERDICT: APPROVE\nIndependent file-only review found no blocking defects."
     result["tool_evidence"] = [{"tool_call_id": "call-review-1"}]
     result["test_evidence"] = []
@@ -298,9 +308,21 @@ fn context_assembly(root: &Path, task: &HermesNodeTask) -> ContextAssembly {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis();
+    context_assembly_at(root, task, now_ms)
+}
+
+fn context_assembly_at(root: &Path, task: &HermesNodeTask, now_ms: u128) -> ContextAssembly {
     let mut consumer =
         ConsumerContext::new("hermes:fresh-context-worker", vec![MemoryDomain::System]);
-    consumer.purpose = Some(task.objective.clone());
+    consumer.purpose = Some(if task.objective.len() > 4096 {
+        use sha2::{Digest, Sha256};
+        format!(
+            "Full task purpose sha256:{:x}",
+            Sha256::digest(task.objective.as_bytes())
+        )
+    } else {
+        task.objective.clone()
+    });
     let service = MnemosyneService::new(root.join("vaire"))
         .unwrap()
         .with_contract_memory_root(root.join("memory"));
@@ -343,7 +365,15 @@ fn context_assembly(root: &Path, task: &HermesNodeTask) -> ContextAssembly {
                     parent_receipts: task.node.parent_receipts.clone(),
                 },
                 objective: ContextObjective {
-                    requested_outcome: task.objective.clone(),
+                    requested_outcome: if task.objective.len() > 4096 {
+                        use sha2::{Digest, Sha256};
+                        format!(
+                            "Full task purpose sha256:{:x}",
+                            Sha256::digest(task.objective.as_bytes())
+                        )
+                    } else {
+                        task.objective.clone()
+                    },
                     acceptance_conditions: vec!["run the declared check".into()],
                     required_capabilities: vec!["terminal".into()],
                     forbidden_capabilities: vec!["ambient-transcript-read".into()],
@@ -412,6 +442,67 @@ fn inspection_task() -> HermesNodeTask {
     task.node.kind = NodeKind::Inspect;
     task.node.worker.as_mut().unwrap().role = WorkerRole::LocalSummaryClassification;
     task
+}
+
+#[tokio::test]
+async fn denied_source_reads_cannot_satisfy_material_evidence() {
+    for mode in ["review_denied", "review_denied_then_success"] {
+        let root = TempDir::new().unwrap();
+        let adapter = adapter(&root, mode);
+        let result = adapter
+            .execute(&inspection_task(), AdapterCancellation::new())
+            .await;
+        if mode == "review_denied" {
+            assert!(
+                result.is_err(),
+                "denied reads are not successful inspection"
+            );
+        } else {
+            let receipt = result.unwrap();
+            assert!(
+                receipt
+                    .tool_evidence
+                    .iter()
+                    .any(|entry| entry.exit_code == Some(1)),
+                "denial remains diagnostic evidence"
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn file_only_verifier_requires_actual_evidence_and_no_declared_checks() {
+    let root = TempDir::new().unwrap();
+    let adapter = adapter(&root, "review_file");
+    let mut task = review_task();
+    task.node.kind = NodeKind::Verify;
+    task.node.authority = AuthorityClass::Verify;
+    let worker = task.node.worker.as_mut().unwrap();
+    worker.role = WorkerRole::IndependentVerifier;
+    worker.evidence_policy = EvidencePolicy::ProjectNativeChecks;
+    let receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .unwrap();
+    assert_eq!(receipt.status, HermesReceiptStatus::Succeeded);
+    assert_eq!(receipt.tool_evidence[0].tool, "read_file");
+    assert!(receipt.test_evidence.is_empty());
+    task.checks.push("python-smoke".into());
+    task.check_commands
+        .insert("python-smoke".into(), "python3 smoke.py".into());
+    assert!(adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .is_err());
+    task.checks.clear();
+    task.check_commands.clear();
+    task.node.kind = NodeKind::Execute;
+    task.node.authority = AuthorityClass::ExecuteWithApproval;
+    task.node.worker.as_mut().unwrap().role = WorkerRole::Implementer;
+    assert!(adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .is_err());
 }
 
 fn adapter(root: &TempDir, mode: &str) -> HermesAdapter {
@@ -633,8 +724,25 @@ async fn governed_capsule_is_injected_and_bound_to_typed_receipts() {
     let root = TempDir::new().expect("project root");
     let adapter = adapter(&root, "success");
     let mut task = task(800);
-    let assembly = context_assembly(root.path(), &task);
+    task.objective = format!("\n{}\n", "original stage evidence ".repeat(500));
+    let original = context_assembly(root.path(), &task);
+    let assembly = original
+        .for_run_stage(
+            "execute",
+            &task.objective,
+            task.node.parent_receipts.clone(),
+        )
+        .unwrap();
     task.context_assembly = Some(assembly.clone());
+
+    let original_evidence = format!(
+        "\n{{\"evidence\":\"{}\"}}\n",
+        "trusted-store fixture ".repeat(600)
+    );
+    task.instructions.push_str(&original_evidence);
+    adapter
+        .preflight(&task)
+        .expect("rendered near-budget prompt");
 
     let receipt = adapter
         .execute(&task, AdapterCancellation::new())
@@ -667,6 +775,54 @@ async fn governed_capsule_is_injected_and_bound_to_typed_receipts() {
     .unwrap();
     let prompt = capture["prompt"].as_str().unwrap();
     assert!(prompt.contains("organism_context_capsule"));
+    let config = HermesAdapterConfig::from_toml_str(
+        &fs::read_to_string(root.path().join("hermes-workbench.toml")).unwrap(),
+    )
+    .unwrap();
+    let lower_bound = config
+        .preflight_objective_lower_bound(&task.objective, task.node.kind)
+        .unwrap();
+    assert!(lower_bound < prompt.len());
+    let mut exact = config.clone();
+    exact.max_prompt_bytes = lower_bound;
+    assert!(exact
+        .preflight_objective_lower_bound(&task.objective, task.node.kind)
+        .is_ok());
+    exact.max_prompt_bytes -= 1;
+    assert!(matches!(
+        exact.preflight_objective_lower_bound(&task.objective, task.node.kind),
+        Err(HermesAdapterError::PromptTooLarge { .. })
+    ));
+    let escaped = "\"\n\t\\".repeat(1000);
+    let escaped_bound = config
+        .preflight_objective_lower_bound(&escaped, NodeKind::Review)
+        .unwrap();
+    assert!(escaped_bound > escaped.len() * 2);
+    let canonical = prompt
+        .split_once("Canonical node context follows:\n")
+        .unwrap()
+        .1
+        .split_once("\nEvidence command contract:")
+        .unwrap()
+        .0;
+    let canonical: serde_json::Value = serde_json::from_str(canonical).unwrap();
+    assert_eq!(canonical["objective"], task.objective);
+    let mut changed = task.clone();
+    changed.objective.push('!');
+    assert!(matches!(
+        adapter.preflight(&changed),
+        Err(HermesAdapterError::InvalidTask(_))
+    ));
+    assert!(canonical["instructions"]
+        .as_str()
+        .unwrap()
+        .ends_with(&original_evidence));
+    let mut oversized = task.clone();
+    oversized.instructions = "e".repeat(48 * 1024);
+    assert!(matches!(
+        adapter.preflight(&oversized),
+        Err(HermesAdapterError::PromptTooLarge { .. })
+    ));
     assert!(prompt.contains("context_use_receipt"));
     assert!(prompt.contains("mem-hermes-next-action"));
     assert!(!prompt.contains("\"transcript\":"));

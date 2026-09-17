@@ -8,7 +8,25 @@ use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::net::UnixStream;
 mod dispatch;
+#[cfg(test)]
+mod gate_tests;
 pub(super) use dispatch::invoke;
+
+/// Process-local synchronous dispatch authority. The callback is one-shot and
+/// nonblocking; an error after calling it still requires transport cleanup.
+pub trait RecoveryDispatchGate: Send + Sync {
+    fn dispatch(
+        &self,
+        binding: &RetainedExecution,
+        operation: &crate::objectives::runtime_operation::RuntimeOperation,
+        delimiter: Box<dyn FnOnce() -> Result<(), HermesAdapterError> + '_>,
+    ) -> Result<(), HermesAdapterError>;
+}
+
+type DispatchGate<'a> = Option<(
+    &'a dyn RecoveryDispatchGate,
+    &'a crate::objectives::runtime_operation::RuntimeOperation,
+)>;
 
 pub(super) struct ExecutionLimits {
     pub duration: Duration,
@@ -68,6 +86,7 @@ impl super::HermesAdapter {
                 .or_insert_with(|| path.clone());
         }
         Ok(Self {
+            recovery: None,
             config,
             executable,
             cwd: project_root.clone(),
@@ -91,6 +110,7 @@ struct Output {
     stdout: Option<String>,
     stderr: Option<String>,
     code: Option<i32>,
+    error: Option<String>,
 }
 
 fn protocol_error() -> HermesAdapterError {
@@ -100,7 +120,41 @@ fn protocol_error() -> HermesAdapterError {
     )
 }
 
-pub(super) async fn execute(
+fn response_error(output: &Output) -> HermesAdapterError {
+    // Classify only a supervisor-owned prefix; never retain arbitrary remote
+    // diagnostics, paths, environment values, or transport capabilities.
+    if !output.ok
+        && output
+            .error
+            .as_deref()
+            .is_some_and(|error| error.starts_with("spawn snapshot provider:"))
+    {
+        return HermesAdapterError::RetainedSpawn;
+    }
+    protocol_error()
+}
+
+#[test]
+fn retained_failure_diagnostics_never_echo_worker_payloads() {
+    for (payload, expected) in [
+        (
+            "spawn snapshot provider: private-token",
+            "retained worker spawn failed",
+        ),
+        ("unknown private-token", "retained worker response invalid"),
+    ] {
+        let output: Output = serde_json::from_value(serde_json::json!({
+            "ok": false, "error": payload
+        }))
+        .unwrap();
+        let error = response_error(&output).to_string();
+        assert!(error.contains(expected), "{error}");
+        assert!(!error.contains("private-token"));
+    }
+}
+
+#[cfg(test)]
+async fn execute(
     binding: &RetainedExecution,
     argv: Vec<String>,
     environment: BTreeMap<String, String>,
@@ -120,6 +174,7 @@ pub(super) async fn execute(
             limit,
         },
         None,
+        None,
     )
     .await
 }
@@ -131,6 +186,7 @@ async fn execute_inner(
     cancellation: &AdapterCancellation,
     limits: ExecutionLimits,
     operation: Option<crate::objectives::runtime_operation::RuntimeOperation>,
+    gate: DispatchGate<'_>,
 ) -> Result<BoundedProcessOutput, HermesAdapterError> {
     let ExecutionLimits {
         duration,
@@ -192,17 +248,51 @@ async fn execute_inner(
         _ = tokio::time::sleep_until(started + duration) => return Err(HermesAdapterError::Timeout),
         result = writer.write_all(&encoded) => result.map_err(|_| protocol_error())?,
     }
-    // A single-byte write is cancellation-safe: Pending means no dispatch;
-    // successful completion moves immediately into cleanup-acknowledged mode.
-    let written = tokio::select! {
-        biased;
-        _ = signal.wait_for(|value| *value) => return Err(HermesAdapterError::Cancelled),
-        _ = tokio::time::sleep_until(started + duration) => return Err(HermesAdapterError::Timeout),
-        result = writer.write(b"\n") => result.map_err(|_| protocol_error())?,
+    let launch_error = if let Some((gate, operation)) = gate {
+        tokio::select! {
+            biased;
+            _ = signal.wait_for(|value| *value) => return Err(HermesAdapterError::Cancelled),
+            _ = tokio::time::sleep_until(started + duration) => return Err(HermesAdapterError::Timeout),
+            result = writer.writable() => result.map_err(|_| protocol_error())?,
+        }
+        // The durable authority fence must not await socket readiness. Retain
+        // this marker outside its Result: expiry/commit can fail AFTER send.
+        let mut sent = false;
+        let result = gate.dispatch(
+            binding,
+            operation,
+            Box::new(|| {
+                if *signal.borrow() {
+                    return Err(HermesAdapterError::Cancelled);
+                }
+                if tokio::time::Instant::now() >= started + duration {
+                    return Err(HermesAdapterError::Timeout);
+                }
+                if writer.try_write(b"\n").map_err(|_| protocol_error())? != 1 {
+                    return Err(protocol_error());
+                }
+                sent = true;
+                Ok(())
+            }),
+        );
+        if !sent {
+            // Includes replay/no-op: never fall through to ordinary dispatch.
+            return Err(result.err().unwrap_or_else(protocol_error));
+        }
+        result.err()
+    } else {
+        // Ordinary dispatch remains cancellation-safe: Pending means not sent.
+        let written = tokio::select! {
+            biased;
+            _ = signal.wait_for(|value| *value) => return Err(HermesAdapterError::Cancelled),
+            _ = tokio::time::sleep_until(started + duration) => return Err(HermesAdapterError::Timeout),
+            result = writer.write(b"\n") => result.map_err(|_| protocol_error())?,
+        };
+        if written != 1 {
+            return Err(protocol_error());
+        }
+        None
     };
-    if written != 1 {
-        return Err(protocol_error());
-    }
     let response = async {
         let mut framed = BufReader::new(reader.take(wire::MAX_RESPONSE_BYTES as u64 + 1));
         let mut bytes = Vec::new();
@@ -216,16 +306,20 @@ async fn execute_inner(
         let output: Output = serde_json::from_slice(&bytes).map_err(|_| protocol_error())?;
         // Only successful execution envelopes are emitted after proven cleanup.
         if !output.ok || output.stdout.is_none() || output.stderr.is_none() {
-            return Err(protocol_error());
+            return Err(response_error(&output));
         }
         Ok(output)
     };
     tokio::pin!(response);
-    let interrupt = tokio::select! {
-        biased;
-        _ = signal.wait_for(|value| *value) => HermesAdapterError::Cancelled,
-        _ = tokio::time::sleep_until(started + duration) => HermesAdapterError::Timeout,
-        output = &mut response => return finish(output?, limit),
+    let interrupt = if let Some(error) = launch_error {
+        error
+    } else {
+        tokio::select! {
+            biased;
+            _ = signal.wait_for(|value| *value) => HermesAdapterError::Cancelled,
+            _ = tokio::time::sleep_until(started + duration) => HermesAdapterError::Timeout,
+            output = &mut response => return finish(output?, limit),
+        }
     };
     // Half-close requests cancellation but retains the response side so cleanup
     // acknowledgement, rather than socket disappearance, bounds our return.
@@ -245,6 +339,7 @@ pub(super) async fn verify_artifacts(
     duration: Duration,
     cancellation: &AdapterCancellation,
     grace_ms: u64,
+    gate: Option<&dyn RecoveryDispatchGate>,
 ) -> Result<(), HermesAdapterError> {
     if artifacts.is_empty() {
         return Ok(());
@@ -270,6 +365,7 @@ pub(super) async fn verify_artifacts(
             grace_ms,
             limit: 65536,
         },
+        gate,
     )
     .await?;
     #[derive(Deserialize)]

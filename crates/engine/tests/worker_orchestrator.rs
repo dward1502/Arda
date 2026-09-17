@@ -11,6 +11,73 @@ use arda_engine::runs::{
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::PathBuf;
+#[path = "fixtures/recovery_window.rs"]
+mod recovery_window;
+
+#[test]
+fn recovery_scheduling_is_exact_bounded_and_preserves_captured_deadline() {
+    use arda_engine::runs::schedule_recovery_worker;
+    let mut graph = parallel_graph();
+    graph.nodes[0].state = NodeState::Succeeded;
+    graph.nodes[1].state = NodeState::Succeeded;
+    graph.nodes[0].output_digest = Some("sha256:planner".into());
+    graph.nodes[1].output_digest = Some("sha256:critic".into());
+    graph.nodes[2].worker.as_mut().unwrap().deadline_unix_ms = 1;
+    let review = graph.nodes[2].id.clone();
+    let grant =
+        recovery_window::grant(&graph.run_id, &NodeId::new("verify").unwrap(), &review, 100);
+    graph.provenance.project_contract_digest = grant.bindings.project_contract_digest.clone();
+    let captured = serde_json::to_vec(&graph).unwrap();
+    let limits = WorkerLimits::default();
+    let usage = WorkerUsage::default();
+    let availability = WorkerAvailability::default();
+    let ordinary = schedule_ready_workers(&graph, &limits, &usage, &availability, 100);
+    assert!(ordinary
+        .blocked
+        .iter()
+        .any(|b| b.node_id == review && b.reason == WorkerBlockReason::Deadline));
+    let scoped =
+        schedule_recovery_worker(&graph, &limits, &usage, &availability, 100, &grant, &review)
+            .unwrap();
+    assert_eq!(scoped.selected, vec![review.clone()]);
+    for now in [99, grant.expires_at_unix_ms.into()] {
+        assert!(schedule_recovery_worker(
+            &graph,
+            &limits,
+            &usage,
+            &availability,
+            now,
+            &grant,
+            &review
+        )
+        .is_err());
+    }
+    assert!(schedule_recovery_worker(
+        &graph,
+        &limits,
+        &usage,
+        &availability,
+        100,
+        &grant,
+        &graph.nodes[0].id
+    )
+    .is_err());
+    let degraded = WorkerAvailability {
+        degraded_routes: [graph.nodes[2].worker.as_ref().unwrap().route_id.clone()].into(),
+        ..WorkerAvailability::default()
+    };
+    let blocked =
+        schedule_recovery_worker(&graph, &limits, &usage, &degraded, 100, &grant, &review).unwrap();
+    assert!(blocked.selected.is_empty());
+    assert_eq!(blocked.queued[0].reason, WorkerBlockReason::RouteDegraded);
+    assert_eq!(serde_json::to_vec(&graph).unwrap(), captured);
+    graph.nodes[0].state = NodeState::Pending;
+    let dependency =
+        schedule_recovery_worker(&graph, &limits, &usage, &availability, 100, &grant, &review)
+            .unwrap();
+    assert!(dependency.selected.is_empty());
+    assert_eq!(dependency.queued[0].reason, WorkerBlockReason::Dependency);
+}
 
 fn worker_node(
     id: &str,

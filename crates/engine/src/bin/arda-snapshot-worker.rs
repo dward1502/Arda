@@ -18,12 +18,27 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
+#[path = "snapshot_runtime/inference_broker.rs"]
+mod inference_broker;
+#[path = "snapshot_runtime/network_filter.rs"]
+mod network_filter;
 mod snapshot_child;
 mod snapshot_ephemeral;
 mod snapshot_lease;
 mod snapshot_output;
+mod snapshot_rebind;
 mod snapshot_runtime;
 mod snapshot_state;
+#[cfg(test)]
+mod snapshot_workspace_tests;
+
+fn workspace_mount_argument(writable: bool) -> &'static str {
+    if writable {
+        "--bind-fd"
+    } else {
+        "--ro-bind-fd"
+    }
+}
 
 fn cpath(path: &Path) -> Result<CString> {
     Ok(CString::new(path.as_os_str().as_bytes())?)
@@ -82,6 +97,9 @@ struct ExecutionControl<'a> {
     client: &'a UnixStream,
     timeout_ms: u64,
     max_output_bytes: usize,
+    workspace_writable: bool,
+    inference: bool,
+    rebind: snapshot_rebind::Control<'a>,
 }
 
 fn execute(
@@ -98,6 +116,9 @@ fn execute(
         client,
         timeout_ms,
         max_output_bytes,
+        workspace_writable,
+        inference,
+        mut rebind,
     } = control;
     if *poisoned {
         bail!("snapshot execution cleanup is unresolved");
@@ -115,8 +136,27 @@ fn execute(
     let deadline = Instant::now()
         + Duration::from_millis(timeout_ms)
             .min(binding.remaining(&binding.lease, snapshot_lease::now_ms()?)?);
-    let mut command = Command::new(std::env::current_exe()?);
+    // Resolve the kernel-held image at exec, not its installation pathname.
+    // Atomic upgrades unlink the old image: current_exe() then names a missing
+    // "(deleted)" path. Re-exec must retain this worker's code, not its replacement.
+    let mut command = Command::new("/proc/self/exe");
+    let filter = runtime.map(|_| network_filter::file()).transpose()?;
+    let (mut broker, input) = if inference {
+        let (broker, input) = inference_broker::Broker::start(
+            runtime.context("inference requires captured runtime")?,
+            deadline,
+        )?;
+        (Some(broker), Stdio::from(OwnedFd::from(input)))
+    } else {
+        (None, Stdio::null())
+    };
     command.arg("--launch-bwrap");
+    if let Some(filter) = &filter {
+        command
+            .arg("--unshare-net")
+            .arg("--seccomp")
+            .arg(filter.as_raw_fd().to_string());
+    }
     if runtime.is_none() {
         command.args(["--ro-bind", "/usr", "/usr"]);
     }
@@ -152,8 +192,8 @@ fn execute(
             "--setenv",
             "TMPDIR",
             "/var/tmp",
-            "--bind-fd",
         ])
+        .arg(workspace_mount_argument(workspace_writable))
         .arg(stage.as_raw_fd().to_string())
         .arg(root);
     if let Some(runtime) = runtime {
@@ -166,7 +206,7 @@ fn execute(
     }
     command.arg("--chdir").arg(root).arg("--").args(argv);
     command
-        .stdin(Stdio::null())
+        .stdin(input)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .process_group(0);
@@ -181,6 +221,9 @@ fn execute(
         .map(|runtime| runtime.inherited_descriptors())
         .unwrap_or_default();
     inherited.push(stage.as_raw_fd());
+    if let Some(filter) = &filter {
+        inherited.push(filter.as_raw_fd());
+    }
 
     unsafe {
         command.pre_exec(move || {
@@ -221,6 +264,14 @@ fn execute(
     let mut cancelled = false;
     let pgid = i32::try_from(child.id())?;
     let timed_out = loop {
+        match rebind.poll(binding, deadline) {
+            Ok(true) => cancelled = true,
+            Ok(false) => {}
+            Err(_) => {
+                *poisoned = true;
+                cancelled = true;
+            }
+        }
         stdout.poll()?;
         stderr.poll()?;
         // Execute uses one request per connection. EOF (including write-half
@@ -281,6 +332,10 @@ fn execute(
         }
         std::thread::sleep(Duration::from_millis(5));
     };
+    // Revoke inference immediately, before waiting for process-tree teardown.
+    if let Some(broker) = &mut broker {
+        broker.stop();
+    }
     // Terminate remaining group members even if the leader exited first.
     let cleanup = child.begin_cleanup();
     if unsafe { libc::kill(-pgid, libc::SIGKILL) } == -1 {
@@ -310,6 +365,9 @@ fn execute(
         std::thread::sleep(Duration::from_millis(5));
     }
     child.finish();
+    if let Some(broker) = &mut broker {
+        broker.stop();
+    }
     // Tree teardown is proven above. Drain only the bounded residual pipe data.
     while stdout.poll()? {}
     while stderr.poll()? {}
@@ -318,7 +376,7 @@ fn execute(
         serde_json::json!({"ok": true, "timed_out": timed_out, "cancelled": cancelled,
         "output_limit": stdout.overflow || stderr.overflow,
         "stdout": String::from_utf8_lossy(&stdout.bytes),
-        "stderr": String::from_utf8_lossy(&stderr.bytes), "code": status.code()}),
+        "stderr": format!("{}{}", String::from_utf8_lossy(&stderr.bytes), broker.as_ref().and_then(|b| b.failure()).map(|phase| format!("\ninference broker stopped: phase={phase}\n")).unwrap_or_default()), "code": status.code()}),
     )
 }
 
@@ -409,8 +467,12 @@ fn serve(
     let digest = format!("{:x}", Sha256::digest(&encoded));
     let mut committed: Option<snapshot_lease::Binding> = None;
     let mut poisoned = false;
-    for stream in listener.incoming() {
-        let mut stream = stream?;
+    let mut pending: Option<snapshot_rebind::Pending> = None;
+    loop {
+        let (mut stream, queued) = match pending.take() {
+            Some(pending) => (pending.stream, Some(pending.request)),
+            None => (listener.accept()?.0, None),
+        };
         stream.set_read_timeout(Some(Duration::from_secs(2)))?;
         stream.set_write_timeout(Some(Duration::from_secs(2)))?;
         if same_user(&stream).is_err() {
@@ -418,8 +480,11 @@ fn serve(
         }
         let mut release = false;
         let response = (|| -> Result<serde_json::Value> {
-            let line = read_request(&mut stream)?;
-            match serde_json::from_slice::<Request>(&line)? {
+            let request = match queued {
+                Some(request) => request,
+                None => serde_json::from_slice::<Request>(&read_request(&mut stream)?)?,
+            };
+            match request {
                 Request::Inspect => Ok(serde_json::json!({"ok": true, "manifest": manifest, "manifest_digest": digest, "committed": committed.as_ref().map(|b| &b.lease)})),
                 Request::Commit { capability, manifest_digest, lease } => {
                     if capability != manifest.capability || manifest_digest != digest { bail!("snapshot admission binding mismatch"); }
@@ -434,7 +499,7 @@ fn serve(
                     if capability != manifest.capability { bail!("snapshot execution is not admitted"); }
                     let binding = committed.as_ref().context("snapshot execution is not admitted")?;
                     binding.remaining(&lease, snapshot_lease::now_ms()?)?;
-                    execute(&stage, &root, &argv, &environment, ExecutionControl { binding, client: &stream, timeout_ms, max_output_bytes }, &mut poisoned, None)
+                    execute(&stage, &root, &argv, &environment, ExecutionControl { binding, client: &stream, timeout_ms, max_output_bytes, workspace_writable: true, inference: false, rebind: snapshot_rebind::Control { listener: &listener, manifest: &manifest, digest: &digest, pending: &mut pending } }, &mut poisoned, None)
                 }
                 Request::Runtime { capability, lease, operation, timeout_ms, max_output_bytes } => {
                     if manifest.admission_digest.is_none() || capability != manifest.capability { bail!("typed runtime needs witnessed admission"); }
@@ -442,8 +507,12 @@ fn serve(
                     let binding = committed.as_ref().context("snapshot execution is not admitted")?;
                     binding.remaining(&lease, snapshot_lease::now_ms()?)?;
                     let argv = runtime.operation_argv(&operation)?;
+                    let workspace_writable = matches!(operation,
+                        arda_engine::objectives::runtime_operation::RuntimeOperation::Chat {
+                            workspace_writable: true, ..
+                        });
                     execute(&stage, &root, &argv, &runtime.policy.policy().fixed_environment,
-                        ExecutionControl { binding, client: &stream, timeout_ms, max_output_bytes }, &mut poisoned, Some(runtime))
+                        ExecutionControl { binding, client: &stream, timeout_ms, max_output_bytes, workspace_writable, inference: matches!(operation, arda_engine::objectives::runtime_operation::RuntimeOperation::Chat { .. }), rebind: snapshot_rebind::Control { listener: &listener, manifest: &manifest, digest: &digest, pending: &mut pending } }, &mut poisoned, Some(runtime))
                 }
                 Request::Release { capability } => {
                     if capability != manifest.capability { bail!("snapshot capability mismatch"); }
@@ -468,9 +537,6 @@ fn serve(
         // A client disconnect never destroys the snapshot or undoes admission.
         let _ = writeln!(stream, "{}", response);
     }
-    drop(listener);
-    drop(stage);
-    owned_state.cleanup()
 }
 
 fn main() -> Result<()> {
@@ -585,7 +651,10 @@ fn launch_bwrap(args: &[std::ffi::OsString]) -> Result<()> {
 }
 
 fn read_request(stream: &mut UnixStream) -> Result<Vec<u8>> {
-    let deadline = Instant::now() + Duration::from_secs(2);
+    read_request_until(stream, Instant::now() + Duration::from_secs(2))
+}
+
+fn read_request_until(stream: &mut UnixStream, deadline: Instant) -> Result<Vec<u8>> {
     let mut line = Vec::new();
     loop {
         let remaining = deadline

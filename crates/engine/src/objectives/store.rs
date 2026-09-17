@@ -15,7 +15,10 @@ use std::sync::{Arc, Mutex, OnceLock, Weak};
 use std::time::Duration;
 use tokio::sync::watch;
 
+mod admissions;
 mod authority;
+mod recovery;
+pub use recovery::RecoveryMaterial;
 
 #[derive(Clone)]
 pub struct ObjectiveStore {
@@ -265,6 +268,8 @@ impl ObjectiveStore {
     ) -> Result<ObjectiveRecord> {
         validate_objective(&objective)?;
         let payload_digest = digest_json(&objective)?;
+        let admission_json =
+            serde_json::to_string(&objective).context("serialize objective admission")?;
         let mut connection = self.connection()?;
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -323,6 +328,13 @@ impl ObjectiveStore {
                 ],
             )
             .context("insert objective")?;
+
+        transaction
+            .execute(
+                "INSERT INTO objective_admissions (objective_id, input_json) VALUES (?1, ?2)",
+                params![objective.id, admission_json],
+            )
+            .context("persist original objective admission")?;
 
         for (ordinal, project) in objective.projects.iter().enumerate() {
             transaction
@@ -643,6 +655,14 @@ impl ObjectiveStore {
                         "objective cannot be revised after execution started; cancel it and create a new objective"
                     );
                 }
+                let has_execution_plan = transaction.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM leaves WHERE objective_id = ?1 AND execution_json IS NOT NULL)",
+                    params![objective_id],
+                    |row| row.get::<_, bool>(0),
+                )?;
+                if has_execution_plan {
+                    bail!("objective has a persisted execution plan; cancel it and create a new objective with a newly reviewed plan instead of revising text alone");
+                }
                 transaction.execute(
                     "UPDATE objectives SET text = ?1, revision = revision + 1,
                      approved_revision = NULL, state = ?2, updated_at_ms = ?3 WHERE id = ?4",
@@ -656,10 +676,22 @@ impl ObjectiveStore {
             }
         }
 
+        // Accepted new stops invalidate recovery even if the state was already
+        // Paused. Exact replay returned above; overflow rolls back all changes.
+        if matches!(action, ControlAction::Pause | ControlAction::Cancel) {
+            let changed = transaction.execute(
+                "UPDATE objectives SET stop_generation = stop_generation + 1
+                 WHERE id = ?1 AND stop_generation < 9223372036854775807",
+                [objective_id],
+            )?;
+            if changed != 1 {
+                bail!("objective stop generation exhausted");
+            }
+        }
         transaction.execute(
             "INSERT INTO controls
-             (idempotency_key, objective_id, operator_id, action_json, created_at_ms)
-             VALUES (?1, ?2, ?3, ?4, ?5)",
+             (idempotency_key, objective_id, operator_id, action_json, created_at_ms, stop_generation)
+             SELECT ?1, ?2, ?3, ?4, ?5, stop_generation FROM objectives WHERE id = ?2",
             params![
                 idempotency_key,
                 objective_id,
@@ -796,31 +828,44 @@ impl ObjectiveStore {
         }
         let candidate_limit = capacity.saturating_mul(8).saturating_add(32) as i64;
 
-        // Retained trees still share filesystem objects, even when their host
-        // path has disappeared. Until historical overlap can be proven, reserve
-        // them exclusively rather than resolving a replacement path as authority.
-        let retained_live: bool = transaction.query_row(
+        // Only first-admission readers may overlap. Recovery and any unknown or
+        // write-capable authority remain exclusive, including paused live leases.
+        let exclusive_live: bool = transaction.query_row(
             "SELECT EXISTS(SELECT 1 FROM leaves l
-             JOIN retained_workspace_snapshots s ON s.leaf_id = l.id
              WHERE l.lease_expires_ms > ?1
-               AND l.stage IN ('execute','verify','review','close'))",
+               AND l.stage IN ('execute','verify','review','close')
+               AND (l.authority != 'read_only' OR l.attempt != 1))",
             [now_ms],
             |row| row.get(0),
         )?;
-        if retained_live {
+        if exclusive_live {
             transaction.commit()?;
             return Ok(Vec::new());
         }
+        let live_any: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM leaves WHERE lease_expires_ms > ?1
+             AND stage IN ('execute','verify','review','close'))",
+            [now_ms],
+            |row| row.get(0),
+        )?;
 
         // Resolve live leases inside the same immediate transaction as admission.
         // Stored contract spelling is preserved; aliases are not separate capacity.
+        // Retained readers are the narrow exception: never resolve their old
+        // pathname as captured authority. Across calls readers may alias, but
+        // cannot write; this exception is NOT proof of project independence.
+        // Writers/recovery remain exclusive even when these roots are omitted.
         let topology = read_topology()?;
         let mut occupied_roots = {
             let mut statement = transaction.prepare(
                 "SELECT l.workspace_root, i.identity_json FROM leaves l
                  LEFT JOIN lease_workspace_identities i ON i.leaf_id = l.id
                  WHERE l.lease_expires_ms > ?1
-                 AND l.stage IN ('execute', 'verify', 'review', 'close')",
+                 AND l.stage IN ('execute', 'verify', 'review', 'close')
+                 AND NOT (l.authority = 'read_only' AND EXISTS (
+                    SELECT 1 FROM retained_workspace_snapshots s
+                    WHERE s.leaf_id = l.id AND s.run_id = l.execution_run_id
+                    AND NOT EXISTS (SELECT 1 FROM retained_snapshot_releases r WHERE r.leaf_id=l.id)))",
             )?;
             let roots = statement
                 .query_map([now_ms], |row| {
@@ -846,7 +891,7 @@ impl ObjectiveStore {
         // Keyset pages bound temporary memory without letting blocked aliases at
         // the head of the queue permanently hide eligible independent work.
         let mut cursor: Option<(String, i64, i64, String)> = None;
-        while claimed.len() < capacity {
+        'pages: while claimed.len() < capacity {
             let candidates = {
                 let mut statement = transaction.prepare(
                     "SELECT l.id, o.priority, o.created_at_ms, o.id
@@ -858,6 +903,13 @@ impl ObjectiveStore {
                        JOIN objectives recovering ON recovering.id = interrupted.objective_id
                        WHERE recovering.state IN (?1, ?2)
                          AND interrupted.attempt > 0 AND interrupted.context_bound = 1
+                         AND (COALESCE(interrupted.lease_expires_ms, 0) <= ?7 OR NOT EXISTS (
+                             SELECT 1 FROM retained_workspace_snapshots active_reader
+                             WHERE active_reader.leaf_id = interrupted.id
+                               AND active_reader.run_id = interrupted.execution_run_id
+                               AND interrupted.authority = 'read_only' AND interrupted.attempt = 1
+                               AND NOT EXISTS (SELECT 1 FROM retained_snapshot_releases released
+                                               WHERE released.leaf_id = interrupted.id)))
                          AND interrupted.stage IN (?3, ?4, ?5, ?6)))
                    AND (l.attempt > 0 OR NOT EXISTS
                         (SELECT 1 FROM schedules s WHERE s.objective_id = o.id)
@@ -922,11 +974,17 @@ impl ObjectiveStore {
                 if claimed.len() == capacity {
                     break;
                 }
-                let (workspace, attempt): (String, u32) = transaction.query_row(
-                    "SELECT workspace_root, attempt FROM leaves WHERE id = ?1",
-                    [&leaf_id],
-                    |row| Ok((row.get(0)?, row.get(1)?)),
-                )?;
+                let (workspace, attempt, authority): (String, u32, String) = transaction
+                    .query_row(
+                        "SELECT workspace_root, attempt, authority FROM leaves WHERE id = ?1",
+                        [&leaf_id],
+                        |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+                    )?;
+                let fresh_read_only =
+                    !reconciliation_only && attempt == 0 && authority == "read_only";
+                if !fresh_read_only && (live_any || !claimed.is_empty()) {
+                    continue;
+                }
                 let saved: Option<String> = transaction
                     .query_row(
                         "SELECT identity_json FROM lease_workspace_identities WHERE leaf_id = ?1",
@@ -958,8 +1016,10 @@ impl ObjectiveStore {
                 } else {
                     let held: bool = transaction.query_row(
                         "SELECT EXISTS(SELECT 1 FROM retained_workspace_snapshots s
-                         WHERE NOT EXISTS (SELECT 1 FROM retained_snapshot_releases r WHERE r.leaf_id = s.leaf_id))",
-                        [], |row| row.get(0),
+                         JOIN leaves holder ON holder.id = s.leaf_id
+                         WHERE NOT EXISTS (SELECT 1 FROM retained_snapshot_releases r WHERE r.leaf_id = s.leaf_id)
+                         AND (?1 = 0 OR holder.authority != 'read_only'))",
+                        [fresh_read_only], |row| row.get(0),
                     )?;
                     if held {
                         continue;
@@ -1049,68 +1109,7 @@ impl ObjectiveStore {
                     [&leaf_id],
                 )?;
                 occupied_roots.push(physical_root);
-                let mut claim = transaction.query_row(
-                "SELECT objective_id, id, project_id, workspace_root, authority, stage, attempt,
-                        current_receipt_digest,
-                        (SELECT contract_digest FROM objective_projects p
-                         WHERE p.objective_id = leaves.objective_id
-                           AND p.project_id = leaves.project_id),
-                        execution_json, execution_run_id
-                 FROM leaves WHERE id = ?1",
-                [&leaf_id],
-                |row| {
-                    let stage = parse_leaf_stage(row.get::<_, String>(5)?)?;
-                    Ok(ClaimedLeaf {
-                        objective_id: row.get(0)?,
-                        leaf_id: row.get(1)?,
-                        project_id: row.get(2)?,
-                        workspace_root: row.get(3)?,
-                        authority: row.get(4)?,
-                        stage,
-                        attempt: row.get(6)?,
-                        lease_owner: lease_owner.to_owned(),
-                        lease_expires_ms: expires_ms,
-                        current_receipt_digest: row.get(7)?,
-                        project_contract_digest: row.get(8)?,
-                        execution: parse_execution_spec(row.get(9)?)?,
-                        execution_run_id: row.get(10)?,
-                        dependency_receipts: Vec::new(),
-                    })
-                },
-            )?;
-                claim.dependency_receipts = {
-                    let mut statement = transaction.prepare(
-                        "SELECT r.contract, r.digest, r.predecessor_digest, r.run_path, r.provider,
-                            r.model, r.started_at_ms, r.completed_at_ms, r.verdict,
-                            r.context_outcome_receipt_id, r.context_outcome_receipt_digest,
-                            r.binding_digest
-                     FROM leaf_dependencies d
-                     JOIN stage_receipts r ON r.leaf_id = d.dependency_leaf_id
-                     WHERE d.leaf_id = ?1 AND r.stage = ?2
-                     ORDER BY d.dependency_leaf_id",
-                    )?;
-                    let rows = statement.query_map(
-                        params![leaf_id, ReceiptStage::Close.as_str()],
-                        |row| {
-                            Ok(StageReceipt {
-                                contract: row.get(0)?,
-                                stage: ReceiptStage::Close,
-                                digest: row.get(1)?,
-                                predecessor_digest: row.get(2)?,
-                                run_path: row.get(3)?,
-                                provider: row.get(4)?,
-                                model: row.get(5)?,
-                                started_at_ms: row.get(6)?,
-                                completed_at_ms: row.get(7)?,
-                                verdict: row.get(8)?,
-                                context_outcome_receipt_id: row.get(9)?,
-                                context_outcome_receipt_digest: row.get(10)?,
-                                binding_digest: row.get(11)?,
-                            })
-                        },
-                    )?;
-                    rows.collect::<rusqlite::Result<Vec<_>>>()?
-                };
+                let claim = Self::decode_claim(&transaction, &leaf_id)?;
                 transaction.execute(
                     "UPDATE objectives SET state = ?1, updated_at_ms = ?2
                  WHERE id = ?3 AND state = ?4",
@@ -1122,6 +1121,9 @@ impl ObjectiveStore {
                     ],
                 )?;
                 claimed.push(claim);
+                if !fresh_read_only {
+                    break 'pages;
+                }
             }
         }
         if read_topology()? != topology {
@@ -1129,6 +1131,79 @@ impl ObjectiveStore {
         }
         transaction.commit().context("commit objective claims")?;
         Ok(claimed)
+    }
+
+    // Decode only; callers own claim authorization and lease mutation. Keep
+    // receipt projection identical for ordinary and exact-leaf recovery claims.
+    pub(super) fn decode_claim(
+        transaction: &rusqlite::Transaction<'_>,
+        leaf_id: &str,
+    ) -> Result<ClaimedLeaf> {
+        let mut claim = transaction.query_row(
+            "SELECT objective_id, id, project_id, workspace_root, authority, stage, attempt,
+                        current_receipt_digest,
+                        (SELECT contract_digest FROM objective_projects p
+                         WHERE p.objective_id = leaves.objective_id
+                           AND p.project_id = leaves.project_id),
+                        execution_json, execution_run_id, lease_owner, lease_expires_ms
+                 FROM leaves WHERE id = ?1",
+            [&leaf_id],
+            |row| {
+                let stage = parse_leaf_stage(row.get::<_, String>(5)?)?;
+                Ok(ClaimedLeaf {
+                    objective_id: row.get(0)?,
+                    leaf_id: row.get(1)?,
+                    project_id: row.get(2)?,
+                    workspace_root: row.get(3)?,
+                    authority: row.get(4)?,
+                    stage,
+                    attempt: row.get(6)?,
+                    lease_owner: row.get(11)?,
+                    lease_expires_ms: row.get(12)?,
+                    current_receipt_digest: row.get(7)?,
+                    project_contract_digest: row.get(8)?,
+                    execution: parse_execution_spec(row.get(9)?)?,
+                    execution_run_id: row.get(10)?,
+                    dependency_receipts: Vec::new(),
+                })
+            },
+        )?;
+        claim.dependency_receipts = Self::read_dependency_receipts(transaction, leaf_id)?;
+        Ok(claim)
+    }
+
+    fn read_dependency_receipts(
+        transaction: &Transaction<'_>,
+        leaf_id: &str,
+    ) -> Result<Vec<StageReceipt>> {
+        let mut statement = transaction.prepare(
+            "SELECT r.contract, r.digest, r.predecessor_digest, r.run_path, r.provider,
+                            r.model, r.started_at_ms, r.completed_at_ms, r.verdict,
+                            r.context_outcome_receipt_id, r.context_outcome_receipt_digest,
+                            r.binding_digest
+                     FROM leaf_dependencies d
+                     JOIN stage_receipts r ON r.leaf_id = d.dependency_leaf_id
+                     WHERE d.leaf_id = ?1 AND r.stage = ?2
+                     ORDER BY d.dependency_leaf_id",
+        )?;
+        let rows = statement.query_map(params![leaf_id, ReceiptStage::Close.as_str()], |row| {
+            Ok(StageReceipt {
+                contract: row.get(0)?,
+                stage: ReceiptStage::Close,
+                digest: row.get(1)?,
+                predecessor_digest: row.get(2)?,
+                run_path: row.get(3)?,
+                provider: row.get(4)?,
+                model: row.get(5)?,
+                started_at_ms: row.get(6)?,
+                completed_at_ms: row.get(7)?,
+                verdict: row.get(8)?,
+                context_outcome_receipt_id: row.get(9)?,
+                context_outcome_receipt_digest: row.get(10)?,
+                binding_digest: row.get(11)?,
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
     pub fn record_stage_receipt(
@@ -1144,6 +1219,31 @@ impl ObjectiveStore {
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .context("begin receipt recording")?;
+
+        let changed = Self::record_stage_receipt_in(
+            &transaction,
+            leaf_id,
+            lease_owner,
+            attempt,
+            &receipt,
+            now_ms,
+        )?;
+        transaction.commit().context("commit stage receipt")?;
+        if changed {
+            self.notify_change();
+        }
+        Ok(())
+    }
+
+    fn record_stage_receipt_in(
+        transaction: &rusqlite::Transaction<'_>,
+        leaf_id: &str,
+        lease_owner: &str,
+        attempt: i64,
+        receipt: &StageReceipt,
+        now_ms: i64,
+    ) -> Result<bool> {
+        validate_receipt(receipt)?;
 
         if let Some((digest, predecessor, outcome_id, outcome_digest, binding_digest)) = transaction
             .query_row(
@@ -1169,8 +1269,7 @@ impl ObjectiveStore {
                 && outcome_digest == receipt.context_outcome_receipt_digest
                 && binding_digest == receipt.binding_digest
             {
-                transaction.commit()?;
-                return Ok(());
+                return Ok(false);
             }
             bail!("receipt idempotency conflict for {leaf_id}");
         }
@@ -1244,9 +1343,7 @@ impl ObjectiveStore {
                 leaf_id
             ],
         )?;
-        transaction.commit().context("commit stage receipt")?;
-        self.notify_change();
-        Ok(())
+        Ok(true)
     }
 
     pub fn close_objective(

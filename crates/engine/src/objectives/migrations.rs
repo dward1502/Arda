@@ -2,11 +2,22 @@ use anyhow::{Context, Result};
 use rusqlite::Connection;
 
 pub(crate) fn apply(connection: &Connection) -> Result<()> {
+    // Foreign-key enforcement must be enabled outside the transaction. Hold the
+    // writer lock across all schema inspection and DDL, including legacy checks.
+    connection.pragma_update(None, "foreign_keys", true)?;
+    let transaction =
+        rusqlite::Transaction::new_unchecked(connection, rusqlite::TransactionBehavior::Immediate)
+            .context("begin objective schema migration")?;
+    apply_locked(&transaction)?;
+    transaction
+        .commit()
+        .context("commit objective schema migration")
+}
+
+fn apply_locked(connection: &Connection) -> Result<()> {
     connection
         .execute_batch(
             r#"
-            PRAGMA foreign_keys = ON;
-
             CREATE TABLE IF NOT EXISTS gateway_event_bindings (
                 event_id TEXT PRIMARY KEY,
                 payload_digest TEXT NOT NULL
@@ -26,6 +37,11 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
                 terminal_receipt_digest TEXT,
                 created_at_ms INTEGER NOT NULL,
                 updated_at_ms INTEGER NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS objective_admissions (
+                objective_id TEXT PRIMARY KEY REFERENCES objectives(id) ON DELETE CASCADE,
+                input_json TEXT NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS objective_projects (
@@ -231,12 +247,98 @@ pub(crate) fn apply(connection: &Connection) -> Result<()> {
             connection.execute(sql, [])?;
         }
     }
+    for (table, sql) in [
+        ("objectives", "ALTER TABLE objectives ADD COLUMN stop_generation INTEGER NOT NULL DEFAULT 0 CHECK(typeof(stop_generation) = 'integer' AND stop_generation >= 0)"),
+        ("controls", "ALTER TABLE controls ADD COLUMN stop_generation INTEGER CHECK(stop_generation IS NULL OR (typeof(stop_generation) = 'integer' AND stop_generation >= 0))"),
+    ] {
+        let exists = {
+            let mut statement = connection.prepare(&format!("PRAGMA table_info({table})"))?;
+            let columns = statement.query_map([], |row| row.get::<_, String>(1))?;
+            columns.collect::<rusqlite::Result<Vec<_>>>()?.iter().any(|column| column == "stop_generation")
+        };
+        if !exists {
+            connection.execute(sql, [])?;
+        }
+    }
+    connection.execute_batch(
+        "CREATE TABLE IF NOT EXISTS recovery_admissions (
+            authenticated_event_id TEXT PRIMARY KEY REFERENCES gateway_event_bindings(event_id),
+            operator_id TEXT NOT NULL,
+            objective_id TEXT NOT NULL REFERENCES objectives(id),
+            leaf_id TEXT NOT NULL REFERENCES leaves(id),
+            run_id TEXT NOT NULL UNIQUE,
+            grant_json TEXT NOT NULL
+        );",
+    )?;
+    let has_recovery_marker: bool = connection.query_row(
+        "SELECT EXISTS(SELECT 1 FROM pragma_table_info('retained_snapshot_lease_intents') WHERE name='recovery_event_id')",
+        [], |row| row.get(0),
+    )?;
+    if !has_recovery_marker {
+        connection.execute("ALTER TABLE retained_snapshot_lease_intents ADD COLUMN recovery_event_id TEXT REFERENCES recovery_admissions(authenticated_event_id)", [])?;
+    }
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn failed_schema_upgrade_rolls_back_earlier_column_additions() {
+        let db = Connection::open_in_memory().unwrap();
+        apply(&db).unwrap();
+        db.execute_batch(
+            "ALTER TABLE objectives DROP COLUMN stop_generation;
+            DROP TABLE controls;
+            CREATE VIEW controls AS SELECT '' AS idempotency_key;",
+        )
+        .unwrap();
+        assert!(apply(&db).is_err());
+        let count: i64 = db
+            .query_row(
+                "SELECT COUNT(*) FROM pragma_table_info('objectives') WHERE name='stop_generation'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 0);
+        assert!(db.is_autocommit());
+    }
+
+    #[test]
+    fn concurrent_legacy_openers_serialize_schema_checks() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("legacy.sqlite3");
+        let db = Connection::open(&path).unwrap();
+        apply(&db).unwrap();
+        db.execute_batch(
+            "ALTER TABLE controls DROP COLUMN stop_generation;
+            ALTER TABLE objectives DROP COLUMN stop_generation;",
+        )
+        .unwrap();
+        drop(db);
+        let ready = std::sync::Arc::new(std::sync::Barrier::new(8));
+        let workers: Vec<_> = (0..8).map(|_| {
+            let (path, ready) = (path.clone(), ready.clone());
+            std::thread::spawn(move || {
+                let db = Connection::open(path).unwrap();
+                db.busy_timeout(std::time::Duration::from_secs(10)).unwrap();
+                ready.wait();
+                apply(&db).unwrap();
+                apply(&db).unwrap();
+                let enabled: i64 = db.query_row("PRAGMA foreign_keys", [], |row| row.get(0)).unwrap();
+                assert_eq!(enabled, 1);
+                for table in ["objectives", "controls"] {
+                    let count: i64 = db.query_row(&format!("SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name='stop_generation'"), [], |row| row.get(0)).unwrap();
+                    assert_eq!(count, 1);
+                }
+            })
+        }).collect();
+        for worker in workers {
+            worker.join().unwrap();
+        }
+    }
 
     #[test]
     fn existing_resident_context_bindings_gain_operator_marker_without_data_loss() {

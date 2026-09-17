@@ -1,5 +1,7 @@
 use super::*;
 pub(crate) mod pending;
+#[cfg(test)]
+mod preparation_tests;
 mod qualification;
 mod runtime_state;
 
@@ -116,11 +118,14 @@ impl Owner {
                         .context("managed_binding")?;
                     transaction.execute("INSERT INTO snapshots(run,workspace,identity,state) VALUES(?1,?2,?3,'preparing')", params![run,workspace.to_str().context("UTF-8 workspace required")?,identity])?;
                     transaction.commit()?;
-                    let (run_policy, _allocation_pin) =
+                    #[cfg(test)]
+                    preparation_tests::crash("preparing");
+                    let (run_policy, _allocation_pin) = {
                         match self.run_policy(&run).context("runtime_allocation")? {
                             Some((policy, pin)) => (Some(policy), Some(pin)),
                             None => (None, None),
-                        };
+                        }
+                    };
                     let pending = run_policy
                         .as_ref()
                         .map(|policy| {
@@ -201,6 +206,8 @@ impl Owner {
                         cleanup: self.failed_qualifications.clone(),
                     };
                     let deadline = Instant::now() + Duration::from_secs(4);
+                    #[cfg(test)]
+                    preparation_tests::crash("worker_spawned");
                     let inspection: Inspection = loop {
                         if qualification.child.as_mut().unwrap().try_wait()?.is_some() {
                             return Err(anyhow::anyhow!(
@@ -249,12 +256,16 @@ impl Owner {
                         capability: inspection.manifest.capability,
                         manifest_digest: inspection.manifest_digest,
                     };
+                    #[cfg(test)]
+                    preparation_tests::crash("qualified");
                     self.db.execute(
                         "UPDATE snapshots SET state='prepared',authority=?2 WHERE run=?1",
                         params![run, serde_json::to_string(&snapshot)?],
                     )?;
                     self.children
                         .insert(run.clone(), qualification.into_child());
+                    #[cfg(test)]
+                    preparation_tests::crash("prepared");
                     Some(snapshot)
                 }
             }
@@ -282,9 +293,12 @@ impl Owner {
                 if state == "reconciled_revoked" {
                     super::keeper_reconcile::release_ack(&self.db, &run, &self.runtime)?;
                 } else if state != "released" {
-                    if state != "prepared" {
+                    if state != "prepared" && state != "releasing" {
                         bail!("release requires explicit reconciliation");
                     }
+                    // A failed delivery/refusal is retryable while this owner
+                    // still holds the live child. Absence is never cleanup proof;
+                    // worker ACK loss/death still requires explicit reconciliation.
                     self.live(&run)?;
                     self.db.execute(
                         "UPDATE snapshots SET state='releasing' WHERE run=?1",

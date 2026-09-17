@@ -1,5 +1,16 @@
 use super::*;
 #[test]
+fn chat_preserves_explicit_workspace_write_authority() {
+    for writable in [false, true] {
+        let value = serde_json::json!({
+            "operation": "chat", "query": "test", "max_turns": 1,
+            "toolsets": ["file"], "workspace_writable": writable
+        });
+        let operation: RuntimeOperation = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(serde_json::to_value(operation).unwrap(), value);
+    }
+}
+#[test]
 fn artifact_argument_budget_counts_serialized_bytes() {
     let mut paths = vec!["a".repeat(4096); 16];
     let excess = serde_json::to_vec(&paths).unwrap().len() - 65_535;
@@ -38,6 +49,7 @@ fn typed_operations_cannot_select_runtime_or_import_environment() {
         query: "--profile=attacker".into(),
         max_turns: 3,
         toolsets: vec!["terminal".into()],
+        workspace_writable: false,
     };
     let argv = chat.hermes_arguments().unwrap();
     assert!(argv.contains(&"--query=--profile=attacker".to_owned()));
@@ -45,7 +57,8 @@ fn typed_operations_cannot_select_runtime_or_import_environment() {
     assert!(RuntimeOperation::Chat {
         query: "test".into(),
         max_turns: 3,
-        toolsets: vec!["terminal,delegation".into()]
+        toolsets: vec!["terminal,delegation".into()],
+        workspace_writable: false,
     }
     .validate()
     .is_err());

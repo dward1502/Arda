@@ -18,7 +18,7 @@
     "workspace": {
       "type": "object",
       "required": ["root"],
-      "properties": {"root": {"$ref": "#/$defs/relativePath"}}
+      "properties": {"root": {"$ref": "#/$defs/workspaceRoot"}}
     },
     "runtime": {
       "type": "object",
@@ -79,6 +79,14 @@
     }
   },
   "$defs": {
+    "workspaceRoot": {
+      "type": "string",
+      "minLength": 1,
+      "allOf": [
+        {"not": {"pattern": "((^|/)\\.\\.(/|$)|\\u0000)"}},
+        {"if": {"pattern": "^/"}, "then": {"not": {"pattern": "(//|/$|/\\.(/|$))"}}}
+      ]
+    },
     "relativePath": {
       "type": "string",
       "minLength": 1,

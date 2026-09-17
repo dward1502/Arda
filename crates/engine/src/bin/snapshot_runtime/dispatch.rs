@@ -5,6 +5,35 @@ use arda_engine::objectives::{
     runtime_policy::{GrantAccess, GrantKind, GrantRole},
 };
 use std::{os::fd::AsRawFd, process::Command};
+
+fn bootstrap_mode(operation: &RuntimeOperation) -> &'static str {
+    match operation {
+        RuntimeOperation::Chat {
+            workspace_writable: false,
+            ..
+        } => "chat_read_only",
+        RuntimeOperation::Chat { .. } => "chat",
+        RuntimeOperation::Export { .. } => "export",
+        _ => "probe",
+    }
+}
+
+#[test]
+fn readonly_chat_selects_guarded_bootstrap() {
+    for writable in [false, true] {
+        let operation = RuntimeOperation::Chat {
+            query: "inspect".into(),
+            max_turns: 1,
+            toolsets: vec!["file".into()],
+            workspace_writable: writable,
+        };
+        assert_eq!(
+            bootstrap_mode(&operation),
+            if writable { "chat" } else { "chat_read_only" }
+        );
+    }
+}
+
 impl CapturedRuntime {
     pub fn operation_argv(&self, operation: &RuntimeOperation) -> Result<Vec<String>> {
         operation.validate()?;
@@ -48,6 +77,12 @@ impl CapturedRuntime {
                 concat!(
                     include_str!("profile_guard.py"),
                     "\n",
+                    include_str!("readonly_tools.py"),
+                    "\n",
+                    include_str!("finalization.py"),
+                    "\n",
+                    include_str!("inference_transport.py"),
+                    "\n",
                     include_str!("bootstrap.py")
                 )
                 .into(),
@@ -55,14 +90,7 @@ impl CapturedRuntime {
             argv.push(serde_json::to_string(
                 &self.policy.policy().entrypoint.ordered_import_roots,
             )?);
-            argv.push(
-                match operation {
-                    RuntimeOperation::Chat { .. } => "chat",
-                    RuntimeOperation::Export { .. } => "export",
-                    _ => "probe",
-                }
-                .into(),
-            );
+            argv.push(bootstrap_mode(operation).into());
             argv.extend(operation.hermes_arguments()?);
         }
         Ok(argv)

@@ -71,6 +71,10 @@ impl Drop for Qualification {
 }
 
 #[cfg(test)]
+#[path = "qualification_boundaries.rs"]
+mod boundaries;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use std::{

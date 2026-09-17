@@ -2,6 +2,8 @@ mod executor;
 mod governance;
 mod orchestrator;
 mod recovery;
+pub(crate) mod recovery_evidence;
+mod recovery_grant;
 mod resource_ledger;
 mod store;
 
@@ -18,10 +20,11 @@ pub use governance::{
 };
 pub use orchestrator::{
     mark_selected_workers_ready, project_worker_progress, recover_orphaned_workers,
-    schedule_ready_workers, SchedulingDecision, WorkerAvailability, WorkerBlock, WorkerBlockReason,
-    WorkerLimits, WorkerProgressState, WorkerUsage,
+    schedule_ready_workers, schedule_recovery_worker, SchedulingDecision, WorkerAvailability,
+    WorkerBlock, WorkerBlockReason, WorkerLimits, WorkerProgressState, WorkerUsage,
 };
 pub use recovery::RecoveredRun;
+pub use recovery_grant::{RecoveryBindings, RecoveryGrant, RECOVERY_WINDOW_MS};
 pub use resource_ledger::{
     ResourceLedgerEntry, ResourceLedgerError, ResourceMeasurementSource, ResourceRollup,
     ResourceUsageDraft,

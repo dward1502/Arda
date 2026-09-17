@@ -69,6 +69,7 @@ pub(in crate::adapters::hermes) async fn invoke(
     environment: BTreeMap<String, String>,
     cancellation: &AdapterCancellation,
     limits: ExecutionLimits,
+    gate: Option<&dyn RecoveryDispatchGate>,
 ) -> Result<BoundedProcessOutput, HermesAdapterError> {
     let ExecutionLimits {
         duration,
@@ -109,7 +110,8 @@ pub(in crate::adapters::hermes) async fn invoke(
                 grace_ms,
                 limit,
             },
-            Some(operation),
+            Some(operation.clone()),
+            gate.map(|gate| (gate, &operation)),
         )
         .await
     } else {
@@ -130,14 +132,18 @@ pub(in crate::adapters::hermes) async fn invoke(
             .checked_sub(started.elapsed())
             .filter(|d| !d.is_zero())
             .ok_or(HermesAdapterError::Timeout)?;
-        execute(
+        execute_inner(
             binding,
             legacy_argv,
             environment,
-            remaining,
             cancellation,
-            grace_ms,
-            limit,
+            ExecutionLimits {
+                duration: remaining,
+                grace_ms,
+                limit,
+            },
+            None,
+            gate.map(|gate| (gate, &operation)),
         )
         .await
     }

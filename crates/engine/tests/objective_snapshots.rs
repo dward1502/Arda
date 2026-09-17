@@ -6,6 +6,9 @@ use arda_engine::objectives::{
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+#[path = "fixtures/retained_readonly_concurrency.rs"]
+mod retained_readonly_concurrency;
+
 #[derive(Default)]
 struct KeeperState {
     prepares: usize,
@@ -122,7 +125,7 @@ fn fixture() -> (tempfile::TempDir, ObjectiveStore, Arc<Keeper>) {
 }
 
 #[test]
-fn retained_reservation_blocks_other_eligible_work_with_spare_capacity() {
+fn retained_reader_reservation_blocks_writer_with_spare_capacity() {
     let (temp, store, keeper) = fixture();
     let other = temp.path().join("other");
     std::fs::create_dir(&other).unwrap();
@@ -143,7 +146,7 @@ fn retained_reservation_blocks_other_eligible_work_with_spare_capacity() {
                     id: "other-leaf".into(),
                     project_id: Some("fixture".into()),
                     workspace_root: other.to_str().unwrap().into(),
-                    authority: "read_only".into(),
+                    authority: "execute".into(),
                     dependencies: vec![],
                     execution: None,
                 }],

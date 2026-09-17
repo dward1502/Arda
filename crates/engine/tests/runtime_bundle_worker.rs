@@ -64,7 +64,11 @@ fn installed_hermes_chat_and_export_use_retained_state() {
 }
 
 fn bundle_test(keeper: bool, attack: bool, installed: bool, provider_chat: bool) {
-    let temp = tempfile::tempdir_in("/var/tmp").unwrap();
+    let mut temp = tempfile::tempdir_in("/var/tmp").unwrap();
+    if provider_chat {
+        temp.disable_cleanup(true);
+        println!("Installed chat evidence: {}", temp.path().display());
+    }
     let control = tempfile::Builder::new()
         .prefix("arda-runtime-bundle-")
         .tempdir_in("/dev/shm")
@@ -213,9 +217,27 @@ fn bundle_test(keeper: bool, attack: bool, installed: bool, provider_chat: bool)
             assert_eq!(prepared["ok"], false, "{prepared}");
             assert!(prepared["snapshot"].is_null());
             let pid = fs::read_to_string(temp.path().join("worker.pid")).unwrap();
-            assert!(
-                !std::path::Path::new(&format!("/proc/{pid}")).exists(),
-                "failed worker was not reaped"
+            // Failed Prepare is not a cleanup ACK. The owner retains pins and
+            // reaps nonblocking on subsequent control requests.
+            let deadline = Instant::now() + Duration::from_secs(3);
+            while std::path::Path::new(&format!("/proc/{pid}")).exists() {
+                assert!(Instant::now() < deadline, "failed worker was not reaped");
+                let retry = request(
+                    &socket,
+                    serde_json::to_value(KeeperRequest::Prepare {
+                        run: "bundle-test".into(),
+                        workspace: root.clone(),
+                        identity: identity.clone(),
+                    })
+                    .unwrap(),
+                );
+                assert_eq!(retry["ok"], false, "uncertain admission was recreated");
+                assert!(retry["snapshot"].is_null());
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            assert_eq!(
+                fs::read_to_string(temp.path().join("worker.pid")).unwrap(),
+                pid
             );
             return;
         }
@@ -412,6 +434,7 @@ fn bundle_test(keeper: bool, attack: bool, installed: bool, provider_chat: bool)
                 query: "test".into(),
                 max_turns: 1,
                 toolsets: vec!["file".into()],
+                workspace_writable: false,
             },
             RuntimeOperation::Export {
                 session_id: "test-session".into(),
@@ -496,8 +519,9 @@ fn bundle_test(keeper: bool, attack: bool, installed: bool, provider_chat: bool)
                 let chatted = request(&socket, serde_json::to_value(Request::Runtime {
                     capability: snapshot.capability.clone(), lease: lease.clone(),
                     operation: RuntimeOperation::Chat {
-                        query: "Use the terminal tool to run: printf 'retained-chat\\n' > retained-chat.txt . Run it in the current directory, without changing directory. Then reply DONE. Do not inspect unrelated files or use the network.".into(),
+                        query: format!("Use the terminal tool with workdir {} to run exactly: printf 'retained-chat\\n' > retained-chat.txt . Then reply only DONE, not JSON. Do not inspect unrelated files or use the network.", root.display()),
                         max_turns: 4, toolsets: vec!["terminal".into()],
+                        workspace_writable: true,
                     }, timeout_ms: 120_000, max_output_bytes: 1_048_576,
                 }).unwrap());
                 assert_eq!(chatted["ok"], true, "{chatted}");
@@ -551,6 +575,37 @@ fn bundle_test(keeper: bool, attack: bool, installed: bool, provider_chat: bool)
                     .unwrap()
                     .iter()
                     .any(|message| message["role"] == "tool"));
+                let messages = transcript["messages"].as_array().unwrap();
+                let finalization = messages
+                    .iter()
+                    .position(|message| {
+                        message["role"] == "user"
+                            && message["content"].as_str().is_some_and(|text| {
+                                text.starts_with("Arda result finalization only.")
+                            })
+                    })
+                    .expect("prose response must exercise bounded finalization");
+                assert!(
+                    messages[..finalization].iter().any(|message| {
+                        message["role"] == "assistant"
+                            && message["content"]
+                                .as_str()
+                                .is_some_and(|text| text.contains("DONE"))
+                    }),
+                    "original provider draft must remain in canonical history"
+                );
+                for message in &messages[finalization + 1..] {
+                    assert_ne!(message["role"], "tool");
+                    assert!(
+                        message["tool_calls"].is_null()
+                            || message["tool_calls"] == serde_json::json!([])
+                    );
+                }
+                let final_result: serde_json::Value =
+                    serde_json::from_str(messages.last().unwrap()["content"].as_str().unwrap())
+                        .unwrap();
+                assert_eq!(final_result["schema_version"], "arda.hermes-job-result.v1");
+                assert!(final_result["artifacts"].is_array());
                 let prefix_export = request(
                     &socket,
                     serde_json::to_value(Request::Runtime {

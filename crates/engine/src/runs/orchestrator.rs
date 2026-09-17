@@ -146,6 +146,50 @@ pub fn schedule_ready_workers(
     availability: &WorkerAvailability,
     now_unix_ms: u128,
 ) -> SchedulingDecision {
+    schedule_workers(graph, limits, usage, availability, now_unix_ms, None)
+}
+
+/// Scheduling only; the caller must validate saved authority and atomically
+/// consume a start. Only the exact unfinished recovery node is considered.
+pub fn schedule_recovery_worker(
+    graph: &RunGraph,
+    limits: &WorkerLimits,
+    usage: &WorkerUsage,
+    availability: &WorkerAvailability,
+    now_unix_ms: u128,
+    grant: &super::RecoveryGrant,
+    node_id: &NodeId,
+) -> Result<SchedulingDecision, &'static str> {
+    use arda_core::run_graph::NodeKind;
+    if !u64::try_from(now_unix_ms).is_ok_and(|now| grant.is_active(now))
+        || graph.run_id != grant.bindings.run_id
+        || graph.provenance.project_contract_digest != grant.bindings.project_contract_digest
+        || !graph.nodes.iter().any(|node| {
+            node.id == *node_id
+                && ((node.id == grant.bindings.verify_node_id && node.kind == NodeKind::Verify)
+                    || (node.id == grant.bindings.review_node_id && node.kind == NodeKind::Review))
+        })
+    {
+        return Err("recovery scheduling scope or window mismatch");
+    }
+    Ok(schedule_workers(
+        graph,
+        limits,
+        usage,
+        availability,
+        now_unix_ms,
+        Some((grant, node_id)),
+    ))
+}
+
+fn schedule_workers(
+    graph: &RunGraph,
+    limits: &WorkerLimits,
+    usage: &WorkerUsage,
+    availability: &WorkerAvailability,
+    now_unix_ms: u128,
+    recovery: Option<(&super::RecoveryGrant, &NodeId)>,
+) -> SchedulingDecision {
     let mut decision = SchedulingDecision::default();
     let mut total = usage.active_total_workers;
     let mut local = usage.active_local_workers;
@@ -156,6 +200,9 @@ pub fn schedule_ready_workers(
     candidates.sort_by(|left, right| left.id.as_str().cmp(right.id.as_str()));
 
     for node in candidates {
+        if recovery.is_some_and(|(_, node_id)| node.id != *node_id) {
+            continue;
+        }
         if !matches!(
             node.state,
             NodeState::Pending | NodeState::Ready | NodeState::Blocked | NodeState::Failed
@@ -183,7 +230,10 @@ pub fn schedule_ready_workers(
             });
             continue;
         }
-        if worker.deadline_unix_ms <= now_unix_ms {
+        let deadline = recovery.map_or(worker.deadline_unix_ms, |(grant, _)| {
+            grant.expires_at_unix_ms.into()
+        });
+        if deadline <= now_unix_ms {
             decision.blocked.push(WorkerBlock {
                 node_id: node.id.clone(),
                 reason: WorkerBlockReason::Deadline,

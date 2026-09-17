@@ -128,9 +128,38 @@ impl ContextUseReceipt {
     }
 }
 
+#[test]
+fn purpose_projection_is_bounded_and_payload_sensitive() {
+    let boundary = "é".repeat(2048);
+    assert_eq!(ContextAssembly::project_purpose(&boundary), boundary);
+    let oversized = format!("{boundary}\n");
+    let projected = ContextAssembly::project_purpose(&oversized);
+    assert!(projected.len() < 4096);
+    assert_eq!(ContextAssembly::project_purpose(&projected), projected);
+    assert_ne!(
+        ContextAssembly::project_purpose(&format!("{oversized} ")),
+        projected
+    );
+}
+
 impl ContextAssembly {
+    /// Bounded metadata binding for an exact task payload retained separately.
+    /// Never use this projection as a substitute for the worker's instructions.
+    pub fn project_purpose(purpose: &str) -> String {
+        if purpose.len() <= 4096 {
+            purpose.to_owned()
+        } else {
+            format!(
+                "Full task purpose sha256:{}",
+                hex_digest(purpose.as_bytes())
+            )
+        }
+    }
+
     /// Deterministic stage projection; this alone grants no execution authority.
     pub fn for_run_stage(&self, stage: &str, purpose: &str, parents: Vec<String>) -> Result<Self> {
+        let projected = Self::project_purpose(purpose);
+        let purpose = projected.as_str();
         if !matches!(stage, "execute" | "verify" | "review") {
             return Err(context_error("unsupported context execution stage"));
         }
@@ -186,12 +215,47 @@ impl MnemosyneService {
         now_unix_ms: u128,
     ) -> Result<ContextAssembly> {
         self.validate_context_assembly_for_execution(original, now_unix_ms)?;
+        self.bind_validated_run_stage_context(original, stage, purpose, parents)
+    }
+
+    /// Derive only unfinished provider-stage context within a caller-authorized
+    /// recovery window. This helper is not an authorization credential: callers
+    /// must bind the original, stage, purpose, parents and window to the durable
+    /// recovery grant. Original content, expiry and receipt remain unchanged.
+    pub fn bind_run_stage_context_for_recovery(
+        &self,
+        original: &ContextAssembly,
+        stage: &str,
+        purpose: &str,
+        parents: Vec<String>,
+        now_unix_ms: u128,
+        recovery_window: std::ops::Range<u128>,
+    ) -> Result<ContextAssembly> {
+        if !matches!(stage, "verify" | "review") {
+            return Err(context_error("unsupported recovery context stage"));
+        }
+        self.validate_context_assembly_for_recovery(
+            original,
+            now_unix_ms,
+            recovery_window.start,
+            recovery_window.end,
+        )?;
+        self.bind_validated_run_stage_context(original, stage, purpose, parents)
+    }
+
+    fn bind_validated_run_stage_context(
+        &self,
+        original: &ContextAssembly,
+        stage: &str,
+        purpose: &str,
+        parents: Vec<String>,
+    ) -> Result<ContextAssembly> {
         let expected = original.for_run_stage(stage, purpose, parents)?;
         let mut consumer = ConsumerContext::new(
             &expected.use_receipt.consumer_id,
             expected.capsule.context.consumer.memory_domains.clone(),
         );
-        consumer.purpose = Some(purpose.to_owned());
+        consumer.purpose = Some(expected.use_receipt.purpose.clone());
         consumer.operator_authorized = expected.capsule.context.consumer.operator_authorized;
         // Resolve current authority without writing first. Never silently replace
         // the original snapshot if memory changed between these reads.
@@ -367,6 +431,34 @@ impl MnemosyneService {
             ));
         }
         Ok(())
+    }
+
+    /// Check the unchanged retained context under an independently authenticated
+    /// recovery grant. Callers must bind this window to the run, capsule and use
+    /// receipt; these timestamps are not themselves an authorization credential.
+    /// This is read-only: current memory policy, revocation and durable receipt
+    /// equality remain mandatory. Only the original context's age is excepted.
+    pub fn validate_context_assembly_for_recovery(
+        &self,
+        assembly: &ContextAssembly,
+        now_unix_ms: u128,
+        activated_at_unix_ms: u128,
+        expires_at_unix_ms: u128,
+    ) -> Result<()> {
+        if expires_at_unix_ms.checked_sub(activated_at_unix_ms) != Some(30 * 60_000)
+            || now_unix_ms < activated_at_unix_ms
+            || now_unix_ms >= expires_at_unix_ms
+            || assembly.capsule.context.generated_at_unix_ms > activated_at_unix_ms
+        {
+            return Err(context_error("recovery context window is not active"));
+        }
+        // The normal validator re-reads CURRENT canonical memory and policy.
+        // Its time input only gates capsule age/consumer binding; no stored
+        // timestamps, identities, receipts or memory projections are modified.
+        self.validate_context_assembly_for_execution(
+            assembly,
+            assembly.capsule.context.generated_at_unix_ms,
+        )
     }
 
     pub fn context_use_receipt(&self, receipt_id: &str) -> Result<Option<ContextUseReceipt>> {

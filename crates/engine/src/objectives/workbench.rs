@@ -24,6 +24,8 @@ use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 mod retained_authorization;
+mod recovery_authorization;
+pub use recovery_authorization::RecoveryAuthorization;
 
 pub trait ExplicitWorkbenchExecution: Send + Sync {
     fn inspect_retry_explicit<'a>(
@@ -166,15 +168,17 @@ where
             let run_id = claim.execution_run_id.clone().ok_or_else(||
                 anyhow!("legacy claimed leaf `{}` has no durable execution identity; reconciliation required", claim.leaf_id)
             )?;
-            let request_digest = format!(
-                "sha256:{:x}",
-                Sha256::digest(serde_json::to_vec(&json!({
-                    "objective_id": claim.objective_id, "leaf_id": claim.leaf_id,
-                    "project_id": project_id, "project_contract_digest": project_contract_digest,
-                    "workspace_root": claim.workspace_root, "authority": claim.authority,
-                    "execution": execution, "dependencies": claim.dependency_receipts,
-                }))?)
-            );
+            let request_digest = super::request_binding::ResidentRequestBinding {
+                objective_id: &claim.objective_id,
+                leaf_id: &claim.leaf_id,
+                project_id,
+                project_contract_digest,
+                workspace_root: &claim.workspace_root,
+                authority: &claim.authority,
+                execution,
+                dependencies: &claim.dependency_receipts,
+            }
+            .digest()?;
             let database = root.join("data/arda/objectives.sqlite3");
             // Missing durable state cannot contain a retained capability. Keep
             // the ordinary missing-workspace rejection ahead of store creation.
@@ -232,7 +236,14 @@ where
             {
                 bail!("resident context does not match durable Vaire authority");
             }
+            // Canonical admission retains this replay binding. It is not part of
+            // the strict Workbench mutation envelope sent over HTTP.
+            let mut dispatch_envelope = execution.approval_envelope.clone();
+            if let Some(object) = dispatch_envelope.as_object_mut() {
+                object.remove("research_brief_id");
+            }
             let item = ExplicitWorkbenchWorkItem {
+                read_only: claim.authority == "read_only",
                 objective_id: claim.objective_id.clone(),
                 leaf_id: claim.leaf_id.clone(),
                 run_id: run_id.clone(),
@@ -243,7 +254,7 @@ where
                 project_id: project_id.to_owned(),
                 project_contract_digest: project_contract_digest.to_owned(),
                 workspace_root: PathBuf::from(&claim.workspace_root),
-                approval_envelope: execution.approval_envelope.clone(),
+                approval_envelope: dispatch_envelope,
                 objective_plan_receipt: execution.objective_plan_receipt.clone(),
                 dependency_receipts: claim
                     .dependency_receipts
@@ -325,7 +336,7 @@ fn assemble_resident_context(
         .unwrap_or("");
     let consumer_id = format!("arda.resident-objective:{run_id}");
     let mut consumer = ConsumerContext::new(&consumer_id, vec![MemoryDomain::System]);
-    consumer.purpose = Some(execution.execution_prompt.clone());
+    consumer.purpose = Some(ContextAssembly::project_purpose(&execution.objective));
     consumer.operator_authorized = true;
     let memory_refs = service
         .recall_governed_memories(Some(&consumer))?
@@ -391,8 +402,12 @@ fn assemble_resident_context(
             },
         },
         objective: ContextObjective {
-            requested_outcome: execution.execution_prompt.clone(),
-            acceptance_conditions: vec![execution.verification_prompt.clone()],
+            // Context summaries are bounded metadata, not the evidence transport.
+            // The complete persisted prompts travel separately in the work item.
+            requested_outcome: ContextAssembly::project_purpose(&execution.objective),
+            acceptance_conditions: vec![
+                "The admitted verification checks and independent review must pass.".into(),
+            ],
             required_capabilities: vec!["resident_objective_execution".into()],
             forbidden_capabilities: vec!["legacy_queue_authority".into()],
         },
@@ -873,10 +888,10 @@ mod tests {
             current_receipt_digest: None,
             project_contract_digest: Some(project_digest.clone()),
             execution: Some(LeafExecutionSpec {
-                objective: "inspect the exact project".into(),
-                execution_prompt: "execute exact project".into(),
-                verification_prompt: "verify exact project".into(),
-                review_prompt: "review exact evidence".into(),
+                objective: "inspect the exact project ".repeat(300),
+                execution_prompt: format!("execute exact project\n{}", "e".repeat(48 * 1024)),
+                verification_prompt: format!("verify exact project\n{}", "e".repeat(48 * 1024)),
+                review_prompt: format!("review exact evidence\n{}", "e".repeat(48 * 1024)),
                 approval_envelope: json!({
                     "approval": {
                         "schema_version": "arda.orome.task_approval.v1",
@@ -986,6 +1001,17 @@ mod tests {
             Some(result.receipts[2].digest.clone())
         );
         let item = recorded.lock().unwrap().clone().unwrap();
+        assert!(
+            item.read_only,
+            "retain the claimed read-only execution scope"
+        );
+        let saved_execution = followup_claim.execution.as_ref().unwrap();
+        assert_eq!(item.execution_prompt, saved_execution.execution_prompt);
+        assert_eq!(
+            item.verification_prompt,
+            saved_execution.verification_prompt
+        );
+        assert_eq!(item.review_prompt, saved_execution.review_prompt);
         assert_eq!(item.project_id, "project-1");
         assert_eq!(item.project_contract_digest, project_digest);
         assert_eq!(

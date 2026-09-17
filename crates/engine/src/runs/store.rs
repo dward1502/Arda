@@ -40,6 +40,9 @@ pub enum RunEventKind {
         transition: NodeState,
     },
     ResultProjected,
+    RecoveryActivated {
+        grant: Box<super::RecoveryGrant>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -140,10 +143,270 @@ impl RunStore {
     }
 
     pub fn append(&self, draft: RunEventDraft) -> Result<AppendOutcome, RunStoreError> {
+        if matches!(draft.kind, RunEventKind::RecoveryActivated { .. })
+            || draft.idempotency_key == "bounded-recovery-window"
+        {
+            return Err(RunStoreError::IdempotencyConflict {
+                key: draft.idempotency_key,
+            });
+        }
+        let _lock = self.journal_lock(true)?;
+        if matches!(
+            draft.kind,
+            RunEventKind::NodeTransition {
+                state: NodeState::Running
+            }
+        ) && self
+            .recover_locked()?
+            .events
+            .iter()
+            .any(|event| matches!(event.kind, RunEventKind::RecoveryActivated { .. }))
+        {
+            return Err(RunStoreError::IdempotencyConflict {
+                key: draft.idempotency_key,
+            });
+        }
+        self.append_locked(draft)
+    }
+
+    fn journal_lock(&self, exclusive: bool) -> Result<std::fs::File, RunStoreError> {
+        let path = self.directory.join("journal.lock");
+        let file = OpenOptions::new()
+            .create(true)
+            .truncate(false)
+            .read(true)
+            .write(true)
+            .open(&path)
+            .map_err(|source| RunStoreError::Io {
+                path: path.clone(),
+                source,
+            })?;
+        if exclusive {
+            fs2::FileExt::lock_exclusive(&file)
+        } else {
+            fs2::FileExt::lock_shared(&file)
+        }
+        .map_err(|source| RunStoreError::Io { path, source })?;
+        Ok(file)
+    }
+
+    /// Journal one immutable recovery window per run. Authentication and binding
+    /// validation must occur in the canonical operator admission path first.
+    /// Exact replay returns the ORIGINAL window, including after expiration.
+    pub fn activate_recovery(
+        &self,
+        grant: super::RecoveryGrant,
+    ) -> Result<super::RecoveryGrant, RunStoreError> {
+        let conflict = || RunStoreError::IdempotencyConflict {
+            key: "bounded-recovery-window".into(),
+        };
+        grant.validate().map_err(|_| conflict())?;
+        if grant.bindings.run_id != self.run_id {
+            return Err(conflict());
+        }
+        let _lock = self.journal_lock(true)?;
+        let recovered = self.recover_locked()?;
+        if let Some(prior) = recovered.events.iter().find_map(|event| {
+            if let RunEventKind::RecoveryActivated { grant } = &event.kind {
+                Some(grant.as_ref())
+            } else {
+                None
+            }
+        }) {
+            if prior.authenticated_event_id != grant.authenticated_event_id
+                || prior.authenticated_payload_digest != grant.authenticated_payload_digest
+                || prior.bindings != grant.bindings
+            {
+                return Err(conflict());
+            }
+            return Ok(prior.clone());
+        }
+        self.append_locked(RunEventDraft {
+            node_id: grant.bindings.verify_node_id.clone(),
+            idempotency_key: "bounded-recovery-window".into(),
+            kind: RunEventKind::RecoveryActivated {
+                grant: Box::new(grant.clone()),
+            },
+            receipt_digest: Some(grant.authenticated_payload_digest.clone()),
+        })?;
+        Ok(grant)
+    }
+
+    /// Count and consume a recovery provider start in the same journal critical
+    /// section. Callers must already have checked current canonical authority.
+    /// Only `Appended` permits dispatch: an exact replay MUST NOT launch again.
+    pub fn append_recovery_start(
+        &self,
+        expected_grant: &super::RecoveryGrant,
+        draft: RunEventDraft,
+    ) -> Result<AppendOutcome, RunStoreError> {
+        self.append_recovery_start_before(expected_grant, draft, expected_grant.expires_at_unix_ms)
+    }
+
+    /// Additionally cap admission by a lease deadline, sampled after the
+    /// journal lock is acquired. Replay is a receipt, never dispatch permission.
+    pub fn append_recovery_start_before(
+        &self,
+        expected_grant: &super::RecoveryGrant,
+        draft: RunEventDraft,
+        not_after_unix_ms: u64,
+    ) -> Result<AppendOutcome, RunStoreError> {
+        self.append_recovery_start_with_clock(expected_grant, draft, || {
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .ok()
+                .and_then(|duration| u64::try_from(duration.as_millis()).ok())
+                .filter(|now| *now < not_after_unix_ms)
+        })
+    }
+
+    pub(super) fn append_recovery_start_with_clock(
+        &self,
+        expected_grant: &super::RecoveryGrant,
+        draft: RunEventDraft,
+        clock: impl FnOnce() -> Option<u64>,
+    ) -> Result<AppendOutcome, RunStoreError> {
+        self.recovery_start_then_with_clock(expected_grant, draft, clock, || ())
+            .map(|(outcome, _)| outcome)
+    }
+
+    /// Keep journal cancellation serialized through a synchronous, one-shot
+    /// delimiter send. Caller must hold the objective/lease fence; the callback
+    /// must not await or reenter this store. A failed send never refunds a start.
+    pub fn with_recovery_start_before<T>(
+        &self,
+        grant: &super::RecoveryGrant,
+        draft: RunEventDraft,
+        not_after_unix_ms: u64,
+        send: impl FnOnce() -> T,
+    ) -> Result<(AppendOutcome, Option<T>), RunStoreError> {
+        let key = draft.idempotency_key.clone();
+        let fresh = || {
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .ok()
+                .and_then(|duration| u64::try_from(duration.as_millis()).ok())
+                .filter(|now| *now < not_after_unix_ms && grant.is_active(*now))
+        };
+        let (outcome, result) = self.recovery_start_then_with_clock(grant, draft, fresh, || {
+            // fsync may outlast the lease/grant; refusal still spends the start.
+            fresh().ok_or(RunStoreError::IdempotencyConflict { key })?;
+            Ok::<T, RunStoreError>(send())
+        })?;
+        Ok((outcome, result.transpose()?))
+    }
+
+    pub(super) fn recovery_start_then_with_clock<T>(
+        &self,
+        expected_grant: &super::RecoveryGrant,
+        draft: RunEventDraft,
+        clock: impl FnOnce() -> Option<u64>,
+        send: impl FnOnce() -> T,
+    ) -> Result<(AppendOutcome, Option<T>), RunStoreError> {
+        let conflict = || RunStoreError::IdempotencyConflict {
+            key: draft.idempotency_key.clone(),
+        };
+        if !matches!(
+            draft.kind,
+            RunEventKind::NodeTransition {
+                state: NodeState::Running
+            }
+        ) {
+            return Err(conflict());
+        }
+        let _lock = self.journal_lock(true)?;
+        let recovered = self.recover_locked()?;
+        let grant = recovered
+            .events
+            .iter()
+            .find_map(|event| match &event.kind {
+                RunEventKind::RecoveryActivated { grant } => Some(grant.as_ref()),
+                _ => None,
+            })
+            .ok_or_else(conflict)?;
+        if grant != expected_grant {
+            return Err(conflict());
+        }
+        if let Some(event) = recovered
+            .events
+            .iter()
+            .find(|event| event.idempotency_key == draft.idempotency_key)
+        {
+            if event.node_id != draft.node_id
+                || event.kind != draft.kind
+                || event.receipt_digest != draft.receipt_digest
+            {
+                return Err(conflict());
+            }
+            return Ok((
+                AppendOutcome::AlreadyApplied {
+                    sequence: event.sequence,
+                },
+                None,
+            ));
+        }
+        if recovered.events.iter().any(|event| {
+            matches!(
+                event.kind,
+                RunEventKind::Cancelled { .. }
+                    | RunEventKind::NodeTransition {
+                        state: NodeState::Cancelled
+                    }
+            )
+        }) {
+            return Err(conflict());
+        }
+        let starts = recovered
+            .events
+            .iter()
+            .filter(|event| {
+                event.node_id == draft.node_id
+                    && matches!(
+                        event.kind,
+                        RunEventKind::NodeTransition {
+                            state: NodeState::Running
+                        }
+                    )
+            })
+            .count();
+        let next = u64::try_from(starts)
+            .ok()
+            .and_then(|starts| starts.checked_add(1))
+            .ok_or_else(conflict)?;
+        let latest_state = recovered.events.iter().rev().find_map(|event| {
+            if event.node_id != draft.node_id {
+                return None;
+            }
+            match event.kind {
+                RunEventKind::NodeTransition { state } => Some(state),
+                _ => None,
+            }
+        });
+        let already_succeeded = recovered.events.iter().any(|event| {
+            event.node_id == draft.node_id
+                && matches!(
+                    event.kind,
+                    RunEventKind::NodeTransition {
+                        state: NodeState::Succeeded
+                    }
+                )
+        });
+        if already_succeeded
+            || latest_state != Some(NodeState::Ready)
+            || !clock().is_some_and(|now| grant.permits_start(&draft.node_id, next, now))
+        {
+            return Err(conflict());
+        }
+        let outcome = self.append_locked(draft)?;
+        let result = matches!(outcome, AppendOutcome::Appended { .. }).then(send);
+        Ok((outcome, result))
+    }
+
+    fn append_locked(&self, draft: RunEventDraft) -> Result<AppendOutcome, RunStoreError> {
         if draft.idempotency_key.trim().is_empty() {
             return Err(RunStoreError::EmptyIdempotencyKey);
         }
-        let recovered = self.recover()?;
+        let recovered = self.recover_locked()?;
         if let Some(existing) = recovered
             .events
             .iter()
@@ -195,6 +458,11 @@ impl RunStore {
     }
 
     pub fn recover(&self) -> Result<RecoveredRun, RunStoreError> {
+        let _lock = self.journal_lock(false)?;
+        self.recover_locked()
+    }
+
+    fn recover_locked(&self) -> Result<RecoveredRun, RunStoreError> {
         let path = self.events_path();
         let raw = match fs::read_to_string(&path) {
             Ok(raw) => raw,
@@ -214,6 +482,7 @@ impl RunStore {
         }
 
         let mut events = Vec::new();
+        let mut recovery_seen = false;
         for (index, line) in raw.lines().enumerate() {
             let line_number = index + 1;
             let event: RunEvent =
@@ -235,6 +504,26 @@ impl RunStore {
                 return Err(RunStoreError::RunIdMismatch {
                     expected: self.run_id.clone(),
                     actual: event.run_id,
+                });
+            }
+            if let RunEventKind::RecoveryActivated { grant } = &event.kind {
+                if recovery_seen
+                    || grant.validate().is_err()
+                    || grant.bindings.run_id != self.run_id
+                    || event.node_id != grant.bindings.verify_node_id
+                    || event.idempotency_key != "bounded-recovery-window"
+                    || event.receipt_digest.as_ref() != Some(&grant.authenticated_payload_digest)
+                {
+                    return Err(RunStoreError::CorruptJournal {
+                        line: line_number,
+                        message: "invalid or duplicate recovery activation".into(),
+                    });
+                }
+                recovery_seen = true;
+            } else if event.idempotency_key == "bounded-recovery-window" {
+                return Err(RunStoreError::CorruptJournal {
+                    line: line_number,
+                    message: "reserved recovery activation key".into(),
                 });
             }
             events.push(event);

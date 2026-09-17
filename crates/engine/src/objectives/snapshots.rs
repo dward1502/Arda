@@ -192,10 +192,33 @@ impl super::store::ObjectiveStore {
     /// or daemon crash. This never prepares a snapshot or dispatches a provider.
     /// The writer lock prevents an older acknowledgement overwriting a new claim.
     pub fn reconcile_snapshot_commits(&self) -> Result<()> {
+        self.reconcile_snapshot_commits_scoped(None)
+    }
+
+    /// Reconcile only an existing retained leaf. This does not claim work,
+    /// authorize recovery, or change the objective's paused state.
+    pub fn reconcile_snapshot_commits_for_leaf(&self, leaf_id: &str) -> Result<()> {
+        if leaf_id.trim().is_empty() {
+            anyhow::bail!("retained reconciliation requires an exact leaf");
+        }
+        self.reconcile_snapshot_commits_scoped(Some(leaf_id))
+    }
+
+    fn reconcile_snapshot_commits_scoped(&self, leaf_id: Option<&str>) -> Result<()> {
         let mut connection = self.connection()?;
         let transaction =
             connection.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
         check_policy(&transaction, self.snapshot_admission.is_some())?;
+        if let Some(leaf_id) = leaf_id {
+            let exists: bool = transaction.query_row(
+                "SELECT EXISTS(SELECT 1 FROM retained_workspace_snapshots WHERE leaf_id = ?1)",
+                [leaf_id],
+                |row| row.get(0),
+            )?;
+            if !exists {
+                anyhow::bail!("retained reconciliation leaf is missing");
+            }
+        }
         let rows = {
             let mut statement = transaction.prepare(
                 "SELECT s.leaf_id, s.run_id, s.capability_json, l.attempt,
@@ -207,9 +230,10 @@ impl super::store::ObjectiveStore {
                  LEFT JOIN retained_snapshot_lease_intents i ON i.leaf_id = l.id AND i.generation = l.attempt
                  WHERE NOT EXISTS (SELECT 1 FROM retained_snapshot_releases r WHERE r.leaf_id = s.leaf_id)
                    AND (s.committed_generation < l.attempt OR terminal)
+                   AND (?1 IS NULL OR s.leaf_id = ?1)
                  ORDER BY s.leaf_id",
             )?;
-            let rows = statement.query_map([], |row| {
+            let rows = statement.query_map([leaf_id], |row| {
                 Ok((
                     row.get::<_, String>(0)?,
                     row.get::<_, String>(1)?,

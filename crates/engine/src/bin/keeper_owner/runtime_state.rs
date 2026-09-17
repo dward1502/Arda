@@ -133,7 +133,11 @@ impl Owner {
             params![run, template.digest(), source.to_str().context("UTF-8 runtime allocation required")?])?;
         // Never adopt an existing directory after an uncertain creation. The
         // allocating journal entry leaves an explicit fail-closed recovery case.
+        #[cfg(test)]
+        super::preparation_tests::crash("allocation_intent");
         let allocation = reserved.allocations.mkdir_private_child(&basename)?;
+        #[cfg(test)]
+        super::preparation_tests::crash("allocation_directory");
         let metadata = allocation.metadata()?;
         let mut effective = template.policy().clone();
         effective
@@ -146,6 +150,8 @@ impl Owner {
         self.db.execute("UPDATE runtime_allocations SET state='allocated',device=?2,inode=?3,policy=?4 WHERE run=?1 AND state='allocating'",
             params![run,metadata.dev(),metadata.ino(),serde_json::to_string(effective.policy())?])?;
         reserved.revalidate()?;
+        #[cfg(test)]
+        super::preparation_tests::crash("allocation_saved");
         Ok(Some((effective, allocation)))
     }
 }

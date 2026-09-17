@@ -1,5 +1,131 @@
 use super::super::tests::{bind_test_run, scripted_harness};
 use super::*;
+mod recovery;
+
+#[test]
+fn explicit_external_workspace_requires_matching_registered_contract() {
+    let root = tempfile::tempdir().unwrap();
+    let external = tempfile::tempdir().unwrap();
+    let mut work = item(external.path());
+    work.workspace_root = external.path().to_path_buf();
+    let mut contract: Value = serde_json::from_str(include_str!(
+        "../../../../../../../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .unwrap();
+    work.project_id = contract["identity"]["project_id"].as_str().unwrap().into();
+    contract["workspace"]["root"] = external.path().to_str().unwrap().into();
+    let parsed: arda_core::project_contract::ProjectContract =
+        serde_json::from_value(contract).unwrap();
+    work.project_contract_digest = format!(
+        "sha256:{:x}",
+        Sha256::digest(serde_json::to_vec(&parsed).unwrap())
+    );
+    assert!(validate_explicit_work_item(root.path(), &work).is_err());
+    std::fs::create_dir_all(root.path().join("data/workbench")).unwrap();
+    std::fs::write(root.path().join("data/workbench/projects.json"), serde_json::to_vec(&json!({
+        "schema_version": "arda.workbench.project-registry.v1",
+        "projects": [{"contract": parsed, "approval_id":"approved", "proposal_id":"proposal", "idempotency_key":"external"}]
+    })).unwrap()).unwrap();
+    validate_explicit_work_item(root.path(), &work).unwrap();
+    work.project_contract_digest = format!("sha256:{}", "0".repeat(64));
+    assert!(validate_explicit_work_item(root.path(), &work).is_err());
+}
+
+#[test]
+fn explicit_read_only_graph_has_no_terminal_and_rejects_expanded_replay() {
+    let root = tempfile::tempdir().unwrap();
+    let mut work = item(root.path());
+    work.read_only = true;
+    let graph = explicit_run_graph(&work, "approved");
+    let parsed: arda_core::run_graph::RunGraph = serde_json::from_value(graph.clone()).unwrap();
+    parsed.validate().unwrap();
+    let bound = bind_test_run(&work, json!({"graph": graph}));
+    run(&work, &bound).unwrap();
+    for id in ["execute", "verify", "review"] {
+        let mut expanded = bound.clone();
+        let node = expanded["graph"]["nodes"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|node| node["id"] == id)
+            .unwrap();
+        assert_eq!(node["worker"]["allowed_toolsets"], json!(["file"]));
+        node["worker"]["allowed_toolsets"] = json!(["file", "terminal"]);
+        assert!(run(&work, &expanded)
+            .unwrap_err()
+            .to_string()
+            .contains("inspection scope"));
+    }
+    let execute = bound["graph"]["nodes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|node| node["id"] == "execute")
+        .unwrap();
+    assert_eq!(execute["kind"], "inspect");
+    assert_eq!(execute["authority"], "read_only");
+    work.read_only = false;
+    let legacy = explicit_run_graph(&work, "approved");
+    assert!(legacy["nodes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|node| node["id"] == "execute" && node["kind"] == "execute"));
+}
+
+#[test]
+fn external_completed_reconciliation_ignores_live_registry() {
+    let root = tempfile::tempdir().unwrap();
+    let external = tempfile::tempdir().unwrap();
+    let mut work = item(external.path());
+    work.workspace_root = external.path().to_path_buf();
+    drop(external);
+    for contents in [None, Some("broken registry"), Some("{\"projects\":[]}")] {
+        if let Some(contents) = contents {
+            std::fs::create_dir_all(root.path().join("data/workbench")).unwrap();
+            std::fs::write(root.path().join("data/workbench/projects.json"), contents).unwrap();
+        }
+        bound_workspace(root.path(), &work, Validation::Reconcile).unwrap();
+        assert!(bound_workspace(root.path(), &work, Validation::Fresh).is_err());
+    }
+}
+
+#[tokio::test]
+async fn explicit_read_only_dispatch_posts_inspection_graph() {
+    let root = tempfile::tempdir().unwrap();
+    let mut work = item(root.path());
+    work.read_only = true;
+    let bound = bind_test_run(
+        &work,
+        json!({"graph": explicit_run_graph(&work, "approved")}),
+    );
+    let (url, requests) = scripted_harness(vec![
+        Some((404, "{}".into())),
+        Some((201, bound.to_string())),
+    ])
+    .await;
+    let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
+    let guard = FencedAfter {
+        calls: std::sync::atomic::AtomicUsize::new(0),
+        allowed: 2,
+    };
+    let error = adapter.execute_authorized(&work, &guard).await.unwrap_err();
+    assert!(error.to_string().contains("fixture authority fenced"));
+    let requests = requests.await.unwrap();
+    assert_eq!(requests.len(), 2);
+    assert!(requests[1].starts_with("POST /v1/runs/plan"));
+    let body: Value = serde_json::from_str(requests[1].split("\r\n\r\n").nth(1).unwrap()).unwrap();
+    let nodes = body["graph"]["nodes"].as_array().unwrap();
+    let execute = nodes.iter().find(|node| node["id"] == "execute").unwrap();
+    assert_eq!(execute["kind"], "inspect");
+    assert_eq!(execute["authority"], "read_only");
+    for id in ["execute", "verify", "review"] {
+        assert_eq!(
+            nodes.iter().find(|node| node["id"] == id).unwrap()["worker"]["allowed_toolsets"],
+            json!(["file"])
+        );
+    }
+}
 
 struct FencedAfter {
     calls: std::sync::atomic::AtomicUsize,
@@ -77,6 +203,7 @@ async fn fencing_after_execute_prevents_verify_and_carries_original_lease() {
 
 fn item(root: &Path) -> ExplicitWorkbenchWorkItem {
     ExplicitWorkbenchWorkItem {
+        read_only: false,
         objective_id: "objective".into(),
         leaf_id: "leaf".into(),
         run_id: "retained-run".into(),

@@ -10,6 +10,37 @@ pub trait ExplicitWorkspaceAuthorization: Send + Sync {
     fn provider_lease(&self, _item: &ExplicitWorkbenchWorkItem) -> Result<Value> {
         anyhow::bail!("retained provider dispatch requires an Engine lease")
     }
+    /// Engine-owned saved admission; never deserialize this from a work item.
+    fn recovery_window(
+        &self,
+        _item: &ExplicitWorkbenchWorkItem,
+    ) -> Result<Option<ExplicitRecoveryWindow>> {
+        Ok(None)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ExplicitRecoveryWindow {
+    pub event_id: String,
+    pub activated_at_unix_ms: u64,
+    pub expires_at_unix_ms: u64,
+}
+
+impl ExplicitRecoveryWindow {
+    pub(super) fn validate(&self) -> Result<()> {
+        let now = u64::try_from(Utc::now().timestamp_millis())?;
+        anyhow::ensure!(
+            !self.event_id.trim().is_empty()
+                && self
+                    .expires_at_unix_ms
+                    .checked_sub(self.activated_at_unix_ms)
+                    == Some(30 * 60_000)
+                && now >= self.activated_at_unix_ms
+                && now < self.expires_at_unix_ms,
+            "explicit recovery window is invalid or expired"
+        );
+        Ok(())
+    }
 }
 impl<F> ExplicitWorkspaceAuthorization for F
 where
@@ -26,6 +57,9 @@ pub(super) fn reauthorize(
 ) -> Result<()> {
     if let Some(authority) = authority {
         authority.authorize(item)?;
+        if let Some(window) = authority.recovery_window(item)? {
+            window.validate()?;
+        }
     }
     Ok(())
 }
@@ -37,6 +71,10 @@ pub(super) fn provider_body(
     reauthorize(authority, item)?;
     if let Some(authority) = authority {
         body["expected_retained_lease"] = authority.provider_lease(item)?;
+        if let Some(window) = authority.recovery_window(item)? {
+            window.validate()?;
+            body["recovery_event_id"] = json!(window.event_id);
+        }
     }
     Ok(body)
 }
@@ -46,6 +84,65 @@ pub(super) enum Validation {
     Fresh,
     Retained,
     Reconcile,
+}
+
+pub(super) fn bound_workspace(
+    root: &Path,
+    item: &ExplicitWorkbenchWorkItem,
+    mode: Validation,
+) -> Result<()> {
+    // Receipt reconciliation authorizes no new execution. Its caller checks the
+    // retained item/graph/receipt bindings; current attachment state is irrelevant.
+    if matches!(mode, Validation::Reconcile) {
+        return workspace(root, &item.workspace_root, mode);
+    }
+    let canonical_root = root.canonicalize().context("resolve Arda authority root")?;
+    let path = &item.workspace_root;
+    if path.starts_with(&canonical_root) {
+        return workspace(root, path, mode);
+    }
+    // External roots require an exact registered authority, not a task-supplied escape.
+    let registry: ExecutionProjectRegistry =
+        serde_json::from_slice(&std::fs::read(root.join("data/workbench/projects.json"))?)?;
+    if registry.schema_version != "arda.workbench.project-registry.v1" {
+        bail!("unsupported project registry version");
+    }
+    let matches: Vec<_> = registry
+        .projects
+        .iter()
+        .filter(|entry| entry.contract.identity.project_id.to_string() == item.project_id)
+        .collect();
+    if matches.len() != 1 {
+        bail!("external workspace requires one attached project");
+    }
+    let contract = &matches[0].contract;
+    contract.validate()?;
+    let digest = format!("sha256:{:x}", Sha256::digest(serde_json::to_vec(contract)?));
+    if digest != item.project_contract_digest
+        || Path::new(contract.workspace.root.as_str()) != path
+        || !path.is_absolute()
+        || path == Path::new("/")
+    {
+        bail!("external workspace differs from approved project authority");
+    }
+    match path.canonicalize() {
+        Ok(resolved) if resolved == *path && resolved.is_dir() => Ok(()),
+        Err(error)
+            if error.kind() == std::io::ErrorKind::NotFound
+                && matches!(mode, Validation::Retained) =>
+        {
+            let ancestor = path
+                .ancestors()
+                .skip(1)
+                .find(|parent| parent.exists())
+                .ok_or_else(|| anyhow!("external workspace has no surviving ancestor"))?;
+            if ancestor.canonicalize()? != ancestor {
+                bail!("external retained workspace ancestor was rebound");
+            }
+            Ok(())
+        }
+        _ => bail!("external workspace is unavailable or was rebound"),
+    }
 }
 
 pub(super) fn workspace(root: &Path, path: &Path, mode: Validation) -> Result<()> {
@@ -148,6 +245,28 @@ pub(super) fn run(item: &ExplicitWorkbenchWorkItem, value: &Value) -> Result<()>
     let nodes = graph["nodes"]
         .as_array()
         .ok_or_else(|| anyhow!("run omitted nodes"))?;
+    if item.read_only {
+        let expected = explicit_run_graph(item, approval);
+        for id in ["execute", "verify", "review"] {
+            let actual = nodes
+                .iter()
+                .find(|node| node["id"] == id)
+                .ok_or_else(|| anyhow!("read-only run missing {id} node"))?;
+            let bound = expected["nodes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|node| node["id"] == id)
+                .unwrap();
+            if actual["kind"] != bound["kind"]
+                || actual["authority"] != bound["authority"]
+                || actual["worker"]["role"] != bound["worker"]["role"]
+                || actual["worker"]["allowed_toolsets"] != json!(["file"])
+            {
+                bail!("read-only run {id} node exceeds bound inspection scope");
+            }
+        }
+    }
     let mut seen = std::collections::BTreeSet::new();
     for node in nodes {
         let id = node["id"]

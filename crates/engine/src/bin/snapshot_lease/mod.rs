@@ -3,6 +3,7 @@ use anyhow::{bail, Context, Result};
 pub use arda_engine::objectives::snapshot_protocol::Lease;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
+#[derive(Clone)]
 pub struct Binding {
     pub lease: Lease,
     deadline: Instant,

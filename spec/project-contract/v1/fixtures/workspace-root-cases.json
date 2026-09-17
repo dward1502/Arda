@@ -1,0 +1,14 @@
+[
+  {"root":".","valid":true},
+  {"root":"project/src","valid":true},
+  {"root":"/srv/projects/real-project","valid":true},
+  {"root":"/","valid":false},
+  {"root":"//","valid":false},
+  {"root":"/tmp//project","valid":false},
+  {"root":"/tmp/./project","valid":false},
+  {"root":"/tmp/project/","valid":false},
+  {"root":"/tmp/../project","valid":false},
+  {"root":"../project","valid":false},
+  {"root":"project\u0000secret","valid":false},
+  {"root":"/tmp/project\u0000secret","valid":false}
+]

@@ -15,6 +15,15 @@ pub(super) use dispatch::invoke;
 /// Process-local synchronous dispatch authority. The callback is one-shot and
 /// nonblocking; an error after calling it still requires transport cleanup.
 pub trait RecoveryDispatchGate: Send + Sync {
+    /// Bind auxiliary requests to the validated response of this exact Chat.
+    fn bind_result(
+        &self,
+        _session_id: &str,
+        _artifact_paths: &[String],
+    ) -> Result<(), HermesAdapterError> {
+        Ok(())
+    }
+
     fn dispatch(
         &self,
         binding: &RetainedExecution,

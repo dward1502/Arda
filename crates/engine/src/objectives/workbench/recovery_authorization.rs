@@ -5,7 +5,12 @@ use crate::objectives::snapshot_protocol::Lease;
 use crate::objectives::{ObjectiveStore, RecoveryMaterial};
 use crate::runs::RecoveryGrant;
 use arda_aule::prometheus::autopilot::workbench_executor::ExplicitRecoveryWindow;
+#[cfg(target_os = "linux")]
+mod dispatch;
 mod provider;
+mod publication;
+#[cfg(target_os = "linux")]
+pub use dispatch::RecoveryProviderDispatch;
 
 pub struct RecoveryAuthorization {
     root: PathBuf,
@@ -16,6 +21,14 @@ pub struct RecoveryAuthorization {
 }
 
 impl RecoveryAuthorization {
+    pub fn event_id(&self) -> &str {
+        &self.event_id
+    }
+
+    pub fn lease(&self) -> &Lease {
+        &self.lease
+    }
+
     /// The caller supplies an authenticated operator and a server-owned claim.
     /// Construction grants no permission: every use resolves the saved admission,
     /// stop fence, exact acknowledged lease and canonical material afresh.
@@ -48,6 +61,51 @@ impl RecoveryAuthorization {
     /// claiming, scheduling or dispatching any work.
     pub fn canonical_item(&self) -> Result<ExplicitWorkbenchWorkItem> {
         self.checked(None).map(|(item, _, _)| item)
+    }
+
+    pub fn publish_completed(&self, claim: &ClaimedLeaf, run: &serde_json::Value) -> Result<()> {
+        self.store.commit_recovery_completion(
+            &self.operator_id, &self.event_id, &self.lease,
+            |tx, grant| {
+                anyhow::ensure!(claim.objective_id == grant.bindings.objective_id
+                    && claim.leaf_id == grant.bindings.leaf_id
+                    && claim.attempt == self.lease.generation
+                    && claim.lease_owner == self.lease.owner
+                    && claim.lease_expires_ms == self.lease.expires_ms,
+                    "recovery projection claim changed");
+                let material = self.store.validate_retained_recovery_material(&self.root, tx, grant)?;
+                let item = canonical_work_item(grant, &material);
+                let guard = crate::runs::RunStore::open(&self.root, grant.bindings.run_id.clone())?
+                    .lock_recovery_mutation(grant, &grant.bindings.close_node_id, self.lease.expires_ms.try_into()?)?;
+                let canonical = guard.recover()?;
+                anyhow::ensure!(serde_json::to_value(canonical.checkpoint)? == run["graph"]
+                    && serde_json::to_value(canonical.events)? == run["events"],
+                    "completion projection differs from canonical journal");
+                let outcome = item.completed_outcome(&self.root, run)?;
+                let mut receipts = project_receipts(&self.root, &item.run_id,
+                    &item.project_contract_digest, &item, &outcome)?;
+                let memory = MnemosyneService::new(self.root.join("data/vaire"))?
+                    .with_contract_memory_root(self.root.join("core/state/memory"));
+                let prepared = prepare_resident_context_outcome(&self.root, &memory,
+                    &material.context, claim, &item.run_id, &receipts)?;
+                let context_outcome = &prepared.context_outcome;
+                for receipt in &mut receipts {
+                    receipt.context_outcome_receipt_id = Some(context_outcome.receipt_id.clone());
+                    receipt.context_outcome_receipt_digest = Some(context_outcome.receipt_digest.clone());
+                    receipt.binding_digest = Some(receipt.computed_binding_digest()?);
+                }
+                let publication = crate::objectives::RecoveryPublication {
+                    key: "completion".into(), kind: "completion".into(),
+                    node_id: grant.bindings.close_node_id.clone(),
+                    payload: json!({"prepared": prepared, "receipts": receipts, "item": item, "run": run}),
+                };
+                Ok((publication, guard))
+            },
+        )?;
+        self.store
+            .reconcile_recovery_completion(&self.operator_id, &self.event_id, |publication| {
+                Self::apply_completed_publication(&self.root, publication)
+            })
     }
 
     fn checked(

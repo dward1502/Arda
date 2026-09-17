@@ -20,6 +20,8 @@ use std::sync::LazyLock;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::Mutex;
 
+pub(super) mod recovery;
+
 use crate::adapters::{
     AdapterCancellation, CostMeasurement, HermesAdapter, HermesExecutionReceipt, HermesNodeTask,
     HermesReceiptStatus,
@@ -148,6 +150,8 @@ pub struct CompleteRunNodeRequest {
 pub struct ExecuteProviderNodeRequest {
     envelope: MutationEnvelope,
     objective: String,
+    #[serde(default)]
+    recovery_event_id: Option<String>,
     #[serde(default)]
     expected_retained_lease: Option<crate::objectives::snapshot_protocol::Lease>,
     #[serde(default)]
@@ -580,7 +584,26 @@ pub(super) async fn complete_run_node(
     }
 
     let _guard = WORKBENCH_MUTATIONS.lock().await;
-    let (store, mut graph) = load_run(&state, &id)?;
+    complete_run_node_inner(&state, &id, node_id, request, None)
+}
+
+fn complete_run_node_inner(
+    state: &HarnessState,
+    id: &str,
+    node_id: String,
+    request: CompleteRunNodeRequest,
+    guarded: Option<RunStore>,
+) -> Result<Json<RunResponse>, ApiError> {
+    let (store, mut graph) = if let Some(store) = guarded {
+        let graph = store
+            .recover()
+            .map_err(store_error)?
+            .checkpoint
+            .ok_or_else(|| ApiError::conflict("recovery checkpoint missing"))?;
+        (store, graph)
+    } else {
+        load_run(state, id)?
+    };
     if graph
         .nodes
         .iter()
@@ -827,9 +850,44 @@ pub(super) async fn execute_provider_node(
     Path((id, node_id)): Path<(String, String)>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
     shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
-    Json(request): Json<ExecuteProviderNodeRequest>,
+    Json(raw_request): Json<serde_json::Value>,
 ) -> Result<Json<ExecuteProviderNodeResponse>, ApiError> {
     require_loopback(peer)?;
+    execute_provider_node_authorized(state, id, node_id, shutdown, raw_request, None).await
+}
+
+/// Recovery authority is supplied only by the authenticated in-process driver.
+/// Neither an HTTP event ID nor a caller-provided lease constructs authority.
+async fn execute_provider_node_authorized(
+    state: HarnessState,
+    id: String,
+    node_id: String,
+    shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
+    raw_request: serde_json::Value,
+    recovery: Option<std::sync::Arc<crate::objectives::RecoveryAuthorization>>,
+) -> Result<Json<ExecuteProviderNodeResponse>, ApiError> {
+    let request: ExecuteProviderNodeRequest = serde_json::from_value(raw_request.clone())
+        .map_err(|error| ApiError::bad_request(format!("invalid provider request: {error}")))?;
+    match (&recovery, request.recovery_event_id.as_deref()) {
+        (None, None) => {}
+        (Some(authority), Some(event_id)) if event_id == authority.event_id() => {
+            if authority.lease().run_id != id
+                || request.expected_retained_lease.as_ref() != Some(authority.lease())
+            {
+                return Err(ApiError::forbidden(
+                    "recovery request differs from its exact claim",
+                ));
+            }
+            authority
+                .validate_provider_request(&node_id, &raw_request)
+                .map_err(|error| ApiError::conflict(error.to_string()))?;
+        }
+        _ => {
+            return Err(ApiError::forbidden(
+                "recovery requires authenticated driver authority",
+            ))
+        }
+    }
     request.envelope.validate()?;
     let shutdown = shutdown.map(|extension| extension.0).unwrap_or_default();
     if shutdown.is_triggered() {
@@ -844,6 +902,14 @@ pub(super) async fn execute_provider_node(
     // propagate to the live child process.
     let mut _mutation_guard = Some(WORKBENCH_MUTATIONS.lock().await);
     let (mut store, mut graph) = load_run(&state, &id)?;
+    let recovery_binding = recovery
+        .as_ref()
+        .map(|authority| {
+            authority
+                .provider_binding(&node_id, &raw_request)
+                .map_err(|error| ApiError::conflict(error.to_string()))
+        })
+        .transpose()?;
     let node_id = NodeId::new(node_id)
         .map_err(|error| ApiError::bad_request(format!("invalid node id: {error}")))?;
     let mut node = graph
@@ -888,11 +954,40 @@ pub(super) async fn execute_provider_node(
         &graph.provenance.project_contract_digest,
         &attached_digest,
     )?;
+    if let Some(authorization) = recovery.as_ref() {
+        if let Some(start) = recovered.events.iter().rev().find(|event| {
+            event.node_id == node_id
+                && matches!(
+                    event.kind,
+                    RunEventKind::NodeTransition {
+                        state: NodeState::Running
+                    }
+                )
+        }) {
+            if let Some(payload) = store
+                .read_recovery_outcome_evidence(&node_id, &start.idempotency_key)
+                .map_err(recovery::recovery_error)?
+            {
+                return recovery::publish_provider(
+                    &state,
+                    authorization,
+                    &store,
+                    &node_id,
+                    &raw_request,
+                    payload,
+                );
+            }
+        }
+    }
     let project_root = state
         .workbench_root
         .join(attached.contract.workspace.root.as_str());
 
-    if let Some(assembly) = request.context_assembly.as_ref() {
+    if let Some(assembly) = request
+        .context_assembly
+        .as_ref()
+        .filter(|_| recovery.is_none())
+    {
         validate_durable_context_assembly(
             &state.workbench_root,
             assembly,
@@ -907,7 +1002,14 @@ pub(super) async fn execute_provider_node(
     // orphan must reach the existing Failed -> Ready recovery before admission.
     let recovering_running = node.state == NodeState::Running;
     if !recovering_running {
-        enforce_worker_admission(&state, &store, &graph, &node_id).await?;
+        enforce_worker_admission(
+            &state,
+            &store,
+            &graph,
+            &node_id,
+            recovery_binding.as_ref().map(|(grant, _)| grant),
+        )
+        .await?;
     }
     let approval_receipt = node
         .parent_receipts
@@ -1059,9 +1161,13 @@ pub(super) async fn execute_provider_node(
             state.workbench_root.join("data/arda/objectives.sqlite3"),
         )
         .map_err(|error| ApiError::internal(error.to_string()))?;
-        let retained = objectives
-            .retained_execution(id.as_str(), chrono::Utc::now().timestamp_millis())
-            .map_err(|error| ApiError::conflict(error.to_string()))?;
+        let retained = if let Some((_, binding)) = &recovery_binding {
+            Some(binding.clone())
+        } else {
+            objectives
+                .retained_execution(id.as_str(), chrono::Utc::now().timestamp_millis())
+                .map_err(|error| ApiError::conflict(error.to_string()))?
+        };
         require_expected_retained_lease(
             retained.as_ref().map(|binding| &binding.lease),
             request.expected_retained_lease.as_ref(),
@@ -1117,11 +1223,60 @@ pub(super) async fn execute_provider_node(
                 ));
             }
         }
+        let attempt =
+            next_provider_attempt(&store.recover().map_err(store_error)?.events, &node_id);
+        let adapter = if let Some((grant, _)) = &recovery_binding {
+            #[cfg(target_os = "linux")]
+            {
+                let memory = MnemosyneService::new(state.workbench_root.join("data/vaire"))
+                    .map_err(|error| ApiError::internal(error.to_string()))?
+                    .with_contract_memory_root(state.workbench_root.join("core/state/memory"));
+                let adapter = adapter
+                    .with_recovery_window(&task, grant.clone(), memory)
+                    .map_err(|error| ApiError::conflict(error.to_string()))?;
+                let gate = crate::objectives::RecoveryProviderDispatch::new(
+                    recovery
+                        .as_ref()
+                        .expect("binding requires authority")
+                        .clone(),
+                    raw_request.clone(),
+                    &task,
+                    &adapter,
+                    RunEventDraft {
+                        node_id: node_id.clone(),
+                        idempotency_key: format!(
+                            "{}:provider-running:{attempt}",
+                            node.idempotency_key
+                        ),
+                        kind: RunEventKind::NodeTransition {
+                            state: NodeState::Running,
+                        },
+                        receipt_digest: node.input_digest.clone(),
+                    },
+                )
+                .map_err(|error| ApiError::conflict(error.to_string()))?;
+                adapter
+                    .with_recovery_dispatch_gate(std::sync::Arc::new(gate))
+                    .map_err(|error| ApiError::conflict(error.to_string()))?
+            }
+            #[cfg(not(target_os = "linux"))]
+            {
+                let _ = grant;
+                return Err(ApiError::conflict("retained recovery requires Linux"));
+            }
+        } else {
+            adapter
+        };
         adapter.preflight(&task).map_err(|error| {
             ApiError::conflict(format!("provider task failed bounded preflight: {error}"))
         })?;
         let cancellation_key = format!("{id}/{}", node_id.as_str());
         if node.state == NodeState::Running {
+            if recovery.is_some() {
+                return Err(ApiError::conflict(
+                    "recovery start is already spent; reconcile without redispatch",
+                ));
+            }
             if ACTIVE_PROVIDER_CANCELLATIONS
                 .lock()
                 .await
@@ -1157,27 +1312,40 @@ pub(super) async fn execute_provider_node(
                 node.state
             )));
         }
-        let attempt =
-            next_provider_attempt(&store.recover().map_err(store_error)?.events, &node_id);
-        if attempt > u64::from(node.retry.max_attempts) {
+        let admitted_attempt = if let Some((grant, _)) = &recovery_binding {
+            u64::try_from(chrono::Utc::now().timestamp_millis())
+                .ok()
+                .is_some_and(|now| grant.permits_start(&node_id, attempt, now))
+        } else {
+            attempt <= u64::from(node.retry.max_attempts)
+        };
+        if !admitted_attempt {
             return Err(ApiError::conflict(format!(
                 "node `{}` exhausted provider attempts",
                 node_id.as_str()
             )));
         }
         if node.state != NodeState::Ready {
-            apply_transition_once(
+            with_provider_mutation(
                 &store,
-                &mut graph,
+                recovery.as_deref(),
                 &node_id,
-                NodeState::Ready,
-                provider_ready_idempotency_key(&node.idempotency_key, attempt),
-                Some(approval_receipt),
-            )
-            .map_err(store_error)?;
+                &raw_request,
+                |store| {
+                    apply_transition_once(
+                        store,
+                        &mut graph,
+                        &node_id,
+                        NodeState::Ready,
+                        provider_ready_idempotency_key(&node.idempotency_key, attempt),
+                        Some(approval_receipt),
+                    )
+                    .map_err(store_error)
+                },
+            )?;
         }
         if recovering_running {
-            enforce_worker_admission(&state, &store, &graph, &node_id).await?;
+            enforce_worker_admission(&state, &store, &graph, &node_id, None).await?;
         }
         graph
             .nodes
@@ -1186,15 +1354,18 @@ pub(super) async fn execute_provider_node(
             .expect("provider node remains present")
             .checkpoint
             .sequence = attempt;
-        apply_transition_once(
-            &store,
-            &mut graph,
-            &node_id,
-            NodeState::Running,
-            format!("{}:provider-running:{attempt}", node.idempotency_key),
-            node.input_digest.clone(),
-        )
-        .map_err(store_error)?;
+        // Recovery's journal-fenced delimiter owns the only Running append.
+        if recovery.is_none() {
+            apply_transition_once(
+                &store,
+                &mut graph,
+                &node_id,
+                NodeState::Running,
+                format!("{}:provider-running:{attempt}", node.idempotency_key),
+                node.input_digest.clone(),
+            )
+            .map_err(store_error)?;
+        }
         let cancellation = AdapterCancellation::new();
         ACTIVE_PROVIDER_CANCELLATIONS
             .lock()
@@ -1208,6 +1379,7 @@ pub(super) async fn execute_provider_node(
         }
         drop(_mutation_guard.take());
 
+        let running_key = format!("{}:provider-running:{attempt}", node.idempotency_key);
         let execution = adapter.execute(&task, cancellation.clone());
         tokio::pin!(execution);
         let (execution, interrupted) = tokio::select! {
@@ -1220,6 +1392,22 @@ pub(super) async fn execute_provider_node(
             }
             result = &mut execution => (result, false),
         };
+        let recovery_outcome = recovery.as_ref().map(|_| match &execution {
+            Ok(receipt) => serde_json::json!({
+                "request": raw_request, "start_key": running_key, "attempt": attempt,
+                "receipt": receipt,
+            }),
+            Err(error) => serde_json::json!({
+                "request": raw_request, "start_key": running_key, "attempt": attempt,
+                "error_key": format!("{}:provider-error:{attempt}", node.idempotency_key),
+                "error": error.to_string(),
+            }),
+        });
+        if let Some(payload) = &recovery_outcome {
+            store
+                .write_recovery_outcome_evidence(&node_id, payload)
+                .map_err(recovery::recovery_error)?;
+        }
         ACTIVE_PROVIDER_CANCELLATIONS
             .lock()
             .await
@@ -1256,6 +1444,16 @@ pub(super) async fn execute_provider_node(
                 "run `{id}` was cancelled while provider execution was active"
             )));
         }
+        if let (Some(authorization), Some(payload)) = (recovery.as_ref(), recovery_outcome) {
+            return recovery::publish_provider(
+                &state,
+                authorization,
+                &store,
+                &node_id,
+                &raw_request,
+                payload,
+            );
+        }
         let receipt = match execution {
             Ok(receipt) => receipt,
             Err(error) => {
@@ -1266,18 +1464,26 @@ pub(super) async fn execute_provider_node(
                     .cloned()
                     .ok_or_else(|| ApiError::internal("provider node disappeared after failure"))?;
                 if current.state == NodeState::Running {
-                    apply_transition_once(
+                    with_provider_mutation(
                         &store,
-                        &mut graph,
+                        recovery.as_deref(),
                         &node_id,
-                        NodeState::Failed,
-                        format!(
-                            "{}:provider-error:{}",
-                            current.idempotency_key, current.checkpoint.sequence
-                        ),
-                        None,
-                    )
-                    .map_err(store_error)?;
+                        &raw_request,
+                        |store| {
+                            apply_transition_once(
+                                store,
+                                &mut graph,
+                                &node_id,
+                                NodeState::Failed,
+                                format!(
+                                    "{}:provider-error:{}",
+                                    current.idempotency_key, current.checkpoint.sequence
+                                ),
+                                None,
+                            )
+                            .map_err(store_error)
+                        },
+                    )?;
                 }
                 return Err(ApiError::internal(format!(
                     "Workbench provider execution failed: {error}"
@@ -1287,48 +1493,85 @@ pub(super) async fn execute_provider_node(
         let value = serde_json::to_value(&receipt).map_err(|error| {
             ApiError::internal(format!("failed to serialize provider receipt: {error}"))
         })?;
-        store
-            .write_execution_receipt(&node_id, &value)
-            .map_err(store_error)?;
-        store
-            .append_resource_usage(ResourceUsageDraft {
-                idempotency_key: provider_usage_idempotency_key(&id, &receipt.idempotency_key),
-                source: if receipt.usage.cost_measurement == CostMeasurement::Observed {
-                    ResourceMeasurementSource::Observed
-                } else {
-                    ResourceMeasurementSource::DefaultFallback
-                },
-                provider_id: Some(
-                    receipt
-                        .usage
-                        .provider
-                        .clone()
-                        .unwrap_or_else(|| "unknown-provider".into()),
-                ),
-                local_joulework: 0.0,
-                hosted_cost_usd: receipt.usage.estimated_cost_usd,
-                hosted_requests: receipt.usage.api_calls,
-                supersedes: None,
-            })
-            .map_err(|error| {
-                ApiError::internal(format!("resource usage persistence failed: {error}"))
-            })?;
+        with_provider_mutation(
+            &store,
+            recovery.as_deref(),
+            &node_id,
+            &raw_request,
+            |store| {
+                store
+                    .write_execution_receipt(&node_id, &value)
+                    .map_err(store_error)?;
+                store
+                    .append_resource_usage(ResourceUsageDraft {
+                        idempotency_key: provider_usage_idempotency_key(
+                            &id,
+                            &receipt.idempotency_key,
+                        ),
+                        source: if receipt.usage.cost_measurement == CostMeasurement::Observed {
+                            ResourceMeasurementSource::Observed
+                        } else {
+                            ResourceMeasurementSource::DefaultFallback
+                        },
+                        provider_id: Some(
+                            receipt
+                                .usage
+                                .provider
+                                .clone()
+                                .unwrap_or_else(|| "unknown-provider".into()),
+                        ),
+                        local_joulework: 0.0,
+                        hosted_cost_usd: receipt.usage.estimated_cost_usd,
+                        hosted_requests: receipt.usage.api_calls,
+                        supersedes: None,
+                    })
+                    .map_err(|error| {
+                        ApiError::internal(format!("resource usage persistence failed: {error}"))
+                    })?;
+                Ok(())
+            },
+        )?;
         receipt
     };
 
-    finalize_provider_receipt(&store, &mut graph, &node_id, &receipt)?;
-    let evidence = review_evidence_from_receipt(&receipt)?;
-    project_review_evidence(
+    with_provider_mutation(
         &store,
-        node_id.as_str(),
-        &receipt.idempotency_key,
-        &receipt.receipt_digest,
-        Some(&evidence),
+        recovery.as_deref(),
+        &node_id,
+        &raw_request,
+        |store| {
+            finalize_provider_receipt(store, &mut graph, &node_id, &receipt)?;
+            let evidence = review_evidence_from_receipt(&receipt)?;
+            project_review_evidence(
+                store,
+                node_id.as_str(),
+                &receipt.idempotency_key,
+                &receipt.receipt_digest,
+                Some(&evidence),
+            )?;
+            Ok(())
+        },
     )?;
     Ok(Json(ExecuteProviderNodeResponse {
         run: run_response(&store, graph)?,
         receipt,
     }))
+}
+
+fn with_provider_mutation<T>(
+    store: &RunStore,
+    authority: Option<&crate::objectives::RecoveryAuthorization>,
+    node_id: &NodeId,
+    request: &serde_json::Value,
+    operation: impl FnOnce(&RunStore) -> Result<T, ApiError>,
+) -> Result<T, ApiError> {
+    if let Some(authority) = authority {
+        authority
+            .with_provider_mutation(node_id.as_str(), request, operation)
+            .map_err(|error| ApiError::conflict(error.to_string()))?
+    } else {
+        operation(store)
+    }
 }
 
 async fn cancel_active_provider_run(run_id: &str) {
@@ -1397,6 +1640,7 @@ async fn enforce_worker_admission(
     store: &RunStore,
     graph: &RunGraph,
     node_id: &NodeId,
+    recovery: Option<&crate::runs::RecoveryGrant>,
 ) -> Result<(), ApiError> {
     let Some(worker) = graph
         .nodes
@@ -1492,7 +1736,20 @@ async fn enforce_worker_admission(
             .map(str::to_string)
             .collect();
     }
-    let decision = schedule_ready_workers(graph, &limits, &usage, &availability, now_unix_ms);
+    let decision = if let Some(grant) = recovery {
+        crate::runs::schedule_recovery_worker(
+            graph,
+            &limits,
+            &usage,
+            &availability,
+            now_unix_ms,
+            grant,
+            node_id,
+        )
+        .map_err(ApiError::scheduler_conflict)?
+    } else {
+        schedule_ready_workers(graph, &limits, &usage, &availability, now_unix_ms)
+    };
     if decision.selected.iter().any(|selected| selected == node_id) {
         return Ok(());
     }

@@ -23,9 +23,11 @@ use futures::future::BoxFuture;
 use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
-mod retained_authorization;
 mod recovery_authorization;
+mod retained_authorization;
 pub use recovery_authorization::RecoveryAuthorization;
+#[cfg(target_os = "linux")]
+pub use recovery_authorization::RecoveryProviderDispatch;
 
 pub trait ExplicitWorkbenchExecution: Send + Sync {
     fn inspect_retry_explicit<'a>(
@@ -439,12 +441,43 @@ fn record_resident_context_outcome(
     run_id: &str,
     receipts: &[StageReceipt],
 ) -> Result<ContextOutcomeReceipt> {
+    let prepared =
+        prepare_resident_context_outcome(root, service, assembly, claim, run_id, receipts)?;
+    apply_resident_context_outcome(service, &prepared)?;
+    Ok(prepared.context_outcome)
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct PreparedResidentOutcome {
+    use_receipt: arda_vaire::ContextUseReceipt,
+    context_outcome: ContextOutcomeReceipt,
+    memory: MemoryRecord,
+    consumer: ConsumerContext,
+}
+
+fn apply_resident_context_outcome(
+    service: &MnemosyneService,
+    prepared: &PreparedResidentOutcome,
+) -> Result<()> {
+    service.record_prepared_context_outcome(&prepared.use_receipt, &prepared.context_outcome)?;
+    service.write_governed_memory_once(&prepared.memory, Some(&prepared.consumer))?;
+    Ok(())
+}
+
+fn prepare_resident_context_outcome(
+    root: &Path,
+    service: &MnemosyneService,
+    assembly: &ContextAssembly,
+    claim: &ClaimedLeaf,
+    run_id: &str,
+    receipts: &[StageReceipt],
+) -> Result<PreparedResidentOutcome> {
     let evidence_refs = receipts
         .iter()
         .map(|receipt| receipt.run_path.clone())
         .collect::<Vec<_>>();
     let influenced = assembly.use_receipt.memory_refs.clone();
-    let context_outcome = service.record_context_outcome(
+    let context_outcome = service.prepare_context_outcome(
         &assembly.use_receipt,
         ContextOutcomeInput {
             consumer_id: assembly.use_receipt.consumer_id.clone(),
@@ -471,13 +504,7 @@ fn record_resident_context_outcome(
     );
     consumer.purpose = Some(assembly.capsule.context.objective.requested_outcome.clone());
     consumer.operator_authorized = true;
-    if service
-        .recall_governed_memories(Some(&consumer))?
-        .iter()
-        .any(|record| record.id == memory_id)
-    {
-        return Ok(context_outcome);
-    }
+
     let execute_receipt = receipts
         .iter()
         .find(|receipt| receipt.stage == ReceiptStage::Execute)
@@ -569,8 +596,18 @@ fn record_resident_context_outcome(
         "context_use_receipt_id".into(),
         json!(assembly.use_receipt.receipt_id),
     );
-    service.write_governed_memory(memory, Some(&consumer))?;
-    Ok(context_outcome)
+    let recorded = chrono::DateTime::from_timestamp_millis(
+        assembly.use_receipt.recorded_at_unix_ms.try_into()?,
+    )
+    .context("resident memory timestamp is outside the supported range")?;
+    memory.created_at = recorded;
+    memory.last_seen_at = recorded;
+    Ok(PreparedResidentOutcome {
+        use_receipt: assembly.use_receipt.clone(),
+        context_outcome,
+        memory,
+        consumer,
+    })
 }
 
 fn project_receipts(

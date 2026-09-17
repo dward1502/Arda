@@ -190,13 +190,72 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
                 .unwrap(),
         )
         .unwrap();
-    store
-        .record_recovery_admission_intent("operator:fixture", &grant, |tx, g| {
-            store
-                .validate_retained_recovery_material(root, tx, g)
-                .map(|_| ())
-        })
+    let admitted = store
+        .prepare_recovery_admission(
+            root,
+            "operator:fixture",
+            &grant.authenticated_event_id,
+            grant
+                .authenticated_payload_digest
+                .strip_prefix("sha256:")
+                .unwrap(),
+            &b.objective_id,
+            &b.leaf_id,
+            b.run_id.as_str(),
+        )
         .unwrap();
+    assert_eq!(admitted.bindings, grant.bindings);
+    let grant = admitted;
+    let b = &grant.bindings;
+    let replay = store
+        .prepare_recovery_admission(
+            root,
+            "operator:fixture",
+            &grant.authenticated_event_id,
+            grant
+                .authenticated_payload_digest
+                .strip_prefix("sha256:")
+                .unwrap(),
+            &b.objective_id,
+            &b.leaf_id,
+            b.run_id.as_str(),
+        )
+        .unwrap();
+    assert_eq!(
+        replay, grant,
+        "saved admission must retain the original deadline"
+    );
+    for (owner, digest, leaf) in [
+        (
+            "another-operator",
+            grant
+                .authenticated_payload_digest
+                .strip_prefix("sha256:")
+                .unwrap(),
+            b.leaf_id.as_str(),
+        ),
+        ("operator:fixture", "sha256:wrong", b.leaf_id.as_str()),
+        (
+            "operator:fixture",
+            grant
+                .authenticated_payload_digest
+                .strip_prefix("sha256:")
+                .unwrap(),
+            "sibling-leaf",
+        ),
+    ] {
+        assert!(store
+            .prepare_recovery_admission(
+                root,
+                owner,
+                &grant.authenticated_event_id,
+                digest,
+                &b.objective_id,
+                leaf,
+                b.run_id.as_str()
+            )
+            .is_err());
+    }
     run_store.activate_recovery(grant.clone()).unwrap();
     let claim = || {
         store.claim_validated_retained_recovery(
@@ -334,6 +393,11 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
             .unwrap();
         body["context_assembly"] = serde_json::to_value(bound).unwrap();
         authority.validate_provider_request(stage, &body).unwrap();
+        assert_eq!(
+            authority.prepare_provider_request(stage).unwrap(),
+            body,
+            "connected driver must construct the canonical bound provider request"
+        );
         if stage == "verify" {
             verify_body = Some(body.clone());
         }
@@ -443,6 +507,38 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
         },
         receipt_digest: None,
     };
+    let original_graph = run_store
+        .validate_recovery_run_evidence(&grant.bindings)
+        .unwrap();
+    let expected_node = original_graph
+        .nodes
+        .iter()
+        .find(|node| node.id == draft.node_id)
+        .unwrap()
+        .clone();
+    let mut changed_graph = original_graph.clone();
+    changed_graph
+        .nodes
+        .iter_mut()
+        .find(|node| node.id == draft.node_id)
+        .unwrap()
+        .timeout_ms += 1;
+    run_store.write_checkpoint(&changed_graph).unwrap();
+    let rejection = authority
+        .launch_provider_request_checked(
+            &body,
+            &retained,
+            &run_store,
+            draft.clone(),
+            Some(&expected_node),
+            || -> Result<()> { panic!("stale captured node authority dispatched") },
+        )
+        .unwrap_err();
+    assert!(
+        rejection.to_string().contains("node authority changed"),
+        "{rejection:#}"
+    );
+    run_store.write_checkpoint(&original_graph).unwrap();
     let mut changed = body.clone();
     changed["objective"] = json!("tampered");
     assert!(authority
@@ -481,6 +577,106 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
         crate::runs::AppendOutcome::Appended { .. }
     ));
     let copied_before = std::fs::read(copied_store.events_path()).unwrap();
+    let captured = json!({"request": body, "start_key": "verify:provider-running:3",
+        "attempt": 3, "error_key": "verify:provider-error:3", "error": "isolated fixture outcome"});
+    run_store
+        .write_recovery_outcome_evidence(&grant.bindings.verify_node_id, &captured)
+        .unwrap();
+    let publication = crate::objectives::RecoveryPublication {
+        key: "verify:provider-running:3:terminal".into(),
+        kind: "provider-finalization".into(),
+        node_id: grant.bindings.verify_node_id.clone(),
+        payload: captured.clone(),
+    };
+    let before_publication = std::fs::read(run_store.events_path()).unwrap();
+    let mut samples = 0;
+    let expired = store.with_retained_recovery_clock(
+        "operator:fixture",
+        &event_id,
+        &lease,
+        |tx, saved, _| {
+            let guard = run_store.lock_recovery_mutation(
+                saved,
+                &publication.node_id,
+                lease.expires_ms.try_into()?,
+            )?;
+            store.insert_recovery_publication_in(tx, saved, &lease, &publication)?;
+            Ok(guard)
+        },
+        || {
+            samples += 1;
+            Ok(if samples == 1 {
+                lease.expires_ms - 1
+            } else {
+                lease.expires_ms
+            })
+        },
+    );
+    assert!(expired.is_err());
+    let count: i64 = db
+        .query_row("SELECT count(*) FROM recovery_publications", [], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    assert_eq!(count, 0, "expiry must roll back publication authority");
+    assert_eq!(
+        before_publication,
+        std::fs::read(run_store.events_path()).unwrap()
+    );
+    assert!(run_store
+        .read_execution_receipt(&publication.node_id)
+        .unwrap()
+        .is_none());
+    assert_eq!(
+        run_store
+            .read_recovery_outcome_evidence(&publication.node_id, "verify:provider-running:3")
+            .unwrap(),
+        Some(captured.clone())
+    );
+    authority
+        .commit_provider_publication(&publication.node_id, &body, captured.clone())
+        .unwrap();
+    let mut altered = captured.clone();
+    altered["error"] = json!("altered outcome");
+    assert!(authority
+        .commit_provider_publication(&publication.node_id, &body, altered)
+        .is_err());
+    let effects = std::cell::Cell::new(0);
+    let crash = authority.reconcile_publications(|guard, saved| {
+        assert_eq!(saved, &publication);
+        if matches!(
+            guard.append(crate::runs::RunEventDraft {
+                node_id: saved.node_id.clone(),
+                idempotency_key: "fixture-publication-projection".into(),
+                kind: crate::runs::RunEventKind::ResultProjected,
+                receipt_digest: None,
+            })?,
+            crate::runs::AppendOutcome::Appended { .. }
+        ) {
+            effects.set(effects.get() + 1);
+        }
+        anyhow::bail!("injected crash after a committed effect")
+    });
+    assert!(crash.is_err());
+    authority
+        .reconcile_publications(|guard, saved| {
+            assert_eq!(saved, &publication);
+            assert!(matches!(
+                guard.append(crate::runs::RunEventDraft {
+                    node_id: saved.node_id.clone(),
+                    idempotency_key: "fixture-publication-projection".into(),
+                    kind: crate::runs::RunEventKind::ResultProjected,
+                    receipt_digest: None,
+                })?,
+                crate::runs::AppendOutcome::AlreadyApplied { .. }
+            ));
+            Ok(())
+        })
+        .unwrap();
+    authority
+        .reconcile_publications(|_, _| panic!("applied publication ran again"))
+        .unwrap();
+    assert_eq!(effects.get(), 1);
     assert!(authority
         .launch_provider_request(
             &body,
@@ -499,24 +695,51 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
             panic!("durable start replay dispatched")
         });
 
-    let mut cancelled = run_store.recover().unwrap().events.last().unwrap().clone();
-    cancelled.sequence += 1;
-
-    cancelled.idempotency_key = "fixture-cancelled".into();
-    cancelled.kind = crate::runs::RunEventKind::Cancelled {
-        reason: "fixture".into(),
-    };
-    let mut events = run_store.recover().unwrap().events;
-    events.push(cancelled);
-    let bytes: Vec<u8> = events
-        .iter()
-        .flat_map(|e| {
-            let mut b = serde_json::to_vec(e).unwrap();
-            b.push(b'\n');
-            b
-        })
-        .collect();
-    std::fs::write(run_store.events_path(), bytes).unwrap();
+    let guarded = run_store
+        .lock_recovery_mutation(
+            &grant,
+            &grant.bindings.verify_node_id,
+            lease.expires_ms.try_into().unwrap(),
+        )
+        .unwrap();
+    let independent = crate::runs::RunStore::open(root, grant.bindings.run_id.clone()).unwrap();
+    let cancelled_node = grant.bindings.verify_node_id.clone();
+    let (started_tx, started_rx) = std::sync::mpsc::channel();
+    let (done_tx, done_rx) = std::sync::mpsc::channel();
+    let writer = std::thread::spawn(move || {
+        started_tx.send(()).unwrap();
+        independent
+            .append(crate::runs::RunEventDraft {
+                node_id: cancelled_node,
+                idempotency_key: "fixture-cancelled".into(),
+                kind: crate::runs::RunEventKind::Cancelled {
+                    reason: "fixture".into(),
+                },
+                receipt_digest: None,
+            })
+            .unwrap();
+        done_tx.send(()).unwrap();
+    });
+    started_rx
+        .recv_timeout(std::time::Duration::from_secs(2))
+        .unwrap();
+    assert!(done_rx
+        .recv_timeout(std::time::Duration::from_millis(100))
+        .is_err());
+    let checkpoint = guarded.recover().unwrap().checkpoint.unwrap();
+    guarded.write_checkpoint(&checkpoint).unwrap();
+    drop(guarded);
+    done_rx
+        .recv_timeout(std::time::Duration::from_secs(2))
+        .unwrap();
+    writer.join().unwrap();
+    assert!(run_store
+        .lock_recovery_mutation(
+            &grant,
+            &grant.bindings.verify_node_id,
+            lease.expires_ms.try_into().unwrap()
+        )
+        .is_err());
     assert!(check().is_err());
     assert!(authority.authorize(&item).is_err());
     assert!(authority.canonical_item().is_err());

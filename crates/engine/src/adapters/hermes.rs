@@ -762,6 +762,26 @@ impl HermesAdapter {
         .await
     }
 
+    /// Exact typed Chat dispatched for this task and adapter configuration.
+    /// Used by the recovery fence rather than accepting a caller-written query.
+    pub fn retained_chat_operation(
+        &self,
+        task: &HermesNodeTask,
+    ) -> Result<crate::objectives::runtime_operation::RuntimeOperation, HermesAdapterError> {
+        self.preflight(task)?;
+        Ok(
+            crate::objectives::runtime_operation::RuntimeOperation::Chat {
+                query: self.build_prompt(task)?,
+                max_turns: self.config.max_turns,
+                toolsets: self.validate_task(task)?,
+                workspace_writable: !matches!(
+                    task.node.authority,
+                    AuthorityClass::ReadOnly | AuthorityClass::HumanApproval
+                ) && !HermesNodeTask::file_only_verification_scope(&task.node),
+            },
+        )
+    }
+
     pub fn preflight(&self, task: &HermesNodeTask) -> Result<(), HermesAdapterError> {
         self.validate_task(task)?;
         let prompt = self.build_prompt(task)?;
@@ -812,9 +832,15 @@ impl HermesAdapter {
         task: &HermesNodeTask,
         cancellation: AdapterCancellation,
     ) -> Result<HermesExecutionReceipt, HermesAdapterError> {
-        self.preflight(task)?;
-        let toolsets = self.validate_task(task)?;
-        let prompt = self.build_prompt(task)?;
+        let crate::objectives::runtime_operation::RuntimeOperation::Chat {
+            query: prompt,
+            max_turns,
+            toolsets,
+            workspace_writable,
+        } = self.retained_chat_operation(task)?
+        else {
+            unreachable!("retained_chat_operation only constructs Chat");
+        };
         if *cancellation.subscribe().borrow() {
             return Err(HermesAdapterError::Cancelled);
         }
@@ -842,7 +868,7 @@ impl HermesAdapter {
                     "--source".into(),
                     "tool".into(),
                     "--max-turns".into(),
-                    self.config.max_turns.to_string(),
+                    max_turns.to_string(),
                     "--ignore-rules".into(),
                     "-t".into(),
                     toolsets.join(","),
@@ -851,16 +877,29 @@ impl HermesAdapter {
                 ],
                 total_timeout,
                 &cancellation,
-                !matches!(
-                    task.node.authority,
-                    AuthorityClass::ReadOnly | AuthorityClass::HumanApproval
-                ) && !HermesNodeTask::file_only_verification_scope(&task.node),
+                workspace_writable,
             )
             .await?;
         let (session_id, result_bytes) =
             split_chat_output(&chat_output.stdout, &chat_output.stderr)?;
         let result = parse_job_result(&result_bytes)?;
         self.validate_result(task, &result)?;
+
+        #[cfg(target_os = "linux")]
+        if let Some(gate) = self
+            .recovery
+            .as_ref()
+            .and_then(|r| r.dispatch_gate.as_deref())
+        {
+            gate.bind_result(
+                &session_id,
+                &result
+                    .artifacts
+                    .iter()
+                    .map(|artifact| artifact.path.clone())
+                    .collect::<Vec<_>>(),
+            )?;
+        }
 
         #[cfg(target_os = "linux")]
         if let Some(binding) = &self.retained {

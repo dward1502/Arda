@@ -204,3 +204,80 @@ fn canonical_tampering_and_replayed_execution_fail_closed() {
         .unwrap();
     assert!(store.validate_recovery_run_evidence(&bindings).is_err());
 }
+
+#[test]
+fn recovery_provider_free_close_is_narrowly_journal_fenced() {
+    let (_temp, store, mut graph, bindings, _) = fixture();
+    let now: u64 = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis()
+        .try_into()
+        .unwrap();
+    let grant = RecoveryGrant {
+        authenticated_event_id: "close-fixture".into(),
+        authenticated_payload_digest: format!("sha256:{}", "b".repeat(64)),
+        bindings: bindings.clone(),
+        activated_at_unix_ms: now,
+        expires_at_unix_ms: now + RECOVERY_WINDOW_MS,
+    };
+    store.activate_recovery(grant.clone()).unwrap();
+    assert!(store
+        .lock_recovery_mutation(&grant, &bindings.close_node_id, grant.expires_at_unix_ms)
+        .is_err());
+    let digest = format!("sha256:{}", "d".repeat(64));
+    for node in &mut graph.nodes {
+        if node.id == bindings.verify_node_id || node.id == bindings.review_node_id {
+            node.state = NodeState::Succeeded;
+            node.output_digest = Some(digest.clone());
+        }
+        if node.id == bindings.close_node_id {
+            node.parent_receipts = vec![digest.clone()];
+        }
+    }
+    store.write_checkpoint(&graph).unwrap();
+    let start = RunEventDraft {
+        node_id: bindings.close_node_id.clone(),
+        idempotency_key: "close:running".into(),
+        kind: RunEventKind::NodeTransition {
+            state: NodeState::Running,
+        },
+        receipt_digest: None,
+    };
+    assert!(store.append(start.clone()).is_err());
+    assert!(store
+        .lock_recovery_mutation(&grant, &bindings.close_node_id, now)
+        .is_err());
+    let guarded = store
+        .lock_recovery_mutation(&grant, &bindings.close_node_id, grant.expires_at_unix_ms)
+        .unwrap();
+    guarded.append(start).unwrap();
+    guarded
+        .append(RunEventDraft {
+            node_id: bindings.close_node_id.clone(),
+            idempotency_key: "close:success".into(),
+            kind: RunEventKind::NodeTransition {
+                state: NodeState::Succeeded,
+            },
+            receipt_digest: Some(digest),
+        })
+        .unwrap();
+    let mut foreign = RunEventDraft {
+        node_id: bindings.verify_node_id.clone(),
+        idempotency_key: "forbidden-verify".into(),
+        kind: RunEventKind::NodeTransition {
+            state: NodeState::Running,
+        },
+        receipt_digest: None,
+    };
+    assert!(guarded.append(foreign.clone()).is_err());
+    foreign.kind = RunEventKind::NodeTransition {
+        state: NodeState::Succeeded,
+    };
+    assert!(guarded.append(foreign).is_err());
+    drop(guarded);
+    assert_eq!(
+        store.recover().unwrap().events.last().unwrap().node_id,
+        bindings.close_node_id
+    );
+}

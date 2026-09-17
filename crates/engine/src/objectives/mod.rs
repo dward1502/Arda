@@ -8,9 +8,9 @@ pub mod captured_fds;
 pub mod keeper_client;
 mod migrations;
 mod model;
-mod request_binding;
 #[cfg(target_os = "linux")]
 pub mod physical_tree;
+mod request_binding;
 mod runtime;
 pub mod runtime_operation;
 pub mod runtime_policy;
@@ -34,5 +34,8 @@ pub use snapshots::{RetainedExecution, RetainedSnapshot, SnapshotAdmission};
 pub(crate) use store::encode_workspace_identity;
 #[cfg(target_os = "linux")]
 pub use store::validate_snapshot_owner_paths;
+pub(crate) use store::RecoveryPublication;
 pub use store::{ObjectiveStore, RecoveryMaterial, MAX_OBJECTIVE_ATTEMPTS};
+#[cfg(target_os = "linux")]
+pub use workbench::RecoveryProviderDispatch;
 pub use workbench::{ExplicitWorkbenchExecution, RecoveryAuthorization, WorkbenchLeafExecution};

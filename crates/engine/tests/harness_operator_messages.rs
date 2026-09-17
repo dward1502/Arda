@@ -152,6 +152,27 @@ async fn gateway_cannot_initialize_lost_authority() {
 
 #[tokio::test]
 async fn recovery_snapshot_deletion_requires_private_owner_and_closed_evidence() {
+    // Unknown transports must not be promoted to operator-private authority.
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    for kind in ["thread", "unknown", "", "DM", "operator_private", "group"] {
+        for command in [
+            "arda context",
+            "arda recover-retained objective leaf run one-verify-start 30m reuse-expired-context",
+        ] {
+            let mut message = gateway_message(&format!("private-{kind}-{command}"), command);
+            message["event"]["source"]["chat_type"] = json!(kind);
+            let response = gateway_client()
+                .post(format!("http://{bound}/v1/operator/messages"))
+                .json(&message)
+                .send()
+                .await
+                .unwrap();
+            assert_eq!(response.status(), 403, "{kind}: {command}");
+        }
+    }
+    shutdown.notify_waiters();
+    handle.await.unwrap();
     let root = TempDir::new().unwrap();
     let (bound, shutdown, handle) = start_harness(&root).await;
     let endpoint = format!("http://{bound}/v1/operator/messages");
@@ -159,7 +180,9 @@ async fn recovery_snapshot_deletion_requires_private_owner_and_closed_evidence()
     let _store = ObjectiveStore::open(&path).unwrap();
     let db = rusqlite::Connection::open(&path).unwrap();
     // Isolated persisted-state fixture; no provider or live objective is used.
-    db.execute_batch("INSERT INTO objectives VALUES
+    db.execute_batch("INSERT INTO objectives
+        (id, source_id, ingress_key, payload_digest, operator_id, text, priority, revision,
+         approved_revision, state, terminal_receipt_digest, created_at_ms, updated_at_ms) VALUES
         ('objective-delete', 'source-delete', 'ingress-delete', 'payload', 'discord-user-1',
          'test', 0, 1, 1, 'completed', 'terminal-digest', 0, 0);
         INSERT INTO leaves (id, objective_id, workspace_root, authority, stage, attempt,
@@ -671,9 +694,7 @@ async fn gateway_controls_mutate_only_resident_objective_store() {
             format!(
                 "arda revise-objective {task_id} {objective_id} Revised operator objective --reason operator corrected scope"
             ),
-            format!(
-                "Revised resident objective {objective_id}; fresh approval is required: operator corrected scope"
-            ),
+            "persisted execution plan".to_owned(),
         ),
         (
             "discord-approve-objective",
@@ -689,6 +710,11 @@ async fn gateway_controls_mutate_only_resident_objective_store() {
             .expect("control");
         let status = response.status();
         let body = response.text().await.expect("control body");
+        if command.starts_with("arda revise-objective ") {
+            assert_eq!(status, reqwest::StatusCode::CONFLICT);
+            assert!(body.contains(&expected));
+            continue;
+        }
         assert!(status.is_success(), "{command}: {status} {body}");
         let response: Value = serde_json::from_str(&body).expect("control JSON");
         assert_eq!(response["summary"], expected);
@@ -699,9 +725,9 @@ async fn gateway_controls_mutate_only_resident_objective_store() {
         .expect("read controlled objective")
         .expect("controlled objective");
     assert_eq!(approved.state, ObjectiveState::Approved);
-    assert_eq!(approved.text, "Revised operator objective");
+    assert_eq!(approved.text, "Original operator objective");
     assert_eq!(approved.priority, 100);
-    assert_eq!(approved.revision, 2);
+    assert_eq!(approved.revision, 1);
     assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
     assert!(!root
         .path()
@@ -1062,14 +1088,18 @@ async fn gateway_objective_approval_schedules_and_can_cancel_before_first_claim(
             ),
         ),
     ] {
-        client
+        let response = client
             .post(format!("http://{bound}/v1/operator/messages"))
             .json(&gateway_message(message_id, &command))
             .send()
             .await
-            .expect("objective control")
-            .error_for_status()
-            .expect("objective control status");
+            .expect("objective control");
+        if command.starts_with("arda revise-objective ") {
+            assert_eq!(response.status(), reqwest::StatusCode::CONFLICT);
+            assert!(response.text().await.unwrap().contains("persisted execution plan"));
+        } else {
+            response.error_for_status().expect("objective control status");
+        }
     }
 
     let approved = store
@@ -1077,11 +1107,8 @@ async fn gateway_objective_approval_schedules_and_can_cancel_before_first_claim(
         .expect("read approved objective")
         .expect("approved objective");
     assert_eq!(approved.state, ObjectiveState::Approved);
-    assert_eq!(approved.revision, 2);
-    assert_eq!(
-        approved.text,
-        "create only a disposable acceptance artifact"
-    );
+    assert_eq!(approved.revision, 1);
+    assert_eq!(approved.text, "create a disposable acceptance artifact");
 
     let cancelled: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))

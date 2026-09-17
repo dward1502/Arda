@@ -268,6 +268,21 @@ fn apply_locked(connection: &Connection) -> Result<()> {
             leaf_id TEXT NOT NULL REFERENCES leaves(id),
             run_id TEXT NOT NULL UNIQUE,
             grant_json TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS recovery_publications (
+            authenticated_event_id TEXT NOT NULL REFERENCES recovery_admissions(authenticated_event_id),
+            publication_key TEXT NOT NULL,
+            kind TEXT NOT NULL CHECK(kind IN ('provider-finalization','close','completion')),
+            node_id TEXT NOT NULL,
+            payload_json TEXT NOT NULL,
+            payload_digest TEXT NOT NULL,
+            grant_digest TEXT NOT NULL,
+            lease_generation INTEGER NOT NULL,
+            lease_owner TEXT NOT NULL,
+            lease_expires_ms INTEGER NOT NULL,
+            authorized_at_ms INTEGER NOT NULL,
+            applied_at_ms INTEGER,
+            PRIMARY KEY(authenticated_event_id, publication_key)
         );",
     )?;
     let has_recovery_marker: bool = connection.query_row(

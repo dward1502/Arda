@@ -66,6 +66,11 @@ enum Command {
         objective_id: String,
         run_id: String,
     },
+    RecoverRetained {
+        objective_id: String,
+        leaf_id: String,
+        run_id: String,
+    },
     PauseTask {
         task_id: String,
         objective_id: String,
@@ -136,6 +141,7 @@ enum Command {
 pub(super) async fn ingest_operator_message(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    configured: Option<axum::Extension<super::RuntimePrerequisites>>,
     headers: HeaderMap,
     Json(mut incoming): Json<GatewayOperatorMessage>,
 ) -> Result<Json<GatewayOperatorResponse>, ApiError> {
@@ -202,6 +208,7 @@ pub(super) async fn ingest_operator_message(
             | Command::Context
             | Command::Objectives
             | Command::DeleteRecoveryContext { .. }
+            | Command::RecoverRetained { .. }
             | Command::PauseTask { .. }
             | Command::ResumeTask { .. }
             | Command::ReprioritizeTask { .. }
@@ -218,6 +225,46 @@ pub(super) async fn ingest_operator_message(
     }
     preflight_canonical_control(&state, &command)?;
     let session_id = session_id(&incoming.event);
+    if let Command::RecoverRetained {
+        objective_id,
+        leaf_id,
+        run_id,
+    } = &command
+    {
+        // Recovery owns a durable admission/replay protocol, not bridge retries.
+        let endpoint = configured
+            .map(|value| value.0)
+            .unwrap_or_default()
+            .keeper_socket
+            .ok_or_else(|| {
+                ApiError::conflict("retained recovery requires the configured canonical keeper")
+            })?;
+        let keeper = std::sync::Arc::new(crate::objectives::keeper_client::KeeperClient::new(
+            endpoint,
+        ));
+        objective_store(&state)?
+            .bind_gateway_event(&message_id, &payload_digest)
+            .map_err(objective_store_error)?;
+        super::runs::recovery::execute(
+            &state,
+            keeper,
+            &incoming.operator.operator_id,
+            &message_id,
+            &payload_digest,
+            objective_id,
+            leaf_id,
+            run_id,
+        )
+        .await?;
+        return Ok(Json(GatewayOperatorResponse {
+            schema_version: "arda.gateway-operator-response.v1",
+            summary: "Retained unfinished stages completed; objective remains paused.".into(),
+            evidence_refs: vec![format!("/v1/workbench/runs/{run_id}")],
+            session_id,
+            run_id: Some(run_id.clone()),
+        }));
+    }
+
     let run_id = command_run_id(&command).map(str::to_owned);
     let operation = command_operation(&command);
     let now = Utc::now();
@@ -438,6 +485,9 @@ async fn apply_command(
         .ok_or_else(|| ApiError::bad_request("MessageEvent message_id is required"))?;
     let envelope = mutation_envelope(message_id, &incoming.event.timestamp);
     match command {
+        Command::RecoverRetained { .. } => Err(ApiError::forbidden(
+            "recovery requires authenticated saved-admission ingress",
+        )),
         Command::Capture(text) => {
             let capture = post_json(
                 state,
@@ -1239,6 +1289,15 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
             let run_id = only_arg(rest, "run_id")?;
             Ok(Command::DeleteRecoveryContext { objective_id, run_id })
         }
+        "recover-retained" => {
+            let (objective_id, rest) = take_arg(args, "objective_id")?;
+            let (leaf_id, rest) = take_arg(rest, "leaf_id")?;
+            let (run_id, scope) = take_arg(rest, "run_id")?;
+            if scope != "one-verify-start 30m reuse-expired-context" {
+                return Err(ApiError::bad_request("recovery requires explicit scope: one-verify-start 30m reuse-expired-context"));
+            }
+            Ok(Command::RecoverRetained { objective_id, leaf_id, run_id })
+        }
         "cancel-task" => {
             let (task_id, rest) = take_arg(args, "task_id")?;
             let (objective_id, reason) = take_arg(rest, "objective_id")?;
@@ -1375,7 +1434,8 @@ fn command_operation(command: &Command) -> BridgeOperation {
         | Command::ReprioritizeTask { .. }
         | Command::ReviseObjective { .. }
         | Command::ApproveObjective { .. }
-        | Command::DeleteRecoveryContext { .. } => BridgeOperation::Control,
+        | Command::DeleteRecoveryContext { .. }
+        | Command::RecoverRetained { .. } => BridgeOperation::Control,
         Command::Cancel { .. } | Command::CancelTask { .. } => BridgeOperation::Cancel,
         Command::Acknowledge { .. } => BridgeOperation::Acknowledge,
         Command::Defer { .. } => BridgeOperation::Defer,
@@ -1399,7 +1459,8 @@ fn command_run_id(command: &Command) -> Option<&str> {
         | Command::Status { run_id: None }
         | Command::Acknowledge { .. }
         | Command::Defer { .. } => None,
-        Command::Approve { run_id, .. }
+        Command::RecoverRetained { run_id, .. }
+        | Command::Approve { run_id, .. }
         | Command::Reject { run_id, .. }
         | Command::Revise { run_id, .. }
         | Command::Cancel { run_id, .. }
@@ -1485,7 +1546,8 @@ fn audience(event: &HermesMessageEvent) -> Audience {
     match event.source.chat_type.as_str() {
         "dm" | "private" => Audience::Direct,
         "group" | "guild" | "channel" => Audience::Group,
-        _ => Audience::OperatorPrivate,
+        // Unrecognized transports provide no evidence of private authority.
+        _ => Audience::Group,
     }
 }
 

@@ -5,6 +5,7 @@ use arda_core::run_graph::{
     RunId,
 };
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -81,6 +82,10 @@ pub struct RunStore {
     run_id: RunId,
     root: PathBuf,
     directory: PathBuf,
+    mutation_lock: Option<std::sync::Arc<std::fs::File>>,
+    mutation_node: Option<NodeId>,
+    mutation_deadline: Option<u64>,
+    provider_free_close: bool,
 }
 
 impl RunStore {
@@ -95,11 +100,114 @@ impl RunStore {
             run_id,
             root,
             directory,
+            mutation_lock: None,
+            mutation_node: None,
+            mutation_deadline: None,
+            provider_free_close: false,
         })
     }
 
     pub fn run_id(&self) -> &RunId {
         &self.run_id
+    }
+
+    /// Owned exclusive journal guard for a synchronous, exact-node recovery
+    /// mutation. Clones retain the same lock rather than reacquiring flock.
+    /// Call only inside the canonical objective/lease transaction.
+    pub(crate) fn lock_recovery_mutation(
+        &self,
+        grant: &super::RecoveryGrant,
+        node: &NodeId,
+        lease_deadline: u64,
+    ) -> Result<Self, RunStoreError> {
+        self.lock_recovery_projection(
+            grant,
+            node,
+            Some(lease_deadline.min(grant.expires_at_unix_ms)),
+        )
+    }
+
+    /// Only the committed-outbox reconciler may request this guard. It grants
+    /// no provider starts and creates no new execution window.
+    pub(crate) fn lock_recovery_reconciliation(
+        &self,
+        grant: &super::RecoveryGrant,
+        node: &NodeId,
+    ) -> Result<Self, RunStoreError> {
+        self.lock_recovery_projection(grant, node, None)
+    }
+
+    fn lock_recovery_projection(
+        &self,
+        grant: &super::RecoveryGrant,
+        node: &NodeId,
+        deadline: Option<u64>,
+    ) -> Result<Self, RunStoreError> {
+        let lock = self.journal_lock(true)?;
+        let mut guarded = self.clone();
+        guarded.mutation_lock = Some(lock);
+        guarded.mutation_node = Some(node.clone());
+        guarded.mutation_deadline = deadline;
+        guarded.check_mutation_clock()?;
+        let graph = guarded
+            .validate_recovery_run_evidence(&grant.bindings)
+            .map_err(|error| RunStoreError::InvalidRecoveryGrant(error.to_string()))?;
+        let events = guarded.recover_locked()?.events;
+        if !events.iter().any(|event| {
+            matches!(&event.kind,
+            RunEventKind::RecoveryActivated { grant: saved } if saved.as_ref() == grant)
+        }) || events
+            .iter()
+            .any(|event| matches!(event.kind, RunEventKind::Cancelled { .. }))
+            || ![
+                &grant.bindings.verify_node_id,
+                &grant.bindings.review_node_id,
+                &grant.bindings.close_node_id,
+            ]
+            .contains(&node)
+        {
+            return Err(RunStoreError::InvalidRecoveryGrant(
+                "recovery terminal authority changed or run cancelled".into(),
+            ));
+        }
+        if node == &grant.bindings.close_node_id {
+            let close = graph.nodes.iter().find(|candidate| &candidate.id == node);
+            let review = graph
+                .nodes
+                .iter()
+                .find(|candidate| candidate.id == grant.bindings.review_node_id);
+            if !graph.nodes.iter().any(|candidate| {
+                candidate.id == grant.bindings.verify_node_id
+                    && candidate.state == NodeState::Succeeded
+                    && candidate.output_digest.is_some()
+            }) || !close.is_some_and(|close| {
+                close.worker.is_none()
+                    && review
+                        .and_then(|review| review.output_digest.as_ref())
+                        .is_some_and(|digest| close.parent_receipts == [digest.clone()])
+            }) || !review.is_some_and(|review| {
+                review.state == NodeState::Succeeded && review.output_digest.is_some()
+            }) {
+                return Err(RunStoreError::InvalidRecoveryGrant(
+                    "provider-free Close requires completed Review".into(),
+                ));
+            }
+            guarded.provider_free_close = true;
+        }
+        Ok(guarded)
+    }
+
+    fn check_mutation_clock(&self) -> Result<(), RunStoreError> {
+        if self.mutation_deadline.is_some_and(|deadline| {
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map_or(true, |now| now.as_millis() >= u128::from(deadline))
+        }) {
+            return Err(RunStoreError::InvalidRecoveryGrant(
+                "recovery terminal deadline expired".into(),
+            ));
+        }
+        Ok(())
     }
 
     pub fn events_path(&self) -> PathBuf {
@@ -156,11 +264,12 @@ impl RunStore {
             RunEventKind::NodeTransition {
                 state: NodeState::Running
             }
-        ) && self
-            .recover_locked()?
-            .events
-            .iter()
-            .any(|event| matches!(event.kind, RunEventKind::RecoveryActivated { .. }))
+        ) && !(self.provider_free_close && self.mutation_node.as_ref() == Some(&draft.node_id))
+            && self
+                .recover_locked()?
+                .events
+                .iter()
+                .any(|event| matches!(event.kind, RunEventKind::RecoveryActivated { .. }))
         {
             return Err(RunStoreError::IdempotencyConflict {
                 key: draft.idempotency_key,
@@ -169,7 +278,13 @@ impl RunStore {
         self.append_locked(draft)
     }
 
-    fn journal_lock(&self, exclusive: bool) -> Result<std::fs::File, RunStoreError> {
+    fn journal_lock(
+        &self,
+        exclusive: bool,
+    ) -> Result<std::sync::Arc<std::fs::File>, RunStoreError> {
+        if let Some(lock) = &self.mutation_lock {
+            return Ok(lock.clone());
+        }
         let path = self.directory.join("journal.lock");
         let file = OpenOptions::new()
             .create(true)
@@ -187,7 +302,7 @@ impl RunStore {
             fs2::FileExt::lock_shared(&file)
         }
         .map_err(|source| RunStoreError::Io { path, source })?;
-        Ok(file)
+        Ok(std::sync::Arc::new(file))
     }
 
     /// Journal one immutable recovery window per run. Authentication and binding
@@ -294,6 +409,73 @@ impl RunStore {
             Ok::<T, RunStoreError>(send())
         })?;
         Ok((outcome, result.transpose()?))
+    }
+
+    /// Reauthorize an auxiliary operation under the same journal fence as its
+    /// already-launched Chat. This never appends or consumes a provider start.
+    /// The caller owns the objective/lease fence and must not reenter this store.
+    pub fn with_recovery_auxiliary_before<T>(
+        &self,
+        grant: &super::RecoveryGrant,
+        start: &RunEventDraft,
+        not_after_unix_ms: u64,
+        send: impl FnOnce() -> T,
+    ) -> Result<T, RunStoreError> {
+        let conflict = || RunStoreError::IdempotencyConflict {
+            key: start.idempotency_key.clone(),
+        };
+        let _lock = self.journal_lock(true)?;
+        let recovered = self.recover_locked()?;
+        let activation_matches = recovered.events.iter().any(|event| {
+            matches!(&event.kind, RunEventKind::RecoveryActivated { grant: saved }
+                if saved.as_ref() == grant)
+        });
+        let start_matches = recovered.events.iter().any(|event| {
+            event.idempotency_key == start.idempotency_key
+                && event.node_id == start.node_id
+                && event.kind == start.kind
+                && event.receipt_digest == start.receipt_digest
+        });
+        let cancelled = recovered.events.iter().any(|event| {
+            matches!(
+                event.kind,
+                RunEventKind::Cancelled { .. }
+                    | RunEventKind::NodeTransition {
+                        state: NodeState::Cancelled
+                    }
+            )
+        });
+        let latest = recovered.events.iter().rev().find_map(|event| {
+            if event.node_id == start.node_id {
+                if let RunEventKind::NodeTransition { state } = event.kind {
+                    return Some((state, event.idempotency_key.as_str()));
+                }
+            }
+            None
+        });
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .ok()
+            .and_then(|duration| u64::try_from(duration.as_millis()).ok());
+        if !activation_matches
+            || !start_matches
+            || cancelled
+            || !matches!(
+                start.kind,
+                RunEventKind::NodeTransition {
+                    state: NodeState::Running
+                }
+            )
+            || latest != Some((NodeState::Running, start.idempotency_key.as_str()))
+            || !grant
+                .bindings
+                .provider_start_ceilings
+                .contains_key(start.node_id.as_str())
+            || !now.is_some_and(|now| now < not_after_unix_ms && grant.is_active(now))
+        {
+            return Err(conflict());
+        }
+        Ok(send())
     }
 
     pub(super) fn recovery_start_then_with_clock<T>(
@@ -403,6 +585,16 @@ impl RunStore {
     }
 
     fn append_locked(&self, draft: RunEventDraft) -> Result<AppendOutcome, RunStoreError> {
+        self.check_mutation_clock()?;
+        if self
+            .mutation_node
+            .as_ref()
+            .is_some_and(|node| node != &draft.node_id)
+        {
+            return Err(RunStoreError::InvalidRecoveryGrant(
+                "terminal mutation changed node".into(),
+            ));
+        }
         if draft.idempotency_key.trim().is_empty() {
             return Err(RunStoreError::EmptyIdempotencyKey);
         }
@@ -549,6 +741,7 @@ impl RunStore {
     }
 
     pub fn write_checkpoint(&self, graph: &RunGraph) -> Result<(), RunStoreError> {
+        self.check_mutation_clock()?;
         graph.validate().map_err(RunStoreError::Graph)?;
         let bytes = serde_json::to_vec_pretty(graph).map_err(RunStoreError::Serialize)?;
         atomic_write(&self.checkpoint_path(), &bytes)
@@ -570,12 +763,57 @@ impl RunStore {
         }
     }
 
+    pub(crate) fn write_recovery_outcome_evidence(
+        &self,
+        node: &NodeId,
+        payload: &Value,
+    ) -> anyhow::Result<()> {
+        let key = payload["start_key"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("outcome evidence start missing"))?;
+        let _guard = self.journal_lock(true)?;
+        let path = self.recovery_outcome_path(node, key);
+        if path.exists() {
+            let existing: Value = serde_json::from_slice(&fs::read(&path)?)?;
+            anyhow::ensure!(
+                existing == *payload,
+                "conflicting immutable outcome evidence"
+            );
+            return Ok(());
+        }
+        fs::create_dir_all(path.parent().expect("evidence has parent"))?;
+        atomic_write(&path, &serde_json::to_vec_pretty(payload)?)?;
+        Ok(())
+    }
+
+    pub(crate) fn read_recovery_outcome_evidence(
+        &self,
+        node: &NodeId,
+        start_key: &str,
+    ) -> anyhow::Result<Option<Value>> {
+        let _guard = self.journal_lock(false)?;
+        let path = self.recovery_outcome_path(node, start_key);
+        if !path.exists() {
+            return Ok(None);
+        }
+        Ok(Some(serde_json::from_slice(&fs::read(path)?)?))
+    }
+
+    fn recovery_outcome_path(&self, node: &NodeId, key: &str) -> PathBuf {
+        let digest = <sha2::Sha256 as sha2::Digest>::digest(key.as_bytes());
+        self.directory
+            .join("recovery-outcomes")
+            .join(node.as_str())
+            .join(format!("{digest:x}.json"))
+    }
+
     pub fn write_execution_receipt(
         &self,
         node_id: &NodeId,
         receipt: &serde_json::Value,
     ) -> Result<(), RunStoreError> {
         let path = self.execution_receipt_path(node_id);
+        self.check_mutation_clock()?;
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).map_err(|source| RunStoreError::Io {
                 path: parent.to_path_buf(),
@@ -727,6 +965,8 @@ fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), RunStoreError> {
 
 #[derive(Debug, thiserror::Error)]
 pub enum RunStoreError {
+    #[error("invalid recovery terminal mutation: {0}")]
+    InvalidRecoveryGrant(String),
     #[error("run store I/O error at {path}: {source}")]
     Io {
         path: PathBuf,

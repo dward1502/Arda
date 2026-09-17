@@ -17,7 +17,7 @@ pub enum PolicyOperation {
 }
 
 /// Identity and declared purpose of a memory consumer.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConsumerContext {
     pub consumer_id: String,
     pub declared_domains: Vec<MemoryDomain>,

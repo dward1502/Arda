@@ -19,6 +19,7 @@ mod admissions;
 mod authority;
 mod recovery;
 pub use recovery::RecoveryMaterial;
+pub(crate) use recovery::RecoveryPublication;
 
 #[derive(Clone)]
 pub struct ObjectiveStore {

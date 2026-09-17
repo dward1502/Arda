@@ -572,6 +572,79 @@ mod tests {
     }
 
     #[test]
+    fn recovery_auxiliary_requires_exact_live_start_without_spending_a_start() {
+        use crate::runs::{RunEventDraft, RunEventKind, RunStore};
+        use arda_core::run_graph::NodeState;
+        let temp = tempfile::TempDir::new().unwrap();
+        let now = u64::try_from(chrono::Utc::now().timestamp_millis()).unwrap();
+        let mut g = grant();
+        g.activated_at_unix_ms = now;
+        g.expires_at_unix_ms = now + 30 * 60_000;
+        let store = RunStore::open(temp.path(), g.bindings.run_id.clone()).unwrap();
+        store.activate_recovery(g.clone()).unwrap();
+        let draft = |key: &str, state| RunEventDraft {
+            node_id: g.bindings.review_node_id.clone(),
+            idempotency_key: key.into(),
+            kind: RunEventKind::NodeTransition { state },
+            receipt_digest: None,
+        };
+        store.append(draft("ready", NodeState::Ready)).unwrap();
+        let start = draft("start", NodeState::Running);
+        assert!(store
+            .with_recovery_auxiliary_before(
+                &g,
+                &start,
+                g.expires_at_unix_ms,
+                || -> Result<(), crate::runs::RunStoreError> { panic!("no start") }
+            )
+            .is_err());
+        store.append_recovery_start(&g, start.clone()).unwrap();
+        let before = store.recover().unwrap().events.len();
+        for _ in 0..2 {
+            assert_eq!(
+                store
+                    .with_recovery_auxiliary_before(&g, &start, g.expires_at_unix_ms, || 42)
+                    .unwrap(),
+                42
+            );
+        }
+        assert_eq!(store.recover().unwrap().events.len(), before);
+        let mut forged = start.clone();
+        forged.receipt_digest = Some("forged".into());
+        assert!(store
+            .with_recovery_auxiliary_before(
+                &g,
+                &forged,
+                g.expires_at_unix_ms,
+                || -> Result<(), crate::runs::RunStoreError> { panic!("altered start") }
+            )
+            .is_err());
+        assert!(store
+            .with_recovery_auxiliary_before(
+                &g,
+                &start,
+                now,
+                || -> Result<(), crate::runs::RunStoreError> { panic!("expired lease") }
+            )
+            .is_err());
+        store
+            .append(draft("cancelled", NodeState::Cancelled))
+            .unwrap();
+        // Later generic transitions cannot erase a durable cancellation.
+        assert!(store
+            .append(draft("later-running", NodeState::Running))
+            .is_err());
+        assert!(store
+            .with_recovery_auxiliary_before(
+                &g,
+                &start,
+                g.expires_at_unix_ms,
+                || -> Result<(), crate::runs::RunStoreError> { panic!("cancelled run") }
+            )
+            .is_err());
+    }
+
+    #[test]
     fn grants_require_revision_and_stop_fence_without_legacy_defaults() {
         for field in ["objective_revision", "stop_generation"] {
             let mut encoded = serde_json::to_value(grant()).unwrap();

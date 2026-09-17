@@ -4,8 +4,11 @@ use super::{ObjectiveStore, StageReceipt};
 use crate::runs::RecoveryGrant;
 use anyhow::{bail, Context, Result};
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
+mod admission;
 mod material;
+mod publications;
 pub use material::RecoveryMaterial;
+pub(crate) use publications::RecoveryPublication;
 
 impl ObjectiveStore {
     /// Recognize an exact already-published chain and retry only terminal keeper
@@ -441,6 +444,16 @@ impl ObjectiveStore {
         grant: &RecoveryGrant,
         operation: impl FnOnce(&Transaction<'_>) -> Result<T>,
     ) -> Result<T> {
+        self.with_recovery_control_fence_inner(operator_id, grant, true, operation)
+    }
+
+    fn with_recovery_control_fence_inner<T>(
+        &self,
+        operator_id: &str,
+        grant: &RecoveryGrant,
+        require_active_window: bool,
+        operation: impl FnOnce(&Transaction<'_>) -> Result<T>,
+    ) -> Result<T> {
         grant.validate().map_err(anyhow::Error::msg)?;
         let mut connection = self.connection()?;
         let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
@@ -469,7 +482,7 @@ impl ObjectiveStore {
                 .context("recovery clock unavailable")?
                 .as_millis(),
         )?;
-        if !grant.is_active(now) {
+        if require_active_window && !grant.is_active(now) {
             bail!("recovery window is not active");
         }
         let result = operation(&transaction)?;

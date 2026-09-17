@@ -17,6 +17,7 @@ pub struct RetainedSnapshot {
 
 /// Private execution authority read from one durable store snapshot. Not a
 /// receipt or public projection; the worker independently fences this lease.
+#[derive(Clone)]
 pub struct RetainedExecution {
     pub snapshot: RetainedSnapshot,
     pub lease: super::snapshot_protocol::Lease,

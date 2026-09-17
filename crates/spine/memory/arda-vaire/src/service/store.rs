@@ -450,8 +450,14 @@ pub(super) fn write_atomic(path: &Path, content: &[u8]) -> Result<()> {
         .and_then(|value| value.to_str())
         .unwrap_or("projection");
     let temporary = parent.join(format!(".{file_name}.tmp"));
-    fs::write(&temporary, content)?;
+    let mut file = fs::File::create(&temporary)?;
+    file.write_all(content)?;
+    file.sync_all()?;
     fs::rename(temporary, path)?;
+    fs::File::open(parent)?.sync_all()?;
+    if let Some(ancestor) = parent.parent() {
+        fs::File::open(ancestor)?.sync_all()?;
+    }
     Ok(())
 }
 

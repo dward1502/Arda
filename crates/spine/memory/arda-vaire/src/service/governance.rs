@@ -5,6 +5,7 @@ use super::{store, MnemosyneService};
 use arda_core::contract::{MemoryKind, MemoryRecord, MemoryState};
 use arda_core::error::{ArdaError, Result};
 use chrono::{DateTime, Utc};
+use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -49,6 +50,44 @@ pub struct RetentionSweepReport {
 }
 
 impl MnemosyneService {
+    /// Exact publication replay must not overwrite an existing or revoked record.
+    pub fn write_governed_memory_once(
+        &self,
+        record: &MemoryRecord,
+        context: Option<&ConsumerContext>,
+    ) -> Result<()> {
+        let _guard = self.contract_record_write_guard()?;
+        if !matches!(
+            scope_policy::evaluate(record, PolicyOperation::Write, context),
+            PolicyDisposition::Allow
+        ) {
+            return Err(governance_error(
+                "exact memory publication blocked by scope policy",
+            ));
+        }
+        let mut found = None;
+        let mut identities = std::collections::BTreeSet::new();
+        for path in store::walk_dir(self.contract_root()?)? {
+            if path.extension().and_then(|value| value.to_str()) != Some("json") {
+                continue;
+            }
+            let existing: MemoryRecord = serde_json::from_slice(&std::fs::read(path)?)?;
+            if !identities.insert(existing.id.clone()) {
+                return Err(governance_error("duplicate governed memory identity"));
+            }
+            if existing.id == record.id {
+                found = Some(existing);
+            }
+        }
+        if let Some(existing) = found {
+            if serde_json::to_value(existing)? != serde_json::to_value(record)? {
+                return Err(governance_error("conflicting exact memory publication"));
+            }
+            return Ok(());
+        }
+        self.write_contract_record_locked(record)
+    }
+
     pub fn write_governed_memory(
         &self,
         mut record: MemoryRecord,
@@ -479,6 +518,23 @@ impl MnemosyneService {
     }
 
     fn write_contract_record(&self, record: &MemoryRecord) -> Result<()> {
+        let _guard = self.contract_record_write_guard()?;
+        self.write_contract_record_locked(record)
+    }
+
+    fn contract_record_write_guard(&self) -> Result<std::fs::File> {
+        std::fs::create_dir_all(self.contract_root()?)?;
+        let file = std::fs::OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .truncate(false)
+            .open(self.contract_root()?.join(".governed-records.lock"))?;
+        file.lock_exclusive()?;
+        Ok(file)
+    }
+
+    fn write_contract_record_locked(&self, record: &MemoryRecord) -> Result<()> {
         let kind = match record.kind {
             MemoryKind::Episodic => "episodic",
             MemoryKind::Semantic => "semantic",

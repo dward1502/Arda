@@ -95,6 +95,38 @@ mod workspace_authority;
 pub use workspace_authority::{ExplicitRecoveryWindow, ExplicitWorkspaceAuthorization};
 
 impl ExplicitWorkbenchWorkItem {
+    pub fn completed_outcome(&self, root: &Path, run: &Value) -> Result<ExplicitExecutionOutcome> {
+        workspace_authority::run(self, run)?;
+        anyhow::ensure!(
+            ["execute", "verify", "review", "close"]
+                .iter()
+                .all(|stage| node_state(run, stage) == Some("succeeded")),
+            "retained run is not complete"
+        );
+        explicit_outcome_from_run(root, self, run)
+    }
+
+    /// Deterministic provider-free Close, shared by the executor and Harness.
+    pub fn close_receipt(&self, parent: &str) -> Result<Value> {
+        Ok(serde_json::to_value(canonical_explicit_close_receipt(
+            self, parent,
+        )?)?)
+    }
+
+    pub fn close_request_body(&self, parent: &str) -> Result<Value> {
+        let receipt = canonical_explicit_close_receipt(self, parent)?;
+        Ok(json!({
+            "envelope": explicit_stage_envelope(self, "close")?,
+            "receipt_digest": receipt.receipt_digest,
+        }))
+    }
+
+    /// Call only while the caller holds the current objective mutation fence.
+    pub fn persist_close_receipt(&self, root: &Path, parent: &str) -> Result<()> {
+        let receipt = canonical_explicit_close_receipt(self, parent)?;
+        persist_explicit_close_receipt(root, self, &receipt)
+    }
+
     /// Recompute a stage binding without recalling memory or granting authority.
     pub fn stage_context(
         &self,

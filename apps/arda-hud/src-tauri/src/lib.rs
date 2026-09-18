@@ -1,5 +1,6 @@
 // sigil: REPAIR
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+mod bounded_text;
 mod commands;
 pub mod mirromere;
 
@@ -599,7 +600,7 @@ fn build_inventory_tree(root: &Path, path: &Path, depth: u8, max_depth: u8) -> I
 fn read_file(path: String) -> FileReadResult {
     let full_path = PathBuf::from(&path);
 
-    match fs::read_to_string(&full_path) {
+    match bounded_text::read_text(&full_path) {
         Ok(content) => FileReadResult {
             success: true,
             content: Some(content),

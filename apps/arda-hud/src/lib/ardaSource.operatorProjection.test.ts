@@ -34,6 +34,10 @@ describe('ArdaBundle canonical operator projection', () => {
     })))
     mockedReadFile.mockImplementation(async (path: string) => {
       if (path === '/arda/core/state/operator_projection.json') return result(path, fixture)
+      if (path === '/arda/data/arandur/mission_queue_write_requests.jsonl') return result(path, [
+        { queue_write_request_id: 'executed-request', execution_status: 'executed', canonical_queue_task_id: 'task-1' },
+        { queue_write_request_id: 'unverified-request', write_pending: true },
+      ].map((request) => JSON.stringify(request)).join('\n'))
       if (path === '/arda/core/projects/tasks/queue.jsonl') return result(path, '')
       return result(path, null)
     })
@@ -43,5 +47,13 @@ describe('ArdaBundle canonical operator projection', () => {
     expect(mockedReadFile).toHaveBeenCalledWith('/arda/core/state/operator_projection.json')
     expect(bundle.operatorProjection?.projection_id).toBe('projection-p9-fixture')
     expect(bundle.operatorProjection?.authority).toBe('read_only')
+    expect(mockedReadFile).not.toHaveBeenCalledWith('/arda/core/projects/tasks/queue.jsonl')
+    expect(bundle.taskQueueEntries).toEqual([])
+    expect(bundle.queueSummary).toBeNull()
+    expect(bundle.humanAugmentationRuntime?.arandur_queue_write_requests).toEqual(expect.arrayContaining([
+      expect.objectContaining({ queue_write_request_id: 'executed-request', execution_status: 'executed', canonical_queue_task_id: 'task-1' }),
+      expect.objectContaining({ queue_write_request_id: 'unverified-request', execution_status: 'evidence_unavailable' }),
+    ]))
+    expect(bundle.sourceProvenance.some((source) => source.sourcePaths.includes('core/projects/tasks/queue.jsonl'))).toBe(false)
   })
 })

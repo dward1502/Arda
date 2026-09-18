@@ -72,7 +72,7 @@ describe('ARDA remote confidence runtime projection', () => {
     const bundle = await createCoreStateSource().loadBundle()
 
     expect(mockedReadFile).toHaveBeenCalledWith('/arda/core/state/remote_confidence_snapshot.json')
-    expect(mockedReadFile).toHaveBeenCalledWith(`/arda/${DEFAULT_ARDA_HUD_SETTINGS.task_queue_path}`)
+    expect(mockedReadFile).not.toHaveBeenCalledWith(`/arda/${DEFAULT_ARDA_HUD_SETTINGS.task_queue_path}`)
     expect(bundle.remoteConfidenceSnapshot).toMatchObject({
       schema_version: 'arda.remote_confidence_snapshot.v1',
       mode: 'local_runtime_published',

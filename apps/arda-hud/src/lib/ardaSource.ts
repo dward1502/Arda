@@ -135,7 +135,7 @@ const DERIVED_SECTION_BLUEPRINTS = [
     title: 'Planning And Queue',
     owner: 'hades',
     arda_panels: ['planning', 'section_focus'],
-    primary_sources: ['core/state/queue_active.json', 'core/state/queue_summary.json'],
+    primary_sources: ['core/state/queue_summary.json'],
     supplemental_sources: ['core/projects/tasks/queue.jsonl', 'core/state/task_lifecycle_runtime.json', 'core/state/operator_actions.json', 'core/state/l3_readiness_projection.json'],
   },
   {
@@ -237,11 +237,10 @@ function deriveQueueSummaryFromEntries(entries: JsonRecord[]): JsonRecord {
   return {
     authority: 'arda_derived_queue_summary',
     agent_reading_policy: {
-      default_surface: 'core/state/queue_active.json',
       summary_surface: 'core/state/queue_summary.json',
       raw_ledger: 'core/projects/tasks/queue.jsonl',
       raw_ledger_role: 'append_only_evidence_and_mutation_target',
-      guidance: 'This is a last-resort latest-by-id fallback. Prefer queue_active.json or queue_summary.json for task selection.',
+      guidance: 'Derived from task queue ledger entries.',
     },
     project_tasks: {
       counts_by_status: summarizeFieldCounts(tasks, 'status'),
@@ -270,40 +269,8 @@ function deriveQueueSummaryFromEntries(entries: JsonRecord[]): JsonRecord {
   }
 }
 
-function deriveQueueSummaryFromActiveProjection(activeProjection: JsonRecord | null): JsonRecord | null {
-  if (!activeProjection) return null
-
-  const tasks = asArray(activeProjection.tasks).map(asRecord).filter((task): task is JsonRecord => task !== null)
-  const activeTaskCount = toNumberValue(activeProjection.active_task_count, tasks.length)
-
-  return {
-    authority: 'arda_derived_queue_summary_from_active_projection',
-    agent_reading_policy: activeProjection.agent_reading_policy ?? {
-      default_surface: 'core/state/queue_active.json',
-      fallback_surface: 'core/state/queue_summary.json',
-      raw_queue_policy: 'Raw queue entries are evidence only and not active backlog.',
-    },
-    project_tasks: {
-      counts_by_status: summarizeFieldCounts(tasks, 'status'),
-      counts_by_owner: summarizeFieldCounts(tasks, 'owner'),
-      counts_by_priority: summarizeFieldCounts(tasks, 'priority'),
-      open_total: activeTaskCount,
-      open_compact_limit: 32,
-      open_compact: tasks.slice(0, 32),
-      recent_compact: tasks.slice(-32),
-    },
-    runtime_queue: {
-      counts_by_status: {},
-      counts_by_owner: {},
-      recent_compact: [],
-    },
-    arda_hints: {
-      primary_panel: 'task_board',
-      boardroom_section: 'execution_queue',
-      alert_on_queued_tasks: activeTaskCount > 0,
-      alert_on_failed_tasks: false,
-    },
-  }
+function deriveQueueSummaryFromActiveProjection(_activeProjection: JsonRecord | null): JsonRecord | null {
+  return null
 }
 
 function deriveGovernanceRuntime(activeRuleset: JsonRecord | null, permissionProfiles: JsonRecord | null): JsonRecord {
@@ -787,7 +754,10 @@ function generatedAtFromContent(sourcePath: string, content: string): string | n
 async function deriveProvenanceRecords(rootPath: string, sections: ArdaSection[]): Promise<ArdaSourceProvenance[]> {
   const records = await Promise.all(
     sections.flatMap((section) => {
+      // Omitted historical evidence is not a missing live projection. Never read
+      // the append-only queue (or its retired active projection) for provenance.
       const allSourcePaths = [...section.primary_sources, ...(section.supplemental_sources || [])]
+        .filter((path) => path !== 'core/projects/tasks/queue.jsonl' && path !== 'core/state/queue_active.json')
       return allSourcePaths.map(async (sourcePath) => {
         const result = await readFile(`${rootPath}/${sourcePath}`)
         const sourceMarkedMissing = section.missing_projections?.includes(sourcePath) ?? false
@@ -884,9 +854,9 @@ function normalizeSafeLocalWorkCyclePreflight(preflight: JsonRecord | null): Jso
   return preflight
 }
 
-function deriveArandurQueueWriteRequests(requests: JsonRecord[], queueEntries: JsonRecord[]): JsonRecord[] {
+function deriveArandurQueueWriteRequests(requests: JsonRecord[], queueEntries: JsonRecord[] | null): JsonRecord[] {
   const executedByRequestId = new Map<string, JsonRecord>()
-  for (const entry of queueEntries) {
+  for (const entry of queueEntries ?? []) {
     const requestId = toStringValue(entry.source_queue_write_request_id, '')
     if (requestId) executedByRequestId.set(requestId, entry)
   }
@@ -898,8 +868,10 @@ function deriveArandurQueueWriteRequests(requests: JsonRecord[], queueEntries: J
     const executedEntry = executedByRequestId.get(id)
     latestById.set(id, {
       ...request,
-      execution_status: executedEntry ? 'executed' : (toBooleanValue(request.write_pending, false) ? 'write_pending' : 'legacy_review'),
-      canonical_queue_task_id: executedEntry ? toStringValue(executedEntry.id, '') : null,
+      execution_status: executedEntry ? 'executed' : queueEntries === null
+        ? toStringValue(request.execution_status, 'evidence_unavailable')
+        : (toBooleanValue(request.write_pending, false) ? 'write_pending' : 'legacy_review'),
+      canonical_queue_task_id: executedEntry ? toStringValue(executedEntry.id, '') : request.canonical_queue_task_id ?? null,
     })
   }
 
@@ -995,7 +967,6 @@ export function createCoreStateSource(): ArdaDataSource {
         packageRuntimeActivation,
         storagePressure,
         storageHygieneApply,
-        queueActiveProjection,
         queueSummary,
         queueFederation,
         fleetRuntimeDrift,
@@ -1078,7 +1049,6 @@ export function createCoreStateSource(): ArdaDataSource {
         readJson(rootPath, settings.package_runtime_activation_path),
         readJson(rootPath, settings.storage_pressure_path),
         readJson(rootPath, 'core/state/storage_hygiene_apply.json'),
-        readJson(rootPath, settings.queue_active_path),
         readJson(rootPath, settings.queue_summary_path),
         readJson(rootPath, 'core/state/queue_federation.json'),
         readJson(rootPath, settings.fleet_runtime_drift_path),
@@ -1118,7 +1088,8 @@ export function createCoreStateSource(): ArdaDataSource {
         readJsonLines(rootPath, settings.athena_policy_readiness_path),
         readJson(rootPath, 'core/state/active_ruleset.json'),
         readJson(rootPath, 'core/state/permission_profiles.json'),
-        readJsonLines(rootPath, settings.task_queue_path),
+        // Historical append-only evidence is not a live task projection.
+        Promise.resolve([] as JsonRecord[]),
         derivePlanMap(rootPath),
         deriveHumanContext(rootPath),
         deriveBusinessRuntime(rootPath),
@@ -1147,7 +1118,7 @@ export function createCoreStateSource(): ArdaDataSource {
         company_ops: derivedBusinessRuntime?.company_ops ?? {},
       }, derivedBusinessRuntime ?? {})
       const finalPersonalRuntime = personalRuntime ?? derivedPersonalRuntime
-      const finalQueueSummary = queueSummary ?? deriveQueueSummaryFromActiveProjection(queueActiveProjection) ?? deriveQueueSummaryFromEntries(queueEntries)
+      const finalQueueSummary = queueSummary
       const finalRuntimeSettings = runtimeSettings ?? deriveRuntimeSettings(activeRuleset)
       const finalGovernanceRuntime = governanceRuntime ?? deriveGovernanceRuntime(activeRuleset, permissionProfiles)
       const finalOperationsFlow = operationsFlow ?? deriveOperationsFlow(finalQueueSummary)
@@ -1161,7 +1132,7 @@ export function createCoreStateSource(): ArdaDataSource {
       const finalTaskLifecycleRuntime = taskLifecycleRuntime ?? deriveTaskLifecycleRuntime(finalQueueSummary)
       const finalHumanAugmentationRuntime = {
         ...(humanAugmentationRuntime ?? {}),
-        arandur_queue_write_requests: deriveArandurQueueWriteRequests(arandurQueueWriteRequests, queueEntries),
+        arandur_queue_write_requests: deriveArandurQueueWriteRequests(arandurQueueWriteRequests, null),
       }
       const sections = deriveSections(sourceMap)
       const sceneZones = deriveSceneZones(sections)
@@ -1192,7 +1163,6 @@ export function createCoreStateSource(): ArdaDataSource {
       const finalSafeLocalWorkCyclePreflight = normalizeSafeLocalWorkCyclePreflight(safeLocalWorkCyclePreflight)
       const sourceProvenance = await deriveProvenanceRecords(rootPath, sections)
       const ledgerStates = await Promise.all([
-        ledgerState(rootPath, settings.task_queue_path, 'Project task queue'),
         ledgerState(rootPath, 'data/hermes/hermes_agent_gateway_receipts.jsonl', 'Hermes gateway receipts'),
         ledgerState(rootPath, 'data/hermes/flywheel_dispatch_receipts.jsonl', 'Flywheel dispatch receipts'),
         ledgerState(rootPath, 'data/chronos/audit_receipts.jsonl', 'Chronos audit receipts'),

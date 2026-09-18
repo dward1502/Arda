@@ -10,8 +10,12 @@ Environment=__NV_DISABLE_EXPLICIT_SYNC=1
 Environment=ARDA_OPERATOR_ID=operator:mythos
 ExecCondition=/usr/bin/test -x %h/.local/lib/arda/hud/arda_hud
 ExecStart=%h/.local/lib/arda/hud/arda_hud
-Restart=on-failure
-RestartSec=3
+# Stop a failed renderer instead of entering a resource-exhausting restart loop.
+Restart=no
+MemoryHigh=1536M
+MemoryMax=2G
+MemorySwapMax=0
+OOMPolicy=stop
 TimeoutStartSec=30
 KillMode=mixed
 NoNewPrivileges=yes

@@ -192,6 +192,7 @@ async fn main() -> anyhow::Result<()> {
     )?;
     let runtime_prerequisites = arda_engine::harness::RuntimePrerequisites {
         keeper_socket: cli.snapshot_keeper_socket.clone(),
+        ..Default::default()
     };
     if let Some(endpoint) = cli.snapshot_keeper_socket {
         if !endpoint.is_absolute() {
@@ -210,7 +211,7 @@ async fn main() -> anyhow::Result<()> {
         OBJECTIVE_RUNTIME_LEASE_DURATION_MS,
     );
     let harness_shutdown = Shutdown::new();
-    let (_bound, harness_handle) = arda_engine::harness::serve_with_runtime_prerequisites(
+    let (_bound, harness_handle) = arda_engine::harness::serve_with_owned_shutdown(
         harness_addr,
         harness_state,
         harness_shutdown.clone(),
@@ -267,6 +268,8 @@ async fn main() -> anyhow::Result<()> {
     // and join Harness cleanup before stopping its supervised dependencies.
     harness_shutdown.trigger();
     let harness_result = harness_handle.await;
+    let mut harness_report = harness_result?;
+    harness_report.retain_until_settled().await;
     shutdown.trigger();
     if !supervisor_finished {
         supervised.await;
@@ -274,7 +277,7 @@ async fn main() -> anyhow::Result<()> {
     signal_handle.abort();
     let _ = signal_handle.await;
     objective_result?;
-    harness_result?;
+
     info!("arda daemon: stopped");
     Ok(())
 }

@@ -40,7 +40,7 @@ pub(crate) fn fixture() -> (
     })).collect();
     let graph: RunGraph = serde_json::from_value(json!({
         "schema_version":"arda.run-graph.v1","run_id":"recovery-evidence-fixture",
-        "objective_id":"fixture-objective","nodes":nodes,"edges":[],
+        "objective_id":"fixture-leaf","nodes":nodes,"edges":[],
         "provenance":{"project_contract_digest":digest,"created_by":"fixture","parent_receipts":[]}
     }))
     .unwrap();

@@ -61,7 +61,7 @@ impl ObjectiveStore {
                 }))?);
         }
         tx.commit()?;
-        self.reconcile_recovery_completion(operator_id, event_id, |publication| {
+        self.reconcile_recovery_completion(root, operator_id, event_id, |publication| {
             crate::objectives::RecoveryAuthorization::apply_completed_publication(root, publication)
         })?;
         self.reconcile_completed_recovery(operator_id, event_id, &receipts, |_, saved, receipts| {

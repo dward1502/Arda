@@ -54,6 +54,16 @@ static ACTIVE_PROVIDER_CANCELLATIONS: LazyLock<Mutex<HashMap<String, AdapterCanc
 static ACTIVE_PROVIDER_ROUTES: LazyLock<Mutex<HashMap<String, WorkerRouteClass>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
+#[cfg(test)]
+pub(super) async fn provider_is_registered(run_id: &str, node_id: &str) -> bool {
+    let key = format!("{run_id}/{node_id}");
+    ACTIVE_PROVIDER_CANCELLATIONS
+        .lock()
+        .await
+        .contains_key(&key)
+        || ACTIVE_PROVIDER_ROUTES.lock().await.contains_key(&key)
+}
+
 fn validate_durable_context_assembly(
     root: &FsPath,
     assembly: &ContextAssembly,
@@ -1403,11 +1413,30 @@ async fn execute_provider_node_authorized(
                 "error": error.to_string(),
             }),
         });
-        if let Some(payload) = &recovery_outcome {
+        #[cfg(test)]
+        if let Some(directory) = std::env::var_os("ARDA_TEST_RECOVERY_PUBLICATION_BARRIER") {
+            let directory = std::path::PathBuf::from(directory);
+            std::fs::write(
+                directory.join("arrived"),
+                serde_json::to_vec(&recovery_outcome).unwrap(),
+            )
+            .unwrap();
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+            while !directory.join("release").exists() {
+                assert!(
+                    std::time::Instant::now() < deadline,
+                    "publication barrier timed out"
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+            }
+        }
+        let persisted_outcome = if let Some(payload) = &recovery_outcome {
             store
                 .write_recovery_outcome_evidence(&node_id, payload)
-                .map_err(recovery::recovery_error)?;
-        }
+                .map_err(recovery::recovery_error)
+        } else {
+            Ok(())
+        };
         ACTIVE_PROVIDER_CANCELLATIONS
             .lock()
             .await
@@ -1416,6 +1445,15 @@ async fn execute_provider_node_authorized(
             .lock()
             .await
             .remove(&cancellation_key);
+        // Evidence IO failure must not strand active worker registrations.
+        persisted_outcome?;
+        #[cfg(test)]
+        if std::env::var("ARDA_UNFINISHED_RECOVERY_CHILD").as_deref()
+            == Ok("waiter-loss-crash-between-outcome")
+        {
+            // Durable outcome exists; neither terminal projection has run.
+            std::process::exit(77);
+        }
         if interrupted && execution.is_err() {
             return Err(ApiError::stopping());
         }
@@ -1428,6 +1466,13 @@ async fn execute_provider_node_authorized(
             ));
         }
         _mutation_guard = Some(WORKBENCH_MUTATIONS.lock().await);
+
+        // Shutdown can arrive after the adapter resolves (or while acquiring
+        // this lock). Keep the exact outcome, but defer recovery publication
+        // to a later ingress with live runtime authority.
+        if recovery.is_some() && shutdown.is_triggered() {
+            return Err(ApiError::stopping());
+        }
 
         // Cancellation may have updated the journal while the child was
         // running. Reload so that durable terminal state wins over a late child

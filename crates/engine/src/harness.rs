@@ -35,7 +35,9 @@ pub mod personal_ops;
 mod prerequisites;
 pub mod presence;
 mod projects;
+mod recovery_jobs;
 pub use prerequisites::RuntimePrerequisites;
+pub use recovery_jobs::RecoveryJobs;
 mod research;
 mod research_operator;
 mod runs;
@@ -324,6 +326,10 @@ fn router(state: HarnessState) -> axum::Router {
             post(operator_messages::ingest_operator_message),
         )
         .route("/v1/continuity/events", post(continuity::ingest_event))
+        .route(
+            "/v1/operator/local-messages",
+            post(operator_messages::ingest_local_operator_message),
+        )
         .route("/v1/continuity/projection", get(continuity::get_projection))
         .route("/v1/execution-prerequisites", get(prerequisites::observe))
         .route("/v1/handoffs", post(continuity::create_handoff))
@@ -662,12 +668,110 @@ pub async fn serve(
 
 async fn serve_inner(
     addr: Option<SocketAddr>,
-    mut state: HarnessState,
+    state: HarnessState,
     shutdown: crate::supervisor::Shutdown,
     compatibility_stop: impl std::future::Future<Output = ()> + Send + 'static,
     runtime: Option<tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>>,
     prerequisites: RuntimePrerequisites,
 ) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
+    let (addr, owner) = serve_inner_owned(
+        addr,
+        state,
+        shutdown,
+        compatibility_stop,
+        runtime,
+        prerequisites,
+    )
+    .await?;
+    Ok((
+        addr,
+        tokio::spawn(async move {
+            let mut report = owner.await.expect("Harness shutdown owner panicked");
+            report.retain_until_settled().await;
+        }),
+    ))
+}
+
+/// Shutdown report owns unresolved work; dependencies must survive until settled.
+#[must_use]
+pub struct HarnessShutdownReport {
+    recovery_jobs: RecoveryJobs,
+    server: Option<tokio::task::JoinHandle<()>>,
+    pub unresolved_recoveries: usize,
+}
+
+impl HarnessShutdownReport {
+    async fn collect(
+        recovery_jobs: RecoveryJobs,
+        server: tokio::task::JoinHandle<()>,
+        budget: Duration,
+    ) -> Self {
+        let mut report = Self {
+            recovery_jobs,
+            server: Some(server),
+            unresolved_recoveries: 0,
+        };
+        if !report.settle(budget).await {
+            tracing::error!(
+                unresolved = report.unresolved_recoveries,
+                "Harness shutdown incomplete; transferring retained owners to caller"
+            );
+        }
+        report
+    }
+    /// Explicit quarantine policy: retain ownership and dependencies, reporting
+    /// each expired window rather than pretending a blocking task was cancelled.
+    pub async fn retain_until_settled(&mut self) {
+        while !self.settle(Duration::from_secs(10)).await {
+            tracing::error!(
+                unresolved = self.unresolved_recoveries,
+                "Harness shutdown unresolved; retaining owners and dependencies"
+            );
+        }
+    }
+
+    async fn settle(&mut self, budget: Duration) -> bool {
+        let deadline = tokio::time::Instant::now() + budget;
+        self.unresolved_recoveries = self.recovery_jobs.drain(budget).await;
+        if let Some(server) = self.server.as_mut() {
+            if let Ok(result) = tokio::time::timeout_at(deadline, server).await {
+                if let Err(error) = result {
+                    tracing::error!(%error, "Harness server owner failed");
+                }
+                self.server = None;
+            }
+        }
+        self.unresolved_recoveries == 0 && self.server.is_none()
+    }
+}
+
+/// Daemon API: return a bounded shutdown report without dropping unresolved joins.
+pub async fn serve_with_owned_shutdown(
+    addr: Option<SocketAddr>,
+    state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    runtime: tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>,
+    prerequisites: RuntimePrerequisites,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<HarnessShutdownReport>)> {
+    serve_inner_owned(
+        addr,
+        state,
+        shutdown,
+        std::future::pending(),
+        Some(runtime),
+        prerequisites,
+    )
+    .await
+}
+
+async fn serve_inner_owned(
+    addr: Option<SocketAddr>,
+    mut state: HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    compatibility_stop: impl std::future::Future<Output = ()> + Send + 'static,
+    runtime: Option<tokio::sync::watch::Receiver<crate::objectives::ObjectiveRuntimeStatus>>,
+    mut prerequisites: RuntimePrerequisites,
+) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<HarnessShutdownReport>)> {
     let addr = addr
         .or_else(|| std::env::var("ARDA_HARNESS_BIND_ADDR").ok()?.parse().ok())
         .unwrap_or_else(|| DEFAULT_HARNESS_ADDR.parse().unwrap());
@@ -681,6 +785,8 @@ async fn serve_inner(
     state.harness_addr = bound.to_string();
     info!("harness: listening on {bound}");
     let publisher_root = state.workbench_root.clone();
+    prerequisites.recovery_jobs = RecoveryJobs::new(shutdown.clone());
+    let recovery_jobs = prerequisites.recovery_jobs.clone();
     let app = router(state)
         .layer(axum::Extension(prerequisites))
         .layer(axum::middleware::from_fn(stop_request_ingestion))
@@ -698,27 +804,27 @@ async fn serve_inner(
             }
         };
         let server_shutdown = shutdown.clone();
-        let server = async {
+        let finished_shutdown = shutdown.clone();
+        let server = tokio::spawn(async move {
             let result = axum::serve(
                 listener,
                 app.into_make_service_with_connect_info::<SocketAddr>(),
             )
             .with_graceful_shutdown(async move { server_shutdown.wait().await })
             .await;
-            shutdown.trigger();
-            result
-        };
+            finished_shutdown.trigger();
+            if let Err(error) = result {
+                tracing::warn!(%error, "harness server failed");
+            }
+        });
         let stopping = async {
             tokio::select! {
                 _ = compatibility_stop => shutdown.trigger(),
                 _ = shutdown.wait() => {}
             }
         };
-        let (result, (), ()) = tokio::join!(server, publisher, stopping);
-        if let Err(error) = result {
-            tracing::warn!(%error, "harness server failed");
-        }
-        info!("harness: stopped");
+        tokio::join!(publisher, stopping);
+        HarnessShutdownReport::collect(recovery_jobs, server, Duration::from_secs(10)).await
     });
     Ok((bound, handle))
 }

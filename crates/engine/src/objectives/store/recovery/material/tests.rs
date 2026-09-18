@@ -658,21 +658,58 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
         anyhow::bail!("injected crash after a committed effect")
     });
     assert!(crash.is_err());
-    authority
-        .reconcile_publications(|guard, saved| {
-            assert_eq!(saved, &publication);
-            assert!(matches!(
-                guard.append(crate::runs::RunEventDraft {
-                    node_id: saved.node_id.clone(),
-                    idempotency_key: "fixture-publication-projection".into(),
-                    kind: crate::runs::RunEventKind::ResultProjected,
-                    receipt_digest: None,
-                })?,
-                crate::runs::AppendOutcome::AlreadyApplied { .. }
-            ));
-            Ok(())
-        })
+    for (supersede, restore) in [
+        (
+            "UPDATE leaves SET attempt=attempt+1",
+            "UPDATE leaves SET attempt=attempt-1",
+        ),
+        (
+            "UPDATE retained_workspace_snapshots SET committed_generation=committed_generation+1",
+            "UPDATE retained_workspace_snapshots SET committed_generation=committed_generation-1",
+        ),
+        (
+            "UPDATE objectives SET stop_generation=stop_generation+1",
+            "UPDATE objectives SET stop_generation=stop_generation-1",
+        ),
+    ] {
+        db.execute(supersede, []).unwrap();
+        assert!(store
+            .reconcile_recovery_publications_clock(
+                root,
+                "operator:fixture",
+                &event_id,
+                |_, _| panic!("superseded publication produced an effect"),
+                || Ok(i64::try_from(grant.expires_at_unix_ms).unwrap() + 1)
+            )
+            .is_err());
+        db.execute(restore, []).unwrap();
+    }
+    let journal_before_replay = std::fs::read(run_store.events_path()).unwrap();
+    store
+        .reconcile_recovery_publications_clock(
+            root,
+            "operator:fixture",
+            &event_id,
+            |guard, saved| {
+                assert_eq!(saved, &publication);
+                assert!(matches!(
+                    guard.append(crate::runs::RunEventDraft {
+                        node_id: saved.node_id.clone(),
+                        idempotency_key: "fixture-publication-projection".into(),
+                        kind: crate::runs::RunEventKind::ResultProjected,
+                        receipt_digest: None,
+                    })?,
+                    crate::runs::AppendOutcome::AlreadyApplied { .. }
+                ));
+                Ok(())
+            },
+            || Ok(i64::try_from(grant.expires_at_unix_ms).unwrap() + 1),
+        )
         .unwrap();
+    assert_eq!(
+        journal_before_replay,
+        std::fs::read(run_store.events_path()).unwrap()
+    );
     authority
         .reconcile_publications(|_, _| panic!("applied publication ran again"))
         .unwrap();
@@ -733,6 +770,18 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
         .recv_timeout(std::time::Duration::from_secs(2))
         .unwrap();
     writer.join().unwrap();
+    // Model an unacknowledged publication at reopen after cancellation.
+    db.execute("UPDATE recovery_publications SET applied_at_ms=NULL", [])
+        .unwrap();
+    assert!(store
+        .reconcile_recovery_publications_clock(
+            root,
+            "operator:fixture",
+            &event_id,
+            |_, _| panic!("cancelled publication produced an effect"),
+            || Ok(i64::try_from(grant.expires_at_unix_ms).unwrap() + 1)
+        )
+        .is_err());
     assert!(run_store
         .lock_recovery_mutation(
             &grant,

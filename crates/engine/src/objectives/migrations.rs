@@ -283,7 +283,37 @@ fn apply_locked(connection: &Connection) -> Result<()> {
             authorized_at_ms INTEGER NOT NULL,
             applied_at_ms INTEGER,
             PRIMARY KEY(authenticated_event_id, publication_key)
-        );",
+        );
+        CREATE TABLE IF NOT EXISTS recovery_completion_suppressions (
+            authenticated_event_id TEXT PRIMARY KEY,
+            publication_key TEXT NOT NULL CHECK(publication_key='completion'),
+            identity_digest TEXT NOT NULL,
+            reason TEXT NOT NULL CHECK(reason IN ('later-control','run-cancelled')),
+            suppressed_at_ms INTEGER NOT NULL,
+            FOREIGN KEY(authenticated_event_id,publication_key)
+                REFERENCES recovery_publications(authenticated_event_id,publication_key)
+        );
+        CREATE TRIGGER IF NOT EXISTS recovery_suppression_unapplied
+        BEFORE INSERT ON recovery_completion_suppressions BEGIN
+            SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM recovery_publications
+                WHERE authenticated_event_id=NEW.authenticated_event_id
+                AND publication_key='completion' AND kind='completion' AND applied_at_ms IS NULL)
+                THEN RAISE(ABORT,'only pending completion may be suppressed') END;
+        END;
+        CREATE TRIGGER IF NOT EXISTS recovery_suppression_immutable_update
+        BEFORE UPDATE ON recovery_completion_suppressions BEGIN
+            SELECT RAISE(ABORT,'completion suppression is immutable');
+        END;
+        CREATE TRIGGER IF NOT EXISTS recovery_suppression_immutable_delete
+        BEFORE DELETE ON recovery_completion_suppressions BEGIN
+            SELECT RAISE(ABORT,'completion suppression is immutable');
+        END;
+        CREATE TRIGGER IF NOT EXISTS recovery_suppression_no_ack
+        BEFORE UPDATE OF applied_at_ms ON recovery_publications
+        WHEN NEW.applied_at_ms IS NOT NULL AND EXISTS
+            (SELECT 1 FROM recovery_completion_suppressions
+             WHERE authenticated_event_id=NEW.authenticated_event_id AND publication_key=NEW.publication_key)
+        BEGIN SELECT RAISE(ABORT,'suppressed completion cannot be acknowledged'); END;",
     )?;
     let has_recovery_marker: bool = connection.query_row(
         "SELECT EXISTS(SELECT 1 FROM pragma_table_info('retained_snapshot_lease_intents') WHERE name='recovery_event_id')",

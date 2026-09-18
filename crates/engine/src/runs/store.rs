@@ -137,6 +137,53 @@ impl RunStore {
         self.lock_recovery_projection(grant, node, None)
     }
 
+    /// Inspect terminal cleanup history without granting any mutation capability.
+    /// Caller holds the objective writer fence; callback may commit bookkeeping.
+    pub(crate) fn with_recovery_cleanup_history<T>(
+        &self,
+        grant: &super::RecoveryGrant,
+        inspect: impl FnOnce(bool) -> anyhow::Result<T>,
+    ) -> anyhow::Result<T> {
+        use anyhow::Context;
+        grant.validate().map_err(anyhow::Error::msg)?;
+        anyhow::ensure!(self.run_id == grant.bindings.run_id, "cleanup run changed");
+        let _lock = self.journal_lock(true)?;
+        let recovered = self.recover_locked()?;
+        let activations: Vec<_> = recovered
+            .events
+            .iter()
+            .filter_map(|event| match &event.kind {
+                RunEventKind::RecoveryActivated { grant } => Some(grant.as_ref()),
+                _ => None,
+            })
+            .collect();
+        anyhow::ensure!(activations == vec![grant], "cleanup activation changed");
+        let graph = recovered
+            .checkpoint
+            .as_ref()
+            .context("cleanup canonical checkpoint missing")?;
+        let receipt: crate::adapters::HermesExecutionReceipt = serde_json::from_value(
+            self.read_execution_receipt(&NodeId::new("execute")?)?
+                .context("cleanup Execute receipt missing")?,
+        )?;
+        super::recovery_evidence::validate_historical_lineage(
+            graph,
+            &recovered.events,
+            &receipt,
+            &grant.bindings,
+        )?;
+        let cancelled = recovered.events.iter().any(|event| {
+            matches!(
+                event.kind,
+                RunEventKind::Cancelled { .. }
+                    | RunEventKind::NodeTransition {
+                        state: NodeState::Cancelled
+                    }
+            )
+        });
+        inspect(cancelled)
+    }
+
     fn lock_recovery_projection(
         &self,
         grant: &super::RecoveryGrant,

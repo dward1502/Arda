@@ -110,7 +110,7 @@ pub struct ProjectListResponse {
     projects: Vec<AttachedProject>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) struct ApiError {
     status: StatusCode,
     code: &'static str,

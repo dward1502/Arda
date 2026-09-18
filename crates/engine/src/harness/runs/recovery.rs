@@ -6,9 +6,24 @@ mod publication;
 pub(super) use publication::publish_provider;
 use std::sync::Arc;
 
+#[derive(Debug, Clone)]
+pub(in crate::harness) enum RecoveryResult {
+    Completed,
+    CleanupOnly,
+}
+impl RecoveryResult {
+    pub(in crate::harness) fn summary(&self) -> &'static str {
+        match self {
+            Self::Completed => "Retained stage completion verified and keeper cleanup reconciled; no objective control change requested.",
+            Self::CleanupOnly => "Exact retained keeper cleanup reconciled after cancellation or supersession. No completion effects were replayed; any pending replay was durably suppressed. Earlier effects are preserved. No new execution or objective control change requested.",
+        }
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(in crate::harness) async fn execute(
     state: &HarnessState,
+    jobs: &crate::harness::RecoveryJobs,
     keeper: Arc<dyn crate::objectives::SnapshotAdmission>,
     operator_id: &str,
     event_id: &str,
@@ -16,11 +31,71 @@ pub(in crate::harness) async fn execute(
     objective_id: &str,
     leaf_id: &str,
     run_id: &str,
-) -> Result<(), ApiError> {
+) -> Result<RecoveryResult, ApiError> {
+    // The request owns only the response waiter. Once polled, recovery belongs
+    // to the harness runtime and must finish even if that waiter is dropped.
+    let state = state.clone();
+    let operator_id = operator_id.to_owned();
+    let event_id = event_id.to_owned();
+    let payload_digest = payload_digest.to_owned();
+    let objective_id = objective_id.to_owned();
+    let leaf_id = leaf_id.to_owned();
+    let run_id = run_id.to_owned();
+    // Admission and keeper reconciliation perform bounded synchronous IO;
+    // they must not block executor threads needed by the worker transport.
+    let shutdown = jobs.shutdown();
+    let key = serde_json::to_string(&(&state.workbench_root, &operator_id, &event_id))
+        .map_err(|error| ApiError::internal(error.to_string()))?;
+    jobs.execute(key, payload_digest.clone(), async move {
+        execute_owned(
+            &state,
+            shutdown,
+            keeper,
+            &operator_id,
+            &event_id,
+            &payload_digest,
+            &objective_id,
+            &leaf_id,
+            &run_id,
+        )
+        .await
+    })
+    .await
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn execute_owned(
+    state: &HarnessState,
+    shutdown: crate::supervisor::Shutdown,
+    keeper: Arc<dyn crate::objectives::SnapshotAdmission>,
+    operator_id: &str,
+    event_id: &str,
+    payload_digest: &str,
+    objective_id: &str,
+    leaf_id: &str,
+    run_id: &str,
+) -> Result<RecoveryResult, ApiError> {
+    if shutdown.is_triggered() {
+        return Err(ApiError::stopping());
+    }
     let store =
         ObjectiveStore::open_existing(state.workbench_root.join("data/arda/objectives.sqlite3"))
             .map_err(recovery_error)?
             .with_snapshot_admission(keeper);
+    if store
+        .cleanup_stopped_recovery_completion(
+            &state.workbench_root,
+            operator_id,
+            event_id,
+            payload_digest,
+            objective_id,
+            leaf_id,
+            run_id,
+        )
+        .map_err(recovery_error)?
+    {
+        return Ok(RecoveryResult::CleanupOnly);
+    }
     if store
         .reconcile_saved_completed_recovery(
             &state.workbench_root,
@@ -34,7 +109,7 @@ pub(in crate::harness) async fn execute(
         )
         .map_err(recovery_error)?
     {
-        return Ok(());
+        return Ok(RecoveryResult::Completed);
     }
     let grant = store
         .prepare_recovery_admission(
@@ -60,6 +135,13 @@ pub(in crate::harness) async fn execute(
         .checked_sub(chrono::Utc::now().timestamp_millis())
         .filter(|remaining| *remaining > 0)
         .ok_or_else(|| ApiError::conflict("recovery window expired"))?;
+    // Isolated subprocess qualification can expire a lease before its grant.
+    #[cfg(test)]
+    let remaining = if std::env::var_os("ARDA_TEST_RECOVERY_LEASE_CLOCK").is_some() {
+        remaining.min(30_000)
+    } else {
+        remaining
+    };
     let claim = store
         .claim_validated_retained_recovery(
             &state.workbench_root,
@@ -79,7 +161,7 @@ pub(in crate::harness) async fn execute(
         )
         .map_err(recovery_error)?,
     );
-    drive(state, authorization, claim).await?;
+    drive(state, shutdown, authorization, claim).await?;
     if !store
         .reconcile_saved_completed_recovery(
             &state.workbench_root,
@@ -97,11 +179,12 @@ pub(in crate::harness) async fn execute(
             "recovery completion is durable but keeper cleanup is pending",
         ));
     }
-    Ok(())
+    Ok(RecoveryResult::Completed)
 }
 
 async fn drive(
     state: &HarnessState,
+    shutdown: crate::supervisor::Shutdown,
     authorization: Arc<RecoveryAuthorization>,
     claim: ClaimedLeaf,
 ) -> Result<(), ApiError> {
@@ -123,7 +206,7 @@ async fn drive(
             state.clone(),
             item.run_id.clone(),
             stage.to_owned(),
-            None,
+            Some(axum::Extension(shutdown.clone())),
             raw,
             Some(Arc::clone(&authorization)),
         )

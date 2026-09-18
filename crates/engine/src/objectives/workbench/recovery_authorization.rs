@@ -103,7 +103,7 @@ impl RecoveryAuthorization {
             },
         )?;
         self.store
-            .reconcile_recovery_completion(&self.operator_id, &self.event_id, |publication| {
+            .reconcile_recovery_completion(&self.root, &self.operator_id, &self.event_id, |publication| {
                 Self::apply_completed_publication(&self.root, publication)
             })
     }

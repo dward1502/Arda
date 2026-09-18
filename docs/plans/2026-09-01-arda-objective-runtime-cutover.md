@@ -591,3 +591,47 @@ not another acceptance program. [Provider convergence](PROVIDER_WORKER_CONVERGEN
 owns provider transport; [Milestone 4](autonomous-task-completion/04-real-multi-project-execution.md)
 owns useful real-project overlap; [Milestone 5](autonomous-task-completion/05-vaire-operator-acceptance.md)
 owns continuity/operator burden. Keep their wider acceptance gates intact.
+
+## Reviewed interruption qualification (source only)
+
+  Execution order: finish the operator journey's interruption qualification
+  below in temporary fixtures before any deployment decision. Do not
+  restart a broad component audit or repeat completed integration work. The local
+  handoff is `target/qualification/c32-next-session.txt`; this plan owns the queue.
+
+  | Gate | Existing evidence | Required next assertion / exit |
+  | --- | --- | --- |
+  | S1: response waiter disappears after dispatch | Source fixture passes: abort/join at first Chat, exact-start error, unchanged Execute, no publications or extra Chat; evidence-write failure clears registrations | Preserve regression through remaining interruption qualifications; source-only |
+  | S2: operator reconnects or repeats command | Source fixtures pass concurrent subscription, payload-drift rejection and reconnect without redispatch | Preserve canonical revalidation rather than cached success |
+  | S3: stop/shutdown while work is pending | Connected ingress matrix covers pause, cancel, lease expiry, grant expiry, supersession and shutdown with failed and successful adapter results; no canonical publication, receipt or extra dispatch; reconnect preserves exact journal, outcome and Execute bytes | Injected clocks exercise consistent lease/grant deadlines, not natural elapsed time. Success-barrier test found and fixed missing post-adapter shutdown recheck. Independent re-review found no remaining scoped blocker; bounded shutdown reporting does not mean bounded process exit |
+  | S4: transport disappears, not just a directly dropped future | Authenticated HTTP/1.1 fixture sends full body, closes TCP after first Chat and observes retained exact-start outcome | Source-only qualification uses locked Axum/Hyper dependencies; historical disconnect cause remains unproven |
+  | S5: publication or cleanup is interrupted | First-effect, SQL ACK, cancellation, expiry replay and keeper cleanup fixtures remain applicable; objective-store recovery and workbench crash-boundary regressions pass against supervision changes | Preserve no duplicate effects, start or release and cleanup-only versus success distinction |
+  | S6: daemon exits or crashes | Fresh-process authenticated ingress reopens after synthetic abrupt exit before outcome, immediately after durable outcome but before projection, and after owner settlement; two reconnects preserve evidence with zero Chat/Export/release; missing outcome stays unresolved, saved error projects exactly once | Source fixture uses process exit without Rust destructors and rebound mock transport, not installed-daemon SIGKILL. Cooperative shutdown is separately qualified; independent re-review found no remaining scoped blocker |
+  | S7: reviewed source becomes installed behavior | Earlier bound release is installed; new characterization is source-only | Independent review, affected tests, build/input provenance and rollback assessment before a separately authorized deployment; current expired live run supplies no new execution authority |
+  | S8: useful paired result and human acceptance | Project-1 unresolved; project-2/join unstarted at last observation | Resolve actual live authority/evidence gates first; then useful per-project results, measured overlap, predecessor-backed join, non-replay and genuine operator verdict; no synthetic substitute |
+
+  Current source evidence: [owned recovery registry](../../crates/engine/src/harness/recovery_jobs.rs),
+  [shutdown regressions](../../crates/engine/src/harness/recovery_jobs/shutdown_tests.rs),
+  [connected interruption fixtures](../../crates/engine/src/harness/operator_messages/unfinished_tests.rs),
+  and [fresh-process ingress fixtures](../../crates/engine/src/harness/operator_messages/unfinished_tests/restart.rs).
+  Harness tests: 67 passed, 2 subprocess helpers ignored by default;
+  managed-shutdown integration: 4 passed. Objective-store recovery: 9 passed;
+  workbench crash-boundary parent: 1 passed, 1 subprocess helper ignored by default.
+  Engine/daemon check, strict all-target Clippy and diff whitespace check pass.
+  Independent re-review found no remaining scoped blocker and reran the connected
+  interruption/restart tests: 4 passed, 1 subprocess helper ignored by default.
+  Changes remain uncommitted and undeployed. Next: assess S7 installation
+  prerequisites without spending expired live authority; source qualification
+  does not authorize deployment or satisfy S8 human acceptance.
+
+  Preserve S1-S3 as one connected lifetime repair: a Harness-owned, per-event
+  serialized job registry with retained joins/shutdown and response subscriptions,
+  not an unowned detached spawn or longer client timeout. Keep canonical
+  authentication, immutable payload, exact lease and final-delimiter fences.
+  The positive waiter-loss, control and restart cases are wired into the ordinary
+  test runner. Preserve bounded barriers, evidence-write failure, exact evidence
+  and owner cleanup assertions alongside success cases.
+  Preserve reviewed S1-S6 source qualification when assessing S7. Never fabricate a
+  historical outcome, use ordinary Resume, renew the spent grant, recapture worker
+  authority or launch a fourth Verify. Local source/test work can proceed without
+  resolving S8; passing it does not itself authorize live recovery or restart.

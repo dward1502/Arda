@@ -24,6 +24,10 @@ use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
+#[cfg(test)]
+mod recovery_tests;
+#[cfg(test)]
+mod unfinished_tests;
 use std::net::SocketAddr;
 
 use crate::orome::OromeOperatorRuntime;
@@ -43,7 +47,7 @@ pub struct GatewayOperatorMessage {
     pub event: HermesMessageEvent,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct GatewayOperatorResponse {
     schema_version: &'static str,
     summary: String,
@@ -143,7 +147,7 @@ pub(super) async fn ingest_operator_message(
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
     configured: Option<axum::Extension<super::RuntimePrerequisites>>,
     headers: HeaderMap,
-    Json(mut incoming): Json<GatewayOperatorMessage>,
+    Json(incoming): Json<GatewayOperatorMessage>,
 ) -> Result<Json<GatewayOperatorResponse>, ApiError> {
     require_loopback(peer)?;
     require_gateway_capability(&headers)?;
@@ -154,6 +158,65 @@ pub(super) async fn ingest_operator_message(
             "operator message requires Hermes Gateway identity authentication",
         ));
     }
+    ingest_authenticated_message(
+        state,
+        incoming,
+        configured.map(|value| value.0).unwrap_or_default(),
+    )
+    .await
+}
+
+/// Local Hermes uses a separately provisioned capability, never a gateway assertion.
+pub(super) async fn ingest_local_operator_message(
+    State(state): State<HarnessState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    configured: Option<axum::Extension<super::RuntimePrerequisites>>,
+    headers: HeaderMap,
+    Json(incoming): Json<GatewayOperatorMessage>,
+) -> Result<Json<GatewayOperatorResponse>, ApiError> {
+    require_loopback(peer)?;
+    let expected = std::env::var("ARDA_HERMES_LOCAL_CAPABILITY")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| {
+            let directory = std::env::var_os("CREDENTIALS_DIRECTORY")?;
+            std::fs::read_to_string(
+                std::path::Path::new(&directory).join("arda-hermes-local-capability"),
+            )
+            .ok()
+        })
+        .filter(|value| !value.trim().is_empty())
+        .ok_or_else(|| ApiError::forbidden("Local Hermes capability is not configured"))?;
+    let presented = headers
+        .get("x-arda-local-capability")
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or_default();
+    if !constant_time_eq(expected.trim().as_bytes(), presented.as_bytes())
+        || !incoming.operator.authenticated
+        || incoming.operator.authentication_method != "local_session"
+        || incoming.adapter_id != "hermes-cli"
+        || incoming.event.source.platform != "cli"
+        || incoming.event.source.chat_type != "private"
+        || incoming.event.source.chat_id.trim().is_empty()
+        || incoming.event.source.thread_id.is_some()
+    {
+        return Err(ApiError::forbidden(
+            "Local Hermes authentication or source is invalid",
+        ));
+    }
+    ingest_authenticated_message(
+        state,
+        incoming,
+        configured.map(|value| value.0).unwrap_or_default(),
+    )
+    .await
+}
+
+async fn ingest_authenticated_message(
+    state: HarnessState,
+    mut incoming: GatewayOperatorMessage,
+    configured: super::RuntimePrerequisites,
+) -> Result<Json<GatewayOperatorResponse>, ApiError> {
     if incoming.operator.operator_id != state.operator_id {
         return Err(ApiError::forbidden(
             "gateway operator identity does not match configured Arda operator",
@@ -232,21 +295,18 @@ pub(super) async fn ingest_operator_message(
     } = &command
     {
         // Recovery owns a durable admission/replay protocol, not bridge retries.
-        let endpoint = configured
-            .map(|value| value.0)
-            .unwrap_or_default()
-            .keeper_socket
-            .ok_or_else(|| {
-                ApiError::conflict("retained recovery requires the configured canonical keeper")
-            })?;
+        let endpoint = configured.keeper_socket.ok_or_else(|| {
+            ApiError::conflict("retained recovery requires the configured canonical keeper")
+        })?;
         let keeper = std::sync::Arc::new(crate::objectives::keeper_client::KeeperClient::new(
             endpoint,
         ));
         objective_store(&state)?
             .bind_gateway_event(&message_id, &payload_digest)
             .map_err(objective_store_error)?;
-        super::runs::recovery::execute(
+        let outcome = super::runs::recovery::execute(
             &state,
+            &configured.recovery_jobs,
             keeper,
             &incoming.operator.operator_id,
             &message_id,
@@ -257,8 +317,8 @@ pub(super) async fn ingest_operator_message(
         )
         .await?;
         return Ok(Json(GatewayOperatorResponse {
-            schema_version: "arda.gateway-operator-response.v1",
-            summary: "Retained unfinished stages completed; objective remains paused.".into(),
+            schema_version: "arda.gateway-operator-response.v1".into(),
+            summary: outcome.summary().into(),
             evidence_refs: vec![format!("/v1/workbench/runs/{run_id}")],
             session_id,
             run_id: Some(run_id.clone()),

@@ -92,9 +92,36 @@ impl ObjectiveStore {
         event_id: &str,
         apply: impl Fn(&RunStore, &RecoveryPublication) -> Result<()>,
     ) -> Result<()> {
+        self.reconcile_recovery_publications_clock(root, operator_id, event_id, apply, || {
+            Ok(Utc::now().timestamp_millis())
+        })
+    }
+
+    pub(crate) fn reconcile_recovery_publications_clock(
+        &self,
+        root: &Path,
+        operator_id: &str,
+        event_id: &str,
+        apply: impl Fn(&RunStore, &RecoveryPublication) -> Result<()>,
+        mut clock: impl FnMut() -> Result<i64>,
+    ) -> Result<()> {
         loop {
             let saved = read_admission(&self.connection()?, operator_id, event_id)?
                 .context("recovery admission intent is missing")?;
+            // No effect authority is needed for a terminal empty outbox. The
+            // writer-fenced selector below still rechecks before any callback.
+            let pending: bool = self.connection()?.query_row(
+                "SELECT EXISTS(SELECT 1 FROM recovery_publications p
+                 WHERE p.authenticated_event_id=?1 AND p.applied_at_ms IS NULL
+                 AND NOT EXISTS(SELECT 1 FROM recovery_completion_suppressions s
+                     WHERE s.authenticated_event_id=p.authenticated_event_id
+                       AND s.publication_key=p.publication_key))",
+                [event_id],
+                |row| row.get(0),
+            )?;
+            if !pending {
+                return Ok(());
+            }
             let guards = self.with_recovery_control_fence_inner(operator_id, &saved, false, |tx| {
             let current = read_admission(tx, operator_id, event_id)?
                 .context("recovery admission intent disappeared")?;
@@ -104,7 +131,11 @@ impl ObjectiveStore {
             let mut statement = tx.prepare(
                 "SELECT publication_key,kind,node_id,payload_json,payload_digest,grant_digest,
                  lease_generation,lease_owner,lease_expires_ms FROM recovery_publications
-                 WHERE authenticated_event_id=?1 AND applied_at_ms IS NULL ORDER BY rowid LIMIT 1",
+                 WHERE authenticated_event_id=?1 AND applied_at_ms IS NULL
+                 AND NOT EXISTS(SELECT 1 FROM recovery_completion_suppressions s
+                     WHERE s.authenticated_event_id=recovery_publications.authenticated_event_id
+                       AND s.publication_key=recovery_publications.publication_key)
+                 ORDER BY rowid LIMIT 1",
             )?;
             let rows = statement.query_map([event_id], |row| Ok((
                 row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?,
@@ -132,13 +163,16 @@ impl ObjectiveStore {
                     .lock_recovery_reconciliation(grant, &publication.node_id)?;
                 apply(&guarded, &publication)?;
                 tx.execute("UPDATE recovery_publications SET applied_at_ms=?3
-                    WHERE authenticated_event_id=?1 AND publication_key=?2 AND applied_at_ms IS NULL",
+                    WHERE authenticated_event_id=?1 AND publication_key=?2 AND applied_at_ms IS NULL
+                    AND NOT EXISTS(SELECT 1 FROM recovery_completion_suppressions s
+                        WHERE s.authenticated_event_id=recovery_publications.authenticated_event_id
+                          AND s.publication_key=recovery_publications.publication_key)",
                     params![event_id, publication.key, Utc::now().timestamp_millis()])?;
                 // Keep the journal fence through acknowledgement commit.
                 guards.push(guarded);
             }
             Ok(guards)
-        })?;
+        }, &mut clock)?;
             if guards.is_empty() {
                 return Ok(());
             }

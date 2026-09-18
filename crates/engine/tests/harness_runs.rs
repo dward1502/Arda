@@ -179,6 +179,7 @@ async fn prerequisite_observations_never_claim_execution_readiness() {
             receiver,
             RuntimePrerequisites {
                 keeper_socket: Some(socket),
+                ..Default::default()
             },
         )
         .await

@@ -35,10 +35,29 @@ fn validate_history(
     execute_receipt: &HermesExecutionReceipt,
     bindings: &RecoveryBindings,
 ) -> Result<()> {
+    ensure!(
+        !events.iter().any(|e| matches!(
+            e.kind,
+            RunEventKind::NodeTransition {
+                state: NodeState::Cancelled
+            } | RunEventKind::Cancelled { .. }
+        )),
+        "cancelled run cannot recover"
+    );
+    validate_historical_lineage(graph, events, execute_receipt, bindings)
+}
+
+/// Immutable evidence only; confers no execution or success-projection authority.
+pub(super) fn validate_historical_lineage(
+    graph: &RunGraph,
+    events: &[RunEvent],
+    execute_receipt: &HermesExecutionReceipt,
+    bindings: &RecoveryBindings,
+) -> Result<()> {
     graph.validate()?;
     ensure!(
         graph.run_id == bindings.run_id
-            && graph.objective_id.as_str() == bindings.objective_id
+            && graph.objective_id.as_str() == bindings.leaf_id
             && graph.provenance.project_contract_digest == bindings.project_contract_digest,
         "recovery graph authority differs"
     );
@@ -108,15 +127,7 @@ fn validate_history(
                 .contains(approval.output_digest.as_ref().unwrap()),
         "canonical execution receipt or approval lineage differs"
     );
-    ensure!(
-        !events.iter().any(|e| matches!(
-            e.kind,
-            RunEventKind::NodeTransition {
-                state: NodeState::Cancelled
-            } | RunEventKind::Cancelled { .. }
-        )),
-        "cancelled run cannot recover"
-    );
+
     let failure = events
         .iter()
         .find(|e| e.sequence == bindings.failed_event_sequence)

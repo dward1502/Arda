@@ -6,6 +6,8 @@ use std::{path::PathBuf, time::Duration};
 
 #[derive(Clone, Default)]
 pub struct RuntimePrerequisites {
+    /// Harness-owned recovery joins and subscriptions (not durable authority).
+    pub recovery_jobs: super::RecoveryJobs,
     /// Exact endpoint supplied to the resident store, including CLI precedence.
     pub keeper_socket: Option<PathBuf>,
 }

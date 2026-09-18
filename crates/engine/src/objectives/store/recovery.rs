@@ -5,6 +5,7 @@ use crate::runs::RecoveryGrant;
 use anyhow::{bail, Context, Result};
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 mod admission;
+mod cleanup;
 mod material;
 mod publications;
 pub use material::RecoveryMaterial;
@@ -212,6 +213,10 @@ impl ObjectiveStore {
         ) -> Result<T>,
     ) -> Result<T> {
         self.with_retained_recovery_clock(operator_id, event_id, expected, operation, || {
+            #[cfg(test)]
+            if let Ok(now) = std::env::var("ARDA_TEST_RECOVERY_NOW_MS") {
+                return Ok(now.parse()?);
+            }
             Ok(i64::try_from(
                 std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)?
@@ -444,7 +449,13 @@ impl ObjectiveStore {
         grant: &RecoveryGrant,
         operation: impl FnOnce(&Transaction<'_>) -> Result<T>,
     ) -> Result<T> {
-        self.with_recovery_control_fence_inner(operator_id, grant, true, operation)
+        self.with_recovery_control_fence_inner(operator_id, grant, true, operation, || {
+            #[cfg(test)]
+            if let Ok(now) = std::env::var("ARDA_TEST_RECOVERY_GRANT_NOW_MS") {
+                return Ok(now.parse()?);
+            }
+            Ok(chrono::Utc::now().timestamp_millis())
+        })
     }
 
     fn with_recovery_control_fence_inner<T>(
@@ -453,6 +464,7 @@ impl ObjectiveStore {
         grant: &RecoveryGrant,
         require_active_window: bool,
         operation: impl FnOnce(&Transaction<'_>) -> Result<T>,
+        mut clock: impl FnMut() -> Result<i64>,
     ) -> Result<T> {
         grant.validate().map_err(anyhow::Error::msg)?;
         let mut connection = self.connection()?;
@@ -476,12 +488,7 @@ impl ObjectiveStore {
         if !valid {
             bail!("recovery control was superseded or canonical lineage changed");
         }
-        let now = u64::try_from(
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .context("recovery clock unavailable")?
-                .as_millis(),
-        )?;
+        let now = u64::try_from(clock()?)?;
         if require_active_window && !grant.is_active(now) {
             bail!("recovery window is not active");
         }

@@ -36,7 +36,10 @@ impl ObjectiveStore {
             );
             let pending: bool = tx.query_row(
                 "SELECT EXISTS(SELECT 1 FROM recovery_publications
-                WHERE authenticated_event_id=?1 AND applied_at_ms IS NULL)",
+                WHERE authenticated_event_id=?1 AND applied_at_ms IS NULL
+                AND NOT EXISTS(SELECT 1 FROM recovery_completion_suppressions s
+                    WHERE s.authenticated_event_id=recovery_publications.authenticated_event_id
+                      AND s.publication_key=recovery_publications.publication_key))",
                 [event],
                 |row| row.get(0),
             )?;
@@ -62,6 +65,7 @@ impl ObjectiveStore {
     /// Historical SQL completion authorizes only its exact remaining projections.
     pub(crate) fn reconcile_recovery_completion(
         &self,
+        root: &std::path::Path,
         operator: &str,
         event: &str,
         apply: impl FnOnce(&RecoveryPublication) -> Result<()>,
@@ -69,16 +73,28 @@ impl ObjectiveStore {
         let mut connection = self.connection()?;
         let tx = connection.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
         let grant = read_admission(&tx, operator, event)?.context("recovery admission missing")?;
-        let row: Option<(String, String, String)> = tx
+        let suppressed: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM recovery_completion_suppressions WHERE authenticated_event_id=?1)", [event], |r|r.get(0))?;
+        anyhow::ensure!(
+            !suppressed,
+            "completion effects were durably suppressed; cleanup only"
+        );
+        let row: Option<(String, String, String, i64, String, i64, String)> = tx
             .query_row(
-                "SELECT payload_json,payload_digest,grant_digest FROM recovery_publications
+                "SELECT payload_json,payload_digest,grant_digest,lease_generation,lease_owner,lease_expires_ms,node_id FROM recovery_publications
              WHERE authenticated_event_id=?1 AND publication_key='completion' AND kind='completion'
              AND applied_at_ms IS NULL",
                 [event],
-                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?, row.get(5)?, row.get(6)?)),
             )
             .optional()?;
-        if let Some((payload, payload_digest, grant_digest)) = row {
+        // Hold the journal cancellation fence through SQL acknowledgement.
+        let mut journal_guard = None;
+        if let Some((payload, payload_digest, grant_digest, generation, owner, expiry, node)) = row
+        {
+            anyhow::ensure!(
+                node == grant.bindings.close_node_id.as_str(),
+                "completion publication node changed"
+            );
             let publication = RecoveryPublication {
                 key: "completion".into(),
                 kind: "completion".into(),
@@ -100,6 +116,25 @@ impl ObjectiveStore {
                 |r| r.get(0),
             )?;
             anyhow::ensure!(complete, "completion intent has no committed stage chain");
+            let current: bool = tx.query_row(
+                "SELECT EXISTS(SELECT 1 FROM leaves l
+                 JOIN objectives o ON o.id=l.objective_id
+                 JOIN retained_workspace_snapshots s ON s.leaf_id=l.id AND s.run_id=l.execution_run_id
+                 JOIN retained_snapshot_lease_intents i ON i.leaf_id=l.id AND i.generation=l.attempt
+                 WHERE l.id=?1 AND l.execution_run_id=?2 AND l.attempt=?3
+                 AND s.committed_generation=?3 AND i.lease_owner=?4 AND i.lease_expires_ms=?5
+                 AND i.recovery_event_id=?6 AND l.lease_owner IS NULL AND l.lease_expires_ms IS NULL
+                 AND o.operator_id=?7 AND o.state='paused' AND o.revision=?8
+                 AND o.approved_revision=o.revision AND o.stop_generation=?9)",
+                params![grant.bindings.leaf_id, grant.bindings.run_id.as_str(), generation,
+                    owner, expiry, event, operator, grant.bindings.objective_revision,
+                    i64::try_from(grant.bindings.stop_generation)?],
+                |row| row.get(0),
+            )?;
+            anyhow::ensure!(
+                current,
+                "completion projection control or lease was superseded"
+            );
             let receipts: Vec<StageReceipt> =
                 serde_json::from_value(publication.payload["receipts"].clone())?;
             anyhow::ensure!(receipts.len() == 4, "completion chain is incomplete");
@@ -109,6 +144,10 @@ impl ObjectiveStore {
                     params![grant.bindings.leaf_id,receipt.stage.as_str(),receipt.digest,receipt.run_path,receipt.binding_digest],|r|r.get(0))?;
                 anyhow::ensure!(matches, "completion stage evidence changed");
             }
+            journal_guard = Some(
+                RunStore::open(root, grant.bindings.run_id.clone())?
+                    .lock_recovery_reconciliation(&grant, &grant.bindings.close_node_id)?,
+            );
             apply(&publication)?;
             tx.execute(
                 "UPDATE recovery_publications SET applied_at_ms=?2
@@ -117,6 +156,7 @@ impl ObjectiveStore {
             )?;
         }
         tx.commit()?;
+        drop(journal_guard);
         Ok(())
     }
 }

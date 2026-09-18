@@ -289,6 +289,52 @@ pub(in crate::harness::runs) fn publish_provider(
     store
         .write_recovery_outcome_evidence(node, &payload)
         .map_err(recovery_error)?;
+
+    if payload.get("receipt").is_none() {
+        // An adapter error has no successful effects to publish. Retain its
+        // immutable evidence, then project only the exact-start failure under
+        // the same live authority fence. Replay can finish a partial projection.
+        with_provider_mutation(store, Some(authorization), node, request, |guard| {
+            let current = guard.recover().map_err(store_error)?;
+            let latest = current
+                .events
+                .iter()
+                .rev()
+                .find(|event| {
+                    event.node_id == *node
+                        && matches!(
+                            event.kind,
+                            RunEventKind::NodeTransition {
+                                state: NodeState::Running
+                            }
+                        )
+                })
+                .ok_or_else(|| ApiError::conflict("provider failure has no admitted start"))?;
+            if payload["request"] != *request
+                || payload["start_key"].as_str() != Some(latest.idempotency_key.as_str())
+                || !payload["error"]
+                    .as_str()
+                    .is_some_and(|error| !error.is_empty())
+            {
+                return Err(ApiError::conflict(
+                    "provider failure does not match current start",
+                ));
+            }
+            apply_provider_publication(
+                guard,
+                &RecoveryPublication {
+                    key: format!("{}:terminal", latest.idempotency_key),
+                    kind: "provider-finalization".into(),
+                    node_id: node.clone(),
+                    payload,
+                },
+            )
+            .map_err(recovery_error)
+        })?;
+        return Err(ApiError::conflict(
+            "provider failed; exact-start failure evidence retained",
+        ));
+    }
     authorization
         .commit_provider_publication(node, request, payload)
         .map_err(recovery_error)?;

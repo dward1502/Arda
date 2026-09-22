@@ -1,0 +1,12 @@
+{
+  "changes": [],
+  "provider_receipt": null,
+  "tests": [
+    {
+      "details": null,
+      "duration_ms": null,
+      "name": "m1-gate1-acceptance",
+      "status": "passed"
+    }
+  ]
+}

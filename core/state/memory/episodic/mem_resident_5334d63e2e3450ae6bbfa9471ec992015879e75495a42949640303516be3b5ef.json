@@ -1,0 +1,21 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_resident_5334d63e2e3450ae6bbfa9471ec992015879e75495a42949640303516be3b5ef",
+  "kind": "episodic",
+  "agent": "vaire-resident-objective",
+  "content": "Resident objective cutover-local-recovered-20260915 leaf cutover-local-recovered-20260915-leaf completed run objective-cutover-local-recovered-20260915-leaf-cutover-local-recovered-20260915-leaf-attempt-1. Outcomes: execute=VERDICT: APPROVE - python3 verify.py executed successfully with exit code 0, confirming the workspace input verification passed.; verify=VERDICT: APPROVE - python3 verify.py executed successfully with exit code 0, confirming the workspace input verification passed.; review=VERDICT: APPROVE\nThe review confirms the predecessor execution was correct: verify.py asserts input.txt contains 'installed-retained-runtime-acceptance\\n', and inspection shows input.txt holds exactly that value. The prior test_evidence shows python3 verify.py exited with code 0, validating the workspace input verification passed.; close=Workbench closed the reviewed objective leaf.. Canonical stage receipts: execute=sha256:4b9b30f95fc6976661f0b25f96bae6ce041b519ced5b9ef0171a424b91a60bcb, verify=sha256:64c1e2306294a0f84a435eeb21ab939bc2235034563e9c0eae9dd700d8755c27, review=sha256:ae234bd1b2d809d92d5327e8386d131996a2fa02fc2a77e1daa5fbed577d1bbb, close=sha256:7fd7768785b8bc348e4a04edc9740c952a735362e050cb798e70797494177c7d.",
+  "salience": 0.5,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-15T05:52:38.528507466Z",
+  "last_seen_at": "2026-09-15T05:52:38.528507466Z",
+  "memory_domain": "system",
+  "context_use_receipt_id": "context-use:dd24564512bcc0d354590b1f56ffd3850c6333b09097c4c0eb424797f249d472",
+  "knowledge_evaluation_reference": "sha256:ae234bd1b2d809d92d5327e8386d131996a2fa02fc2a77e1daa5fbed577d1bbb",
+  "resident_objective_outcome": true,
+  "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+  "project_id": "ac000000-0000-4000-8000-000000000001",
+  "objective_id": "cutover-local-recovered-20260915",
+  "run_id": "objective-cutover-local-recovered-20260915-leaf-cutover-local-recovered-20260915-leaf-attempt-1",
+  "knowledge_approval_reference": "cli-authorized-cutover-20260915"
+}

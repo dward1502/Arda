@@ -214,6 +214,7 @@ fn graph() -> RunGraph {
             created_by: "operator:fixture".into(),
             parent_receipts: Vec::new(),
         },
+        approval_receipts: Vec::new(),
     }
 }
 

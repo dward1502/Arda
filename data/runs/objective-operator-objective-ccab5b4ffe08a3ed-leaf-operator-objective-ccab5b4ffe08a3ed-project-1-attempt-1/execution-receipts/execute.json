@@ -1,0 +1,215 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:35a4439a96fa468cdf62cd11bc88643bc9cc133117902a2820209bdfd804c626",
+  "context_capsule_digest": "sha256:69c205d027214ed477b41eda4ee78bb5ca249fb483adb11f48a9c84aec001f95",
+  "context_capsule_id": "capsule:69c205d027214ed477b41eda4ee78bb5ca249fb483adb11f48a9c84aec001f95",
+  "context_handoff": {
+    "capsule_digest": "sha256:69c205d027214ed477b41eda4ee78bb5ca249fb483adb11f48a9c84aec001f95",
+    "capsule_id": "capsule:69c205d027214ed477b41eda4ee78bb5ca249fb483adb11f48a9c84aec001f95",
+    "context_use_receipt_ref": "arda://vaire/context-use/context-use:7116d6bb2c056f31290f8319bfbbef2fc84af9fdcea23ce683aaef826b5dcb88",
+    "destination_consumer": "arda.resident-objective:objective-operator-objective-ccab5b4ffe08a3ed-leaf-operator-objective-ccab5b4ffe08a3ed-project-1-attempt-1:execute",
+    "node_id": "execute",
+    "objective_id": "operator-objective-ccab5b4ffe08a3ed",
+    "parent_receipts": [
+      "gateway-approval:gateway-event:329609b3446ba6c24e788a69817d7a3f3ae4a52ca98d10ac618e326979dfea4f"
+    ],
+    "receipt_digest": "sha256:132ef01a82253cfc81fedea3b2509d205a7133a21120835e29367c72b3b373c2",
+    "receipt_id": "handoff:97e9e662a2ed72f826334e35f1d699d47da44cc61b3aa875f6f7dc702cfb6d2f",
+    "recorded_at_unix_ms": 1789603633753,
+    "run_id": "objective-operator-objective-ccab5b4ffe08a3ed-leaf-operator-objective-ccab5b4ffe08a3ed-project-1-attempt-1",
+    "schema_version": "arda.handoff-receipt.v1",
+    "source_authority": "vaire:organism-context"
+  },
+  "context_use_receipt_ref": "arda://vaire/context-use/context-use:7116d6bb2c056f31290f8319bfbbef2fc84af9fdcea23ce683aaef826b5dcb88",
+  "idempotency_key": "queue-operator-objective-ccab5b4ffe08a3ed-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:329609b3446ba6c24e788a69817d7a3f3ae4a52ca98d10ac618e326979dfea4f"
+  ],
+  "project_contract_digest": "sha256:2884da99bfd10bd1ad35f3414b9f8e8a0485561f2b839b6bb57ba2971bc44733",
+  "receipt_digest": "sha256:ddf0e1692d1a0a06ece501c8099633f1bf9daee57c0bedcd1f5a5c082c3d0149",
+  "recorded_at_unix_ms": 1789603633753,
+  "run_id": "objective-operator-objective-ccab5b4ffe08a3ed-leaf-operator-objective-ccab5b4ffe08a3ed-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "Inspected source contracts for Arda HUD and Launcher Tauri applications including mirromere, monitor_surface, workbench, and system_health modules. Identified schema versions and lifecycle component requirements. No modifications made.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"pattern\":\"*.rs\",\"target\":\"files\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:1109fddff08f29b42a4b944c2fac5ec3fda0b8e991e696ab47553824e3ebd291",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-hud/src-tauri/src/lib.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:02f4ed5cd4fe7edcad73693131e816cc4065e16e37728b0a3a4e3d606babbb87",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-hud/src-tauri/src/mirromere.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:aef55118d88df515f267ab9d94d58f5795bc2ca9c694d3a3d41547a7c938ba77",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-hud/src-tauri/src/commands/mod.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:54761a2a368b3cf9c90c0e1f3c4c1e6bd37b6ac52edee4f11ae3d4a7c476c093",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-hud/src-tauri/src/commands/system_health.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:c5907a03141eac93b32eea830ada3605034e4376c6ace0ccf5511dc2dd2a1632",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-launcher/src-tauri/src/lifecycle/commands.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:ebc6db4884e42ce9799b14cc5e52e9665fa14af92fe35c654333db1be0b4313a",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-launcher/src-tauri/src/lifecycle/types.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:2bdaddb5a0bec68a70777197897276c01387257a490aa33159e4d020c3ea4e34",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-launcher/src-tauri/src/lifecycle/mod.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:45da15716c7cacc1e2649678d35efa9d8a8e53f05fc70ccbb3b0db58cb050f19",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"Cargo.toml\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:dd61e6957c0115b92ad5e6242bc7acb82bb975abdb4cfaf90b7ca615ab105796",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-hud/src-tauri/Cargo.toml\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:98f3d10afedf16d678f1e2ab0c919707eaa04fb1bb19da9f3757be0fc9d04765",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"apps/arda-launcher/src-tauri/Cargo.toml\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:838b5b144fad5cb03a79fdf017b47bc4772f02dc2165b792e43af09924eb43f4",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"crates/spine/interface/arda-mirromere/src/lib.rs\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:262720e36f3b7ca3d40a86d46549690d6268c93510cb99376bcf95b4127e1bc3",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"pattern\":\"tauri-plugin-protocol\",\"target\":\"content\"}",
+      "exit_code": 2,
+      "output_digest": "sha256:750b7cf5ce003b0494ce1782d2eafb71772e550ce2179c71b2e5a74572dfd30e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*.toml\",\"pattern\":\"protocol\",\"target\":\"content\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:064bbac407483294fe9d3e3626acec8c42542a051ed8b265ab6ac91338efecf1",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"path\":\"outposts/arda-outpost-protocol/src/lib.rs\"}",
+      "exit_code": 1,
+      "output_digest": "sha256:efd2e2635adc61919d252ba1163515b76814f81e9cb61cd2d6f1ec15500e1e37",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"outposts/arda-outpost-protocol/Cargo.toml\"}",
+      "exit_code": 1,
+      "output_digest": "sha256:efd2e2635adc61919d252ba1163515b76814f81e9cb61cd2d6f1ec15500e1e37",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"pattern\":\"arda-outpost-protocol\",\"target\":\"files\"}",
+      "exit_code": 2,
+      "output_digest": "sha256:750b7cf5ce003b0494ce1782d2eafb71772e550ce2179c71b2e5a74572dfd30e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/*\",\"pattern\":\"arda-outpost-protocol\",\"target\":\"files\"}",
+      "exit_code": 2,
+      "output_digest": "sha256:750b7cf5ce003b0494ce1782d2eafb71772e550ce2179c71b2e5a74572dfd30e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/arda-outpost-protocol/**\",\"target\":\"files\"}",
+      "exit_code": 1,
+      "output_digest": "sha256:0d28dba572d8def7cb042e9bb05bb2598fef615276603b1145530b5a4a68a70d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/arda-outpost-protocol\",\"target\":\"files\"}",
+      "exit_code": 1,
+      "output_digest": "sha256:0d28dba572d8def7cb042e9bb05bb2598fef615276603b1145530b5a4a68a70d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/arda-outpost-protocol\",\"pattern\":\"arda-outpost-protocol\",\"target\":\"files\"}",
+      "exit_code": 2,
+      "output_digest": "sha256:750b7cf5ce003b0494ce1782d2eafb71772e550ce2179c71b2e5a74572dfd30e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/*\",\"target\":\"files\"}",
+      "exit_code": 1,
+      "output_digest": "sha256:0d28dba572d8def7cb042e9bb05bb2598fef615276603b1145530b5a4a68a70d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/arda-outpost-protocol\",\"target\":\"files\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:7d67b20537aa7d518fc0dc524dd0eb7a71e930c03cb0a51856be63118ae6cee8",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/arda-outpost-protocol\",\"pattern\":\"arda-outpost-protocol\",\"target\":\"files\"}",
+      "exit_code": 0,
+      "output_digest": "sha256:2ce45d94c72ee692d4e4fa76aa5c550803e866f648bc177ee37aa09181783908",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"pattern\":\"outposts/arda-outpost-protocol\",\"target\":\"files\"}",
+      "exit_code": 2,
+      "output_digest": "sha256:750b7cf5ce003b0494ce1782d2eafb71772e550ce2179c71b2e5a74572dfd30e",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"outposts/**\",\"target\":\"files\"}",
+      "exit_code": 1,
+      "output_digest": "sha256:0d28dba572d8def7cb042e9bb05bb2598fef615276603b1145530b5a4a68a70d",
+      "tool": "search_files"
+    },
+    {
+      "action": "{\"file_glob\":\"*\",\"pattern\":\"outposts\",\"target\":\"files\"}",
+      "exit_code": 2,
+      "output_digest": "sha256:750b7cf5ce003b0494ce1782d2eafb71772e550ce2179c71b2e5a74572dfd30e",
+      "tool": "search_files"
+    }
+  ],
+  "usage": {
+    "api_calls": 0,
+    "completed": true,
+    "cost_measurement": "unknown",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 0,
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "output_tokens": 0,
+    "provider": "custom",
+    "total_tokens": 0
+  }
+}

@@ -8,8 +8,8 @@
 //!
 //! Hooks are best-effort side effects rather than transaction participants:
 //! implementations log their own failures and must not roll back books,
-//! digest, queue, or policy-readiness state. The default order is Hades,
-//! Warden, then Mnemosyne. Register new hooks only when that ordering and the
+//! digest, queue, or policy-readiness state. The default order is Warden,
+//! then Mnemosyne when enabled. Register new hooks only when that ordering and the
 //! at-least-once event contract are safe for the target consumer.
 
 use arda_vaire::{InformantEvent, MnemosyneService};
@@ -221,43 +221,24 @@ impl IngestPipeline {
     }
 }
 
+/// Retired compatibility adapter. Lifecycle observations belong to Warden;
+/// they do not authorize actions or admit Engine objectives.
 #[derive(Debug, Clone)]
-pub struct HadesQueueInterceptor {
-    queue_path: PathBuf,
-}
+pub struct HadesQueueInterceptor;
 
 impl HadesQueueInterceptor {
-    pub fn new(queue_path: impl Into<PathBuf>) -> Self {
-        Self {
-            queue_path: queue_path.into(),
-        }
+    pub fn new(_queue_path: impl Into<PathBuf>) -> Self {
+        Self
     }
 }
 
 impl IngestInterceptor for HadesQueueInterceptor {
     fn name(&self) -> &str {
-        "hades_queue"
+        "hades_queue_retired"
     }
 
-    fn after(&self, ctx: &IngestCtx, event: &DigestEvent) {
-        if matches!(event, DigestEvent::ShallowSynced { .. }) {
-            return;
-        }
-        let event_name = event.event_name();
-        let source_id = event.source_id();
-        let record = json!({
-            "pipeline_id": ctx.pipeline_id,
-            "task_id": format!("ath_{source_id}"),
-            "queued_at_utc": Utc::now().to_rfc3339(),
-            "action": "investigate_orphan",
-            "file": format!("books/{source_id}.jsonl"),
-            "authorized_by": "athena",
-            "reason": format!("athena lifecycle event: {event_name}"),
-            "execute_after_utc": null
-        });
-        if let Err(err) = append_jsonl(&self.queue_path, &record) {
-            tracing::warn!(error = %err, path = %self.queue_path.display(), "hades queue interceptor failed");
-        }
+    fn after(&self, _ctx: &IngestCtx, _event: &DigestEvent) {
+        // Keep historical files untouched, including when explicitly registered.
     }
 }
 
@@ -464,7 +445,7 @@ mod tests {
     }
 
     #[test]
-    fn queue_interceptors_write_records() {
+    fn retired_hades_interceptor_preserves_history_while_warden_observes() {
         let dir = tempfile::tempdir().expect("tempdir");
         let hades = dir.path().join("hades.jsonl");
         let warden = dir.path().join("warden.jsonl");
@@ -479,9 +460,16 @@ mod tests {
                 reason: "boom".into(),
             },
         );
-        assert!(fs::read_to_string(hades)
-            .expect("hades")
-            .contains("ath_src_test"));
+        assert!(!hades.exists());
+        fs::write(&hades, b"historical malformed bytes\n").unwrap();
+        pipeline.after(
+            &ctx,
+            &DigestEvent::DeepFailed {
+                source_id: "src_test".into(),
+                reason: "retry".into(),
+            },
+        );
+        assert_eq!(fs::read(&hades).unwrap(), b"historical malformed bytes\n");
         assert!(fs::read_to_string(warden)
             .expect("warden")
             .contains("attention_required"));

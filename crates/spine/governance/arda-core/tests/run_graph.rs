@@ -45,6 +45,7 @@ fn graph(nodes: Vec<RunNode>, edges: Vec<RunEdge>) -> RunGraph {
             created_by: "operator:test".to_string(),
             parent_receipts: vec!["receipt:root".to_string()],
         },
+        approval_receipts: Vec::new(),
     }
 }
 

@@ -1,5 +1,19 @@
 use super::*;
 
+pub(super) fn require_available_decision_action(action: &str) -> Result<()> {
+    let action = action.trim().to_ascii_lowercase();
+    if action == "drain queued tasks"
+        || action.starts_with("execute queued task ")
+        || action == "execute queued task"
+    {
+        return Err(ArdaError::Task(
+            "legacy JSONL queue decisions are retired; use authenticated Engine objective control"
+                .into(),
+        ));
+    }
+    Ok(())
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecisionOption {
     pub key: String,
@@ -38,11 +52,6 @@ pub(super) struct DecisionExecutionContext {
     pub(super) selected_label: String,
 }
 
-#[derive(Debug, Clone)]
-struct QueuedTask {
-    task_id: String,
-}
-
 pub(super) fn format_decision_prompt_message(prompt: &DecisionPrompt) -> String {
     let mut lines = vec![
         format!("Decision: {}", prompt.question),
@@ -57,8 +66,35 @@ pub(super) fn format_decision_prompt_message(prompt: &DecisionPrompt) -> String 
         ));
     }
     lines.push("".to_string());
-    lines.push("Reply with A, B, or C.".to_string());
+    lines.push(format!(
+        "Reply with {}.",
+        prompt
+            .options
+            .iter()
+            .map(|option| option.key.to_ascii_uppercase())
+            .collect::<Vec<_>>()
+            .join(" or ")
+    ));
     lines.join("\n")
+}
+
+fn automatic_decision_options() -> (String, Vec<DecisionOption>) {
+    (
+        "Legacy queue history is read-only; execution uses authenticated Engine objective control."
+            .into(),
+        vec![
+            DecisionOption {
+                key: "a".into(),
+                label: "Enter chat mode".into(),
+                action: "enter chat mode".into(),
+            },
+            DecisionOption {
+                key: "b".into(),
+                label: "Review historical queue records (not live work)".into(),
+                action: "show top queued tasks and plan".into(),
+            },
+        ],
+    )
 }
 
 impl HermesService {
@@ -99,8 +135,8 @@ impl HermesService {
         sender: &str,
         channel: &str,
         choice: &str,
-    ) -> Option<(DecisionPrompt, DecisionOption)> {
-        let prompts = fs::read_to_string(&self.decision_prompts_path).ok()?;
+    ) -> Result<Option<(DecisionPrompt, DecisionOption)>> {
+        let prompts = fs::read_to_string(&self.decision_prompts_path)?;
         let responses = fs::read_to_string(&self.decision_responses_path).unwrap_or_default();
         let mut resolved_prompt_ids = HashSet::new();
         for line in responses.lines() {
@@ -119,12 +155,18 @@ impl HermesService {
             .filter(|p| !resolved_prompt_ids.contains(&p.prompt_id))
             .collect::<Vec<_>>();
         candidates.sort_by(|a, b| a.created_at_utc.cmp(&b.created_at_utc));
-        let prompt = candidates.pop()?;
-        let option = prompt
+        let Some(prompt) = candidates.pop() else {
+            return Ok(None);
+        };
+        let Some(option) = prompt
             .options
             .iter()
             .find(|o| normalize_choice(&o.key).as_deref() == Some(choice))
-            .cloned()?;
+            .cloned()
+        else {
+            return Ok(None);
+        };
+        require_available_decision_action(&option.action)?;
         let response = DecisionResponse {
             prompt_id: prompt.prompt_id.clone(),
             source: source.to_string(),
@@ -135,8 +177,8 @@ impl HermesService {
             selected_label: option.label.clone(),
             ts_utc: Utc::now().to_rfc3339(),
         };
-        let _ = append_jsonl(&self.decision_responses_path, &response);
-        Some((prompt, option))
+        append_jsonl(&self.decision_responses_path, &response)?;
+        Ok(Some((prompt, option)))
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -186,54 +228,7 @@ impl HermesService {
             return Ok(());
         }
 
-        let queued = self.load_queued_tasks(3)?;
-        let (question, options) = if queued.is_empty() {
-            (
-                "Queue is empty. Choose next mode.".to_string(),
-                vec![
-                    DecisionOption {
-                        key: "a".to_string(),
-                        label: "Enter chat mode".to_string(),
-                        action: "enter chat mode".to_string(),
-                    },
-                    DecisionOption {
-                        key: "b".to_string(),
-                        label: "Run maintenance sweep".to_string(),
-                        action: "execute hades maintenance sweep".to_string(),
-                    },
-                    DecisionOption {
-                        key: "c".to_string(),
-                        label: "Run ATHENA research".to_string(),
-                        action: "execute athena research pass".to_string(),
-                    },
-                ],
-            )
-        } else {
-            let top = &queued[0];
-            (
-                format!(
-                    "Queue has {} pending tasks. Choose next action.",
-                    queued.len()
-                ),
-                vec![
-                    DecisionOption {
-                        key: "a".to_string(),
-                        label: "Drain queued tasks".to_string(),
-                        action: "drain queued tasks".to_string(),
-                    },
-                    DecisionOption {
-                        key: "b".to_string(),
-                        label: format!("Execute {}", top.task_id),
-                        action: format!("execute queued task {}", top.task_id),
-                    },
-                    DecisionOption {
-                        key: "c".to_string(),
-                        label: "Review top tasks".to_string(),
-                        action: "show top queued tasks and plan".to_string(),
-                    },
-                ],
-            )
-        };
+        let (question, options) = automatic_decision_options();
         let prompt = self.create_decision_prompt(
             provider_id,
             &msg.sender,
@@ -251,36 +246,27 @@ impl HermesService {
         let _ = self.send(outbound).await?;
         Ok(())
     }
+}
 
-    fn load_queued_tasks(&self, limit: usize) -> Result<Vec<QueuedTask>> {
-        let path = default_task_queue_path();
-        let content = match fs::read_to_string(path) {
-            Ok(v) => v,
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
-            Err(err) => return Err(err.into()),
-        };
-        let mut out = Vec::new();
-        for line in content.lines() {
-            if line.trim().is_empty() {
-                continue;
-            }
-            let value: serde_json::Value = match serde_json::from_str(line) {
-                Ok(v) => v,
-                Err(_) => continue,
-            };
-            if value.get("status").and_then(|v| v.as_str()) != Some("queued") {
-                continue;
-            }
-            let Some(task_id) = value.get("task_id").and_then(|v| v.as_str()) else {
-                continue;
-            };
-            out.push(QueuedTask {
-                task_id: task_id.to_string(),
-            });
-            if out.len() >= limit {
-                break;
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn automatic_prompts_only_offer_supported_read_only_actions() {
+        {
+            let (question, options) = automatic_decision_options();
+            assert!(!question.contains("pending tasks"));
+            for option in options {
+                assert!(
+                    matches!(
+                        option.action.as_str(),
+                        "enter chat mode" | "show top queued tasks and plan"
+                    ),
+                    "unsupported action: {}",
+                    option.action
+                );
             }
         }
-        Ok(out)
     }
 }

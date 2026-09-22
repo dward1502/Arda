@@ -74,6 +74,7 @@ pub(super) fn append_plan_to_queue_with_gate_metadata(
     delegation: Option<&DelegationReport>,
     gate: QueueGateMetadata<'_>,
 ) -> std::io::Result<Vec<String>> {
+    super::schedule::require_legacy_schedule_writer()?;
     let path = queue_path.as_ref();
     if let Some(p) = path.parent() {
         std::fs::create_dir_all(p)?;
@@ -83,6 +84,12 @@ pub(super) fn append_plan_to_queue_with_gate_metadata(
         .append(true)
         .open(path)?;
     let now = Utc::now();
+    // Resolve plan keys to full canonical task IDs so depends_on
+    // entries reference the actual queue records, not local template keys.
+    let id_for_key: std::collections::HashMap<&str, String> = plan
+        .iter()
+        .map(|t| (t.key.as_str(), task_id_for(objective_id, &t.key, now)))
+        .collect();
     let mut written = Vec::new();
     for t in plan {
         let owner = delegation
@@ -90,7 +97,17 @@ pub(super) fn append_plan_to_queue_with_gate_metadata(
             .map(|d| d.assigned_agent.clone())
             .or_else(|| t.assigned_agent.clone())
             .unwrap_or_else(|| "ceo".into());
-        let id = task_id_for(objective_id, &t.key, now);
+        let id = id_for_key.get(t.key.as_str()).cloned().unwrap_or_else(|| task_id_for(objective_id, &t.key, now));
+        let depends_on: Vec<String> = t
+            .depends_on
+            .iter()
+            .map(|dep| {
+                id_for_key
+                    .get(dep.as_str())
+                    .cloned()
+                    .unwrap_or_else(|| dep.clone())
+            })
+            .collect();
         let record = json!({
             "id": id,
             "title": t.title,
@@ -98,7 +115,7 @@ pub(super) fn append_plan_to_queue_with_gate_metadata(
             "priority": format!("{:?}", t.priority).to_lowercase(),
             "status": "pending",
             "task_type": t.task_type,
-            "depends_on": t.depends_on,
+            "depends_on": depends_on,
             "joule_cost_estimate": t.joule_cost,
             "eta_seconds": t.eta_seconds,
             "queued_at_utc": now.to_rfc3339(),
@@ -143,6 +160,7 @@ pub fn append_apollo_dispatch_attempt_to_queue(
     attempt: u32,
     max_attempts: u32,
 ) -> std::io::Result<bool> {
+    super::schedule::require_legacy_schedule_writer()?;
     let Dispatch::Submitted {
         task_id,
         status,
@@ -162,6 +180,7 @@ pub fn append_apollo_dispatch_attempt_to_queue(
         ExecutionStatus::Running => ("in_progress", "running"),
     };
 
+    super::schedule::require_legacy_schedule_writer()?;
     let path = queue_path.as_ref();
     if let Some(p) = path.parent() {
         std::fs::create_dir_all(p)?;
@@ -235,84 +254,78 @@ mod tests {
         }
     }
     #[test]
-    fn appends_plan_records() {
+    fn retired_plan_writer_preserves_missing_and_malformed_history() {
         let dir = tempfile::tempdir().unwrap();
-        let q = dir.path().join("queue.jsonl");
-        let ids = append_plan_to_queue(&q, "obj1", &[task("a"), task("b")], None).unwrap();
-        assert_eq!(ids.len(), 2);
-        let contents = std::fs::read_to_string(&q).unwrap();
-        assert_eq!(contents.lines().count(), 2);
-        assert!(contents.contains("\"objective_id\":\"obj1\""));
-        assert!(contents.contains("\"status\":\"pending\""));
+        let q = dir.path().join("missing/queue.jsonl");
+        for historical in [false, true] {
+            if historical {
+                std::fs::create_dir_all(q.parent().unwrap()).unwrap();
+                std::fs::write(&q, b"malformed history\n").unwrap();
+            }
+            let error =
+                append_plan_to_queue(&q, "obj1", &[task("a"), task("b")], None).unwrap_err();
+            assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+            assert!(error.to_string().contains("retired"));
+            if historical {
+                assert_eq!(std::fs::read(&q).unwrap(), b"malformed history\n");
+            } else {
+                assert!(!q.parent().unwrap().exists());
+            }
+        }
     }
 
     #[test]
-    fn appends_oracle_conditions_to_plan_records() {
+    fn retired_condition_and_dispatch_writers_preserve_all_history() {
         let dir = tempfile::tempdir().unwrap();
-        let q = dir.path().join("queue.jsonl");
-        let conditions = vec!["require operator-visible rollback path".to_string()];
-        let ids = append_plan_to_queue_with_conditions(&q, "obj1", &[task("a")], None, &conditions)
-            .unwrap();
-        assert_eq!(ids.len(), 1);
-        let contents = std::fs::read_to_string(&q).unwrap();
-        assert!(
-            contents.contains("\"oracle_conditions\":[\"require operator-visible rollback path\"]")
-        );
-    }
-
-    #[test]
-    fn appends_apollo_completion_record() {
-        let dir = tempfile::tempdir().unwrap();
-        let q = dir.path().join("queue.jsonl");
-        let task = task("apollo");
-        let dispatch = Dispatch::Submitted {
-            task_id: "tsk_apollo".into(),
-            status: ExecutionStatus::Completed,
-            joules: 2.5,
-            transport: "in_process",
-        };
-        assert!(append_apollo_dispatch_to_queue(&q, "obj1", &task, &dispatch).unwrap());
-        let contents = std::fs::read_to_string(&q).unwrap();
-        assert!(contents.contains("\"id\":\"tsk_apollo\""));
-        assert!(contents.contains("\"status\":\"completed\""));
-        assert!(contents.contains("\"apollo_transport\":\"in_process\""));
-    }
-
-    #[test]
-    fn canonical_queue_handoff_remains_pending_without_completion_timestamp() {
-        let dir = tempfile::tempdir().unwrap();
-        let q = dir.path().join("queue.jsonl");
-        let dispatch = Dispatch::Submitted {
-            task_id: "tsk_core".into(),
-            status: ExecutionStatus::Pending,
-            joules: 0.0,
-            transport: "arda_core_queue",
-        };
-        assert!(append_apollo_dispatch_to_queue(&q, "obj1", &task("core"), &dispatch).unwrap());
-        let row: serde_json::Value =
-            serde_json::from_str(std::fs::read_to_string(&q).unwrap().trim()).unwrap();
-        assert_eq!(row["status"], "pending");
-        assert!(row["completed_at_utc"].is_null());
-    }
-
-    #[test]
-    fn appends_apollo_retry_attempt_metadata() {
-        let dir = tempfile::tempdir().unwrap();
-        let q = dir.path().join("queue.jsonl");
-        let task = task("apollo");
-        let dispatch = Dispatch::Submitted {
-            task_id: "tsk_apollo".into(),
-            status: ExecutionStatus::Timeout,
-            joules: 1.0,
-            transport: "daemon",
-        };
-        assert!(
-            append_apollo_dispatch_attempt_to_queue(&q, "obj1", &task, &dispatch, 2, 3).unwrap()
-        );
-        let contents = std::fs::read_to_string(&q).unwrap();
-        assert!(contents.contains("\"status\":\"failed\""));
-        assert!(contents.contains("\"result\":\"timeout\""));
-        assert!(contents.contains("\"retry_attempt\":2"));
-        assert!(contents.contains("\"retry_max_attempts\":3"));
+        let q = dir.path().join("missing/queue.jsonl");
+        for bytes in [
+            None,
+            Some(b"malformed history\n".as_slice()),
+            Some(b"{\"id\":\"historic\",\"status\":\"completed\"}\n".as_slice()),
+        ] {
+            if let Some(bytes) = bytes {
+                std::fs::create_dir_all(q.parent().unwrap()).unwrap();
+                std::fs::write(&q, bytes).unwrap();
+            }
+            let conditions = vec!["rollback required".into()];
+            let error =
+                append_plan_to_queue_with_conditions(&q, "obj", &[task("a")], None, &conditions)
+                    .unwrap_err();
+            assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+            assert!(error.to_string().contains("retired"));
+            let mut dispatches = vec![Dispatch::Skipped {
+                reason: "not submitted".into(),
+            }];
+            for status in [
+                ExecutionStatus::Pending,
+                ExecutionStatus::Running,
+                ExecutionStatus::Completed,
+                ExecutionStatus::Failed,
+                ExecutionStatus::Cancelled,
+                ExecutionStatus::Timeout,
+            ] {
+                dispatches.push(Dispatch::Submitted {
+                    task_id: "historic".into(),
+                    status,
+                    joules: 1.0,
+                    transport: "arda_core_queue",
+                });
+            }
+            for dispatch in dispatches {
+                for error in [
+                    append_apollo_dispatch_to_queue(&q, "obj", &task("a"), &dispatch).unwrap_err(),
+                    append_apollo_dispatch_attempt_to_queue(&q, "obj", &task("a"), &dispatch, 2, 3)
+                        .unwrap_err(),
+                ] {
+                    assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+                    assert!(error.to_string().contains("retired"));
+                }
+            }
+            if let Some(bytes) = bytes {
+                assert_eq!(std::fs::read(&q).unwrap(), bytes);
+            } else {
+                assert!(!q.parent().unwrap().exists());
+            }
+        }
     }
 }

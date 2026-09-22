@@ -1,0 +1,67 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:16656428f6df579397e69574d5ecb3113df94bdc6fe3bf1f8f8ed3b8e324453d",
+  "context_capsule_digest": "sha256:43d7b33885c326ed7927bdf623d555aa080c5904f9250b569d3a667081ea60b2",
+  "context_capsule_id": "capsule:43d7b33885c326ed7927bdf623d555aa080c5904f9250b569d3a667081ea60b2",
+  "context_handoff": {
+    "capsule_digest": "sha256:43d7b33885c326ed7927bdf623d555aa080c5904f9250b569d3a667081ea60b2",
+    "capsule_id": "capsule:43d7b33885c326ed7927bdf623d555aa080c5904f9250b569d3a667081ea60b2",
+    "context_use_receipt_ref": "arda://vaire/context-use/context-use:1d061e2a97b3cb51184a22f8424a924d97384c2708aa38bf56c0e80942ef6702",
+    "destination_consumer": "arda.resident-objective:objective-cutover-local-interrupted-20260915-leaf-cutover-local-interrupted-20260915-leaf-attempt-1:execute",
+    "node_id": "execute",
+    "objective_id": "cutover-local-interrupted-20260915",
+    "parent_receipts": [
+      "cli-authorized-cutover-20260915"
+    ],
+    "receipt_digest": "sha256:7519e04dbfd2ac7923d944bd53e3e8e76faa89179fe1a77ccf0ce2b1231e37a6",
+    "receipt_id": "handoff:d9a7f0d2e599ed3c92011ca82c9bb0fadca106f489fe9b9730c3b31c0033c7ed",
+    "recorded_at_unix_ms": 1789448655456,
+    "run_id": "objective-cutover-local-interrupted-20260915-leaf-cutover-local-interrupted-20260915-leaf-attempt-1",
+    "schema_version": "arda.handoff-receipt.v1",
+    "source_authority": "vaire:organism-context"
+  },
+  "context_use_receipt_ref": "arda://vaire/context-use/context-use:1d061e2a97b3cb51184a22f8424a924d97384c2708aa38bf56c0e80942ef6702",
+  "idempotency_key": "queue-cutover-local-interrupted-20260915-leaf-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "cli-authorized-cutover-20260915"
+  ],
+  "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+  "receipt_digest": "sha256:9e5311520e7ef66f19a9ac1e618f5d459ef5ae74054735fe556c78ba1ca5aabd",
+  "recorded_at_unix_ms": 1789448655456,
+  "run_id": "objective-cutover-local-interrupted-20260915-leaf-cutover-local-interrupted-20260915-leaf-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE - The verify.py check executed successfully with exit code 0 and output 'PASS: installed retained workspace input verified'. No files were modified.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "python3 verify.py",
+      "exit_code": 0,
+      "output_digest": "sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "python3 verify.py",
+      "exit_code": 0,
+      "output_digest": "sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 0,
+    "completed": true,
+    "cost_measurement": "unknown",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 0,
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "output_tokens": 0,
+    "provider": "custom",
+    "total_tokens": 0
+  }
+}

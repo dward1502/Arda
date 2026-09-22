@@ -6,10 +6,9 @@
 //! eventual canonical homes; that move is bookkeeping once the loop
 //! is proven.
 //!
-//! Today the dispatcher does NOT execute anything. It picks an agent,
-//! ledgers a Decision, and *simulates* completion so the Reflector
-//! has something to score. Real execution wires in alongside the
-//! Phase 2 joule market — the contract slot is what matters now.
+//! JSONL dispatch is retired: all compatibility entrypoints refuse before I/O
+//! or collaborator calls. Engine owns live execution. Historical reflection,
+//! routing, bid scoring and policy types remain available without queue authority.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -204,10 +203,7 @@ pub struct ReflectPass {
 // Dispatcher
 // ---------------------------------------------------------------
 
-/// Run one dispatcher pass. Reads contract Tasks from `queue_path`,
-/// routes Pending ones, ledgers a Decision per dispatch, and writes
-/// the simulated terminal task state back to the queue (as a fresh
-/// jsonl line — last-write-wins on task id when re-read).
+/// Retired compatibility dispatcher. Refuses before reads, decisions or writes.
 pub fn dispatch(state: &StateRoot, queue_path: &Path) -> Result<DispatchPass> {
     dispatch_with_cap(state, queue_path, DEFAULT_DISPATCH_CAP_PER_TICK)
 }
@@ -287,6 +283,7 @@ pub fn dispatch_full_with_affordability(
     gates: &GovernanceGates,
     affordability: &dyn AffordabilityPolicy,
 ) -> Result<DispatchPass> {
+    state::require_legacy_task_writer()?;
     let mut pass = DispatchPass::default();
 
     // Halt file short-circuits everything. Refuse to dispatch but
@@ -852,6 +849,73 @@ mod tests {
     use crate::aipkg::{AipkgGovernance, AipkgManifest, AipkgPreflight, AipkgReceiptPolicy};
     use crate::contract::{Goal, GoalPriority, Plan, PlanStep};
 
+    fn seed_historical_task(queue: &Path, task: &Task) -> std::io::Result<()> {
+        use std::io::Write;
+        std::fs::create_dir_all(queue.parent().unwrap())?;
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(queue)?;
+        writeln!(file, "{}", serde_json::to_string(task)?)
+    }
+
+    fn history_snapshot(root: &Path) -> std::collections::BTreeMap<PathBuf, Option<Vec<u8>>> {
+        fn visit(
+            root: &Path,
+            path: &Path,
+            out: &mut std::collections::BTreeMap<PathBuf, Option<Vec<u8>>>,
+        ) {
+            for entry in std::fs::read_dir(path).unwrap() {
+                let path = entry.unwrap().path();
+                let directory = path.is_dir();
+                out.insert(
+                    path.strip_prefix(root).unwrap().to_owned(),
+                    if directory {
+                        None
+                    } else {
+                        Some(std::fs::read(&path).unwrap())
+                    },
+                );
+                if directory {
+                    visit(root, &path, out);
+                }
+            }
+        }
+        let mut out = std::collections::BTreeMap::new();
+        visit(root, root, &mut out);
+        out
+    }
+
+    #[test]
+    fn pure_routing_and_bid_scoring_remain_available() {
+        let task = Task::new("probe", "probe_provider");
+        let bids = StaticBidBoard.bids_for(&task);
+        assert_eq!(bids.len(), 1);
+        assert_eq!(bids[0].agent_id, "charon");
+        assert!(StaticBidBoard
+            .bids_for(&Task::new("unknown", "unknown"))
+            .is_empty());
+        let cheap = AgentBid {
+            agent_id: "a",
+            joule_cost: 2.0,
+            confidence: 0.8,
+        };
+        let expensive = AgentBid {
+            agent_id: "b",
+            joule_cost: 4.0,
+            confidence: 0.9,
+        };
+        assert!(cheap.score() > expensive.score());
+        assert_eq!(
+            AgentBid {
+                joule_cost: 0.0,
+                ..cheap
+            }
+            .score(),
+            0.8
+        );
+    }
+
     fn tmp_state() -> (tempfile::TempDir, StateRoot, PathBuf) {
         let dir = tempfile::tempdir().unwrap();
         let state = StateRoot::new(dir.path().join("core/state"));
@@ -877,52 +941,44 @@ mod tests {
         );
         state::write_plan(state, &plan).unwrap();
         let task = Task::new("t1: probe", intent).with_plan_lineage(&plan.id, 0);
-        state::append_task(queue, &task).unwrap();
+        seed_historical_task(queue, &task).unwrap();
         (plan, vec![task])
     }
 
     #[test]
-    fn dispatch_routes_known_intent_and_ledgers_decision() {
+    fn retired_dispatch_routes_known_intent_and_ledgers_decision() {
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch(&st, &q).unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.no_route.len(), 0);
-        assert_eq!(pass.triad_unconsulted.len(), 1);
-
-        // Ledger file exists with at least one entry.
-        let today = Utc::now().format("%Y-%m-%d");
-        let ledger_file = st
-            .root()
-            .join("ledger")
-            .join(format!("ledger_{today}.jsonl"));
-        let content = std::fs::read_to_string(&ledger_file).unwrap();
-        assert!(content.contains("dispatch"));
-        assert!(content.contains("joule market route"));
+        let before = history_snapshot(_d.path());
+        let error = dispatch(&st, &q).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_marks_unknown_intent_as_no_route() {
+    fn retired_dispatch_marks_unknown_intent_as_no_route() {
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "made_up_intent");
-        let pass = dispatch(&st, &q).unwrap();
-        assert_eq!(pass.dispatched.len(), 0);
-        assert_eq!(pass.no_route.len(), 1);
+        let before = history_snapshot(_d.path());
+        let error = dispatch(&st, &q).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_honors_halt_file() {
+    fn retired_dispatch_honors_halt_file() {
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
         std::fs::create_dir_all(st.root()).unwrap();
         std::fs::write(st.root().join(HALT_FILE_NAME), b"halt").unwrap();
-        let pass = dispatch(&st, &q).unwrap();
-        assert!(pass.halted);
-        assert_eq!(pass.dispatched.len(), 0);
+        let before = history_snapshot(_d.path());
+        let error = dispatch(&st, &q).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_caps_per_tick() {
+    fn retired_dispatch_caps_per_tick() {
         let (_d, st, q) = tmp_state();
         // Seed 3 tasks; cap at 2.
         let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
@@ -941,24 +997,26 @@ mod tests {
         state::write_plan(&st, &plan).unwrap();
         for i in 0..3 {
             let t = Task::new(format!("t{i}"), "probe_provider").with_plan_lineage(&plan.id, i);
-            state::append_task(&q, &t).unwrap();
+            seed_historical_task(&q, &t).unwrap();
         }
-        let pass = dispatch_with_cap(&st, &q, 2).unwrap();
-        assert_eq!(pass.dispatched.len(), 2);
-        assert_eq!(pass.capped_at, Some(2));
+        let before = history_snapshot(_d.path());
+        let error = dispatch_with_cap(&st, &q, 2).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_cap_zero_dispatches_nothing() {
+    fn retired_dispatch_cap_zero_dispatches_nothing() {
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_with_cap(&st, &q, 0).unwrap();
-        assert_eq!(pass.dispatched.len(), 0);
-        assert_eq!(pass.capped_at, Some(0));
+        let before = history_snapshot(_d.path());
+        let error = dispatch_with_cap(&st, &q, 0).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_picks_highest_market_score_and_ledgers_bid() {
+    fn retired_dispatch_picks_highest_market_score_and_ledgers_bid() {
         struct TwoBidders;
         impl BidBoard for TwoBidders {
             fn bids_for(&self, _task: &Task) -> Vec<AgentBid> {
@@ -980,7 +1038,8 @@ mod tests {
         }
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -989,25 +1048,13 @@ mod tests {
             &TwoBidders,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.bids_recorded, 2);
-
-        let today = Utc::now().format("%Y-%m-%d");
-        let ledger_file = st
-            .root()
-            .join("ledger")
-            .join(format!("ledger_{today}.jsonl"));
-        let content = std::fs::read_to_string(&ledger_file).unwrap();
-        assert!(content.contains("\"decision_class\":\"bid\""));
-        assert!(content.contains("\"chosen\":\"cheap\""));
-        // Both bidders appear in options_considered.
-        assert!(content.contains("expensive@j=9"));
-        assert!(content.contains("cheap@j=1"));
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_ledgers_council_when_gate_required() {
+    fn retired_dispatch_ledgers_council_when_gate_required() {
         let raw = r#"
 default:
   require_council: false
@@ -1020,7 +1067,8 @@ classes:
         let gates = GovernanceGates::load_from_str(raw).unwrap();
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1029,26 +1077,17 @@ classes:
             &StaticBidBoard,
             &gates,
         )
-        .unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.councils_held, 1);
-        assert!((pass.council_joules_charged - 1.5).abs() < 1e-9);
-
-        let today = Utc::now().format("%Y-%m-%d");
-        let ledger_file = st
-            .root()
-            .join("ledger")
-            .join(format!("ledger_{today}.jsonl"));
-        let content = std::fs::read_to_string(&ledger_file).unwrap();
-        assert!(content.contains("\"decision_class\":\"governance\""));
-        assert!(content.contains("council deliberation gate"));
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_records_action_gate_receipt_for_safe_action() {
+    fn retired_dispatch_records_action_gate_receipt_for_safe_action() {
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1057,25 +1096,13 @@ classes:
             &StaticBidBoard,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.action_gate_blocked.len(), 0);
-
-        let receipt_file = st
-            .root()
-            .parent()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("data/governance/action_gate_receipts.jsonl");
-        let content = std::fs::read_to_string(receipt_file).unwrap();
-        assert!(content.contains("\"schema_version\":\"arda.action_gate_receipt.v1\""));
-        assert!(content.contains("\"action_class\":\"provider_status_check\""));
-        assert!(content.contains("\"allowed\":true"));
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_blocks_human_required_action_class_before_execution() {
+    fn retired_dispatch_blocks_human_required_action_class_before_execution() {
         struct AnyBidder;
         impl BidBoard for AnyBidder {
             fn bids_for(&self, _task: &Task) -> Vec<AgentBid> {
@@ -1096,7 +1123,8 @@ action_classes:
         let gates = GovernanceGates::load_from_str(raw).unwrap();
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "destructive_delete");
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1105,29 +1133,13 @@ action_classes:
             &AnyBidder,
             &gates,
         )
-        .unwrap();
-        assert_eq!(pass.dispatched.len(), 0);
-        assert_eq!(pass.action_gate_blocked.len(), 1);
-
-        let tasks = state::read_contract_tasks(&q).unwrap();
-        assert_eq!(tasks.len(), 1);
-        assert!(matches!(tasks[0].status, TaskStatus::Pending));
-
-        let receipt_file = st
-            .root()
-            .parent()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("data/governance/action_gate_receipts.jsonl");
-        let content = std::fs::read_to_string(receipt_file).unwrap();
-        assert!(content.contains("\"action_class\":\"destructive_delete\""));
-        assert!(content.contains("\"allowed\":false"));
-        assert!(content.contains("human_required_action_class"));
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_records_market_collapse_when_no_bidders() {
+    fn retired_dispatch_records_market_collapse_when_no_bidders() {
         struct NoBidders;
         impl BidBoard for NoBidders {
             fn bids_for(&self, _task: &Task) -> Vec<AgentBid> {
@@ -1136,7 +1148,8 @@ action_classes:
         }
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1145,14 +1158,13 @@ action_classes:
             &NoBidders,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-        assert_eq!(pass.dispatched.len(), 0);
-        assert_eq!(pass.market_collapses.len(), 1);
-        assert_eq!(pass.no_route.len(), 1);
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_skips_terminal_tasks_and_does_not_double_count_budget() {
+    fn retired_dispatch_skips_terminal_tasks_and_does_not_double_count_budget() {
         let (_d, st, q) = tmp_state();
         let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
         state::write_goal(&st, &g).unwrap();
@@ -1179,10 +1191,11 @@ action_classes:
         t0.status = TaskStatus::Complete;
         t0.joule_cost_estimated = 4.0;
         let t1 = Task::new("t1", "probe_provider").with_plan_lineage(&plan_id, 1);
-        state::append_task(&q, &t0).unwrap();
-        state::append_task(&q, &t1).unwrap();
+        seed_historical_task(&q, &t0).unwrap();
+        seed_historical_task(&q, &t1).unwrap();
 
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1191,14 +1204,13 @@ action_classes:
             &StaticBidBoard,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.budget_blocked.len(), 0);
-        assert_eq!(pass.already_terminal, vec![t0.id.to_string()]);
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_cap_limits_dispatched_task_count() {
+    fn retired_dispatch_cap_limits_dispatched_task_count() {
         let (_d, st, q) = tmp_state();
         let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
         state::write_goal(&st, &g).unwrap();
@@ -1218,10 +1230,11 @@ action_classes:
         state::write_plan(&st, &plan).unwrap();
         for i in 0..3 {
             let t = Task::new(format!("t{i}"), "probe_provider").with_plan_lineage(&plan_id, i);
-            state::append_task(&q, &t).unwrap();
+            seed_historical_task(&q, &t).unwrap();
         }
 
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             1,
@@ -1230,15 +1243,13 @@ action_classes:
             &StaticBidBoard,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.capped_at, Some(1));
-        assert_eq!(pass.budget_blocked.len(), 0);
-        assert_eq!(pass.no_route.len(), 0);
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_blocks_budget_when_estimator_reports_high_joule_cost() {
+    fn retired_dispatch_blocks_budget_when_estimator_reports_high_joule_cost() {
         struct OneHundredJoule;
         impl JouleEstimator for OneHundredJoule {
             fn estimate_for_task(&self, _task: &Task) -> f64 {
@@ -1250,14 +1261,14 @@ action_classes:
         let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
         state::write_goal(&st, &g).unwrap();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_with_cap_and_estimator(&st, &q, 64, &OneHundredJoule).unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-        // Budget gate does not reject a single unknown task for a high estimator.
-        assert_eq!(pass.budget_blocked.len(), 0);
+        let before = history_snapshot(_d.path());
+        let error = dispatch_with_cap_and_estimator(&st, &q, 64, &OneHundredJoule).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_blocks_when_goal_budget_exhausted() {
+    fn retired_dispatch_blocks_when_goal_budget_exhausted() {
         struct FixedThree;
         impl JouleEstimator for FixedThree {
             fn estimate_for_task(&self, _task: &Task) -> f64 {
@@ -1287,10 +1298,11 @@ action_classes:
         state::write_plan(&st, &plan).unwrap();
         for i in 0..2 {
             let t = Task::new(format!("t{i}"), "probe_provider").with_plan_lineage(&plan_id, i);
-            state::append_task(&q, &t).unwrap();
+            seed_historical_task(&q, &t).unwrap();
         }
 
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1299,15 +1311,13 @@ action_classes:
             &StaticBidBoard,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-        // First task fits (spent 0 + 3 <= 5). Second task would push
-        // to 6 > 5 and gets budget-blocked.
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.budget_blocked.len(), 1);
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_uses_runtime_affordability_policy() {
+    fn retired_dispatch_uses_runtime_affordability_policy() {
         struct FixedThree;
         impl JouleEstimator for FixedThree {
             fn estimate_for_task(&self, _task: &Task) -> f64 {
@@ -1327,7 +1337,8 @@ action_classes:
 
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_full_with_affordability(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full_with_affordability(
             &st,
             &q,
             64,
@@ -1337,32 +1348,13 @@ action_classes:
             &GovernanceGates::permissive(),
             &TwoJouleRuntimeBudget,
         )
-        .unwrap();
-
-        assert!(pass.dispatched.is_empty());
-        assert_eq!(pass.budget_blocked.len(), 1);
-        assert!(pass.budget_blocked[0].contains("policy=test_runtime_budget"));
-        assert!(pass.budget_blocked[0].contains("reason=budget_exceeded"));
-
-        let today = Utc::now().format("%Y-%m-%d");
-        let ledger_path = st
-            .root()
-            .join("ledger")
-            .join(format!("ledger_{today}.jsonl"));
-        let decisions = std::fs::read_to_string(ledger_path).unwrap();
-        let budget_decision = decisions
-            .lines()
-            .map(|line| serde_json::from_str::<Decision>(line).unwrap())
-            .find(|decision| decision.decision_class == DecisionClass::Budget)
-            .expect("budget denial decision");
-        assert_eq!(
-            budget_decision.extensions["affordability"]["allowed"],
-            false
-        );
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_records_triad_veto_without_blocking() {
+    fn retired_dispatch_records_triad_veto_without_blocking() {
         struct VetoTriad;
         impl TriadConsultant for VetoTriad {
             fn consult(&self, _task: &Task) -> TriadOutcome {
@@ -1380,7 +1372,8 @@ action_classes:
         }
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1389,16 +1382,13 @@ action_classes:
             &StaticBidBoard,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-        // Record-and-proceed: vetoed but still dispatched.
-        assert_eq!(pass.dispatched.len(), 1);
-        assert_eq!(pass.triad_vetoes.len(), 1);
-        assert_eq!(pass.triad_unconsulted.len(), 0);
-        assert_eq!(pass.triad_passes, 0);
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_blocks_triad_veto_when_policy_requires_it() {
+    fn retired_dispatch_blocks_triad_veto_when_policy_requires_it() {
         struct VetoTriad;
         impl TriadConsultant for VetoTriad {
             fn consult(&self, _task: &Task) -> TriadOutcome {
@@ -1425,7 +1415,8 @@ classes:
         let gates = GovernanceGates::load_from_str(raw).unwrap();
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1434,51 +1425,13 @@ classes:
             &StaticBidBoard,
             &gates,
         )
-        .unwrap();
-
-        assert_eq!(pass.dispatched.len(), 0);
-        assert_eq!(pass.triad_vetoes.len(), 1);
-        assert_eq!(pass.triad_blocked.len(), 1);
-
-        let tasks = state::read_contract_tasks(&q).unwrap();
-        assert_eq!(tasks.len(), 1);
-        assert!(matches!(tasks[0].status, TaskStatus::Pending));
-
-        let today = Utc::now().format("%Y-%m-%d");
-        let ledger_file = st
-            .root()
-            .join("ledger")
-            .join(format!("ledger_{today}.jsonl"));
-        let ledger_content = std::fs::read_to_string(&ledger_file).unwrap();
-        let decisions: Vec<Decision> = ledger_content
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .map(|line| serde_json::from_str::<Decision>(line).unwrap())
-            .collect();
-        let dispatch_decision = decisions
-            .iter()
-            .find(|decision| decision.decision_class == DecisionClass::Dispatch)
-            .unwrap_or_else(|| panic!("dispatch decision should be ledgered before blocking"));
-        assert_eq!(
-            dispatch_decision
-                .extensions
-                .get("governance_policy")
-                .and_then(|value| value.get("policy_mode"))
-                .and_then(|value| value.as_str()),
-            Some("block_on_fail")
-        );
-        assert_eq!(
-            dispatch_decision
-                .extensions
-                .get("governance_policy")
-                .and_then(|value| value.get("blocks_on_triad_fail"))
-                .and_then(|value| value.as_bool()),
-            Some(true)
-        );
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_stamps_joule_estimate_from_estimator() {
+    fn retired_dispatch_stamps_joule_estimate_from_estimator() {
         struct FixedEstimator;
         impl JouleEstimator for FixedEstimator {
             fn estimate_for_task(&self, _task: &Task) -> f64 {
@@ -1487,29 +1440,14 @@ classes:
         }
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        let pass = dispatch_with_cap_and_estimator(&st, &q, 64, &FixedEstimator).unwrap();
-        assert_eq!(pass.dispatched.len(), 1);
-
-        // Decision in the ledger carries 3.5.
-        let today = Utc::now().format("%Y-%m-%d");
-        let ledger_file = st
-            .root()
-            .join("ledger")
-            .join(format!("ledger_{today}.jsonl"));
-        let content = std::fs::read_to_string(&ledger_file).unwrap();
-        assert!(
-            content.contains("\"joule_estimate\":3.5"),
-            "expected joule_estimate=3.5 in ledger; got: {content}"
-        );
-
-        // Task on disk also carries 3.5.
-        let tasks = state::read_contract_tasks(&q).unwrap();
-        let last = tasks.last().expect("at least one task");
-        assert!((last.joule_cost_estimated - 3.5).abs() < 1e-9);
+        let before = history_snapshot(_d.path());
+        let error = dispatch_with_cap_and_estimator(&st, &q, 64, &FixedEstimator).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_accepts_tasks_with_valid_aipkg_manifest() {
+    fn retired_dispatch_accepts_tasks_with_valid_aipkg_manifest() {
         struct AnyBidder;
         impl BidBoard for AnyBidder {
             fn bids_for(&self, _task: &Task) -> Vec<AgentBid> {
@@ -1554,9 +1492,10 @@ classes:
         let mut tasks = state::read_contract_tasks(&q).unwrap();
         let mut task = tasks.pop().expect("seeded task");
         task.aipkg_manifest = Some(manifest);
-        state::append_task(&q, &task).unwrap();
+        seed_historical_task(&q, &task).unwrap();
 
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1565,15 +1504,13 @@ classes:
             &AnyBidder,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-
-        assert_eq!(pass.aipkg_preflight_passed, 1);
-        assert_eq!(pass.aipkg_preflight_blocked.len(), 0);
-        assert_eq!(pass.dispatched.len(), 1);
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
-    fn dispatch_blocks_tasks_with_invalid_aipkg_manifest() {
+    fn retired_dispatch_blocks_tasks_with_invalid_aipkg_manifest() {
         let manifest = AipkgManifest {
             manifest_version: "not-0.1".into(),
             package_id: "no-namespace".into(),
@@ -1606,9 +1543,10 @@ classes:
         let mut tasks = state::read_contract_tasks(&q).unwrap();
         let mut task = tasks.pop().expect("seeded task");
         task.aipkg_manifest = Some(manifest);
-        state::append_task(&q, &task).unwrap();
+        seed_historical_task(&q, &task).unwrap();
 
-        let pass = dispatch_full(
+        let before = history_snapshot(_d.path());
+        let error = dispatch_full(
             &st,
             &q,
             64,
@@ -1617,20 +1555,18 @@ classes:
             &StaticBidBoard,
             &GovernanceGates::permissive(),
         )
-        .unwrap();
-
-        assert_eq!(pass.aipkg_preflight_passed, 0);
-        assert_eq!(pass.dispatched.len(), 0);
-        assert_eq!(pass.aipkg_preflight_blocked.len(), 1);
-        let blocked = &pass.aipkg_preflight_blocked[0];
-        assert!(blocked.contains("manifest_version must be 0.1"));
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(_d.path()), before);
     }
 
     #[test]
     fn reflect_emits_one_per_completed_task() {
         let (_d, st, q) = tmp_state();
         seed_one_plan_with_tasks(&st, &q, "probe_provider");
-        dispatch(&st, &q).unwrap();
+        let mut task = state::read_contract_tasks(&q).unwrap().pop().unwrap();
+        task.complete(json!({"historical": true}));
+        seed_historical_task(&q, &task).unwrap();
         let pass = reflect(&st, &q).unwrap();
         assert_eq!(pass.reflections_written.len(), 1);
         assert_eq!(pass.no_plan_link.len(), 0);

@@ -84,7 +84,7 @@ needed, revise or retry failed work, resume across restart, and close only when
 acceptance criteria pass. A daily research and project-audit cycle must feed that
 same loop and produce verified improvements rather than disconnected reports.
 
-The [`Ambient Agent Program`](docs/plans/ambient-agent/README.md) therefore
+The [`Ambient Agent Program`](docs/archive/deferred/ambient-agent/README.md) therefore
 remains on hold. Mirromere, expanded RELIC embodiment, sensors, physical outposts,
 external agent accounts, funded action, and commercialization are not authorized
 by the digital-organism closeout.

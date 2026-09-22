@@ -139,6 +139,7 @@ fn graph(contract_digest: &str) -> RunGraph {
         objective_id: ObjectiveId::new("objective-golden-python").unwrap(),
         nodes,
         edges,
+        approval_receipts: Vec::new(),
         provenance: Provenance {
             project_contract_digest: contract_digest.into(),
             created_by: "stage-4-python-golden-test".into(),

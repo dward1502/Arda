@@ -8,6 +8,9 @@ use axum::{
 };
 use serde::{Deserialize, Deserializer, Serialize};
 use sha2::{Digest, Sha256};
+#[cfg(test)]
+mod lookup_tests;
+mod strict_value;
 use std::{fs, io::Write, net::SocketAddr, path::Path};
 use tokio::sync::Mutex;
 
@@ -246,6 +249,17 @@ pub(super) async fn attach_project(
         ));
     }
 
+    if Path::new(request.contract.0.workspace.root.as_str()).is_absolute() {
+        request
+            .contract
+            .0
+            .workspace
+            .root
+            .resolve(&state.workbench_root)
+            .map_err(|error| {
+                ApiError::bad_request(format!("invalid attached project root: {error}"))
+            })?;
+    }
     let attached = AttachedProject {
         contract: request.contract.0,
         approval_id: request.envelope.approval.approval_id,
@@ -282,11 +296,57 @@ pub(super) fn find_attached_project(
     root: &Path,
     project_id: &str,
 ) -> Result<AttachedProject, ApiError> {
-    load_registry(root)?
+    // Exact execution lookup must not deserialize unrelated legacy contracts.
+    // Registry-wide mutation/listing remains strict; no entries are rewritten here.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Envelope {
+        schema_version: String,
+        projects: Vec<strict_value::StrictValue>,
+    }
+    let raw = fs::read_to_string(registry_path(root))
+        .map_err(|error| ApiError::internal(format!("failed to read project registry: {error}")))?;
+    let registry: Envelope = serde_json::from_str(&raw).map_err(|error| {
+        ApiError::internal(format!(
+            "failed to parse project registry envelope: {error}"
+        ))
+    })?;
+    if registry.schema_version != PROJECT_REGISTRY_VERSION {
+        return Err(ApiError::internal("unsupported project registry version"));
+    }
+    let mut selected = None;
+    for strict_value::StrictValue(entry) in registry.projects {
+        let id = entry
+            .pointer("/contract/identity/project_id")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| ApiError::internal("stored project identity is missing or invalid"))?;
+        if id == project_id {
+            if selected.is_some() {
+                return Err(ApiError::conflict("duplicate attached project identity"));
+            }
+            let project: AttachedProject = serde_json::from_value(entry).map_err(|error| {
+                ApiError::internal(format!("selected project contract is malformed: {error}"))
+            })?;
+            project.contract.validate().map_err(|error| {
+                ApiError::internal(format!("selected project contract is invalid: {error}"))
+            })?;
+            selected = Some(project);
+        }
+    }
+    selected.ok_or_else(|| ApiError::not_found(format!("project `{project_id}` is not attached")))
+}
+
+pub(super) fn resolve_attached_project_name(root: &Path, name: &str) -> Result<String, ApiError> {
+    let matches = load_registry(root)?
         .projects
         .into_iter()
-        .find(|project| project.contract.identity.project_id.to_string() == project_id)
-        .ok_or_else(|| ApiError::not_found(format!("project `{project_id}` is not attached")))
+        .filter(|project| project.contract.identity.name == name)
+        .collect::<Vec<_>>();
+    match matches.as_slice() {
+        [project] => Ok(project.contract.identity.project_id.to_string()),
+        [] => Err(ApiError::not_found("No attached project has that exact name. Which attached project do you mean?")),
+        _ => Err(ApiError::conflict("That project name is ambiguous. Give the project a unique name before submitting work.")),
+    }
 }
 
 pub(super) fn contract_digest(contract: &ProjectContract) -> Result<String, ApiError> {

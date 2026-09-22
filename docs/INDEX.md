@@ -1,5 +1,11 @@
 # INDEX
 
+Stable entrypoint: discover current plans under `docs/plans/` rather than copying
+fluid plan links into every root document. Move-time inbound-link updates remain
+required for exact evidence references.
+
+- [Nightly Rúmil hygiene policy and coverage](operations/RUMIL_NIGHTLY_HYGIENE.md)
+
 ## Key active docs
 
 - `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`

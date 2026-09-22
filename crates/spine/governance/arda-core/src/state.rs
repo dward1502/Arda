@@ -71,20 +71,17 @@ impl StateRoot {
     }
 }
 
-/// Append a Task to the canonical queue jsonl. Creates the parent dir
-/// and the file if missing.
-pub fn append_task(queue_path: &Path, task: &Task) -> Result<()> {
-    if let Some(parent) = queue_path.parent() {
-        fs::create_dir_all(parent)?;
-    }
-    let line = serde_json::to_string(task)?;
-    let mut f = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(queue_path)?;
-    use std::io::Write;
-    writeln!(f, "{line}")?;
-    Ok(())
+/// Refuse legacy JSONL task authority before any caller side effects.
+/// Engine objective control owns task mutation; historical reads remain supported.
+pub fn require_legacy_task_writer() -> Result<()> {
+    Err(ArdaError::Task(
+        "legacy JSONL task authority is retired; use Engine objective control".into(),
+    ))
+}
+
+/// Retired compatibility entrypoint. Never creates or appends queue history.
+pub fn append_task(_queue_path: &Path, _task: &Task) -> Result<()> {
+    require_legacy_task_writer()
 }
 
 /// Read all queue entries that are recognizable as v0.1 `Task`

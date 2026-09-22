@@ -1,0 +1,35 @@
+{
+  "schema_version": "arda.execution-receipt.v3",
+  "receipt_digest": "sha256:7fd7768785b8bc348e4a04edc9740c952a735362e050cb798e70797494177c7d",
+  "authority_binding_digest": "sha256:7b412e36c08140f33ba3594649043dbfbd0b51eb43fb526773ff4157e122b011",
+  "run_id": "objective-cutover-local-recovered-20260915-leaf-cutover-local-recovered-20260915-leaf-attempt-1",
+  "node_id": "close",
+  "idempotency_key": "objective-cutover-local-recovered-20260915-leaf-cutover-local-recovered-20260915-leaf-attempt-1-close",
+  "status": "succeeded",
+  "summary": "Workbench closed the reviewed objective leaf.",
+  "tool_evidence": [],
+  "test_evidence": [],
+  "artifacts": [],
+  "usage": {
+    "provider": "arda-workbench",
+    "model": "deterministic-close",
+    "api_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "cost_measurement": "observed",
+    "completed": true,
+    "failed": false
+  },
+  "adapter": "arda-workbench",
+  "adapter_version": "1",
+  "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+  "parent_receipts": [
+    "sha256:ae234bd1b2d809d92d5327e8386d131996a2fa02fc2a77e1daa5fbed577d1bbb"
+  ],
+  "context_capsule_id": "capsule:8750cc6305418795bc37cf2dbf4c225a00a4488fad38d5cd2f55800674e298d2",
+  "context_capsule_digest": "sha256:8750cc6305418795bc37cf2dbf4c225a00a4488fad38d5cd2f55800674e298d2",
+  "context_use_receipt_ref": "arda://vaire/context-use/context-use:dd24564512bcc0d354590b1f56ffd3850c6333b09097c4c0eb424797f249d472",
+  "recorded_at_unix_ms": 1789451232347
+}

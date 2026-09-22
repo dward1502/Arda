@@ -215,13 +215,21 @@ mod tests {
 
     #[test]
     fn default_status_is_conservative() {
+        let before = global_governance_metrics().snapshot();
         let status = EngineObservabilityStatus::default();
         assert!(!status.loop_observability.economy_snapshot_enabled);
         assert!(!status.loop_observability.latency_probe_enabled);
-        assert_eq!(
-            serde_json::to_value(&status).unwrap()["governance_counters"],
-            serde_json::json!([])
-        );
+        assert_eq!(status.learning.retained_count, 0);
+        assert_eq!(status.learning.ignored_count, 0);
+        // Default exposes real process-wide counters. Other tests may already
+        // have performed governance work; do not assume an empty global store.
+        for counter in before.counters {
+            assert!(status.governance_counters.iter().any(|observed| {
+                observed.name == counter.name
+                    && observed.labels == counter.labels
+                    && observed.value >= counter.value
+            }));
+        }
     }
 
     #[test]

@@ -50,6 +50,7 @@ fn declaration(
         execution_adapter,
         removal_status: CapabilityRemovalStatus::Active,
         provenance,
+        approval_receipts: Vec::new(),
     }
 }
 

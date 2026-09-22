@@ -80,6 +80,7 @@ fn recovery_graph() -> RunGraph {
             created_by: "stage-4-recovery-test".into(),
             parent_receipts: Vec::new(),
         },
+        approval_receipts: Vec::new(),
     };
     graph.validate().unwrap();
     graph

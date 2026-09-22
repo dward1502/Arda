@@ -1,0 +1,11 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "provider": "custom",
+    "receipt_digest": "sha256:b51294c276f1f13a691cdb2e6018735d3c38d1e0bd3b493388c34df96396aa0a",
+    "summary": "VERDICT: BLOCK - source-only scope denial prevented read-only inspection of project root. Cannot inspect admitted source files to assess Arda and Arda-Tool-Gate integration readiness."
+  },
+  "tests": []
+}

@@ -37,6 +37,7 @@ fn graph_for(composition: &CapabilityComposition) -> RunGraph {
             created_by: "composition-engine-test".to_string(),
             parent_receipts: vec![],
         },
+        approval_receipts: Vec::new(),
     }
 }
 

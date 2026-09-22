@@ -36,7 +36,7 @@ The smallest urgent repair is to execute an already-materialized objective leaf 
 
 ### P0.1 — Execute materialized leaves directly
 
-Evidence: `dispatch_claim` recovers the parent objective plan for a leaf, but the execute stage still serializes that whole plan into a provider objective (`workbench_executor.rs:313-373`). The queue ledger demonstrates recursive decomposition around the v2 `recover-context` leaf.
+Current evidence: `dispatch_claim` now recovers the parent objective plan for a leaf and builds the execute objective from the selected `PlannedTask` plus its `ExecutableLeafContract` (`workbench_executor.rs:1409-1470`). `objective_execution_prompt` renders a bounded leaf contract with authority, budget, checks, and outcome requirement. The queue ledger no longer demonstrates recursive decomposition around the v2 `recover-context` leaf.
 
 Human-visible behavior: an operator sees one objective with five durable leaves. Each timer tick claims exactly one eligible leaf, performs only that leaf's bounded work, and advances its dependent without creating a nested copy of the plan.
 
@@ -46,7 +46,7 @@ Acceptance: the v2 objective yields exactly five leaf identities; no leaf create
 
 ### P0.2 — Materialize typed retry, revision, and replan successors
 
-Evidence: continuation classification exists, but current source evidence only returns decision strings after terminal outcomes. The active plans still identify executable retry/revision/replan materialization as open.
+Current evidence: `materialize_continuation` now appends canonical successor/tombstone records from the existing queue executor when the decision is `retry_same_task`, `revise_task`, or `replan_objective` (`workbench_executor.rs:2995`). Continuation classification still returns decision strings after terminal outcomes, but the decisions now materialize as executable work with preserved objective authority, lineage, continuation/attempt state, and fresh deterministic run IDs.
 
 Human-visible behavior: a failed check produces one corrected successor under the same objective lineage, with the defect and changed acceptance evidence visible; no new operator instruction is needed while authority and budget remain valid.
 
@@ -56,7 +56,7 @@ Acceptance: force one deterministic verification failure, observe `revise_task`,
 
 ### P0.3 — Make repository-state evidence snapshot-stable
 
-Evidence: all five file digests in the supplied node context matched the live files, while live `git status --short` hashed differently from the receipt's repository-state digest because runtime output continued changing the worktree.
+Evidence: all five file digests in the supplied node context matched the live files, while live `git status --short` hashed differently from the receipt's repository-state digest because runtime output continued changing the worktree. No snapshot-stable repository-state evidence is persisted in the objective-plan receipt.
 
 Human-visible behavior: an operator can tell what repository state the planner actually consumed, when it was observed, and whether later drift affects the plan.
 
@@ -66,13 +66,13 @@ Acceptance: receipt digest recomputation succeeds from retained snapshot bytes; 
 
 ### P0.4 — Replace fallback context with authorized retrieval
 
-Evidence: the fallback context is system-only and contains empty `memory_refs` and `unresolved_failures`, despite the whole-system plan requiring conversations, corrections, receipts, repositories, and runtime state.
+Current evidence: `record_context_outcome` now binds context-use receipts to objective, leaf, run, and source digests (`workbench_executor.rs:2522`). Vairë `assemble_organism_context` resolves authorized personal/business/system scopes and persists context-use and outcome receipts. When no governed receipt is supplied, the executor still falls back to a system-only context with empty `memory_refs` and `unresolved_failures` (`workbench_executor.rs:613-709`); the fallback is not yet explicitly degraded mode.
 
 Human-visible behavior: returning to an objective shows a concise sourced packet of prior decisions, current project truth, unresolved failures, and the next bounded leaf; excluded or stale context is disclosed.
 
 Smallest authoritative implementation surface: before provider dispatch, ask the existing Vairë service to assemble the leaf's permitted project/system context and bind its use receipt to objective, leaf, run, and source digests. Preserve the existing fallback only as an explicitly degraded mode.
 
-Acceptance: one fresh worker resumes after restart from a bounded capsule, cites consumed references, honors correction/revocation, and records a context-outcome receipt.
+Acceptance: one fresh worker resumes after restart from a bounded capsule, cites consumed references, honors correction/revocation, and records a context-outcome receipt; the system-only fallback is explicitly labeled degraded.
 
 ### P1.1 — Attach a truthful canonical Arda project contract
 
@@ -96,9 +96,9 @@ Acceptance: the known verify/review/close contradiction is detected, and future 
 
 ## Dependency order and closure
 
-1. P0.1 removes recursive execution and establishes truthful leaf identity.
-2. P0.2 proves T5 continuation with a corrected successor across restart.
-3. P0.3 and P0.4 make recovered repository and memory context reproducible.
+1. P0.1 and P0.2 complete: durable leaf execution and typed continuation decisions are now implemented and restart-reconciled.
+2. P0.3 makes repository-state evidence snapshot-stable and reproducible.
+3. P0.4 replaces the fallback context with authorized Vairë retrieval (fallback remains as explicitly degraded mode).
 4. P1.1 strengthens project authority and provenance.
 5. P1.2 prevents the resulting proof from drifting into contradictory status prose.
 

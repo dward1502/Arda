@@ -152,6 +152,13 @@ function rejectUnsafe(value: string): void {
   }
 }
 
+function allowContinuityEvidenceRef(value: string): void {
+  if (!value) return
+  const lower = value.toLowerCase()
+  if (lower.startsWith('continuity://') || lower.startsWith('system-lifecycle://') || lower.startsWith('varda:') || lower.startsWith('fixture://')) return
+  rejectUnsafe(value)
+}
+
 function parseScene(value: unknown): MirromereScene {
   const scene = record(value, 'scene')
   exactKeys(scene, ['scene_id', 'application_id', 'application_version', 'purpose'], 'scene')
@@ -268,6 +275,8 @@ export function parseMirromereSurface(value: unknown, now = new Date()): Mirrome
   enumValue(transition.style, MIRROMERE_TRANSITION_STYLES, 'transition.style')
   integer(transition.duration_ms, 'transition.duration_ms', 0, MIRROMERE_MAX_TRANSITION_MS)
   integer(transition.attention_budget, 'transition.attention_budget', 0, MIRROMERE_MAX_ATTENTION_BUDGET)
+
+  evidence.forEach((e) => allowContinuityEvidenceRef(e.evidence_ref))
 
   return {
     ...(root as unknown as MirromereSurface),

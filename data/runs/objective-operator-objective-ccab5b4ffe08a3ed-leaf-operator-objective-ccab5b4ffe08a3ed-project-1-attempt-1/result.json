@@ -1,0 +1,11 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "provider": "custom",
+    "receipt_digest": "sha256:ddf0e1692d1a0a06ece501c8099633f1bf9daee57c0bedcd1f5a5c082c3d0149",
+    "summary": "Inspected source contracts for Arda HUD and Launcher Tauri applications including mirromere, monitor_surface, workbench, and system_health modules. Identified schema versions and lifecycle component requirements. No modifications made."
+  },
+  "tests": []
+}

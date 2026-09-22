@@ -4,7 +4,7 @@
 
 Arda helps one sovereign operator organize personal life and projects, preserve context, coordinate hosted and local workers, integrate external systems, and act proactively without taking unearned authority. Workbench, Personal Operations, research, council, economic tools, and device/outpost integrations are composable capabilities over one task, memory, governance, communications, and receipt model—not separate product identities. The canonical Rust workspace lives in this repository; `~/Annunimas` is reference architecture and should not be modified unless explicitly requested.
 
-The installed/release support authority remains the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). Cohesive system development follows the [Digital Organism Authority and Transport Map](docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md); the completed planning program is preserved in the [Digital Organism archive](docs/archive/digital-organism/README.md). Hermes remains the primary conversational and worker runtime while Arda composes organism identity, node topology, capability placement, continuity, governance, homeostasis, receipts, and embodiment boundaries. The active [Arda Whole-System Completion Program](docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md) owns autonomous completion, provider convergence, connected projects, and daily improvement; the [Ambient Agent Program](docs/plans/ambient-agent/README.md) remains downstream embodiment planning held behind that verified completion loop. The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) is active product doctrine, not proof that its runtime slices are complete.
+The installed/release support authority remains the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). Cohesive system development follows the [Digital Organism Authority and Transport Map](docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md); the completed planning program is preserved in the [Digital Organism archive](docs/archive/digital-organism/README.md). Hermes remains the primary conversational and worker runtime while Arda composes organism identity, node topology, capability placement, continuity, governance, homeostasis, receipts, and embodiment boundaries. The active [Arda Whole-System Completion Program](docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md) owns autonomous completion, provider convergence, connected projects, and daily improvement; the [Ambient Agent Program](docs/archive/deferred/ambient-agent/README.md) remains downstream embodiment planning held behind that verified completion loop. The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) is active product doctrine, not proof that its runtime slices are complete.
 
 ## Current workspace status
 
@@ -40,6 +40,9 @@ The installed/release support authority remains the [Arda 0.9 Baseline](docs/rel
 | `config/` | Config | Operator-managed config and generated runtime env files |
 | `docs/` | Docs | Architecture, operations, plans, identity docs |
 
+Current documentation navigation starts at the stable [documentation index](docs/INDEX.md);
+active plans are discovered there rather than treated as permanent document paths.
+
 ## Recommended Reading Order
 
 1. This file (`README.md`).
@@ -47,7 +50,7 @@ The installed/release support authority remains the [Arda 0.9 Baseline](docs/rel
 3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` — product doctrine and capability-composition model.
 4. `docs/architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md` — active authority and transport ownership for the organism architecture.
 5. `docs/archive/digital-organism/README.md` — completed planning program and historical workstream foundation.
-6. `docs/plans/ambient-agent/README.md` — downstream embodiment program held behind the living-mesh proof.
+6. `docs/archive/deferred/ambient-agent/README.md` — downstream embodiment program held behind the living-mesh proof.
 7. `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — completed finite 0.9 improvement and evidence record.
 8. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
 9. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,

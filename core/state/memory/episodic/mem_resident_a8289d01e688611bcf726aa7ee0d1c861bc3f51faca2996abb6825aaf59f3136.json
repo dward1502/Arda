@@ -1,0 +1,21 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_resident_a8289d01e688611bcf726aa7ee0d1c861bc3f51faca2996abb6825aaf59f3136",
+  "kind": "episodic",
+  "agent": "vaire-resident-objective",
+  "content": "Resident objective cutover-local-scheduled-20260915 leaf cutover-local-scheduled-20260915-leaf completed run objective-cutover-local-scheduled-20260915-leaf-cutover-local-scheduled-20260915-leaf-attempt-1. Outcomes: execute=VERDICT: APPROVE. Ran python3 verify.py in project root. Exit code 0. Output: PASS: installed retained workspace input verified.; verify=VERDICT: APPROVE. Ran python3 verify.py in project root. Exit code 0. Output: PASS: installed retained workspace input verified.; review=VERDICT: APPROVE\nVerified verify.py checks input.txt contains 'installed-retained-runtime-acceptance\\n'. Read-only inspection confirmed both files exist with expected content. No modifications made; predecessor evidence validated.; close=Workbench closed the reviewed objective leaf.. Canonical stage receipts: execute=sha256:63307dd9754ff10373e79ad2a9e0fbc4c307af6a0768c3808efcc18d53d40a75, verify=sha256:613f5067db0fbd63605fba390bcc30a66cdccc9ea6e9b48548af70655a0da6c1, review=sha256:b46456229bd42f2e72d57c768636de3f6b29f90d1548cbbcb58d6a98d1f8c7ce, close=sha256:220d8a2f0df737e22b6a63876f63b8810ab77796f1c007eb0df72c11542d81f7.",
+  "salience": 0.5,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-15T04:59:31.199221663Z",
+  "last_seen_at": "2026-09-15T04:59:31.199221663Z",
+  "resident_objective_outcome": true,
+  "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+  "memory_domain": "system",
+  "objective_id": "cutover-local-scheduled-20260915",
+  "knowledge_approval_reference": "cli-authorized-cutover-20260915",
+  "knowledge_evaluation_reference": "sha256:b46456229bd42f2e72d57c768636de3f6b29f90d1548cbbcb58d6a98d1f8c7ce",
+  "run_id": "objective-cutover-local-scheduled-20260915-leaf-cutover-local-scheduled-20260915-leaf-attempt-1",
+  "context_use_receipt_id": "context-use:a6cec8ff0786333a96a08a619eb21ffef0d9b40afef486f257da8aa1a9c3f848",
+  "project_id": "ac000000-0000-4000-8000-000000000001"
+}

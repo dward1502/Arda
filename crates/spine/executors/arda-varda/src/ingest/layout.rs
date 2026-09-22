@@ -30,6 +30,7 @@ pub struct WorkspaceLayout {
     pub store: AthenaStorePaths,
     pub human_sources_dir: PathBuf,
     pub machine_index_path: PathBuf,
+    /// Historical location retained for compatibility; the store never provisions or writes it.
     pub hades_queue_path: PathBuf,
     pub warden_queue_path: PathBuf,
 }

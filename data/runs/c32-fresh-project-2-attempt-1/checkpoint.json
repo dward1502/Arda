@@ -1,0 +1,68 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "c32-fresh-project-2-attempt-1",
+  "objective_id": "operator-objective-82fbfe980fd04746-project-2",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "c32-fresh-project-2-plan",
+      "input_digest": null,
+      "output_digest": "c32-fresh-approval",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "c32-fresh-project-2-attempt-1:plan:4",
+        "checkpoint_digest": "sha256:6676fbf03fc789addf4416e65949881743bc31d144052a1a0a4a2cb8056ddc35"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "c32-fresh-project-2-approval",
+      "input_digest": null,
+      "output_digest": "c32-fresh-approval",
+      "parent_receipts": [
+        "c32-fresh-approval"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "c32-fresh-project-2-attempt-1:approval:7",
+        "checkpoint_digest": "sha256:fef5f4f59a289be3387b1f1e33745ce939972a893a784c3b90465824c5456a16"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "c32-fresh-approval"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:19adaa7152c63bcc69fdce419d048669b6e6d18dc9c95ffe637a9622d756fa72",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": []
+  }
+}

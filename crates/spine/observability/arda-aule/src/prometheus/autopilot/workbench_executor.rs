@@ -404,16 +404,17 @@ impl WorkbenchExecutionAdapter {
                 item,
                 item.provider_request_body(&self.root, stage, context)?,
             )?;
-            let response = self
-                .client
-                .post(format!(
+            let response = provider_transport::send(
+                &self.client,
+                format!(
                     "{}/v1/runs/{}/nodes/{stage}/execute-provider",
                     self.harness_url, item.run_id
-                ))
-                .json(&provider_body)
-                .send()
-                .await
-                .with_context(|| format!("execute explicit Workbench {stage} stage"))?;
+                ),
+                &provider_body,
+                &run,
+                stage,
+            )
+            .await?;
             if response.status() == reqwest::StatusCode::CONFLICT {
                 require_scheduler_admission_conflict(response, stage).await?;
                 run = wait_for_explicit_stage(&self.client, &self.harness_url, &item.run_id, stage)
@@ -443,16 +444,17 @@ impl WorkbenchExecutionAdapter {
                 item,
                 item.provider_request_body(&self.root, "review", context)?,
             )?;
-            let response = self
-                .client
-                .post(format!(
+            let response = provider_transport::send(
+                &self.client,
+                format!(
                     "{}/v1/runs/{}/nodes/review/execute-provider",
                     self.harness_url, item.run_id
-                ))
-                .json(&provider_body)
-                .send()
-                .await
-                .context("execute explicit Workbench review stage")?;
+                ),
+                &provider_body,
+                &run,
+                "review",
+            )
+            .await?;
             if response.status() == reqwest::StatusCode::CONFLICT {
                 require_scheduler_admission_conflict(response, "review").await?;
                 run = wait_for_explicit_stage(
@@ -1421,6 +1423,7 @@ impl WorkbenchQueueExecutor {
             approval_id,
             &objective_plan_receipt,
             leaf_contract,
+            &execution_target.project_contract_digest,
         );
         let mut run = if let Some(existing) = self.existing_run(run_id).await? {
             let outcome = classify_existing_run(&existing);
@@ -1667,11 +1670,14 @@ struct ExecutionTargetBinding {
     read_only: bool,
 }
 
+mod provider_transport;
+mod strict_value;
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ExecutionProjectRegistry {
     schema_version: String,
-    projects: Vec<ExecutionAttachedProject>,
+    projects: Vec<strict_value::StrictValue>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1686,9 +1692,7 @@ struct ExecutionAttachedProject {
     _idempotency_key: String,
 }
 
-fn resolve_execution_target(root: &Path, task: &QueueRecord) -> Result<ExecutionTargetBinding> {
-    let project_id = task_project_id(task)
-        .ok_or_else(|| anyhow!("task `{}` omitted `meta.project_id`", task.id))?;
+fn attached_execution_project(root: &Path, project_id: &str) -> Result<ExecutionAttachedProject> {
     let registry_path = root.join("data/workbench/projects.json");
     const MAX_PROJECT_REGISTRY_BYTES: u64 = 1024 * 1024;
     let registry_metadata = std::fs::metadata(&registry_path).with_context(|| {
@@ -1722,20 +1726,40 @@ fn resolve_execution_target(root: &Path, task: &QueueRecord) -> Result<Execution
             registry.schema_version
         ));
     }
-    let mut matches = registry
-        .projects
-        .into_iter()
-        .filter(|attached| attached.contract.identity.project_id.to_string() == project_id);
-    let attached = matches
-        .next()
-        .ok_or_else(|| anyhow!("project `{project_id}` is not attached"))?;
-    if matches.next().is_some() {
-        return Err(anyhow!("project `{project_id}` is attached more than once"));
+    let mut selected = None;
+    for strict_value::StrictValue(entry) in registry.projects {
+        let id = entry
+            .pointer("/contract/identity/project_id")
+            .and_then(Value::as_str)
+            .ok_or_else(|| anyhow!("stored project identity is missing or invalid"))?;
+        let parsed_id = uuid::Uuid::parse_str(id).context("invalid stored project UUID")?;
+        anyhow::ensure!(
+            id == parsed_id.to_string(),
+            "stored project UUID is not canonical"
+        );
+        if id == project_id {
+            anyhow::ensure!(
+                selected.is_none(),
+                "project `{project_id}` is attached more than once"
+            );
+            selected = Some(
+                serde_json::from_value::<ExecutionAttachedProject>(entry)
+                    .context("selected project contract is malformed")?,
+            );
+        }
     }
+    let attached = selected.ok_or_else(|| anyhow!("project `{project_id}` is not attached"))?;
     attached
         .contract
         .validate()
         .map_err(|error| anyhow!("invalid project contract for `{project_id}`: {error}"))?;
+    Ok(attached)
+}
+
+fn resolve_execution_target(root: &Path, task: &QueueRecord) -> Result<ExecutionTargetBinding> {
+    let project_id = task_project_id(task)
+        .ok_or_else(|| anyhow!("task `{}` omitted `meta.project_id`", task.id))?;
+    let attached = attached_execution_project(root, project_id)?;
 
     let canonical_root = root
         .canonicalize()
@@ -2599,15 +2623,18 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
         sources,
     );
     let project_ids = task_project_ids(task);
-    let project_id = project_ids.first().copied().unwrap_or(DEFAULT_PROJECT_ID);
+    let project_id = project_ids.first().copied().ok_or_else(|| {
+        anyhow!("task `{}` omitted `meta.project_id` — project identity is required", task.id)
+    })?;
     let read_only_template = plan
         .leaf_contracts
         .get("inspect-authorities")
         .cloned()
         .ok_or_else(|| anyhow!("objective decomposition omitted inspection contract"))?;
     if project_ids.len() > 1 {
+        let first_project_id = project_ids[0];
         for contract in plan.leaf_contracts.values_mut() {
-            contract.project_id = DEFAULT_PROJECT_ID.to_owned();
+            contract.project_id = first_project_id.to_owned();
         }
         let inspection_index = plan
             .tasks
@@ -3592,30 +3619,6 @@ fn persisted_objective_plan_for_task(
 }
 
 fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &QueueRecord) -> String {
-    let sources = plan
-        .context_sources
-        .iter()
-        .map(|source| {
-            format!(
-                "- {:?}: {} ({})",
-                source.kind,
-                source.reference,
-                source.digest.as_deref().unwrap_or("digest unavailable")
-            )
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-    let tasks = plan
-        .tasks
-        .iter()
-        .filter(|planned| {
-            task.extra["meta"]["objective_leaf_key"]
-                .as_str()
-                .is_none_or(|key| key == planned.key)
-        })
-        .map(|task| format!("- {}: {}", task.key, task.title))
-        .collect::<Vec<_>>()
-        .join("\n");
     let artifact_requirement = task
         .extra
         .get("meta")
@@ -3641,13 +3644,15 @@ fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &Queu
         })
         .unwrap_or_default();
     let leaf_key = task.extra["meta"]["objective_leaf_key"].as_str();
-    let authority_instructions = if leaf_key
-        .is_some_and(|key| key.starts_with("inspect-authorities"))
-    {
-        "Inspect only the bound project and cite project-local material source evidence. Do not require root-level or sibling-project authority paths that are outside this worker boundary.".to_owned()
-    } else {
-        format!("Read and cite these live authorities before changing anything:\n{sources}")
-    };
+    let leaf_title = leaf_key
+        .and_then(|key| plan.tasks.iter().find(|planned| planned.key == key))
+        .map(|planned| planned.title.as_str())
+        .unwrap_or(objective);
+    let authority_class = contract
+        .map(|contract| contract.authority_class.as_str())
+        .unwrap_or("execute_with_approval");
+    let max_joules = contract.map(|contract| contract.max_joules).unwrap_or(5000.0);
+    let max_cost_usd = contract.map(|contract| contract.max_cost_usd).unwrap_or(2.0);
     let outcome_requirement = match leaf_key {
         Some("recover-context") => {
             "Final output must be an evidence-backed context summary sufficient for downstream objective leaves."
@@ -3667,14 +3672,8 @@ fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &Queu
         _ => "Final output must satisfy this validated objective-plan leaf with material evidence.",
     };
     format!(
-        "{}\n\nExecute this validated objective plan in dependency order:\n{}\n\n{}\n\n{}{}{}{} Preserve unrelated dirty work and do not edit generated queue projections.",
-        objective,
-        tasks,
-        authority_instructions,
-        outcome_requirement,
-        artifact_requirement,
-        checks,
-        revision_directive
+        "{objective}\n\nExecute this bounded leaf contract:\n- {}: {leaf_title}\n\nAuthority: {authority_class}\nBudget: max_joules={max_joules}, max_cost_usd={max_cost_usd}\n{outcome_requirement}{artifact_requirement}{checks}{revision_directive} Preserve unrelated dirty work and do not edit generated queue projections.",
+        leaf_key.unwrap_or("unknown")
     )
 }
 
@@ -3736,8 +3735,8 @@ fn required_meta<'a>(
 }
 
 #[cfg(test)]
-fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str) -> Value {
-    run_graph_value(run_id, task_id, objective, approval_id, None, None)
+fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str, project_contract_digest: &str) -> Value {
+    run_graph_value(run_id, task_id, objective, approval_id, None, None, project_contract_digest)
 }
 
 fn run_graph_with_objective_plan_receipt(
@@ -3747,6 +3746,7 @@ fn run_graph_with_objective_plan_receipt(
     approval_id: &str,
     objective_plan_receipt: &str,
     leaf_contract: Option<&ExecutableLeafContract>,
+    project_contract_digest: &str,
 ) -> Value {
     run_graph_value(
         run_id,
@@ -3755,6 +3755,7 @@ fn run_graph_with_objective_plan_receipt(
         approval_id,
         Some(objective_plan_receipt),
         leaf_contract,
+        project_contract_digest,
     )
 }
 
@@ -3766,6 +3767,7 @@ fn explicit_run_graph(item: &ExplicitWorkbenchWorkItem, approval_id: &str) -> Va
         approval_id,
         &item.objective_plan_receipt,
         None,
+        &item.project_contract_digest,
     );
     if item.read_only {
         for node in graph["nodes"].as_array_mut().expect("generated nodes") {
@@ -3791,6 +3793,7 @@ fn run_graph_value(
     approval_id: &str,
     objective_plan_receipt: Option<&str>,
     leaf_contract: Option<&ExecutableLeafContract>,
+    project_contract_digest: &str,
 ) -> Value {
     let prompt_digest = format!("sha256:{:x}", Sha256::digest(objective.as_bytes()));
     let deadline = Utc::now().timestamp_millis().saturating_add(1_200_000) as u128;
@@ -3904,7 +3907,7 @@ fn run_graph_value(
             {"id": "review-close", "from": "review", "to": "close", "parent_receipt": null}
         ],
         "provenance": {
-            "project_contract_digest": format!("sha256:{}", "0".repeat(64)),
+            "project_contract_digest": project_contract_digest,
             "created_by": "arda_workbench.queue_executor",
             "parent_receipts": provenance_receipts
         }
@@ -5967,6 +5970,7 @@ mod tests {
             "critic-task",
             "Review me",
             "approval-1",
+            "sha256:test-digest",
         );
         let nodes = graph["nodes"].as_array().expect("run nodes");
         let execute = nodes.iter().find(|node| node["id"] == "execute").unwrap();
@@ -6007,6 +6011,7 @@ mod tests {
             "approval-read-only-leaf",
             "sha256:plan",
             Some(&contract),
+            "sha256:test-digest",
         );
         let execute = graph["nodes"]
             .as_array()
@@ -6192,7 +6197,7 @@ mod tests {
 
     #[test]
     fn graph_requires_the_approved_parent_and_bounded_worker() {
-        let graph = run_graph("queue-task-1", "task-1", "bounded fixture", "approval-1");
+        let graph = run_graph("queue-task-1", "task-1", "bounded fixture", "approval-1", "sha256:test-digest");
         let raw = serde_json::to_string(&graph).unwrap();
         let parsed = arda_core::run_graph::RunGraph::from_json_str(&raw).unwrap();
         assert_eq!(parsed.nodes.len(), 6);
@@ -6272,7 +6277,8 @@ mod tests {
         let task: QueueRecord = serde_json::from_value(json!({
             "id": "objective-1",
             "title": "Review Arda against the operator vision",
-            "detail": "Inspect live behavior and produce the smallest authoritative repairs"
+            "detail": "Inspect live behavior and produce the smallest authoritative repairs",
+            "meta": {"project_id": "test-project"}
         }))
         .unwrap();
 
@@ -6319,6 +6325,7 @@ mod tests {
             "objective-1",
             "Review Arda",
             "approval-1",
+            "sha256:test-digest",
         );
         assert!(graph["provenance"].get("objective_plan").is_none());
         assert!(graph["provenance"]
@@ -6994,7 +7001,7 @@ mod tests {
     fn cancellation_endpoint_preserves_governed_run_identity() {
         let run_id = workbench_run_id("task/one");
         assert_eq!(run_id, "queue-task-one");
-        let graph = run_graph(&run_id, "task/one", "bounded fixture", "approval-1");
+        let graph = run_graph(&run_id, "task/one", "bounded fixture", "approval-1", "sha256:test-digest");
         assert_eq!(graph["run_id"], run_id);
         assert_eq!(graph["provenance"]["parent_receipts"][0], "approval-1");
     }

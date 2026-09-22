@@ -59,6 +59,7 @@ fn commercial_run(composition: &CapabilityComposition) -> RunGraph {
             created_by: "company-ops-test".into(),
             parent_receipts: vec![],
         },
+        approval_receipts: Vec::new(),
     }
 }
 

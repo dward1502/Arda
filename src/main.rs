@@ -167,6 +167,7 @@ async fn main() -> anyhow::Result<()> {
         });
     let operator_id = configured_operator_id(cli.operator_id.as_deref())?;
     let harness_state = arda_engine::harness::HarnessState {
+        research_store_policy: arda_engine::harness::ResearchStorePolicy::Production,
         harness_addr: arda_engine::harness::DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: harness_pids,
         service_names: Arc::new(reg.services.iter().map(|s| s.name.clone()).collect()),

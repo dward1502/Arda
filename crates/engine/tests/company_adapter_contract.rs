@@ -43,6 +43,7 @@ fn lifecycle(
             created_by: "company-adapter-test".into(),
             parent_receipts: vec![],
         },
+        approval_receipts: Vec::new(),
     };
     let requires_approval = state.requires_external_approval();
     CommercialLifecycleRecord {

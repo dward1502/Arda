@@ -56,6 +56,46 @@ use std::pin::Pin;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
+#[test]
+fn revision_cannot_leave_persisted_worker_prompts_bound_to_an_old_goal() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    let input = objective(root.path());
+    store
+        .create_authenticated_objective(input.clone(), 100)
+        .unwrap();
+    let before = serde_json::to_value(store.objective(&input.id).unwrap()).unwrap();
+    let error = store
+        .apply_control(
+            &input.id,
+            ControlAction::Revise {
+                text: "A different goal requiring different evidence".into(),
+            },
+            "revision-with-stale-execution",
+            &input.operator_id,
+            110,
+        )
+        .expect_err("revision must not silently retain old execution prompts");
+    assert!(error.to_string().contains("persisted execution plan"));
+    drop(store);
+    let reopened = ObjectiveStore::open(&path).unwrap();
+    assert_eq!(
+        serde_json::to_value(reopened.objective(&input.id).unwrap()).unwrap(),
+        before
+    );
+    let db = rusqlite::Connection::open(path).unwrap();
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM controls WHERE idempotency_key = 'revision-with-stale-execution'",
+            [],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+}
+
 #[tokio::test]
 async fn quarantine_is_visible_after_restart() {
     let dir = tempfile::tempdir().unwrap();

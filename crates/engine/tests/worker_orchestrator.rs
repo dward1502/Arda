@@ -181,6 +181,7 @@ fn parallel_graph() -> RunGraph {
             created_by: "test:p3".into(),
             parent_receipts: Vec::new(),
         },
+        approval_receipts: Vec::new(),
     };
     graph.validate().unwrap();
     graph

@@ -304,7 +304,7 @@ export function createEmptyFleetViewModel(summary = ['Fleet projection unavailab
 export function createEmptyWorkViewModel(summary = ['Work queue projection unavailable.']): WorkViewModel {
   return {
     ...emptyBase('work', 'Work', summary, [
-      missingSource('queue_active', 'Queue Active', 'core/state/queue_active.json'),
+      missingSource('queue_summary', 'Queue Summary', 'core/state/queue_summary.json'),
     ]),
     roleId: 'work',
     title: 'Work',

@@ -4,6 +4,54 @@ use axum::{routing::get, Router};
 use tokio::{io::AsyncWriteExt, sync::Notify};
 
 #[tokio::test]
+async fn provider_only_shutdown_retains_disconnected_owner_and_child_until_settled() {
+    let jobs = ProviderJobs::default();
+    let (started, ready) = tokio::sync::oneshot::channel();
+    let (release, barrier) = tokio::sync::oneshot::channel::<()>();
+    let subscriber = {
+        let jobs = jobs.clone();
+        tokio::spawn(async move {
+            jobs.execute("provider".into(), "digest".into(), async move {
+                let mut child = tokio::process::Command::new("/bin/sleep")
+                    .arg("30")
+                    .kill_on_drop(true)
+                    .spawn()
+                    .unwrap();
+                started.send(child.id().unwrap()).unwrap();
+                let _ = barrier.await;
+                child.kill().await.unwrap();
+                child.wait().await.unwrap();
+                Err(ApiError::stopping())
+            })
+            .await
+        })
+    };
+    let pid = tokio::time::timeout(Duration::from_secs(2), ready)
+        .await
+        .unwrap()
+        .unwrap();
+    subscriber.abort();
+    assert!(subscriber.await.unwrap_err().is_cancelled());
+    let mut report = HarnessShutdownReport::collect(
+        RecoveryJobs::default(),
+        jobs,
+        tokio::spawn(async {}),
+        Duration::from_millis(30),
+    )
+    .await;
+    assert_eq!(report.unresolved_recoveries, 0);
+    assert_eq!(report.unresolved_providers, 1);
+    assert!(!report.settle(Duration::from_millis(30)).await);
+    assert!(std::path::Path::new(&format!("/proc/{pid}")).exists());
+    assert_eq!(report.provider_jobs.jobs.lock().await.len(), 1);
+    release.send(()).unwrap();
+    assert!(report.settle(Duration::from_secs(2)).await);
+    assert_eq!(report.unresolved_providers, 0);
+    assert!(report.provider_jobs.jobs.lock().await.is_empty());
+    assert!(!std::path::Path::new(&format!("/proc/{pid}")).exists());
+}
+
+#[tokio::test]
 async fn shutdown_report_retains_owner_after_server_lifetime_with_and_without_subscriber() {
     for connected in [true, false] {
         let shutdown = Shutdown::new();
@@ -58,7 +106,13 @@ async fn shutdown_report_retains_owner_after_server_lifetime_with_and_without_su
         // Move, do not clone: after this task returns, only the report retains
         // the registry. This models the production server-owner handoff.
         let owner = tokio::spawn(async move {
-            HarnessShutdownReport::collect(jobs, server, Duration::from_millis(30)).await
+            HarnessShutdownReport::collect(
+                jobs,
+                ProviderJobs::default(),
+                server,
+                Duration::from_millis(30),
+            )
+            .await
         });
         let mut report = tokio::time::timeout(Duration::from_secs(2), owner)
             .await
@@ -99,7 +153,12 @@ async fn shutdown_report_bounds_server_wait_and_retains_server_join() {
     });
     let mut report = tokio::time::timeout(
         Duration::from_secs(2),
-        HarnessShutdownReport::collect(RecoveryJobs::default(), server, Duration::from_millis(30)),
+        HarnessShutdownReport::collect(
+            RecoveryJobs::default(),
+            ProviderJobs::default(),
+            server,
+            Duration::from_millis(30),
+        ),
     )
     .await
     .unwrap();

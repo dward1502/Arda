@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "provider": "custom",
+    "receipt_digest": "sha256:9e5311520e7ef66f19a9ac1e618f5d459ef5ae74054735fe556c78ba1ca5aabd",
+    "summary": "VERDICT: APPROVE - The verify.py check executed successfully with exit code 0 and output 'PASS: installed retained workspace input verified'. No files were modified."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "duration_ms": null,
+      "name": "python3 verify.py",
+      "status": "passed"
+    }
+  ]
+}

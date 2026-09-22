@@ -30,11 +30,11 @@ The core source/package implementation exists, and one bounded installed objecti
 
 | Remaining milestone | Human-visible gate |
 |---|---|
-| [Hermes objective control](../plans/autonomous-task-completion/01-hermes-objective-control.md) | Inspect and control one canonical objective in conversation |
-| [Installed scheduling and restart](../plans/autonomous-task-completion/02-installed-scheduling-restart.md) | Deferred/recurring work survives restart and corrects a failure unattended |
-| [Live critic revision](../plans/autonomous-task-completion/03-live-critic-revision.md) | A real critic rejection produces a corrected durable revision |
-| [Real multi-project execution](../plans/autonomous-task-completion/04-real-multi-project-execution.md) | Two real projects execute safely under one objective |
-| [Vairë and operator acceptance](../plans/autonomous-task-completion/05-vaire-operator-acceptance.md) | Cross-session continuity works and the operator accepts reduced burden |
+| [Hermes objective control](2026-09-15-plan-reconciliation/autonomous-task-completion/01-hermes-objective-control.md) | Inspect and control one canonical objective in conversation |
+| [Installed scheduling and restart](2026-09-15-plan-reconciliation/autonomous-task-completion/02-installed-scheduling-restart.md) | Deferred/recurring work survives restart and corrects a failure unattended |
+| [Live critic revision](2026-09-15-plan-reconciliation/autonomous-task-completion/03-live-critic-revision.md) | A real critic rejection produces a corrected durable revision |
+| [Real multi-project execution](2026-09-15-plan-reconciliation/autonomous-task-completion/04-real-multi-project-execution.md) | Two real projects execute safely under one objective |
+| [Vairë and operator acceptance](2026-09-15-plan-reconciliation/autonomous-task-completion/05-vaire-operator-acceptance.md) | Cross-session continuity works and the operator accepts reduced burden |
 
 ## Completion rule
 

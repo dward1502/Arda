@@ -243,20 +243,33 @@ export default function App() {
   useEffect(() => {
     if (!('__TAURI_INTERNALS__' in window)) return
     let cancelled = false
+    let failureCount = 0
+    const MAX_CONSECUTIVE_FAILURES = 3
+    let intervalId: number | null = null
     const refreshMirromereSurface = () => {
+      if (failureCount >= MAX_CONSECUTIVE_FAILURES) {
+        if (intervalId) { window.clearInterval(intervalId); intervalId = null }
+        return
+      }
       void loadMirromereSurface()
         .then((surface) => {
-          if (!cancelled) setMirromereSurface(surface)
+          if (!cancelled) {
+            setMirromereSurface(surface)
+            failureCount = 0
+          }
         })
         .catch(() => {
-          if (!cancelled) setMirromereSurface(null)
+          if (!cancelled) {
+            setMirromereSurface(null)
+            failureCount += 1
+          }
         })
     }
     refreshMirromereSurface()
-    const intervalId = window.setInterval(refreshMirromereSurface, 5000)
+    intervalId = window.setInterval(refreshMirromereSurface, 5000)
     return () => {
       cancelled = true
-      window.clearInterval(intervalId)
+      if (intervalId) { window.clearInterval(intervalId); intervalId = null }
     }
   }, [])
   const {

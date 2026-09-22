@@ -1,0 +1,21 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_resident_541a6f60d21d6be1c3c5b5942b710aeaef177fd2d357a76e1f5db3ebbeeeb33b",
+  "kind": "episodic",
+  "agent": "vaire-resident-objective",
+  "content": "Resident objective cutover-final-scheduled-20260915 leaf cutover-final-scheduled-20260915-leaf completed run objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1. Outcomes: execute=VERDICT: APPROVE - python3 verify.py executed successfully with exit code 0 and output 'PASS: installed retained workspace input verified'.; verify=VERDICT: APPROVE - python3 verify.py executed successfully with exit code 0 and output 'PASS: installed retained workspace input verified'.; review=VERDICT: APPROVE\nverify.py correctly asserts input.txt contains 'installed-retained-runtime-acceptance\\n' and prints the expected PASS message. Predecessor evidence shows python3 verify.py executed with exit code 0.; close=Workbench closed the reviewed objective leaf.. Canonical stage receipts: execute=sha256:2458cc2158d34124d43d7e8db5687c90f324dbd9cd04e7e6c6ae14cbddc3faf3, verify=sha256:817b854f6aa530c5fa543b2355168838e0bb172393628bdadbf4a9c470cd1b99, review=sha256:977b53c3a8fcc1705b9e71573a6b0c66451a9625e99f63104e20071d3125684f, close=sha256:9fe93ce1c0942c8d78101b8877a85cad1c3c1415ccc6316374f974c3138e3ce8.",
+  "salience": 0.5,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-09-15T05:54:32.277680363Z",
+  "last_seen_at": "2026-09-15T05:54:32.277680363Z",
+  "resident_objective_outcome": true,
+  "project_id": "ac000000-0000-4000-8000-000000000001",
+  "run_id": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1",
+  "knowledge_approval_reference": "cli-authorized-cutover-20260915",
+  "memory_domain": "system",
+  "knowledge_evaluation_reference": "sha256:977b53c3a8fcc1705b9e71573a6b0c66451a9625e99f63104e20071d3125684f",
+  "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+  "context_use_receipt_id": "context-use:d1fade41848f5de770b3abbdc1dda42be8dbd938611555ebd92a543b15cb9f81",
+  "objective_id": "cutover-final-scheduled-20260915"
+}

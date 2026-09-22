@@ -1,0 +1,59 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:78a9788a0e00054603e2e2bb526512ce5fb0fa059e3e6f45452ca11f5c95fe16",
+  "context_capsule_digest": "sha256:c4d8f81d5b00421e8abd315d09f7204ad784d7fbb2902d20b4ccac606070d08e",
+  "context_capsule_id": "capsule:c4d8f81d5b00421e8abd315d09f7204ad784d7fbb2902d20b4ccac606070d08e",
+  "context_handoff": {
+    "capsule_digest": "sha256:c4d8f81d5b00421e8abd315d09f7204ad784d7fbb2902d20b4ccac606070d08e",
+    "capsule_id": "capsule:c4d8f81d5b00421e8abd315d09f7204ad784d7fbb2902d20b4ccac606070d08e",
+    "context_use_receipt_ref": "arda://vaire/context-use/context-use:71230ace628e4ba98f1fe1bbb7696da17924eff4d7b399c365bfe64e66f0a809",
+    "destination_consumer": "arda.resident-objective:objective-operator-objective-2c1b2ef727bfae22-leaf-operator-objective-2c1b2ef727bfae22-project-1-attempt-1:execute",
+    "node_id": "execute",
+    "objective_id": "operator-objective-2c1b2ef727bfae22",
+    "parent_receipts": [
+      "gateway-approval:gateway-event:2e9fd7bb4c999465f2f16d0c34d73f68a3c657693867505bcb119b95c6a38a6e"
+    ],
+    "receipt_digest": "sha256:3f867c420901022234f1f298d5f71f26ccb057603b4d5b3307f3dde0207ed4ee",
+    "receipt_id": "handoff:734808e7a6e3df964b75a31203321e9b2ac5fb98d88d6ab52da9229800a82b92",
+    "recorded_at_unix_ms": 1789758976480,
+    "run_id": "objective-operator-objective-2c1b2ef727bfae22-leaf-operator-objective-2c1b2ef727bfae22-project-1-attempt-1",
+    "schema_version": "arda.handoff-receipt.v1",
+    "source_authority": "vaire:organism-context"
+  },
+  "context_use_receipt_ref": "arda://vaire/context-use/context-use:71230ace628e4ba98f1fe1bbb7696da17924eff4d7b399c365bfe64e66f0a809",
+  "idempotency_key": "queue-operator-objective-2c1b2ef727bfae22-project-1-execute",
+  "node_id": "execute",
+  "parent_receipts": [
+    "gateway-approval:gateway-event:2e9fd7bb4c999465f2f16d0c34d73f68a3c657693867505bcb119b95c6a38a6e"
+  ],
+  "project_contract_digest": "sha256:2884da99bfd10bd1ad35f3414b9f8e8a0485561f2b839b6bb57ba2971bc44733",
+  "receipt_digest": "sha256:b51294c276f1f13a691cdb2e6018735d3c38d1e0bd3b493388c34df96396aa0a",
+  "recorded_at_unix_ms": 1789758976480,
+  "run_id": "objective-operator-objective-2c1b2ef727bfae22-leaf-operator-objective-2c1b2ef727bfae22-project-1-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "failed",
+  "summary": "VERDICT: BLOCK - source-only scope denial prevented read-only inspection of project root. Cannot inspect admitted source files to assess Arda and Arda-Tool-Gate integration readiness.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"limit\":100,\"path\":\"/var/home/mythos/Eregion/Arda\"}",
+      "exit_code": 1,
+      "output_digest": "sha256:efd2e2635adc61919d252ba1163515b76814f81e9cb61cd2d6f1ec15500e1e37",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 0,
+    "completed": true,
+    "cost_measurement": "unknown",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 0,
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "output_tokens": 0,
+    "provider": "custom",
+    "total_tokens": 0
+  }
+}

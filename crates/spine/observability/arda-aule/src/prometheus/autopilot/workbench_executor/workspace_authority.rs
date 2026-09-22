@@ -102,21 +102,8 @@ pub(super) fn bound_workspace(
         return workspace(root, path, mode);
     }
     // External roots require an exact registered authority, not a task-supplied escape.
-    let registry: ExecutionProjectRegistry =
-        serde_json::from_slice(&std::fs::read(root.join("data/workbench/projects.json"))?)?;
-    if registry.schema_version != "arda.workbench.project-registry.v1" {
-        bail!("unsupported project registry version");
-    }
-    let matches: Vec<_> = registry
-        .projects
-        .iter()
-        .filter(|entry| entry.contract.identity.project_id.to_string() == item.project_id)
-        .collect();
-    if matches.len() != 1 {
-        bail!("external workspace requires one attached project");
-    }
-    let contract = &matches[0].contract;
-    contract.validate()?;
+    let attached = attached_execution_project(root, &item.project_id)?;
+    let contract = &attached.contract;
     let digest = format!("sha256:{:x}", Sha256::digest(serde_json::to_vec(contract)?));
     if digest != item.project_contract_digest
         || Path::new(contract.workspace.root.as_str()) != path

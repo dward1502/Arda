@@ -5,29 +5,41 @@ use crate::supervisor::Shutdown;
 use std::{collections::HashMap, future::Future, sync::Arc, time::Duration};
 use tokio::sync::{watch, Mutex};
 
-type Outcome = Result<RecoveryResult, ApiError>;
+type Outcome<T = RecoveryResult> = Result<T, ApiError>;
 
 #[cfg(test)]
 mod shutdown_tests;
 #[cfg(test)]
 mod tests;
 
-struct Job {
+struct Job<T> {
     digest: String,
-    result: watch::Receiver<Option<Outcome>>,
+    result: watch::Receiver<Option<Outcome<T>>>,
     join: tokio::task::JoinHandle<()>,
 }
 
 /// Shared by all authenticated recovery requests served by one Harness instance.
-#[derive(Clone, Default)]
-pub struct RecoveryJobs {
-    jobs: Arc<Mutex<HashMap<String, Job>>>,
+#[derive(Clone)]
+pub struct OwnedJobs<T> {
+    jobs: Arc<Mutex<HashMap<String, Job<T>>>>,
     shutdown: Shutdown,
 }
 
-impl RecoveryJobs {
+impl<T> Default for OwnedJobs<T> {
+    fn default() -> Self {
+        Self {
+            jobs: Default::default(),
+            shutdown: Default::default(),
+        }
+    }
+}
+
+pub type RecoveryJobs = OwnedJobs<RecoveryResult>;
+pub(super) type ProviderJobs = OwnedJobs<serde_json::Value>;
+
+impl<T: Clone + Send + Sync + 'static> OwnedJobs<T> {
     #[cfg(test)]
-    pub(super) async fn settle(&self) -> Vec<Outcome> {
+    pub(super) async fn settle(&self) -> Vec<Outcome<T>> {
         let mut jobs = self.jobs.lock().await;
         let mut outcomes = Vec::new();
         for (_, job) in jobs.drain() {
@@ -48,24 +60,20 @@ impl RecoveryJobs {
         self.shutdown.clone()
     }
 
-    pub(super) async fn execute<F>(&self, key: String, digest: String, work: F) -> Outcome
+    pub(super) async fn execute<F>(&self, key: String, digest: String, work: F) -> Outcome<T>
     where
-        F: Future<Output = Outcome> + Send + 'static,
+        F: Future<Output = Outcome<T>> + Send + 'static,
     {
         let mut jobs = self.jobs.lock().await;
         if self.shutdown.is_triggered() {
             return Err(ApiError::stopping());
         }
-        if let Some(job) = jobs.get(&key) {
-            if job.digest != digest {
-                return Err(ApiError::conflict("recovery event payload changed"));
-            }
-        }
+
         // Reap completed owners; their next caller must consult durable state,
         // not a cached success that might outlive cancellation or supersession.
         let finished: Vec<_> = jobs
             .iter()
-            .filter(|(_, job)| job.join.is_finished())
+            .filter(|(_, job)| job.join.is_finished() || job.result.borrow().is_some())
             .map(|(key, _)| key.clone())
             .collect();
         for key in finished {
@@ -75,6 +83,9 @@ impl RecoveryJobs {
             }
         }
         let mut result = if let Some(job) = jobs.get(&key) {
+            if job.digest != digest {
+                return Err(ApiError::conflict("active execution request payload changed"));
+            }
             job.result.clone()
         } else {
             let (sender, result) = watch::channel(None);

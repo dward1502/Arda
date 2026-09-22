@@ -1,5 +1,5 @@
 {
-  "byte_offset": 939577631,
+  "byte_offset": 960207355,
   "seen_terminal_ids": [
     "digital-organism-s0-authority-transport-map",
     "digital-organism-s0-current-flow-trace",
@@ -191,6 +191,9 @@
     "task-pivot-1789329664-415c258a",
     "task-pivot-1789333257-e3e68f51",
     "task-pivot-1789336856-b5bba666",
+    "task-pivot-1789340472-df55a8ed",
+    "task-pivot-1789344065-d2c9cbe6",
+    "task-pivot-1789347670-aa30a833",
     "tsk_20260826T081230Z_completion_loop_acceptance",
     "tsk_20260826T082300Z_completion_loop_restart_acceptance",
     "tsk_20260826T090051Z_completion_loop_acceptance_v2",

@@ -1,0 +1,244 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1",
+  "objective_id": "cutover-final-scheduled-20260915-leaf",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-cutover-final-scheduled-20260915-leaf-plan",
+      "input_digest": null,
+      "output_digest": "cli-authorized-cutover-20260915",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1:plan:4",
+        "checkpoint_digest": "sha256:d8b0e1e2e0ef13f7fbbb55e462dd7f94c149c9ea554ccd48f3944abfedcf5171"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-cutover-final-scheduled-20260915-leaf-approval",
+      "input_digest": null,
+      "output_digest": "cli-authorized-cutover-20260915",
+      "parent_receipts": [
+        "cli-authorized-cutover-20260915"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1:approval:7",
+        "checkpoint_digest": "sha256:ef5d04b762e122dbf73f3095937026b23a47941dea1100dd068cf4b741b44bdc"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-cutover-final-scheduled-20260915-leaf-execute",
+      "input_digest": null,
+      "output_digest": "sha256:2458cc2158d34124d43d7e8db5687c90f324dbd9cd04e7e6c6ae14cbddc3faf3",
+      "parent_receipts": [
+        "cli-authorized-cutover-20260915"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1:execute:10",
+        "checkpoint_digest": "sha256:b774256db6dd639e201fdbedcf2588ef6ac98a4229efdaded84c8a477676b676"
+      },
+      "worker": {
+        "role": "implementer",
+        "worker_id": "hermes:queue:cutover-final-scheduled-20260915-leaf",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:e7bc3780e737ef49d1b749c6cb336f83afe2c4ffebfeb6b35c5dfcf4e798da8c",
+        "allowed_toolsets": [
+          "file",
+          "terminal"
+        ],
+        "dependencies": [
+          "approval"
+        ],
+        "deadline_unix_ms": 1789452833633,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    },
+    {
+      "id": "verify",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-cutover-final-scheduled-20260915-leaf-verify",
+      "input_digest": null,
+      "output_digest": "sha256:817b854f6aa530c5fa543b2355168838e0bb172393628bdadbf4a9c470cd1b99",
+      "parent_receipts": [
+        "sha256:2458cc2158d34124d43d7e8db5687c90f324dbd9cd04e7e6c6ae14cbddc3faf3"
+      ],
+      "checkpoint": {
+        "sequence": 14,
+        "recovery_token": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1:verify:14",
+        "checkpoint_digest": "sha256:ac4491c0222e5b683b39dde4b7744e6269c96268c418f5bf345515f1f9d6e660"
+      },
+      "worker": {
+        "role": "independent_verifier",
+        "worker_id": "hermes:queue:cutover-final-scheduled-20260915-leaf:verify",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:e7bc3780e737ef49d1b749c6cb336f83afe2c4ffebfeb6b35c5dfcf4e798da8c",
+        "allowed_toolsets": [
+          "terminal"
+        ],
+        "dependencies": [
+          "execute"
+        ],
+        "deadline_unix_ms": 1789452833633,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "project_native_checks"
+      }
+    },
+    {
+      "id": "review",
+      "kind": "review",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-cutover-final-scheduled-20260915-leaf-review",
+      "input_digest": null,
+      "output_digest": "sha256:977b53c3a8fcc1705b9e71573a6b0c66451a9625e99f63104e20071d3125684f",
+      "parent_receipts": [
+        "sha256:817b854f6aa530c5fa543b2355168838e0bb172393628bdadbf4a9c470cd1b99"
+      ],
+      "checkpoint": {
+        "sequence": 18,
+        "recovery_token": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1:review:18",
+        "checkpoint_digest": "sha256:9e6cc7d6c430809b2cbad351eed23d7633d2b95bdbd46a3612331fe87eba7eb4"
+      },
+      "worker": {
+        "role": "security_privacy_critic",
+        "worker_id": "hermes:queue:cutover-final-scheduled-20260915-leaf:critic",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:e7bc3780e737ef49d1b749c6cb336f83afe2c4ffebfeb6b35c5dfcf4e798da8c",
+        "allowed_toolsets": [
+          "file"
+        ],
+        "dependencies": [
+          "verify"
+        ],
+        "deadline_unix_ms": 1789452833633,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    },
+    {
+      "id": "close",
+      "kind": "close",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-cutover-final-scheduled-20260915-leaf-close",
+      "input_digest": null,
+      "output_digest": "sha256:9fe93ce1c0942c8d78101b8877a85cad1c3c1415ccc6316374f974c3138e3ce8",
+      "parent_receipts": [
+        "sha256:977b53c3a8fcc1705b9e71573a6b0c66451a9625e99f63104e20071d3125684f"
+      ],
+      "checkpoint": {
+        "sequence": 22,
+        "recovery_token": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1:close:22",
+        "checkpoint_digest": "sha256:56fe96802735446a46bee016b1bdd2965d9b7ebe48aa59fb501772c132426ce2"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "cli-authorized-cutover-20260915"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "cli-authorized-cutover-20260915"
+    },
+    {
+      "id": "execute-verify",
+      "from": "execute",
+      "to": "verify",
+      "parent_receipt": "sha256:2458cc2158d34124d43d7e8db5687c90f324dbd9cd04e7e6c6ae14cbddc3faf3"
+    },
+    {
+      "id": "verify-review",
+      "from": "verify",
+      "to": "review",
+      "parent_receipt": "sha256:817b854f6aa530c5fa543b2355168838e0bb172393628bdadbf4a9c470cd1b99"
+    },
+    {
+      "id": "review-close",
+      "from": "review",
+      "to": "close",
+      "parent_receipt": "sha256:977b53c3a8fcc1705b9e71573a6b0c66451a9625e99f63104e20071d3125684f"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": [
+      "cli-authorized-cutover-20260915",
+      "sha256:e7bc3780e737ef49d1b749c6cb336f83afe2c4ffebfeb6b35c5dfcf4e798da8c"
+    ]
+  }
+}

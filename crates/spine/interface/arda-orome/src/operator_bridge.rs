@@ -397,6 +397,39 @@ impl OperatorBridge {
         self.ingest_inner(request, None, now)
     }
 
+    /// Read only committed shared-source event identities. Call on a blocking
+    /// worker: the same ledger lock serializes this with admission commits.
+    pub fn shared_conversation_events(
+        &self,
+        operator_id: &str,
+        adapter_id: &str,
+        session_id: &str,
+        source: &HermesSessionSource,
+    ) -> Result<Vec<String>, BridgeError> {
+        let file = locked_file(&self.sessions_path)?;
+        let mut events = Vec::new();
+        for line in BufReader::new(file).lines() {
+            let line = line.map_err(persistence_error)?;
+            if line.trim().is_empty() {
+                continue;
+            }
+            let event: OperatorSessionEvent = serde_json::from_str(&line)
+                .map_err(|error| BridgeError::Persistence(error.to_string()))?;
+            if event.operator.operator_id == operator_id
+                && event.operator.authenticated
+                && event.projection.adapter_id == adapter_id
+                && event.lineage.session_id == session_id
+                && event.projection.transport == normalize_transport(&source.platform)
+                && event.projection.conversation_id == source.chat_id
+                && event.projection.thread_id == source.thread_id
+                && event.projection.audience == Audience::Group
+            {
+                events.push(event.incoming.event_id);
+            }
+        }
+        Ok(events)
+    }
+
     /// Ingest an approval response against pending state loaded by Arda.
     /// The binding is separate so transport JSON cannot forge canonical state.
     pub fn ingest_approval(

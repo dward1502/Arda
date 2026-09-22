@@ -2,6 +2,32 @@
   "inbound_receipts": [
     {
       "authority": {
+        "action_execution_allowed": true,
+        "level": "sovereign",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender matched ANNUNIMAS_ILLUVATAR_DISCORD_USER or explicit Illuvatar flag",
+        "schema": "arda.hermes.discord.authority.v1"
+      },
+      "channel": null,
+      "classification": {
+        "confidence": 0.98,
+        "intent": "status_check",
+        "priority": "urgent",
+        "route_to": "prometheus",
+        "tier": "tier1_rule",
+        "triad_passed": false,
+        "triad_score": 0.4625
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "action_execution_allowed",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-09-15T14:48:07.278314164+00:00",
+      "sender": "illuvatar"
+    },
+    {
+      "authority": {
         "action_execution_allowed": false,
         "level": "observer",
         "policy": "discord_inbound_bounded_optional_bridge",
@@ -23,7 +49,7 @@
       "policy_decision": "classified_only",
       "provider": "discord",
       "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-02T19:58:29.626263651+00:00",
+      "received_at_utc": "2026-09-15T20:31:38.694027790+00:00",
       "sender": "operator"
     },
     {
@@ -49,7 +75,7 @@
       "policy_decision": "classified_only",
       "provider": "discord",
       "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-02T19:58:33.288995493+00:00",
+      "received_at_utc": "2026-09-15T20:31:38.801817906+00:00",
       "sender": "operator"
     },
     {
@@ -75,7 +101,7 @@
       "policy_decision": "action_execution_allowed",
       "provider": "discord",
       "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-02T19:58:33.312940118+00:00",
+      "received_at_utc": "2026-09-15T20:31:38.831948760+00:00",
       "sender": "illuvatar"
     },
     {
@@ -101,7 +127,7 @@
       "policy_decision": "classified_only",
       "provider": "discord",
       "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T20:47:15.596325194+00:00",
+      "received_at_utc": "2026-09-15T20:34:24.284470205+00:00",
       "sender": "operator"
     },
     {
@@ -127,371 +153,7 @@
       "policy_decision": "classified_only",
       "provider": "discord",
       "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T20:47:19.729483547+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": true,
-        "level": "sovereign",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender matched ANNUNIMAS_ILLUVATAR_DISCORD_USER or explicit Illuvatar flag",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.98,
-        "intent": "status_check",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier1_rule",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "action_execution_allowed",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T20:47:19.752003144+00:00",
-      "sender": "illuvatar"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T21:12:30.948647945+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": "boardroom",
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T21:12:35.138281877+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": true,
-        "level": "sovereign",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender matched ANNUNIMAS_ILLUVATAR_DISCORD_USER or explicit Illuvatar flag",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.98,
-        "intent": "status_check",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier1_rule",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "action_execution_allowed",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T21:12:35.159314873+00:00",
-      "sender": "illuvatar"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T21:20:05.265900900+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": "boardroom",
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T21:20:09.429928599+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": true,
-        "level": "sovereign",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender matched ANNUNIMAS_ILLUVATAR_DISCORD_USER or explicit Illuvatar flag",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.98,
-        "intent": "status_check",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier1_rule",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "action_execution_allowed",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-04T21:20:09.453274028+00:00",
-      "sender": "illuvatar"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-09T13:53:13.075571105+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": true,
-        "level": "sovereign",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender matched ANNUNIMAS_ILLUVATAR_DISCORD_USER or explicit Illuvatar flag",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.98,
-        "intent": "status_check",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier1_rule",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "action_execution_allowed",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-09T13:53:13.079157936+00:00",
-      "sender": "illuvatar"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": "boardroom",
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-09T14:02:24.055968544+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": true,
-        "level": "sovereign",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender matched ANNUNIMAS_ILLUVATAR_DISCORD_USER or explicit Illuvatar flag",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.98,
-        "intent": "status_check",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier1_rule",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "action_execution_allowed",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-09T14:02:24.062828152+00:00",
-      "sender": "illuvatar"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": true,
-        "level": "sovereign",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender matched ANNUNIMAS_ILLUVATAR_DISCORD_USER or explicit Illuvatar flag",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.98,
-        "intent": "status_check",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier1_rule",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "action_execution_allowed",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-08-09T23:02:17.734161482+00:00",
-      "sender": "illuvatar"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": null,
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-09-02T05:29:12.690467927+00:00",
-      "sender": "operator"
-    },
-    {
-      "authority": {
-        "action_execution_allowed": false,
-        "level": "observer",
-        "policy": "discord_inbound_bounded_optional_bridge",
-        "reason": "sender is not in the Discord authority allowlists",
-        "schema": "arda.hermes.discord.authority.v1"
-      },
-      "channel": "boardroom",
-      "classification": {
-        "confidence": 0.78,
-        "intent": "unknown",
-        "priority": "urgent",
-        "route_to": "prometheus",
-        "tier": "tier3_fallback",
-        "triad_passed": false,
-        "triad_score": 0.4625
-      },
-      "content_redacted": true,
-      "direction": "inbound",
-      "policy_decision": "classified_only",
-      "provider": "discord",
-      "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-09-02T05:29:12.801495947+00:00",
+      "received_at_utc": "2026-09-15T20:34:24.392489434+00:00",
       "sender": "operator"
     },
     {
@@ -517,7 +179,7 @@
       "policy_decision": "action_execution_allowed",
       "provider": "discord",
       "receipt_contract": "hermes.discord.inbound_receipt.v1",
-      "received_at_utc": "2026-09-02T05:29:12.825289641+00:00",
+      "received_at_utc": "2026-09-15T20:34:24.422034310+00:00",
       "sender": "illuvatar"
     }
   ],
@@ -544,7 +206,7 @@
     "policy_decision": "action_execution_allowed",
     "provider": "discord",
     "receipt_contract": "hermes.discord.inbound_receipt.v1",
-    "received_at_utc": "2026-09-02T05:29:12.825289641+00:00",
+    "received_at_utc": "2026-09-15T20:34:24.422034310+00:00",
     "sender": "illuvatar"
   },
   "last_outbound": null,

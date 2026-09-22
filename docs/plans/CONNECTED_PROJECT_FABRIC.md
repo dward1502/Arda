@@ -1,128 +1,190 @@
 ---
 soterion:
   sigil: "SCROLL"
-  glyph: "📜"
+  glyph: "[scroll]"
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "RUMIL"
-  status: "active"
-  reviewed: "2026-08-25"
+  status: "in_progress"
+  reviewed: "2026-09-17"
   tags: ["projects", "registry", "audits", "portfolio", "soterion"]
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: RUMIL | status: active | reviewed: 2026-08-25
+> Soterion: [scroll] implementation_plan | owner: RUMIL | status: in_progress | reviewed: 2026-09-17
 
 # Connected Project Fabric
 
-## Outcome
+## Outcome and evidence boundary
 
-Arda knows which projects the operator owns, what each is for, how they relate, what state and plans are authoritative, what work is incomplete, how each may be inspected or changed, and what proves completion. Every approved project can participate in the same task, memory, scheduling, provider, review, and receipt loop.
+Arda knows which projects are in scope, their purpose and relationships, exact
+roots, authority, current requirements and acceptance. Approved projects participate
+in the same scheduling, execution, memory and review loop; discovery grants no
+mutation authority.
 
-## Verified starting point
+Partial. data/workbench/projects.json and root-level arda-project.json contracts
+already exist. Historical discovery counted proof fixtures/worktree copies, not
+unique connected production projects. Old repository lists and rollout waves are
+candidates, not a current approved scope. Revalidate declared roots rather than
+turning those names into blanket permission. The historical inventory
+(docs/plans/archive/2026-09-15-plan-reconciliation/CONNECTED_PROJECT_FABRIC.md)
+preserves those candidates without keeping a duplicate active backlog.
 
-Search found 20 `arda-project.json` paths, but they are three Workbench language fixtures plus copies in Arda worktrees—not 20 unique portfolio contracts. `data/workbench/projects.json` already provides a real Workbench project-contract registry with three staged/proof records rooted at `.`. Several real repositories are dirty and must be treated as operator-owned work in progress until inspected. The task is to extend and activate this prior mechanism, not invent a replacement registry.
+## Contract requirements
 
-The initial discovered set is:
+Reuse the existing Workbench registry and contract shape. Each selected project
+must have stable ID/name/purpose/class/owner/lifecycle, canonical root and repository
+identity, relationships, authoritative requirements/plans/issues, language/adapters,
+exact build/test/lint/run commands and artifacts, human-visible acceptance,
+read/write/network/secret/deployment authority, protected paths and dirty-worktree
+policy, rollback/recovery, risks/current next objective, and scoped Vairë/Soterion
+references. Missing information is a review item, not an invented field value.
 
-- Arda
-- Arda-Agent-Loop-Contract
-- Arda-Council
-- Arda-Forge-Mind
-- Arda-HUD
-- Arda-Human
-- Arda-Service-Registry
-- Arda-Signal-Grid
-- Arda-Tool-Gate
-- CoverCoINC
-- filamentDB
-- ravensnestweb
-- realmgateWarriors
-- samsy-ninja-test
-- signal-router
-- skylightpros
-- wakita
-- wgtt
+## Work checklist
 
-Discovery is not attachment and this list does not imply permission to mutate every repository.
+- [x] F1 -- Inventory explicitly declared roots read-only: Git state/remotes, manifests,
+  docs/plans, services/deployments and automation. Deduplicate physical roots and
+  worktrees; classify core/satellite/personal/business/experiment/archive/excluded.
+  Obtain an explicit in-scope list and exclusion reasons before expanding the fabric.
+  (Completed: docs/plans/archive/2026-09-17-f1-inventory/EREGION_PHYSICAL_ROOT_INVENTORY.md)
 
-## Project record
+- [x] F2 -- Reconcile existing manifest and registry identities against actual source
+  and commands. Draft only missing contracts; preserve dirty work as read-only until
+  its ownership and approved mutation scope are understood.
+  (Completed for 3 business apps: docs/plans/archive/2026-09-17-f2-reconciliation/BUSINESS_APPS_RECONCILIATION.md;
+  Completed for 14 remaining projects: docs/plans/archive/2026-09-17-f2-reconciliation/REMAINING_14_RECONCILIATION.md)
 
-Each connected project needs:
+- [x] F3 -- Review identities and consequential authority in coherent operator batches;
+  attach through existing Workbench authority with approval/idempotency receipts.
+  No direct registry rewrite or discovery-as-approval shortcut.
+  (Completed for 3 business apps:
+  docs/plans/archive/2026-09-17-f3-contracts/BUSINESS_APPS_CONTRACTS.md;
+  attached to registry (25 entries);
+  Completed for 14 remaining projects:
+  docs/plans/archive/2026-09-17-f3-contracts/REMAINING_14_CONTRACTS.md;
+  17 total deferred -- see below)
 
-- stable ID, name, purpose, class, owner, and lifecycle status;
-- canonical root and repository identity;
-- relationships to Arda and other projects;
-- authoritative requirements, plans, issue sources, and documentation;
-- languages, adapters, build/test/lint/run commands, and artifacts;
-- acceptance criteria and human-visible outcomes;
-- read/write/network/secret/deployment authority;
-- protected paths and dirty-worktree policy;
-- rollback and recovery strategy;
-- current risks, stale assumptions, unfinished work, and next objective;
-- Vairë memory namespace and Soterion indexing scope.
+- [x] F4 -- Separate proof/demo records from production attachment without erasing
+  historical lineage. Bind resident leaves to real IDs and roots; prove commands run
+  in the declared repository, not an accidental . or proof-copy directory.
+  (Completed: docs/plans/archive/2026-09-17-f4-proof-demo-separation/SEPARATION.md)
 
-## Implementation sequence
+- [x] F5 -- Feed Rumil project-purpose/requirements/source/test/runtime/receipt and
+  dependency-drift comparisons into the existing daily-loop owner. Retain cited
+  stale/incomplete findings; Rumil proposes, never authorizes its own mutation.
+  (Completed: docs/plans/archive/2026-09-17-f5-rumil-supply/RUMIL_SUPPLY.md)
 
-### F1 — Discovery and classification
+- [x] F6 -- Record cross-project dependencies/shared contracts and compatibility checks.
+  A change may create ordered leaves through canonical authority, not cloned code
+  or a competing queue.
+  (Completed: docs/plans/archive/2026-09-17-f6-cross-project-deps/CROSS_PROJECT_DEPENDENCIES.md)
 
-Build a read-only inventory command for declared roots. Detect Git state, remotes, manifests, build systems, docs/plans, services, deployments, and existing automation. Classify projects as core Arda, Arda satellite, personal, business, experiment, archived, or excluded.
+- [x] F7 -- Apply/validate Soterion metadata only where it improves discovery; use
+  metadata to find owned files then read actual sources. Labels do not prove runtime,
+  freshness or approval. Preserve language-valid metadata conventions in code.
+  (Completed: docs/plans/archive/2026-09-17-f7-soterion-metadata/SOTERION_METADATA.md)
 
-### F2 — Reconcile existing contracts
+## Remaining work after F3 closure
 
-Compare any existing root-level `arda-project.json`, the Workbench registry, and live repository evidence. Generate a draft where no real project contract exists. Never promote test/worktree fixtures into portfolio authority, and never invent commands or authority. Dirty repositories default to read-only. Missing or stale acceptance criteria become explicit review items.
+F2/F3 for the 14 in-scope projects is **CLOSED 2026-09-17**: contracts drafted,
+commands live-verified where possible, and all 14 attached to
+`data/workbench/projects.json` (registry 25→37 entries). The per-project notes
+below were accurate at survey time and are retained for history; verification
+results supersede "needs survey" entries.
 
-### F3 — Operator review and attachment
+### Verification results (2026-09-17, this session)
 
-Present contracts in coherent batches. The operator approves project identity and consequential authority once; routine work then follows that policy. Attach through the loopback Workbench API with durable approval/idempotency evidence.
+All 7 Rust crates + Arda-HUD had `cargo test` / `pnpm test` run live against
+their canonical roots. Results recorded in the attached contracts' `commands[].verified`
+and `checks[].status` fields.
 
-### F4 — Converge production attachment
+| Project | test command | result |
+|---|---|---|
+| Arda-Agent-Loop-Contract | cargo test | 2 passed |
+| Arda-Signal-Grid | cargo test | 6 passed (2 lib + 4 smoke) |
+| Arda-Council | cargo test | 3 passed (3 smoke + 3 doc) |
+| Arda-Forge-Mind | cargo test | 7 passed (3 lib + 4 smoke) |
+| Arda-Human | cargo test | 3 passed (1 lib + 2 target_local) |
+| Arda-Service-Registry | cargo test | 3 passed (3 smoke) |
+| Arda-HUD | pnpm test (vitest) | 258 passed, 69 files |
 
-Retain valid project structures, separate proof/demo records from production authority, and converge Workbench attachment on canonical manifest identity. Bind queue tasks to actual project IDs and roots. Verify adapter commands run in the declared repository rather than `.` by accident.
+### Deferred beyond F3
 
-### F5 — Rúmil audit cycle
+- **Build commands not verified** — `cargo build` / `pnpm run build` / `tauri:build:stable`
+  remain `verified: null` in the attached contracts. Test passing is a positive signal
+  but build is a separate gate.
+- **Arda-HUD dirty work** — 4 modified files (`scripts/node_monitor.sh`,
+  `src-tauri/Cargo.toml`, `src/lib/ardaBundleTypes.ts`, `src/lib/ardaSource.ts`)
+  were stashed on the `refactor` branch as `f3-attachment-20260917` before attachment.
+  Stash fate (restore to main, merge, or discard) is operator decision.
+- **wakita + ravensnestweb command verification** — RavensNestInc org repos; operator
+  confirmed guest access with local-only mutation authority. No local npm test run.
+  Contracts record `push: false` and the ownership boundary explicitly.
+- **filamentDB + ravensnestweb deeper survey** — filamentDB deeper survey done (src/,
+  amplify/, env names identified, yarn confirmed). ravensnestweb still needs per-package
+  survey of `apps/web/package.json` and `apps/api/package.json`.
+- **relic-kiosk + citadel-avatar** — no git, no buildable commands; contracts reflect
+  prototype/runtime-projection status with no verification possible.
 
-For each connected project, Rúmil periodically compares:
+### Open gates (see whole-system program)
 
-- operator-authored purpose and requirements;
-- active plans and queue state;
-- source, tests, runtime/deployment state, and open failures;
-- prior receipts and unresolved reviews;
-- dependency/security/toolchain drift;
-- current external approaches relevant to actual goals.
+G3.2, G3.3, G3.4 remain open (see Gate 3 acceptance below). These are tracked in the
+whole-system completion program, not re-created here.
 
-It emits a cited current-state record, identifies stale or falsely completed work, and promotes bounded outcomes into the canonical completion loop according to policy.
+### Per-project survey notes (historical)
 
-### F6 — Cross-project graph
+Detailed per-project survey notes (manifests, git state, env file presence, command
+inference) were captured during F2 and are preserved in the archive:
+- F2 reconciliation: `docs/plans/archive/2026-09-17-f2-reconciliation/REMAINING_14_RECONCILIATION.md`
+- F3 contracts: `docs/plans/archive/2026-09-17-f3-contracts/REMAINING_14_CONTRACTS.md`
 
-Record dependencies and shared contracts so a change in one repository can create ordered tasks in others. Require compatibility checks at boundaries. Do not clone code or create parallel authorities merely to claim connection.
+The attached contracts in `data/workbench/projects.json` are the live source of truth;
+verification results from this session supersede "needs survey" entries in those docs.
 
-### F7 — Soterion metadata coverage
+## Gate 3 acceptance
 
-Apply Soterion as the intended machine-readable YAML header convention:
+- [x] G3.1 -- Every explicitly in-scope project has a truthful approved contract or
+  recorded exclusion; fixture/worktree copies are not counted as extra projects.
+  (Closed 2026-09-17: 3 business apps (CoverCoINC, wgtt, skylightpros) already attached;
+  14 remaining projects contracted and attached in this session --
+  `data/workbench/projects.json` 25→37 entries. F1 inventory exclusions preserved.
+  M4 fixtures in `data/arda/acceptance/m4/` are acceptance stubs, not counted as
+  additional projects.)
 
-- add or correct headers on Markdown and selected `.rs`/`.ts` files where metadata materially improves discovery;
-- validate the declared fields and keep them grep-friendly;
-- use metadata filters to narrow ordinary file, text, and symbol searches;
-- follow the located source to its owning contract and live evidence before making decisions;
-- never treat a Soterion label or index entry as proof of completeness, freshness, approval, or runtime truth.
+- [ ] G3.2 -- The Gate 1 M4 outcome proves correctly rooted cross-project work,
+  per-project checks and dirty-work preservation. Reuse that receipt rather than
+  running a duplicate scenario. (Not yet verifiable -- M4 fixtures in
+  `data/arda/acceptance/m4/` are acceptance stubs: `project-a/acceptance.txt` =
+  "resident objective runtime accepted this project." and v2–v5 =
+  "resident-objective-acceptance-fixture-ok". No real cross-project outcome with
+  rooted work, per-project checks and dirty-work preservation is recorded. G1 has
+  not passed; no M4 receipt exists to reuse. Gate 1 (autonomous loop) and the
+  whole-system program's next-step sequence step 2–3 are the path to a genuine M4.)
 
-## Rollout waves
+- [ ] G3.3 -- Metadata-guided discovery reaches the right canonical sources and scoped
+  memory without implying permission to change them. (F7 completed; needs live verification)
 
-1. **Core system:** Arda, Arda-HUD, Arda-Agent-Loop-Contract, Arda-Council, Arda-Service-Registry, Arda-Signal-Grid, Arda-Tool-Gate.
-2. **Supporting intelligence/data:** Arda-Forge-Mind, Arda-Human, filamentDB, signal-router.
-3. **Operator business/personal projects:** CoverCoINC, ravensnestweb, realmgateWarriors, skylightpros, wakita, wgtt.
-4. **Experiments:** samsy-ninja-test and any subsequently discovered experimental roots.
+- [ ] G3.4 -- A real stale/incomplete project claim receives an approved correction,
+  verification and follow-up audit through the daily-loop owner.
+  (docs/plans/DAILY_RESEARCH_IMPROVEMENT_LOOP.md; not yet exercised)
 
-Wave membership must be corrected after repository-purpose inspection; names alone are not authority.
+## Exit gate
 
-## Acceptance
+Approved production project connectivity demonstrably changes planning,
+execution, continuation and verification. A registry containing names is insufficient.
+Two bounded contracts are enough to unblock M4; broader portfolio rollout is not
+an arbitrary prerequisite to the first useful outcome.
 
-- Every in-scope project has an approved truthful contract or an explicit exclusion reason.
-- A cross-project objective decomposes into correctly rooted tasks and passes each repository's checks.
-- Dirty operator work is preserved.
-- Soterion metadata narrows discovery to the relevant owned files, after which canonical sources provide task, receipt, project, and runtime truth.
-- Rúmil finds at least one real stale/incomplete claim and carries its correction through verified closure.
+The 3 business apps (CoverCoINC, wgtt, skylightpros) are attached and constitute
+the first bounded set. F2/F3 for the 14 remaining projects (7 core Arda parts +
+3 additional business + 2 internal + ravensnestweb) is drafted but not attached;
+reconciliation docs and contracts are in the archive tree. Attachment awaits
+operator approval with idempotency receipts.
 
-## Done
+## Verification and retirement
 
-The fabric is complete when project connectivity changes what Arda can correctly plan, execute, resume, and verify—not when a registry merely lists repository names.
+Use existing registry/attachment/contract validation tests, rooted-command and
+idempotency checks, before/after dirty-work evidence and canonical run receipts.
+Observe effects under reviewed project authority; do not execute every discovered
+repository's build scripts during inventory. Link accepted evidence to the
+whole-system program (docs/plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md) and retire the active
+plan when its approved scope and gates pass.

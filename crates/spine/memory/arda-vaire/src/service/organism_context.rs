@@ -49,6 +49,8 @@ pub struct OrganismContext {
     #[serde(default)]
     pub memory_refs: Vec<String>,
     #[serde(default)]
+    pub excluded_refs: Vec<String>,
+    #[serde(default)]
     pub unresolved_failures: Vec<ContextFailure>,
     pub return_contract: ContextReturnContract,
 }

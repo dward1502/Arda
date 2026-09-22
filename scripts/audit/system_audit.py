@@ -62,7 +62,7 @@ class TargetSpec:
 
 TARGETS: dict[str, TargetSpec] = {
     "RUMIL": TargetSpec("RUMIL", "subsystem", "crates/spine/runtime/arda-rumil", ("Project organization, audit evidence, lifecycle review, and no-delete hygiene.",), support_paths=("scripts/rumil_organization_maintenance.sh", "data/rumil"), keywords=("rumil", "lifecycle", "archive", "review", "cleanup")),
-    "PROMETHEUS": TargetSpec("PROMETHEUS", "subsystem", "crates/spine/observability/arda-aule", ("Autopilot orchestration, governance gates, and queue posture reporting.",), support_paths=("data/hades/action_queue.jsonl",), keywords=("autopilot", "objective", "governance", "queue", "promote")),
+    "PROMETHEUS": TargetSpec("PROMETHEUS", "subsystem", "crates/spine/observability/arda-aule", ("Autopilot orchestration, governance gates, and queue posture reporting.",), keywords=("autopilot", "objective", "governance", "queue", "promote")),
     "MANWE": TargetSpec("MANWE", "agent_crate", "crates/spine/runtime/manwe", ("Delegation, inference routing, provider health, and fallback behavior.",), support_paths=("config/manwe.providers.toml", "scripts/refresh_provider_intelligence.py"), keywords=("provider", "route", "model", "health", "delegation")),
 }
 

@@ -124,6 +124,7 @@ async fn reopen(root: &Path) {
         );
     }
     let state = HarnessState {
+        research_store_policy: super::super::super::ResearchStorePolicy::Isolated,
         harness_addr: "127.0.0.1:0".into(),
         child_pids: Arc::new(tokio::sync::RwLock::new(vec![])),
         service_names: Arc::new(vec![]),

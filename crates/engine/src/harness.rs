@@ -51,9 +51,65 @@ pub const DEFAULT_MANWE_PROXY_TIMEOUT: Duration = Duration::from_secs(5);
 /// Default timeout for bounded Warden scout queries.
 pub const DEFAULT_WARDEN_SCOUT_TIMEOUT: Duration = Duration::from_secs(30);
 
+/// Explicit research side-effect policy, selected by the host, never HTTP input.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResearchStorePolicy {
+    /// Retain installed operator-library, Warden and memory integrations.
+    Production,
+    /// Fixture-local outputs (including governance), with Mnemosyne disabled.
+    Isolated,
+}
+
+impl ResearchStorePolicy {
+    /// Persist an already fetched, security-checked source using the host's storage policy.
+    /// This performs no network fetch and grants no objective execution authority.
+    pub fn ingest_capture(
+        self,
+        root: &std::path::Path,
+        node_context: &str,
+        mut crawl: arda_varda::ingest::CrawlMarkdownResult,
+    ) -> arda_core::error::Result<ResearchCapture> {
+        let store = self.open(root)?;
+        let record = store.ingest(&crawl.url, "workbench_research", node_context)?;
+        crawl.pipeline_id = record.pipeline_id.clone();
+        let receipt = store.record_crawl_capture(
+            &crawl.url,
+            "workbench_research",
+            node_context,
+            "workbench://canonical-http-fetch",
+            &crawl,
+        )?;
+        let deep = store.deep_analyze_for_pipeline(&record.id, &record.pipeline_id)?;
+        Ok(ResearchCapture {
+            record,
+            receipt,
+            deep,
+        })
+    }
+
+    pub fn open(
+        self,
+        root: &std::path::Path,
+    ) -> arda_core::error::Result<arda_varda::ingest::AthenaStore> {
+        match self {
+            Self::Production => arda_varda::ingest::AthenaStore::new(root),
+            Self::Isolated => arda_varda::ingest::AthenaStore::new_isolated(root),
+        }
+    }
+}
+
+/// Stored outputs of the shared post-fetch research lifecycle.
+pub struct ResearchCapture {
+    pub record: arda_varda::ingest::IngestRecord,
+    pub receipt: arda_varda::ingest::CrawlCaptureReceipt,
+    pub deep: arda_varda::ingest::DeepBookEntry,
+}
+
 /// Shared harness state, injected into the axum router.
 #[derive(Clone)]
 pub struct HarnessState {
+    /// Host-selected storage boundary for Varda research lifecycle side effects.
+    pub research_store_policy: ResearchStorePolicy,
     /// Actual bound harness address, populated by `serve` after binding.
     pub harness_addr: String,
     /// Live supervised child PIDs, refreshed by the supervisor.
@@ -209,7 +265,7 @@ struct Status {
 }
 
 /// Build the axum router for the harness surface.
-fn router(state: HarnessState) -> axum::Router {
+fn router(state: HarnessState, provider_jobs: recovery_jobs::ProviderJobs) -> axum::Router {
     axum::Router::new()
         .route("/health", get(health))
         .route("/v1/objective-runtime", get(objective_runtime_status))
@@ -358,6 +414,7 @@ fn router(state: HarnessState) -> axum::Router {
             HarnessPresenceState::default(),
         ))
         .with_state(state)
+        .layer(axum::Extension(provider_jobs))
         .layer(harness_cors_layer())
 }
 
@@ -696,24 +753,30 @@ async fn serve_inner(
 #[must_use]
 pub struct HarnessShutdownReport {
     recovery_jobs: RecoveryJobs,
+    provider_jobs: recovery_jobs::ProviderJobs,
     server: Option<tokio::task::JoinHandle<()>>,
     pub unresolved_recoveries: usize,
+    pub unresolved_providers: usize,
 }
 
 impl HarnessShutdownReport {
     async fn collect(
         recovery_jobs: RecoveryJobs,
+        provider_jobs: recovery_jobs::ProviderJobs,
         server: tokio::task::JoinHandle<()>,
         budget: Duration,
     ) -> Self {
         let mut report = Self {
             recovery_jobs,
+            provider_jobs,
             server: Some(server),
             unresolved_recoveries: 0,
+            unresolved_providers: 0,
         };
         if !report.settle(budget).await {
             tracing::error!(
                 unresolved = report.unresolved_recoveries,
+                unresolved_providers = report.unresolved_providers,
                 "Harness shutdown incomplete; transferring retained owners to caller"
             );
         }
@@ -725,6 +788,7 @@ impl HarnessShutdownReport {
         while !self.settle(Duration::from_secs(10)).await {
             tracing::error!(
                 unresolved = self.unresolved_recoveries,
+                unresolved_providers = self.unresolved_providers,
                 "Harness shutdown unresolved; retaining owners and dependencies"
             );
         }
@@ -733,6 +797,10 @@ impl HarnessShutdownReport {
     async fn settle(&mut self, budget: Duration) -> bool {
         let deadline = tokio::time::Instant::now() + budget;
         self.unresolved_recoveries = self.recovery_jobs.drain(budget).await;
+        self.unresolved_providers = self
+            .provider_jobs
+            .drain(deadline.saturating_duration_since(tokio::time::Instant::now()))
+            .await;
         if let Some(server) = self.server.as_mut() {
             if let Ok(result) = tokio::time::timeout_at(deadline, server).await {
                 if let Err(error) = result {
@@ -741,7 +809,7 @@ impl HarnessShutdownReport {
                 self.server = None;
             }
         }
-        self.unresolved_recoveries == 0 && self.server.is_none()
+        self.unresolved_recoveries == 0 && self.unresolved_providers == 0 && self.server.is_none()
     }
 }
 
@@ -787,7 +855,8 @@ async fn serve_inner_owned(
     let publisher_root = state.workbench_root.clone();
     prerequisites.recovery_jobs = RecoveryJobs::new(shutdown.clone());
     let recovery_jobs = prerequisites.recovery_jobs.clone();
-    let app = router(state)
+    let provider_jobs = recovery_jobs::ProviderJobs::new(shutdown.clone());
+    let app = router(state, provider_jobs.clone())
         .layer(axum::Extension(prerequisites))
         .layer(axum::middleware::from_fn(stop_request_ingestion))
         .layer(axum::Extension(shutdown.clone()));
@@ -824,7 +893,13 @@ async fn serve_inner_owned(
             }
         };
         tokio::join!(publisher, stopping);
-        HarnessShutdownReport::collect(recovery_jobs, server, Duration::from_secs(10)).await
+        HarnessShutdownReport::collect(
+            recovery_jobs,
+            provider_jobs,
+            server,
+            Duration::from_secs(10),
+        )
+        .await
     });
     Ok((bound, handle))
 }
@@ -866,7 +941,7 @@ async fn stop_request_ingestion(
 mod tests {
     use super::{
         project_beelink_targets, serve, telemetry_status_from_config, HarnessState,
-        TelemetryStatus, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
+        ResearchStorePolicy, TelemetryStatus, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
     };
     use crate::harness::presence::HarnessPresenceState;
 
@@ -884,6 +959,7 @@ mod tests {
     #[tokio::test]
     async fn harness_rejects_non_loopback_bind_without_inbound_authentication() {
         let state = HarnessState {
+            research_store_policy: ResearchStorePolicy::Isolated,
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
@@ -932,6 +1008,7 @@ mod tests {
 
         let shutdown = Arc::new(Notify::new());
         let state = HarnessState {
+            research_store_policy: ResearchStorePolicy::Isolated,
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
@@ -1068,6 +1145,7 @@ mod tests {
 
         let shutdown = Arc::new(Notify::new());
         let state = HarnessState {
+            research_store_policy: ResearchStorePolicy::Isolated,
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
@@ -1109,6 +1187,7 @@ mod tests {
     async fn models_proxy_reports_network_loss_without_false_completion() {
         let shutdown = Arc::new(Notify::new());
         let state = HarnessState {
+            research_store_policy: ResearchStorePolicy::Isolated,
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
@@ -1148,6 +1227,7 @@ mod tests {
     #[tokio::test]
     async fn presence_routes_are_published_through_the_harness() {
         let state = HarnessState {
+            research_store_policy: ResearchStorePolicy::Isolated,
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),

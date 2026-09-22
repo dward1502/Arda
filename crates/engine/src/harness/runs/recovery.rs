@@ -7,7 +7,7 @@ pub(super) use publication::publish_provider;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-pub(in crate::harness) enum RecoveryResult {
+pub enum RecoveryResult {
     Completed,
     CleanupOnly,
 }

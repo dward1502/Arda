@@ -1,29 +1,24 @@
-use arda_engine::harness::{
-    presence::HarnessPresenceState, serve, HarnessState, DEFAULT_HARNESS_ADDR,
-    DEFAULT_MANWE_PROXY_TIMEOUT, DEFAULT_WARDEN_SCOUT_TIMEOUT,
-};
 use arda_engine::objectives::{ObjectiveState, ObjectiveStore};
 use chrono::Utc;
 use serde_json::{json, Value};
 use std::fs;
 use std::sync::Arc;
 use tempfile::TempDir;
-use tokio::sync::{Notify, RwLock};
+use tokio::sync::Notify;
+
+#[path = "fixtures/gateway.rs"]
+mod gateway;
+use gateway::*;
+#[path = "fixtures/admitted_evidence.rs"]
+mod admitted_evidence;
+#[path = "fixtures/gateway_authority.rs"]
+mod gateway_authority;
 
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
-const GATEWAY_CAPABILITY: &str = "test-hermes-gateway-capability";
 
-fn gateway_client() -> reqwest::Client {
-    let mut headers = reqwest::header::HeaderMap::new();
-    headers.insert(
-        "x-arda-gateway-capability",
-        GATEWAY_CAPABILITY.parse().expect("test capability header"),
-    );
-    reqwest::Client::builder()
-        .default_headers(headers)
-        .build()
-        .expect("gateway client")
-}
+#[path = "fixtures/context_provider.rs"]
+mod context_provider;
+mod research_delivery;
 
 async fn start_harness(
     root: &TempDir,
@@ -32,32 +27,18 @@ async fn start_harness(
     Arc<Notify>,
     tokio::task::JoinHandle<()>,
 ) {
-    std::env::set_var("ARDA_HERMES_GATEWAY_CAPABILITY", GATEWAY_CAPABILITY);
-    ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
-    let shutdown = Arc::new(Notify::new());
-    let state = HarnessState {
-        harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
-        child_pids: Arc::new(RwLock::new(Vec::new())),
-        service_names: Arc::new(Vec::new()),
-        service_statuses: Arc::new(RwLock::new(Vec::new())),
-        manwe_url: "http://127.0.0.1:1".into(),
-        client: reqwest::Client::new(),
-        manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
-        manwe_proxy_bearer: None,
-        warden_scout_url: None,
-        warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
-        presence_inputs: HarnessPresenceState::default(),
-        workbench_root: root.path().to_path_buf(),
-        operator_id: "discord-user-1".to_string(),
-    };
-    let (bound, handle) = serve(
-        Some("127.0.0.1:0".parse().expect("loopback")),
-        state,
-        shutdown.clone(),
-    )
-    .await
-    .expect("start harness");
-    (bound, shutdown, handle)
+    start_research_harness(root, None).await
+}
+
+async fn start_research_harness(
+    root: &TempDir,
+    warden_scout_url: Option<String>,
+) -> (
+    std::net::SocketAddr,
+    Arc<Notify>,
+    tokio::task::JoinHandle<()>,
+) {
+    start_research_harness_at(root.path(), warden_scout_url).await
 }
 
 async fn start_capability_harness(
@@ -82,37 +63,6 @@ fn mutation_envelope(key: &str) -> Value {
             "created_at_utc": Utc::now().to_rfc3339()
         },
         "idempotency_key": key
-    })
-}
-
-fn gateway_message(message_id: &str, text: &str) -> Value {
-    let timestamp = Utc::now().to_rfc3339();
-    json!({
-        "operator": {
-            "operator_id": "discord-user-1",
-            "authenticated": true,
-            "authentication_method": "gateway_identity",
-            "authenticated_at": timestamp
-        },
-        "adapter_id": "hermes-discord-default",
-        "event": {
-            "text": text,
-            "message_type": "text",
-            "user_id": "discord-user-1",
-            "user_name": "operator",
-            "source": {
-                "platform": "discord",
-                "chat_id": "discord-dm-1",
-                "chat_type": "dm",
-                "thread_id": null,
-                "message_id": message_id
-            },
-            "message_id": message_id,
-            "media_urls": [],
-            "media_types": [],
-            "timestamp": timestamp,
-            "prompt_response": null
-        }
     })
 }
 
@@ -158,6 +108,7 @@ async fn recovery_snapshot_deletion_requires_private_owner_and_closed_evidence()
     for kind in ["thread", "unknown", "", "DM", "operator_private", "group"] {
         for command in [
             "arda context",
+            "arda objective-from-brief missing 550e8400-e29b-41d4-a716-446655440000 Inspect",
             "arda recover-retained objective leaf run one-verify-start 30m reuse-expired-context",
         ] {
             let mut message = gateway_message(&format!("private-{kind}-{command}"), command);
@@ -348,6 +299,56 @@ async fn gateway_capability_is_required_before_operator_ingestion() {
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn local_cli_intake_requires_distinct_authentication_and_preserves_provenance() {
+    std::env::set_var("ARDA_HERMES_LOCAL_CAPABILITY", "test-local-capability");
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_capability_harness(&root).await;
+    let endpoint = format!("http://{bound}/v1/operator/local-messages");
+    let mut body = gateway_message("cli:session:message:operation", "arda status");
+    body["operator"]["authentication_method"] = json!("local_session");
+    body["adapter_id"] = json!("hermes-cli");
+    body["event"]["source"]["platform"] = json!("cli");
+    body["event"]["source"]["chat_id"] = json!("session");
+    body["event"]["source"]["chat_type"] = json!("private");
+    let client = reqwest::Client::new();
+    let missing = client.post(&endpoint).json(&body).send().await.unwrap();
+    assert_eq!(missing.status(), 403);
+    let gateway_only = gateway_client()
+        .post(&endpoint)
+        .json(&body)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(gateway_only.status(), 403);
+    let accepted = client
+        .post(&endpoint)
+        .header("x-arda-local-capability", "test-local-capability")
+        .json(&body)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(accepted.status(), 200);
+    let wrong_route = gateway_client()
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&body)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(wrong_route.status(), 403);
+    body["event"]["source"]["platform"] = json!("discord");
+    let forged = client
+        .post(&endpoint)
+        .header("x-arda-local-capability", "test-local-capability")
+        .json(&body)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(forged.status(), 403);
+    shutdown.notify_waiters();
+    handle.await.unwrap();
 }
 
 fn approval_graph(run_id: &str, node_id: &str) -> Value {
@@ -953,6 +954,332 @@ async fn gateway_cross_family_replay_and_invalid_transport_cannot_create_objecti
 }
 
 #[tokio::test]
+async fn gateway_shared_objective_intake_is_pending_and_does_not_publish_personal_context() {
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = gateway_client();
+    let mut contract: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .unwrap();
+    contract["identity"]["name"] = json!("Routing review");
+    contract["permissions"]["authority"] = json!("read_only");
+    contract["permissions"]["filesystem"]["write"] = json!(false);
+    contract["commands"] = json!([]);
+    contract["checks"] = json!([]);
+    client
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(&json!({"contract": contract, "envelope": mutation_envelope("shared-attach")}))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let projects_before = fs::read(root.path().join("data/workbench/projects.json")).unwrap();
+    let endpoint = format!("http://{bound}/v1/operator/messages");
+    for kind in ["group", "thread", "channel", "guild"] {
+        let project = if kind == "group" {
+            "\"Routing review\""
+        } else {
+            PROJECT_ID
+        };
+        let mut message = gateway_message(
+            &format!("shared-objective-{kind}"),
+            &format!("arda objective {project} Inspect repository-only routing"),
+        );
+        message["event"]["source"]["chat_type"] = json!(kind);
+        let response = client.post(&endpoint).json(&message).send().await.unwrap();
+        assert_eq!(
+            response.status(),
+            200,
+            "{kind}: {}",
+            response.text().await.unwrap()
+        );
+        let body: Value = response.json().await.unwrap();
+        assert!(body["summary"]
+            .as_str()
+            .unwrap()
+            .contains("requires review"));
+        assert!(!body.to_string().contains("personal/captures"));
+        assert!(!body.to_string().contains(PROJECT_ID));
+        let replay = client.post(&endpoint).json(&message).send().await.unwrap();
+        assert_eq!(replay.status(), 409);
+    }
+    let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
+    let objectives = store.list_objectives().unwrap();
+    assert_eq!(objectives.len(), 4);
+    for objective in objectives {
+        assert_eq!(objective.state, ObjectiveState::PendingApproval);
+        assert_eq!(objective.project_ids, vec![PROJECT_ID]);
+        assert!(store.list_leaves(&objective.id).unwrap().iter()
+            .all(|leaf| leaf.authority == "read_only"));
+    }
+    assert_eq!(
+        projects_before,
+        fs::read(root.path().join("data/workbench/projects.json")).unwrap()
+    );
+    assert!(!root.path().join("data/runs").exists());
+    // Shared intake must not create a personal capture or disclose its references.
+    assert!(!root.path().join("data/personal").exists());
+    for kind in ["unknown", "", "operator_private"] {
+        let mut message = gateway_message(
+            &format!("unknown-objective-{kind}"),
+            &format!("arda objective {PROJECT_ID} Inspect"),
+        );
+        message["event"]["source"]["chat_type"] = json!(kind);
+        assert_eq!(
+            client
+                .post(&endpoint)
+                .json(&message)
+                .send()
+                .await
+                .unwrap()
+                .status(),
+            403
+        );
+    }
+    for (index, (text, expected)) in [
+        ("arda capture private note", 403),
+        ("arda context", 403),
+        ("arda status", 403),
+        (
+            "arda objective-from-brief private-brief \"Routing review\" inspect",
+            403,
+        ),
+        ("arda objective \"Missing project\" inspect", 404),
+        ("arda objective \"routing review\" inspect", 404),
+        ("arda objective \"Routing review\"inspect", 400),
+        ("arda objective \"Routing review", 400),
+    ]
+    .iter()
+    .enumerate()
+    {
+        let mut message = gateway_message(&format!("rejected-shared-{index}"), text);
+        message["event"]["source"]["chat_type"] = json!("group");
+        let response = client.post(&endpoint).json(&message).send().await.unwrap();
+        assert_eq!(
+            response.status().as_u16(),
+            *expected,
+            "{text}: {}",
+            response.text().await.unwrap()
+        );
+    }
+    let mut unauthenticated = gateway_message(
+        "unauthenticated-shared",
+        "arda objective \"Routing review\" inspect",
+    );
+    unauthenticated["event"]["source"]["chat_type"] = json!("group");
+    unauthenticated["operator"]["authenticated"] = json!(false);
+    assert_eq!(
+        client
+            .post(&endpoint)
+            .json(&unauthenticated)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        403
+    );
+    let mut duplicate_name = contract.clone();
+    duplicate_name["identity"]["project_id"] = json!("550e8400-e29b-41d4-a716-446655440001");
+    client
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(
+            &json!({"contract": duplicate_name, "envelope": mutation_envelope("ambiguous-attach")}),
+        )
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let mut ambiguous = gateway_message(
+        "ambiguous-project-name",
+        "arda objective \"Routing review\" inspect",
+    );
+    ambiguous["event"]["source"]["chat_type"] = json!("group");
+    let response = client
+        .post(&endpoint)
+        .json(&ambiguous)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 409);
+    assert!(response.text().await.unwrap().contains("ambiguous"));
+    assert_eq!(store.list_objectives().unwrap().len(), 4);
+    assert!(!root.path().join("data/personal").exists());
+    let selected = store.list_objectives().unwrap().remove(0);
+    let private = gateway_message(
+        "private-intake-peer",
+        &format!("arda objective {PROJECT_ID} Private objective text"),
+    );
+    client
+        .post(&endpoint)
+        .json(&private)
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let private_id = store
+        .list_objectives()
+        .unwrap()
+        .into_iter()
+        .find(|objective| objective.text == "Private objective text")
+        .unwrap()
+        .id;
+    let task_id = format!("{}-project-1", selected.id);
+    let mut status = gateway_message("shared-status", "arda objectives");
+    status["event"]["source"]["chat_type"] = json!("group");
+    let response = client.post(&endpoint).json(&status).send().await.unwrap();
+    assert_eq!(response.status(), 200);
+    let body: Value = response.json().await.unwrap();
+    assert!(body["summary"]
+        .as_str()
+        .unwrap()
+        .contains("pending_approval"));
+    assert!(body["summary"].as_str().unwrap().contains(&selected.id));
+    assert!(!body.to_string().contains("Inspect repository-only routing"));
+    assert!(!body.to_string().contains(PROJECT_ID));
+    assert!(!body.to_string().contains(&private_id));
+    assert!(body["summary"]
+        .as_str()
+        .unwrap()
+        .contains("arda pause-task"));
+    let mut private_control = gateway_message(
+        "shared-private-pause",
+        &format!("arda pause-task {private_id}-project-1 {private_id} hold"),
+    );
+    private_control["event"]["source"]["chat_type"] = json!("group");
+    assert_eq!(
+        client
+            .post(&endpoint)
+            .json(&private_control)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        403
+    );
+    for (index, (field, value)) in [
+        ("chat_id", "another-room"),
+        ("thread_id", "another-thread"),
+        ("platform", "telegram"),
+    ]
+    .iter()
+    .enumerate()
+    {
+        let mut other = gateway_message(&format!("other-status-{index}"), "arda objectives");
+        other["event"]["source"]["chat_type"] = json!("group");
+        other["event"]["source"][*field] = json!(value);
+        let response = client.post(&endpoint).json(&other).send().await.unwrap();
+        assert_eq!(response.status(), 200);
+        assert!(!response.text().await.unwrap().contains(&selected.id));
+        let mut control = gateway_message(
+            &format!("other-pause-{index}"),
+            &format!("arda pause-task {task_id} {} hold", selected.id),
+        );
+        control["event"]["source"]["chat_type"] = json!("group");
+        control["event"]["source"][*field] = json!(value);
+        assert_eq!(
+            client
+                .post(&endpoint)
+                .json(&control)
+                .send()
+                .await
+                .unwrap()
+                .status(),
+            403
+        );
+    }
+    for (verb, expected_state) in [
+        ("pause-task", ObjectiveState::Paused),
+        ("resume-task", ObjectiveState::PendingApproval),
+        ("cancel-task", ObjectiveState::Cancelled),
+    ] {
+        let mut control = gateway_message(
+            &format!("same-room-{verb}"),
+            &format!("arda {verb} {task_id} {} operator request", selected.id),
+        );
+        control["event"]["source"]["chat_type"] = json!("group");
+        let response = client.post(&endpoint).json(&control).send().await.unwrap();
+        assert_eq!(
+            response.status(),
+            200,
+            "{verb}: {}",
+            response.text().await.unwrap()
+        );
+        assert_eq!(
+            store.objective(&selected.id).unwrap().unwrap().state,
+            expected_state
+        );
+        assert_eq!(
+            client
+                .post(&endpoint)
+                .json(&control)
+                .send()
+                .await
+                .unwrap()
+                .status(),
+            409
+        );
+    }
+    shutdown.notify_waiters();
+    handle.await.unwrap();
+}
+
+#[tokio::test]
+async fn gateway_python_bridge_roundtrip_uses_real_http_and_storage() {
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let mut contract: Value = serde_json::from_str(include_str!(
+        "../../../spec/project-contract/v1/examples/rust-project.json"
+    ))
+    .unwrap();
+    contract["identity"]["name"] = json!("Routing review");
+    gateway_client()
+        .post(format!("http://{bound}/v1/projects/attach"))
+        .json(&json!({"contract": contract, "envelope": mutation_envelope("roundtrip-attach")}))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let output = tokio::time::timeout(
+        std::time::Duration::from_secs(20),
+        tokio::process::Command::new("python3")
+            .arg(
+                std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../adapters/hermes-operator-bridge/test_harness_roundtrip.py"),
+            )
+            .arg(format!("http://{bound}"))
+            .env("HERMES_HOME", root.path().join("hermes"))
+            .env("ARDA_OPERATOR_ID", "discord-user-1")
+            .env("ARDA_HERMES_GATEWAY_CAPABILITY", GATEWAY_CAPABILITY)
+            .kill_on_drop(true)
+            .output(),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert!(
+        output.status.success(),
+        "stdout={} stderr={}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(report["controls"], 3);
+    let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
+    let objectives = store.list_objectives().unwrap();
+    assert_eq!(objectives.len(), 1);
+    assert_eq!(objectives[0].state, ObjectiveState::Cancelled);
+    assert_eq!(objectives[0].text, "Roundtrip inspection");
+    assert!(!root.path().join("data/runs").exists());
+    shutdown.notify_waiters();
+    handle.await.unwrap();
+}
+
+#[tokio::test]
 async fn gateway_multi_project_objective_preserves_all_attached_project_authorities() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
@@ -1186,7 +1513,18 @@ async fn gateway_research_command_persists_question_without_creating_commitment(
         .send()
         .await
         .expect("duplicate research");
-    assert_eq!(duplicate.status(), 409);
+    assert_eq!(duplicate.status(), 200);
+    assert_eq!(duplicate.json::<Value>().await.unwrap(), response);
+    let mut changed = body.clone();
+    changed["event"]["text"] = "arda research a different question".into();
+    assert!(!client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&changed)
+        .send()
+        .await
+        .unwrap()
+        .status()
+        .is_success());
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");

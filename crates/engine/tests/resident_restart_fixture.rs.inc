@@ -51,7 +51,11 @@ async fn resident_receipt_crash_child() {
     let mut resident_approval = envelope("resident-execution");
     resident_approval["approval"]["ledger_writes"] =
         json!(["data/arda/objectives.sqlite3", "data/runs"]);
-    store
+    let admitted_ids = if installed_admission::enabled() {
+        assert!(keeper.is_some());
+        Some(installed_admission::approve(&root, bound).await)
+    } else {
+        store
         .create_authenticated_objective(
             NewObjective {
                 id: "resident-crash".into(),
@@ -83,19 +87,21 @@ async fn resident_receipt_crash_child() {
             if keeper.is_some() { chrono::Utc::now().timestamp_millis() } else { 100 },
         )
         .unwrap();
-    store
-        .apply_control(
-            "resident-crash",
-            ControlAction::Approve { revision: 1 },
-            "resident-approve",
-            "operator-0",
-            if keeper.is_some() {
-                chrono::Utc::now().timestamp_millis()
-            } else {
-                110
-            },
-        )
-        .unwrap();
+        store
+            .apply_control(
+                "resident-crash",
+                ControlAction::Approve { revision: 1 },
+                "resident-approve",
+                "operator-0",
+                if keeper.is_some() {
+                    chrono::Utc::now().timestamp_millis()
+                } else {
+                    110
+                },
+            )
+            .unwrap();
+        None
+    };
     let mut claim = store
         .claim_runnable(
             "crashed-worker",
@@ -109,6 +115,10 @@ async fn resident_receipt_crash_child() {
         )
         .unwrap()
         .remove(0);
+    if let Some((objective, leaf)) = admitted_ids {
+        assert_eq!(claim.objective_id, objective);
+        assert_eq!(claim.leaf_id, leaf);
+    }
     if std::env::var("ARDA_RESIDENT_CRASH_POINT").as_deref() == Ok("retry-limit") {
         for now in [220, 320, 420, 520] {
             claim = store

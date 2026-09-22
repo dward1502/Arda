@@ -46,9 +46,7 @@ mod views;
 // mod validation_test;
 
 use deep::{deep_summary_for_source, implementation_brief_for_source, scholarly_title_for_deep};
-use interceptor::{
-    DigestEvent, HadesQueueInterceptor, IngestCtx, MnemosyneInterceptor, WardenQueueInterceptor,
-};
+use interceptor::{DigestEvent, IngestCtx, MnemosyneInterceptor, WardenQueueInterceptor};
 use layout::WorkspaceLayout;
 use observability::deep_queue_status_counts;
 use policy::{evaluate_policy_readiness, ingest_quarantine_reason, opposition_coverage_count};
@@ -672,14 +670,16 @@ impl AthenaStore {
         Self::from_layout(WorkspaceLayout::isolated(root), false)
     }
 
-    fn from_layout(layout: WorkspaceLayout, attach_mnemosyne: bool) -> Result<Self> {
+    fn from_layout(layout: WorkspaceLayout, attach_workspace_integrations: bool) -> Result<Self> {
         let workspace_root = layout::arda_root();
-        let governance_base =
-            if layout.root.is_relative() || layout.root.starts_with(&workspace_root) {
-                workspace_root
-            } else {
-                layout.root.clone()
-            };
+        // Isolated layout includes governance, even for fixtures inside the repository.
+        let governance_base = if attach_workspace_integrations
+            && (layout.root.is_relative() || layout.root.starts_with(&workspace_root))
+        {
+            workspace_root
+        } else {
+            layout.root.clone()
+        };
         let bacon_lite_paths = BaconLiteLogPaths::from_base_dir(governance_base);
         let books_dir = layout.books_dir.clone();
         let digest_path = layout.digest_path.clone();
@@ -694,7 +694,6 @@ impl AthenaStore {
         let human_sources_dir = layout.human_sources_dir.clone();
         let machine_index_path = layout.machine_index_path.clone();
         let digest_index_path = layout.digest_index_path.clone();
-        let hades_queue_path = layout.hades_queue_path.clone();
         let warden_queue_path = layout.warden_queue_path.clone();
 
         fs::create_dir_all(&books_dir)?;
@@ -739,25 +738,17 @@ impl AthenaStore {
             .create(true)
             .append(true)
             .open(&machine_index_path)?;
-        if let Some(parent) = hades_queue_path.parent() {
-            fs::create_dir_all(parent)?;
-        }
         if let Some(parent) = warden_queue_path.parent() {
             fs::create_dir_all(parent)?;
         }
         OpenOptions::new()
             .create(true)
             .append(true)
-            .open(&hades_queue_path)?;
-        OpenOptions::new()
-            .create(true)
-            .append(true)
             .open(&warden_queue_path)?;
 
         let interceptors = IngestPipeline::new();
-        interceptors.register(HadesQueueInterceptor::new(&hades_queue_path));
         interceptors.register(WardenQueueInterceptor::new(&warden_queue_path));
-        if attach_mnemosyne {
+        if attach_workspace_integrations {
             interceptors.register(MnemosyneInterceptor::from_default());
         }
 
@@ -792,8 +783,10 @@ impl AthenaStore {
     }
 
     /// Build (or rebuild) the in-memory digest index. Reads every book file
-    /// from disk and assembles a flat searchable snapshot. Subsequent
-    /// queries hit RAM until the books-dir mtime changes or the TTL expires.
+    /// from disk and assembles a flat searchable snapshot. Subsequent queries
+    /// check book metadata and read/hash the persisted index before reusing RAM.
+    /// Stale snapshots reload or rebuild; TTL expiry alone does not force a
+    /// book rescan when the persisted index still passes its revision check.
     pub fn warm_digest_index(&self) -> Result<usize> {
         let books_dir = self.books_dir.clone();
         let books_dir_for_ref = self.books_dir.clone();
@@ -804,8 +797,8 @@ impl AthenaStore {
                 .to_string()
         })?;
         let count = new_index.entries.len();
-        index::persist_index(&self.digest_index_path, &new_index)?;
-        new_index.persisted_index_mtime = index::persisted_index_mtime(&self.digest_index_path);
+        new_index.persisted_index_fingerprint =
+            Some(index::persist_index(&self.digest_index_path, &new_index)?);
         let mut guard = self
             .digest_index
             .write()
@@ -834,14 +827,14 @@ impl AthenaStore {
         F: FnOnce(&index::DigestIndex) -> R,
     {
         let current_mtime = index::books_dir_mtime(&self.books_dir);
-        let current_index_mtime = index::persisted_index_mtime(&self.digest_index_path);
+        let current_index_fingerprint = index::persisted_index_fingerprint(&self.digest_index_path);
         {
             let guard = self
                 .digest_index
                 .read()
                 .map_err(|e| athena_error(format!("digest index lock poisoned: {e}")))?;
             if let Some(idx) = guard.as_ref() {
-                if idx.is_fresh(current_mtime, current_index_mtime) {
+                if idx.is_fresh(current_mtime, current_index_fingerprint) {
                     return Ok(f(idx));
                 }
             }
@@ -866,8 +859,8 @@ impl AthenaStore {
                 .display()
                 .to_string()
         })?;
-        index::persist_index(&self.digest_index_path, &rebuilt)?;
-        rebuilt.persisted_index_mtime = index::persisted_index_mtime(&self.digest_index_path);
+        rebuilt.persisted_index_fingerprint =
+            Some(index::persist_index(&self.digest_index_path, &rebuilt)?);
         let mut guard = self
             .digest_index
             .write()
@@ -1242,12 +1235,35 @@ impl AthenaStore {
     }
 
     pub fn deep_analyze(&self, source_id: &str) -> Result<DeepBookEntry> {
+        self.deep_analyze_bound(source_id, None)
+    }
+
+    /// Recompute and persist an evaluation for the caller's exact ingest pipeline.
+    /// Unlike the legacy source-level API, this never reuses another pipeline's cache.
+    pub fn deep_analyze_for_pipeline(
+        &self,
+        source_id: &str,
+        pipeline_id: &str,
+    ) -> Result<DeepBookEntry> {
+        if pipeline_id.trim().is_empty() {
+            return Err(athena_error("explicit deep pipeline is required"));
+        }
+        self.deep_analyze_bound(source_id, Some(pipeline_id))
+    }
+
+    fn deep_analyze_bound(
+        &self,
+        source_id: &str,
+        expected_pipeline: Option<&str>,
+    ) -> Result<DeepBookEntry> {
         let Some(result) = try_run_bounded(
             "athena_deep_analyze",
             athena_deep_queue_limit(),
             || {
                 let source_id = source_id.trim();
-                let pipeline_id = self.pipeline_id_for_source(source_id);
+                let pipeline_id = expected_pipeline
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| self.pipeline_id_for_source(source_id));
                 let book_path = self.books_dir.join(format!("{source_id}.jsonl"));
                 if !book_path.exists() {
                     return Err(athena_error(format!(
@@ -1257,19 +1273,44 @@ impl AthenaStore {
 
                 let content = fs::read_to_string(&book_path)?;
                 let line_count = content.lines().count() as u32;
-                let shallow = content
-                    .lines()
-                    .find_map(|line| {
+                let shallow = if let Some(expected) = expected_pipeline {
+                    // Deduplicated ingests have a new digest record and context,
+                    // but intentionally do not append another shallow book entry.
+                    self.read_digest(Some(source_id), usize::MAX)?
+                        .into_iter()
+                        .filter_map(|value| serde_json::from_value::<IngestRecord>(value).ok())
+                        .find(|record| {
+                            record.id == source_id
+                                && record.pipeline_id == expected
+                                && !record.quarantine
+                        })
+                        .map(|record| BookEntry {
+                            pipeline_id: record.pipeline_id,
+                            version: 0,
+                            stage: "shallow".to_string(),
+                            written_at_utc: record.received_at_utc,
+                            sigil: "ANKH".to_string(),
+                            data: record.shallow,
+                        })
+                } else {
+                    content.lines().find_map(|line| {
                         let value: serde_json::Value = serde_json::from_str(line).ok()?;
                         if value.get("stage").and_then(|s| s.as_str()) == Some("shallow") {
                             return serde_json::from_value::<BookEntry>(value).ok();
                         }
                         None
                     })
-                    .ok_or_else(|| {
-                        athena_error(format!("missing shallow entry for source: {source_id}"))
-                    })?;
-                let shallow = self.recover_shallow_analysis(source_id, shallow)?;
+                }
+                .ok_or_else(|| {
+                    athena_error(format!("missing shallow entry for source: {source_id}"))
+                })?;
+                let shallow = if expected_pipeline.is_some() {
+                    // The explicit path uses only its admitted ingest snapshot;
+                    // source-level recovery consults the mutable latest ingest.
+                    shallow
+                } else {
+                    self.recover_shallow_analysis(source_id, shallow)?
+                };
 
                 let deep_query = format!(
                     "deep analyze {} {}",
@@ -1282,7 +1323,11 @@ impl AthenaStore {
                     .map(|llm| llm.default_model().to_string())
                     .unwrap_or_else(|| "athena-deterministic-scaffold-v1".to_string());
                 let deep_cache = deep_cache::DeepAnalysisCache::new(&self.root);
-                match deep_cache.load(&deep_query, &relevant_doc_ids, &model_id) {
+                match if expected_pipeline.is_none() {
+                    deep_cache.load(&deep_query, &relevant_doc_ids, &model_id)
+                } else {
+                    Ok(None)
+                } {
                     Ok(Some(cached)) => return Ok(cached),
                     Ok(None) => {}
                     Err(err) => {
@@ -1437,7 +1482,15 @@ impl AthenaStore {
                 };
                 self.append_jsonl(&self.deep_queue_path, &event)?;
                 self.append_jsonl(&self.digest_path, &event)?;
-                let ctx = self.event_ctx("athena_deep_complete", source_id);
+                let ctx = IngestCtx::new(
+                    "athena_deep_complete",
+                    source_id,
+                    "",
+                    "",
+                    "athena",
+                    "digest lifecycle side-effect",
+                )
+                .with_pipeline_id(pipeline_id.clone());
                 self.interceptors.after(
                     &ctx,
                     &DigestEvent::DeepSynced {
@@ -1466,7 +1519,14 @@ impl AthenaStore {
                         "athena_deep_complete",
                     );
                 }
-                let ingest_record = self.latest_ingest_record(source_id).ok().flatten();
+                let ingest_record = if expected_pipeline.is_some() {
+                    self.read_digest(Some(source_id), usize::MAX)?
+                        .into_iter()
+                        .filter_map(|value| serde_json::from_value::<IngestRecord>(value).ok())
+                        .find(|record| record.pipeline_id == pipeline_id)
+                } else {
+                    self.latest_ingest_record(source_id).ok().flatten()
+                };
                 if let Err(err) = self.sync_knowledge_views(
                     source_id,
                     ingest_record.as_ref(),
@@ -1493,9 +1553,11 @@ impl AthenaStore {
                     tracing::debug!(error = %err, "ATHENA deep bacon-lite record failed");
                 }
 
-                if let Err(err) =
+                if let Err(err) = if expected_pipeline.is_none() {
                     deep_cache.store(&deep_query, &relevant_doc_ids, &model_id, &deep_entry)
-                {
+                } else {
+                    Ok(())
+                } {
                     tracing::warn!(error = %err, source_id = %source_id, "ATHENA deep cache write failed");
                 }
 
@@ -2302,6 +2364,79 @@ mod tests {
     }
 
     #[test]
+    fn persistent_index_is_shared_even_when_mtimes_collide() {
+        let dir = tempdir().expect("tempdir");
+        let first_store = AthenaStore::new_isolated(dir.path()).expect("first store");
+        let second_store = AthenaStore::new_isolated(dir.path()).expect("second store");
+        let alpha = first_store
+            .ingest("alpha rust shared index", "test", "alpha")
+            .expect("first ingest");
+        second_store
+            .ingest("beta governance shared index", "test", "beta")
+            .expect("second ingest");
+
+        assert_eq!(
+            first_store
+                .query("beta", 5)
+                .expect("shared beta query")
+                .total_matches,
+            1
+        );
+        assert_eq!(
+            second_store
+                .query("alpha", 5)
+                .expect("shared alpha query")
+                .total_matches,
+            1
+        );
+
+        let alpha_book = dir.path().join("books").join(format!("{}.jsonl", alpha.id));
+        let book_mtime = fs::metadata(&alpha_book).unwrap().modified().unwrap();
+        let index_mtime = fs::metadata(&first_store.digest_index_path)
+            .unwrap()
+            .modified()
+            .unwrap();
+        writeln!(
+            fs::OpenOptions::new()
+                .append(true)
+                .open(&alpha_book)
+                .expect("open alpha book"),
+            "{}",
+            serde_json::json!({
+                "stage": "deep",
+                "data": {
+                    "full_summary": "quantumwidget production detail",
+                    "triad_analysis": {"passed": true},
+                    "policy_readiness": "policy_ready",
+                    "extracted_knowledge": {
+                        "concepts": ["quantumwidget"],
+                        "confidence_self_report": 0.9
+                    }
+                }
+            })
+        )
+        .expect("append alpha deep entry");
+        fs::File::open(&alpha_book)
+            .unwrap()
+            .set_modified(book_mtime)
+            .unwrap();
+        second_store
+            .refresh_digest_index_entry(&alpha.id)
+            .expect("refresh shared alpha entry");
+        fs::File::open(&first_store.digest_index_path)
+            .unwrap()
+            .set_modified(index_mtime)
+            .unwrap();
+        assert_eq!(
+            first_store
+                .query("quantumwidget", 5)
+                .expect("shared existing-book update query")
+                .total_matches,
+            1
+        );
+    }
+
+    #[test]
     fn query_match_includes_structured_citation_for_matched_span() {
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
@@ -3063,7 +3198,19 @@ mod tests {
     }
 
     #[test]
-    fn lifecycle_events_write_hades_and_warden_queues() {
+    fn isolated_store_keeps_governance_paths_inside_repo_local_fixture() {
+        let fixture = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+        let store = AthenaStore::new_isolated(fixture.path()).unwrap();
+        assert!(store.bacon_lite_paths.machine.starts_with(fixture.path()));
+        assert!(store.bacon_lite_paths.human.starts_with(fixture.path()));
+        assert_eq!(
+            store.bacon_lite_paths,
+            super::BaconLiteLogPaths::from_base_dir(fixture.path())
+        );
+    }
+
+    #[test]
+    fn lifecycle_events_preserve_retired_hades_history_and_write_warden() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let hades_queue = dir.path().join("hades_queue.jsonl");
@@ -3084,9 +3231,24 @@ mod tests {
             .expect("queued");
         let _ = store.process_deep_queue(10, false).expect("process");
 
-        let hades = fs::read_to_string(hades_queue).expect("hades queue");
-        let warden = fs::read_to_string(warden_queue).expect("warden queue");
-        assert!(hades.contains("athena lifecycle event"));
+        let warden = fs::read_to_string(&warden_queue).expect("warden queue");
+        assert!(!hades_queue.exists());
+        fs::write(&hades_queue, b"historical malformed bytes\n").unwrap();
+        let reopened = AthenaStore::new(dir.path()).unwrap();
+        let reopened_record = reopened
+            .ingest("https://example.com/history", "orchestrator", "analysis")
+            .unwrap();
+        reopened
+            .queue_deep_analysis(&reopened_record.id, "orchestrator", "reopened")
+            .unwrap();
+        reopened.process_deep_queue(10, false).unwrap();
+        let reopened_warden = fs::read_to_string(&warden_queue).unwrap();
+        assert!(reopened_warden.len() > warden.len());
+        assert!(reopened_warden[warden.len()..].contains("athena_deep_"));
+        assert_eq!(
+            fs::read(&hades_queue).unwrap(),
+            b"historical malformed bytes\n"
+        );
         assert!(warden.contains("athena_deep_"));
         // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.

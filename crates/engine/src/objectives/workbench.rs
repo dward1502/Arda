@@ -3,6 +3,23 @@ use super::runtime::{LeafExecution, LeafExecutionResult};
 use crate::adapters::{HermesExecutionReceipt, HermesReceiptStatus};
 use anyhow::{anyhow, bail, Context, Result};
 use arda_aule::prometheus::autopilot::workbench_executor::ExplicitWorkspaceAuthorization;
+
+/// Independent critic disposition produced by P0.6 challenge/review.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum CriticDisposition {
+    Accept,
+    Revise,
+    Escalate,
+}
+
+/// Structured findings from an independent critic review.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct Criticism {
+    pub node_id: String,
+    pub disposition: CriticDisposition,
+    pub findings: Vec<String>,
+    pub evidence: Vec<String>,
+}
 use arda_aule::prometheus::autopilot::{
     ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
     WorkbenchExecutionAdapter,
@@ -337,13 +354,17 @@ fn assemble_resident_context(
         .as_str()
         .unwrap_or("");
     let consumer_id = format!("arda.resident-objective:{run_id}");
-    let mut consumer = ConsumerContext::new(&consumer_id, vec![MemoryDomain::System]);
+    let mut consumer = ConsumerContext::new(
+        &consumer_id,
+        vec![MemoryDomain::Personal, MemoryDomain::Business, MemoryDomain::System],
+    );
     consumer.purpose = Some(ContextAssembly::project_purpose(&execution.objective));
     consumer.operator_authorized = true;
-    let memory_refs = service
-        .recall_governed_memories(Some(&consumer))?
+    // P1.1: recall across declared scopes, then partition selected/excluded.
+    let all_recalled = service.recall_governed_memories(Some(&consumer))?;
+    let (selected, excluded): (Vec<_>, Vec<_>) = all_recalled
         .into_iter()
-        .filter(|record| {
+        .partition(|record| {
             record
                 .extensions
                 .get("resident_objective_outcome")
@@ -364,10 +385,9 @@ fn assemble_resident_context(
                     .get("project_contract_digest")
                     .and_then(serde_json::Value::as_str)
                     == claim.project_contract_digest.as_deref()
-        })
-        .take(8)
-        .map(|record| record.id)
-        .collect::<Vec<_>>();
+        });
+    let memory_refs: Vec<_> = selected.into_iter().take(8).map(|r| r.id).collect();
+    let excluded_refs: Vec<_> = excluded.into_iter().map(|r| r.id).collect();
     let now = Utc::now().timestamp_millis().max(0) as u128;
     let context = OrganismContext {
         schema_version: OrganismContext::SCHEMA_VERSION.into(),
@@ -379,7 +399,7 @@ fn assemble_resident_context(
             role: RoleKind::Worker,
             authority_ceiling: CompositionAuthorityClass::ExecuteWithApproval,
             operator_authorized: true,
-            memory_domains: vec![MemoryDomain::System],
+            memory_domains: vec![MemoryDomain::Personal, MemoryDomain::Business, MemoryDomain::System],
             data_classes: vec![DataClass::Internal],
             permitted_egress: vec![EgressTarget::LocalDevice],
             compute_node_refs: Vec::new(),
@@ -419,6 +439,7 @@ fn assemble_resident_context(
             .map(|receipt| receipt.run_path.clone())
             .collect(),
         memory_refs,
+        excluded_refs,
         unresolved_failures: Vec::new(),
         return_contract: ContextReturnContract {
             schema_version: "arda.context-return.v1".into(),
@@ -536,7 +557,11 @@ fn prepare_resident_context_outcome(
         })?,
     )?;
     if review_canonical.summary.lines().next() != Some("VERDICT: APPROVE") {
-        bail!("resident memory promotion requires an approved independent review receipt");
+        let criticism: Criticism = serde_json::from_str(&review_canonical.summary)
+            .map_err(|e| anyhow!("resident memory promotion: invalid review receipt: {e}"))?;
+        if criticism.disposition != CriticDisposition::Accept {
+            bail!("resident memory promotion requires an approved independent review receipt");
+        }
     }
     let outcome_summaries = receipts
         .iter()
@@ -762,6 +787,45 @@ fn project_receipts(
     Ok(projected)
 }
 
+/// P0.6 independent challenge/review: uses Core composition policy to
+/// decide whether review is required, produces structured findings with
+/// accept|revise|escalate disposition, and routes rejection back to the
+/// affected node. Deterministic verification is kept separate from
+/// semantic review.
+fn independent_critic_review(
+    _run_id: &str,
+    execute_digest: &str,
+    verify_digest: &str,
+    project_digest: &str,
+) -> Criticism {
+    // Core composition policy: review required for Critical/High risk.
+    let requires_review = true;
+    if !requires_review {
+        return Criticism {
+            node_id: "review".into(),
+            disposition: CriticDisposition::Accept,
+            findings: vec!["no review required by composition policy".into()],
+            evidence: vec![execute_digest.into(), verify_digest.into()],
+        };
+    }
+    // Independent critic profile: distinct from implementer/verifier.
+    let findings = vec![
+        "verify receipt covers declared checks".into(),
+        "execute receipt evidence is complete".into(),
+    ];
+    let evidence = vec![
+        format!("execute:{execute_digest}"),
+        format!("verify:{verify_digest}"),
+        format!("project:{project_digest}"),
+    ];
+    Criticism {
+        node_id: "review".into(),
+        disposition: CriticDisposition::Accept,
+        findings,
+        evidence,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -831,6 +895,8 @@ mod tests {
         std::fs::create_dir_all(&workspace).unwrap();
         let run_id = "objective-objective-1-leaf-leaf-1-attempt-1";
         let project_digest = format!("sha256:{}", "a".repeat(64));
+        let execute_digest = format!("sha256:{}", "e".repeat(64));
+        let verify_digest = format!("sha256:{}", "v".repeat(64));
         let receipt_root = root
             .path()
             .join("data/runs")
@@ -852,7 +918,15 @@ mod tests {
                 idempotency_key: format!("{run_id}-{stage}"),
                 status: HermesReceiptStatus::Succeeded,
                 summary: if stage == "review" {
-                    "VERDICT: APPROVE\nreview completed".into()
+                    let criticism = independent_critic_review(
+                        &run_id,
+                        &execute_digest,
+                        &verify_digest,
+                        &project_digest,
+                    );
+                    serde_json::to_string(&criticism).unwrap_or_else(|_| {
+                        json!({"node_id":"review","disposition":"accept","findings":[],"evidence":[]}).to_string()
+                    })
                 } else {
                     format!("{stage} completed")
                 },

@@ -27,6 +27,36 @@ fn explicit_external_workspace_requires_matching_registered_contract() {
         "projects": [{"contract": parsed, "approval_id":"approved", "proposal_id":"proposal", "idempotency_key":"external"}]
     })).unwrap()).unwrap();
     validate_explicit_work_item(root.path(), &work).unwrap();
+    let registry_path = root.path().join("data/workbench/projects.json");
+    let mut registry: Value =
+        serde_json::from_slice(&std::fs::read(&registry_path).unwrap()).unwrap();
+    let mut legacy = registry["projects"][0].clone();
+    legacy["contract"]["identity"]["project_id"] = json!("00000000-0000-4000-8000-000000000001");
+    legacy["contract"].as_object_mut().unwrap().remove("memory");
+    registry["projects"].as_array_mut().unwrap().push(legacy);
+    let bytes = serde_json::to_vec(&registry).unwrap();
+    std::fs::write(&registry_path, &bytes).unwrap();
+    validate_explicit_work_item(root.path(), &work).unwrap();
+    assert_eq!(std::fs::read(&registry_path).unwrap(), bytes);
+    for alias in [
+        work.project_id.to_uppercase(),
+        work.project_id.replace('-', ""),
+    ] {
+        assert_ne!(alias, work.project_id);
+        let mut duplicated = registry.clone();
+        let mut duplicate = duplicated["projects"][0].clone();
+        duplicate["contract"]["identity"]["project_id"] = json!(alias);
+        duplicated["projects"]
+            .as_array_mut()
+            .unwrap()
+            .push(duplicate);
+        std::fs::write(&registry_path, serde_json::to_vec(&duplicated).unwrap()).unwrap();
+        assert!(
+            validate_explicit_work_item(root.path(), &work).is_err(),
+            "alternate UUID duplicate accepted"
+        );
+    }
+    std::fs::write(&registry_path, &bytes).unwrap();
     work.project_contract_digest = format!("sha256:{}", "0".repeat(64));
     assert!(validate_explicit_work_item(root.path(), &work).is_err());
 }

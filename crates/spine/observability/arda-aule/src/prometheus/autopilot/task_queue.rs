@@ -384,6 +384,7 @@ impl ActiveQueueExecutor {
             .iter()
             .find(|record| {
                 claimable_status(record)
+                    && dependencies_satisfied(record, &effective)
                     && authoritative_schedule_eligible(record, &schedules, now)
                     && approved_workbench_metadata(record)
                     && mutation_lease_available(record, &effective, now)
@@ -399,6 +400,7 @@ impl ActiveQueueExecutor {
         priority: &str,
         reason: &str,
     ) -> std::io::Result<QueueRecord> {
+        super::schedule::require_legacy_schedule_writer()?;
         if !matches!(priority, "critical" | "high" | "medium" | "low") {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
@@ -500,6 +502,7 @@ impl ActiveQueueExecutor {
         revised_objective: &str,
         reason: &str,
     ) -> std::io::Result<QueueRecord> {
+        super::schedule::require_legacy_schedule_writer()?;
         let revised_objective = revised_objective.trim();
         if revised_objective.is_empty() || reason.trim().is_empty() {
             return Err(std::io::Error::new(
@@ -1052,6 +1055,7 @@ impl ActiveQueueExecutor {
                 let now = Utc::now();
                 let Some(task) = effective.iter().find(|record| {
                     claimable_status(record)
+                        && dependencies_satisfied(record, &effective)
                         && authoritative_schedule_eligible(record, schedules, now)
                         && approved_workbench_metadata(record)
                         && mutation_lease_available(record, &effective, now)
@@ -1126,6 +1130,7 @@ impl ActiveQueueExecutor {
                 let Some(task) = effective.iter().find(|record| {
                     !excluded_task_ids.contains(&record.id)
                         && claimable_status(record)
+                        && dependencies_satisfied(record, &effective)
                         && authoritative_schedule_eligible(record, schedules, now)
                         && approved_workbench_metadata(record)
                         && mutation_lease_available(record, &effective, now)
@@ -1182,6 +1187,7 @@ impl ActiveQueueExecutor {
                     .find(|record| {
                         !excluded_task_ids.contains(&record.id)
                             && claimable_status(record)
+                            && dependencies_satisfied(record, &effective)
                             && authoritative_schedule_eligible(record, schedules, now)
                             && approved_workbench_metadata(record)
                             && mutation_lease_available(record, &effective, now)
@@ -1236,6 +1242,7 @@ impl ActiveQueueExecutor {
                         effective.iter().find(|record| {
                             !excluded_task_ids.contains(&record.id)
                                 && claimable_status(record)
+                                && dependencies_satisfied(record, &effective)
                                 && authoritative_schedule_eligible(record, schedules, now)
                                 && approved_workbench_metadata(record)
                                 && mutation_lease_available(record, &effective, now)
@@ -1255,6 +1262,7 @@ impl ActiveQueueExecutor {
                     }));
                 }
                 if !claimable_status(task)
+                    || !dependencies_satisfied(task, &effective)
                     || !authoritative_schedule_eligible(task, schedules, now)
                     || !approved_workbench_metadata(task)
                     || !mutation_lease_available(task, &effective, now)
@@ -1343,6 +1351,7 @@ impl ActiveQueueExecutor {
 
     /// Requeue one failed approved task while preserving its approval lineage.
     pub fn retry_failed(&self, task_id: &str) -> std::io::Result<QueueRecord> {
+        super::schedule::require_legacy_schedule_writer()?;
         ScheduleLedger::new(&self.schedule_path).with_effective(|schedules| {
             let mut file = OpenOptions::new()
                 .create(true)
@@ -1731,6 +1740,34 @@ fn claimable_status(record: &QueueRecord) -> bool {
             .is_some_and(|deadline| deadline <= Utc::now()),
         _ => false,
     }
+}
+
+/// Returns true when every dependency listed in the record's `depends_on`
+/// array references a terminal (completed / failed / cancelled) effective
+/// record. A missing dependency is treated as unsatisfied — the dependent
+/// stays blocked until the dependency appears in the queue with a terminal
+/// status. An empty dependency list is always satisfied.
+fn dependencies_satisfied(record: &QueueRecord, effective: &[QueueRecord]) -> bool {
+    let deps: Vec<&str> = record
+        .extra
+        .get("depends_on")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .collect();
+    if deps.is_empty() {
+        return true;
+    }
+    let status_by_id: std::collections::HashMap<&str, QueueRecordStatus> = effective
+        .iter()
+        .map(|r| (r.id.as_str(), r.canonical_status()))
+        .collect();
+    deps.iter().all(|dep| {
+        status_by_id
+            .get(*dep)
+            .is_some_and(|status| status.is_terminal())
+    })
 }
 
 fn authoritative_schedule_eligible(
@@ -2892,6 +2929,210 @@ fn previous_same_task_record_index(records: &[QueueRecord], index: usize) -> Opt
 
 #[cfg(test)]
 mod tests {
+
+    // History-reader tests seed records directly. These fixture helpers are not
+    // authority paths: they do not call or bypass any retired production writer.
+    impl ActiveQueueExecutor {
+        fn historical_task(&self, task_id: &str) -> QueueRecord {
+            TaskQueueAnalyzer::effective_records(
+                TaskQueueAnalyzer::new(&self.queue_path).load().unwrap(),
+            )
+            .into_iter()
+            .find(|record| record.id == task_id)
+            .unwrap()
+        }
+
+        fn seed_historical_record(&self, record: QueueRecord) -> std::io::Result<QueueRecord> {
+            let mut file = OpenOptions::new().append(true).open(&self.queue_path)?;
+            serde_json::to_writer(&mut file, &record)?;
+            writeln!(file)?;
+            Ok(record)
+        }
+
+        fn seed_historical_reprioritize(
+            &self,
+            task_id: &str,
+            objective_id: &str,
+            priority: &str,
+            reason: &str,
+        ) -> std::io::Result<QueueRecord> {
+            let mut record = self.historical_task(task_id);
+            assert_eq!(queue_objective_id(&record), Some(objective_id));
+            let previous = record.priority.replace(priority.into());
+            if let Some(contract) = record
+                .extra
+                .get("contract")
+                .and_then(Value::as_str)
+                .filter(|contract| is_authorized_reopen_contract(contract))
+                .map(str::to_owned)
+            {
+                record
+                    .extra
+                    .insert("reprioritized_from_contract".into(), json!(contract));
+            }
+            record.extra.insert(
+                "contract".into(),
+                json!("arda.workbench.queue_reprioritization.v1"),
+            );
+            record
+                .extra
+                .insert("previous_priority".into(), json!(previous));
+            record.extra.insert("operator_reason".into(), json!(reason));
+            record
+                .extra
+                .insert("reprioritized_at_utc".into(), json!("2026-08-29T12:00:00Z"));
+            self.seed_historical_record(record)
+        }
+
+        fn seed_historical_revise_objective(
+            &self,
+            task_id: &str,
+            objective_id: &str,
+            objective: &str,
+            reason: &str,
+        ) -> std::io::Result<QueueRecord> {
+            let mut record = self.historical_task(task_id);
+            assert_eq!(queue_objective_id(&record), Some(objective_id));
+            let previous = record.title.replace(objective.into()).unwrap();
+            let meta = record
+                .extra
+                .get_mut("meta")
+                .unwrap()
+                .as_object_mut()
+                .unwrap();
+            meta.insert("mutation_risk".into(), json!("operator-revision-pending"));
+            meta.insert(
+                "action_class".into(),
+                json!("objective_revision_pending_approval"),
+            );
+            for field in [
+                "approval_packet_id",
+                "governance_authorization_id",
+                "governance_gate",
+            ] {
+                meta.remove(field);
+            }
+            record.extra.insert(
+                "contract".into(),
+                json!("arda.workbench.objective_revision.v1"),
+            );
+            record
+                .extra
+                .insert("previous_objective".into(), json!(previous));
+            record.extra.insert("operator_reason".into(), json!(reason));
+            record.extra.insert(
+                "objective_revised_at_utc".into(),
+                json!("2026-08-29T12:00:00Z"),
+            );
+            self.seed_historical_record(record)
+        }
+
+        fn seed_historical_retry_failed(&self, task_id: &str) -> std::io::Result<QueueRecord> {
+            let task = self.historical_task(task_id);
+            let record = serde_json::from_value(json!({
+                "id": task.id, "source_record_id": task.id, "title": task.title,
+                "owner": task.owner, "priority": task.priority, "status": "queued",
+                "retry_sequence": task.extra.get("retry_sequence").and_then(Value::as_u64).unwrap_or(0) + 1,
+                "retried_at_utc": "2026-08-29T12:00:00Z",
+                "contract": "arda.workbench.queue_retry.v1",
+                "executor": "arda_workbench.queue_executor", "meta": task.extra.get("meta"),
+            }))?;
+            self.seed_historical_record(record)
+        }
+    }
+
+    #[test]
+    fn retired_queue_mutations_refuse_before_reading_or_creating_history() {
+        use super::super::schedule::SCHEDULE_RECORD_CONTRACT;
+
+        for operation in ["reprioritize", "revise", "retry"] {
+            for history in ["missing", "malformed", "valid"] {
+                for nested in [false, true] {
+                    let root = tempfile::tempdir().unwrap();
+                    let parent = root.path().join(if nested {
+                        "core/projects/tasks"
+                    } else {
+                        "history"
+                    });
+                    let queue = parent.join("queue.jsonl");
+                    let active = parent.join("queue_active.json");
+                    let schedule = parent.join("schedules.jsonl");
+                    let queue_bytes = if history == "malformed" {
+                        "malformed history must not be read or rewritten\n".to_owned()
+                    } else {
+                        format!(
+                            "{}\n",
+                            serde_json::json!({
+                                "id": "task", "title": "Original objective", "priority": "medium",
+                                "status": if operation == "retry" { "failed" } else { "queued" },
+                                "result": "dispatch_failed",
+                                "meta": {
+                                    "source_objective_packet_id": "objective",
+                                    "approval_packet_id": "approval", "mutation_risk": "operator-approved",
+                                    "action_class": "approved_autopilot_plan_step",
+                                    "project_id": "project", "physical_root": "/historical/project"
+                                }
+                            })
+                        )
+                    };
+                    let schedule_bytes = format!(
+                        "{}\n",
+                        serde_json::to_string(&ScheduleRecord {
+                            contract: SCHEDULE_RECORD_CONTRACT.into(),
+                            task_id: "task".into(),
+                            objective_id: "objective".into(),
+                            mode: ScheduleMode::Immediate,
+                            state: ScheduleState::Scheduled,
+                            not_before_utc: None,
+                            interval_seconds: None,
+                            recorded_at_utc: chrono::Utc::now(),
+                            reason: None,
+                        })
+                        .unwrap()
+                    );
+                    if history != "missing" {
+                        std::fs::create_dir_all(&parent).unwrap();
+                        std::fs::write(&queue, &queue_bytes).unwrap();
+                        std::fs::write(&schedule, &schedule_bytes).unwrap();
+                        std::fs::write(&active, b"{\"active\":[]}\n").unwrap();
+                    }
+                    let executor = ActiveQueueExecutor::with_paths(&queue, &active);
+                    let result = match operation {
+                        "reprioritize" => {
+                            executor.reprioritize("task", "objective", "critical", "urgent")
+                        }
+                        "revise" => executor.revise_objective(
+                            "task",
+                            "objective",
+                            "Corrected objective",
+                            "correction",
+                        ),
+                        "retry" => executor.retry_failed("task"),
+                        _ => unreachable!(),
+                    };
+                    if history == "missing" {
+                        assert!(!parent.exists(), "{operation} provisioned {parent:?}");
+                    } else {
+                        assert_eq!(
+                            std::fs::read(&queue).unwrap(),
+                            queue_bytes.as_bytes(),
+                            "{operation} changed queue"
+                        );
+                        assert_eq!(std::fs::read(&schedule).unwrap(), schedule_bytes.as_bytes());
+                        assert_eq!(std::fs::read(&active).unwrap(), b"{\"active\":[]}\n");
+                        assert_eq!(std::fs::read_dir(&parent).unwrap().count(), 3);
+                    }
+                    let error = result.expect_err("legacy mutation must refuse");
+                    assert_eq!(
+                        error.kind(),
+                        std::io::ErrorKind::PermissionDenied,
+                        "{operation}/{history}"
+                    );
+                    assert!(error.to_string().contains("retired"));
+                }
+            }
+        }
+    }
     #[test]
     fn direct_schedule_reconciliation_cannot_provision_missing_history() {
         let root = tempfile::tempdir().unwrap();
@@ -4983,7 +5224,7 @@ mod tests {
     }
 
     #[test]
-    fn governed_retry_preserves_lineage_and_allocates_distinct_run_id() {
+    fn historical_retry_preserves_lineage_and_distinct_run_id() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -5013,7 +5254,7 @@ mod tests {
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
 
         let retried = executor
-            .retry_failed("retry-task")
+            .seed_historical_retry_failed("retry-task")
             .expect("retry failed task");
         assert_eq!(retried.status.as_deref(), Some("queued"));
         assert_eq!(retried.extra["retry_sequence"], 1);
@@ -5655,7 +5896,7 @@ mod tests {
     }
 
     #[test]
-    fn operator_reprioritization_appends_and_changes_approved_selection_order() {
+    fn historical_reprioritization_changes_approved_selection_order() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -5708,7 +5949,7 @@ mod tests {
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
 
         let appended = executor
-            .reprioritize(
+            .seed_historical_reprioritize(
                 "later-medium",
                 "objective-1",
                 "critical",
@@ -5908,7 +6149,7 @@ mod tests {
             let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
 
             executor
-                .reprioritize(
+                .seed_historical_reprioritize(
                     &reopened.id,
                     "objective-1",
                     "critical",
@@ -5916,7 +6157,7 @@ mod tests {
                 )
                 .expect("reprioritize authorized reopen");
             executor
-                .reprioritize(
+                .seed_historical_reprioritize(
                     &reopened.id,
                     "objective-1",
                     "high",
@@ -6101,7 +6342,7 @@ mod tests {
             .expect("initial candidate");
         assert_eq!(stale.id, first.id);
         executor
-            .reprioritize(
+            .seed_historical_reprioritize(
                 &second.id,
                 "objective-1",
                 "critical",
@@ -6373,7 +6614,7 @@ mod tests {
             .reprioritize(&task.id, "objective-1", "urgent", "unknown priority")
             .unwrap_err();
 
-        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
         assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
@@ -6407,7 +6648,7 @@ mod tests {
             )
             .unwrap_err();
 
-        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
         assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
@@ -6435,7 +6676,7 @@ mod tests {
             .reprioritize(&task.id, "objective-1", "critical", "   ")
             .unwrap_err();
 
-        assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
         assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
@@ -6468,7 +6709,7 @@ mod tests {
             )
             .unwrap_err();
 
-        assert_eq!(error.kind(), std::io::ErrorKind::AlreadyExists);
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
         assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
@@ -6591,7 +6832,7 @@ mod tests {
     }
 
     #[test]
-    fn operator_objective_revision_invalidates_stale_approval_before_dispatch() {
+    fn historical_objective_revision_invalidates_stale_approval_before_dispatch() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
         let active_path = dir.path().join("queue_active.json");
@@ -6623,7 +6864,7 @@ mod tests {
         assert!(executor.select_next_approved().unwrap().is_some());
 
         let revised = executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -6689,7 +6930,7 @@ mod tests {
         );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -6758,7 +6999,7 @@ mod tests {
         );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -6965,7 +7206,7 @@ mod tests {
         );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -7018,7 +7259,7 @@ mod tests {
         );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -7078,7 +7319,7 @@ mod tests {
         );
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised objective",
@@ -7123,7 +7364,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").unwrap();
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised objective",
@@ -7197,7 +7438,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -7248,7 +7489,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -7313,7 +7554,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         let revision = executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised operator objective",
@@ -7437,7 +7678,7 @@ mod tests {
         std::fs::write(&active_path, "{\"active\":[]}").expect("write projection");
         let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
         executor
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Revised objective",
@@ -7646,7 +7887,7 @@ mod tests {
             None,
         );
         let revision = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Valid revised objective",
@@ -7733,7 +7974,7 @@ mod tests {
             None,
         );
         let revision = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
-            .revise_objective(
+            .seed_historical_revise_objective(
                 &task.id,
                 "objective-1",
                 "Valid revised objective",
@@ -7810,5 +8051,105 @@ mod tests {
             started_at_utc: None,
             extra: Default::default(),
         }
+    }
+
+    #[test]
+    fn dependencies_satisfied_empty_always_true() {
+        let record = blank("tsk-a");
+        let effective = vec![record.clone()];
+        assert!(dependencies_satisfied(&record, &effective));
+    }
+
+    #[test]
+    fn dependencies_satisfied_completed_dependency_true() {
+        let dep = QueueRecord {
+            id: "tsk-dep".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            ..blank("tsk-dep")
+        };
+        let mut extra = serde_json::Map::new();
+        extra.insert("depends_on".into(), json!(["tsk-dep"]));
+        let record = QueueRecord {
+            id: "tsk-a".into(),
+            extra,
+            ..blank("tsk-a")
+        };
+        assert!(dependencies_satisfied(&record, &[dep, record.clone()]));
+    }
+
+    #[test]
+    fn dependencies_satisfied_in_progress_dependency_false() {
+        let dep = QueueRecord {
+            id: "tsk-dep".into(),
+            status: Some("in_progress".into()),
+            ..blank("tsk-dep")
+        };
+        let mut extra = serde_json::Map::new();
+        extra.insert("depends_on".into(), json!(["tsk-dep"]));
+        let record = QueueRecord {
+            id: "tsk-a".into(),
+            extra,
+            ..blank("tsk-a")
+        };
+        assert!(!dependencies_satisfied(&record, &[dep, record.clone()]));
+    }
+
+    #[test]
+    fn dependencies_satisfied_missing_dependency_false() {
+        let mut extra = serde_json::Map::new();
+        extra.insert("depends_on".into(), json!(["tsk-missing"]));
+        let record = QueueRecord {
+            id: "tsk-a".into(),
+            extra,
+            ..blank("tsk-a")
+        };
+        assert!(!dependencies_satisfied(&record, &[record.clone()]));
+    }
+
+    #[test]
+    fn dependencies_satisfied_multiple_dependencies_all_terminal_true() {
+        let dep1 = QueueRecord {
+            id: "tsk-1".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            ..blank("tsk-1")
+        };
+        let dep2 = QueueRecord {
+            id: "tsk-2".into(),
+            status: Some("failed".into()),
+            ..blank("tsk-2")
+        };
+        let mut extra = serde_json::Map::new();
+        extra.insert("depends_on".into(), json!(["tsk-1", "tsk-2"]));
+        let record = QueueRecord {
+            id: "tsk-a".into(),
+            extra,
+            ..blank("tsk-a")
+        };
+        assert!(dependencies_satisfied(&record, &[dep1, dep2, record.clone()]));
+    }
+
+    #[test]
+    fn dependencies_satisfied_multiple_dependencies_one_not_terminal_false() {
+        let dep1 = QueueRecord {
+            id: "tsk-1".into(),
+            status: Some("completed".into()),
+            result: Some("completed".into()),
+            ..blank("tsk-1")
+        };
+        let dep2 = QueueRecord {
+            id: "tsk-2".into(),
+            status: Some("pending".into()),
+            ..blank("tsk-2")
+        };
+        let mut extra = serde_json::Map::new();
+        extra.insert("depends_on".into(), json!(["tsk-1", "tsk-2"]));
+        let record = QueueRecord {
+            id: "tsk-a".into(),
+            extra,
+            ..blank("tsk-a")
+        };
+        assert!(!dependencies_satisfied(&record, &[dep1, dep2, record.clone()]));
     }
 }

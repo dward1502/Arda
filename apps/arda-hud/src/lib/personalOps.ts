@@ -54,7 +54,7 @@ export interface PersonalReminderTransportStatus extends PersonalAdapterStatus {
 export interface NextActionCandidate {
   id: string
   title: string
-  source_kind: 'objective' | 'queue' | 'personal_operations' | 'workbench' | 'research'
+  source_kind: 'objective' | 'queue' | 'personal_operations' | 'workbench' | 'research' | 'hygiene'
   source_ref: string
   reason: string
   freshness: 'fresh' | 'stale' | 'unknown'

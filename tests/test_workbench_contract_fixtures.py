@@ -42,6 +42,15 @@ class WorkbenchContractFixtureTests(unittest.TestCase):
             "spec/project-contract/v1/fixtures/invalid-project-contract.json",
         )
 
+    def test_workspace_root_shared_cases(self):
+        validator = self.validator("spec/project-contract/v1/project-contract.schema.json")
+        contract = json.loads((REPO_ROOT / "spec/project-contract/v1/fixtures/valid-project-contract.json").read_text())
+        cases = json.loads((REPO_ROOT / "spec/project-contract/v1/fixtures/workspace-root-cases.json").read_text())
+        for case in cases:
+            with self.subTest(root=case["root"]):
+                contract["workspace"]["root"] = case["root"]
+                self.assertEqual(validator.is_valid(contract), case["valid"])
+
     def test_run_graph_fixed_fixtures(self) -> None:
         validator = self.validator("spec/run-graph/v1/run-graph.schema.json")
         self.assert_valid(

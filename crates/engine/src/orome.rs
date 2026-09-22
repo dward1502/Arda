@@ -21,6 +21,17 @@ pub struct OromeOperatorRuntime {
 }
 
 impl OromeOperatorRuntime {
+    pub fn shared_conversation_events(
+        &self,
+        operator_id: &str,
+        adapter_id: &str,
+        session_id: &str,
+        source: &arda_orome::operator_bridge::HermesSessionSource,
+    ) -> Result<Vec<String>, BridgeError> {
+        self.bridge
+            .shared_conversation_events(operator_id, adapter_id, session_id, source)
+    }
+
     pub fn prepare(
         &self,
         request: BridgeRequest,

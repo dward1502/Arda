@@ -1530,7 +1530,11 @@ impl CeoAutopilot {
             .collect()
     }
 
-    pub async fn run_cycle(&mut self) -> CycleReport {
+    /// Read-only inspection remains available; mutable JSONL cycles are retired.
+    pub async fn run_cycle(&mut self) -> std::io::Result<CycleReport> {
+        if !self.cfg.read_only {
+            super::schedule::require_legacy_schedule_writer()?;
+        }
         let prior_transport = self.apollo.transport_label();
         if self
             .apollo
@@ -1665,7 +1669,7 @@ impl CeoAutopilot {
             let binding_governance_authorized = governance.allowed_to_delegate
                 && matches!(
                     governance.gate,
-                    GovernanceGate::SafeAutonomous | GovernanceGate::TriadQuorumApproved
+                    GovernanceGate::TriadQuorumApproved
                 );
             if validation.ok
                 && gate.allows_delegation()
@@ -1852,7 +1856,7 @@ impl CeoAutopilot {
             }
         }
 
-        report
+        Ok(report)
     }
 
     fn persist(&self, report: &CycleReport) {
@@ -2571,7 +2575,8 @@ fn blocked_reason_code(governance: &GovernanceDecision) -> &'static str {
         GovernanceGate::ReviewRequired => "unknown_action_class",
         GovernanceGate::TriadQuorumRequired => "triad_quorum_required",
         GovernanceGate::ReadOnlyBenchmarkRequired => "read_only_benchmark_required",
-        GovernanceGate::SafeAutonomous | GovernanceGate::TriadQuorumApproved => "not_blocked",
+        GovernanceGate::SafeAutonomous => "safe_autonomous_readiness_required",
+        GovernanceGate::TriadQuorumApproved => "not_blocked",
     }
 }
 
@@ -3086,7 +3091,9 @@ fn rotate_heartbeat(path: &Path, max_bytes: u64) {
     let _ = std::fs::rename(path, rotated);
 }
 
-pub async fn ceo_loop(mut autopilot: CeoAutopilot, stop: Arc<AtomicBool>) {
+pub async fn ceo_loop(mut autopilot: CeoAutopilot, stop: Arc<AtomicBool>) -> std::io::Result<()> {
+    // The loop persists breaker state; use one-shot read-only inspection instead.
+    super::schedule::require_legacy_schedule_writer()?;
     while !stop.load(Ordering::SeqCst) {
         let pause_flag = autopilot.cfg.root.join("tmp/ceo/pause.flag");
         let breaker_flag = autopilot.cfg.circuit_breaker_path.clone();
@@ -3105,7 +3112,7 @@ pub async fn ceo_loop(mut autopilot: CeoAutopilot, stop: Arc<AtomicBool>) {
             continue;
         }
 
-        let report = autopilot.run_cycle().await;
+        let report = autopilot.run_cycle().await?;
 
         let cycle_successful = report.objectives_processed > 0
             || report
@@ -3130,12 +3137,75 @@ pub async fn ceo_loop(mut autopilot: CeoAutopilot, stop: Arc<AtomicBool>) {
 
         tokio::time::sleep(autopilot.cfg.interval).await;
     }
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::super::delegation::AgentCapabilities;
     use super::*;
+
+    fn history_snapshot(root: &Path) -> std::collections::BTreeMap<PathBuf, Option<Vec<u8>>> {
+        fn visit(
+            root: &Path,
+            path: &Path,
+            out: &mut std::collections::BTreeMap<PathBuf, Option<Vec<u8>>>,
+        ) {
+            for entry in std::fs::read_dir(path).unwrap() {
+                let path = entry.unwrap().path();
+                let directory = path.is_dir();
+                out.insert(
+                    path.strip_prefix(root).unwrap().to_owned(),
+                    if directory {
+                        None
+                    } else {
+                        Some(std::fs::read(&path).unwrap())
+                    },
+                );
+                if directory {
+                    visit(root, &path, out);
+                }
+            }
+        }
+        let mut out = std::collections::BTreeMap::new();
+        visit(root, root, &mut out);
+        out
+    }
+
+    #[tokio::test]
+    async fn retired_loop_refuses_before_pause_or_breaker_wait() {
+        for read_only in [false, true] {
+            let dir = tempfile::tempdir().unwrap();
+            let mut cfg = AutopilotConfig::from_root(dir.path());
+            cfg.read_only = read_only;
+            let pause = dir.path().join("tmp/ceo/pause.flag");
+            std::fs::create_dir_all(pause.parent().unwrap()).unwrap();
+            std::fs::write(&pause, "preserve pause").unwrap();
+            let autopilot = CeoAutopilot::from_world(cfg);
+            let before = history_snapshot(dir.path());
+            let error = tokio::time::timeout(
+                Duration::from_secs(1),
+                ceo_loop(autopilot, Arc::new(AtomicBool::new(false))),
+            )
+            .await
+            .expect("retired loop must not wait")
+            .unwrap_err();
+            assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+            assert!(error.to_string().contains("retired"));
+            assert_eq!(history_snapshot(dir.path()), before);
+        }
+    }
+
+    #[tokio::test]
+    async fn retired_mutating_cycle_does_not_create_missing_root() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().join("absent");
+        let mut autopilot = CeoAutopilot::from_world(AutopilotConfig::from_root(&root));
+        let error = autopilot.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert!(!root.exists(), "retired cycle created state before refusal");
+    }
 
     #[test]
     fn canonical_workbench_approval_satisfies_queue_review_gate() {
@@ -3308,7 +3378,7 @@ status = "active_subordinate"
         let mut config = AutopilotConfig::from_root(dir.path());
         config.read_only = true;
         let mut autopilot = CeoAutopilot::from_world(config);
-        let report = autopilot.run_cycle().await;
+        let report = autopilot.run_cycle().await.unwrap();
 
         assert_eq!(report.autonomy_readiness.decision, "hold");
         for reason in [
@@ -3439,7 +3509,7 @@ default_policy = "ledger_before_task"
     }
 
     #[tokio::test]
-    async fn run_cycle_persists_approved_packet_plan_and_dispatches_apollo() {
+    async fn retired_run_cycle_persists_approved_packet_plan_and_dispatches_apollo() {
         let dir = tempfile::tempdir().unwrap();
         let cfg = AutopilotConfig::from_root(dir.path());
         write_allow_readiness_artifacts(dir.path());
@@ -3479,44 +3549,15 @@ default_policy = "ledger_before_task"
         });
 
         let mut auto = CeoAutopilot::new(cfg.clone(), reg);
-        let report = auto.run_cycle().await;
-        assert_eq!(report.objectives_processed, 1);
-        let pc = &report.plans[0];
-        assert!(!pc.queued_task_ids.is_empty());
-        assert_eq!(
-            pc.queue_operation
-                .as_ref()
-                .map(|operation| &operation.result_status),
-            Some(&QueueOperationStatus::Appended)
-        );
-        assert!(
-            !pc.apollo_dispatches.is_empty(),
-            "operational tasks should dispatch through Apollo"
-        );
-        let executive = report
-            .executive_cycle
-            .receipt
-            .as_ref()
-            .expect("approved cycle should emit an executive receipt");
-        assert_eq!(executive.disposition, ExecutiveDisposition::HandedOff);
-        assert!(!executive.queue_mutation_performed_by_arandur);
-        assert!(!executive.placement_performed_by_arandur);
-        assert!(!executive.execution_performed_by_arandur);
-        assert!(report.executive_cycle.placement_pending);
-        assert_eq!(
-            std::fs::read_to_string(&report.executive_cycle.ledger_path)
-                .unwrap()
-                .lines()
-                .count(),
-            1
-        );
-
-        let inbox = std::fs::read_to_string(&cfg.objectives_path).unwrap();
-        assert!(inbox.trim().is_empty());
+        let before = history_snapshot(dir.path());
+        let error = auto.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(dir.path()), before);
     }
 
     #[tokio::test]
-    async fn binding_safe_governance_activates_queue_while_readiness_is_held() {
+    async fn retired_binding_safe_governance_activates_queue_while_readiness_is_held() {
         let dir = tempfile::tempdir().expect("tempdir");
         let cfg = AutopilotConfig::from_root(dir.path());
         std::fs::create_dir_all(cfg.queue_path.parent().expect("queue parent")).expect("queue dir");
@@ -3535,20 +3576,11 @@ default_policy = "ledger_before_task"
         .expect("recommendation");
 
         let mut autopilot = CeoAutopilot::new(cfg, AgentRegistry::new());
-        let report = autopilot.run_cycle().await;
-
-        assert_eq!(report.autonomy_readiness.decision, "hold");
-        let plan = report
-            .plans
-            .first()
-            .unwrap_or_else(|| panic!("governed objective was not planned: {report:#?}"));
-        let operation = plan.queue_operation.as_ref().expect("queue operation");
-        assert_eq!(operation.result_status, QueueOperationStatus::Appended);
-        assert!(operation.approval_packet_id.is_none());
-        assert!(operation
-            .governance_authorization_id
-            .as_deref()
-            .is_some_and(|id| id.starts_with("governance:")));
+        let before = history_snapshot(dir.path());
+        let error = autopilot.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(dir.path()), before);
     }
 
     #[tokio::test]
@@ -3633,7 +3665,7 @@ default_policy = "ledger_before_task"
             cfg.clone(),
             super::super::bootstrap::seed_default_registry(),
         );
-        let report = auto.run_cycle().await;
+        let report = auto.run_cycle().await.unwrap();
         assert!(report.plans[0].apollo_dispatches.is_empty());
         assert!(!report.plans[0].a2h_emitted);
         assert_eq!(
@@ -3659,7 +3691,7 @@ default_policy = "ledger_before_task"
     }
 
     #[tokio::test]
-    async fn human_required_governance_blocks_queue_and_emits_a2h() {
+    async fn retired_human_required_governance_blocks_queue_and_emits_a2h() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let cfg = AutopilotConfig::from_root(dir.path());
         write_allow_readiness_artifacts(dir.path());
@@ -3688,31 +3720,15 @@ default_policy = "ledger_before_task"
             cfg.clone(),
             super::super::bootstrap::seed_default_registry(),
         );
-        let report = auto.run_cycle().await;
-        assert!(report.plans.is_empty());
-        assert_eq!(report.objective_selection.objectives_considered, 1);
-        assert_eq!(report.objective_selection.objectives_blocked_by_gate, 1);
-        assert_eq!(
-            report.objective_selection.candidates[0].governance_class,
-            "funds_movement"
-        );
-        assert_eq!(
-            report.objective_selection.candidates[0].review_gate,
-            super::super::governance_policy::GovernanceGate::HumanRequired
-        );
-        assert!(report.objective_selection.candidates[0]
-            .rejection_reason
-            .as_deref()
-            .unwrap_or_default()
-            .starts_with("blocked_by_gate:HumanRequired:"));
-        assert_eq!(
-            std::fs::read_to_string(&cfg.queue_path).unwrap_or_default(),
-            ""
-        );
+        let before = history_snapshot(dir.path());
+        let error = auto.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(dir.path()), before);
     }
 
     #[tokio::test]
-    async fn triad_governance_propagates_oracle_quorum_evidence() {
+    async fn retired_triad_governance_propagates_oracle_quorum_evidence() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let cfg = AutopilotConfig::from_root(dir.path());
         std::fs::create_dir_all(
@@ -3740,27 +3756,11 @@ default_policy = "ledger_before_task"
             cfg.clone(),
             super::super::bootstrap::seed_default_registry(),
         );
-        let report = auto.run_cycle().await;
-        assert!(report.plans.is_empty());
-        assert_eq!(report.objective_selection.objectives_considered, 1);
-        assert_eq!(report.objective_selection.objectives_blocked_by_gate, 1);
-        assert_eq!(
-            report.objective_selection.candidates[0].governance_class,
-            "provider_reroute"
-        );
-        assert_eq!(
-            report.objective_selection.candidates[0].review_gate,
-            super::super::governance_policy::GovernanceGate::TriadQuorumRequired
-        );
-        assert!(report.objective_selection.candidates[0]
-            .rejection_reason
-            .as_deref()
-            .unwrap_or_default()
-            .starts_with("blocked_by_gate:TriadQuorumRequired:"));
-        assert_eq!(
-            std::fs::read_to_string(&cfg.queue_path).unwrap_or_default(),
-            ""
-        );
+        let before = history_snapshot(dir.path());
+        let error = auto.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(dir.path()), before);
     }
 
     #[tokio::test]
@@ -3793,7 +3793,7 @@ default_policy = "ledger_before_task"
             cfg.clone(),
             super::super::bootstrap::seed_default_registry(),
         );
-        let report = auto.run_cycle().await;
+        let report = auto.run_cycle().await.unwrap();
         assert!(report.plans.is_empty());
         assert_eq!(
             report.objective_selection.candidates[0].review_gate,
@@ -3812,7 +3812,7 @@ default_policy = "ledger_before_task"
     }
 
     #[tokio::test]
-    async fn run_cycle_resumes_human_approved_a2h_objective() {
+    async fn retired_run_cycle_resumes_human_approved_a2h_objective() {
         let dir = tempfile::tempdir().unwrap();
         let cfg = AutopilotConfig::from_root(dir.path());
         write_allow_readiness_artifacts(dir.path());
@@ -3853,19 +3853,16 @@ default_policy = "ledger_before_task"
             cfg.clone(),
             super::super::bootstrap::seed_default_registry(),
         );
-        let report = auto.run_cycle().await;
-        assert_eq!(report.h2a.responses_processed, 1);
-        assert_eq!(report.h2a.objectives_resumed, 1);
-        assert_eq!(report.objectives_processed, 1);
-        assert!(!report.plans[0].queued_task_ids.is_empty());
-        let queue = std::fs::read_to_string(&cfg.queue_path).unwrap();
-        assert!(queue.contains("\"oracle_conditions\":[\"watch logs\"]"));
-        let pending = std::fs::read_to_string(&cfg.a2h_pending_path).unwrap();
-        assert!(pending.contains("\"status\":\"resumed\""));
+        let before = history_snapshot(dir.path());
+        let error = auto.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(dir.path()), before);
     }
 
     #[tokio::test]
-    async fn operator_approved_recommendation_activates_queue_while_global_autonomy_is_held() {
+    async fn retired_operator_approved_recommendation_activates_queue_while_global_autonomy_is_held(
+    ) {
         let dir = tempfile::tempdir().unwrap();
         let cfg = AutopilotConfig::from_root(dir.path());
         std::fs::create_dir_all(cfg.arandur_recommendations_path.parent().unwrap()).unwrap();
@@ -3880,24 +3877,15 @@ default_policy = "ledger_before_task"
             cfg.clone(),
             super::super::bootstrap::seed_default_registry(),
         );
-        let report = auto.run_cycle().await;
-
-        assert_eq!(report.autonomy_readiness.decision, "hold");
-        assert_eq!(report.objectives_processed, 1);
-        assert!(!report.plans[0].queued_task_ids.is_empty());
-        assert_eq!(
-            report.plans[0]
-                .queue_operation
-                .as_ref()
-                .map(|operation| &operation.result_status),
-            Some(&QueueOperationStatus::Appended)
-        );
-        let queue = std::fs::read_to_string(cfg.queue_path).unwrap();
-        assert!(queue.contains("\"status\":\"pending\""));
+        let before = history_snapshot(dir.path());
+        let error = auto.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(dir.path()), before);
     }
 
     #[tokio::test]
-    async fn run_cycle_holds_delegation_when_cycle_joule_limit_exceeded() {
+    async fn retired_run_cycle_holds_delegation_when_cycle_joule_limit_exceeded() {
         let dir = tempfile::tempdir().unwrap();
         let mut cfg = AutopilotConfig::from_root(dir.path());
         cfg.joule_cycle_limit = 1.0;
@@ -3916,10 +3904,11 @@ default_policy = "ledger_before_task"
             cfg.clone(),
             super::super::bootstrap::seed_default_registry(),
         );
-        let report = auto.run_cycle().await;
-        assert!(report.plans[0].joule_limited);
-        assert!(report.plans[0].queued_task_ids.is_empty());
-        assert_eq!(std::fs::read_to_string(&cfg.queue_path).unwrap(), "");
+        let before = history_snapshot(dir.path());
+        let error = auto.run_cycle().await.unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(error.to_string().contains("retired"));
+        assert_eq!(history_snapshot(dir.path()), before);
     }
 
     #[test]

@@ -376,6 +376,7 @@ async fn run() {
     let execute_before = std::fs::read(&execute_path).unwrap();
     use std::sync::Arc;
     let state = HarnessState {
+        research_store_policy: super::super::ResearchStorePolicy::Isolated,
         harness_addr: "127.0.0.1:0".into(),
         child_pids: Arc::new(tokio::sync::RwLock::new(vec![])),
         service_names: Arc::new(vec![]),
@@ -1100,6 +1101,7 @@ async fn run_waiter_loss_positive() {
     let execute_before = std::fs::read(&execute_path).unwrap();
     use std::sync::Arc;
     let state = HarnessState {
+        research_store_policy: super::super::ResearchStorePolicy::Isolated,
         harness_addr: "127.0.0.1:0".into(),
         child_pids: Arc::new(tokio::sync::RwLock::new(vec![])),
         service_names: Arc::new(vec![]),
@@ -1176,7 +1178,7 @@ async fn run_waiter_loss_positive() {
         use tokio::io::AsyncWriteExt;
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let address = listener.local_addr().unwrap();
-        let app = super::super::router(state.clone()).layer(axum::Extension(
+        let app = super::super::router(state.clone(), Default::default()).layer(axum::Extension(
             super::super::RuntimePrerequisites {
                 keeper_socket: Some(socket.clone()),
                 recovery_jobs: recovery_jobs.clone(),

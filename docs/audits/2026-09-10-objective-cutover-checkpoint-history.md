@@ -25,7 +25,7 @@ RunStore owns immutable execution evidence. Hermes/Oromë provide authenticated
 ingress; Vairë supplies context/outcomes; Aulë supplies execution mechanisms and
 observability, not another scheduler.
 
-This is the implementation dependency of the [autonomous milestones](../plans/autonomous-task-completion/README.md), not a second acceptance program. Provider transport belongs to [provider convergence](../plans/PROVIDER_WORKER_CONVERGENCE.md); useful real-project overlap belongs to [Milestone 4](../plans/autonomous-task-completion/04-real-multi-project-execution.md); continuity and operator burden belong to [Milestone 5](../plans/autonomous-task-completion/05-vaire-operator-acceptance.md).
+This is the implementation dependency of the [autonomous milestones](../plans/autonomous-task-completion/README.md), not a second acceptance program. Provider transport belongs to [provider convergence](../plans/PROVIDER_WORKER_CONVERGENCE.md); useful real-project overlap belongs to [Milestone 4](../archive/2026-09-15-plan-reconciliation/autonomous-task-completion/04-real-multi-project-execution.md); continuity and operator burden belong to [Milestone 5](../archive/2026-09-15-plan-reconciliation/autonomous-task-completion/05-vaire-operator-acceptance.md).
 
 ## Current evidence, not completion
 

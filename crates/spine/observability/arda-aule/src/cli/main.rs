@@ -783,7 +783,7 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
             let runtime = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
                 .build()?;
-            let rendered = serde_json::to_string_pretty(&runtime.block_on(autopilot.run_cycle()))?;
+            let rendered = serde_json::to_string_pretty(&runtime.block_on(autopilot.run_cycle())?)?;
             if let Some(path) = state_output {
                 write_atomic_snapshot(&path, rendered.as_bytes())?;
             }
@@ -810,8 +810,8 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
                     let _ = tokio::signal::ctrl_c().await;
                     signal.store(true, std::sync::atomic::Ordering::SeqCst);
                 });
-                ceo_loop(autopilot, stop).await;
-            });
+                ceo_loop(autopilot, stop).await
+            })?;
         }
         AutopilotCommands::Status { root } => {
             let root = resolve_root(root);

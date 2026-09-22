@@ -45,7 +45,7 @@ export function pathForSetting(settings: ArdaHudSettings, key: keyof ArdaHudSett
 }
 
 export const PANEL_PATH_REGISTRY: Array<{ panel: ArdaPanel; settingKeys: Array<keyof ArdaHudSettings> }> = [
-  { panel: 'queue', settingKeys: ['queue_active_path', 'queue_summary_path', 'task_queue_path'] },
+  { panel: 'queue', settingKeys: ['queue_summary_path', 'task_queue_path'] },
   { panel: 'plan', settingKeys: ['core_plan_index_path', 'human_plan_index_path', 'core_plan_root', 'human_plan_root'] },
   { panel: 'systems', settingKeys: ['operator_runtime_status_path', 'operator_actions_path', 'soterion_render_contract_path'] },
   { panel: 'sourceFreshness', settingKeys: ['arda_snapshot_path', 'arda_source_map_path', 'remote_confidence_snapshot_path'] },

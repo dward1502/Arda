@@ -1,7 +1,7 @@
 use super::*;
 
 pub(super) fn classify(service: &HermesService, msg: InboundMessage) -> Result<IntentResult> {
-    let (classify_msg, choice_meta) = service.expand_choice_if_needed(&msg);
+    let (classify_msg, choice_meta) = service.expand_choice_if_needed(&msg)?;
     let mut classification = classify_message(&classify_msg);
     if classification.tier == "tier3_fallback" {
         if let Some(route_hint) = service.manwe_route_hint(&classify_msg) {
@@ -323,21 +323,23 @@ impl HermesService {
     pub(super) fn expand_choice_if_needed(
         &self,
         msg: &InboundMessage,
-    ) -> (InboundMessage, Option<serde_json::Value>) {
+    ) -> Result<(InboundMessage, Option<serde_json::Value>)> {
+        super::decision::require_available_decision_action(&msg.content)?;
         let Some(choice) = normalize_choice(&msg.content) else {
-            return (msg.clone(), None);
+            return Ok((msg.clone(), None));
         };
         let Some((prompt, option)) = self.resolve_decision_choice(
             &msg.source,
             &msg.sender,
             msg.channel.as_deref().unwrap_or(""),
             &choice,
-        ) else {
-            return (msg.clone(), None);
+        )?
+        else {
+            return Ok((msg.clone(), None));
         };
         let mut routed = msg.clone();
         routed.content = option.action.clone();
-        (
+        Ok((
             routed,
             Some(serde_json::json!({
                 "prompt_id": prompt.prompt_id,
@@ -345,7 +347,7 @@ impl HermesService {
                 "selected_label": option.label,
                 "selected_action": option.action,
             })),
-        )
+        ))
     }
 }
 

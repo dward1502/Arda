@@ -1,4 +1,4 @@
-"""Authenticated Hermes Discord handoff to Arda's loopback harness."""
+"""Authenticated Hermes Gateway handoff to Arda's loopback harness."""
 
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ _CONTINUITY_ENDPOINT = "http://127.0.0.1:7878/v1/continuity/events"
 _PREFIX = "arda "
 _RETRY_DELAYS = (1.0, 2.0, 5.0, 10.0, 30.0)
 _RETRY_TASKS: dict[str, asyncio.Task] = {}
+_COMMAND_LOCK: asyncio.Lock | None = None
 _CONTINUITY_RETRY_TASKS: dict[str, asyncio.Task] = {}
 _REMINDER_TASK: asyncio.Task | None = None
 _REMINDER_POLL_SECONDS = 30.0
@@ -28,6 +29,10 @@ _REMINDER_NAMESPACE = uuid.UUID("a6f05f68-81dc-4a14-9f1e-4dd8d5efc721")
 
 _PROJECT_OBJECTIVE = re.compile(
     r"^for\s+project\s+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*,?\s*(?:objective\s+)?(.+)$",
+    re.IGNORECASE,
+)
+_NAMED_PROJECT_OBJECTIVE = re.compile(
+    r"^for\s+project\s+([^,]+),\s*objective\s+(.+)$",
     re.IGNORECASE,
 )
 _CAPTURE = re.compile(
@@ -269,15 +274,17 @@ def _ensure_reminder_loop(gateway, source) -> None:
 
 
 def _natural_intent(text: str, source) -> dict | None:
-    """Classify only narrow private-language forms with deterministic authority."""
-    if str(getattr(source, "chat_type", "") or "").lower() not in {"dm", "private"}:
+    """Separate project intake from private-context reads and personal capture."""
+    chat_type = str(getattr(source, "chat_type", "") or "")
+    if chat_type not in {"dm", "private", "group", "guild", "channel", "thread"}:
         return None
     normalized = " ".join(text.strip().split())
     if not normalized:
         return None
-    context_key = normalized.rstrip("?.!").lower()
-    if context_key in _CONTEXT_REQUESTS:
-        return {"kind": "forward", "command": "arda context"}
+    if chat_type in {"group", "guild", "channel", "thread"} and normalized.lower().rstrip(".?!") in {
+        "show work in this conversation", "show objectives in this conversation",
+    }:
+        return {"kind": "forward", "command": "arda objectives"}
     if match := _PROJECT_OBJECTIVE.fullmatch(normalized):
         objective = match.group(2).strip()
         if objective:
@@ -285,6 +292,16 @@ def _natural_intent(text: str, source) -> dict | None:
                 "kind": "forward",
                 "command": f"arda objective {match.group(1).lower()} {objective}",
             }
+    if match := _NAMED_PROJECT_OBJECTIVE.fullmatch(normalized):
+        return {
+            "kind": "forward",
+            "command": f"arda objective {json.dumps(match.group(1).strip())} {match.group(2).strip()}",
+        }
+    if chat_type not in {"dm", "private"}:
+        return None
+    context_key = normalized.rstrip("?.!").lower()
+    if context_key in _CONTEXT_REQUESTS:
+        return {"kind": "forward", "command": "arda context"}
     if match := _CAPTURE.fullmatch(normalized):
         return {"kind": "forward", "command": f"arda capture {match.group(1).strip()}"}
     if match := _REMINDER.fullmatch(normalized):
@@ -317,7 +334,7 @@ def _payload(event) -> dict:
             "authentication_method": "gateway_identity",
             "authenticated_at": datetime.now(timezone.utc).isoformat(),
         },
-        "adapter_id": "hermes-discord-default",
+        "adapter_id": f"hermes-{_value(source.platform)}-default",
         "event": {
             "text": event.text,
             "message_type": str(_value(event.message_type)),
@@ -350,9 +367,19 @@ def _post(payload: dict) -> tuple[bool, str]:
             },
             method="POST",
         )
-        with urlopen(request, timeout=3.0) as response:
+        # Engine research has a 60-second overall deadline. A shorter socket
+        # deadline loses the initial result; durable retries use the same event.
+        words = str(payload.get("event", {}).get("text", "")).lower().split()
+        timeout = 65.0 if words[:2] == ["arda", "research"] else 3.0
+        with urlopen(request, timeout=timeout) as response:
             body = json.loads(response.read().decode("utf-8"))
-            return True, str(body.get("summary") or "Arda command completed.")
+            summary = str(body.get("summary") or "Arda command completed.")
+            refs = body.get("evidence_refs")
+            if isinstance(refs, list):
+                refs = [ref for ref in refs if isinstance(ref, str) and ref][:12]
+                if refs:
+                    summary += "\nEvidence:\n" + "\n".join(refs)
+            return True, summary
     except HTTPError as error:
         try:
             body = json.loads(error.read().decode("utf-8"))
@@ -382,19 +409,42 @@ def _continuity_pending_root() -> Path:
 
 
 def _pending_path(payload: dict) -> Path:
-    message_id = str(payload["event"]["message_id"])
-    digest = hashlib.sha256(message_id.encode("utf-8")).hexdigest()
+    source = payload["event"]["source"]
+    identity = [payload["operator"]["operator_id"], payload["adapter_id"],
+                source["platform"], source["chat_id"], source.get("thread_id"),
+                source["chat_type"], payload["event"]["message_id"]]
+    digest = hashlib.sha256(json.dumps(identity, separators=(",", ":")).encode("utf-8")).hexdigest()
     return _pending_root() / f"{digest}.json"
 
 
 def _persist_pending(payload: dict) -> Path:
     path = _pending_path(payload)
+    if path.exists():
+        return path  # Never replace a saved response with a replayed request.
+    # Reuse an old cached result only for the exact original scoped identity.
+    legacy_digest = hashlib.sha256(str(payload["event"]["message_id"]).encode("utf-8")).hexdigest()
+    legacy = _pending_root() / f"{legacy_digest}.json"
+    if legacy.exists():
+        saved = _load_pending(legacy)
+        if saved is not None and _pending_path(saved) == path:
+            return legacy
+    _write_pending(path, payload)
+    return path
+
+
+def _write_pending(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     temporary = path.with_suffix(".tmp")
-    temporary.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
-    temporary.chmod(0o600)
+    with os.fdopen(os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as stream:
+        json.dump(payload, stream, separators=(",", ":"))
+        stream.flush()
+        os.fsync(stream.fileno())
     temporary.replace(path)
-    return path
+    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
 
 
 def _load_pending(path: Path) -> dict | None:
@@ -412,10 +462,7 @@ async def _retry_pending(path: Path, gateway, source) -> None:
         payload = _load_pending(path)
         if payload is None:
             return
-        terminal, summary = await asyncio.to_thread(_post, payload)
-        if terminal:
-            path.unlink(missing_ok=True)
-            _reply(gateway, source, summary)
+        if await _attempt_pending(path, payload, gateway, source):
             return
     _LOG.warning("Arda command remains queued after bounded retries: %s", path.name)
 
@@ -430,13 +477,20 @@ def _schedule_retry(path: Path, gateway, source) -> None:
         name=f"arda-operator-retry-{path.stem[:12]}",
     )
     _RETRY_TASKS[key] = task
-    task.add_done_callback(lambda _task: _RETRY_TASKS.pop(key, None))
+    task.add_done_callback(lambda _task: _RETRY_TASKS.pop(key, None) if _RETRY_TASKS.get(key) is _task else None)
 
 
 def _same_destination(payload: dict, source) -> bool:
     pending = payload.get("event", {}).get("source", {})
+    def audience(value):
+        value = str(value or "").lower()
+        return "private" if value in {"dm", "private"} else value
     return (
-        str(pending.get("platform")) == str(_value(source.platform))
+        payload.get("operator", {}).get("operator_id") == _canonical_operator_id()
+        and payload.get("adapter_id") == f"hermes-{_value(source.platform)}-default"
+        and bool(pending.get("chat_type"))
+        and audience(pending.get("chat_type")) == audience(getattr(source, "chat_type", None))
+        and str(pending.get("platform")) == str(_value(source.platform))
         and str(pending.get("chat_id")) == str(source.chat_id)
         and str(pending.get("thread_id") or "") == str(source.thread_id or "")
     )
@@ -573,7 +627,7 @@ def _schedule_continuity_retry(path: Path) -> None:
         _retry_continuity(path), name=f"arda-continuity-retry-{path.stem[:12]}"
     )
     _CONTINUITY_RETRY_TASKS[key] = task
-    task.add_done_callback(lambda _task: _CONTINUITY_RETRY_TASKS.pop(key, None))
+    task.add_done_callback(lambda _task: _CONTINUITY_RETRY_TASKS.pop(key, None) if _CONTINUITY_RETRY_TASKS.get(key) is _task else None)
 
 
 def _schedule_continuity_backlog() -> None:
@@ -595,17 +649,82 @@ def _submit_continuity(payload: dict, _gateway, _source) -> None:
         name=f"arda-continuity-delivery-{path.stem[:12]}",
     )
     _CONTINUITY_RETRY_TASKS[key] = task
-    task.add_done_callback(lambda _task: _CONTINUITY_RETRY_TASKS.pop(key, None))
+    task.add_done_callback(lambda _task: _CONTINUITY_RETRY_TASKS.pop(key, None) if _CONTINUITY_RETRY_TASKS.get(key) is _task else None)
+
+
+async def _deliver_result(gateway, source, summary: str) -> bool:
+    """Use Hermes routing, but require a provider receipt before clearing outbox."""
+    adapter = gateway._adapter_for_source(source)
+    if adapter is None:
+        return False
+    metadata = gateway._thread_metadata_for_source(source)
+    extra = getattr(getattr(adapter, "config", None), "extra", None)
+    config = getattr(gateway, "config", None)
+    policy = extra.get("notice_delivery") if isinstance(extra, dict) else None
+    if policy is None and config and hasattr(config, "get_notice_delivery"):
+        policy = config.get_notice_delivery(source.platform)
+    if str(policy).strip().lower() == "private":
+        if str(getattr(source, "chat_type", "")).strip().lower() not in {"dm", "private"}:
+            return False
+        # BasePlatformAdapter.send_private_notice may delegate to public send.
+        # Only an authenticated private source is a known private destination;
+        # never carry shared-channel/thread metadata into that delivery.
+        receipt = await adapter.send(source.chat_id, summary, metadata={})
+    else:
+        receipt = await adapter.send(source.chat_id, summary, metadata=metadata)
+    return bool(getattr(receipt, "success", False) and getattr(receipt, "message_id", None))
+
+
+async def _attempt_pending(path: Path, payload: dict | None, gateway, source) -> bool:
+    global _COMMAND_LOCK
+    if _COMMAND_LOCK is None:
+        _COMMAND_LOCK = asyncio.Lock()
+    async with _COMMAND_LOCK:
+        # Backlog/replay may carry an old request object. Read durable state.
+        payload = _load_pending(path)
+        if payload is None:
+            return True
+        if not _same_destination(payload, source):
+            _LOG.warning("Arda pending destination mismatch; retaining %s", path.name)
+            return False
+        summary = payload.get("_bridge_result")
+        if summary is None:
+            terminal, summary = await asyncio.to_thread(_post, payload)
+            if not terminal:
+                return False
+            payload["_bridge_result"] = summary
+            _write_pending(path, payload)
+    try:
+        # Recheck after the network await as well as before processing cached
+        # responses: no caller-supplied source may redirect a persisted result.
+        if not _same_destination(payload, source):
+            return False
+        if not await _deliver_result(gateway, source, summary):
+            return False
+    except Exception:
+        _LOG.warning("Arda response delivery failed; retaining result: %s", path.name)
+        return False
+    path.unlink(missing_ok=True)
+    return True
+
+
+async def _deliver_initial(path: Path, payload: dict, gateway, source) -> None:
+    if not await _attempt_pending(path, payload, gateway, source):
+        await _retry_pending(path, gateway, source)
 
 
 def _submit(payload: dict, gateway, source) -> str:
     path = _persist_pending(payload)
-    terminal, summary = _post(payload)
-    if terminal:
-        path.unlink(missing_ok=True)
-    else:
-        _schedule_retry(path, gateway, source)
-    return summary
+    key = str(path)
+    existing = _RETRY_TASKS.get(key)
+    if existing is None or existing.done():
+        task = asyncio.get_running_loop().create_task(
+            _deliver_initial(path, payload, gateway, source),
+            name=f"arda-operator-delivery-{path.stem[:12]}",
+        )
+        _RETRY_TASKS[key] = task
+        task.add_done_callback(lambda _task: _RETRY_TASKS.pop(key, None) if _RETRY_TASKS.get(key) is _task else None)
+    return "Hermes queued this request locally; Arda admission and response delivery are not yet confirmed."
 
 
 def _reply(gateway, source, text: str) -> None:
@@ -625,9 +744,9 @@ def _pre_gateway_dispatch(event, gateway, **_hook_context):
     if source is None:
         return None
     platform = str(_value(source.platform))
-    explicit_command = platform == "discord" and text.strip().lower().startswith(_PREFIX)
+    explicit_command = text.strip().lower().startswith(_PREFIX)
     natural_intent = (
-        _natural_intent(text, source) if platform == "discord" and not explicit_command else None
+        _natural_intent(text, source) if not explicit_command else None
     )
     is_arda_command = explicit_command or natural_intent is not None
     try:
@@ -673,3 +792,9 @@ def _pre_gateway_dispatch(event, gateway, **_hook_context):
 
 def register(ctx):
     ctx.register_hook("pre_gateway_dispatch", _pre_gateway_dispatch)
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("arda_local_cli", Path(__file__).with_name("local_cli.py"))
+    assert spec is not None and spec.loader is not None
+    local = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(local)
+    ctx.register_cli_command("arda", "Authenticated local Arda intake and controls", local.setup, local.main)

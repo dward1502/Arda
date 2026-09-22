@@ -290,6 +290,7 @@ fn harness_state_with_access(
 
 fn harness_state_with_presence(presence_inputs: HarnessPresenceState) -> HarnessState {
     HarnessState {
+        research_store_policy: arda_engine::harness::ResearchStorePolicy::Isolated,
         harness_addr: "127.0.0.1:7878".to_string(),
         child_pids: Arc::new(tokio::sync::RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),

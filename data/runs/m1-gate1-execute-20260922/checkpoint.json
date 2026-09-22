@@ -1,0 +1,131 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "m1-gate1-execute-20260922",
+  "objective_id": "m1-gate1-acceptance",
+  "nodes": [
+    {
+      "id": "m1-plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 1000.0,
+        "max_cost_usd": 50.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 600000,
+      "idempotency_key": "m1-plan-20260922",
+      "input_digest": null,
+      "output_digest": "operator-approved-f3-business-wgtt-70656753-1e03-4375-9a29-ecf220292c19",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "m1-gate1-execute-20260922:m1-plan:4",
+        "checkpoint_digest": "sha256:0bd09a3e5ef9338d184af795d792e7859b2aa0184e8358a2928e0bc268be0d6a"
+      }
+    },
+    {
+      "id": "m1-approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 500.0,
+        "max_cost_usd": 25.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "m1-approval-20260922",
+      "input_digest": null,
+      "output_digest": "operator-approved-f3-business-wgtt-70656753-1e03-4375-9a29-ecf220292c19",
+      "parent_receipts": [
+        "operator-approved-f3-business-wgtt-70656753-1e03-4375-9a29-ecf220292c19"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "m1-gate1-execute-20260922:m1-approval:7",
+        "checkpoint_digest": "sha256:0e6ad35b3d7ad08b4e57589acd8ab75b05acd1cf7831c9183931335764e5baad"
+      }
+    },
+    {
+      "id": "m1-execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 200.0
+      },
+      "retry": {
+        "max_attempts": 3
+      },
+      "timeout_ms": 300000,
+      "idempotency_key": "m1-execute-20260922",
+      "input_digest": null,
+      "output_digest": "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+      "parent_receipts": [
+        "operator-approved-f3-business-wgtt-70656753-1e03-4375-9a29-ecf220292c19"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "m1-gate1-execute-20260922:m1-execute:10",
+        "checkpoint_digest": "sha256:d6c56344e6916fa380f065c982f2ebb4e92d9190e17c467dfcd9d74029a75b3f"
+      }
+    },
+    {
+      "id": "m1-verify",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 1000.0,
+        "max_cost_usd": 50.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 120000,
+      "idempotency_key": "m1-verify-20260922",
+      "input_digest": null,
+      "output_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "parent_receipts": [
+        "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+      ],
+      "checkpoint": {
+        "sequence": 13,
+        "recovery_token": "m1-gate1-execute-20260922:m1-verify:13",
+        "checkpoint_digest": "sha256:f7d00c9c3d777d48c8bef3f4220e2855c16f78a03d03f4ed1c9fa16321dcfe9b"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "m1-plan",
+      "to": "m1-approval",
+      "parent_receipt": "operator-approved-f3-business-wgtt-70656753-1e03-4375-9a29-ecf220292c19"
+    },
+    {
+      "id": "e2",
+      "from": "m1-approval",
+      "to": "m1-execute",
+      "parent_receipt": "operator-approved-f3-business-wgtt-70656753-1e03-4375-9a29-ecf220292c19"
+    },
+    {
+      "id": "e3",
+      "from": "m1-execute",
+      "to": "m1-verify",
+      "parent_receipt": "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:5a013fc94238cc50f876b12b93d08be914951cc27ff6a9308b6af1b3959c98ae",
+    "created_by": "hermes-local:20260922_100107_a798eb:message:m1-objective-plan",
+    "parent_receipts": []
+  },
+  "approval_receipts": []
+}

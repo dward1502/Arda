@@ -1,0 +1,65 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:2da1331eac2ca69c4e6a7daf7ab56350906279f76ca30b37c2a92ba92bbcffec",
+  "context_capsule_digest": "sha256:54adcf4f67a86049ab4b6d45da498b98ff383b01f775076d8e52c2d55093f5d8",
+  "context_capsule_id": "capsule:54adcf4f67a86049ab4b6d45da498b98ff383b01f775076d8e52c2d55093f5d8",
+  "context_handoff": {
+    "capsule_digest": "sha256:54adcf4f67a86049ab4b6d45da498b98ff383b01f775076d8e52c2d55093f5d8",
+    "capsule_id": "capsule:54adcf4f67a86049ab4b6d45da498b98ff383b01f775076d8e52c2d55093f5d8",
+    "context_use_receipt_ref": "arda://vaire/context-use/context-use:ce74729a0a8b07cb36588230993fa4b6e851a05c1c3f4f00598fef80db8e8ef9",
+    "destination_consumer": "arda.resident-objective:objective-cutover-local-scheduled-20260915-leaf-cutover-local-scheduled-20260915-leaf-attempt-1:review",
+    "node_id": "review",
+    "objective_id": "cutover-local-scheduled-20260915",
+    "parent_receipts": [
+      "sha256:613f5067db0fbd63605fba390bcc30a66cdccc9ea6e9b48548af70655a0da6c1"
+    ],
+    "receipt_digest": "sha256:2a2c80fc0bce9f2d652dacac903acbe75026b78ff88cfff29c3dbe96fa19e6a0",
+    "receipt_id": "handoff:ad33f3e663b73dfb84886745b5480ca63213c2ab0dec671e59bb2e6f4b570444",
+    "recorded_at_unix_ms": 1789448371169,
+    "run_id": "objective-cutover-local-scheduled-20260915-leaf-cutover-local-scheduled-20260915-leaf-attempt-1",
+    "schema_version": "arda.handoff-receipt.v1",
+    "source_authority": "vaire:organism-context"
+  },
+  "context_use_receipt_ref": "arda://vaire/context-use/context-use:ce74729a0a8b07cb36588230993fa4b6e851a05c1c3f4f00598fef80db8e8ef9",
+  "idempotency_key": "queue-cutover-local-scheduled-20260915-leaf-review",
+  "node_id": "review",
+  "parent_receipts": [
+    "sha256:613f5067db0fbd63605fba390bcc30a66cdccc9ea6e9b48548af70655a0da6c1"
+  ],
+  "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+  "receipt_digest": "sha256:b46456229bd42f2e72d57c768636de3f6b29f90d1548cbbcb58d6a98d1f8c7ce",
+  "recorded_at_unix_ms": 1789448371169,
+  "run_id": "objective-cutover-local-scheduled-20260915-leaf-cutover-local-scheduled-20260915-leaf-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE\nVerified verify.py checks input.txt contains 'installed-retained-runtime-acceptance\\n'. Read-only inspection confirmed both files exist with expected content. No modifications made; predecessor evidence validated.",
+  "test_evidence": [],
+  "tool_evidence": [
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/qualification/live-project/verify.py\"}",
+      "exit_code": null,
+      "output_digest": "sha256:b4c3be000bb1d68320a9e052cf51850aa511748a988b4fb453c227812038df17",
+      "tool": "read_file"
+    },
+    {
+      "action": "{\"path\":\"/var/home/mythos/Eregion/Arda/target/qualification/live-project/input.txt\"}",
+      "exit_code": null,
+      "output_digest": "sha256:0c240ea8aaf5d06c496a8f256594de5c80034b17f6fb82b38504d81e24b1909c",
+      "tool": "read_file"
+    }
+  ],
+  "usage": {
+    "api_calls": 0,
+    "completed": true,
+    "cost_measurement": "unknown",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 0,
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "output_tokens": 0,
+    "provider": "custom",
+    "total_tokens": 0
+  }
+}

@@ -53,7 +53,6 @@ mod task_approval;
 use decision::DecisionExecutionContext;
 pub use decision::{DecisionOption, DecisionPrompt};
 use outbound::count_outbound_queue_pending;
-use queue_state::default_task_queue_path;
 pub use semantic_channel::{
     ArdaHudProjection, ArdaHudProjectionContract, ArdaHudProjectionStateReceipt,
     DiscordChannelDryRunReceipt, DiscordChannelPermissionSummary, DiscordChannelPlan,

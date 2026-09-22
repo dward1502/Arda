@@ -17,6 +17,12 @@ SPEC.loader.exec_module(system_audit)
 
 
 class SystemAuditTests(unittest.TestCase):
+    def test_prometheus_does_not_require_retired_action_queue(self):
+        self.assertNotIn(
+            "data/hades/action_queue.jsonl",
+            system_audit.TARGETS["PROMETHEUS"].support_paths,
+        )
+
     def test_default_output_dir_is_date_first_then_run_id(self):
         root = Path("/tmp/arda")
         now = datetime(2026, 5, 27, 1, 2, 3, tzinfo=timezone.utc)
@@ -68,8 +74,7 @@ class SystemAuditTests(unittest.TestCase):
             (root / "scripts").mkdir(exist_ok=True)
             (root / "scripts/rumil_organization_maintenance.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
             (root / "data/rumil").mkdir(parents=True)
-            (root / "data/hades").mkdir(parents=True)
-            (root / "data/hades/action_queue.jsonl").write_text("", encoding="utf-8")
+
             (root / "Cargo.toml").write_text("[workspace]\n", encoding="utf-8")
 
             out = root / "audit/system-audit-runs/TEST"

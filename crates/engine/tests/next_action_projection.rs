@@ -12,6 +12,48 @@ use serde_json::json;
 use std::fs;
 use uuid::Uuid;
 
+#[test]
+fn hygiene_evidence_becomes_review_only_not_an_objective() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("data/rumil/hygiene/latest.json");
+    fs::create_dir_all(path.parent().unwrap()).unwrap();
+    let report = json!({
+        "schema_version": "arda.rumil.nightly-hygiene.v1",
+        "generated_at_utc": now(), "outcome": "findings",
+        "coverage": {"complete": true},
+        "proposals": [{"finding_id": "a", "execution_allowed": false}],
+        "policy": {"execution_performed": false, "destructive_actions_performed": false, "queue_mutation_performed": false}
+    });
+    fs::write(&path, report.to_string()).unwrap();
+    let projection = publish_next_action_projection(root.path(), "operator:mythos", now()).unwrap();
+    let selected = projection.selected.expect("hygiene review candidate");
+    assert_eq!(
+        selected.authority_state,
+        NextActionAuthorityState::ReviewRequired
+    );
+    assert!(!selected.operator_authored);
+    assert!(selected
+        .source_ref
+        .contains("data/rumil/hygiene/latest.json"));
+    assert!(!root.path().join("data/arda/objectives.sqlite3").exists());
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
+    assert_eq!(fs::read_to_string(&path).unwrap(), report.to_string());
+    let stale = publish_next_action_projection(
+        root.path(),
+        "operator:mythos",
+        now() + chrono::Duration::days(3),
+    )
+    .unwrap();
+    assert!(stale.selected.is_none());
+    fs::write(&path, "not JSON").unwrap();
+    assert!(
+        publish_next_action_projection(root.path(), "operator:mythos", now())
+            .unwrap()
+            .selected
+            .is_none()
+    );
+}
+
 fn now() -> chrono::DateTime<Utc> {
     Utc.with_ymd_and_hms(2026, 8, 20, 18, 0, 0).unwrap()
 }

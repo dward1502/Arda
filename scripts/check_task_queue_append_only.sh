@@ -87,9 +87,9 @@ baseline_ref:            $base_ref
 baseline_nonempty_lines: $base_lines
 current_nonempty_lines:  $current_lines
 
-This queue is an append-only evidence ledger. Do not rewrite, compact, or
-delete rows directly. Close work by appending same-id terminal rows via
-task-pivot or another queue API.
+This is a historical evidence ledger, not live execution authority. Do not
+rewrite, compact, or delete rows directly. task-pivot and legacy queue writers
+are retired; use authenticated resident objective intake and controls for live work.
 
 Approved compaction requires a HADES compaction receipt and an explicit
 ARDA_ALLOW_HADES_QUEUE_COMPACTION=1 override. The current arda-cli does not

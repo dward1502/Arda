@@ -11,6 +11,7 @@ pub enum NextActionSourceKind {
     PersonalOperations,
     Workbench,
     Research,
+    Hygiene,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

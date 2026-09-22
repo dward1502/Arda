@@ -130,13 +130,11 @@ impl HermesService {
             return Ok(false);
         }
         let dedup_key = format!("{provider_id}:{}", inbound.id);
-        {
-            let mut seen = self.seen_inbound_ids.lock().await;
-            if seen.contains(&dedup_key) {
-                return Ok(false);
-            }
-            seen.insert(dedup_key);
+        let mut seen = self.seen_inbound_ids.lock().await;
+        if seen.contains(&dedup_key) {
+            return Ok(false);
         }
+        super::decision::require_available_decision_action(&inbound.content)?;
 
         let mut msg = InboundMessage::new(provider_id, inbound.sender, inbound.content);
         msg.channel = inbound
@@ -151,7 +149,7 @@ impl HermesService {
                 &msg.sender,
                 msg.channel.as_deref().unwrap_or(""),
                 &choice,
-            ) {
+            )? {
                 self.record_decision_hop(
                     "choice_resolved",
                     provider_id,
@@ -174,6 +172,8 @@ impl HermesService {
             }
         }
 
+        seen.insert(dedup_key);
+        drop(seen);
         let _ = self.classify(msg.clone())?;
         self.record_decision_hop(
             "inbound_classified",
@@ -305,6 +305,7 @@ impl HermesService {
         msg: &InboundMessage,
         ctx: &DecisionExecutionContext,
     ) -> Result<()> {
+        super::decision::require_available_decision_action(&ctx.selected_action)?;
         let action = ctx.selected_action.trim().to_ascii_lowercase();
         let channel = msg.channel.as_deref().unwrap_or("discord");
         let sender = msg.sender.as_str();
@@ -380,7 +381,7 @@ impl HermesService {
         } else if action == "show top queued tasks and plan" {
             let top = self.load_queued_task_entries(3)?;
             if top.is_empty() {
-                "Status: idle\nWhat was done: Checked queue and found no queued tasks. Entering chat mode until new tasks arrive.".to_string()
+                "Status: historical_only\nNo matching historical queue records. Live work is owned by Engine objectives.".to_string()
             } else {
                 let lines = top
                     .iter()
@@ -396,11 +397,11 @@ impl HermesService {
                     .collect::<Vec<_>>()
                     .join("\n");
                 format!(
-                    "Status: planning\nWhat was done: Reviewed top queued tasks.\nTop queued tasks:\n{lines}\n\nReply A/B/C to continue."
+                    "Status: historical_only\nHistorical queue records (not live work or execution authority):\n{lines}"
                 )
             }
         } else if action == "enter chat mode" {
-            "Status: chat_mode\nWhat was done: Chat mode enabled. Waiting for direct instructions or new queued tasks.".to_string()
+            "Status: chat_mode\nChat mode enabled. Live execution requires authenticated Engine objective control.".to_string()
         } else {
             format!(
                 "Status: acknowledged\nWhat was done: Action accepted but no direct executor is wired for '{}'.",
@@ -457,6 +458,156 @@ mod tests {
     use tempfile::tempdir;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    fn snapshot(root: &Path) -> std::collections::BTreeMap<PathBuf, Option<Vec<u8>>> {
+        fn walk(
+            root: &Path,
+            path: &Path,
+            entries: &mut std::collections::BTreeMap<PathBuf, Option<Vec<u8>>>,
+        ) {
+            for entry in fs::read_dir(path).unwrap() {
+                let path = entry.unwrap().path();
+                let directory = path.is_dir();
+                entries.insert(
+                    path.strip_prefix(root).unwrap().into(),
+                    if directory {
+                        None
+                    } else {
+                        Some(fs::read(&path).unwrap())
+                    },
+                );
+                if directory {
+                    walk(root, &path, entries);
+                }
+            }
+        }
+        let mut entries = std::collections::BTreeMap::new();
+        walk(root, root, &mut entries);
+        entries
+    }
+
+    #[tokio::test]
+    async fn retired_inbound_decisions_preserve_dedup_and_all_service_history() {
+        for action in [
+            "drain queued tasks",
+            " EXECUTE QUEUED TASK historical ",
+            "execute queued task",
+        ] {
+            let dir = tempdir().unwrap();
+            let service = HermesService::new(dir.path()).unwrap();
+            service
+                .create_decision_prompt(
+                    "test",
+                    "operator",
+                    "local",
+                    "historical",
+                    vec![DecisionOption {
+                        key: "a".into(),
+                        label: "Historical action".into(),
+                        action: action.into(),
+                    }],
+                )
+                .unwrap();
+            let before = snapshot(dir.path());
+            for content in ["a", action] {
+                let inbound = McpMessage {
+                    id: "retryable-message".into(),
+                    sender: "operator".into(),
+                    content: content.into(),
+                    timestamp: Utc::now(),
+                    channel: McpChannelType::Http,
+                    channel_target: Some("local".into()),
+                    sender_is_bot: false,
+                };
+                for _ in 0..2 {
+                    let error = service
+                        .ingest_polled_message("test", inbound.clone(), true)
+                        .await
+                        .unwrap_err();
+                    assert!(error.to_string().contains("retired"));
+                    assert!(service.seen_inbound_ids.lock().await.is_empty());
+                    assert_eq!(snapshot(dir.path()), before);
+                }
+                let mut msg = InboundMessage::new("test", "operator", content);
+                msg.channel = Some("local".into());
+                assert!(service
+                    .classify(msg)
+                    .unwrap_err()
+                    .to_string()
+                    .contains("retired"));
+                assert_eq!(snapshot(dir.path()), before);
+            }
+        }
+    }
+
+    #[test]
+    fn supported_decision_choices_resolve_once() {
+        let dir = tempdir().unwrap();
+        let service = HermesService::new(dir.path()).unwrap();
+        service
+            .create_decision_prompt(
+                "test",
+                "operator",
+                "local",
+                "chat",
+                vec![DecisionOption {
+                    key: "a".into(),
+                    label: "Chat".into(),
+                    action: "enter chat mode".into(),
+                }],
+            )
+            .unwrap();
+        assert!(service
+            .resolve_decision_choice("test", "operator", "local", "z")
+            .unwrap()
+            .is_none());
+        assert!(service
+            .resolve_decision_choice("test", "other", "local", "a")
+            .unwrap()
+            .is_none());
+        assert!(service
+            .resolve_decision_choice("test", "operator", "local", "a")
+            .unwrap()
+            .is_some());
+        assert!(service
+            .resolve_decision_choice("test", "operator", "local", "a")
+            .unwrap()
+            .is_none());
+        assert_eq!(
+            fs::read_to_string(&service.decision_responses_path)
+                .unwrap()
+                .lines()
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn retired_decision_choice_preserves_prompt_response_history() {
+        let dir = tempdir().unwrap();
+        let service = HermesService::new(dir.path()).unwrap();
+        for action in ["drain queued tasks", " EXECUTE QUEUED TASK historical "] {
+            service
+                .create_decision_prompt(
+                    "test",
+                    "operator",
+                    "local",
+                    "historical",
+                    vec![DecisionOption {
+                        key: "a".into(),
+                        label: "Historical action".into(),
+                        action: action.into(),
+                    }],
+                )
+                .unwrap();
+            let before = fs::read(&service.decision_responses_path).unwrap();
+            let error = service
+                .resolve_decision_choice("test", "operator", "local", "a")
+                .unwrap_err();
+            assert!(error.to_string().contains("retired"));
+            assert_eq!(fs::read(&service.decision_responses_path).unwrap(), before);
+        }
+    }
 
     fn env_guard() -> std::sync::MutexGuard<'static, ()> {
         ENV_LOCK

@@ -1,6 +1,7 @@
 use crate::capability_composition::{
     CapabilityComposition, CapabilityCompositionError, EgressTarget, RouteMode,
 };
+pub use crate::company_ops::ApprovalReceipt;
 use crate::service_registry::{
     CapabilityExecutionAdapter, CapabilityHealth, CapabilityMaturity, CapabilityRecord,
     CapabilityRegistry, CapabilityRemovalStatus,
@@ -258,6 +259,8 @@ pub struct RunGraph {
     pub nodes: Vec<RunNode>,
     pub edges: Vec<RunEdge>,
     pub provenance: Provenance,
+    #[serde(default)]
+    pub approval_receipts: Vec<ApprovalReceipt>,
 }
 
 impl RunGraph {

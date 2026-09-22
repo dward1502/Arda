@@ -46,6 +46,7 @@ fn payment_run(composition: &CapabilityComposition) -> RunGraph {
             created_by: "payment-capability-test".into(),
             parent_receipts: vec![],
         },
+        approval_receipts: Vec::new(),
     }
 }
 

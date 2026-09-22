@@ -83,47 +83,76 @@ pub(super) async fn create_question(
     let _guard = WORKBENCH_MUTATIONS.lock().await;
 
     let mut registry = load_questions(&state.workbench_root)?;
-    if let Some(existing) = registry
+    let existing = registry
         .iter()
-        .find(|question| question.question_id == request.question.question_id)
-        .cloned()
-    {
-        let suggestion = intended_suggestion(&existing, &request.envelope.idempotency_key)?;
-        let (backend_status, backend_error) = if request.read_only {
-            ("already_registered", None)
-        } else {
-            match enqueue_suggestion(&state, &suggestion).await {
-                Ok(()) => ("re_enqueued_via_warden_ingress", None),
-                Err(_) => (
-                    "registered_warden_unavailable",
-                    Some("Warden suggestion ingress unavailable".to_string()),
-                ),
-            }
-        };
-        return Ok((
-            StatusCode::OK,
-            Json(QuestionCreateResponse {
-                question: existing,
-                backend_suggestion: suggestion,
-                backend_status,
-                backend_error,
-            }),
-        ));
+        .position(|q| q.question_id == request.question.question_id);
+    if let Some(index) = existing {
+        let mut submitted = request.question.clone();
+        // Backend IDs are server-owned and may have been added since the request.
+        submitted.backend_suggestion_ids = registry[index].backend_suggestion_ids.clone();
+        if submitted != registry[index] {
+            return Err(ApiError::bad_request(
+                "Research question ID is already bound to different content",
+            ));
+        }
     }
-
-    let suggestion = intended_suggestion(&request.question, &request.envelope.idempotency_key)?;
-    registry.push(request.question.clone());
-    registry.sort_by(|left, right| left.question_id.cmp(&right.question_id));
-    write_json_atomic(
-        &questions_path(&state.workbench_root),
-        QUESTION_SCHEMA,
-        &registry,
-    )?;
+    let mut question = existing
+        .map(|i| registry[i].clone())
+        .unwrap_or(request.question);
+    if existing.is_none() {
+        question.backend_suggestion_ids.clear();
+    }
+    let mut suggestion = intended_suggestion(&question, &request.envelope.idempotency_key)?;
+    if existing.is_none() {
+        registry.push(question.clone());
+        registry.sort_by(|left, right| left.question_id.cmp(&right.question_id));
+        write_json_atomic(
+            &questions_path(&state.workbench_root),
+            QUESTION_SCHEMA,
+            &registry,
+        )?;
+    }
     let (backend_status, backend_error) = if request.read_only {
-        ("read_only_not_enqueued", None)
+        (
+            if existing.is_some() {
+                "already_registered"
+            } else {
+                "read_only_not_enqueued"
+            },
+            None,
+        )
     } else {
         match enqueue_suggestion(&state, &suggestion).await {
-            Ok(()) => ("enqueued_via_warden_ingress", None),
+            Ok(accepted) => {
+                if !question
+                    .backend_suggestion_ids
+                    .contains(&accepted.suggestion_id)
+                {
+                    question
+                        .backend_suggestion_ids
+                        .push(accepted.suggestion_id.clone());
+                }
+                suggestion = accepted;
+                let index = registry
+                    .iter()
+                    .position(|q| q.question_id == question.question_id)
+                    .unwrap();
+                registry[index] = question.clone();
+                registry.sort_by(|left, right| left.question_id.cmp(&right.question_id));
+                write_json_atomic(
+                    &questions_path(&state.workbench_root),
+                    QUESTION_SCHEMA,
+                    &registry,
+                )?;
+                (
+                    if existing.is_some() {
+                        "re_enqueued_via_warden_ingress"
+                    } else {
+                        "enqueued_via_warden_ingress"
+                    },
+                    None,
+                )
+            }
             Err(_) => (
                 "registered_warden_unavailable",
                 Some("Warden suggestion ingress unavailable".to_string()),
@@ -131,9 +160,13 @@ pub(super) async fn create_question(
         }
     };
     Ok((
-        StatusCode::CREATED,
+        if existing.is_some() {
+            StatusCode::OK
+        } else {
+            StatusCode::CREATED
+        },
         Json(QuestionCreateResponse {
-            question: request.question,
+            question,
             backend_suggestion: suggestion,
             backend_status,
             backend_error,
@@ -371,12 +404,12 @@ pub(super) async fn get_brief(
 async fn enqueue_suggestion(
     state: &HarnessState,
     suggestion: &ResearchSuggestion,
-) -> Result<(), ApiError> {
+) -> Result<ResearchSuggestion, ApiError> {
     let scout_url = state
         .warden_scout_url
         .as_deref()
         .ok_or_else(|| ApiError::internal("Warden scout is not configured"))?;
-    state
+    let response = state
         .client
         .post(format!("{}/suggestions", scout_url.trim_end_matches('/')))
         .timeout(state.warden_scout_timeout)
@@ -390,7 +423,34 @@ async fn enqueue_suggestion(
                 "Warden suggestion ingress rejected request: {error}"
             ))
         })?;
-    Ok(())
+    #[derive(Deserialize)]
+    struct AcceptedSuggestion {
+        status: String,
+        suggestion: ResearchSuggestion,
+    }
+    let response: AcceptedSuggestion = response
+        .json()
+        .await
+        .map_err(|_| ApiError::internal("Invalid Warden suggestion response"))?;
+    let accepted = response.suggestion;
+    accepted
+        .validate_at(Utc::now())
+        .map_err(|_| ApiError::internal("Invalid Warden suggestion authority or expiry"))?;
+    if response.status != "accepted"
+        || accepted.suggestion_id.trim().is_empty()
+        || accepted.created_at_utc >= accepted.expires_at_utc
+        || accepted.created_at_utc > Utc::now()
+        || accepted.query != suggestion.query
+        || accepted.idempotency_key != suggestion.idempotency_key
+        || accepted.expires_at_utc != suggestion.expires_at_utc
+        || accepted.max_results != suggestion.max_results
+        || accepted.budget_bytes != suggestion.budget_bytes
+    {
+        return Err(ApiError::internal(
+            "Warden suggestion response does not match request",
+        ));
+    }
+    Ok(accepted)
 }
 
 fn intended_suggestion(
@@ -457,7 +517,7 @@ fn watchlists_path(root: &FsPath) -> PathBuf {
     root.join("data/workbench/research/watchlists.json")
 }
 
-fn load_questions(root: &FsPath) -> Result<Vec<ResearchQuestion>, ApiError> {
+pub(super) fn load_questions(root: &FsPath) -> Result<Vec<ResearchQuestion>, ApiError> {
     load_registry(&questions_path(root), QUESTION_SCHEMA)
 }
 
@@ -584,6 +644,7 @@ mod tests {
 
     fn state(root: PathBuf) -> HarnessState {
         HarnessState {
+            research_store_policy: crate::harness::ResearchStorePolicy::Isolated,
             harness_addr: "127.0.0.1:7878".to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
@@ -608,6 +669,56 @@ mod tests {
         assert_eq!(suggestion.max_results, question.budgets.max_results);
         assert_eq!(suggestion.budget_bytes, question.budgets.max_fetch_bytes);
         assert!(suggestion.idempotency_key.contains(&question.question_id));
+    }
+
+    #[tokio::test]
+    async fn accepted_suggestion_identity_survives_question_retry() {
+        let root = tempdir().unwrap();
+        let question = question();
+        let accepted = intended_suggestion(&question, &envelope().idempotency_key).unwrap();
+        let returned = accepted.clone();
+        let app =
+            axum::Router::new().route(
+                "/suggestions",
+                axum::routing::post(move || {
+                    let suggestion = returned.clone();
+                    async move {
+                        Json(serde_json::json!({"status": "accepted", "suggestion": suggestion}))
+                    }
+                }),
+            );
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+        for _ in 0..2 {
+            let mut host = state(root.path().to_path_buf());
+            host.warden_scout_url = Some(format!("http://{address}"));
+            let result = create_question(
+                State(host),
+                ConnectInfo("127.0.0.1:1234".parse().unwrap()),
+                HeaderMap::from_iter([(
+                    "x-arda-operator-id".parse().unwrap(),
+                    "operator-0".parse().unwrap(),
+                )]),
+                Json(CreateQuestionRequest {
+                    question: question.clone(),
+                    read_only: false,
+                    envelope: envelope(),
+                }),
+            )
+            .await
+            .unwrap()
+            .1
+             .0;
+            assert_eq!(result.backend_suggestion, accepted);
+            assert_eq!(
+                result.question.backend_suggestion_ids,
+                vec![accepted.suggestion_id.clone()]
+            );
+            assert_eq!(load_questions(root.path()).unwrap()[0], result.question);
+        }
+        server.abort();
+        let _ = server.await;
     }
 
     #[tokio::test]
@@ -636,6 +747,102 @@ mod tests {
         assert!(!root_path
             .join("data/warden/research_suggestions.jsonl")
             .exists());
+    }
+
+    #[tokio::test]
+    async fn question_retry_rejects_changed_content_without_mutation() {
+        let root = tempdir().unwrap();
+        let original = question();
+        write_json_atomic(
+            &questions_path(root.path()),
+            QUESTION_SCHEMA,
+            std::slice::from_ref(&original),
+        )
+        .unwrap();
+        let before = std::fs::read(questions_path(root.path())).unwrap();
+        let mut changed = original;
+        changed.question.push_str(" changed");
+        let result = create_question(
+            State(state(root.path().to_path_buf())),
+            ConnectInfo("127.0.0.1:1234".parse().unwrap()),
+            HeaderMap::from_iter([(
+                "x-arda-operator-id".parse().unwrap(),
+                "operator-0".parse().unwrap(),
+            )]),
+            Json(CreateQuestionRequest {
+                question: changed,
+                read_only: false,
+                envelope: envelope(),
+            }),
+        )
+        .await;
+        assert!(
+            result.is_err(),
+            "changed content must not reuse a registered question ID"
+        );
+        assert_eq!(std::fs::read(questions_path(root.path())).unwrap(), before);
+    }
+
+    #[tokio::test]
+    async fn enqueue_rejects_unbound_warden_responses() {
+        let root = tempdir().unwrap();
+        let intended = intended_suggestion(&question(), "binding").unwrap();
+        for field in [
+            "query",
+            "key",
+            "authority",
+            "expiry",
+            "results",
+            "bytes",
+            "id",
+            "schema",
+            "valid_expiry_mismatch",
+            "future_creation",
+            "inverted_times",
+            "status",
+            "malformed",
+        ] {
+            let mut invalid = intended.clone();
+            match field {
+                "query" => invalid.query.push_str(" changed"),
+                "key" => invalid.idempotency_key.push_str(" changed"),
+                "authority" => invalid.authority = "execution".into(),
+                "expiry" => invalid.expires_at_utc = Utc::now() - chrono::Duration::seconds(1),
+                "results" => invalid.max_results += 1,
+                "bytes" => invalid.budget_bytes += 1,
+                "id" => invalid.suggestion_id.clear(),
+                "schema" => invalid.schema_version = "unknown".into(),
+                "valid_expiry_mismatch" => invalid.expires_at_utc += chrono::Duration::seconds(60),
+                "future_creation" => {
+                    invalid.created_at_utc = Utc::now() + chrono::Duration::minutes(1)
+                }
+                "inverted_times" => invalid.created_at_utc = invalid.expires_at_utc,
+                "status" | "malformed" => {}
+                _ => unreachable!(),
+            }
+            let app = axum::Router::new().route(
+                "/suggestions",
+                axum::routing::post(move || {
+                    let suggestion = invalid.clone();
+                    async move {
+                        if field == "malformed" {
+                            Json(serde_json::json!({"unexpected": true}))
+                        } else {
+                            Json(serde_json::json!({"status": if field == "status" { "rejected" } else { "accepted" }, "suggestion": suggestion}))
+                        }
+                    }
+                }),
+            );
+            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let address = listener.local_addr().unwrap();
+            let server = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+            let mut host = state(root.path().to_path_buf());
+            host.warden_scout_url = Some(format!("http://{address}"));
+            let result = enqueue_suggestion(&host, &intended).await;
+            server.abort();
+            let _ = server.await;
+            assert!(result.is_err(), "accepted invalid {field}");
+        }
     }
 
     #[tokio::test]

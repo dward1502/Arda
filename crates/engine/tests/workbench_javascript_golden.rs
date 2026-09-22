@@ -122,6 +122,7 @@ fn graph(contract_digest: &str) -> RunGraph {
             created_by: "u2-javascript-golden".into(),
             parent_receipts: Vec::new(),
         },
+        approval_receipts: Vec::new(),
     }
 }
 

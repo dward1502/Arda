@@ -5,6 +5,51 @@
       "contract": {
         "schema_version": "arda.project-contract.v1",
         "identity": {
+          "project_id": "2cc70def-50d6-5f1e-b3a0-eb94571a2090",
+          "name": "arda-tool-gate-source-review",
+          "kind": "git-source"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-Tool-Gate"
+        },
+        "runtime": {
+          "adapter": "hermes"
+        },
+        "commands": [],
+        "checks": [],
+        "artifacts": [],
+        "permissions": {
+          "authority": "read_only",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "none-read-only"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "hermes-local:20260916_095500_c07ad1:message:710481",
+          "declared_at": "2026-09-16T23:03:50.265388+00:00",
+          "purpose": "Operator-approved paired integration-readiness assessment with Arda. Source inspection and cited retained findings only. No project writes, network tools, secrets, deployment or permission expansion. Compiled source-only allowlist; fixed existing Manwe inference via isolated broker. Continues provider-route objective operator-objective-4e7c1b26e3e21dbf and existing C3.2 evidence; historical contracts and receipts are unchanged."
+        }
+      },
+      "approval_id": "hermes-user-message-710481",
+      "proposal_id": "c32-real-tool-gate-source-attachment",
+      "idempotency_key": "c32-tool-gate-attachment-user-710481"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
           "project_id": "550e8400-e29b-41d4-a716-446655440000",
           "name": "arda-rust-example",
           "kind": "rust"
@@ -778,6 +823,265 @@
       "contract": {
         "schema_version": "arda.project-contract.v1",
         "identity": {
+          "project_id": "5dd4e2d9-e208-5634-b918-6cec818459c1",
+          "name": "arda-provider-route-audit",
+          "kind": "git-documentation"
+        },
+        "workspace": {
+          "root": "."
+        },
+        "runtime": {
+          "adapter": "hermes"
+        },
+        "commands": [],
+        "checks": [],
+        "artifacts": [],
+        "permissions": {
+          "authority": "read_only",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "none-read-only"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "hermes-c31-proposal",
+          "declared_at": "2026-09-16T13:01:43.126807+00:00",
+          "purpose": "Partial P1 repository-only provider routing inspection using file tools; no terminal checks, deployment, network, credential or filesystem mutation authority. Return cited findings in retained result summary, not created artifacts. Live catalog, installed service environment and external Hermes routes remain unavailable and cannot close P1. Adapter label is descriptive; Engine selects Hermes execution. Root relative to confirmed Arda daemon workbench root. Draft pending operator review and execution compatibility verification."
+        }
+      },
+      "approval_id": "cli-attachment-f66a4ca3-b917-4194-96b8-54e76a844437",
+      "proposal_id": "c31-provider-route-audit-contract",
+      "idempotency_key": "c31-provider-route-audit-attachment-b26d9ca2-fc63-4b2d-bc84-db0fd99a6bd5"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "70656753-1e03-4375-9a29-ecf220292c19",
+          "name": "wgtt",
+          "kind": "web-app",
+          "class": "business",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/wgtt",
+          "repository": {
+            "remote": "https://github.com/dward1502/wgtt.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "typescript",
+          "package_manager": "pnpm",
+          "node_version": ">=18"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "build"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "next build with NODE_OPTIONS suppress-baseline-warnings; .next/ output produced"
+            }
+          },
+          {
+            "id": "lint",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "lint"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 120,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passing",
+              "exit_code": 0,
+              "notes": "0 errors, 17 warnings (all unused-var and no-img-element warnings); May 2026 doc reported 51 problems/16 errors \u2014 resolved since"
+            }
+          },
+          {
+            "id": "start",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "start"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 60,
+            "verified": null
+          },
+          {
+            "id": "dev",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "dev"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 60,
+            "verified": null
+          }
+        ],
+        "checks": [
+          {
+            "id": "lint",
+            "command": "lint",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "17 warnings remain; 0 errors"
+          },
+          {
+            "id": "build",
+            "command": "build",
+            "status": "passing",
+            "verified_at": "2026-09-17"
+          },
+          {
+            "id": "test",
+            "command": "test",
+            "status": "none_suite",
+            "notes": "package.json test script runs pnpm lint \u2014 not a real test suite; gap recorded"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "build-output",
+            "path": ".next/",
+            "type": "build-output",
+            "verified": {
+              "exists_at": "2026-09-17",
+              "notes": "present from prior build"
+            }
+          },
+          {
+            "id": "database-schema",
+            "path": "database/schema.sql",
+            "type": "schema",
+            "verified": {
+              "exists_at": "2026-09-17"
+            }
+          },
+          {
+            "id": "database-rls",
+            "path": "database/rls_policies.sql",
+            "type": "security-policy",
+            "verified": {
+              "exists_at": "2026-09-17"
+            }
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": true,
+            "notes": "WeTravel API, Travefy API, Crossbar webhooks, Resend, Supabase, OpenRouter all require outbound network"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "build output writes to .next/; pnpm-lock.yaml updates possible"
+          },
+          "secrets": {
+            "env_names": [
+              "WETRAVEL_PARTNER_API_KEY",
+              "WETRAVEL_WEBHOOK_SIGNING_SECRET",
+              "CROSSBAR_WEBHOOK_SECRET",
+              "SUPABASE_SERVICE_ROLE_KEY",
+              "TRAVEFY_API_KEY",
+              "OPENROUTER_API_KEY",
+              "RESEND_API_KEY"
+            ],
+            "notes": "declared names only from wgtt/.env.local; values not read or reproduced. NEXT_PUBLIC_* vars are public client vars, not secrets. Admin_ALLOWED_EMAILS is config, not secret."
+          }
+        },
+        "protected_paths": [
+          {
+            "path": ".env.local",
+            "policy": "read_only",
+            "notes": "contains real secret values (19 keys); do not mutate"
+          },
+          {
+            "path": ".env.example",
+            "policy": "read_only",
+            "notes": "template file; reference only"
+          }
+        ],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17; no dirty work to preserve"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md",
+            "/var/home/mythos/Eregion/wgtt/SETUP.md",
+            "/var/home/mythos/Eregion/wgtt/PROJECT_STATUS.md",
+            "/var/home/mythos/Eregion/wgtt/docs/ADMIN_OPERATIONS_PLAN.md",
+            "/var/home/mythos/Eregion/wgtt/docs/AMAZON-AWS-AMPLIFY-CHECKLIST.md"
+          ],
+          "plans": [
+            "/var/home/mythos/Eregion/wgtt/docs/ADMIN_OPERATIONS_PLAN.md",
+            "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md"
+          ],
+          "notes": "PROJECT_STATUS.md is stale (says Next.js 14, March 2026; actual is Next.js 16.0.5). ADMIN_OPERATIONS_PLAN.md has open ownership questions (trip/booking/itinerary/payment/roster) that affect acceptance criteria."
+        },
+        "acceptance": [
+          "pnpm build passes",
+          "pnpm lint passes (0 errors; warnings tracked)",
+          "deployment target configured (operator to specify \u2014 AWS Amplify checklist exists but not completed)",
+          "Supabase schema/migrations/RLS verified in actual target project",
+          "WeTravel sync/admin flows, webhook ingestion, and email/contact flows verified",
+          "ADMIN_OPERATIONS_PLAN.md open questions settled (trip/booking/itinerary/payment/roster ownership)",
+          "PROJECT_STATUS.md updated to match current code (Next.js 16.0.5, current integrations)"
+        ],
+        "audit_integrated": true,
+        "audit_refs": [
+          "/var/home/mythos/Eregion/audits/wgtt/"
+        ],
+        "audit_status": "audit_folder_exists_no_files_2026-03-26",
+        "audit_notes": "wgtt/audits/ folder exists but contains no audit files as of 2026-03-26; PROJECTS_REPORT.md lists wgtt as 'Modern & Well-Structured, Low priority' but no per-category audits completed. Audit gap relative to CoverCoINC.",
+        "provenance": {
+          "declared_by": "hermes-local:20260922_100107_a798eb:message:m1-objective-plan",
+          "declared_at": "2026-09-22T17:05:33.264679+00:00",
+          "purpose": "Attach wgtt project to daemon for M1 objective plan request. Fixes missing provenance field in project contract."
+        }
+      },
+      "approval_id": "operator-approved-f3-business-wgtt-70656753-1e03-4375-9a29-ecf220292c19",
+      "proposal_id": "operator-message:f3-business-attach-wgtt-70656753-1e03-4375-9a29-ecf220292c19",
+      "idempotency_key": "gateway:f3-business-attach-wgtt-70656753-1e03-4375-9a29-ecf220292c19"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
           "project_id": "7a7e8400-e29b-41d4-a716-446655447007",
           "name": "digital-organism-stage7-living-mesh",
           "kind": "rust"
@@ -1091,6 +1395,65 @@
       "contract": {
         "schema_version": "arda.project-contract.v1",
         "identity": {
+          "project_id": "ac000000-0000-4000-8000-000000000001",
+          "name": "installed-retained-local-acceptance",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "target/qualification/live-project"
+        },
+        "runtime": {
+          "adapter": "python3"
+        },
+        "commands": [
+          {
+            "id": "test",
+            "program": "python3",
+            "args": [
+              "verify.py"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test"
+          }
+        ],
+        "artifacts": [],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": false
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda",
+          "declared_at": "2026-07-30T00:00:00Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "cli-authorized-cutover-20260915",
+      "proposal_id": "cutover-local-acceptance-20260915",
+      "idempotency_key": "cutover-local-acceptance-attach"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
           "project_id": "b22c0000-e29b-41d4-a716-446655440002",
           "name": "arda-human-reviewed",
           "kind": "git-documentation"
@@ -1222,6 +1585,2377 @@
       "approval_id": "approval-arda-tool-gate-reviewed",
       "proposal_id": "proposal-arda-tool-gate-reviewed",
       "idempotency_key": "attach-arda-tool-gate-reviewed-2026-08-31T040654.3632900000"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "e9406cdd-3d52-4309-81b5-52bf663f122b",
+          "name": "covercoinc",
+          "kind": "web-app",
+          "class": "business",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/CoverCoINC",
+          "repository": {
+            "remote": "https://github.com/dward1502/CoverCoINC.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "typescript",
+          "package_manager": "npm",
+          "node_version": ">=20 <21"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "npm",
+            "args": [
+              "run",
+              "build"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "next build produced .next/ output; 0 errors"
+            }
+          },
+          {
+            "id": "lint",
+            "program": "npm",
+            "args": [
+              "run",
+              "lint"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 120,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "0 ESLint warnings or errors; next lint deprecation note emitted but non-fatal"
+            }
+          },
+          {
+            "id": "start",
+            "program": "npm",
+            "args": [
+              "run",
+              "start"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 60,
+            "verified": null
+          },
+          {
+            "id": "dev",
+            "program": "npm",
+            "args": [
+              "run",
+              "dev"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 60,
+            "verified": null
+          }
+        ],
+        "checks": [
+          {
+            "id": "lint",
+            "command": "lint",
+            "status": "passing",
+            "verified_at": "2026-09-17"
+          },
+          {
+            "id": "build",
+            "command": "build",
+            "status": "passing",
+            "verified_at": "2026-09-17"
+          },
+          {
+            "id": "test",
+            "command": "test",
+            "status": "none_defined",
+            "notes": "package.json has no test script; gap recorded, not invented"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "build-output",
+            "path": ".next/",
+            "type": "build-output",
+            "verified": {
+              "exists_at": "2026-09-17",
+              "notes": "present from prior build"
+            }
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": true,
+            "notes": "deployed web app requires outbound for Resend email, Supabase client, SES"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "build output writes to .next/; package-lock.json updates possible"
+          },
+          "secrets": {
+            "env_names": [
+              "EMAIL",
+              "RESEND_API_KEY",
+              "SES_REGION"
+            ],
+            "notes": "declared names only from CoverCoINC/.env; values not read or reproduced"
+          }
+        },
+        "protected_paths": [
+          {
+            "path": ".env",
+            "policy": "read_only",
+            "notes": "contains real secret values; do not mutate"
+          },
+          {
+            "path": ".env.local",
+            "policy": "do_not_create_or_touch",
+            "notes": "does not exist in this checkout; if created, operator must supply values"
+          }
+        ],
+        "dirty_worktree_policy": {
+          "mode": "read_only",
+          "modified_files": [
+            "README.md"
+          ],
+          "notes": "README.md is unstaged modified; preserve as-is until operator cleans up"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md",
+            "/var/home/mythos/Eregion/CoverCoINC/README.md",
+            "/var/home/mythos/Eregion/CoverCoINC/audit-notes.md"
+          ],
+          "plans": [
+            "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md"
+          ],
+          "notes": "README is boilerplate; audit-notes.md is placeholder. Acceptance criteria not yet defined in-project."
+        },
+        "acceptance": {
+          "human_visible": [
+            "npm run build passes",
+            "npm run lint passes",
+            "deployment target configured (operator to specify)",
+            "contact/quote forms verified with Resend in production-like environment",
+            "Supabase server/client data paths verified with real env vars",
+            "deploy/domain/analytics/SEO checklist completed"
+          ],
+          "audit_integrated": true,
+          "audit_refs": [
+            "/var/home/mythos/Eregion/audits/CoverCoINC/audits/structure-audit.md",
+            "/var/home/mythos/Eregion/audits/CoverCoINC/audits/startup-audit.md",
+            "/var/home/mythos/Eregion/audits/CoverCoINC/audits/memory-audit.md"
+          ],
+          "audit_status": "completed_2026-03-25",
+          "audit_notes": "3 audits done (structure, startup, memory) by Hermes Agent 2026-03-25; recommendations exist but not yet actioned"
+        },
+        "risks": {
+          "current": [
+            "No test script \u2014 quality gate is lint + build only",
+            "README is Next.js boilerplate \u2014 no project-specific onboarding",
+            "audit-notes.md is placeholder \u2014 no findings documented",
+            "No deployment/runbook docs exist yet",
+            "SES_REGION in .env \u2014 SES config was failing in May 2026 doc; current state re-verified passing but env-dependent"
+          ],
+          "next_objective": "operator to specify deployment target and acceptance criteria; first paid sprint per May monetization doc: launch/forms/domain/analytics handoff"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Business web app \u2014 CoverCoINC lead-generation/contact website. Deployment, form/email verification, Supabase/env setup, SEO/content polish, conversion tracking are the immediate paid-work angle per PROJECT_MONETIZATION_STATUS_2026-05-13.md. Commands and check results verified live 2026-09-17."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-business-covercoinc-e9406cdd-3d52-4309-81b5-52bf663f122b",
+      "proposal_id": "operator-message:f3-business-attach-covercoinc-e9406cdd-3d52-4309-81b5-52bf663f122b",
+      "idempotency_key": "gateway:f3-business-attach-covercoinc-e9406cdd-3d52-4309-81b5-52bf663f122b"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "f6d1304d-1da1-463a-8af9-6b1fd8226fc5",
+          "name": "skylightpros",
+          "kind": "web-app",
+          "class": "business",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/skylightpros",
+          "repository": {
+            "remote": "https://github.com/dward1502/skylightpros.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "typescript",
+          "package_manager": "pnpm",
+          "node_version": ">=20"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "build"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "next build --no-lint produced .next/ output; May 2026 doc reported 300s timeout \u2014 resolved since"
+            }
+          },
+          {
+            "id": "test",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "test"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 120,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passing",
+              "exit_code": 0,
+              "notes": "32 tests, 8 test files passed; May 2026 doc reported SES Region + agenda failures \u2014 resolved since"
+            }
+          },
+          {
+            "id": "lint",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "lint"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 120,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passing",
+              "exit_code": 0,
+              "notes": "0 ESLint errors or warnings"
+            }
+          },
+          {
+            "id": "typecheck",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "typecheck"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": null,
+              "result": "not_verified_current_state",
+              "notes": "May 2026 doc reported 240s timeout; not re-verified on 2026-09-17. Build passing is a positive signal but typecheck not confirmed."
+            }
+          },
+          {
+            "id": "ci",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "ci"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 600,
+            "verified": {
+              "ran_at": null,
+              "result": "not_verified_current_state",
+              "notes": "combines lint + typecheck + test + build; not run on 2026-09-17 due to typecheck uncertainty"
+            }
+          },
+          {
+            "id": "prisma:generate",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "prisma:generate"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "prebuild step; generates Prisma client"
+          },
+          {
+            "id": "smoke:e2e",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "smoke:e2e"
+            ],
+            "working_dir": ".",
+            "timeout_seconds": 120,
+            "verified": null
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "32 tests, 8 files; SES Region + agenda failures from May 2026 resolved"
+          },
+          {
+            "id": "lint",
+            "command": "lint",
+            "status": "passing",
+            "verified_at": "2026-09-17"
+          },
+          {
+            "id": "build",
+            "command": "build",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "previously timing out per May 2026 doc; now passing"
+          },
+          {
+            "id": "typecheck",
+            "command": "typecheck",
+            "status": "not_verified",
+            "notes": "historically timing out (May 2026 doc, 240s); not re-verified 2026-09-17"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "build-output",
+            "path": ".next/",
+            "type": "build-output",
+            "verified": {
+              "exists_at": "2026-09-17",
+              "notes": "present from prior build"
+            }
+          },
+          {
+            "id": "prisma-client",
+            "path": "node_modules/@prisma/client",
+            "type": "generated-library",
+            "verified": {
+              "exists_at": "2026-09-17"
+            }
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": true,
+            "notes": "Supabase, SES, S3, SNS, Twilio, HubSpot, Google APIs, Anthropic, OpenAI, Agenda postgres backend, Redis/Upstash all require outbound network"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "build output writes to .next/; Prisma client generation writes to node_modules/@prisma/client; pnpm-lock.yaml updates possible"
+          },
+          "secrets": {
+            "env_names": [
+              "DATABASE_URL",
+              "DIRECT_URL",
+              "SUPABASE_SERVICE_ROLE_KEY",
+              "NEXT_PUBLIC_SUPABASE_URL",
+              "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+              "NEXT_PUBLIC_RECAPTCHA_SITE_KEY",
+              "RECAPTCHA_SECRET_KEY",
+              "GOOGLE_CLIENT_ID",
+              "GOOGLE_CLIENT_SECRET",
+              "AWS_REGION",
+              "RESEND_API_KEY",
+              "TWILIO_ACCOUNT_SID",
+              "TWILIO_AUTH_TOKEN",
+              "TWILIO_PHONE_NUMBER",
+              "HUBSPOT_ACCESS_TOKEN",
+              "HUBSPOT_APP_SECRET",
+              "HUBSPOT_PRIVATE_APP_TOKEN",
+              "LEAD_INGEST_TOKEN",
+              "YELP_API_KEY",
+              "YELP_CLIENT_ID",
+              "ANTHROPIC_API_KEY",
+              "ANTHROPIC_MODEL",
+              "GOOGLE_CALENDAR_CLIENT_EMAIL",
+              "GOOGLE_CALENDAR_ID",
+              "GOOGLE_CALENDAR_PRIVATE_KEY",
+              "GOOGLE_CALENDAR_TIMEZONE",
+              "EMAIL_FROM",
+              "ADMIN_EMAILS"
+            ],
+            "notes": "28 declared env names from skylightpros/.env.example (full set) + 11 currently in .env.local. Values not read or reproduced. Operator to confirm which are required for the contract's scoped authority vs nice-to-have."
+          }
+        },
+        "protected_paths": [
+          {
+            "path": ".env.local",
+            "policy": "read_only",
+            "notes": "contains real secret values (11 keys currently active); do not mutate"
+          },
+          {
+            "path": ".env.example",
+            "policy": "read_only",
+            "notes": "full 28-var template; reference only"
+          },
+          {
+            "path": ".env",
+            "policy": "read_only",
+            "notes": "exists; contains real values; do not mutate"
+          }
+        ],
+        "dirty_worktree_policy": {
+          "mode": "read_only_aware",
+          "modified_files": [
+            "M PRODUCTION_HARDENING_CHECKLIST.md",
+            "M README.md",
+            "M docs/CONFIG_INDEX.md",
+            "M docs/TESTING_CHECKLIST.md",
+            "M middleware.ts",
+            "M src/app/(public)/login/page.tsx",
+            "M src/app/admin/components/AdminTopBar.tsx",
+            "M src/app/admin/layout.tsx",
+            "A src/app/admin/users/UsersInviteClient.tsx",
+            "A src/app/admin/users/page.tsx",
+            "A src/app/api/admin/users/invite/route.ts",
+            "M src/lib/access-control.ts",
+            "A src/lib/admin/users.ts",
+            "M src/lib/field-access.ts"
+          ],
+          "notes": "14 modified files as of 2026-09-17. Active admin-users feature development in progress (new files + modified files). Arda is aware of this dirty work and should clean it up \u2014 meaning Arda should help get the tree to a clean state, not force writes to manufacture test conditions. No writes into this tree until operator approves mutation scope. PRODUCTION_HARDENING_CHECKLIST.md modified but no conflict markers present as of 2026-09-17 (resolved since May 2026 doc flagged them)."
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on master branch; note dirty worktree must be resolved before revert is clean"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md",
+            "/var/home/mythos/Eregion/skylightpros/AGENT.md",
+            "/var/home/mythos/Eregion/skylightpros/STRUCTURE_AND_SCHEMA.md",
+            "/var/home/mythos/Eregion/skylightpros/SUPABASE_FINAL.md",
+            "/var/home/mythos/Eregion/skylightpros/ROUTES_AND_ENTRYPOINTS.md",
+            "/var/home/mythos/Eregion/skylightpros/PRODUCTION_HARDENING_CHECKLIST.md",
+            "/var/home/mythos/Eregion/skylightpros/STAGING_SIGNOFF_CHECKLIST.md",
+            "/var/home/mythos/Eregion/skylightpros/progress.txt",
+            "/var/home/mythos/Eregion/skylightpros/FIELD_WORKER_BACKLOG.md",
+            "/var/home/mythos/Eregion/skylightpros/docs/TASKS.md"
+          ],
+          "plans": [
+            "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md",
+            "/var/home/mythos/Eregion/skylightpros/docs/TASKS.md",
+            "/var/home/mythos/Eregion/skylightpros/FIELD_WORKER_BACKLOG.md"
+          ],
+          "notes": "Richest documentation of the three business apps. STAGING_SIGNOFF_CHECKLIST.md incomplete per May 2026 doc (missing sign-off date, approvers, known-issues). PRODUCTION_HARDENING_CHECKLIST.md is comprehensive but was modified in working tree."
+        },
+        "acceptance": [
+          "pnpm test passes (32 tests currently passing)",
+          "pnpm lint passes",
+          "pnpm build passes",
+          "pnpm typecheck completes without timeout (not yet re-verified 2026-09-17 \u2014 current gap)",
+          "pnpm ci passes (lint + typecheck + test + build combined \u2014 blocked until typecheck verified)",
+          "dirty worktree cleaned up (admin-users feature work landed or stashed)",
+          "Supabase migrations and env contract verified in staging",
+          "STAGING_SIGNOFF_CHECKLIST.md completed with sign-off date, approvers, known-issues",
+          "PRODUCTION_HARDENING_CHECKLIST.md conflict markers resolved (currently clean) and reviews completed",
+          "Demo field worker flow: job list -> open job -> media capture -> scan/outtake -> office media queue"
+        ],
+        "audit_integrated": true,
+        "audit_refs": [
+          "/var/home/mythos/Eregion/audits/skylightpros/"
+        ],
+        "audit_status": "audit_folder_exists_no_files_2026-03-26",
+        "audit_notes": "skylightpros/audits/ folder exists but contains no audit files as of 2026-03-26; PROJECTS_REPORT.md lists skylightpros as 'Empty Project, Medium priority' \u2014 that assessment is stale (project is now full Next.js 15.5.4 app with 28 env vars, 32 tests, rich docs). Audit gap relative to CoverCoINC; update needed.",
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "hermes-local:2026-09-22T17:05:41.970967+00:00:message:project-registry-repair",
+          "declared_at": "2026-09-22T17:05:41.970967+00:00",
+          "purpose": "Add missing provenance field for skylightpros project contract"
+        }
+      },
+      "approval_id": "operator-approved-f3-business-skylightpros-f6d1304d-1da1-463a-8af9-6b1fd8226fc5",
+      "proposal_id": "operator-message:f3-business-attach-skylightpros-f6d1304d-1da1-463a-8af9-6b1fd8226fc5",
+      "idempotency_key": "gateway:f3-business-attach-skylightpros-f6d1304d-1da1-463a-8af9-6b1fd8226fc5"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "c440f21c-14f1-4183-9bd8-8ee320a50bb1",
+          "name": "arda-agent-loop-contract",
+          "kind": "passed",
+          "class": "core-arda-part",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-Agent-Loop-Contract",
+          "repository": {
+            "remote": "https://github.com/dward1502/arda-agent-loop-contract.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "cargo",
+          "language": "rust",
+          "package_manager": "cargo"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "cargo",
+            "args": [
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "not live-verified on 2026-09-17; build deferred"
+          },
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "Portable inspect-act-verify loop contract and local validator tests passed"
+            },
+            "notes": "Live-verified 2026-09-17: Portable inspect-act-verify loop contract and local validator tests passed"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "Portable inspect-act-verify loop contract and local validator tests passed"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "library",
+            "path": "target/debug/",
+            "type": "build-output",
+            "verified": null
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "library crate; no outbound needs declared"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "cargo build writes to target/"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "no .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/Arda-Agent-Loop-Contract/README.md",
+            "/var/home/mythos/Eregion/Arda-Agent-Loop-Contract/Cargo.toml"
+          ],
+          "notes": ""
+        },
+        "acceptance": [
+          "cargo build passes",
+          "cargo test passes",
+          "public release scope confirmed by operator"
+        ],
+        "risks": {
+          "current": [
+            "Commands not all live-verified 2026-09-17 \u2014 test verified, build deferred"
+          ],
+          "next_objective": "operator to confirm public release intent, verify build"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Public release candidate. Test commands verified live 2026-09-17."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-arda-agent-loop-contract-20260917",
+      "proposal_id": "f3-arda-agent-loop-contract",
+      "idempotency_key": "f3-arda-agent-loop-contract-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "c9d2682b-4311-4d5c-8b74-d2b36203bb9c",
+          "name": "arda-council",
+          "kind": "passed",
+          "class": "core-arda-part",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-Council",
+          "repository": {
+            "remote": "https://github.com/dward1502/arda-council.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "cargo",
+          "language": "rust",
+          "package_manager": "cargo"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "cargo",
+            "args": [
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "not live-verified on 2026-09-17; build deferred"
+          },
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "Blueprint-stage Rust crate for multi-agent boardroom records and consensus surfaces. Path deps on Annunimas workspace crates. tests passed"
+            },
+            "notes": "Live-verified 2026-09-17: Blueprint-stage Rust crate for multi-agent boardroom records and consensus surfaces. Path deps on Annunimas workspace crates. tests passed"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "Blueprint-stage Rust crate for multi-agent boardroom records and consensus surfaces. Path deps on Annunimas workspace crates. tests passed"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "library",
+            "path": "target/debug/",
+            "type": "build-output",
+            "verified": null
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "library crate; no outbound needs declared"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "cargo build writes to target/"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "no .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/Arda-Council/README.md",
+            "/var/home/mythos/Eregion/Arda-Council/Cargo.toml"
+          ],
+          "notes": ""
+        },
+        "acceptance": [
+          "cargo build passes",
+          "cargo test passes",
+          "public release scope confirmed by operator"
+        ],
+        "risks": {
+          "current": [
+            "Commands not all live-verified 2026-09-17 \u2014 test verified, build deferred"
+          ],
+          "next_objective": "operator to confirm public release intent, verify build"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Public release candidate. Test commands verified live 2026-09-17."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-arda-council-20260917",
+      "proposal_id": "f3-arda-council",
+      "idempotency_key": "f3-arda-council-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "775697ca-a8fa-4465-8ebc-cc16d0c6921b",
+          "name": "arda-forge-mind",
+          "kind": "rust-application",
+          "class": "core-arda-part",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-Forge-Mind",
+          "repository": {
+            "remote": "https://github.com/dward1502/arda-forge-mind.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "cargo",
+          "language": "rust",
+          "package_manager": "cargo"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "cargo",
+            "args": [
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 600,
+            "verified": null,
+            "notes": "not live-verified on 2026-09-17; build deferred"
+          },
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "7 tests passed"
+            },
+            "notes": "Live-verified 2026-09-17: 7 tests passed"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "7 tests passed"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "binary",
+            "path": "target/debug/",
+            "type": "build-output",
+            "verified": null
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "library crate; no outbound needs declared"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "cargo build writes to target/"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "no .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/Arda-Forge-Mind/README.md",
+            "/var/home/mythos/Eregion/Arda-Forge-Mind/Cargo.toml"
+          ],
+          "notes": "Sovereign 3D asset forge for Annunimas. Path dep on annunimas-tool-harness."
+        },
+        "acceptance": [
+          "cargo build passes",
+          "cargo test passes",
+          "public release scope confirmed by operator"
+        ],
+        "risks": {
+          "current": [
+            "Commands not all live-verified 2026-09-17 \u2014 test verified, build deferred"
+          ],
+          "next_objective": "operator to confirm public release intent, verify build"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Public release candidate. Test commands verified live 2026-09-17."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-arda-forge-mind-20260917",
+      "proposal_id": "f3-arda-forge-mind",
+      "idempotency_key": "f3-arda-forge-mind-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "c4a9c86e-8298-4985-87b0-e391bbcc5828",
+          "name": "arda-hud",
+          "kind": "desktop-app",
+          "class": "core-arda-part",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-HUD",
+          "repository": {
+            "remote": "https://github.com/dward1502/arda-hud.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "typescript",
+          "package_manager": "pnpm",
+          "node_version": ">=20.19.0",
+          "pnpm_version": "10.8.1"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "tsc && vite build; not live-verified on 2026-09-17"
+          },
+          {
+            "id": "test",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "vitest run: 258 tests, 69 test files passed"
+            },
+            "notes": "Live-verified 2026-09-17: 258 tests, 69 files passed"
+          },
+          {
+            "id": "dev",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "dev"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "vite dev server; not live-verified"
+          },
+          {
+            "id": "tauri:build:stable",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "tauri:build:stable"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 600,
+            "verified": null,
+            "notes": "Tauri no-bundle build; requires PKG_CONFIG_PATH, __NV_DISABLE_EXPLICIT_SYNC, WEBKIT_*, GDK_BACKEND=x11"
+          },
+          {
+            "id": "tauri:dev:stable",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "tauri:dev:stable"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "Tauri dev with env setup"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "258 tests, 69 test files passed"
+          },
+          {
+            "id": "build",
+            "command": "build",
+            "status": "not_verified",
+            "notes": "tsc && vite build not executed 2026-09-17"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "dist",
+            "path": "dist/",
+            "type": "build-output",
+            "verified": {
+              "exists_at": "2026-09-17",
+              "notes": "present from prior build"
+            }
+          },
+          {
+            "id": "tauri-binary",
+            "path": "src-tauri/target/release/arda_hud",
+            "type": "native-binary",
+            "verified": null,
+            "notes": "produced by tauri:build:stable; not verified"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "desktop app; no outbound needs declared"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "build writes to dist/; Tauri build writes to src-tauri/target/"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "no .env files found; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "4 source files were modified (unstaged) as of 2026-09-17: scripts/node_monitor.sh, src-tauri/Cargo.toml, src/lib/ardaBundleTypes.ts, src/lib/ardaSource.ts. Stashed on refactor branch (stash message: f3-attachment-20260917: preserve 4 dirty files before contract attachment). Tree clean at attachment time."
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/Arda-HUD/README.md",
+            "/var/home/mythos/Eregion/Arda-HUD/package.json",
+            "/var/home/mythos/Eregion/Arda-HUD/INDEX.md",
+            "/var/home/mythos/Eregion/Arda-HUD/ARDA_CONTRACTS_MANIFEST.md"
+          ],
+          "notes": "Operator-facing frontend/desktop shell for Annunimas (React 19 + TypeScript + Vite + Tauri 2)."
+        },
+        "acceptance": [
+          "pnpm build passes (tsc + vite build)",
+          "pnpm test passes (vitest run) \u2014 verified 258/258",
+          "Tauri build passes with stable env setup",
+          "public release scope confirmed by operator"
+        ],
+        "risks": {
+          "current": [
+            "Tauri build not live-verified 2026-09-17",
+            "4 dirty files were stashed on refactor branch \u2014 operator must decide whether to restore, merge to main, or discard"
+          ],
+          "next_objective": "operator to confirm public release intent, resolve stash fate, verify Tauri build"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Operator-facing frontend/desktop shell for Annunimas. Test verified live 2026-09-17 (258 passed). Dirty files stashed before attachment."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-arda-hud-20260917",
+      "proposal_id": "f3-arda-hud",
+      "idempotency_key": "f3-arda-hud-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "fe173a72-231d-4329-92d5-416c0e5b4089",
+          "name": "arda-human",
+          "kind": "passed",
+          "class": "core-arda-part",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-Human",
+          "repository": {
+            "remote": "https://github.com/dward1502/arda-human.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "cargo",
+          "language": "rust",
+          "package_manager": "cargo"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "cargo",
+            "args": [
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "not live-verified on 2026-09-17; build deferred"
+          },
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "Human tenant layer for Annunimas. Path deps on Annunimas workspace crates. publish = false in Cargo.toml. tests passed"
+            },
+            "notes": "Live-verified 2026-09-17: Human tenant layer for Annunimas. Path deps on Annunimas workspace crates. publish = false in Cargo.toml. tests passed"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "Human tenant layer for Annunimas. Path deps on Annunimas workspace crates. publish = false in Cargo.toml. tests passed"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "library",
+            "path": "target/debug/",
+            "type": "build-output",
+            "verified": null
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "library crate; no outbound needs declared"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "cargo build writes to target/"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "no .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/Arda-Human/README.md",
+            "/var/home/mythos/Eregion/Arda-Human/Cargo.toml"
+          ],
+          "notes": ""
+        },
+        "acceptance": [
+          "cargo build passes",
+          "cargo test passes",
+          "public release scope confirmed by operator"
+        ],
+        "risks": {
+          "current": [
+            "Commands not all live-verified 2026-09-17 \u2014 test verified, build deferred"
+          ],
+          "next_objective": "operator to confirm public release intent, verify build"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Public release candidate. Test commands verified live 2026-09-17."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-arda-human-20260917",
+      "proposal_id": "f3-arda-human",
+      "idempotency_key": "f3-arda-human-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "25fd53a6-ac10-4978-b89b-78f1dde8a305",
+          "name": "arda-service-registry",
+          "kind": "passed",
+          "class": "core-arda-part",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-Service-Registry",
+          "repository": {
+            "remote": "https://github.com/dward1502/arda-service-registry.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "cargo",
+          "language": "rust",
+          "package_manager": "cargo"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "cargo",
+            "args": [
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "not live-verified on 2026-09-17; build deferred"
+          },
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "Service registry for Annunimas. Substantial README (15560 bytes). tests passed"
+            },
+            "notes": "Live-verified 2026-09-17: Service registry for Annunimas. Substantial README (15560 bytes). tests passed"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "Service registry for Annunimas. Substantial README (15560 bytes). tests passed"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "library",
+            "path": "target/debug/",
+            "type": "build-output",
+            "verified": null
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "library crate; no outbound needs declared"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "cargo build writes to target/"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "no .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/Arda-Service-Registry/README.md",
+            "/var/home/mythos/Eregion/Arda-Service-Registry/Cargo.toml"
+          ],
+          "notes": ""
+        },
+        "acceptance": [
+          "cargo build passes",
+          "cargo test passes",
+          "public release scope confirmed by operator"
+        ],
+        "risks": {
+          "current": [
+            "Commands not all live-verified 2026-09-17 \u2014 test verified, build deferred"
+          ],
+          "next_objective": "operator to confirm public release intent, verify build"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Public release candidate. Test commands verified live 2026-09-17."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-arda-service-registry-20260917",
+      "proposal_id": "f3-arda-service-registry",
+      "idempotency_key": "f3-arda-service-registry-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "30e180e1-05f5-4db7-be59-328cfe364717",
+          "name": "arda-signal-grid",
+          "kind": "passed",
+          "class": "core-arda-part",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/Arda-Signal-Grid",
+          "repository": {
+            "remote": "https://github.com/dward1502/arda-signal-grid.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "cargo",
+          "language": "rust",
+          "package_manager": "cargo"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "cargo",
+            "args": [
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "not live-verified on 2026-09-17; build deferred"
+          },
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": {
+              "ran_at": "2026-09-17",
+              "result": "passed",
+              "exit_code": 0,
+              "notes": "Signal grid for Annunimas. Lightweight crate \u2014 minimal deps (serde, serde_json, chrono). tests passed"
+            },
+            "notes": "Live-verified 2026-09-17: Signal grid for Annunimas. Lightweight crate \u2014 minimal deps (serde, serde_json, chrono). tests passed"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "passing",
+            "verified_at": "2026-09-17",
+            "notes": "Signal grid for Annunimas. Lightweight crate \u2014 minimal deps (serde, serde_json, chrono). tests passed"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "library",
+            "path": "target/debug/",
+            "type": "build-output",
+            "verified": null
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "library crate; no outbound needs declared"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "cargo build writes to target/"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "no .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/Arda-Signal-Grid/README.md",
+            "/var/home/mythos/Eregion/Arda-Signal-Grid/Cargo.toml"
+          ],
+          "notes": ""
+        },
+        "acceptance": [
+          "cargo build passes",
+          "cargo test passes",
+          "public release scope confirmed by operator"
+        ],
+        "risks": {
+          "current": [
+            "Commands not all live-verified 2026-09-17 \u2014 test verified, build deferred"
+          ],
+          "next_objective": "operator to confirm public release intent, verify build"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Public release candidate. Test commands verified live 2026-09-17."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-arda-signal-grid-20260917",
+      "proposal_id": "f3-arda-signal-grid",
+      "idempotency_key": "f3-arda-signal-grid-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "43a2bbb3-fc34-4acb-8080-a2f653781c9a",
+          "name": "wakita",
+          "kind": "web-app",
+          "class": "business",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/wakita",
+          "repository": {
+            "remote": "https://github.com/RavensNestInc/wakita.git",
+            "fetch": true,
+            "push": false,
+            "notes": "RavensNestInc org \u2014 operator confirmed: guest access, mutation authority limited to local checkout only"
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "typescript",
+          "package_manager": "npm",
+          "node_version": ">=18"
+        },
+        "commands": [
+          {
+            "id": "start",
+            "program": "npm",
+            "args": [
+              "start"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "node server.js; not live-verified"
+          },
+          {
+            "id": "dev",
+            "program": "npm",
+            "args": [
+              "run",
+              "dev"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "nodemon server.js; not live-verified"
+          },
+          {
+            "id": "test",
+            "program": "npm",
+            "args": [
+              "run",
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "jest --coverage; not live-verified"
+          },
+          {
+            "id": "build:static",
+            "program": "npm",
+            "args": [
+              "run",
+              "build:static"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "node scripts/build-static.js \u2192 dist-static/; not live-verified"
+          },
+          {
+            "id": "ts:check",
+            "program": "npm",
+            "args": [
+              "run",
+              "ts:check"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "tsc --noEmit; not live-verified"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "not_verified",
+            "notes": "jest --coverage not run 2026-09-17"
+          },
+          {
+            "id": "ts:check",
+            "command": "ts:check",
+            "status": "not_verified",
+            "notes": "tsc --noEmit not run 2026-09-17"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "dist-static",
+            "path": "dist-static/",
+            "type": "build-output",
+            "verified": {
+              "exists_at": "2026-09-17",
+              "notes": "present from prior static build"
+            }
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": true,
+            "notes": "Express app with OAuth (Facebook, Google), AWS (S3, Secrets Manager), MongoDB \u2014 needs outbound network"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "build:static writes to dist-static/; node_modules updates possible"
+          },
+          "secrets": {
+            "env_names": [
+              "MONGODB_URI",
+              "JWT_SECRET",
+              "FACEBOOK_APP_ID",
+              "FACEBOOK_APP_SECRET",
+              "FACEBOOK_CALLBACK_URL",
+              "GOOGLE_CLIENT_ID",
+              "GOOGLE_CLIENT_SECRET",
+              "GOOGLE_CALLBACK_URL",
+              "AWS_REGION",
+              "AWS_ACCESS_KEY_ID",
+              "AWS_SECRET_ACCESS_KEY",
+              "SESSION_SECRET",
+              "PORT",
+              "NODE_ENV",
+              "USE_LOCAL_PREVIEW_DATA",
+              "SIMPLYRETS_BASE_URL",
+              "SIMPLYRETS_USERNAME",
+              "SIMPLYRETS_PASSWORD"
+            ],
+            "notes": "Declared names from wakita/.env.example (listed in README). Values not read or reproduced. Operator to confirm which are required for scoped authority vs nice-to-have."
+          }
+        },
+        "protected_paths": [
+          {
+            "path": ".env",
+            "policy": "do_not_create_or_touch",
+            "notes": "no .env file in checkout; if created, operator must supply values"
+          }
+        ],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/wakita/README.md",
+            "/var/home/mythos/Eregion/wakita/package.json",
+            "/var/home/mythos/Eregion/wakita/AZURE_DEPLOY.md"
+          ],
+          "notes": "Real estate website \u2014 Wakita & Associates. Two modes: local Express preview and Azure Static Web Apps."
+        },
+        "acceptance": [
+          "npm test passes (jest --coverage)",
+          "npm run ts:check passes (tsc --noEmit)",
+          "npm run build:static produces dist-static/",
+          "deployment mode confirmed (Express-hosted vs Azure Static Web Apps)",
+          "ownership boundary: RavensNestInc remote \u2014 operator confirmed guest access; mutation authority is local-only"
+        ],
+        "risks": {
+          "current": [
+            "Commands not live-verified 2026-09-17",
+            "No .env file present in checkout \u2014 operator must supply values if running",
+            "Two deployment modes (Express-hosted vs Azure Static) \u2014 contract needs operator confirmation of which mode is in scope",
+            "Original upstream: shun1000/wakitaRE \u2014 external author fork; license Apache-2.0"
+          ],
+          "next_objective": "operator to confirm deployment mode, supply env values, verify commands"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Real estate website \u2014 Wakita & Associates (Express.js 2.0.0 + TypeScript). Two operating modes: local Express preview and Azure Static Web Apps. Commands not verified live 2026-09-17 \u2014 deferred to F3 execution phase."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-wakita-20260917",
+      "proposal_id": "f3-wakita",
+      "idempotency_key": "f3-wakita-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "7294038f-6aee-4fa1-b1bd-38b1010c60b4",
+          "name": "filamentdb",
+          "kind": "web-app",
+          "class": "business",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/filamentDB",
+          "repository": {
+            "remote": "https://github.com/dward1502/filamentDB.git",
+            "fetch": true,
+            "push": true
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "typescript",
+          "package_manager": "yarn",
+          "node_version": ">=18",
+          "notes": "yarn.lock present; no packageManager field in package.json \u2014 yarn assumed"
+        },
+        "commands": [
+          {
+            "id": "dev",
+            "program": "npm",
+            "args": [
+              "run",
+              "dev"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "next dev; not live-verified"
+          },
+          {
+            "id": "build",
+            "program": "npm",
+            "args": [
+              "run",
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "next build; not live-verified"
+          },
+          {
+            "id": "start",
+            "program": "npm",
+            "args": [
+              "run",
+              "start"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "next start; not live-verified"
+          },
+          {
+            "id": "lint",
+            "program": "npm",
+            "args": [
+              "run",
+              "lint"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "next lint; not live-verified"
+          }
+        ],
+        "checks": [
+          {
+            "id": "lint",
+            "command": "lint",
+            "status": "not_verified",
+            "notes": "next lint not run 2026-09-17"
+          },
+          {
+            "id": "build",
+            "command": "build",
+            "status": "not_verified",
+            "notes": "next build not run 2026-09-17"
+          },
+          {
+            "id": "test",
+            "command": "test",
+            "status": "none_defined",
+            "notes": "package.json has no test script; gap recorded, not invented"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "build-output",
+            "path": ".next/",
+            "type": "build-output",
+            "verified": null,
+            "notes": "next build output; not verified 2026-09-17"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": true,
+            "notes": "AWS Amplify integration \u2014 needs outbound for AWS services"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "next build writes to .next/; node_modules updates possible"
+          },
+          "secrets": {
+            "env_names": [
+              "NEXT_PUBLIC_IMAGE_URL",
+              "LOCAL_IMAGE_PATH",
+              "PROD_IMAGE_PATH",
+              "NEXT_PUBLIC_REGION"
+            ],
+            "notes": "Identified from deeper survey (filamentDB/.env and .env.production). Values not read or reproduced. .env files are read_only in contract."
+          }
+        },
+        "protected_paths": [
+          {
+            "path": ".env",
+            "policy": "read_only",
+            "notes": "contains real values; do not read values into contract"
+          },
+          {
+            "path": ".env.production",
+            "policy": "read_only",
+            "notes": "contains real values; do not read values into contract"
+          }
+        ],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/filamentDB/README.md",
+            "/var/home/mythos/Eregion/filamentDB/package.json"
+          ],
+          "notes": "Next.js 14.0.4 + React 18 + TypeScript web app with AWS Amplify. Deeper survey completed 2026-09-17: src/ (API.ts, app/, graphql/, lib/, context/, components/, assets/, theme/, public/), amplify/backend/, .graphqlconfig.yml present."
+        },
+        "acceptance": [
+          "npm run build passes (next build)",
+          "npm run lint passes (next lint)",
+          "deeper survey completed (src/ structure, amplify/ config, env var identification)",
+          "package manager confirmed: yarn (yarn.lock present, no packageManager field)"
+        ],
+        "risks": {
+          "current": [
+            "Commands not live-verified 2026-09-17",
+            "Next.js 14.0.4 \u2014 older than other business apps (15.x/16.x)",
+            "No test script defined \u2014 quality gap",
+            "Boilerplate README \u2014 acceptance criteria need operator definition"
+          ],
+          "next_objective": "operator to verify commands, define acceptance criteria"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Next.js 14 web app with AWS Amplify. Deeper survey completed 2026-09-17. Commands not verified live 2026-09-17 \u2014 deferred to F3 execution phase."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-filamentdb-20260917",
+      "proposal_id": "f3-filamentdb",
+      "idempotency_key": "f3-filamentdb-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "dc3424bb-d7fb-4344-ac4f-f322b9a1e58f",
+          "name": "ravensnestweb",
+          "kind": "web-platform",
+          "class": "business",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/ravensnestweb",
+          "repository": {
+            "remote": "https://github.com/RavensNestInc/ravensnestweb.git",
+            "fetch": true,
+            "push": false,
+            "notes": "RavensNestInc org \u2014 operator confirmed: guest access, mutation authority limited to local checkout only"
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "typescript",
+          "package_manager": "pnpm",
+          "node_version": ">=20 <23",
+          "pnpm_version": "10.17.1"
+        },
+        "commands": [
+          {
+            "id": "build",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "build"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 600,
+            "verified": null,
+            "notes": "pnpm -r build (mono-repo); not live-verified"
+          },
+          {
+            "id": "build:web",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "build:web"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "pnpm --filter web build; not live-verified"
+          },
+          {
+            "id": "build:api",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "build:api"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 300,
+            "verified": null,
+            "notes": "pnpm --filter api build; not live-verified"
+          },
+          {
+            "id": "lint",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "lint"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "pnpm -r lint; not live-verified"
+          },
+          {
+            "id": "lint:web",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "lint:web"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "pnpm --filter web lint; not live-verified"
+          },
+          {
+            "id": "lint:api",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "lint:api"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "pnpm --filter api lint; not live-verified"
+          },
+          {
+            "id": "dev:web",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "dev:web"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "pnpm --filter web dev; not live-verified"
+          },
+          {
+            "id": "dev:api",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "dev:api"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "pnpm --filter api dev; not live-verified"
+          },
+          {
+            "id": "start",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "start"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "pnpm --filter api start; not live-verified"
+          },
+          {
+            "id": "db:migrate",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "db:migrate"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "pnpm --filter api db:migrate; not live-verified"
+          },
+          {
+            "id": "db:seed",
+            "program": "pnpm",
+            "args": [
+              "run",
+              "db:seed"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "pnpm --filter api db:seed; not live-verified"
+          }
+        ],
+        "checks": [
+          {
+            "id": "lint",
+            "command": "lint",
+            "status": "not_verified",
+            "notes": "pnpm -r lint not run 2026-09-17"
+          },
+          {
+            "id": "build",
+            "command": "build",
+            "status": "not_verified",
+            "notes": "pnpm -r build not run 2026-09-17"
+          },
+          {
+            "id": "test",
+            "command": "test",
+            "status": "none_defined",
+            "notes": "no test script at root level; may exist in sub-packages (apps/web, apps/api). Gap recorded \u2014 deeper survey needed."
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "dist",
+            "path": "dist/",
+            "type": "build-output",
+            "verified": {
+              "exists_at": "2026-09-17",
+              "notes": "present from prior build"
+            }
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": true,
+            "notes": "3D print business platform with Node.js API \u2014 likely needs outbound; operator to confirm"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "build writes to dist/ and sub-package outputs; pnpm-lock.yaml updates possible"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "No .env files found in surface survey. Operator to identify from deeper survey (may exist in apps/api/ or apps/web/)."
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "clean",
+          "notes": "working tree clean as of 2026-09-17"
+        },
+        "rollback": {
+          "strategy": "git_revert",
+          "notes": "standard git revert on main branch"
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/ravensnestweb/README.md",
+            "/var/home/mythos/Eregion/ravensnestweb/package.json",
+            "/var/home/mythos/Eregion/ravensnestweb/PROJECT_PLAN.md",
+            "/var/home/mythos/Eregion/ravensnestweb/TASKS.md"
+          ],
+          "notes": "3D print business platform \u2014 customer/operator frontend (Vite+React) + Node.js+TypeScript API. pnpm mono-repo with apps/web and apps/api. Deeper per-package survey needed."
+        },
+        "acceptance": [
+          "pnpm build passes (pnpm -r build)",
+          "pnpm lint passes (pnpm -r lint)",
+          "deeper survey completed (apps/web/package.json, apps/api/package.json inspected)",
+          "ownership boundary confirmed: RavensNestInc remote \u2014 operator confirmed guest access; mutation authority is local-only"
+        ],
+        "risks": {
+          "current": [
+            "Commands not live-verified 2026-09-17",
+            "Mono-repo with filtered commands \u2014 scope of 'build' vs 'build:web' vs 'build:api' needs operator clarification",
+            "Deeper survey needed: apps/web/package.json, apps/api/package.json for full stack/command detail",
+            "No .env files in surface survey \u2014 may exist in sub-packages",
+            "No test script at root level \u2014 may exist in sub-packages; gap recorded"
+          ],
+          "next_objective": "operator to direct deeper survey, confirm command scope, identify env vars, verify commands"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "3D print business platform \u2014 customer/operator frontend (Vite+React) + Node.js+TypeScript API. pnpm mono-repo. Commands not verified live 2026-09-17 \u2014 deferred to F3 execution phase."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-ravensnestweb-20260917",
+      "proposal_id": "f3-ravensnestweb",
+      "idempotency_key": "f3-ravensnestweb-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "634f4e2d-842a-4354-a917-9c29fcdf0d04",
+          "name": "relic-kiosk",
+          "kind": "prototype",
+          "class": "internal",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/relic-kiosk",
+          "repository": {
+            "remote": null,
+            "fetch": false,
+            "push": false,
+            "notes": "No git repository \u2014 internal prototype, not a standalone git project"
+          }
+        },
+        "runtime": {
+          "adapter": "node",
+          "language": "javascript",
+          "package_manager": "npm"
+        },
+        "commands": [
+          {
+            "id": "serve",
+            "program": "npm",
+            "args": [
+              "run",
+              "serve"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "npm run prepare:vendor && python3 -m http.server 8091 --bind 127.0.0.1; not live-verified"
+          },
+          {
+            "id": "test",
+            "program": "npm",
+            "args": [
+              "run",
+              "test"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "node --test test/*.test.mjs; not live-verified"
+          },
+          {
+            "id": "validate",
+            "program": "npm",
+            "args": [
+              "run",
+              "validate"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 60,
+            "verified": null,
+            "notes": "node --check src/relic.js && node --check src/relicSceneState.js && npm run test; not live-verified"
+          },
+          {
+            "id": "prepare:vendor",
+            "program": "npm",
+            "args": [
+              "run",
+              "prepare:vendor"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 30,
+            "verified": null,
+            "notes": "rsync three.js from Arda-HUD node_modules; requires ARDA_HUD_APP_DIR or HOME/Eregion/arda-hud; not live-verified"
+          },
+          {
+            "id": "deploy:citadel",
+            "program": "npm",
+            "args": [
+              "run",
+              "deploy:citadel"
+            ],
+            "working_dir": "./",
+            "timeout_seconds": 120,
+            "verified": null,
+            "notes": "bash scripts/deploy_to_citadel.sh; not live-verified"
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test",
+            "status": "not_verified",
+            "notes": "node --test not run 2026-09-17"
+          },
+          {
+            "id": "validate",
+            "command": "validate",
+            "status": "not_verified",
+            "notes": "node --check not run 2026-09-17"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "served-content",
+            "path": "index.html",
+            "type": "static-content",
+            "verified": {
+              "exists_at": "2026-09-17"
+            }
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "Local-only serve on 127.0.0.1:8091; no external network exposure"
+          },
+          "filesystem": {
+            "write": true,
+            "notes": "prepare:vendor writes to src/vendor/; deploy:citadel may write to Citadel target"
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "No .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "n/a",
+          "notes": "No git repository \u2014 dirty work concept does not apply. Manual cleanup only."
+        },
+        "rollback": {
+          "strategy": "none-read-only",
+          "notes": "No git \u2014 no reverts. Manual cleanup only."
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/relic-kiosk/README.md",
+            "/var/home/mythos/Eregion/relic-kiosk/package.json"
+          ],
+          "notes": "RELIC = first CITADEL geometry-avatar prototype. References Arda scene adapter in test code. Intentionally separate from apps/citadel-companion."
+        },
+        "acceptance": [
+          "npm run test passes (node --test)",
+          "npm run validate passes (node --check)",
+          "npm run serve serves on 127.0.0.1:8091",
+          "prepare:vendor successfully vendors three.js from Arda-HUD",
+          "operator to confirm prototype scope and Citadel deployment intent"
+        ],
+        "risks": {
+          "current": [
+            "Commands not live-verified 2026-09-17",
+            "No git repository \u2014 not a standalone project; treated as internal prototype",
+            "prepare:vendor depends on Arda-HUD node_modules/three/ \u2014 cross-project dependency; Arda-HUD must be available",
+            "deploy:citadel script exists \u2014 deployment to Citadel hardware; operator to confirm scope",
+            "No rollback strategy (no git) \u2014 manual recovery only"
+          ],
+          "next_objective": "operator to confirm prototype scope, verify commands, confirm Citadel deployment intent"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "RELIC = first CITADEL geometry-avatar prototype. Internal prototype, not for public release. References Arda scene adapter. Commands not verified live 2026-09-17 \u2014 deferred to F3 attachment phase."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-relic-kiosk-20260917",
+      "proposal_id": "f3-relic-kiosk",
+      "idempotency_key": "f3-relic-kiosk-20260917"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "55f96128-4107-4744-9b39-9b1454e03230",
+          "name": "citadel-avatar",
+          "kind": "runtime-projection",
+          "class": "internal",
+          "owner": "mythos",
+          "lifecycle": "active"
+        },
+        "workspace": {
+          "root": "/var/home/mythos/Eregion/citadel-avatar",
+          "repository": {
+            "remote": null,
+            "fetch": false,
+            "push": false,
+            "notes": "No git repository \u2014 internal runtime, not a standalone git project"
+          }
+        },
+        "runtime": {
+          "adapter": "none",
+          "language": "javascript",
+          "package_manager": "none",
+          "notes": "Runtime projection surface \u2014 not a buildable npm project. Served locally on Pi."
+        },
+        "commands": [],
+        "checks": [],
+        "artifacts": [
+          {
+            "id": "index-html",
+            "path": "index.html",
+            "type": "static-content",
+            "verified": {
+              "exists_at": "2026-09-17"
+            }
+          },
+          {
+            "id": "scene-js",
+            "path": "agent-kinetic-visualization.js",
+            "type": "runtime-script",
+            "verified": {
+              "exists_at": "2026-09-17"
+            }
+          },
+          {
+            "id": "scene-js-optimized",
+            "path": "scene-runtime-optimized.js",
+            "type": "runtime-script",
+            "verified": {
+              "exists_at": "2026-09-17"
+            }
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false,
+            "notes": "Local-only serve on Pi at 127.0.0.1:8080; no external network exposure"
+          },
+          "filesystem": {
+            "write": false,
+            "notes": "Runtime projection \u2014 no build output. Manual edits only."
+          },
+          "secrets": {
+            "env_names": [],
+            "notes": "No .env files; no secrets"
+          }
+        },
+        "protected_paths": [],
+        "dirty_worktree_policy": {
+          "mode": "n/a",
+          "notes": "No git repository \u2014 dirty work concept does not apply. Manual cleanup only."
+        },
+        "rollback": {
+          "strategy": "none-read-only",
+          "notes": "No git \u2014 no reverts. Manual recovery only."
+        },
+        "requirements": {
+          "source": [
+            "/var/home/mythos/Eregion/citadel-avatar/README.md",
+            "/var/home/mythos/Eregion/citadel-avatar/package.json",
+            "/var/home/mythos/Eregion/citadel-avatar/DEPLOYMENT_TO_PI5.md",
+            "/var/home/mythos/Eregion/citadel-avatar/SCENE_STATE.md"
+          ],
+          "notes": "Canonical Pi-facing Three.js app for the round Waveshare display. Arda-adjacent projection surface. Deployment docs exist."
+        },
+        "acceptance": [
+          "Serves locally on Pi at http://127.0.0.1:8080",
+          "Three.js scene renders correctly on round Waveshare display",
+          "operator to confirm runtime projection scope and deployment status"
+        ],
+        "risks": {
+          "current": [
+            "No npm scripts \u2014 not a buildable project; runtime is served directly",
+            "No git repository \u2014 not a standalone project; treated as internal runtime",
+            "No declared checks \u2014 runtime verification is manual/operational",
+            "No rollback strategy (no git) \u2014 manual recovery only",
+            "Deployment status on Pi not verified 2026-09-17"
+          ],
+          "next_objective": "operator to confirm runtime projection scope, deployment status, and acceptance criteria"
+        },
+        "provenance": {
+          "declared_by": "arda-f3-reconciliation",
+          "declared_at": "2026-09-17T00:00:00Z",
+          "purpose": "Canonical Pi-facing Three.js app for the round Waveshare display. Arda-adjacent projection surface. Not a buildable project \u2014 runtime is served directly. Commands not verified live 2026-09-17 \u2014 deferred to F3 attachment phase."
+        },
+        "memory": {
+          "scope": "project"
+        }
+      },
+      "approval_id": "operator-approved-f3-remaining-14-citadel-avatar-20260917",
+      "proposal_id": "f3-citadel-avatar",
+      "idempotency_key": "f3-citadel-avatar-20260917"
     }
   ]
 }

@@ -97,7 +97,7 @@ export const DEFAULT_ARDA_HUD_SETTINGS: ArdaHudSettings = {
   operator_legibility_contract_path: 'core/state/operator_legibility_contract.json',
   manwe_router_path: 'core/state/manwe_router.json',
   storage_pressure_path: 'core/state/storage_pressure.json',
-  queue_active_path: 'core/state/queue_active.json',
+  queue_active_path: 'core/state/queue_summary.json',
   queue_summary_path: 'core/state/queue_summary.json',
   fleet_runtime_drift_path: 'data/prometheus/fleet_runtime_drift_last.json',
   task_lifecycle_runtime_path: 'core/state/task_lifecycle_runtime.json',

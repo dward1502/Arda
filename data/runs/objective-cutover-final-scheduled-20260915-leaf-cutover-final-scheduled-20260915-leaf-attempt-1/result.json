@@ -1,0 +1,24 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "provider": "custom",
+    "receipt_digest": "sha256:977b53c3a8fcc1705b9e71573a6b0c66451a9625e99f63104e20071d3125684f",
+    "summary": "VERDICT: APPROVE\nverify.py correctly asserts input.txt contains 'installed-retained-runtime-acceptance\\n' and prints the expected PASS message. Predecessor evidence shows python3 verify.py executed with exit code 0."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "duration_ms": null,
+      "name": "cd /var/home/mythos/Eregion/Arda/target/qualification/live-project && python3 verify.py",
+      "status": "passed"
+    },
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "duration_ms": null,
+      "name": "python3 verify.py",
+      "status": "passed"
+    }
+  ]
+}

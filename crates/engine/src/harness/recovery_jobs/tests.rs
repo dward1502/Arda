@@ -3,6 +3,37 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::sync::Notify;
 
 #[tokio::test]
+async fn completed_outcomes_never_replace_new_durable_revalidation() {
+    for success in [false, true] {
+        for next_digest in ["original", "changed"] {
+            let jobs = ProviderJobs::default();
+            let first = jobs
+                .execute("key".into(), "original".into(), async move {
+                    if success {
+                        Ok(serde_json::json!("old success"))
+                    } else {
+                        Err(ApiError::conflict("old error"))
+                    }
+                })
+                .await;
+            assert_eq!(first.is_ok(), success);
+            let calls = Arc::new(AtomicUsize::new(0));
+            let called = calls.clone();
+            let result = jobs
+                .execute("key".into(), next_digest.into(), async move {
+                    called.fetch_add(1, Ordering::SeqCst);
+                    Ok(serde_json::json!("new durable decision"))
+                })
+                .await
+                .unwrap();
+            assert_eq!(result, serde_json::json!("new durable decision"));
+            assert_eq!(calls.load(Ordering::SeqCst), 1);
+            assert_eq!(jobs.drain(Duration::from_secs(2)).await, 0);
+        }
+    }
+}
+
+#[tokio::test]
 async fn subscriptions_share_owner_and_payload_drift_fails_closed() {
     let jobs = RecoveryJobs::default();
     let started = Arc::new(Notify::new());

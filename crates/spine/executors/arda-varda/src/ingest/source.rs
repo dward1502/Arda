@@ -11,6 +11,16 @@ use std::sync::RwLock;
 
 use super::{github, GithubMetadata, ScholarlyMetadata, ShallowAnalysis, SourceType};
 
+impl super::AthenaStore {
+    /// Return the logical URL and source ID used by ingest, without opening or
+    /// mutating a store. This is not an identity for original HTTP response bytes.
+    pub fn canonical_source_identity(input: &str) -> (String, String) {
+        let canonical = canonicalize_ingest_input(input);
+        let id = source_id_from_input(&canonical);
+        (canonical, id)
+    }
+}
+
 /// Process-local cache from a full content hash to its deterministic source
 /// classification. The value retains the source kind so repeated crawls or
 /// batch duplicates avoid repeating classification while preserving the

@@ -32,13 +32,13 @@ The repair order below optimizes for reduced operator management burden. Downstr
 
 | Capability | Capability truth level | Evidence | Human-visible behavior now | Required next level |
 |---|---|---|---|---|
-| Durable Workbench execution graph | Workflow-proven, bounded single-project slice | `docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md`; `workbench_executor.rs` constructs plan/approval/execute/verify/review/close and records continuation stages | One approved task can survive executor restart and close after a project check | General multi-task continuation with real revision/retry and non-trivial acceptance |
-| General objective decomposition | Source-verified durable-leaf slice; installed terminal proof pending | `decomposer.rs` emits executable leaf contracts; `workbench_executor.rs` materializes validated leaves with dependencies and digest-bound plan lineage | A broad objective becomes independently durable queue leaves; one live timer run proved five leaves and first-leaf eligibility | Restore the user timer and prove forced-failure correction, restart between leaves, and unattended artifact-bound closure |
+| Durable Workbench execution graph | Workflow-proven, single-project slice; continuation decisions executable | `docs/plans/AUTONOMOUS_TASK_COMPLETION_LOOP.md`; `workbench_executor.rs` constructs plan/approval/execute/verify/review/close and records continuation stages; `materialize_continuation` appends retry/revision/replan successors | One approved task survives executor restart and close; continuation decisions materialize as executable work | General multi-task continuation with real revision/retry and non-trivial acceptance |
+| General objective decomposition | Source-verified durable-leaf slice; installed terminal proof pending | `decomposer.rs` emits executable leaf contracts; `workbench_executor.rs` materializes validated leaves with dependencies and digest-bound plan lineage via `materialize_objective_leaves` | A broad objective becomes independently durable queue leaves; one live timer run proved five leaves and first-leaf eligibility | Restore the user timer and prove forced-failure correction, restart between leaves, and unattended artifact-bound closure |
 | Verification | Workflow-proven for declared project checks | `workbench_executor.rs:320-373,515-529`; installed acceptance evidence in the active task-loop plan | A task is not closed without at least one passing attached-project check | Acceptance coverage beyond command success, artifact/runtime checks, and failure-driven revision |
-| Independent review | Specified in graph, not independently workflow-proven | `workbench_executor.rs:912-925` assigns verifier to the same fixed hosted route; review is completed locally at `373-412` without a critic execution | “Review” can appear complete without an independently generated challenge | Distinct eligible failure profile, review findings, reject/revise path, and retained review receipt |
+| Independent review | Specified in graph, not independently workflow-proven | `workbench_executor.rs:912-925` assigns verifier to the same fixed hosted route; review is completed locally at `373-412` without a critic execution | "Review" can appear complete without an independently generated challenge | Distinct eligible failure profile, review findings, reject/revise path, and retained review receipt |
 | Connected projects | Contract mechanism implemented; production portfolio not connected | `data/workbench/projects.json` contains three proof/stage records, all rooted at `.`; `CONNECTED_PROJECT_FABRIC.md` lists the unattached portfolio | Arda cannot safely plan or execute across the operator's actual repositories | Approved truthful Arda contract first, then classified portfolio waves and cross-project proof |
 | Provider placement | Implemented/tested elsewhere; bypassed by canonical queue execution | `workbench_executor.rs:900-923` hard-codes `hosted:hermes-workbench`; `PROVIDER_WORKER_CONVERGENCE.md` records live Manwë capacity | Queue work uses the Hermes default rather than a receipted local/hosted policy choice | Manwë requirement request, selected/actual route receipt, explicit fallback, separate reviewer placement |
-| Continuation and scheduling | Retry/revision/replan materialization implemented and restart-reconciled; full scheduling remains open | `workbench_executor.rs` appends executable same-lineage continuations, enforces attempts, activates eligible successors, and repairs terminal fan-out on startup; package tests pass | Later invocations can claim a fresh attempt without chat context | Live forced-failure proof plus `wait_until`, pause, cancellation, recurrence, and canonical next-wake projection |
+| Continuation and scheduling | Retry/revision/replan materialization implemented; full T5/T6 scheduling open | `workbench_executor.rs` appends executable same-lineage continuations via `materialize_continuation`, enforces attempts, activates eligible successors, repairs terminal fan-out on startup; `wait_until` scheduling present; package tests pass | Later invocations claim a fresh attempt without chat context; failed tasks produce typed continuation decisions | Live forced-failure proof plus pause, cancellation, recurrence, and canonical next-wake projection |
 | Vairë context continuity | Workflow-proven in bounded organism tests; weakly consumed here | `workbench_executor.rs:613-709` creates a system-only fallback context with no memory refs when no receipt is supplied | Worker context can omit relevant conversations, project memory, corrections, and unresolved failures | Retrieval plan bound to authorized personal/business/system scopes and a context-use receipt |
 | Operator projection and controls | Root-composed read projection; incomplete and partly misleading | `core/state/operator_projection.json` uses IDs as titles, reports empty capabilities/communications/councils, fallback Joules, and explicitly lacks approval expiry | Operator can see runs but not a trustworthy outcome, next decision, route, budget, or full control state | One source-truth objective view with pause/reprioritize/revise/approve/reject/cancel controls |
 | Daily research and improvement | Specified; not installed end to end | `DAILY_RESEARCH_IMPROVEMENT_LOOP.md` records absent timers, wrong survey root, and no governed research-to-change bridge | Research can create evidence or reports but does not reliably land verified improvements | Seven-day installed cycle with one improvement, one no-change, one rejected idea, and continuation |
@@ -51,7 +51,7 @@ The repair order below optimizes for reduced operator management burden. Downstr
 
 ### P0.1 — Turn validated plans into durable executable task graphs
 
-Current evidence: the 2026-08-27 source slice materializes each validated plan leaf as a canonical queue record with full dependency IDs and project/authority/check/evidence/budget metadata. Plan receipts are persisted outside the graph and re-verified before leaf dispatch. A bounded installed-timer run created five leaves and claimed only the eligible first leaf. The environment lost its user systemd bus before corrected-revision, restart-between-leaves, and terminal artifact acceptance could be observed, so P0.1 remains open at the workflow-proof gate.
+Current evidence: `materialize_objective_leaves` now persists each validated plan leaf as a canonical queue record with full dependency IDs, project/authority/check/evidence/budget metadata, and digest-bound plan lineage (`workbench_executor.rs:2836`). Plan receipts are persisted outside the graph and re-verified before leaf dispatch (`workbench_executor.rs:2145`). A bounded installed-timer run created five leaves and claimed only the eligible first leaf. Corrected-revision and restart-between-leaves are now materialized via `materialize_continuation`; terminal artifact acceptance and the unattended full-graph close remain open.
 
 Human-visible behavior: after stating a broad outcome once, the operator sees a bounded dependency plan whose leaves advance independently. Failed verification revises only the affected task; eligible successors start without a new instruction.
 
@@ -61,7 +61,8 @@ Acceptance:
 - one non-trivial objective produces at least three durable leaves with explicit dependency coverage;
 - each leaf has a real project ID, acceptance evidence, authority class, and derived budget;
 - a forced verification failure yields `revise_task` or `replan_objective`, lands a corrected successor, and later closes under the same objective ID;
-- restart between leaves resumes the eligible node without chat context.
+- restart between leaves resumes the eligible node without chat context;
+- terminal artifact acceptance and unattended objective close are proven.
 
 ### P0.2 — Connect the real Arda project before expanding the portfolio
 
@@ -89,7 +90,7 @@ Acceptance: execute all seven proofs in `PROVIDER_WORKER_CONVERGENCE.md`, includ
 
 ### P0.4 — Make continuation decisions executable and scheduled
 
-Current evidence: `execute_once` now materializes `retry_same_task`, `revise_task`, and `replan_objective` as append-only executable work. Retry/revision records preserve objective authority and lineage, increment continuation/attempt state, and claim a fresh deterministic run ID; persisted attempt budgets force replan when exhausted. Startup reconciliation repairs a crash after terminal append. Full T5/T6 remains open because live forced-failure correction has not reached terminal acceptance, failure classes remain text-derived, and `wait_until`, pause/cancel scheduling, recurrence, and a canonical next-wake ledger are not implemented.
+Current evidence: `materialize_continuation` now materializes `retry_same_task`, `revise_task`, `replan_objective`, and `wait_until` as append-only executable work (`workbench_executor.rs:2995`). Retry/revision records preserve objective authority and lineage, increment continuation/attempt state, and claim a fresh deterministic run ID; persisted attempt budgets force replan when exhausted. Startup reconciliation repairs a crash after terminal append. T5/T6 full scheduling remains open because live forced-failure correction has not reached terminal acceptance, failure classes remain text-derived, and pause/cancel scheduling, recurrence, and a canonical next-wake ledger are not implemented.
 
 Human-visible behavior: every open objective shows exactly one next action and next wake time. Transient failures retry within budget; defects revise; changed assumptions replan; genuine gates ask one concrete question. Pause/cancel prevents later wakeups.
 
@@ -183,13 +184,14 @@ Only after P2.1 operator acceptance may the active authority reconsider Ambient 
 
 ## Dependency order and stop conditions
 
-1. P0.1 and P0.2 establish truthful work and project identity.
-2. P0.3, P0.5, and P0.6 establish truthful capability, authority, and review.
-3. P0.4 makes the work continue without repeated assignment.
-4. P1.1 and P1.2 make the same loop understandable and controllable.
-5. P1.3-P1.5 feed real recurring and external work into that loop.
-6. P1.6 prevents proof/status drift.
-7. P2 validates human usefulness and only then permits downstream expansion decisions.
+1. P0.1 and P0.4 complete: durable leaf materialization and typed continuation decisions are now implemented and restart-reconciled.
+2. P0.2 establishes truthful project identity and contract digest.
+3. P0.3 establishes truthful worker/reviewer placement via Manwë.
+4. P0.5 and P0.6 establish truthful approval scope and independent review.
+5. P1.1 and P1.2 make the same loop understandable and controllable.
+6. P1.3-P1.5 feed real recurring and external work into that loop.
+7. P1.6 prevents proof/status drift.
+8. P2 validates human usefulness and only then permits downstream expansion decisions.
 
 Stop and request a concrete operator decision when project ownership or mutation scope is unclear, approval is absent/expired, private data would cross an undeclared boundary, cost exceeds the objective budget, review independence cannot be met for material risk, attempts are exhausted, or objective acceptance is genuinely ambiguous. Dirty repositories remain read-only until their contract explicitly protects existing work.
 

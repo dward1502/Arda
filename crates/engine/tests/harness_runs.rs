@@ -14,6 +14,9 @@ use tokio::sync::{Notify, RwLock};
 
 #[path = "fixtures/retained_replay.rs"]
 mod retained_replay;
+#[cfg(target_os = "linux")]
+#[path = "fixtures/retained_harness_loss.rs"]
+mod retained_harness_loss;
 
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 
@@ -40,6 +43,7 @@ fn harness_state(root: &TempDir) -> HarnessState {
     arda_engine::objectives::ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3"))
         .unwrap();
     HarnessState {
+        research_store_policy: arda_engine::harness::ResearchStorePolicy::Isolated,
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),
@@ -252,6 +256,10 @@ async fn managed_shutdown_closes_live_run_and_presence_streams() {
     );
     stopped.unwrap().unwrap();
 }
+
+#[cfg(unix)]
+#[path = "fixtures/provider_waiter_loss.rs"]
+mod provider_waiter_loss;
 
 #[cfg(unix)]
 #[tokio::test]

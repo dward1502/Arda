@@ -5,66 +5,63 @@ soterion:
   role: "implementation_plan"
   status: "active"
   owner: "HERMES"
-  reviewed: "2026-09-07"
+  reviewed: "2026-09-15"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-09-07
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-09-15
 
 # HUD Visual Pass — Remaining Work
 
-## Scope and priority
+## Scope and retained evidence
 
-Own HUD visual consistency and maintainable shell structure, not execution,
-media acquisition, or Mirromere. Daily usefulness and the
-[personal media flow](../PERSONAL_SYSTEM_EXPERIENCE.md) take priority. World View
-remains passive; intentional sparse/low-contrast instruments and lower WebGL
-apertures are not redesign targets. No new visual language or geometry changes
-are authorized merely by this reconciliation.
+Own visual consistency and maintainable HUD shell composition, not execution,
+media acquisition or Mirromere. [Personal media usefulness](../PERSONAL_SYSTEM_EXPERIENCE.md)
+takes priority. World View remains passive; intentional sparse/low-contrast
+instruments and lower WebGL apertures are not redesign targets. No new visual
+language or geometry change follows from this docs reconciliation.
 
-## Evidence and consolidation
+The [WS3b avatar record](../../archive/arda-hud-visual-pass/03b-avatar-cortana-redesign.md)
+retains the historical native closeout. The [WS3a assessment](../../archive/arda-hud-visual-pass/03a-boardroom-workstations-assessment.md)
+retains occupied-workstation/support-marker gaps. No fresh native acceptance is
+claimed. Old App.tsx line counts and token-consumer counts are not current backlog.
 
-- The [historical WS3b avatar closeout](../../archive/arda-hud-visual-pass/03b-avatar-cortana-redesign.md) records the August 25 native visual pass and tests. Current `AvatarPresenceLayer.tsx` renders `PresenceParticleSystem`, which samples `presence_form`; `boardroomSpatialLayout.ts` retains emitter position `[0, 0.3, 0.22]` and size `[0.9, 0.16, 0.9]`. This is source corroboration, not a fresh native qualification or Mirromere acceptance.
-- The [historical WS3a assessment](../../archive/arda-hud-visual-pass/03a-boardroom-workstations-assessment.md) is consolidated here. Its emitter recommendation is addressed above. Its remaining support-marker consistency and occupied-workstation inspection are retained below; no requirement is discarded as a recurring task.
-- `src/styles/foundation/tokens.css`, the existing phase-8 visual convergence test, and `boardroomSpatialLayout.ts` remain the design/geometry authorities. August measurements of App.tsx size, token consumers, and accessibility were snapshots, not current counts.
+## Design constraints
 
-## Operator decisions retained
+Sharp `--hud-*` / `--arda-*` grammar, `src/styles/foundation/tokens.css`, the existing
+phase-8 visual contract and `boardroomSpatialLayout.ts` remain authorities. Rounded
+glassy tokens are legacy. Use focused shell/components rather than expanding
+App.tsx; prefer rem/em for DOM sizing with shared tokens for fixed hairlines/glows.
+Do not convert WebGL coordinates indiscriminately. Broad accessibility remains
+explicitly deferred, not silently completed.
 
-Sharp `--hud-*` / `--arda-*` machine grammar is primary; rounded glassy tokens
-are legacy. New layout work belongs in focused shell/components, not additions
-to an App.tsx monolith. `src/styles/` is the styling home. Prefer rem/em for DOM
-sizing; unavoidable fixed hairlines/glows use common tokens. Broad accessibility
-work remains explicitly deferred, not completed.
+## Work checklist
 
-## Remaining sequence
+- [ ] WS1 — Inventory remaining soft-radius/surface and non-token consumers; converge
+  on existing sharp tokens or record a bounded justified exception. Do not restyle
+  accepted surfaces based solely on an old assessment.
+- [ ] WS2 — Inspect current App.tsx composition and extract only still-coupled header/
+  rail/dock/workstation-host regions without behavioral change. Preserve ownership,
+  session restoration and media paths; do not repeat completed extractions.
+- [ ] WS3 — Inspect genuinely occupied sessions on all five upper monitors, four
+  desk-console workstations and Control Core: spacing, hierarchy, loading/empty/
+  failure states, readability and support-marker consistency. Prioritize capture,
+  next action, Personal Operations and review. Inspect the actual `AgentPresenceOrbit`
+  consumer before removal; do not reopen completed avatar geometry work.
+- [ ] WS4 — Inventory DOM px/out-of-tree CSS; consolidate common constants and styles
+  into `src/styles/` or justify scoped modules. Retire `nightcity.tokens.ts` only after
+  its actual consumers migrate. Accompany each affected module rather than blanket edits.
 
-1. **WS1 — Design language:** inventory actual soft-radius/surface and non-token
-   consumers; converge on existing sharp tokens or document bounded exceptions.
-2. **WS2 — Shell structure:** inspect current App.tsx composition, then extract
-   remaining header/rail/dock/workstation-host regions without changing behavior.
-   Do not repeat already completed extractions merely because old line counts
-   were large. Preserve native ownership and media restoration paths.
-3. **WS3 — Useful modules:** inspect actual occupied sessions in all five upper
-   monitors and four desk-console workstations, plus Control Core. Check spacing,
-   hierarchy, empty/loading/failure states, readability and support-marker
-   consistency. The current avatar support markers use octahedra; inspect any
-   remaining `AgentPresenceOrbit` path before removing or restyling it. Prioritize
-   capture, next action, Personal Operations, and review. Use the personal media
-   plan's publication/session evidence rather than duplicating its media matrix.
-4. **WS4 — Styling consolidation:** inventory px values and out-of-tree styles;
-   migrate DOM units and common constants; retire `nightcity.tokens.ts` only after
-   its consumers are migrated. Move CSS into `styles/` or justify genuine scoped
-   modules. No blanket WebGL-coordinate conversion.
+## Native acceptance gate
 
-## Dependencies and acceptance
+- [ ] H1 — WS1–WS4 changes have affected Vitest/phase-8 contract and TypeScript checks,
+  supported Tauri build evidence and before/after native inspection.
+- [ ] H2 — Genuine assigned content remains readable with correct source/session
+  interaction, ownership, loading/error states and no frame-timing regression.
+- [ ] H3 — Operator accepts the residual visual consistency; retain the accepted
+  phone-to-HUD flow and passive World View without adding workflow controls there.
 
-WS1 precedes WS2/WS3; WS4 accompanies each affected module. Do not disturb the
-accepted phone-to-HUD path. A media renderer/ownership defect belongs to
-[Personal System Experience](../PERSONAL_SYSTEM_EXPERIENCE.md), not a duplicate
-visual backlog. Mirromere remains separately held.
-
-For each actual change, run affected Vitest tests, the phase-8 visual contract,
-TypeScript checks, and the supported Tauri build. Inspect the running native
-surface with genuine assigned content and compare before/after visuals. Preserve
-same-session interaction and frame timing. Historical screenshots and new unit
-tests alone cannot close native acceptance. Retire this plan after its owned
-remaining work is verified; keep evidence in the archive/operations convention.
+Exit gate: residual styling/shell changes and their native behavior are verified;
+unit tests and historical screenshots alone do not close it. WS1 precedes WS2/WS3,
+WS4 accompanies affected work. Media renderer/ownership defects route to the media
+owner, not a duplicate matrix here. Retire after H1–H3 pass; archive evidence rather
+than keeping another visual planning library. Mirromere remains separately held.

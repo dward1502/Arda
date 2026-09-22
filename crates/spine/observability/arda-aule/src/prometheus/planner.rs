@@ -30,12 +30,13 @@ pub struct PlanPass {
     pub tasks_emitted: usize,
 }
 
-/// Run one planner pass against `state`. Tasks emitted from plan
-/// steps are appended to `queue_path` (typically
-/// `<repo>/core/projects/tasks/queue.jsonl` per FILE_LAYOUT §4.2).
-/// Pass `None` to suppress task emission (used in tests that only
-/// care about plan generation).
+/// Generate plans without queue authority by passing `None`.
+/// Legacy task-emitting calls (`Some`) are retired and refuse before reading
+/// goals or writing plans, so a failed emission cannot leave a partial plan.
 pub fn run(state: &StateRoot, queue_path: Option<&Path>) -> Result<PlanPass> {
+    if queue_path.is_some() {
+        state::require_legacy_task_writer()?;
+    }
     let mut pass = PlanPass::default();
     let goals = state::list_goals(state)?;
     pass.goals_considered = goals.len();
@@ -203,7 +204,7 @@ mod tests {
     }
 
     #[test]
-    fn emits_one_task_per_plan_step_with_lineage() {
+    fn task_emitting_planner_refuses_before_writing_plan_or_queue() {
         let (_d, st) = tmp_state();
         let g = Goal::new(
             "goal_provider_mesh_health",
@@ -214,19 +215,39 @@ mod tests {
         );
         state::write_goal(&st, &g).unwrap();
         let queue = st.root().join("queue.jsonl");
-        let pass = run(&st, Some(&queue)).unwrap();
-        // Recipe has 3 steps for provider mesh health
-        assert_eq!(pass.tasks_emitted, 3);
-        let tasks = arda_core::state::read_contract_tasks(&queue).unwrap();
-        assert_eq!(tasks.len(), 3);
-        assert!(tasks.iter().all(|t| t.plan_id.is_some()));
-        assert_eq!(
-            tasks
-                .iter()
-                .filter_map(|t| t.plan_step_index)
-                .collect::<Vec<_>>(),
-            vec![0, 1, 2]
-        );
+        let error = run(&st, Some(&queue)).unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert!(!queue.exists());
+        assert!(!st.plans_dir().exists());
+        // The rejected task-emitting call must not consume plan idempotency.
+        let pass = run(&st, None).unwrap();
+        assert_eq!(pass.plans_written.len(), 1);
+        assert_eq!(pass.tasks_emitted, 0);
+        assert!(!queue.exists());
+    }
+
+    #[test]
+    fn task_emitting_planner_refuses_missing_or_malformed_state_without_side_effects() {
+        let dir = tempfile::tempdir().unwrap();
+        let st = StateRoot::new(dir.path().join("missing-state"));
+        let queue = dir.path().join("missing/queue.jsonl");
+        assert!(run(&st, Some(&queue))
+            .unwrap_err()
+            .to_string()
+            .contains("retired"));
+        assert!(!st.root().exists());
+        assert!(!queue.parent().unwrap().exists());
+
+        std::fs::create_dir_all(st.goals_dir()).unwrap();
+        let goal = st.goals_dir().join("broken.json");
+        std::fs::write(&goal, "not valid JSON").unwrap();
+        assert!(run(&st, Some(&queue))
+            .unwrap_err()
+            .to_string()
+            .contains("retired"));
+        assert_eq!(std::fs::read_to_string(goal).unwrap(), "not valid JSON");
+        assert!(!st.plans_dir().exists());
+        assert!(!queue.parent().unwrap().exists());
     }
 
     #[test]

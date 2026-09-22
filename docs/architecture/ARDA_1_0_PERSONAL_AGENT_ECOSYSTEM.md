@@ -64,6 +64,44 @@ correct, defer, or revoke behavior.
 Arda is not defined by any one application, interface, commercial strategy,
 model provider, device, or diagnosis.
 
+## Persistent responsibility across daily life
+
+The operator reaffirmed this product direction on 2026-09-16: Arda is a
+home-installable general personal system spanning digital/coding projects,
+physical-work projects, business, personal schedules, to-do lists and reminders.
+It enables people to use their available software, technical and connected
+hardware resources, including to create and operate home businesses. These are
+domains of one system, not separate agent products or mandatory revenue goals.
+Illustrative equipment is not a claim about the operator's actual inventory.
+
+The shared loop is **notice/request → gather and review information → assess
+against the person's context, goals, resources and constraints → plan → act
+within granted authority → verify the outcome → retain context and follow up**.
+Automated research is an input to that loop, not its endpoint. The product carries
+ongoing responsibilities across tools, time, interruptions and changing conditions;
+it does not merely generate reports or plans for the operator to relay manually.
+
+Hermes remains the deliberately chosen tool-rich conversation and worker harness.
+Its features should be seamlessly available with Arda, not replaced or rebuilt by
+default. Existing aipkg and adapter contracts are the starting point for extending
+Arda with third-party memory, projects and capabilities. Their existence does not
+prove a particular integration works; trace current runtime consumers and verify
+the useful behavior before making that claim.
+
+Physical work can include a human-performed step without requiring robotics.
+Planning materials, instructions, appointments and dependencies is useful, but
+requested, scheduled, performed and verified must remain distinct states. A person
+confirms their work; an agent must not infer physical completion from a timer.
+
+**Narrow the construction sequence, not the product vision.** Establish a reliable
+shared loop through representative digital, personal and physical-work outcomes,
+then extend it through capabilities. Do not build every domain simultaneously,
+make coding the system identity, or turn a small acceptance slice into a permanent
+scope restriction. Repeatable usefulness and reduced operator burden—not component
+count, architectural novelty or claims of being ahead of the market—measure progress.
+The [next-step sequence](../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md#next-step-sequence)
+applies this direction within existing implementation owners.
+
 ## Why Arda exists
 
 The operator's life is not divided into independent software silos. Health,

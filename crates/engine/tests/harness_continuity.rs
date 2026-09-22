@@ -17,6 +17,7 @@ async fn start_harness(
     tokio::task::JoinHandle<()>,
 ) {
     let state = HarnessState {
+        research_store_policy: arda_engine::harness::ResearchStorePolicy::Isolated,
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),

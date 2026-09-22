@@ -1,0 +1,18 @@
+{
+  "changes": [],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "provider": "custom",
+    "receipt_digest": "sha256:b46456229bd42f2e72d57c768636de3f6b29f90d1548cbbcb58d6a98d1f8c7ce",
+    "summary": "VERDICT: APPROVE\nVerified verify.py checks input.txt contains 'installed-retained-runtime-acceptance\\n'. Read-only inspection confirmed both files exist with expected content. No modifications made; predecessor evidence validated."
+  },
+  "tests": [
+    {
+      "details": "check_id=test exit_code=0 output_digest=sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "duration_ms": null,
+      "name": "cd /var/home/mythos/Eregion/Arda/target/qualification/live-project && python3 verify.py",
+      "status": "passed"
+    }
+  ]
+}

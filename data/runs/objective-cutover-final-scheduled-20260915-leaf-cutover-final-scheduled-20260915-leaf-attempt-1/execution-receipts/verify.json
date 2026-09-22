@@ -1,0 +1,67 @@
+{
+  "adapter": "hermes-workbench",
+  "adapter_version": "1",
+  "artifacts": [],
+  "authority_binding_digest": "sha256:6f13b82e2b7ce3f0be2476de395d50a35dccc0636f462f14c0e0e30e3b4b86c0",
+  "context_capsule_digest": "sha256:4c892cc26404025885647eaf4c67527ac54ab559b72dace8f894fd43db65333c",
+  "context_capsule_id": "capsule:4c892cc26404025885647eaf4c67527ac54ab559b72dace8f894fd43db65333c",
+  "context_handoff": {
+    "capsule_digest": "sha256:4c892cc26404025885647eaf4c67527ac54ab559b72dace8f894fd43db65333c",
+    "capsule_id": "capsule:4c892cc26404025885647eaf4c67527ac54ab559b72dace8f894fd43db65333c",
+    "context_use_receipt_ref": "arda://vaire/context-use/context-use:23901a7be85edefe67e03ae263122ad85e3aad13fbdcd6a49e9982bd09651377",
+    "destination_consumer": "arda.resident-objective:objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1:verify",
+    "node_id": "verify",
+    "objective_id": "cutover-final-scheduled-20260915",
+    "parent_receipts": [
+      "sha256:2458cc2158d34124d43d7e8db5687c90f324dbd9cd04e7e6c6ae14cbddc3faf3"
+    ],
+    "receipt_digest": "sha256:99a62c120950ffbb42c0e6524b4c5172ed3d49bae796e0d3117db434b998df83",
+    "receipt_id": "handoff:5400d83f93719384ffdc25c03391fd2b0ba772fd53691912a13999c434c45e76",
+    "recorded_at_unix_ms": 1789451657567,
+    "run_id": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1",
+    "schema_version": "arda.handoff-receipt.v1",
+    "source_authority": "vaire:organism-context"
+  },
+  "context_use_receipt_ref": "arda://vaire/context-use/context-use:23901a7be85edefe67e03ae263122ad85e3aad13fbdcd6a49e9982bd09651377",
+  "idempotency_key": "queue-cutover-final-scheduled-20260915-leaf-verify",
+  "node_id": "verify",
+  "parent_receipts": [
+    "sha256:2458cc2158d34124d43d7e8db5687c90f324dbd9cd04e7e6c6ae14cbddc3faf3"
+  ],
+  "project_contract_digest": "sha256:abc34988dc8e5de53532e4de52074c864688db716f43b514b5de7b33317edb3b",
+  "receipt_digest": "sha256:817b854f6aa530c5fa543b2355168838e0bb172393628bdadbf4a9c470cd1b99",
+  "recorded_at_unix_ms": 1789451657567,
+  "run_id": "objective-cutover-final-scheduled-20260915-leaf-cutover-final-scheduled-20260915-leaf-attempt-1",
+  "schema_version": "arda.execution-receipt.v3",
+  "status": "succeeded",
+  "summary": "VERDICT: APPROVE - python3 verify.py executed successfully with exit code 0 and output 'PASS: installed retained workspace input verified'.",
+  "test_evidence": [
+    {
+      "check_id": "test",
+      "command": "python3 verify.py",
+      "exit_code": 0,
+      "output_digest": "sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "status": "passed"
+    }
+  ],
+  "tool_evidence": [
+    {
+      "action": "python3 verify.py",
+      "exit_code": 0,
+      "output_digest": "sha256:841128933d16c9109c88258a4fef585c2be91129f1f2d90b126e133d7bcf8e57",
+      "tool": "terminal"
+    }
+  ],
+  "usage": {
+    "api_calls": 0,
+    "completed": true,
+    "cost_measurement": "unknown",
+    "estimated_cost_usd": 0.0,
+    "failed": false,
+    "input_tokens": 0,
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "output_tokens": 0,
+    "provider": "custom",
+    "total_tokens": 0
+  }
+}

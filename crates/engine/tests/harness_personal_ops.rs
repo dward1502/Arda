@@ -69,6 +69,7 @@ fn make_envelope(record: PersonalOpsRecord) -> PersonalOpsEnvelope<PersonalOpsRe
 
 fn base_state(workbench_root: std::path::PathBuf) -> HarnessState {
     HarnessState {
+        research_store_policy: arda_engine::harness::ResearchStorePolicy::Isolated,
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),

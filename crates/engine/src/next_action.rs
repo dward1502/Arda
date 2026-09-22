@@ -1,3 +1,5 @@
+mod hygiene;
+
 use anyhow::{Context, Result};
 use arda_core::next_action::{
     select_next_action, NextActionAuthorityState, NextActionCandidate, NextActionFreshness,
@@ -38,6 +40,7 @@ pub fn publish_next_action_projection(
     )?);
     candidates.extend(workbench_candidates(root, &agenda)?);
     candidates.extend(research_candidates(root, operator_id, generated_at)?);
+    candidates.extend(hygiene::candidate(root, generated_at));
     let projection = select_next_action(candidates, generated_at);
     write_projection(root, &projection)?;
     Ok(projection)

@@ -22,6 +22,7 @@ pub async fn submit_plan(
     plan: &[PlannedTask],
     gate: &GateDecision,
 ) -> Result<Task> {
+    arda_core::state::require_legacy_task_writer()?;
     let root = root.as_ref();
     let mut router = Router::new();
     router.register(Box::new(AutopilotPipelineAgent));
@@ -76,10 +77,9 @@ impl Agent for AutopilotPipelineAgent {
 mod tests {
     use super::super::decomposer::Priority;
     use super::*;
-    use arda_core::task::TaskStatus;
 
     #[tokio::test]
-    async fn submits_approved_plan_to_pipeline() {
+    async fn retired_pipeline_bridge_does_not_create_ledger() {
         let dir = tempfile::tempdir().unwrap();
         let objective = Objective {
             id: "obj".into(),
@@ -100,15 +100,15 @@ mod tests {
             assigned_agent: Some("ceo".into()),
         }];
 
-        let task = submit_plan(
+        let error = submit_plan(
             dir.path(),
             &objective,
             &plan,
             &GateDecision::Approved { resonance: 1.0 },
         )
         .await
-        .expect("pipeline submit");
-        assert!(matches!(task.status, TaskStatus::Complete));
-        assert!(dir.path().join("data/ceo/pipeline_ledger").exists());
+        .unwrap_err();
+        assert!(error.to_string().contains("retired"));
+        assert!(!dir.path().join("data").exists());
     }
 }

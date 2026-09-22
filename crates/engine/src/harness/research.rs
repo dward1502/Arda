@@ -8,7 +8,7 @@ use arda_core::run_graph::{NodeId, RunId};
 use arda_mandos::classify_rumil_evidence;
 use arda_outpost_protocol::{inspect_untrusted_content, ResearchBetaPolicy};
 use arda_rumil::{RumilEvidenceClass, RumilEvidenceReference};
-use arda_varda::ingest::{AthenaStore, CrawlMarkdownResult};
+use arda_varda::ingest::CrawlMarkdownResult;
 use arda_varda::{evaluate_rumil_evidence, RumilEvaluationDisposition};
 use axum::{
     extract::{ConnectInfo, State},
@@ -34,6 +34,10 @@ use super::{
 
 const BRIEF_SCHEMA: &str = "arda.workbench.research-brief.v1";
 const MAX_SOURCES: usize = 5;
+#[cfg(test)]
+mod fetch_safety_tests;
+mod lineage;
+pub(super) mod question;
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -311,93 +315,26 @@ pub(super) async fn create_brief(
     let generated_at = Utc::now();
     let expires_at = generated_at + ChronoDuration::minutes(15);
 
-    let scout_url = state
-        .warden_scout_url
-        .as_deref()
-        .ok_or_else(|| ApiError::internal("Warden scout is not configured"))?;
-    let mut warden = None;
-    let mut last_search_error = None;
-    for attempt in 0..policy.max_attempts {
-        let response = state
-            .client
-            .post(format!("{}/discover", scout_url.trim_end_matches('/')))
-            .timeout(state.warden_scout_timeout)
-            .json(&serde_json::json!({
-                "query": request.question,
-                "limit": request.source_limit.min(MAX_SOURCES).min(policy.max_results),
-                "source_policy": "allowlisted_public_web",
-                "expires_at": expires_at.to_rfc3339(),
-            }))
-            .send()
-            .await;
-        match response {
-            Ok(response)
-                if response.status().is_server_error()
-                    || response.status() == reqwest::StatusCode::TOO_MANY_REQUESTS =>
-            {
-                last_search_error = Some(format!(
-                    "Warden search returned transient status {}",
-                    response.status()
-                ));
-            }
-            Ok(response) => {
-                warden = Some(
-                    response
-                        .error_for_status()
-                        .map_err(|error| {
-                            ApiError::internal(format!("Warden search returned failure: {error}"))
-                        })?
-                        .json::<WardenSearchResponse>()
-                        .await
-                        .map_err(|error| {
-                            ApiError::internal(format!("invalid Warden search response: {error}"))
-                        })?,
-                );
-                break;
-            }
-            Err(error) => {
-                last_search_error = Some(format!("Warden search failed: {error}"));
-            }
-        }
-        if attempt + 1 < policy.max_attempts {
-            tokio::time::sleep(std::time::Duration::from_millis(policy.cooldown_ms)).await;
-        }
-    }
-    let warden = warden.ok_or_else(|| {
-        ApiError::internal(
-            last_search_error.unwrap_or_else(|| "Warden search exhausted retry budget".to_string()),
-        )
-    })?;
-
-    let athena_root = state.workbench_root.join("data/athena");
-    let mut citations = Vec::new();
-    let mut source_failures = Vec::new();
-    let mut domain_counts = BTreeMap::<String, usize>::new();
-    for result in warden.report.results.into_iter().take(
-        request
-            .source_limit
-            .min(MAX_SOURCES)
-            .min(policy.max_results),
-    ) {
-        if let Ok(url) = reqwest::Url::parse(&result.url) {
-            if let Some(domain) = url.host_str().map(str::to_ascii_lowercase) {
-                let count = domain_counts.entry(domain.clone()).or_default();
-                if *count >= policy.max_sources_per_domain {
-                    source_failures.push(format!(
-                        "{}: source-domain rate bound exceeded for `{domain}`",
-                        result.url
-                    ));
-                    continue;
-                }
-                *count += 1;
-            }
-        }
-        match fetch_and_evaluate(&state, &athena_root, &request, result, expires_at, &policy).await
-        {
-            Ok(citation) => citations.push(citation),
-            Err(error) => source_failures.push(error),
-        }
-    }
+    let context = format!(
+        "Workbench run {} node {} explicit research question: {}",
+        request.run_id, request.node_id, request.question
+    );
+    let EvaluatedSources {
+        warden,
+        citations,
+        source_failures,
+    } = evaluate_sources(
+        &state,
+        SourceQuery {
+            question: &request.question,
+            context: &context,
+            https_only: false,
+        },
+        request.source_limit,
+        expires_at,
+        &policy,
+    )
+    .await?;
 
     let (contradiction_status, contradictions) = contradiction_assessment(&citations);
     let claims = claims_from_citations(&citations);
@@ -523,7 +460,6 @@ pub(super) async fn create_brief(
             );
             persist_assimilation_discoveries(
                 &state.workbench_root,
-                request.question_id.as_deref().unwrap_or(&request.run_id),
                 &brief_id,
                 &brief_path,
                 &unchanged.citations,
@@ -544,7 +480,6 @@ pub(super) async fn create_brief(
     write_json_atomic(&brief_path, &brief)?;
     persist_assimilation_discoveries(
         &state.workbench_root,
-        request.question_id.as_deref().unwrap_or(&request.run_id),
         &brief_id,
         &brief_path,
         &brief.citations,
@@ -577,10 +512,124 @@ fn validate_request(request: &ResearchBriefRequest) -> Result<(), ApiError> {
     Ok(())
 }
 
+struct EvaluatedSources {
+    warden: WardenSearchResponse,
+    citations: Vec<BriefCitation>,
+    source_failures: Vec<String>,
+}
+
+/// Evaluate bounded public-web sources without requiring or creating a run.
+/// Callers own subject authentication, effective policy, and durable publication.
+#[derive(Clone, Copy)]
+struct SourceQuery<'a> {
+    question: &'a str,
+    context: &'a str,
+    https_only: bool,
+}
+
+async fn evaluate_sources(
+    state: &HarnessState,
+    query: SourceQuery<'_>,
+    source_limit: usize,
+    expires_at: DateTime<Utc>,
+    policy: &ResearchBetaPolicy,
+) -> Result<EvaluatedSources, ApiError> {
+    let scout_url = state
+        .warden_scout_url
+        .as_deref()
+        .ok_or_else(|| ApiError::internal("Warden scout is not configured"))?;
+    let mut warden = None;
+    let mut last_search_error = None;
+    for attempt in 0..policy.max_attempts {
+        let response = state
+            .client
+            .post(format!("{}/discover", scout_url.trim_end_matches('/')))
+            .timeout(state.warden_scout_timeout)
+            .json(&serde_json::json!({
+                "query": query.question,
+                "limit": source_limit.min(MAX_SOURCES).min(policy.max_results),
+                "source_policy": "allowlisted_public_web",
+                "expires_at": expires_at.to_rfc3339(),
+            }))
+            .send()
+            .await;
+        match response {
+            Ok(response)
+                if response.status().is_server_error()
+                    || response.status() == reqwest::StatusCode::TOO_MANY_REQUESTS =>
+            {
+                last_search_error = Some(format!(
+                    "Warden search returned transient status {}",
+                    response.status()
+                ));
+            }
+            Ok(response) => {
+                warden = Some(
+                    response
+                        .error_for_status()
+                        .map_err(|error| {
+                            ApiError::internal(format!("Warden search returned failure: {error}"))
+                        })?
+                        .json::<WardenSearchResponse>()
+                        .await
+                        .map_err(|error| {
+                            ApiError::internal(format!("invalid Warden search response: {error}"))
+                        })?,
+                );
+                break;
+            }
+            Err(error) => {
+                last_search_error = Some(format!("Warden search failed: {error}"));
+            }
+        }
+        if attempt + 1 < policy.max_attempts {
+            tokio::time::sleep(std::time::Duration::from_millis(policy.cooldown_ms)).await;
+        }
+    }
+    let mut warden = warden.ok_or_else(|| {
+        ApiError::internal(
+            last_search_error.unwrap_or_else(|| "Warden search exhausted retry budget".to_string()),
+        )
+    })?;
+
+    let athena_root = state.workbench_root.join("data/athena");
+    let mut citations = Vec::new();
+    let mut source_failures = Vec::new();
+    let mut domain_counts = BTreeMap::<String, usize>::new();
+    for result in std::mem::take(&mut warden.report.results)
+        .into_iter()
+        .take(source_limit.min(MAX_SOURCES).min(policy.max_results))
+    {
+        if let Ok(url) = reqwest::Url::parse(&result.url) {
+            if let Some(domain) = url.host_str().map(str::to_ascii_lowercase) {
+                let count = domain_counts.entry(domain.clone()).or_default();
+                if *count >= policy.max_sources_per_domain {
+                    source_failures.push(format!(
+                        "{}: source-domain rate bound exceeded for `{domain}`",
+                        result.url
+                    ));
+                    continue;
+                }
+                *count += 1;
+            }
+        }
+        match fetch_and_evaluate(state, &athena_root, query, result, expires_at, policy).await {
+            Ok(citation) => citations.push(citation),
+            Err(error) => source_failures.push(error),
+        }
+    }
+
+    Ok(EvaluatedSources {
+        warden,
+        citations,
+        source_failures,
+    })
+}
+
 async fn fetch_and_evaluate(
     state: &HarnessState,
     athena_root: &Path,
-    request: &ResearchBriefRequest,
+    query: SourceQuery<'_>,
     result: WardenResult,
     expires_at: DateTime<Utc>,
     policy: &ResearchBetaPolicy,
@@ -588,19 +637,16 @@ async fn fetch_and_evaluate(
     let discovered = reqwest::Url::parse(&result.url)
         .map_err(|error| format!("{}: invalid URL: {error}", result.url))?;
     validate_public_url(&discovered)?;
-    let response = canonical_fetch(&discovered, state.warden_scout_timeout, policy).await?;
+    let response = canonical_fetch(
+        &discovered,
+        state.warden_scout_timeout,
+        policy,
+        query.https_only,
+    )
+    .await?;
     let canonical = response.url().clone();
     validate_public_url(&canonical)?;
-    let bytes = response
-        .bytes()
-        .await
-        .map_err(|error| format!("{}: canonical body failed: {error}", result.url))?;
-    if bytes.len() > policy.max_fetch_bytes {
-        return Err(format!(
-            "{}: source exceeds {} bytes",
-            result.url, policy.max_fetch_bytes
-        ));
-    }
+    let bytes = bounded_body(response, policy.max_fetch_bytes).await?;
     let text = String::from_utf8_lossy(&bytes).into_owned();
     let normalized = visible_text(&text);
     if normalized.trim().is_empty() {
@@ -629,11 +675,8 @@ async fn fetch_and_evaluate(
         "expired"
     }
     .to_string();
-    let question = request.question.clone();
-    let node_context = format!(
-        "Workbench run {} node {} explicit research question: {}",
-        request.run_id, request.node_id, request.question
-    );
+    let question = query.question.to_string();
+    let node_context = query.context.to_string();
     let title = result.title;
     let crawl = CrawlMarkdownResult {
         pipeline_id: String::new(),
@@ -647,25 +690,14 @@ async fn fetch_and_evaluate(
     let athena_root = athena_root.to_path_buf();
     let discovered_url = discovered.to_string();
     let normalized_source_id = format!("source-{:x}", Sha256::digest(canonical_url.as_bytes()));
+    let store_policy = state.research_store_policy;
     tokio::task::spawn_blocking(move || {
-        let store = AthenaStore::new(&athena_root).map_err(|error| error.to_string())?;
-        let record = store
-            .ingest(&canonical_url, "workbench_research", &node_context)
-            .map_err(|error| error.to_string())?;
-        let receipt = store
-            .record_crawl_capture(
-                &canonical_url,
-                "workbench_research",
-                &node_context,
-                "workbench://canonical-http-fetch",
-                &CrawlMarkdownResult {
-                    pipeline_id: record.pipeline_id.clone(),
-                    ..crawl
-                },
-            )
-            .map_err(|error| error.to_string())?;
-        let deep = store
-            .deep_analyze(&record.id)
+        let super::ResearchCapture {
+            record,
+            receipt,
+            deep,
+        } = store_policy
+            .ingest_capture(&athena_root, &node_context, crawl)
             .map_err(|error| error.to_string())?;
         let excerpt = citation_excerpt(&normalized, &question);
         let evaluation_digest = digest_value(&serde_json::json!({
@@ -678,7 +710,7 @@ async fn fetch_and_evaluate(
             "expires_at_utc": expires_at_utc,
             "freshness_status": freshness_status,
         }));
-        Ok(BriefCitation {
+        let mut citation = BriefCitation {
             citation_id: format!("cite-{}", &record.id[..record.id.len().min(12)]),
             title,
             discovered_url,
@@ -705,26 +737,64 @@ async fn fetch_and_evaluate(
             evidence_boundary,
             prompt_injection_detected,
             prompt_injection_signals,
-        })
+        };
+        let lineage = lineage::verify(&athena_root, &citation, &question, &node_context)?;
+        citation.varda_source_id = lineage.source_id;
+        citation.varda_pipeline_id = lineage.pipeline_id;
+        citation.evaluation_digest = lineage.evaluation_digest;
+        Ok(citation)
     })
     .await
     .map_err(|error| format!("{}: Varda worker failed: {error}", result.url))?
     .map_err(|error: String| format!("{}: Varda evaluation failed: {error}", result.url))
 }
 
+async fn bounded_body(mut response: reqwest::Response, limit: usize) -> Result<Vec<u8>, String> {
+    let url = response.url().clone();
+    let exceeded = || format!("{url}: source exceeds {limit} bytes");
+    if response
+        .content_length()
+        .is_some_and(|length| length > limit as u64)
+    {
+        return Err(exceeded());
+    }
+    let mut body = Vec::new();
+    while let Some(chunk) = response
+        .chunk()
+        .await
+        .map_err(|error| format!("{url}: canonical body failed: {error}"))?
+    {
+        if chunk.len() > limit.saturating_sub(body.len()) {
+            return Err(exceeded());
+        }
+        body.extend_from_slice(&chunk);
+    }
+    Ok(body)
+}
+
 async fn canonical_fetch(
     initial: &reqwest::Url,
     timeout: std::time::Duration,
     policy: &ResearchBetaPolicy,
+    https_only: bool,
 ) -> Result<reqwest::Response, String> {
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .map_err(|error| format!("failed to build canonical fetch client: {error}"))?;
     let mut url = initial.clone();
     for _ in 0..=5 {
         validate_public_url(&url)?;
-        validate_public_resolution(&url).await?;
+        if https_only && url.scheme() != "https" {
+            return Err(format!("{url}: question source policy requires HTTPS"));
+        }
+        let addresses = tokio::time::timeout(timeout, validate_public_resolution(&url))
+            .await
+            .map_err(|_| format!("{url}: DNS resolution timed out"))??;
+        // Pin every redirect hop to the addresses just checked; never let a
+        // second DNS lookup or an environment proxy select a different target.
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .redirect(reqwest::redirect::Policy::none())
+            .resolve_to_addrs(url.host_str().ok_or("missing canonical host")?, &addresses)
+            .build()
+            .map_err(|error| format!("failed to build canonical fetch client: {error}"))?;
         let mut response = None;
         let mut last_error = None;
         for attempt in 0..policy.max_attempts {
@@ -782,7 +852,9 @@ async fn canonical_fetch(
     Err(format!("{initial}: canonical fetch exceeded 5 redirects"))
 }
 
-async fn validate_public_resolution(url: &reqwest::Url) -> Result<(), String> {
+async fn validate_public_resolution(
+    url: &reqwest::Url,
+) -> Result<Vec<std::net::SocketAddr>, String> {
     let host = url
         .host_str()
         .ok_or_else(|| format!("{url}: URL has no host"))?;
@@ -802,7 +874,7 @@ async fn validate_public_resolution(url: &reqwest::Url) -> Result<(), String> {
     }) {
         return Err(format!("{url}: DNS resolved to a private/local address"));
     }
-    Ok(())
+    Ok(addresses)
 }
 
 fn validate_public_url(url: &reqwest::Url) -> Result<(), String> {
@@ -826,8 +898,28 @@ fn validate_public_url(url: &reqwest::Url) -> Result<(), String> {
 
 fn is_private_ip(ip: std::net::IpAddr) -> bool {
     match ip {
-        std::net::IpAddr::V4(ip) => ip.is_private() || ip.is_link_local(),
-        std::net::IpAddr::V6(ip) => ip.is_unique_local() || ip.is_unicast_link_local(),
+        std::net::IpAddr::V4(ip) => {
+            let [a, b, c, _] = ip.octets();
+            ip.is_private()
+                || ip.is_link_local()
+                || ip.is_loopback()
+                || ip.is_documentation()
+                || ip.is_broadcast()
+                || ip.is_multicast()
+                || a == 0
+                || a >= 240
+                || (a == 100 && (64..=127).contains(&b))
+                || (a == 198 && (b == 18 || b == 19))
+                || (a == 192 && b == 0 && c == 0)
+        }
+        std::net::IpAddr::V6(ip) => {
+            if let Some(mapped) = ip.to_ipv4_mapped() {
+                return is_private_ip(std::net::IpAddr::V4(mapped));
+            }
+            let segments = ip.segments();
+            // Fail closed outside global unicast, including translation/local ranges.
+            (segments[0] & 0xe000) != 0x2000 || (segments[0] == 0x2001 && segments[1] == 0x0db8)
+        }
     }
 }
 
@@ -1237,7 +1329,6 @@ fn append_evidence_event(
 
 fn persist_assimilation_discoveries(
     root: &Path,
-    objective_id: &str,
     brief_id: &str,
     brief_path: &Path,
     citations: &[BriefCitation],
@@ -1256,7 +1347,8 @@ fn persist_assimilation_discoveries(
                 AssimilationEvidence {
                     canonical_source: Some(citation.canonical_url.clone()),
                     source_digest: Some(citation.content_sha256.clone()),
-                    objective_id: Some(objective_id.to_string()),
+                    // Run/question provenance is retained by usage_receipt, not objective authority.
+                    objective_id: None,
                     usage_receipt: Some(format!("{receipt_path}#{brief_id}")),
                     security_classification: Some(
                         "untrusted_external_evidence_read_only".to_string(),
@@ -1321,6 +1413,69 @@ mod tests {
     use super::*;
     use crate::adapters::{AssimilationState, AssimilationStore};
     use tempfile::TempDir;
+
+    #[tokio::test]
+    async fn source_evaluation_needs_no_run_and_keeps_private_fetch_guard() {
+        let root = TempDir::new().unwrap();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let app = axum::Router::new().route(
+            "/discover",
+            axum::routing::post(|Json(request): Json<serde_json::Value>| async move {
+                assert_eq!(request["query"], "advisory question");
+                assert_eq!(request["limit"], 1);
+                Json(serde_json::json!({
+                    "report": { "provider": "fixture", "results": [
+                        {"title": "private target", "url": "http://127.0.0.1/private"}
+                    ]}, "memory": {"memory_id": null}
+                }))
+            }),
+        );
+        let server = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+        let state = HarnessState {
+            research_store_policy: super::super::ResearchStorePolicy::Isolated,
+            harness_addr: "127.0.0.1:7878".into(),
+            child_pids: std::sync::Arc::new(tokio::sync::RwLock::new(Vec::new())),
+            service_names: std::sync::Arc::new(Vec::new()),
+            service_statuses: std::sync::Arc::new(tokio::sync::RwLock::new(Vec::new())),
+            manwe_url: "http://127.0.0.1:1".into(),
+            client: reqwest::Client::new(),
+            manwe_proxy_timeout: std::time::Duration::from_secs(1),
+            manwe_proxy_bearer: None,
+            warden_scout_url: Some(format!("http://{address}")),
+            warden_scout_timeout: std::time::Duration::from_secs(1),
+            presence_inputs: super::super::presence::HarnessPresenceState::default(),
+            workbench_root: root.path().to_path_buf(),
+            operator_id: "operator-0".into(),
+        };
+        let result = evaluate_sources(
+            &state,
+            SourceQuery {
+                question: "advisory question",
+                context: "question context",
+                https_only: false,
+            },
+            1,
+            Utc::now() + ChronoDuration::minutes(15),
+            &ResearchBetaPolicy::default(),
+        )
+        .await;
+        server.abort();
+        let _ = server.await;
+        let result = result.unwrap();
+        assert!(result.citations.is_empty());
+        assert_eq!(result.source_failures.len(), 1);
+        assert!(
+            result.source_failures[0].contains("private/local canonical target rejected"),
+            "{}",
+            result.source_failures[0]
+        );
+        assert_eq!(
+            std::fs::read_dir(root.path()).unwrap().count(),
+            0,
+            "failed source evaluation must not invent run or objective state"
+        );
+    }
 
     #[test]
     fn excerpts_are_bounded_and_contradiction_status_is_explicit() {
@@ -1440,9 +1595,15 @@ mod tests {
             .unwrap()
             .with_timezone(&Utc);
 
+        let mut brief = fixture_brief();
+        brief.brief_id = "research-rust-standards".to_string();
+        brief.run_id = "rust-standards".to_string();
+        brief.question_id = Some("rust-engineering-standards".to_string());
+        brief.citations = vec![source.clone()];
+        write_json_atomic(&brief_path, &brief).unwrap();
+
         persist_assimilation_discoveries(
             root.path(),
-            "rust-engineering-standards",
             "research-rust-standards",
             &brief_path,
             std::slice::from_ref(&source),
@@ -1451,7 +1612,6 @@ mod tests {
         .unwrap();
         persist_assimilation_discoveries(
             root.path(),
-            "rust-engineering-standards",
             "research-rust-standards",
             &brief_path,
             &[source],
@@ -1462,10 +1622,8 @@ mod tests {
         let candidates = AssimilationStore::new(root.path()).load_all().unwrap();
         let candidate = candidates.get("source-rust-clippy").unwrap();
         assert_eq!(candidate.state, AssimilationState::Discovered);
-        assert_eq!(
-            candidate.evidence.objective_id.as_deref(),
-            Some("rust-engineering-standards")
-        );
+        // A question/run label is not a validated ObjectiveStore relationship.
+        assert_eq!(candidate.evidence.objective_id, None);
         assert_eq!(
             candidate.evidence.canonical_source.as_deref(),
             Some("https://example.com/rust-clippy")
@@ -1474,6 +1632,24 @@ mod tests {
             candidate.evidence.usage_receipt.as_deref(),
             Some("data/runs/rust-standards/evidence/research.json#research-rust-standards")
         );
+        let (relative_path, fragment) = candidate
+            .evidence
+            .usage_receipt
+            .as_deref()
+            .unwrap()
+            .split_once('#')
+            .unwrap();
+        let persisted: ResearchBrief =
+            serde_json::from_slice(&std::fs::read(root.path().join(relative_path)).unwrap())
+                .unwrap();
+        assert_eq!(persisted.brief_id, fragment);
+        assert_eq!(persisted.run_id, "rust-standards");
+        assert_eq!(
+            persisted.question_id.as_deref(),
+            Some("rust-engineering-standards")
+        );
+        assert_eq!(persisted.authority, "advisory_research_evidence");
+        assert!(!persisted.execution_authorized);
         assert_eq!(candidate.evidence.license, None);
         assert_eq!(candidate.evidence.sbom_digest, None);
         assert_eq!(
@@ -1483,6 +1659,43 @@ mod tests {
                 .count(),
             1
         );
+    }
+
+    #[test]
+    fn research_rediscovery_does_not_silently_rewrite_historical_objective_links() {
+        let root = TempDir::new().unwrap();
+        let source = citation("legacy", "supporting_or_contextual", "2099-01-01T00:00:00Z");
+        let observed_at = Utc::now();
+        let store = AssimilationStore::new(root.path());
+        store
+            .discover_with_evidence(
+                &source.normalized_source_id,
+                "warden-varda-research",
+                AssimilationEvidence {
+                    objective_id: Some("historical-question-not-an-objective".to_string()),
+                    ..AssimilationEvidence::default()
+                },
+                observed_at,
+            )
+            .unwrap();
+        let before = std::fs::read(store.ledger_path()).unwrap();
+        persist_assimilation_discoveries(
+            root.path(),
+            "new-brief",
+            &root
+                .path()
+                .join("data/runs/fixture/evidence/new-brief.json"),
+            &[source],
+            observed_at,
+        )
+        .unwrap();
+        assert_eq!(std::fs::read(store.ledger_path()).unwrap(), before);
+        let candidates = store.load_all().unwrap();
+        assert_eq!(
+            candidates["source-legacy"].evidence.objective_id.as_deref(),
+            Some("historical-question-not-an-objective")
+        );
+        // A separate auditable correction must distinguish legacy mistakes from valid links.
     }
 
     fn citation(id: &str, stance: &str, expires_at_utc: &str) -> BriefCitation {
@@ -1541,15 +1754,8 @@ mod tests {
         assert!(!missing_evidence_items(&[], &["source failed".to_string()]).is_empty());
     }
 
-    #[test]
-    fn material_fingerprint_is_order_independent_but_expiry_is_material() {
-        let first = citation("a", "supporting_or_contextual", "2099-01-01T00:00:00Z");
-        let second = citation("b", "opposing_or_cautionary", "2099-01-01T00:00:00Z");
-        assert_eq!(
-            material_fingerprint(&[first.clone(), second.clone()], &[], "mixed", None),
-            material_fingerprint(&[second, first], &[], "mixed", None)
-        );
-        let old = ResearchBrief {
+    fn fixture_brief() -> ResearchBrief {
+        ResearchBrief {
             schema_version: BRIEF_SCHEMA.to_string(),
             brief_id: "brief".to_string(),
             run_id: "run".to_string(),
@@ -1586,7 +1792,18 @@ mod tests {
             no_change_receipt_path: None,
             evidence_boundaries: Vec::new(),
             prompt_injection_detected: false,
-        };
+        }
+    }
+
+    #[test]
+    fn material_fingerprint_is_order_independent_but_expiry_is_material() {
+        let first = citation("a", "supporting_or_contextual", "2099-01-01T00:00:00Z");
+        let second = citation("b", "opposing_or_cautionary", "2099-01-01T00:00:00Z");
+        assert_eq!(
+            material_fingerprint(&[first.clone(), second.clone()], &[], "mixed", None),
+            material_fingerprint(&[second, first], &[], "mixed", None)
+        );
+        let old = fixture_brief();
         assert!(previous_brief_expired(&old, Utc::now()));
 
         let mut legacy = serde_json::to_value(&old).expect("serialize fixture brief");

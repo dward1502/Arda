@@ -13,7 +13,7 @@ from email.message import Message
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 from urllib.error import HTTPError, URLError
 
 _PLUGIN_PATH = Path(__file__).with_name("__init__.py")
@@ -40,6 +40,16 @@ class _Response:
 class _Gateway:
     def __init__(self):
         self.notices: list[str] = []
+
+    def _adapter_for_source(self, _source):
+        return self
+
+    def _thread_metadata_for_source(self, _source):
+        return {}
+
+    async def send(self, _chat_id, text, metadata=None):
+        self.notices.append(text)
+        return SimpleNamespace(success=True, message_id="receipt-1")
 
     async def _deliver_platform_notice(self, _source, text: str):
         self.notices.append(text)
@@ -69,10 +79,63 @@ class _ReminderGateway(_Gateway):
         return {}
 
 
-_SOURCE = SimpleNamespace(platform="discord", chat_id="private-chat", thread_id=None)
+_SOURCE = SimpleNamespace(platform="discord", chat_id="private-chat", thread_id=None, chat_type="private")
 
 
 class CapabilityAuthenticationTests(unittest.TestCase):
+    def test_research_result_survives_a_real_three_second_http_delay(self):
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+        import threading
+        import time
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                time.sleep(3.2)
+                body = b'{"summary":"Delayed advisory.","evidence_refs":["arda://research/briefs/delayed"]}'
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *_args):
+                pass
+
+        server = HTTPServer(("127.0.0.1", 0), Handler)
+        worker = threading.Thread(target=server.serve_forever)
+        worker.start()
+        try:
+            payload = _payload()
+            payload["event"]["text"] = "arda research bounded public question"
+            with (
+                patch.object(plugin, "_ENDPOINT", f"http://127.0.0.1:{server.server_port}/v1/operator/messages"),
+                patch.object(plugin, "_gateway_capability", return_value="fixture-only"),
+            ):
+                accepted, summary = plugin._post(payload)
+            self.assertTrue(accepted)
+            self.assertIn("Delayed advisory.", summary)
+            self.assertIn("arda://research/briefs/delayed", summary)
+        finally:
+            server.shutdown()
+            worker.join(timeout=5)
+            server.server_close()
+            self.assertFalse(worker.is_alive())
+
+    def test_research_waits_for_bounded_result_and_delivers_evidence(self):
+        payload = _payload()
+        payload["event"]["text"] = "arda research public reference question"
+        with (
+            patch.dict(os.environ, {"ARDA_HERMES_GATEWAY_CAPABILITY": "test-only"}),
+            patch.object(plugin, "urlopen", return_value=_Response(
+                '{"summary":"Advisory only.","evidence_refs":["arda://research/briefs/test-brief"]}'
+            )) as mocked,
+        ):
+            accepted, summary = plugin._post(payload)
+        self.assertTrue(accepted)
+        self.assertGreater(mocked.call_args.kwargs["timeout"], 60)
+        self.assertIn("Advisory only.", summary)
+        self.assertIn("arda://research/briefs/test-brief", summary)
+
     def test_operator_post_sends_gateway_capability_header(self):
         with (
             patch.dict(
@@ -199,6 +262,78 @@ def _payload(message_id: str = "message-1") -> dict:
 
 
 class DurableRetryTests(unittest.IsolatedAsyncioTestCase):
+    async def test_completed_callback_cannot_remove_replacement(self):
+        class Task:
+            completed = False
+            def __init__(self):
+                self.callbacks = []
+            def done(self):
+                return self.completed
+            def add_done_callback(self, callback):
+                self.callbacks.append(callback)
+        def create_task(coroutine, **_kwargs):
+            coroutine.close()
+            return Task()
+        path = plugin._pending_path(_payload("race"))
+        gateway = _Gateway()
+        cases = [
+            (plugin._RETRY_TASKS, lambda: plugin._submit(_payload("race"), gateway, _SOURCE)),
+            (plugin._RETRY_TASKS, lambda: plugin._schedule_retry(path, gateway, _SOURCE)),
+            (plugin._CONTINUITY_RETRY_TASKS, lambda: plugin._submit_continuity({}, gateway, _SOURCE)),
+            (plugin._CONTINUITY_RETRY_TASKS, lambda: plugin._schedule_continuity_retry(path)),
+        ]
+        with patch.object(plugin.asyncio, "get_running_loop", return_value=SimpleNamespace(create_task=create_task)), \
+             patch.object(plugin, "_persist_continuity", return_value=path):
+            for tasks, submit in cases:
+                with self.subTest(submit=submit):
+                    tasks.clear()
+                    try:
+                        submit()
+                        previous = tasks[str(path)]
+                        previous.completed = True
+                        submit()
+                        replacement = tasks[str(path)]
+                        self.assertIsNot(previous, replacement)
+                        for callback in previous.callbacks:
+                            callback(previous)
+                        self.assertIs(tasks.get(str(path)), replacement)
+                        for callback in replacement.callbacks:
+                            callback(replacement)
+                        self.assertNotIn(str(path), tasks)
+                    finally:
+                        tasks.clear()
+
+    async def test_initial_research_hook_keeps_gateway_loop_responsive(self):
+        import threading
+        release = threading.Event()
+        finished = threading.Event()
+        gateway = _Gateway()
+        source = SimpleNamespace(platform="discord", chat_id="private-chat", thread_id=None,
+                                 chat_type="dm", user_id="operator", message_id="hook-research")
+        event = SimpleNamespace(source=source, text="arda research Example Domain",
+                                user_id="operator", message_id="hook-research", media_urls=[], media_types=[])
+        def delayed_post(_payload):
+            release.wait(1)
+            finished.set()
+            return True, "Research delivered with evidence."
+        with patch.object(plugin, "_post", side_effect=delayed_post), \
+             patch.object(plugin, "_payload", return_value=_payload("hook-research")), \
+             patch.object(plugin, "_continuity_payload", return_value={}), \
+             patch.object(plugin, "_submit_continuity"), \
+             patch.object(plugin, "_schedule_continuity_backlog"), \
+             patch.object(plugin, "_ensure_reminder_loop"):
+            try:
+                self.assertEqual(plugin._pre_gateway_dispatch(event, gateway), {"action":"skip"})
+                self.assertFalse(finished.is_set(), "hook waited for blocking HTTP submission")
+                await asyncio.sleep(0.01)
+                self.assertFalse(finished.is_set())
+                self.assertEqual(len(plugin._RETRY_TASKS), 1)
+                self.assertTrue(plugin._pending_path(_payload("hook-research")).exists())
+            finally:
+                release.set()
+                await asyncio.gather(*list(plugin._RETRY_TASKS.values()))
+        self.assertIn("Research delivered with evidence.", gateway.notices)
+
     async def asyncSetUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.env = patch.dict(
@@ -206,11 +341,13 @@ class DurableRetryTests(unittest.IsolatedAsyncioTestCase):
             {
                 "HERMES_HOME": self.temp.name,
                 "ARDA_HERMES_GATEWAY_CAPABILITY": "test-gateway-capability",
+                "ARDA_OPERATOR_ID": "operator-1",
             },
         )
         self.env.start()
         plugin._RETRY_DELAYS = (0.0,)
         plugin._RETRY_TASKS.clear()
+        plugin._COMMAND_LOCK = None
 
     async def asyncTearDown(self):
         if plugin._RETRY_TASKS:
@@ -218,7 +355,161 @@ class DurableRetryTests(unittest.IsolatedAsyncioTestCase):
         self.env.stop()
         self.temp.cleanup()
 
+
+    async def test_outbox_identity_includes_every_delivery_scope_component(self):
+        import copy
+        original = _payload("same-id")
+        paths = [plugin._pending_path(original)]
+        for keys, value in [
+            (("operator", "operator_id"), "other-operator"),
+            (("adapter_id",), "other-adapter"),
+            (("event", "source", "platform"), "telegram"),
+            (("event", "source", "chat_id"), "other-room"),
+            (("event", "source", "thread_id"), "other-thread"),
+            (("event", "source", "chat_type"), "group"),
+            (("event", "message_id"), "other-message"),
+        ]:
+            payload = copy.deepcopy(original)
+            target = payload
+            for key in keys[:-1]:
+                target = target[key]
+            target[keys[-1]] = value
+            paths.append(plugin._pending_path(payload))
+        self.assertEqual(len(set(paths)), len(paths))
+
+    async def test_retained_private_response_cannot_follow_colliding_shared_message(self):
+        import copy
+        import hashlib
+        private = _payload("same-id")
+        private["_bridge_result"] = "SYNTHETIC PRIVATE CONTEXT"
+        legacy = plugin._pending_root() / (hashlib.sha256(b"same-id").hexdigest() + ".json")
+        plugin._write_pending(legacy, private)
+        shared = copy.deepcopy(private)
+        shared.pop("_bridge_result")
+        shared["event"]["source"].update(chat_id="shared-chat", chat_type="group")
+        source = SimpleNamespace(platform="discord", chat_id="shared-chat", thread_id=None, chat_type="group")
+        gateway = _Gateway()
+        with patch.object(plugin, "_post", return_value=(True, "Shared status")) as post:
+            # The destination check also protects entries written before scoped keys.
+            self.assertFalse(await plugin._attempt_pending(legacy, private, gateway, source))
+            post.assert_not_called()
+            self.assertEqual(gateway.notices, [])
+            self.assertTrue(legacy.exists())
+            plugin._submit(shared, gateway, source)
+            await asyncio.gather(*list(plugin._RETRY_TASKS.values()))
+        self.assertEqual(gateway.notices, ["Shared status"])
+        self.assertTrue(legacy.exists())
+        self.assertEqual(plugin._persist_pending(_payload("same-id")), legacy)
+        with patch.object(plugin, "_post") as post:
+            self.assertTrue(await plugin._attempt_pending(legacy, private, gateway, _SOURCE))
+            post.assert_not_called()
+        self.assertEqual(gateway.notices[-1], "SYNTHETIC PRIVATE CONTEXT")
+
+    async def test_pending_destination_is_rechecked_after_backend_await(self):
+        source = SimpleNamespace(**vars(_SOURCE))
+        gateway = _Gateway()
+        payload = _payload("source-changed")
+        path = plugin._persist_pending(payload)
+        def post(_payload):
+            source.chat_id = "shared-chat"
+            source.chat_type = "group"
+            return True, "SYNTHETIC PRIVATE CONTEXT"
+        with patch.object(plugin, "_post", side_effect=post):
+            self.assertFalse(await plugin._attempt_pending(path, payload, gateway, source))
+        self.assertEqual(gateway.notices, [])
+        self.assertTrue(path.exists())
+        with patch.object(plugin, "_post") as repost:
+            self.assertTrue(await plugin._attempt_pending(path, payload, gateway, _SOURCE))
+            repost.assert_not_called()
+        self.assertEqual(gateway.notices, ["SYNTHETIC PRIVATE CONTEXT"])
+
+    async def test_response_survives_delivery_failure_and_restart_without_repost(self):
+        for failure in (None, SimpleNamespace(success=False, message_id=None), RuntimeError("offline")):
+            with self.subTest(failure=failure):
+                gateway = _Gateway()
+                gateway.send = AsyncMock(side_effect=failure) if isinstance(failure, Exception) else AsyncMock(return_value=failure)
+                payload = _payload("failed-delivery")
+                summary = "Audit result\nEvidence:\narda://evidence/original"
+                with patch.object(plugin, "_post", return_value=(True, summary)) as post:
+                    plugin._submit(payload, gateway, _SOURCE)
+                    await asyncio.gather(*list(plugin._RETRY_TASKS.values()))
+                    await asyncio.sleep(0)
+                    path = plugin._pending_path(payload)
+                    self.assertEqual(plugin._load_pending(path)["_bridge_result"], summary)
+                    # Duplicate dispatch must not clobber the result on disk.
+                    plugin._persist_pending(payload)
+                    self.assertEqual(plugin._load_pending(path)["_bridge_result"], summary)
+                    plugin._RETRY_TASKS.clear()
+                    recovered = _Gateway()
+                    plugin._schedule_backlog(recovered, _SOURCE)
+                    await asyncio.gather(*list(plugin._RETRY_TASKS.values()))
+                    await asyncio.sleep(0)
+                    post.assert_called_once()
+                    self.assertEqual(recovered.notices, [summary])
+                    self.assertFalse(path.exists())
+
+    async def test_missing_adapter_retains_response(self):
+        gateway = _Gateway()
+        gateway._adapter_for_source = lambda _source: None
+        with patch.object(plugin, "_post", return_value=(True, "saved")) as post:
+            plugin._submit(_payload(), gateway, _SOURCE)
+            await asyncio.gather(*list(plugin._RETRY_TASKS.values()))
+        post.assert_called_once()
+        self.assertEqual(plugin._load_pending(plugin._pending_path(_payload()))["_bridge_result"], "saved")
+
+    async def test_private_delivery_never_falls_back_to_public(self):
+        gateway = _Gateway()
+        gateway.config = SimpleNamespace(get_notice_delivery=lambda _: "private")
+        gateway.send_private_notice = AsyncMock(return_value=SimpleNamespace(success=False))
+        source = SimpleNamespace(platform="discord", chat_id="channel", thread_id=None, user_id="operator")
+        self.assertFalse(await plugin._deliver_result(gateway, source, "private result"))
+        self.assertEqual(gateway.notices, [])
+
+    async def test_private_policy_with_public_fallback_adapter_fails_closed(self):
+        gateway = _Gateway()
+        gateway.config = SimpleNamespace(get_notice_delivery=lambda _: "public")
+        # The adapter-level setting takes precedence, including normalization.
+        adapter = SimpleNamespace(config=SimpleNamespace(extra={"notice_delivery": " private "}))
+        adapter.send = AsyncMock(return_value=SimpleNamespace(success=True, message_id="receipt"))
+        async def inherited_private_notice(chat_id, user_id, text, metadata=None):
+            return await adapter.send(chat_id, text, metadata=metadata)
+        adapter.send_private_notice = inherited_private_notice
+        gateway._adapter_for_source = lambda _: adapter
+        gateway._thread_metadata_for_source = lambda _: {"thread_id": "public-thread"}
+        source = SimpleNamespace(platform="discord", chat_id="public-channel", chat_type="group", user_id="operator")
+        self.assertFalse(await plugin._deliver_result(gateway, source, "sensitive result"))
+        adapter.send.assert_not_called()
+        source.chat_type = "dm"
+        source.chat_id = "private-chat"
+        self.assertTrue(await plugin._deliver_result(gateway, source, "sensitive result"))
+        adapter.send.assert_awaited_once_with("private-chat", "sensitive result", metadata={})
+
+    async def test_distinct_initial_requests_are_serialized_without_blocking_hook(self):
+        import threading
+        release = threading.Event()
+        entered = threading.Event()
+        order = []
+        def post(payload):
+            identity = payload["event"]["message_id"]
+            order.append(identity)
+            if identity == "first":
+                entered.set()
+                release.wait(2)
+            return True, identity
+        with patch.object(plugin, "_post", side_effect=post):
+            plugin._submit(_payload("first"), _Gateway(), _SOURCE)
+            self.assertTrue(await asyncio.to_thread(entered.wait, 1))
+            plugin._submit(_payload("second"), _Gateway(), _SOURCE)
+            await asyncio.sleep(0.02)
+            try:
+                self.assertEqual(order, ["first"])
+            finally:
+                release.set()
+                await asyncio.gather(*list(plugin._RETRY_TASKS.values()))
+        self.assertEqual(order, ["first", "second"])
+
     async def test_gateway_unavailable_is_persisted_then_retried(self):
+        # Initial submission is owned by the same task table as retries.
         gateway = _Gateway()
         with patch.object(
             plugin,
@@ -226,7 +517,8 @@ class DurableRetryTests(unittest.IsolatedAsyncioTestCase):
             side_effect=[URLError("offline"), _Response('{"summary":"Run status recovered."}')],
         ) as mocked:
             summary = plugin._submit(_payload(), gateway, _SOURCE)
-            self.assertEqual(summary, "Arda is unavailable; command queued for retry.")
+            self.assertIn("Hermes queued this request locally", summary)
+            self.assertIn("Arda admission and response delivery are not yet confirmed", summary)
             pending = list(plugin._pending_root().glob("*.json"))
             self.assertEqual(len(pending), 1)
             self.assertEqual(pending[0].stat().st_mode & 0o777, 0o600)
@@ -248,8 +540,11 @@ class DurableRetryTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.object(plugin, "urlopen", side_effect=error):
             summary = plugin._submit(_payload("replayed-message"), gateway, _SOURCE)
+            await asyncio.gather(*list(plugin._RETRY_TASKS.values()))
+            await asyncio.sleep(0)
 
-        self.assertEqual(summary, "Arda already accepted this command.")
+        self.assertIn("Arda admission and response delivery are not yet confirmed", summary)
+        self.assertEqual(gateway.notices, ["Arda already accepted this command."])
         self.assertFalse(list(plugin._pending_root().glob("*.json")))
         self.assertFalse(plugin._RETRY_TASKS)
 
@@ -410,6 +705,53 @@ class ContinuityEventTests(unittest.IsolatedAsyncioTestCase):
             submit.call_args.args[0]["event"]["text"],
             f"arda objective {project_id} finish the release checklist",
         )
+
+    async def test_project_intake_crosses_authenticated_gateway_surfaces(self):
+        project_id = "550e8400-e29b-41d4-a716-446655440000"
+        for platform in ("discord", "telegram"):
+            for chat_type in ("dm", "group", "thread"):
+                with self.subTest(platform=platform, chat_type=chat_type):
+                    event = self.event(chat_type=chat_type,
+                        text=f"For project {project_id}, objective inspect routing")
+                    event.source.platform = platform
+                    with (
+                        patch.object(plugin, "_submit", return_value="Recorded.") as submit,
+                        patch.object(plugin, "_submit_continuity"),
+                    ):
+                        result = plugin._pre_gateway_dispatch(event, _Gateway(), session_store=self.session_store())
+                    self.assertEqual(result, {"action": "skip"})
+                    payload = submit.call_args.args[0]
+                    self.assertEqual(payload["event"]["source"]["chat_type"], chat_type)
+                    self.assertEqual(payload["adapter_id"], f"hermes-{platform}-default")
+
+    async def test_shared_project_intake_requires_authentication_and_known_audience(self):
+        for chat_type in ("group", "guild", "channel", "thread"):
+            event = self.event(chat_type=chat_type, text="Show work in this conversation")
+            with patch.object(plugin, "_submit", return_value="Conversation status") as submit, patch.object(plugin, "_submit_continuity"):
+                result = plugin._pre_gateway_dispatch(event, _Gateway(), session_store=self.session_store())
+            self.assertEqual(result, {"action": "skip"})
+            self.assertEqual(submit.call_args.args[0]["event"]["text"], "arda objectives")
+        text = "For project 550e8400-e29b-41d4-a716-446655440000, objective inspect routing"
+        for chat_type, authorized in (("group", False), ("unknown", True)):
+            gateway = _Gateway()
+            with (
+                patch.object(gateway, "_is_user_authorized", return_value=authorized),
+                patch.object(plugin, "_submit") as submit,
+                patch.object(plugin, "_submit_continuity"),
+            ):
+                result = plugin._pre_gateway_dispatch(self.event(chat_type=chat_type, text=text), gateway, session_store=self.session_store())
+            self.assertIsNone(result)
+            submit.assert_not_called()
+
+    async def test_named_project_intake_does_not_require_a_uuid(self):
+        event = self.event(chat_type="group", text="For project Routing review, objective inspect routing")
+        with (
+            patch.object(plugin, "_submit", return_value="Recorded.") as submit,
+            patch.object(plugin, "_submit_continuity"),
+        ):
+            result = plugin._pre_gateway_dispatch(event, _Gateway(), session_store=self.session_store())
+        self.assertEqual(result, {"action": "skip"})
+        self.assertEqual(submit.call_args.args[0]["event"]["text"], 'arda objective "Routing review" inspect routing')
 
     async def test_consequential_or_ambiguous_intent_requests_clarification_without_mutation(self):
         gateway = _Gateway()

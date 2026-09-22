@@ -3,6 +3,74 @@
 mod resident_installed_policy;
 
 struct ResidentTestKeeper(std::process::Child);
+// Fixture-only: the real keeper intentionally survives daemon restarts, but it
+// must not survive forced termination of the test process that owns it.
+fn fixture_parent_death(command: &mut std::process::Command) {
+    use std::os::unix::process::CommandExt;
+    let parent = unsafe { libc::getpid() };
+    unsafe {
+        command.pre_exec(move || {
+            if libc::prctl(libc::PR_SET_PDEATHSIG, libc::SIGKILL) != 0 {
+                return Err(std::io::Error::last_os_error());
+            }
+            if libc::getppid() != parent {
+                return Err(std::io::Error::from_raw_os_error(libc::ECHILD));
+            }
+            Ok(())
+        });
+    }
+}
+
+#[test]
+fn fixture_keeper_owner_child() {
+    let Some(path) = std::env::var_os("ARDA_FIXTURE_KEEPER_PID") else {
+        return;
+    };
+    let mut command = std::process::Command::new("/usr/bin/sleep");
+    command.arg("60");
+    fixture_parent_death(&mut command);
+    let mut child = command.spawn().unwrap();
+    let path = std::path::PathBuf::from(path);
+    let pending = path.with_extension("pending");
+    fs::write(&pending, child.id().to_string()).unwrap();
+    fs::rename(pending, path).unwrap();
+    child.wait().unwrap();
+}
+
+#[tokio::test]
+async fn fixture_keeper_dies_when_owner_is_killed() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("keeper.pid");
+    let mut owner = tokio::process::Command::new(std::env::current_exe().unwrap())
+        .args(["--exact", "fixture_keeper_owner_child", "--nocapture"])
+        .env("ARDA_FIXTURE_KEEPER_PID", &path)
+        .kill_on_drop(true)
+        .spawn()
+        .unwrap();
+    tokio::time::timeout(std::time::Duration::from_secs(5), async {
+        while !path.exists() {
+            assert!(owner.try_wait().unwrap().is_none());
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .unwrap();
+    let pid = fs::read_to_string(path).unwrap();
+    owner.kill().await.unwrap();
+    owner.wait().await.unwrap();
+    tokio::time::timeout(std::time::Duration::from_secs(5), async {
+        loop {
+            match fs::read_to_string(format!("/proc/{pid}/stat")) {
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => break,
+                Ok(stat) if stat.split_once(") ").unwrap().1.starts_with('Z') => break,
+                Ok(_) => tokio::time::sleep(std::time::Duration::from_millis(10)).await,
+                Err(error) => panic!("{error}"),
+            }
+        }
+    })
+    .await
+    .unwrap();
+}
 impl Drop for ResidentTestKeeper {
     fn drop(&mut self) {
         let _ = self.0.kill();
@@ -20,6 +88,61 @@ async fn resident_recovers_retained_installed_execution_after_process_exit() {
 #[ignore = "requires installed Hermes, local Manwe, user/mount namespaces"]
 async fn resident_recovers_retained_installed_execution_without_live_path() {
     retained_installed_restart_case(false, false).await;
+    println!("installed-retained-without-live-path-completed");
+}
+
+#[tokio::test]
+#[ignore = "requires installed Hermes, local Manwe, user/mount namespaces"]
+async fn resident_retained_installed_recovery_uses_distinct_config() {
+    retained_installed_config_process(false).await;
+}
+
+#[tokio::test]
+#[ignore = "gateway synthetic evidence through installed Hermes retained recovery"]
+async fn gateway_admitted_evidence_survives_installed_retained_recovery() {
+    retained_installed_config_process(true).await;
+}
+
+async fn retained_installed_config_process(admitted: bool) {
+    let config_root = tempfile::tempdir_in("/var/tmp").unwrap();
+    let output = tokio::time::timeout(
+        std::time::Duration::from_secs(300),
+        tokio::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "resident_recovers_retained_installed_execution_without_live_path",
+                "--ignored",
+                "--nocapture",
+                "--test-threads=1",
+            ])
+            .env_remove("ARDA_HERMES_ADAPTER_CONFIG")
+            .env("ARDA_TEST_INSTALLED_DISTINCT_CONFIG", "1")
+            .env(
+                "ARDA_TEST_INSTALLED_ADMITTED",
+                if admitted { "1" } else { "0" },
+            )
+            .env(
+                "ARDA_HERMES_RETAINED_ADAPTER_CONFIG",
+                config_root.path().join("retained.toml"),
+            )
+            .kill_on_drop(true)
+            .output(),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert!(
+        output.status.success(),
+        "{}\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(String::from_utf8_lossy(&output.stdout)
+        .contains("installed-retained-without-live-path-completed"));
+    if admitted {
+        assert!(String::from_utf8_lossy(&output.stdout)
+            .contains("installed-gateway-admission-completed"));
+    }
 }
 
 #[tokio::test]
@@ -51,7 +174,25 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
     let policy = resident_installed_policy::write(&policy_root);
     let adapter = resident_installed_policy::adapter_config(&policy_root);
     fs::create_dir_all(root.join("config/adapters")).unwrap();
-    fs::copy(adapter, root.join("config/adapters/hermes-workbench.toml")).unwrap();
+    if std::env::var_os("ARDA_TEST_INSTALLED_DISTINCT_CONFIG").is_some() {
+        let retained = std::env::var_os("ARDA_HERMES_RETAINED_ADAPTER_CONFIG").unwrap();
+        let config = fs::read_to_string(adapter).unwrap().replace(
+            "adapter_version = \"1\"",
+            "adapter_version = \"installed-retained-distinct\"",
+        );
+        fs::write(retained, &config).unwrap();
+        fs::write(
+            root.join("config/adapters/hermes-workbench.toml"),
+            if installed_admission::enabled() {
+                &config
+            } else {
+                "deliberately invalid ordinary adapter config"
+            },
+        )
+        .unwrap();
+    } else {
+        fs::copy(adapter, root.join("config/adapters/hermes-workbench.toml")).unwrap();
+    }
     let durable = parent.path().join("keeper");
     let runtime_parent = tempfile::tempdir_in("/dev/shm").unwrap();
     let runtime = runtime_parent.path().join("owner");
@@ -67,16 +208,15 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
         .unwrap()
         .success());
     let socket = runtime.join("keeper.sock");
-    let mut keeper = ResidentTestKeeper(
-        std::process::Command::new(keeper_bin)
-            .arg(&durable)
-            .arg(&runtime)
-            .arg(env!("CARGO_BIN_EXE_arda-snapshot-worker"))
-            .arg("--runtime-policy")
-            .arg(&policy)
-            .spawn()
-            .unwrap(),
-    );
+    let mut keeper_command = std::process::Command::new(keeper_bin);
+    keeper_command
+        .arg(&durable)
+        .arg(&runtime)
+        .arg(env!("CARGO_BIN_EXE_arda-snapshot-worker"))
+        .arg("--runtime-policy")
+        .arg(&policy);
+    fixture_parent_death(&mut keeper_command);
+    let mut keeper = ResidentTestKeeper(keeper_command.spawn().unwrap());
     tokio::time::timeout(std::time::Duration::from_secs(5), async {
         loop {
             if std::os::unix::net::UnixStream::connect(&socket).is_ok() {
@@ -195,6 +335,8 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
         );
     }
     fs::rename(&workspace, root.join("original-project")).unwrap();
+    let retained_contents = installed_admission::enabled()
+        .then(|| retained_tree_contents(&root.join("original-project")));
     if replacement {
         fs::create_dir(&workspace).unwrap();
     }
@@ -231,16 +373,32 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
         }
     };
     assert_eq!(recovered.len(), 1);
+    if let Some(contents) = retained_contents {
+        assert_eq!(
+            retained_tree_contents(&root.join("original-project")),
+            contents,
+            "installed verification/review must preserve this fixture's retained contents"
+        );
+    }
+    if std::env::var_os("ARDA_TEST_INSTALLED_DISTINCT_CONFIG").is_some() {
+        for stage in ["execute", "verify", "review"] {
+            let receipt: serde_json::Value = serde_json::from_slice(
+                &fs::read(run_root.join(format!("execution-receipts/{stage}.json"))).unwrap(),
+            )
+            .unwrap();
+            assert_eq!(receipt["adapter_version"], "installed-retained-distinct");
+        }
+    }
     assert_eq!(
         resident
             .store()
-            .objective("resident-crash")
+            .objective(&initial.objective_id)
             .unwrap()
             .unwrap()
             .state,
         ObjectiveState::Completed
     );
-    let leaf = resident.store().leaf("resident-leaf").unwrap().unwrap();
+    let leaf = resident.store().leaf(&initial.leaf_id).unwrap().unwrap();
     assert_eq!(leaf.attempt, 2);
     let committed_generation: i64 = db
         .query_row(
@@ -252,8 +410,8 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
     assert!(committed_generation > initial.attempt);
     let recovered_run: String = db
         .query_row(
-            "SELECT execution_run_id FROM leaves WHERE id='resident-leaf'",
-            [],
+            "SELECT execution_run_id FROM leaves WHERE id=?1",
+            [&initial.leaf_id],
             |r| r.get(0),
         )
         .unwrap();
@@ -310,19 +468,78 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
             "only verify and review may dispatch after recovery"
         );
     }
-    let review_reads: i64 =
-        rusqlite::Connection::open(std::path::Path::new(&sessions).join("state.db"))
-            .unwrap()
-            .query_row(
-                "SELECT COUNT(*) FROM messages WHERE session_id = \
-         (SELECT id FROM sessions ORDER BY rowid DESC LIMIT 1) \
-         AND role = 'tool' AND tool_name = 'read_file'",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
-    assert!(review_reads > 0, "review must actually read retained files");
-    eprintln!("retained review observed {review_reads} read_file results");
+    let transcript =
+        rusqlite::Connection::open(std::path::Path::new(&sessions).join("state.db")).unwrap();
+    if installed_admission::enabled() {
+        installed_admission::assert_stage_inputs(&root, &transcript, run_id);
+    }
+    let mut user_messages = transcript
+        .prepare("SELECT session_id, content FROM messages WHERE role='user'")
+        .unwrap();
+    let review_sessions: Vec<String> = user_messages
+        .query_map([], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+        })
+        .unwrap()
+        .map(Result::unwrap)
+        .filter_map(|(id, prompt)| {
+            let (_, context) = prompt.split_once("Canonical node context follows:\n")?;
+            let context = serde_json::Deserializer::from_str(context)
+                .into_iter::<serde_json::Value>()
+                .next()?
+                .ok()?;
+            (context["run_id"] == run_id && context["node"]["kind"] == "review").then_some(id)
+        })
+        .collect();
+    assert_eq!(
+        review_sessions.len(),
+        1,
+        "exactly one canonical review session"
+    );
+    let mut calls = transcript.prepare("SELECT tool_calls FROM messages WHERE session_id=?1 AND role='assistant' AND tool_calls IS NOT NULL").unwrap();
+    let mut successful_paths = std::collections::BTreeSet::new();
+    for calls in calls
+        .query_map([&review_sessions[0]], |row| row.get::<_, String>(0))
+        .unwrap()
+    {
+        let calls: serde_json::Value = serde_json::from_str(&calls.unwrap()).unwrap();
+        for call in calls.as_array().unwrap() {
+            assert!(
+                matches!(
+                    call["function"]["name"].as_str(),
+                    Some("read_file" | "search_files")
+                ),
+                "read-only review requested a non-read tool: {}",
+                call["function"]["name"]
+            );
+            if call["function"]["name"] != "read_file" {
+                continue;
+            }
+            let args = call["function"]["arguments"].as_str().unwrap();
+            let args: serde_json::Value = serde_json::from_str(args).unwrap();
+            let path = std::path::PathBuf::from(args["path"].as_str().unwrap());
+            let path = if path.is_absolute() {
+                path
+            } else {
+                workspace.join(path)
+            };
+            let result: String = transcript.query_row("SELECT content FROM messages WHERE session_id=?1 AND role='tool' AND tool_call_id=?2 AND tool_name='read_file'", rusqlite::params![review_sessions[0], call["id"].as_str().unwrap()], |row| row.get(0)).unwrap();
+            let result: serde_json::Value = serde_json::from_str(&result).unwrap();
+            if result.get("error").is_none()
+                && result["content"]
+                    .as_str()
+                    .is_some_and(|text| text.contains("governed-next-action"))
+            {
+                successful_paths.insert(path);
+            }
+        }
+    }
+    for file in ["context-bootstrap-input.txt", "verify-context-bootstrap.py"] {
+        assert!(
+            successful_paths.contains(&workspace.join(file)),
+            "review must successfully read retained {file}"
+        );
+    }
     if replacement {
         assert!(
             fs::read_dir(&workspace).unwrap().next().is_none(),
@@ -346,6 +563,9 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
     );
     // Exercise receipt reconciliation explicitly after terminal capability release.
     let sessions_before_reconciliation = session_count();
+    if installed_admission::enabled() {
+        installed_admission::assert_completed_replay(&root, bound).await;
+    }
     assert!(executor.reconcile(initial.clone()).await.unwrap().is_some());
     assert!(resident
         .run_round(chrono::Utc::now().timestamp_millis())
@@ -360,6 +580,42 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
     assert_eq!(fs::read(&uses_path).unwrap(), uses);
     assert_eq!(fs::read(&outcomes_path).unwrap(), outcomes);
     assert_eq!(session_count(), sessions_before_reconciliation);
+    if installed_admission::enabled() {
+        println!("installed-gateway-admission-completed");
+    }
     shutdown.notify_waiters();
     harness.await.unwrap();
+}
+
+fn retained_tree_contents(
+    root: &std::path::Path,
+) -> std::collections::BTreeMap<std::path::PathBuf, Vec<u8>> {
+    fn visit(
+        root: &std::path::Path,
+        dir: &std::path::Path,
+        entries: &mut std::collections::BTreeMap<std::path::PathBuf, Vec<u8>>,
+    ) {
+        for entry in fs::read_dir(dir).unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            let kind = entry.file_type().unwrap();
+            let mut bytes = Vec::new();
+            if kind.is_symlink() {
+                use std::os::unix::ffi::OsStrExt;
+                bytes.push(b'L');
+                bytes.extend_from_slice(fs::read_link(&path).unwrap().as_os_str().as_bytes());
+            } else if kind.is_dir() {
+                bytes.push(b'D');
+                visit(root, &path, entries);
+            } else {
+                assert!(kind.is_file(), "unexpected retained fixture file type");
+                bytes.push(b'F');
+                bytes.extend(fs::read(&path).unwrap());
+            }
+            entries.insert(path.strip_prefix(root).unwrap().to_owned(), bytes);
+        }
+    }
+    let mut entries = std::collections::BTreeMap::new();
+    visit(root, root, &mut entries);
+    entries
 }

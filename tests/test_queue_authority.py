@@ -75,6 +75,8 @@ def test_append_only_guard_blocks_rewritten_canonical_project_queue(tmp_path: Pa
     assert result.returncode == 1
     assert "blocked non-append edit" in result.stderr
     assert "core/projects/tasks/queue.jsonl" in result.stderr
+    assert "authenticated resident objective intake" in result.stderr
+    assert "Close work by appending" not in result.stderr
 
 
 def test_append_only_guard_uses_last_historical_baseline_after_queue_restoration(

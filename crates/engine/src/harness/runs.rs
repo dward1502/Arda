@@ -860,10 +860,24 @@ pub(super) async fn execute_provider_node(
     Path((id, node_id)): Path<(String, String)>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
     shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
+    axum::Extension(jobs): axum::Extension<super::recovery_jobs::ProviderJobs>,
     Json(raw_request): Json<serde_json::Value>,
-) -> Result<Json<ExecuteProviderNodeResponse>, ApiError> {
+) -> Result<Json<serde_json::Value>, ApiError> {
     require_loopback(peer)?;
-    execute_provider_node_authorized(state, id, node_id, shutdown, raw_request, None).await
+    let key = serde_json::to_string(&(&state.workbench_root, &id, &node_id))
+        .map_err(|error| ApiError::internal(error.to_string()))?;
+    let digest = serde_json::to_string(&raw_request)
+        .map_err(|error| ApiError::internal(error.to_string()))?;
+    // The waiter is disposable; admission, child ownership and terminal evidence
+    // belong to the Harness. Only identical concurrent requests may subscribe.
+    jobs.execute(key, digest, async move {
+        let Json(response) =
+            execute_provider_node_authorized(state, id, node_id, shutdown, raw_request, None)
+                .await?;
+        serde_json::to_value(response).map_err(|error| ApiError::internal(error.to_string()))
+    })
+    .await
+    .map(Json)
 }
 
 /// Recovery authority is supplied only by the authenticated in-process driver.

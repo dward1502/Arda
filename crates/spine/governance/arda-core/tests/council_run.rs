@@ -107,6 +107,7 @@ fn graph() -> RunGraph {
             created_by: "operator:test".to_string(),
             parent_receipts: Vec::new(),
         },
+        approval_receipts: Vec::new(),
     }
 }
 

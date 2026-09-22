@@ -4,15 +4,16 @@
 // snapshot of every book (shallow + latest deep) so `query()` doesn't
 // re-scan the books directory on every call.
 //
-// Cache invalidation is books-dir mtime + a soft TTL. Any ingest or
-// deep_analyze write updates the directory mtime; the next query
-// notices and rebuilds. Background refresh is not (yet) implemented —
-// rebuild happens lazily on the first stale read.
+// Cache invalidation uses book mtimes, persisted-index content and a soft TTL.
+// Persisted content fingerprints detect rapid atomic replacements even when
+// filesystem timestamps collide. Fingerprints are bound to the exact bytes
+// loaded or published, not a later path read that could observe another writer.
 
 use arda_core::error::Result;
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
@@ -50,7 +51,7 @@ pub(super) struct DigestIndex {
     pub entries: Vec<IndexEntry>,
     pub built_at: Instant,
     pub source_dir_mtime: Option<SystemTime>,
-    pub persisted_index_mtime: Option<SystemTime>,
+    pub persisted_index_fingerprint: Option<[u8; 32]>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -64,17 +65,18 @@ impl DigestIndex {
     pub(super) fn is_fresh(
         &self,
         current_mtime: Option<SystemTime>,
-        current_index_mtime: Option<SystemTime>,
+        current_index_fingerprint: Option<[u8; 32]>,
     ) -> bool {
         if self.built_at.elapsed() > Duration::from_secs(INDEX_TTL_SECS) {
             return false;
         }
-        self.source_dir_mtime == current_mtime && self.persisted_index_mtime == current_index_mtime
+        self.source_dir_mtime == current_mtime
+            && self.persisted_index_fingerprint == current_index_fingerprint
     }
 }
 
-pub(super) fn persisted_index_mtime(index_path: &Path) -> Option<SystemTime> {
-    fs::metadata(index_path).ok()?.modified().ok()
+pub(super) fn persisted_index_fingerprint(index_path: &Path) -> Option<[u8; 32]> {
+    Some(Sha256::digest(fs::read(index_path).ok()?).into())
 }
 
 pub(super) fn books_dir_mtime(books_dir: &Path) -> Option<SystemTime> {
@@ -99,7 +101,7 @@ fn source_revision(mtime: Option<SystemTime>) -> Option<u64> {
 }
 
 pub(super) fn load_index(index_path: &Path, books_dir: &Path) -> Result<Option<DigestIndex>> {
-    let Some(persisted) = load_persisted(index_path)? else {
+    let Some((persisted, fingerprint)) = load_persisted(index_path)? else {
         return Ok(None);
     };
     let mtime = books_dir_mtime(books_dir);
@@ -110,11 +112,11 @@ pub(super) fn load_index(index_path: &Path, books_dir: &Path) -> Result<Option<D
         entries: persisted.entries,
         built_at: Instant::now(),
         source_dir_mtime: mtime,
-        persisted_index_mtime: persisted_index_mtime(index_path),
+        persisted_index_fingerprint: Some(fingerprint),
     }))
 }
 
-fn load_persisted(index_path: &Path) -> Result<Option<PersistedDigestIndex>> {
+fn load_persisted(index_path: &Path) -> Result<Option<(PersistedDigestIndex, [u8; 32])>> {
     let content = match fs::read_to_string(index_path) {
         Ok(content) => content,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(None),
@@ -127,10 +129,10 @@ fn load_persisted(index_path: &Path) -> Result<Option<PersistedDigestIndex>> {
     if persisted.schema_version != INDEX_SCHEMA_VERSION {
         return Ok(None);
     }
-    Ok(Some(persisted))
+    Ok(Some((persisted, Sha256::digest(content.as_bytes()).into())))
 }
 
-pub(super) fn persist_index(index_path: &Path, index: &DigestIndex) -> Result<()> {
+pub(super) fn persist_index(index_path: &Path, index: &DigestIndex) -> Result<[u8; 32]> {
     persist_payload(
         index_path,
         &PersistedDigestIndex {
@@ -141,7 +143,7 @@ pub(super) fn persist_index(index_path: &Path, index: &DigestIndex) -> Result<()
     )
 }
 
-fn persist_payload(index_path: &Path, persisted: &PersistedDigestIndex) -> Result<()> {
+fn persist_payload(index_path: &Path, persisted: &PersistedDigestIndex) -> Result<[u8; 32]> {
     let parent = index_path
         .parent()
         .ok_or_else(|| athena_error("digest index path has no parent"))?;
@@ -154,7 +156,7 @@ fn persist_payload(index_path: &Path, persisted: &PersistedDigestIndex) -> Resul
         .open(index_path.with_extension("lock"))?;
     lock.lock_exclusive()?;
     let temp_path = index_path.with_extension(format!("tmp-{}", std::process::id()));
-    let result = (|| -> Result<()> {
+    let result = (|| -> Result<[u8; 32]> {
         let bytes = serde_json::to_vec(persisted)
             .map_err(|err| athena_error(format!("serialize digest index: {err}")))?;
         let mut temp = OpenOptions::new()
@@ -165,7 +167,7 @@ fn persist_payload(index_path: &Path, persisted: &PersistedDigestIndex) -> Resul
         temp.write_all(&bytes)?;
         temp.sync_all()?;
         fs::rename(&temp_path, index_path)?;
-        Ok(())
+        Ok(Sha256::digest(&bytes).into())
     })();
     let _ = lock.unlock();
     if result.is_err() {
@@ -187,7 +189,7 @@ pub(super) fn rebuild_index(
                 entries,
                 built_at: Instant::now(),
                 source_dir_mtime: mtime,
-                persisted_index_mtime: None,
+                persisted_index_fingerprint: None,
             });
         }
         Err(err) => return Err(athena_error(format!("read books_dir: {err}"))),
@@ -213,7 +215,7 @@ pub(super) fn rebuild_index(
         entries,
         built_at: Instant::now(),
         source_dir_mtime: mtime,
-        persisted_index_mtime: None,
+        persisted_index_fingerprint: None,
     })
 }
 
@@ -308,7 +310,7 @@ pub(super) fn refresh_index_entry(
     lock.lock_exclusive()?;
     let result = (|| -> Result<DigestIndex> {
         let mut entries = load_persisted(index_path)?
-            .map(|persisted| persisted.entries)
+            .map(|(persisted, _)| persisted.entries)
             .unwrap_or_default();
         entries.retain(|entry| entry.source_id != source_id);
         let book_path = books_dir.join(format!("{source_id}.jsonl"));
@@ -320,9 +322,9 @@ pub(super) fn refresh_index_entry(
             entries,
             built_at: Instant::now(),
             source_dir_mtime: books_dir_mtime(books_dir),
-            persisted_index_mtime: None,
+            persisted_index_fingerprint: None,
         };
-        persist_payload_unlocked(
+        let fingerprint = persist_payload_unlocked(
             index_path,
             &PersistedDigestIndex {
                 schema_version: INDEX_SCHEMA_VERSION,
@@ -330,14 +332,17 @@ pub(super) fn refresh_index_entry(
                 entries: index.entries.clone(),
             },
         )?;
-        index.persisted_index_mtime = persisted_index_mtime(index_path);
+        index.persisted_index_fingerprint = Some(fingerprint);
         Ok(index)
     })();
     let _ = lock.unlock();
     result
 }
 
-fn persist_payload_unlocked(index_path: &Path, persisted: &PersistedDigestIndex) -> Result<()> {
+fn persist_payload_unlocked(
+    index_path: &Path,
+    persisted: &PersistedDigestIndex,
+) -> Result<[u8; 32]> {
     let bytes = serde_json::to_vec(persisted)
         .map_err(|err| athena_error(format!("serialize digest index: {err}")))?;
     let temp_path = index_path.with_extension(format!("tmp-{}", std::process::id()));
@@ -349,7 +354,7 @@ fn persist_payload_unlocked(index_path: &Path, persisted: &PersistedDigestIndex)
     temp.write_all(&bytes)?;
     temp.sync_all()?;
     fs::rename(temp_path, index_path)?;
-    Ok(())
+    Ok(Sha256::digest(&bytes).into())
 }
 
 struct ShallowSlice {

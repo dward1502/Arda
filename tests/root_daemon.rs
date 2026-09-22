@@ -295,6 +295,28 @@ scout_url = "http://fleet.example:8092"
         .expect("send shutdown signal");
     assert!(signal.success(), "{signal_name} delivery must succeed");
 
+    // Poll the objective runtime until it reaches "waiting" (drained).
+    // The runtime transitions through "checking" before "waiting" during
+    // shutdown, so a single read can race and observe the interim phase.
+    let shutdown_objective_status = tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            let response = client
+                .get(format!("http://{harness_addr}/v1/objective-runtime"))
+                .send()
+                .await;
+            if let Ok(response) = response {
+                if let Ok(body) = response.json::<Value>().await {
+                    if body["phase"] == "waiting" {
+                        break body;
+                    }
+                }
+            }
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await
+    .expect("objective runtime did not reach waiting phase after shutdown");
+
     let daemon_status = tokio::time::timeout(Duration::from_secs(10), async {
         loop {
             if let Some(status) = daemon.try_wait().expect("poll daemon") {
@@ -339,9 +361,9 @@ scout_url = "http://fleet.example:8092"
         "daemon shutdown failed: {daemon_status}"
     );
     assert!(!child_alive, "supervised child survived daemon shutdown");
-    assert_eq!(objective_status["phase"], "waiting");
-    assert_eq!(objective_status["ready"], true);
-    assert_eq!(objective_status["pending_recovery"], 0);
-    assert_eq!(objective_status["active_leaves"], serde_json::json!([]));
-    assert!(objective_status["last_error"].is_null());
+    assert_eq!(shutdown_objective_status["phase"], "waiting");
+    assert_eq!(shutdown_objective_status["ready"], true);
+    assert_eq!(shutdown_objective_status["pending_recovery"], 0);
+    assert_eq!(shutdown_objective_status["active_leaves"], serde_json::json!([]));
+    assert!(shutdown_objective_status["last_error"].is_null());
 }

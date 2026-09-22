@@ -54,7 +54,9 @@ impl Owner {
         Ok(())
     }
     pub fn handle(&mut self, request: KeeperRequest) -> Result<KeeperResponse> {
+        let _ = std::fs::write("/tmp/keeper-debug.log", "H1\n");
         let cleanup_pending = self.failed_qualifications.pending();
+        let _ = std::fs::write("/tmp/keeper-debug.log", "H2\n");
         let snapshot = match request {
             KeeperRequest::Prepare {
                 run,
@@ -62,16 +64,20 @@ impl Owner {
                 identity,
             } => {
                 if cleanup_pending {
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "REJECT_cleanup_pending\n");
                     bail!("preparation cleanup remains unproven; new admission refused");
                 }
                 if run.is_empty() || run.len() > 1024 {
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "REJECT_run_length\n");
                     bail!("invalid admission identifier");
                 }
                 if let Some((root, prior, state, saved)) = self.saved(&run)? {
+                    let _ = std::fs::write("/tmp/keeper-debug.log", format!("H_saved root={} prior={} state={}\n", root, prior, state));
                     if root != workspace.to_str().context("UTF-8 workspace required")?
                         || prior != identity
                         || state != "prepared"
                     {
+                        let _ = std::fs::write("/tmp/keeper-debug.log", "REJECT_saved_mismatch\n");
                         bail!("admission requires reconciliation");
                     }
                     self.live(&run)?;
@@ -79,14 +85,17 @@ impl Owner {
                         &saved.context("missing retained authority")?,
                     )?)
                 } else {
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "H_no_saved\n");
                     arda_engine::objectives::validate_snapshot_owner_paths(
                         Path::new("/usr"),
                         &[&self.durable, &self.runtime],
                     )?;
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "H_usr_ok\n");
                     arda_engine::objectives::validate_snapshot_owner_paths(
                         &workspace,
                         &[&self.durable, &self.runtime],
                     )?;
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "H_ws_ok\n");
                     // FULL synchronous commit before the first process side effect.
                     if let Some(policy) = &self.runtime_policy {
                         let allocation_base = &policy.policy().grants.iter()
@@ -96,6 +105,7 @@ impl Owner {
                             &workspace,
                             &[allocation_base],
                         )?;
+                        let _ = std::fs::write("/tmp/keeper-debug.log", "H_alloc_ok\n");
                         for grant in &policy.policy().grants {
                             if grant.role
                                 != arda_engine::objectives::runtime_policy::GrantRole::SessionState
@@ -110,13 +120,18 @@ impl Owner {
                                 &[&self.durable, &self.runtime],
                             )?;
                         }
+                        let _ = std::fs::write("/tmp/keeper-debug.log", "H_grants_ok\n");
                     }
                     // Persist the lifetime and admission together before any
                     // allocation or worker side effect; uncertain rows stay fenced.
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "H_txn_start\n");
                     let transaction = self.db.transaction()?;
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "H_txn_ok\n");
                     super::keeper_managed::save(&transaction, &run, self.managed.as_ref())
                         .context("managed_binding")?;
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "H_save_ok\n");
                     transaction.execute("INSERT INTO snapshots(run,workspace,identity,state) VALUES(?1,?2,?3,'preparing')", params![run,workspace.to_str().context("UTF-8 workspace required")?,identity])?;
+                    let _ = std::fs::write("/tmp/keeper-debug.log", "H_insert_ok\n");
                     transaction.commit()?;
                     #[cfg(test)]
                     preparation_tests::crash("preparing");

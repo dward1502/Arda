@@ -22,6 +22,7 @@ pub enum QueueOperationStatus {
     BlockedPacketDisallowsMutation,
     BlockedAutonomyReadiness,
     BlockedWriteFailed,
+    BlockedRetiredAuthority,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -205,13 +206,21 @@ pub(super) fn append_packet_plan_with_authority(
             blocked_reason_code: None,
             appended_task_ids,
         },
-        Err(_) => QueueOperation::blocked(
+        Err(error) => QueueOperation::blocked(
             operation_id,
             packet,
             queue_path,
             false,
-            QueueOperationStatus::BlockedWriteFailed,
-            "queue_append_failed",
+            if error.kind() == std::io::ErrorKind::PermissionDenied {
+                QueueOperationStatus::BlockedRetiredAuthority
+            } else {
+                QueueOperationStatus::BlockedWriteFailed
+            },
+            if error.kind() == std::io::ErrorKind::PermissionDenied {
+                "legacy_queue_authority_retired"
+            } else {
+                "queue_append_failed"
+            },
         ),
     }
 }
@@ -365,7 +374,7 @@ mod tests {
     }
 
     #[test]
-    fn queue_operation_treats_safe_autonomous_governance_as_binding_authority() {
+    fn retired_queue_operation_treats_safe_autonomous_governance_as_binding_authority() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let queue_path = dir.path().join("queue.jsonl");
         let operation = append_packet_plan_with_authority(
@@ -381,39 +390,22 @@ mod tests {
             false,
         );
 
-        assert_eq!(operation.result_status, QueueOperationStatus::Appended);
-        assert!(operation.mutation_authorized);
-        assert_eq!(operation.approval_packet_id, None);
-        let contents = std::fs::read_to_string(&queue_path)
-            .unwrap_or_else(|err| panic!("queue read failed: {err}"));
-        let queued: serde_json::Value =
-            serde_json::from_str(contents.lines().next().expect("one appended queue record"))
-                .expect("valid queue record");
-        let meta = queued.get("meta").expect("queue metadata");
         assert_eq!(
-            meta.get("mutation_risk")
-                .and_then(serde_json::Value::as_str),
-            Some("governance-authorized-reversible")
+            operation.result_status,
+            QueueOperationStatus::BlockedRetiredAuthority
         );
+        assert!(!operation.mutation_authorized);
+        assert!(operation.appended_task_ids.is_empty());
+        assert!(operation.result_path.is_none());
         assert_eq!(
-            meta.get("governance_authorization_id")
-                .and_then(serde_json::Value::as_str),
-            operation.governance_authorization_id.as_deref()
+            operation.blocked_reason_code.as_deref(),
+            Some("legacy_queue_authority_retired")
         );
-        assert_eq!(
-            meta.get("governance_action_class")
-                .and_then(serde_json::Value::as_str),
-            Some("safe_local")
-        );
-        assert_eq!(
-            meta.get("governance_gate")
-                .and_then(serde_json::Value::as_str),
-            Some("safe_autonomous")
-        );
+        assert!(!queue_path.exists());
     }
 
     #[test]
-    fn queue_operation_appends_only_authorized_selected_packet() {
+    fn retired_queue_operation_appends_only_authorized_selected_packet() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let queue_path = dir.path().join("queue.jsonl");
         let operation = append_approved_packet_plan(
@@ -428,12 +420,18 @@ mod tests {
             false,
         );
 
-        assert_eq!(operation.result_status, QueueOperationStatus::Appended);
-        assert!(operation.mutation_authorized);
-        assert_eq!(operation.appended_task_ids.len(), 1);
-        let contents = std::fs::read_to_string(&queue_path)
-            .unwrap_or_else(|err| panic!("queue read failed: {err}"));
-        assert!(contents.contains("\"objective_id\":\"candidate-1\""));
+        assert_eq!(
+            operation.result_status,
+            QueueOperationStatus::BlockedRetiredAuthority
+        );
+        assert!(!operation.mutation_authorized);
+        assert!(operation.appended_task_ids.is_empty());
+        assert!(operation.result_path.is_none());
+        assert_eq!(
+            operation.blocked_reason_code.as_deref(),
+            Some("legacy_queue_authority_retired")
+        );
+        assert!(!queue_path.exists());
     }
 
     #[test]

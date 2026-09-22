@@ -27,3 +27,25 @@ the canonical file directly. The API does not rewrite IDs, state, freshness, or
 provenance. Consumers must not reconstruct a competing operator truth from
 scene-local or channel-local state; canonical mutation remains behind separately
 authorized operation endpoints.
+
+## P1.2 implementation status
+
+All projection lanes are now populated from live canonical sources:
+
+| Lane | Source |
+|------|--------|
+| objectives | `data/arda/objectives.sqlite3` |
+| runs / nodes / workers | run graph files under `data/runs/` |
+| capabilities | `capability-composition.json` receipts in run directories |
+| councils | `council-run.json` receipts in run directories |
+| pending_approvals | `approval_receipts` in run graphs |
+| personal_operations | personal ops log store |
+| joulework | resource ledger rollup (observed > default > unknown) |
+| evidence | run evidence digests |
+| communications | proactive cycle ledger (`data/personal/proactive_cycle.jsonl`) |
+
+**Fixed:** Communications were previously hardcoded as an empty vec.
+`ProactiveCycleStore::project_communications()` now reads the proactive cycle
+ledger and projects evaluation, delivery, and operator-response events into
+`CommunicationProjection` items with correct transport, delivery status,
+acknowledgement status, and timestamps.

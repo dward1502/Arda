@@ -455,3 +455,64 @@ fn projection_reads_do_not_migrate_pre_cutover_state_or_load_execution_payloads(
         .unwrap();
     assert_eq!(schema_before, schema_after);
 }
+
+#[test]
+fn communications_are_projected_from_proactive_cycle_ledger() {
+    let root = tempfile::tempdir().unwrap();
+    write_run(root.path(), "run-live", "running");
+    fs::create_dir_all(root.path().join("data/personal")).unwrap();
+
+    // Write proactive cycle ledger with evaluation, delivery, and operator response events.
+    fs::write(
+        root.path().join("data/personal/proactive_cycle.jsonl"),
+        r#"{"schema_version":"arda.proactive-cycle-ledger.v1","sequence":1,"event_id":"comm-1","recorded_at":"2026-08-10T18:00:00Z","event":{"kind":"evaluation","input_digest":"sha256:input1","disposition":{"schema_version":"arda.proactive-event-disposition.v1","event_id":"disp-1","outcome":"include_in_next_digest","reason_code":"proactive_trigger","explanation":"test","evidence_available":true,"channel":"operator_session","delivery_authorized":true,"action_authorized":true,"approval_granted":true}}}
+{"schema_version":"arda.proactive-cycle-ledger.v1","sequence":2,"event_id":"comm-1","recorded_at":"2026-08-10T18:01:00Z","event":{"kind":"delivery","idempotency_key":"key-1","provider_message_id":"msg-1"}}
+{"schema_version":"arda.proactive-cycle-ledger.v1","sequence":3,"event_id":"comm-2","recorded_at":"2026-08-10T18:02:00Z","event":{"kind":"evaluation","input_digest":"sha256:input2","disposition":{"schema_version":"arda.proactive-event-disposition.v1","event_id":"disp-2","outcome":"include_in_next_digest","reason_code":"not_authorized","explanation":"test","evidence_available":false,"channel":"native_hud","delivery_authorized":false,"action_authorized":false,"approval_granted":false}}}
+{"schema_version":"arda.proactive-cycle-ledger.v1","sequence":4,"event_id":"comm-3","recorded_at":"2026-08-10T18:03:00Z","event":{"kind":"evaluation","input_digest":"sha256:input3","disposition":{"schema_version":"arda.proactive-event-disposition.v1","event_id":"disp-3","outcome":"include_in_next_digest","reason_code":"proactive_trigger","explanation":"test","evidence_available":true,"channel":"digest","delivery_authorized":true,"action_authorized":true,"approval_granted":true}}}
+{"schema_version":"arda.proactive-cycle-ledger.v1","sequence":5,"event_id":"comm-3","recorded_at":"2026-08-10T18:04:00Z","event":{"kind":"operator_response","response":"acknowledged"}}
+"#,
+    )
+    .unwrap();
+
+    let projection = publish_operator_projection(root.path(), Utc::now()).unwrap();
+
+    // comm-1: evaluated with delivery authorized, then delivered -> Delivered, NotRequired
+    let comm1 = projection
+        .communications
+        .iter()
+        .find(|c| c.communication_id == "comm-1")
+        .expect("comm-1 should be projected");
+    assert_eq!(comm1.transport, "operator_session");
+    assert_eq!(comm1.delivery, arda_core::operator_projection::DeliveryStatus::Delivered);
+    assert_eq!(
+        comm1.acknowledgement,
+        arda_core::operator_projection::AcknowledgementStatus::NotRequired
+    );
+
+    // comm-2: evaluated with delivery NOT authorized -> Unavailable
+    let comm2 = projection
+        .communications
+        .iter()
+        .find(|c| c.communication_id == "comm-2")
+        .expect("comm-2 should be projected");
+    assert_eq!(comm2.transport, "native_hud");
+    assert_eq!(
+        comm2.delivery,
+        arda_core::operator_projection::DeliveryStatus::Unavailable
+    );
+
+    // comm-3: evaluated with delivery authorized, then operator acknowledged -> Acknowledged
+    let comm3 = projection
+        .communications
+        .iter()
+        .find(|c| c.communication_id == "comm-3")
+        .expect("comm-3 should be projected");
+    assert_eq!(comm3.transport, "digest");
+    assert_eq!(comm3.delivery, arda_core::operator_projection::DeliveryStatus::Pending);
+    assert_eq!(
+        comm3.acknowledgement,
+        arda_core::operator_projection::AcknowledgementStatus::Acknowledged
+    );
+
+    assert_eq!(projection.communications.len(), 3);
+}

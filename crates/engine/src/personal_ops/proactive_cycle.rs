@@ -5,11 +5,15 @@
 
 use std::{
     collections::BTreeMap,
+    fs,
     io::{BufRead, BufReader, Seek, SeekFrom, Write},
     os::{fd::AsRawFd, unix::fs::PermissionsExt},
     path::{Path, PathBuf},
 };
 
+use arda_core::operator_projection::{
+    AcknowledgementStatus, CommunicationProjection, DeliveryStatus,
+};
 use arda_core::proactive_communication::{
     evaluate_proactive_communication, PriorOperatorResponse, ProactiveChannel,
     ProactiveCommunicationDisposition, ProactiveCommunicationInput, ProactiveCommunicationPolicy,
@@ -211,6 +215,71 @@ impl ProactiveCycleStore {
         };
         let _lock = FileLock::shared(&file)?;
         load_projection(&mut file)
+    }
+
+    /// Project proactive communication ledger entries into
+    /// CommunicationProjection items for the operator projection.
+    pub fn project_communications(
+        &self,
+    ) -> Result<Vec<CommunicationProjection>, ProactiveCycleError> {
+        let raw = match fs::read_to_string(&self.ledger_path) {
+            Ok(raw) => raw,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+            Err(source) => return Err(ProactiveCycleError::Io(source)),
+        };
+        let mut communications = BTreeMap::new();
+        for line in raw.lines() {
+            if line.trim().is_empty() {
+                continue;
+            }
+            let envelope: LedgerEnvelope = serde_json::from_str(line)?;
+            match envelope.event {
+                LedgerEvent::Evaluation { disposition, .. } => {
+                    if let Some(channel) = disposition.channel {
+                        let transport = serde_json::to_string(&channel)
+                            .unwrap()
+                            .trim_matches('"')
+                            .to_string();
+                        let delivery = if disposition.delivery_authorized {
+                            DeliveryStatus::Pending
+                        } else {
+                            DeliveryStatus::Unavailable
+                        };
+                        communications.insert(
+                            envelope.event_id.clone(),
+                            CommunicationProjection {
+                                communication_id: envelope.event_id.clone(),
+                                transport,
+                                delivery,
+                                acknowledgement: AcknowledgementStatus::NotRequired,
+                                updated_at: envelope.recorded_at,
+                            },
+                        );
+                    }
+                }
+                LedgerEvent::Delivery { .. } => {
+                    if let Some(communication) = communications.get_mut(&envelope.event_id) {
+                        communication.delivery = DeliveryStatus::Delivered;
+                        communication.updated_at = envelope.recorded_at;
+                    }
+                }
+                LedgerEvent::OperatorResponse { response } => {
+                    if let Some(communication) = communications.get_mut(&envelope.event_id) {
+                        communication.acknowledgement = match response {
+                            PriorOperatorResponse::None => AcknowledgementStatus::NotRequired,
+                            PriorOperatorResponse::Acknowledged => {
+                                AcknowledgementStatus::Acknowledged
+                            }
+                            PriorOperatorResponse::Snoozed | PriorOperatorResponse::Dismissed => {
+                                AcknowledgementStatus::Deferred
+                            }
+                        };
+                        communication.updated_at = envelope.recorded_at;
+                    }
+                }
+            }
+        }
+        Ok(communications.into_values().collect())
     }
 
     fn open_locked(&self) -> Result<LockedFile, ProactiveCycleError> {

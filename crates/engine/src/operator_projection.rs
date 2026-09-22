@@ -1,11 +1,12 @@
 use crate::objectives::agenda::{read_agenda, AgendaObjective, OBJECTIVE_STORE_PATH};
 use crate::objectives::ObjectiveState;
 use arda_core::operator_projection::{
-    CapabilityProjection, CommunicationProjection, CouncilProjection, DependencyHealth,
+    ApprovalStatus, CapabilityProjection, CouncilProjection, DependencyHealth,
     DependencyProjection, EvidenceProjection, JouleWorkProjection, MeasurementSource,
     NodeProjection, ObjectiveBudgetProjection, ObjectiveProjection, ObjectiveStatus,
-    OperatorProjection, PersonalOperationsProjection, ProjectionAuthority, ProjectionFreshness,
-    ReminderProjection, ReminderStatus, RunProjection, RunStatus, WorkerProjection,
+    OperatorProjection, PendingApprovalProjection, PersonalOperationsProjection,
+    ProjectionAuthority, ProjectionFreshness, ReminderProjection, ReminderStatus, RunProjection,
+    RunStatus, WorkerProjection,
 };
 use arda_core::personal_ops::{PersonalOpsRecord, ReminderDeliveryState};
 use arda_core::run_graph::{CapabilityCompositionReceipt, NodeKind, NodeState, RunGraph};
@@ -16,7 +17,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
-use crate::personal_ops::{build_projection, PersonalOpsLogStore};
+use crate::personal_ops::{build_projection, PersonalOpsLogStore, ProactiveCycleStore};
 use crate::runs::RunStore;
 
 pub const OPERATOR_PROJECTION_PATH: &str = "core/state/operator_projection.json";
@@ -141,6 +142,36 @@ pub fn publish_operator_projection(
     let (joulework, resource_configured) = project_joulework(root, &graphs)?;
     let evidence = project_evidence(root, &graphs)?;
 
+    // Build pending approvals from run graph approval receipts.
+    // Each receipt carries canonical approval identity, scope, and absolute expiry.
+    let now = Utc::now();
+    let pending_approvals: Vec<PendingApprovalProjection> = graphs
+        .iter()
+        .flat_map(|graph| {
+            graph
+                .approval_receipts
+                .iter()
+                .map(move |receipt| PendingApprovalProjection {
+                    approval_id: receipt.receipt_id.to_string(),
+                    run_id: graph.run_id.as_str().to_owned(),
+                    node_id: None,
+                    scope: receipt.approved_scope.clone(),
+                    action_digest: receipt.proposal_id.to_string(),
+                    expires_at: receipt.expires_at,
+                    status: if receipt.expires_at < now {
+                        ApprovalStatus::Expired
+                    } else {
+                        ApprovalStatus::Pending
+                    },
+                })
+        })
+        .collect();
+
+    let approval_receipts_present = graphs.iter().any(|g| !g.approval_receipts.is_empty());
+
+    let proactive_store = ProactiveCycleStore::new(root);
+    let communications = proactive_store.project_communications().unwrap_or_default();
+
     let projection = OperatorProjection {
         schema_version: OperatorProjection::SCHEMA_VERSION.to_string(),
         projection_id: format!("operator-projection-{}", generated_at.timestamp_millis()),
@@ -150,14 +181,12 @@ pub fn publish_operator_projection(
         objectives,
         runs,
         capabilities,
-        // A run graph does not persist the canonical approval identity, scope,
-        // or absolute approval expiry required by the shared contract.
-        pending_approvals: Vec::new(),
+        pending_approvals,
         councils,
         personal_operations,
         joulework,
         evidence,
-        communications: Vec::<CommunicationProjection>::new(),
+        communications,
         dependencies: vec![
             dependency(
                 "objective_store",
@@ -197,9 +226,17 @@ pub fn publish_operator_projection(
             ),
             dependency(
                 "approval_expiry_store",
-                DependencyHealth::NotConfigured,
-                "run graphs do not persist canonical approval identity, scope, and absolute expiry"
-                    .to_string(),
+                if approval_receipts_present {
+                    DependencyHealth::Ready
+                } else {
+                    DependencyHealth::NotConfigured
+                },
+                if approval_receipts_present {
+                    "canonical approval receipts persisted in run graphs"
+                } else {
+                    "no run graph approval receipts found; approval identity, scope, and expiry not yet persisted"
+                }
+                .to_string(),
             ),
         ],
     };

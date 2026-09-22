@@ -380,6 +380,7 @@ fn context_assembly_at(root: &Path, task: &HermesNodeTask, now_ms: u128) -> Cont
                 },
                 evidence_refs: vec!["arda://varda/evidence/python-smoke".into()],
                 memory_refs: vec!["mem-hermes-next-action".into()],
+                excluded_refs: Vec::new(),
                 unresolved_failures: Vec::new(),
                 return_contract: ContextReturnContract {
                     schema_version: "arda.organism-outcome.v1".into(),

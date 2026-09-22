@@ -24,6 +24,13 @@ use tokio::sync::{Notify, RwLock};
 include!("resident_restart_fixture.rs.inc");
 include!("resident_retained_restart.rs.inc");
 
+#[path = "fixtures/admitted_evidence.rs"]
+mod admitted_evidence;
+#[path = "fixtures/gateway.rs"]
+mod gateway;
+#[path = "fixtures/installed_admission.rs"]
+mod installed_admission;
+
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 const OBJECTIVE: &str = "Complete the bounded context-bootstrap check using only the governed capsule. Execute `python3 verify-context-bootstrap.py` as the first and only terminal command, then bind test evidence to that exact terminal call. Do not inspect the directory with ls or pwd.";
 
@@ -54,8 +61,12 @@ async fn start_at(
     Arc<Notify>,
     tokio::task::JoinHandle<()>,
 ) {
+    if installed_admission::enabled() {
+        return gateway::start_research_harness_at(root, None).await;
+    }
     let shutdown = Arc::new(Notify::new());
     let state = HarnessState {
+        research_store_policy: arda_engine::harness::ResearchStorePolicy::Isolated,
         harness_addr: DEFAULT_HARNESS_ADDR.into(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),
@@ -166,67 +177,9 @@ fn graph(run_id: &str, node_id: &str, additional_parent: Option<&str>) -> Value 
     })
 }
 
-fn install_fake_hermes(root: &Path) {
-    let executable = root.join("fake-hermes-context");
-    fs::write(
-        &executable,
-        r#"#!/usr/bin/python3
-import json, sys
-from pathlib import Path
-root = Path(__file__).parent
-transcript = root / "context-transcript.json"
-args = sys.argv[1:]
-if args[:2] == ["sessions", "export"]:
-    print(transcript.read_text(encoding="utf-8"), flush=True)
-    raise SystemExit(0)
-prompt = args[args.index("-q") + 1]
-count_path = root / "context-worker-count"
-count = int(count_path.read_text() if count_path.exists() else "0") + 1
-count_path.write_text(str(count), encoding="utf-8")
-with (root / "context-prompts.jsonl").open("a", encoding="utf-8") as handle:
-    handle.write(json.dumps({"worker":count,"prompt":prompt}) + "\n")
-tool_result = json.dumps({"output":"ok\n","exit_code":0,"error":None}, separators=(",", ":"))
-session = {
- "id":f"fresh-context-worker-{count}","source":"tool","model":"fixture-model",
- "billing_provider":"fixture-provider","estimated_cost_usd":0.0,"actual_cost_usd":0.0,
- "input_tokens":10,"output_tokens":10,"api_call_count":1,
- "messages":[
-  {"role":"assistant","content":None,"tool_calls":[{"id":"call-test-1","type":"function","function":{"name":"terminal","arguments":json.dumps({"command":"python3 verify-context-bootstrap.py"})}}]},
-  {"role":"tool","tool_call_id":"call-test-1","tool_name":"terminal","content":tool_result}
- ]
-}
-transcript.write_text(json.dumps(session), encoding="utf-8")
-result={"schema_version":"arda.hermes-job-result.v1","status":"succeeded","summary":"Fresh worker completed the bounded task from governed context.","tool_evidence":[{"tool_call_id":"call-test-1"}],"test_evidence":[{"check_id":"test","tool_call_id":"call-test-1"}],"artifacts":[]}
-node_context = json.JSONDecoder().raw_decode(prompt.split("Canonical node context follows:\n", 1)[1])[0]
-if node_context["node"]["kind"] == "review":
-    result["summary"] = "VERDICT: APPROVE\nDeterministic fixture review accepted the bounded result."
-    result["test_evidence"] = []
-    receipt_path = root / "data/runs" / node_context["run_id"] / "execution-receipts/verify.json"
-    receipt_text = receipt_path.read_text(encoding="utf-8")
-    session["messages"] = [
-        {"role":"assistant","content":None,"tool_calls":[{"id":"call-test-1","type":"function","function":{"name":"read_file","arguments":json.dumps({"path":str(receipt_path)})}}]},
-        {"role":"tool","tool_call_id":"call-test-1","tool_name":"read_file","content":json.dumps({"content":receipt_text})}
-    ]
-    transcript.write_text(json.dumps(session), encoding="utf-8")
-print(f"session_id: fresh-context-worker-{count}")
-print(json.dumps(result), flush=True)
-"#,
-    )
-    .unwrap();
-    let mut permissions = fs::metadata(&executable).unwrap().permissions();
-    permissions.set_mode(0o755);
-    fs::set_permissions(&executable, permissions).unwrap();
-    let config = root.join("config/adapters/hermes-workbench.toml");
-    fs::create_dir_all(config.parent().unwrap()).unwrap();
-    fs::write(
-        config,
-        format!(
-            "schema_version = \"arda.hermes-adapter.v1\"\nadapter_version = \"context-bootstrap-test\"\nexecutable = \"{}\"\nmax_timeout_ms = 10000\ncancellation_grace_ms = 100\nmax_turns = 4\nmax_prompt_bytes = 131072\nmax_output_bytes = 1048576\ninherit_environment = [\"PATH\"]\n\n[toolsets]\nread_only = [\"file\"]\nhuman_approval = []\nexecute_with_approval = [\"file\", \"terminal\"]\nverify = [\"file\", \"terminal\"]\ncompensate_with_approval = [\"file\", \"terminal\"]\n",
-            executable.display()
-        ),
-    )
-    .unwrap();
-}
+#[path = "fixtures/context_provider.rs"]
+mod context_provider;
+use context_provider::install_fake_hermes;
 
 fn install_live_hermes(root: &Path) {
     let executable = std::env::var("ARDA_LIVE_HERMES_EXECUTABLE")
@@ -304,6 +257,7 @@ fn assembly(root: &Path, run_id: &str, worker_id: &str, parents: Vec<String>) ->
                 },
                 evidence_refs: vec!["arda://varda/evidence/context-bootstrap".into()],
                 memory_refs: vec!["mem-bootstrap-next-action".into()],
+                excluded_refs: Vec::new(),
                 unresolved_failures: Vec::new(),
                 return_contract: ContextReturnContract {
                     schema_version: "arda.organism-outcome.v1".into(),

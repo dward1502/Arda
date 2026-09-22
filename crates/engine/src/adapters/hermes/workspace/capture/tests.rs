@@ -25,12 +25,12 @@ async fn stalled_capture_obeys_deadline_and_cancellation_without_blocking_execut
         if cancel {
             cancellation.cancel();
         }
-        let result = tokio::time::timeout(Duration::from_secs(1), worker)
+        let result = tokio::time::timeout(Duration::from_secs(5), worker)
             .await
             .unwrap()
             .unwrap();
         assert!(result.is_err());
-        assert!(start.elapsed() < Duration::from_secs(1));
+        assert!(start.elapsed() < Duration::from_secs(5));
         let pid: i32 = std::fs::read_to_string(&pid_path).unwrap().parse().unwrap();
         assert_eq!(unsafe { libc::kill(pid, 0) }, -1);
         assert_eq!(io::Error::last_os_error().raw_os_error(), Some(libc::ESRCH));

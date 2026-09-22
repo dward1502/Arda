@@ -34,6 +34,18 @@ owns run/checkpoint receipts; `data/workbench/projects.json` owns project contra
 Hermes owns conversation; Vairë owns scoped continuity. Operator projections are
 read-only. Legacy queue/schedule JSONL is not an intake or recovery fallback.
 
+## Session index
+
+Each milestone has a dedicated execution plan below. Plans are session-friendly — start a new session, read the plan, execute, and mark checkboxes.
+
+| Milestone | Plan file | Status |
+|-----------|-----------|--------|
+| M1 | `M1_HERMES_OBJECTIVE_CONTROL.md` | ✅ Complete |
+| M2 | `M2_SCHEDULING_AND_RESTART.md` | ⬜ Not started |
+| M3 | `M3_LIVE_CRITIC_REVISION.md` | ⬜ Not started |
+| M4 | `M4_REAL_MULTI_PROJECT.md` | ⬜ Not started |
+| M5 | `M5_VAIRE_CONTINUITY.md` | ⬜ Not started |
+
 ## Evidence already available
 
 - Bounded installed execute/verify/review/close, paused due scheduling, cancellation,

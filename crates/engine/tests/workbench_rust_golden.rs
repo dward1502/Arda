@@ -186,6 +186,7 @@ fn graph(contract_digest: &str) -> RunGraph {
             created_by: "stage-4-rust-golden-test".into(),
             parent_receipts: Vec::new(),
         },
+        approval_receipts: Vec::new(),
     };
     graph.validate().unwrap();
     graph
@@ -226,7 +227,7 @@ cancellation_grace_ms = 100
 max_turns = 8
 max_prompt_bytes = 32768
 max_output_bytes = 65536
-inherit_environment = ["PATH", "HERMES_HOME", "ARDA_GOLDEN_TRANSCRIPT", "ARDA_GOLDEN_ATTEMPT", "ARDA_GOLDEN_MUTATION_COUNT"]
+inherit_environment = ["PATH", "HOME", "HERMES_HOME", "ARDA_GOLDEN_TRANSCRIPT", "ARDA_GOLDEN_ATTEMPT", "ARDA_GOLDEN_MUTATION_COUNT"]
 
 [toolsets]
 read_only = ["file"]
@@ -310,6 +311,7 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
     let worker_state = temp.path().join("worker-state");
     fs::create_dir(&worker_state).unwrap();
     let environment = BTreeMap::from([
+        ("HOME".into(), std::env::var("HOME").unwrap()),
         ("HERMES_HOME".into(), worker_state.display().to_string()),
         ("PATH".into(), std::env::var("PATH").unwrap()),
         (

@@ -1011,7 +1011,10 @@ async fn gateway_shared_objective_intake_is_pending_and_does_not_publish_persona
     for objective in objectives {
         assert_eq!(objective.state, ObjectiveState::PendingApproval);
         assert_eq!(objective.project_ids, vec![PROJECT_ID]);
-        assert!(store.list_leaves(&objective.id).unwrap().iter()
+        assert!(store
+            .list_leaves(&objective.id)
+            .unwrap()
+            .iter()
             .all(|leaf| leaf.authority == "read_only"));
     }
     assert_eq!(

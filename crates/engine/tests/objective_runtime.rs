@@ -50,7 +50,6 @@ use arda_engine::objectives::{
     ControlAction, LeafExecution, LeafExecutionResult, LeafExecutionSpec, NewLeaf, NewObjective,
     ObjectiveRuntime, ObjectiveState, ObjectiveStore, ProjectAuthority, ReceiptStage, StageReceipt,
 };
-use arda_engine::adapters::HermesExecutionReceipt;
 use sha2::{Digest, Sha256};
 use std::future::Future;
 use std::pin::Pin;
@@ -1231,9 +1230,7 @@ impl LeafExecution for RealExecutor {
             let leaf_id = claim.leaf_id.as_str();
 
             // Determine the pnpm command based on leaf identity.
-            let (program, args) = if leaf_id == "wgtt-build" {
-                ("pnpm", vec!["run", "build"])
-            } else if leaf_id == "skylight-build" {
+            let (program, args) = if matches!(leaf_id, "wgtt-build" | "skylight-build") {
                 ("pnpm", vec!["run", "build"])
             } else {
                 ("pnpm", vec!["run", "lint"])
@@ -1499,8 +1496,15 @@ fn partial_project_metadata_is_rejected_without_admission() {
         } else {
             input.projects[0].checks.clear();
         }
-        let error = store.create_authenticated_objective(input, 100).unwrap_err();
-        assert!(error.to_string().contains("metadata must include authority and checks together"), "{error}");
+        let error = store
+            .create_authenticated_objective(input, 100)
+            .unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("metadata must include authority and checks together"),
+            "{error}"
+        );
         assert!(store.objective("objective-runtime-1").unwrap().is_none());
     }
 }
@@ -1512,7 +1516,6 @@ async fn real_project_build_smoke_not_acceptance() {
     // with real project contracts (WGTT + SkylightPros) and real command execution.
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
-    use std::time::{Duration, Instant};
 
     let dir = tempfile::tempdir().unwrap();
     for path in ["project-a", "project-b", "join"] {
@@ -1527,7 +1530,8 @@ async fn real_project_build_smoke_not_acceptance() {
     let wgtt_root = "/var/home/mythos/Eregion/wgtt";
     let skylight_root = "/var/home/mythos/Eregion/skylightpros";
 
-    let mut objective = objective_with_text(dir.path(), "M4.2: WGTT + SkylightPros concurrent overlap");
+    let mut objective =
+        objective_with_text(dir.path(), "M4.2: WGTT + SkylightPros concurrent overlap");
     objective.projects = vec![
         ProjectAuthority {
             project_id: "2b8c494e-b847-4337-b8d0-92d0735b82db".into(),
@@ -1574,15 +1578,20 @@ async fn real_project_build_smoke_not_acceptance() {
         active: Arc::clone(&current),
         maximum: Arc::clone(&max_concurrent),
     };
-    store.create_authenticated_objective(objective, 100).unwrap();
-    store.apply_control("objective-runtime-1", ControlAction::Approve { revision: 1 }, "approve-runtime-1", "operator-1", 101).unwrap();
-    let mut runtime = ObjectiveRuntime::new(
-        store.clone(),
-        executor,
-        "arda-runtime-failure",
-        4,
-        60_000,
-    );
+    store
+        .create_authenticated_objective(objective, 100)
+        .unwrap();
+    store
+        .apply_control(
+            "objective-runtime-1",
+            ControlAction::Approve { revision: 1 },
+            "approve-runtime-1",
+            "operator-1",
+            101,
+        )
+        .unwrap();
+    let mut runtime =
+        ObjectiveRuntime::new(store.clone(), executor, "arda-runtime-failure", 4, 60_000);
     let result = runtime.run_round(300).await;
     assert!(result.is_ok());
     assert!(max_concurrent.load(Ordering::SeqCst) >= 2);
@@ -1591,17 +1600,13 @@ async fn real_project_build_smoke_not_acceptance() {
 #[tokio::test]
 async fn empty_project_authority_is_rejected() {
     // Contract validation only; this does NOT exercise dirty Git work preservation.
-    use arda_engine::objectives::ProjectAuthority;
     let dir = tempfile::tempdir().unwrap();
     for path in ["project-a", "project-b", "join"] {
         std::fs::create_dir_all(dir.path().join(path)).unwrap();
     }
     let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
 
-    let mut objective = objective_with_text(
-        dir.path(),
-        "Dirty root mutation test",
-    );
+    let mut objective = objective_with_text(dir.path(), "Dirty root mutation test");
     // Empty project authority must be rejected by contract validation.
     objective.projects[0].authority = String::new();
 
@@ -1618,10 +1623,10 @@ async fn empty_project_authority_is_rejected() {
 async fn join_validates_both_receipts_no_replay() {
     // M4.4: the join leaf must validate both project receipts before closing,
     // and after restart, no duplicate terminal records should be written.
-    use RecordingExecutor;
     use arda_engine::objectives::ControlAction;
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
+    use RecordingExecutor;
 
     let dir = tempfile::tempdir().unwrap();
     for path in ["project-a", "project-b", "join"] {
@@ -1631,25 +1636,27 @@ async fn join_validates_both_receipts_no_replay() {
     std::fs::create_dir_all(database.parent().unwrap()).unwrap();
     let store = ObjectiveStore::open(&database).unwrap();
 
-    let objective = objective_with_text(
-        dir.path(),
-        "Join validates both receipts",
-    );
+    let objective = objective_with_text(dir.path(), "Join validates both receipts");
     let executor = RecordingExecutor {
         active: Arc::new(AtomicUsize::new(0)),
         maximum: Arc::new(AtomicUsize::new(0)),
         fail_leaf: None,
     };
 
-    store.create_authenticated_objective(objective, 100).unwrap();
-    store.apply_control("objective-runtime-1", ControlAction::Approve { revision: 1 }, "approve-runtime-1", "operator-1", 101).unwrap();
-    let mut runtime = ObjectiveRuntime::new(
-        store.clone(),
-        executor,
-        "arda-runtime-failure",
-        4,
-        60_000,
-    );
+    store
+        .create_authenticated_objective(objective, 100)
+        .unwrap();
+    store
+        .apply_control(
+            "objective-runtime-1",
+            ControlAction::Approve { revision: 1 },
+            "approve-runtime-1",
+            "operator-1",
+            101,
+        )
+        .unwrap();
+    let mut runtime =
+        ObjectiveRuntime::new(store.clone(), executor, "arda-runtime-failure", 4, 60_000);
 
     // Run the independent leaves (first round) and the join leaf (second round).
     let result = runtime.run_round(300).await;
@@ -1667,8 +1674,10 @@ async fn join_validates_both_receipts_no_replay() {
     let before_leaves = serde_json::to_value(&leaves).unwrap();
     let before_objective = serde_json::to_value(&objective).unwrap();
     let receipt_count = |path: &std::path::Path| -> i64 {
-        rusqlite::Connection::open(path).unwrap()
-            .query_row("SELECT COUNT(*) FROM stage_receipts", [], |row| row.get(0)).unwrap()
+        rusqlite::Connection::open(path)
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM stage_receipts", [], |row| row.get(0))
+            .unwrap()
     };
     let before_receipts = receipt_count(&database);
     assert_eq!(before_receipts, 12);
@@ -1691,10 +1700,16 @@ async fn join_validates_both_receipts_no_replay() {
     );
 
     let result2 = runtime2.run_round(70_000).await.unwrap();
-    assert!(result2.is_empty(), "completed objective must not dispatch after lease expiry");
+    assert!(
+        result2.is_empty(),
+        "completed objective must not dispatch after lease expiry"
+    );
     assert_eq!(replay_calls.load(Ordering::SeqCst), 0);
     assert_eq!(receipt_count(&database), before_receipts);
-    assert_eq!(serde_json::to_value(store2.list_leaves("objective-runtime-1").unwrap()).unwrap(), before_leaves);
+    assert_eq!(
+        serde_json::to_value(store2.list_leaves("objective-runtime-1").unwrap()).unwrap(),
+        before_leaves
+    );
 
     // After restart, the objective should still be completed (no replay).
     let objective2 = store2.objective("objective-runtime-1").unwrap().unwrap();

@@ -77,12 +77,10 @@ fn null_authority_receipt_query_is_read_only_and_replayable() {
     assert!(proof.receipt.artifacts_retained);
     assert_eq!(proof, query(&db).unwrap());
     assert_eq!(db.total_changes(), before);
-    assert_eq!(
-        db.query_row("SELECT authority IS NULL FROM snapshots", [], |r| r
+    assert!(db
+        .query_row("SELECT authority IS NULL FROM snapshots", [], |r| r
             .get::<_, bool>(0))
-            .unwrap(),
-        true
-    );
+        .unwrap());
 }
 
 #[test]

@@ -61,13 +61,15 @@ pub(super) fn main(args: Vec<OsString>) -> Result<()> {
     let maintenance =
         arda_engine::objectives::ObjectiveStore::open_existing_maintenance(&cli.engine_db)?;
     let records = maintenance.apply_abandonment(
-        &cli.event,
-        &cli.operator,
-        &cli.durable,
-        &cli.runtime,
-        &cli.owner,
-        &cli.provenance,
-        &cli.baseline,
+        arda_engine::objectives::abandonment::AbandonmentApplication {
+            event: &cli.event,
+            operator: &cli.operator,
+            durable: &cli.durable,
+            runtime: &cli.runtime,
+            owner: &cli.owner,
+            provenance: &cli.provenance,
+            baseline: &cli.baseline,
+        },
     )?;
     println!(
         "{}",

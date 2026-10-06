@@ -10,10 +10,29 @@ fn main() {
         let raw = fs::read_to_string(path).expect("read contract");
         match arda_core::project_contract::ProjectContract::from_json_str(&raw) {
             Ok(contract) => {
-                println!("VALID: {} (project_id: {})", contract.identity.name, contract.identity.project_id);
+                println!(
+                    "VALID: {} (project_id: {})",
+                    contract.identity.name, contract.identity.project_id
+                );
                 println!("  root: {}", contract.workspace.root.as_str());
-                println!("  commands: {}", contract.commands.iter().map(|c| c.id.as_str()).collect::<Vec<_>>().join(", "));
-                println!("  checks: {}", contract.checks.iter().map(|c| c.id.as_str()).collect::<Vec<_>>().join(", "));
+                println!(
+                    "  commands: {}",
+                    contract
+                        .commands
+                        .iter()
+                        .map(|c| c.id.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
+                println!(
+                    "  checks: {}",
+                    contract
+                        .checks
+                        .iter()
+                        .map(|c| c.id.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
                 println!("  authority: {:?}", contract.permissions.authority);
             }
             Err(e) => {

@@ -231,8 +231,8 @@ fn active_rebind(lose_ack: bool, restart: bool, incomplete: bool, terminal: u8) 
                 projects: vec![ProjectAuthority {
                     project_id: "fixture".into(),
                     contract_digest: "sha256:fixture".into(),
-                authority: "operator_test".into(),
-                checks: vec!["build".into(), "lint".into()],
+                    authority: "operator_test".into(),
+                    checks: vec!["build".into(), "lint".into()],
                 }],
                 leaves: vec![NewLeaf {
                     id: "leaf".into(),

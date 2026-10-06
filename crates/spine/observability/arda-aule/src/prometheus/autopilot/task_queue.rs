@@ -8104,7 +8104,10 @@ mod tests {
             extra,
             ..blank("tsk-a")
         };
-        assert!(!dependencies_satisfied(&record, &[record.clone()]));
+        assert!(!dependencies_satisfied(
+            &record,
+            std::slice::from_ref(&record)
+        ));
     }
 
     #[test]
@@ -8127,7 +8130,10 @@ mod tests {
             extra,
             ..blank("tsk-a")
         };
-        assert!(dependencies_satisfied(&record, &[dep1, dep2, record.clone()]));
+        assert!(dependencies_satisfied(
+            &record,
+            &[dep1, dep2, record.clone()]
+        ));
     }
 
     #[test]
@@ -8150,6 +8156,9 @@ mod tests {
             extra,
             ..blank("tsk-a")
         };
-        assert!(!dependencies_satisfied(&record, &[dep1, dep2, record.clone()]));
+        assert!(!dependencies_satisfied(
+            &record,
+            &[dep1, dep2, record.clone()]
+        ));
     }
 }

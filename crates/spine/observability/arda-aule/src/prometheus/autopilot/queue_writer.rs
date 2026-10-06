@@ -97,7 +97,10 @@ pub(super) fn append_plan_to_queue_with_gate_metadata(
             .map(|d| d.assigned_agent.clone())
             .or_else(|| t.assigned_agent.clone())
             .unwrap_or_else(|| "ceo".into());
-        let id = id_for_key.get(t.key.as_str()).cloned().unwrap_or_else(|| task_id_for(objective_id, &t.key, now));
+        let id = id_for_key
+            .get(t.key.as_str())
+            .cloned()
+            .unwrap_or_else(|| task_id_for(objective_id, &t.key, now));
         let depends_on: Vec<String> = t
             .depends_on
             .iter()

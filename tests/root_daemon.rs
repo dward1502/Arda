@@ -280,7 +280,7 @@ scout_url = "http://fleet.example:8092"
         child_pid.trim().parse::<u32>().expect("numeric child pid")
     );
 
-    let objective_status = client
+    let _objective_status = client
         .get(format!("http://{harness_addr}/v1/objective-runtime"))
         .send()
         .await
@@ -364,6 +364,9 @@ scout_url = "http://fleet.example:8092"
     assert_eq!(shutdown_objective_status["phase"], "waiting");
     assert_eq!(shutdown_objective_status["ready"], true);
     assert_eq!(shutdown_objective_status["pending_recovery"], 0);
-    assert_eq!(shutdown_objective_status["active_leaves"], serde_json::json!([]));
+    assert_eq!(
+        shutdown_objective_status["active_leaves"],
+        serde_json::json!([])
+    );
     assert!(shutdown_objective_status["last_error"].is_null());
 }

@@ -4,6 +4,18 @@ mod application;
 mod disposition;
 mod reservations;
 
+/// Files and identifiers for an existing authenticated retirement intent.
+/// Supplying this request does not establish authority; application verifies it.
+pub struct AbandonmentApplication<'a> {
+    pub event: &'a str,
+    pub operator: &'a str,
+    pub durable: &'a std::path::Path,
+    pub runtime: &'a std::path::Path,
+    pub owner: &'a str,
+    pub provenance: &'a std::path::Path,
+    pub baseline: &'a std::path::Path,
+}
+
 // Transaction-local reservation exclusion only; never execution/release authority.
 pub(super) fn verified_reservations(
     tx: &rusqlite::Transaction<'_>,

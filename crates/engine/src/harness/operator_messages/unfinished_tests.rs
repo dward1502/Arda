@@ -1392,9 +1392,7 @@ async fn run_waiter_loss_positive() {
             .collect();
         assert_eq!(files.len(), 1);
         let outcome_bytes = std::fs::read(&files[0]).unwrap();
-        let reconnect = invoke(true)
-            .await
-            .expect_err("fenced reconnect succeeded");
+        let reconnect = invoke(true).await.expect_err("fenced reconnect succeeded");
         use axum::response::IntoResponse;
         let response = reconnect.into_response();
         assert_eq!(

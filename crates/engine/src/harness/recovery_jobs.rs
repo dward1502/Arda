@@ -84,7 +84,9 @@ impl<T: Clone + Send + Sync + 'static> OwnedJobs<T> {
         }
         let mut result = if let Some(job) = jobs.get(&key) {
             if job.digest != digest {
-                return Err(ApiError::conflict("active execution request payload changed"));
+                return Err(ApiError::conflict(
+                    "active execution request payload changed",
+                ));
             }
             job.result.clone()
         } else {

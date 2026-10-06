@@ -1,3 +1,4 @@
+pub mod abandonment;
 pub(crate) mod agenda;
 #[cfg(target_os = "linux")]
 pub mod capture_envelope;
@@ -16,10 +17,9 @@ pub mod runtime_operation;
 pub mod runtime_policy;
 mod scheduling;
 pub mod snapshot_protocol;
-pub mod abandonment;
-pub mod terminal_revocation;
 mod snapshots;
 mod store;
+pub mod terminal_revocation;
 #[cfg(target_os = "linux")]
 pub mod tree_witness;
 mod workbench;

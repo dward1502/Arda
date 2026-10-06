@@ -1,0 +1,113 @@
+name: Source Validation
+
+on:
+  pull_request:
+  push:
+    branches: [main, 'reliability/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_BUILD_JOBS: 2
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_DEV_DEBUG: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
+  RUST_BACKTRACE: 1
+
+jobs:
+  rust-format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.98.0
+        with:
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+      - if: ${{ !cancelled() }}
+        run: cargo fmt --manifest-path apps/arda-hud/src-tauri/Cargo.toml -- --check
+      - if: ${{ !cancelled() }}
+        run: cargo fmt --manifest-path apps/arda-mirromere/src-tauri/Cargo.toml -- --check
+
+  rust:
+    name: Rust (${{ matrix.workspace }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - workspace: root-including-launcher
+            manifest: Cargo.toml
+          - workspace: hud-native
+            manifest: apps/arda-hud/src-tauri/Cargo.toml
+          - workspace: mirromere-native
+            manifest: apps/arda-mirromere/src-tauri/Cargo.toml
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native prerequisites
+        run: sudo bash scripts/ci/install-linux-deps.sh
+      - uses: dtolnay/rust-toolchain@1.98.0
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.workspace }}
+          workspaces: |
+            . -> target
+            apps/arda-hud/src-tauri -> target
+            apps/arda-mirromere/src-tauri -> target
+      - name: Compile every target and feature
+        run: cargo check --manifest-path '${{ matrix.manifest }}' --workspace --all-targets --all-features --locked
+      - name: Run isolated tests (declared ignored tests stay opt-in)
+        if: ${{ !cancelled() }}
+        run: xvfb-run -a cargo test --manifest-path '${{ matrix.manifest }}' --workspace --all-targets --all-features --locked -- --test-threads=1
+      - name: Clippy
+        if: ${{ !cancelled() }}
+        run: cargo clippy --manifest-path '${{ matrix.manifest }}' --workspace --all-targets --all-features --locked -- -D warnings
+
+  frontend:
+    name: Frontend (${{ matrix.path }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - path: apps/arda-launcher
+            check: build
+            lint: true
+          - path: apps/arda-hud
+            check: build
+            lint: true
+          - path: apps/arda-mirromere
+            check: build
+            lint: false
+          - path: packages/arda-mirromere-ui
+            check: typecheck
+            lint: false
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.8.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: '**/pnpm-lock.yaml'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test --maxWorkers=2
+      - if: ${{ !cancelled() }}
+        run: pnpm run ${{ matrix.check }}
+      - if: ${{ !cancelled() && matrix.lint }}
+        run: pnpm lint

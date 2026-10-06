@@ -29,16 +29,16 @@ impl super::super::store::ObjectiveMaintenance {
     /// Concrete keeper-first application. Supplied files must exactly match
     /// durable authenticated intent; they cannot create or expand authority.
     /// Never supplies cleanup acknowledgements or changes historical attempts.
-    pub fn apply_abandonment(
-        &self,
-        event: &str,
-        operator: &str,
-        durable: &Path,
-        runtime: &Path,
-        owner: &str,
-        provenance: &Path,
-        baseline: &Path,
-    ) -> Result<Vec<Value>> {
+    pub fn apply_abandonment(&self, request: AbandonmentApplication<'_>) -> Result<Vec<Value>> {
+        let AbandonmentApplication {
+            event,
+            operator,
+            durable,
+            runtime,
+            owner,
+            provenance,
+            baseline,
+        } = request;
         keeper_abandonment::engine_stopped()?;
         let baseline: AbandonmentManifest = serde_json::from_slice(&std::fs::read(baseline)?)?;
         baseline.validate()?;

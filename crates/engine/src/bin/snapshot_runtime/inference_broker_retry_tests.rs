@@ -97,7 +97,10 @@ async fn errors_without_attestation_preserve_channel_but_not_success_authority()
                     std::io::ErrorKind::UnexpectedEof
                 );
             } else {
-                assert_eq!(result.unwrap_err().to_string(), "unapproved inference route");
+                assert_eq!(
+                    result.unwrap_err().to_string(),
+                    "unapproved inference route"
+                );
             }
         }
     }

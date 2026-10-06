@@ -1667,10 +1667,7 @@ impl CeoAutopilot {
 
             let plan_joules = plan.iter().map(|task| task.joule_cost).sum::<f64>();
             let binding_governance_authorized = governance.allowed_to_delegate
-                && matches!(
-                    governance.gate,
-                    GovernanceGate::TriadQuorumApproved
-                );
+                && matches!(governance.gate, GovernanceGate::TriadQuorumApproved);
             if validation.ok
                 && gate.allows_delegation()
                 && (governance.allowed_to_delegate || cycle_obj.human_approved)

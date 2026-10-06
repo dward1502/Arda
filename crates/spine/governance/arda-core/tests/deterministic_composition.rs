@@ -25,6 +25,7 @@ fn graph_for(composition: &CapabilityComposition) -> RunGraph {
         objective_id: ObjectiveId::new(composition.lineage.objective_id.clone()).unwrap(),
         nodes: vec![],
         edges: vec![],
+        approval_receipts: Vec::new(),
         provenance: Provenance {
             project_contract_digest: composition.lineage.project_contract_digest.clone(),
             created_by: "deterministic-composition-test".to_string(),
@@ -50,7 +51,6 @@ fn declaration(
         execution_adapter,
         removal_status: CapabilityRemovalStatus::Active,
         provenance,
-        approval_receipts: Vec::new(),
     }
 }
 

@@ -483,7 +483,10 @@ fn communications_are_projected_from_proactive_cycle_ledger() {
         .find(|c| c.communication_id == "comm-1")
         .expect("comm-1 should be projected");
     assert_eq!(comm1.transport, "operator_session");
-    assert_eq!(comm1.delivery, arda_core::operator_projection::DeliveryStatus::Delivered);
+    assert_eq!(
+        comm1.delivery,
+        arda_core::operator_projection::DeliveryStatus::Delivered
+    );
     assert_eq!(
         comm1.acknowledgement,
         arda_core::operator_projection::AcknowledgementStatus::NotRequired
@@ -508,7 +511,10 @@ fn communications_are_projected_from_proactive_cycle_ledger() {
         .find(|c| c.communication_id == "comm-3")
         .expect("comm-3 should be projected");
     assert_eq!(comm3.transport, "digest");
-    assert_eq!(comm3.delivery, arda_core::operator_projection::DeliveryStatus::Pending);
+    assert_eq!(
+        comm3.delivery,
+        arda_core::operator_projection::DeliveryStatus::Pending
+    );
     assert_eq!(
         comm3.acknowledgement,
         arda_core::operator_projection::AcknowledgementStatus::Acknowledged

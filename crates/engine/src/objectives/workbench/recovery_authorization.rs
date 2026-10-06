@@ -102,10 +102,12 @@ impl RecoveryAuthorization {
                 Ok((publication, guard))
             },
         )?;
-        self.store
-            .reconcile_recovery_completion(&self.root, &self.operator_id, &self.event_id, |publication| {
-                Self::apply_completed_publication(&self.root, publication)
-            })
+        self.store.reconcile_recovery_completion(
+            &self.root,
+            &self.operator_id,
+            &self.event_id,
+            |publication| Self::apply_completed_publication(&self.root, publication),
+        )
     }
 
     fn checked(

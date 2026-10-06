@@ -808,6 +808,7 @@ fn project_receipts(
 /// accept|revise|escalate disposition, and routes rejection back to the
 /// affected node. Deterministic verification is kept separate from
 /// semantic review.
+#[cfg(test)]
 fn independent_critic_review(
     _run_id: &str,
     execute_digest: &str,
@@ -936,7 +937,7 @@ mod tests {
                 status: HermesReceiptStatus::Succeeded,
                 summary: if stage == "review" {
                     let criticism = independent_critic_review(
-                        &run_id,
+                        run_id,
                         &execute_digest,
                         &verify_digest,
                         &project_digest,

@@ -46,6 +46,7 @@ fn context(now_ms: u128, memory_refs: Vec<String>) -> OrganismContext {
         },
         evidence_refs: vec!["arda://varda/evidence/context-bootstrap".into()],
         memory_refs,
+        excluded_refs: Vec::new(),
         unresolved_failures: Vec::new(),
         return_contract: ContextReturnContract {
             schema_version: "arda.organism-outcome.v1".into(),

@@ -60,8 +60,8 @@ fn admission(root: &TempDir) -> (Keeper, TempDir, ObjectiveStore, String, Retain
                 projects: vec![ProjectAuthority {
                     project_id: PROJECT_ID.into(),
                     contract_digest: "sha256:fixture".into(),
-                authority: "operator_test".into(),
-                checks: vec!["build".into(), "lint".into()],
+                    authority: "operator_test".into(),
+                    checks: vec!["build".into(), "lint".into()],
                 }],
                 leaves: vec![NewLeaf {
                     id: "leaf".into(),

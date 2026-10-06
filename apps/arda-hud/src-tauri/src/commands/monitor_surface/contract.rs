@@ -1,9 +1,9 @@
 use std::sync::Mutex;
 
 use crate::commands::monitor_surface::registry::{
-    session_registry_document_json, validate_playback_state, validate_registry_document,
-    validate_session_content, ActiveSessionProjection, MonitorSessionRecord,
-    SessionRegistryDocument, MONITOR_SESSION_REGISTRY_SCHEMA_VERSION,
+    validate_playback_state, validate_registry_document, validate_session_content,
+    ActiveSessionProjection, MonitorSessionRecord, SessionRegistryDocument,
+    MONITOR_SESSION_REGISTRY_SCHEMA_VERSION,
 };
 
 #[derive(Debug, Default)]
@@ -147,6 +147,7 @@ impl MonitorSurfaceContractState {
         Ok(registry.clone())
     }
 
+    #[cfg(test)]
     pub fn active_session(&self, slot_id: &str) -> Option<MonitorSessionRecord> {
         let registry = self.registry.lock().unwrap();
         let record = registry.sessions.get(slot_id)?;
@@ -157,6 +158,7 @@ impl MonitorSurfaceContractState {
         }
     }
 
+    #[cfg(test)]
     pub fn active_snapshot(&self) -> SessionRegistryDocument {
         let registry = self.registry.lock().unwrap();
         SessionRegistryDocument {
@@ -165,9 +167,10 @@ impl MonitorSurfaceContractState {
         }
     }
 
+    #[cfg(test)]
     pub fn session_json(&self) -> Result<String, String> {
         let registry = self.registry.lock().unwrap();
-        session_registry_document_json(&registry)
+        super::registry::session_registry_document_json(&registry)
     }
 
     pub fn session_registry(&self) -> SessionRegistryDocument {

@@ -3,7 +3,8 @@ mod presentation_tests;
 
 pub mod browser_capture;
 pub mod contract;
-pub mod monitor_surface;
+#[path = "monitor_surface.rs"]
+pub mod lease;
 pub mod presentation;
 #[cfg(unix)]
 pub mod presentation_socket;
@@ -11,7 +12,7 @@ pub mod pty_capture;
 pub mod registry;
 pub mod typed;
 
-pub use monitor_surface::{
+pub use lease::{
     claim_monitor_slot, push_surface_payload, refresh_monitor_slot_lease, release_monitor_slot,
     MonitorSurfaceState,
 };

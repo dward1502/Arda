@@ -413,7 +413,7 @@ fn resolve_mutation_intent_from(
     if age > max_age_seconds {
         return Err("configured Workbench approval has expired".to_string());
     }
-    let digest = stable_hash(&[action, resource, approval_reference, &operator_id]);
+    let digest = stable_hash(&[action, resource, approval_reference, operator_id]);
     Ok(MutationEnvelope {
         approval,
         idempotency_key: format!("workbench-{action}-{digest:016x}"),
@@ -615,7 +615,7 @@ async fn decode<T: DeserializeOwned>(response: reqwest::Response) -> Result<T, S
 }
 
 fn decode_harness_error(status: reqwest::StatusCode, bytes: &[u8]) -> String {
-    match serde_json::from_slice::<HarnessErrorEnvelope>(&bytes) {
+    match serde_json::from_slice::<HarnessErrorEnvelope>(bytes) {
         Ok(envelope)
             if envelope.schema_version == "arda.hud.error.v1"
                 && envelope.status == "failed"

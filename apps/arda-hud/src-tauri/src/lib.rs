@@ -766,7 +766,7 @@ fn run_chronos_provider_checks(
     let state_json = fs::read_to_string(Path::new(&arda_root).join(&result_path))
         .ok()
         .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
-        .unwrap_or_else(|| serde_json::Value::Null);
+        .unwrap_or(serde_json::Value::Null);
     let status = json_string_field(&state_json, "status").unwrap_or_else(|| "unknown".to_string());
 
     Ok(local_action_result_from_state(
@@ -819,7 +819,7 @@ fn run_queue_cleanup_preview(
     let state_json = fs::read_to_string(Path::new(&arda_root).join(&result_path))
         .ok()
         .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
-        .unwrap_or_else(|| serde_json::Value::Null);
+        .unwrap_or(serde_json::Value::Null);
     let queued_total = state_json
         .get("project_tasks")
         .and_then(|project_tasks| project_tasks.get("counts_by_status"))
@@ -876,7 +876,7 @@ fn run_rumil_organization_maintenance(
     let state_json = fs::read_to_string(Path::new(&arda_root).join(receipt_path))
         .ok()
         .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
-        .unwrap_or_else(|| serde_json::Value::Null);
+        .unwrap_or(serde_json::Value::Null);
     let status = json_string_field(&state_json, "status").unwrap_or_else(|| "unknown".to_string());
     let result_path = "data/rumil/storage_hygiene/summary.json".to_string();
 
@@ -944,8 +944,8 @@ fn run_setup_console_audit_receipt(
         ));
     }
 
-    let summary = serde_json::from_str::<serde_json::Value>(&stdout)
-        .unwrap_or_else(|_| serde_json::Value::Null);
+    let summary =
+        serde_json::from_str::<serde_json::Value>(&stdout).unwrap_or(serde_json::Value::Null);
     let receipt_path = json_string_field(&summary, "receipt")
         .unwrap_or_else(|| format!("{out_dir}/setup_console_readiness_receipt.json"));
     let result_path =
@@ -953,7 +953,7 @@ fn run_setup_console_audit_receipt(
     let state_json = fs::read_to_string(Path::new(arda_root).join(&result_path))
         .ok()
         .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
-        .unwrap_or_else(|| serde_json::Value::Null);
+        .unwrap_or(serde_json::Value::Null);
     let gate_status =
         json_string_field(&state_json, "gate_status").unwrap_or_else(|| "unknown".to_string());
 
@@ -1108,12 +1108,12 @@ fn run_repeated_audit_preview(
         ));
     }
 
-    let cli_summary = serde_json::from_str::<serde_json::Value>(&stdout)
-        .unwrap_or_else(|_| serde_json::Value::Null);
+    let cli_summary =
+        serde_json::from_str::<serde_json::Value>(&stdout).unwrap_or(serde_json::Value::Null);
     let state_json = fs::read_to_string(Path::new(&arda_root).join(state_path))
         .ok()
         .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
-        .unwrap_or_else(|| serde_json::Value::Null);
+        .unwrap_or(serde_json::Value::Null);
     let gate_status = json_string_field(&state_json, "gate_status")
         .or_else(|| json_string_field(&cli_summary, "gate_status"))
         .unwrap_or_else(|| "unknown".to_string());
@@ -1962,6 +1962,10 @@ fn write_scoped_file(
     }
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Preserve the existing named Tauri IPC arguments used by the frontend"
+)]
 #[tauri::command]
 fn approve_human_augmentation_action(
     numenor_path: String,
@@ -2142,6 +2146,10 @@ fn retry_approved_queue_task_action(arda_root: String, task_id: String) -> Resul
     run_approved_queue_cli(arda_root, &["retry-approved-task", &task_id])
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Preserve the existing named Tauri IPC arguments used by the frontend"
+)]
 #[tauri::command]
 fn record_ceo_council_session_action(
     numenor_path: String,

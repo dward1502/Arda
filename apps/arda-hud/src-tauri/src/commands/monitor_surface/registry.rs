@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+#[cfg(test)]
 use std::sync::Mutex;
 
 pub const MONITOR_SESSION_REGISTRY_SCHEMA_VERSION: &str = "arda.monitor-session-registry.v2";
-pub const MONITOR_SURFACE_SCHEMA_VERSION: &str = "arda.monitor-surface-session.v2";
 
 #[derive(Debug, Default)]
+#[cfg(test)]
 pub struct MonitorSessionRegistryState {
     sessions: Mutex<HashMap<String, MonitorSessionRecord>>,
 }
@@ -44,15 +45,11 @@ pub struct SessionRegistryDocument {
     pub sessions: HashMap<String, MonitorSessionRecord>,
 }
 
+#[cfg(test)]
 impl MonitorSessionRegistryState {
     pub fn insert_session(&self, session: MonitorSessionRecord) {
         let mut guard = self.sessions.lock().unwrap();
         guard.insert(session.slot_id.clone(), session);
-    }
-
-    pub fn remove_session(&self, slot_id: &str) -> Option<MonitorSessionRecord> {
-        let mut guard = self.sessions.lock().unwrap();
-        guard.remove(slot_id)
     }
 
     pub fn active_session(&self, slot_id: &str) -> Option<MonitorSessionRecord> {
@@ -152,12 +149,14 @@ pub fn validate_registry_document(document: &SessionRegistryDocument) -> Result<
     Ok(())
 }
 
+#[cfg(test)]
 pub fn session_registry_document_json(
     document: &SessionRegistryDocument,
 ) -> Result<String, String> {
     serde_json::to_string_pretty(document).map_err(|error| error.to_string())
 }
 
+#[cfg(test)]
 pub fn parse_session_registry_document(value: Option<&str>) -> Option<SessionRegistryDocument> {
     let raw = value?.trim();
     if raw.is_empty() {

@@ -1,6 +1,7 @@
 /target
 **/target
 Cargo.lock
+!/apps/arda-mirromere/src-tauri/Cargo.lock
 .cargo/
 release/
 debug/

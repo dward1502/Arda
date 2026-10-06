@@ -1656,7 +1656,7 @@ fn validate_project_authority(project: &super::ProjectAuthority) -> Result<()> {
             || (project.checks.is_empty() && project.authority != "read_only")
             || project.checks.iter().any(|check| check.trim().is_empty()))
     {
-        bail!("project authority metadata requires authority and checks unless read_only");
+        bail!("project authority metadata must include authority and checks together unless read_only");
     }
     Ok(())
 }

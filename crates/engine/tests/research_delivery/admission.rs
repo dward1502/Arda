@@ -250,7 +250,11 @@ pub(super) async fn exercise(
         ObjectiveState::Approved
     );
     drop(store);
+    // Recovery must observe the crashed process through a freshly opened reader,
+    // rather than retaining this pre-crash fixture observer across that boundary.
+    drop(conn);
     let interrupted = super::admission_restart::interrupt(root, crash_stage).await;
+    let conn = rusqlite::Connection::open(&db).unwrap();
     let run_id = interrupted.execution_run_id.as_deref().unwrap();
     let execute_path = root
         .path()

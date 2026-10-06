@@ -47,6 +47,10 @@ without modifying the operator host. Ordinary isolated namespace fixtures run;
 tests declared ignored for installed authority or additional qualification remain
 opt-in.
 
+Both `/tmp` and `/var/tmp` are backed by task-owned directories on the qualified
+host filesystem. The latter is explicit because keeper tests intentionally use
+`/var/tmp` for durable state and `/dev/shm` for ephemeral endpoints.
+
 ## Coverage and opt-in work
 
 | Job | Compilation / analysis | Execution |
@@ -85,3 +89,36 @@ and conversation resolution, with no required status-check contexts; the ruleset
 API returned an empty array. No protection settings were changed. Require checks
 only after inspecting actual job names and successful remote runs. Local YAML or
 a passing root build cannot stand in for native/UI jobs or remote execution.
+
+## October 6, 2026 validation
+
+Source implementation: `ee6d0d1833824b3a163ba96c6711d0a76bc222c4` on
+`reliability/r03-native-ci`. The local checkout remains on `f5c8a361` with operator
+work preserved; the 38 modified Rust files match the committed validation branch.
+
+- Full root all-target/all-feature compilation passes with launcher included.
+- Full root tests, `--workspace --all-targets --all-features --locked --offline
+  --no-fail-fast -- --test-threads=1`: **2,378 passed, 0 failed, 61 ignored**,
+  across 179 target summaries. The ignored tests retain their declared opt-in
+  requirements; no installed provider/keeper qualification is inferred.
+- Frontend tests: launcher 20, HUD 623, Mirromere 6, shared UI 11 passed.
+  All app builds and shared UI typecheck passed. Existing frontend lint warnings
+  remain visible; both available lint scripts return success.
+- Full root all-target/all-feature Clippy passes with `-D warnings`, including
+  launcher. Root/HUD/Mirromere formatting passes. Local evidence and exact ignored-test
+  names are under `target/qualification/reliability-20261006/`, including
+  `manifest.json`, `full-workspace-tests-final.log`, and `ignored-tests.txt`.
+- [Final remote matrix](https://github.com/dward1502/Arda/actions/runs/37438628947)
+  passed all eight jobs on the clean checkout, including root tests/strict Clippy,
+  both separate native workspaces and all four frontend/shared-UI jobs. Runner
+  namespace policy restoration also passed. The branch is not merged; required
+  status checks and installed acceptance remain unchanged.
+
+The baseline repairs include two stale fixture initializers, shutdown tests that
+previously polled an already-closed HTTP server, and a crash-recovery fixture that
+retained a raw SQLite observer across process interruption. Production changes
+are limited to contextual authority-open errors, a typed retirement request with
+unchanged authority checks, and admission of read-only projects with no executable
+checks. A regression verifies that the last case remains pending approval and
+does not allow unchecked execution metadata. No installed binary or historical
+authority database was repaired or replaced by this validation task.

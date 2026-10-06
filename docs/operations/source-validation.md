@@ -19,7 +19,7 @@ For Bluefin/immutable hosts, use the reusable development container:
 ```sh
 podman build -t localhost/arda-native-check:ubuntu24.04 -f scripts/ci/Containerfile scripts/ci
 bash scripts/ci/native-check.sh
-bash scripts/ci/native-check.sh xvfb-run -a cargo test --workspace --all-targets --all-features --locked --offline -- --test-threads=1
+bash scripts/ci/native-check.sh cargo test --workspace --all-targets --all-features --locked --offline --no-fail-fast -- --test-threads=1
 bash scripts/ci/native-check.sh cargo clippy --workspace --all-targets --all-features --locked --offline -- -D warnings
 ```
 
@@ -31,6 +31,8 @@ install or start Arda or inference. The image installs actual native libraries;
 it does not bypass pkg-config or exclude launcher targets. Debug information and
 incremental compilation are disabled to bound disk use. Tests must continue to
 use temporary state; ignored installed qualification is not enabled here.
+The container unit/integration suite runs directly: the local Xvfb wrapper stalled
+before launching Cargo. GitHub's Ubuntu runner supports Xvfb and uses it there.
 
 ## Coverage and opt-in work
 

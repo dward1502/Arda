@@ -67,7 +67,7 @@ jobs:
         run: cargo check --manifest-path '${{ matrix.manifest }}' --workspace --all-targets --all-features --locked
       - name: Run isolated tests (declared ignored tests stay opt-in)
         if: ${{ !cancelled() }}
-        run: xvfb-run -a cargo test --manifest-path '${{ matrix.manifest }}' --workspace --all-targets --all-features --locked -- --test-threads=1
+        run: xvfb-run -a cargo test --manifest-path '${{ matrix.manifest }}' --workspace --all-targets --all-features --locked --no-fail-fast -- --test-threads=1
       - name: Clippy
         if: ${{ !cancelled() }}
         run: cargo clippy --manifest-path '${{ matrix.manifest }}' --workspace --all-targets --all-features --locked -- -D warnings

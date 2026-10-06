@@ -63,7 +63,8 @@ impl AuthorityLease {
         let database = OpenOptions::new()
             .read(true)
             .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
-            .open(path)?;
+            .open(path)
+            .context("open ObjectiveStore authority database")?;
         if !database.metadata()?.is_file() {
             bail!("invalid ObjectiveStore database file");
         }

@@ -2,7 +2,9 @@ use super::model::{ClaimedLeaf, ReceiptStage, StageReceipt};
 use super::runtime::{LeafExecution, LeafExecutionResult};
 use crate::adapters::{HermesExecutionReceipt, HermesReceiptStatus};
 use anyhow::{anyhow, bail, Context, Result};
-use arda_aule::prometheus::autopilot::workbench_executor::ExplicitWorkspaceAuthorization;
+use arda_aule::prometheus::autopilot::workbench_executor::{
+    ExplicitRuntimeAdmission, ExplicitWorkspaceAuthorization,
+};
 
 /// Independent critic disposition produced by P0.6 challenge/review.
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -50,12 +52,14 @@ pub trait ExplicitWorkbenchExecution: Send + Sync {
     fn inspect_retry_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
     ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
-        self.reconcile_explicit(item)
+        self.reconcile_explicit(item, owner)
     }
     fn execute_explicit_authorized<'a>(
         &'a self,
         _item: &'a ExplicitWorkbenchWorkItem,
+        _owner: &'a dyn ExplicitRuntimeAdmission,
         _authority: &'a dyn ExplicitWorkspaceAuthorization,
     ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
         Box::pin(
@@ -65,6 +69,7 @@ pub trait ExplicitWorkbenchExecution: Send + Sync {
     fn reconcile_explicit<'a>(
         &'a self,
         _item: &'a ExplicitWorkbenchWorkItem,
+        _owner: &'a dyn ExplicitRuntimeAdmission,
     ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
         Box::pin(async { Ok(None) })
     }
@@ -72,6 +77,7 @@ pub trait ExplicitWorkbenchExecution: Send + Sync {
     fn execute_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
     ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>>;
 }
 
@@ -79,28 +85,32 @@ impl ExplicitWorkbenchExecution for WorkbenchExecutionAdapter {
     fn inspect_retry_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
     ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
-        Box::pin(async move { self.reconcile_for_retry(item).await })
+        Box::pin(async move { self.reconcile_for_retry(item, owner).await })
     }
     fn execute_explicit_authorized<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
         authority: &'a dyn ExplicitWorkspaceAuthorization,
     ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
-        Box::pin(async move { self.execute_authorized(item, authority).await })
+        Box::pin(async move { self.execute_authorized(item, authority, owner).await })
     }
     fn reconcile_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
     ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
-        Box::pin(async move { self.reconcile(item).await })
+        Box::pin(async move { self.reconcile(item, owner).await })
     }
 
     fn execute_explicit<'a>(
         &'a self,
         item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
     ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
-        Box::pin(async move { self.execute(item).await })
+        Box::pin(async move { self.execute(item, owner).await })
     }
 }
 
@@ -288,9 +298,9 @@ where
             };
             let outcome = if reconciliation_only {
                 let evidence = if matches!(mode, ClaimExecutionMode::RetryInspection) {
-                    adapter.inspect_retry_explicit(&item).await?
+                    adapter.inspect_retry_explicit(&item, &store).await?
                 } else {
-                    adapter.reconcile_explicit(&item).await?
+                    adapter.reconcile_explicit(&item, &store).await?
                 };
                 match evidence {
                     Some(outcome) => outcome,
@@ -303,10 +313,10 @@ where
                     &item,
                 )?;
                 adapter
-                    .execute_explicit_authorized(&item, &authorize)
+                    .execute_explicit_authorized(&item, &store, &authorize)
                     .await?
             } else {
-                adapter.execute_explicit(&item).await?
+                adapter.execute_explicit(&item, &store).await?
             };
             if outcome.run_id != run_id {
                 bail!(
@@ -356,36 +366,38 @@ fn assemble_resident_context(
     let consumer_id = format!("arda.resident-objective:{run_id}");
     let mut consumer = ConsumerContext::new(
         &consumer_id,
-        vec![MemoryDomain::Personal, MemoryDomain::Business, MemoryDomain::System],
+        vec![
+            MemoryDomain::Personal,
+            MemoryDomain::Business,
+            MemoryDomain::System,
+        ],
     );
     consumer.purpose = Some(ContextAssembly::project_purpose(&execution.objective));
     consumer.operator_authorized = true;
     // P1.1: recall across declared scopes, then partition selected/excluded.
     let all_recalled = service.recall_governed_memories(Some(&consumer))?;
-    let (selected, excluded): (Vec<_>, Vec<_>) = all_recalled
-        .into_iter()
-        .partition(|record| {
-            record
+    let (selected, excluded): (Vec<_>, Vec<_>) = all_recalled.into_iter().partition(|record| {
+        record
+            .extensions
+            .get("resident_objective_outcome")
+            .and_then(serde_json::Value::as_bool)
+            == Some(true)
+            && record
                 .extensions
-                .get("resident_objective_outcome")
-                .and_then(serde_json::Value::as_bool)
-                == Some(true)
-                && record
-                    .extensions
-                    .get("objective_id")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(claim.objective_id.as_str())
-                && record
-                    .extensions
-                    .get("project_id")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(project_id)
-                && record
-                    .extensions
-                    .get("project_contract_digest")
-                    .and_then(serde_json::Value::as_str)
-                    == claim.project_contract_digest.as_deref()
-        });
+                .get("objective_id")
+                .and_then(serde_json::Value::as_str)
+                == Some(claim.objective_id.as_str())
+            && record
+                .extensions
+                .get("project_id")
+                .and_then(serde_json::Value::as_str)
+                == Some(project_id)
+            && record
+                .extensions
+                .get("project_contract_digest")
+                .and_then(serde_json::Value::as_str)
+                == claim.project_contract_digest.as_deref()
+    });
     let memory_refs: Vec<_> = selected.into_iter().take(8).map(|r| r.id).collect();
     let excluded_refs: Vec<_> = excluded.into_iter().map(|r| r.id).collect();
     let now = Utc::now().timestamp_millis().max(0) as u128;
@@ -399,7 +411,11 @@ fn assemble_resident_context(
             role: RoleKind::Worker,
             authority_ceiling: CompositionAuthorityClass::ExecuteWithApproval,
             operator_authorized: true,
-            memory_domains: vec![MemoryDomain::Personal, MemoryDomain::Business, MemoryDomain::System],
+            memory_domains: vec![
+                MemoryDomain::Personal,
+                MemoryDomain::Business,
+                MemoryDomain::System,
+            ],
             data_classes: vec![DataClass::Internal],
             permitted_egress: vec![EgressTarget::LocalDevice],
             compute_node_refs: Vec::new(),
@@ -845,6 +861,7 @@ mod tests {
         fn execute_explicit<'a>(
             &'a self,
             item: &'a ExplicitWorkbenchWorkItem,
+            _owner: &'a dyn ExplicitRuntimeAdmission,
         ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
             let mut outcome = self.outcome.clone();
             let root = self.root.clone();
@@ -1074,6 +1091,8 @@ mod tests {
                     projects: vec![crate::objectives::ProjectAuthority {
                         project_id: claim.project_id.clone().unwrap(),
                         contract_digest: project_digest.clone(),
+                        authority: claim.authority.clone(),
+                        checks: vec!["build".into(), "lint".into()],
                     }],
                     leaves: vec![crate::objectives::NewLeaf {
                         id: claim.leaf_id.clone(),

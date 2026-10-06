@@ -18,11 +18,13 @@ use std::{
     time::{Duration, Instant},
 };
 
+mod keeper_abandonment;
 mod keeper_config;
 mod keeper_managed;
 mod keeper_owner;
 mod keeper_readiness;
 mod keeper_reconcile;
+mod keeper_retirement;
 mod keeper_storage;
 #[path = "snapshot_admission/physical.rs"]
 mod snapshot_physical;
@@ -43,6 +45,12 @@ fn private_directory(path: &Path) -> Result<PathBuf> {
 }
 fn main() -> Result<()> {
     let args: Vec<_> = std::env::args_os().skip(1).collect();
+    if args.first().is_some_and(|arg| arg == "abandon-retire") {
+        return keeper_retirement::main(args.into_iter().skip(1).collect());
+    }
+    if args.first().is_some_and(|arg| arg == "abandon-deny") {
+        return keeper_abandonment::main(args.into_iter().skip(1).collect());
+    }
     if args.first().is_some_and(|arg| arg == "reconcile") {
         return keeper_reconcile::main(args.into_iter().skip(1).collect());
     }
@@ -143,6 +151,7 @@ fn main() -> Result<()> {
         let response = result.unwrap_or(KeeperResponse {
             ok: false,
             snapshot: None,
+            ..Default::default()
         });
         stream.set_write_timeout(Some(Duration::from_secs(1)))?;
         let _ = writeln!(stream, "{}", serde_json::to_string(&response)?);

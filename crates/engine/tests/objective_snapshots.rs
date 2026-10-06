@@ -8,6 +8,8 @@ use std::sync::{Arc, Mutex};
 
 #[path = "fixtures/retained_readonly_concurrency.rs"]
 mod retained_readonly_concurrency;
+#[path = "fixtures/terminal_revocation.rs"]
+mod terminal_revocation;
 
 #[derive(Default)]
 struct KeeperState {
@@ -99,6 +101,8 @@ fn fixture() -> (tempfile::TempDir, ObjectiveStore, Arc<Keeper>) {
                 projects: vec![ProjectAuthority {
                     project_id: "fixture".into(),
                     contract_digest: "sha256:fixture".into(),
+                    authority: "operator_test".into(),
+                    checks: vec!["build".into(), "lint".into()],
                 }],
                 leaves: vec![NewLeaf {
                     id: "leaf".into(),
@@ -141,6 +145,8 @@ fn retained_reader_reservation_blocks_writer_with_spare_capacity() {
                 projects: vec![ProjectAuthority {
                     project_id: "fixture".into(),
                     contract_digest: "sha256:fixture".into(),
+                    authority: "operator_test".into(),
+                    checks: vec!["build".into(), "lint".into()],
                 }],
                 leaves: vec![NewLeaf {
                     id: "other-leaf".into(),

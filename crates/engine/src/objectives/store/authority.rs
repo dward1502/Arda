@@ -4,7 +4,7 @@ use fs2::FileExt;
 use rusqlite::{Connection, OpenFlags};
 use serde::{Deserialize, Serialize};
 use std::fs::{File, OpenOptions};
-use std::io::{Read, Write};
+use std::io::Write;
 use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
 use std::path::{Path, PathBuf};
 
@@ -36,26 +36,87 @@ pub(super) fn normalize(path: &Path) -> Result<PathBuf> {
         .join(name))
 }
 
-impl Authority {
-    pub(super) fn load(path: &Path) -> Result<Self> {
-        let mut marker = OpenOptions::new()
+pub(super) struct AuthorityLease {
+    marker: File,
+    database: File,
+    exclusive: bool,
+}
+impl AuthorityLease {
+    pub(super) fn acquire(path: &Path, exclusive: bool) -> Result<(Authority, Self)> {
+        let marker = OpenOptions::new()
             .read(true)
-            .custom_flags(libc::O_NOFOLLOW)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
             .open(marker_path(path))
             .context("open ObjectiveStore authority; explicit provisioning required")?;
-        FileExt::lock_shared(&marker)?;
+        if !marker.metadata()?.is_file() {
+            bail!("invalid ObjectiveStore authority file");
+        }
+        if exclusive {
+            FileExt::try_lock_exclusive(&marker)
+        } else {
+            FileExt::try_lock_shared(&marker)
+        }
+        .context("ObjectiveStore runtime/maintenance exclusion is busy")?;
+        // The marker contents are replaceable; the authenticated database inode
+        // is the shared lock domain. Retain its descriptor to prevent inode reuse.
+        // Linux flock is independent of SQLite's byte-range locks.
+        let database = OpenOptions::new()
+            .read(true)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+            .open(path)?;
+        if !database.metadata()?.is_file() {
+            bail!("invalid ObjectiveStore database file");
+        }
+        if exclusive {
+            FileExt::try_lock_exclusive(&database)
+        } else {
+            FileExt::try_lock_shared(&database)
+        }
+        .context("ObjectiveStore database runtime/maintenance exclusion is busy")?;
+        let lease = Self {
+            marker,
+            database,
+            exclusive,
+        };
+        let authority = lease.load(path)?;
+        Ok((authority, lease))
+    }
+
+    pub(super) fn is_exclusive(&self) -> bool {
+        self.exclusive
+    }
+
+    pub(super) fn load(&self, path: &Path) -> Result<Authority> {
+        let pinned = self.marker.metadata()?;
+        let current = std::fs::symlink_metadata(marker_path(path))?;
+        if !current.is_file() || current.dev() != pinned.dev() || current.ino() != pinned.ino() {
+            bail!("ObjectiveStore authority lock file was replaced");
+        }
+        // Read the pinned descriptor without changing its shared file offset.
+        use std::os::unix::fs::FileExt as UnixFileExt;
+        let marker = &self.marker;
         if !marker.metadata()?.is_file() || marker.metadata()?.len() > 4096 {
             bail!("invalid ObjectiveStore authority file");
         }
-        let mut bytes = Vec::new();
-        marker.read_to_end(&mut bytes)?;
-        let authority: Self = serde_json::from_slice(&bytes)
+        let mut bytes = vec![0; marker.metadata()?.len() as usize];
+        marker.read_exact_at(&mut bytes, 0)?;
+        let authority: Authority = serde_json::from_slice(&bytes)
             .context("invalid or interrupted ObjectiveStore provisioning; restore authority, do not recreate")?;
         if authority.version != 1 || uuid::Uuid::parse_str(&authority.nonce).is_err() {
             bail!("unsupported ObjectiveStore authority");
         }
+        let database = self.database.metadata()?;
+        if database.dev() != authority.device || database.ino() != authority.inode {
+            bail!("ObjectiveStore authority database lock identity mismatch");
+        }
         authority.check_path(path)?;
         Ok(authority)
+    }
+}
+
+impl Authority {
+    pub(super) fn load(path: &Path) -> Result<Self> {
+        AuthorityLease::acquire(path, false).map(|(authority, _)| authority)
     }
 
     pub(super) fn check_path(&self, path: &Path) -> Result<()> {
@@ -96,7 +157,7 @@ pub(super) fn provision(path: &Path, new_only: bool) -> Result<Authority> {
         .write(true)
         .create_new(true)
         .mode(0o600)
-        .custom_flags(libc::O_NOFOLLOW)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
         .open(marker_path(path))
     {
         Ok(file) => file,
@@ -113,7 +174,7 @@ pub(super) fn provision(path: &Path, new_only: bool) -> Result<Authority> {
         .write(true)
         .create_new(true)
         .mode(0o600)
-        .custom_flags(libc::O_NOFOLLOW)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
         .open(path)
     {
         Ok(file) => file,
@@ -121,7 +182,7 @@ pub(super) fn provision(path: &Path, new_only: bool) -> Result<Authority> {
             OpenOptions::new()
                 .read(true)
                 .write(true)
-                .custom_flags(libc::O_NOFOLLOW)
+                .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
                 .open(path)?
         }
         Err(error) => return Err(error.into()),
@@ -130,6 +191,8 @@ pub(super) fn provision(path: &Path, new_only: bool) -> Result<Authority> {
     if !metadata.is_file() {
         bail!("ObjectiveStore database is not a regular file");
     }
+    FileExt::try_lock_exclusive(&database)
+        .context("ObjectiveStore provisioning conflicts with runtime/maintenance")?;
     let authority = Authority {
         version: 1,
         device: metadata.dev(),
@@ -152,5 +215,10 @@ pub(super) fn provision(path: &Path, new_only: bool) -> Result<Authority> {
     marker.write_all(b"\n")?;
     marker.sync_all()?;
     File::open(path.parent().context("ObjectiveStore parent")?)?.sync_all()?;
+    // Provisioning is finished. Explicit unlock also releases transient fork
+    // duplicates; relying on close can leave a child holding the exclusive flock
+    // until exec and make our immediately following runtime reopen spuriously busy.
+    FileExt::unlock(&database)?;
+    FileExt::unlock(&marker)?;
     Ok(authority)
 }

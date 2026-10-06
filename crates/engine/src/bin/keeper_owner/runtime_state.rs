@@ -53,6 +53,11 @@ impl Owner {
         &self,
         run: &str,
     ) -> Result<Option<(ValidatedRuntimePolicy, fs::File)>> {
+        if self.abandoned(run)? {
+            return Err(
+                arda_engine::objectives::keeper_client::KeeperFailure::OperatorAbandoned.into(),
+            );
+        }
         let Some(template) = &self.runtime_policy else {
             return Ok(None);
         };

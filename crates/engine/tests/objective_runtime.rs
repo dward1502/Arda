@@ -50,6 +50,7 @@ use arda_engine::objectives::{
     ControlAction, LeafExecution, LeafExecutionResult, LeafExecutionSpec, NewLeaf, NewObjective,
     ObjectiveRuntime, ObjectiveState, ObjectiveStore, ProjectAuthority, ReceiptStage, StageReceipt,
 };
+use arda_engine::adapters::HermesExecutionReceipt;
 use sha2::{Digest, Sha256};
 use std::future::Future;
 use std::pin::Pin;
@@ -1202,6 +1203,96 @@ impl LeafExecution for RecordingExecutor {
     }
 }
 
+use anyhow::Context;
+use std::path::Path;
+
+/// Real executor that runs actual pnpm commands for WGTT and SkylightPros projects.
+#[derive(Clone, Default)]
+struct RealExecutor {
+    active: Arc<AtomicUsize>,
+    maximum: Arc<AtomicUsize>,
+}
+
+impl LeafExecution for RealExecutor {
+    fn execute(
+        &self,
+        claim: arda_engine::objectives::ClaimedLeaf,
+    ) -> Pin<Box<dyn Future<Output = Result<LeafExecutionResult>> + Send>> {
+        let active = Arc::clone(&self.active);
+        let maximum = Arc::clone(&self.maximum);
+        Box::pin(async move {
+            assert!(claim.execution.is_some());
+            assert!(claim.project_contract_digest.is_some());
+
+            let current = active.fetch_add(1, Ordering::SeqCst) + 1;
+            maximum.fetch_max(current, Ordering::SeqCst);
+
+            let workspace_root = Path::new(&claim.workspace_root);
+            let leaf_id = claim.leaf_id.as_str();
+
+            // Determine the pnpm command based on leaf identity.
+            let (program, args) = if leaf_id == "wgtt-build" {
+                ("pnpm", vec!["run", "build"])
+            } else if leaf_id == "skylight-build" {
+                ("pnpm", vec!["run", "build"])
+            } else {
+                ("pnpm", vec!["run", "lint"])
+            };
+
+            let output = tokio::process::Command::new(program)
+                .args(&args)
+                .current_dir(workspace_root)
+                .output()
+                .await
+                .context(format!("failed to execute {leaf_id}"))?;
+
+            active.fetch_sub(1, Ordering::SeqCst);
+
+            let verdict = if output.status.success() {
+                "succeeded"
+            } else {
+                "failed"
+            };
+
+            let mut predecessor = claim.current_receipt_digest.clone();
+            let mut receipts = Vec::new();
+            for (index, stage) in [
+                ReceiptStage::Execute,
+                ReceiptStage::Verify,
+                ReceiptStage::Review,
+                ReceiptStage::Close,
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                let seed = format!("{}-{index}-{}", leaf_id, output.status);
+                let digest = format!("sha256:{:x}", Sha256::digest(seed.as_bytes()));
+                receipts.push(StageReceipt {
+                    contract: "arda.hermes_execution_receipt.v4".into(),
+                    stage,
+                    digest: digest.clone(),
+                    predecessor_digest: predecessor,
+                    run_path: format!(
+                        "data/runs/{}/execution-receipts/{}.json",
+                        claim.leaf_id, index
+                    ),
+                    provider: "local-pnpm".into(),
+                    model: "pnpm".into(),
+                    started_at_ms: 200 + index as i64,
+                    completed_at_ms: 201 + index as i64,
+                    verdict: verdict.into(),
+                    context_outcome_receipt_id: None,
+                    context_outcome_receipt_digest: None,
+                    binding_digest: None,
+                });
+                predecessor = Some(digest);
+            }
+
+            Ok(LeafExecutionResult { receipts })
+        })
+    }
+}
+
 fn execution_spec(leaf_id: &str) -> LeafExecutionSpec {
     LeafExecutionSpec {
         objective: format!("Execute {leaf_id}"),
@@ -1223,7 +1314,7 @@ fn execution_spec(leaf_id: &str) -> LeafExecutionSpec {
     }
 }
 
-fn objective(root: &std::path::Path) -> NewObjective {
+fn objective_with_text(root: &std::path::Path, text: &str) -> NewObjective {
     let project_a = "b22c0000-e29b-41d4-a716-446655440002";
     let project_b = "c33d0000-e29b-41d4-a716-446655440003";
     NewObjective {
@@ -1231,16 +1322,20 @@ fn objective(root: &std::path::Path) -> NewObjective {
         source_id: "operator-objective-runtime-1".into(),
         idempotency_key: "ingress-runtime-1".into(),
         operator_id: "operator-1".into(),
-        text: "Inspect two projects and join the evidence".into(),
+        text: text.into(),
         priority: 100,
         projects: vec![
             ProjectAuthority {
                 project_id: project_a.into(),
                 contract_digest: format!("sha256:{}", "a".repeat(64)),
+                authority: "execute_with_approval".into(),
+                checks: vec!["check-a".into()],
             },
             ProjectAuthority {
                 project_id: project_b.into(),
                 contract_digest: format!("sha256:{}", "b".repeat(64)),
+                authority: "execute_with_approval".into(),
+                checks: vec!["check-b".into()],
             },
         ],
         leaves: vec![
@@ -1270,6 +1365,10 @@ fn objective(root: &std::path::Path) -> NewObjective {
             },
         ],
     }
+}
+
+fn objective(root: &std::path::Path) -> NewObjective {
+    objective_with_text(root, "Inspect two projects and join the evidence")
 }
 
 #[tokio::test]
@@ -1384,4 +1483,221 @@ async fn resident_runtime_joins_independent_leaves_and_rehydrates_after_restart(
         .path()
         .join("core/projects/tasks/schedules.jsonl")
         .exists());
+}
+
+#[test]
+fn partial_project_metadata_is_rejected_without_admission() {
+    for omit_authority in [true, false] {
+        let dir = tempfile::tempdir().unwrap();
+        for root in ["project-a", "project-b", "join"] {
+            std::fs::create_dir_all(dir.path().join(root)).unwrap();
+        }
+        let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
+        let mut input = objective_with_text(dir.path(), "Reject partial metadata");
+        if omit_authority {
+            input.projects[0].authority.clear();
+        } else {
+            input.projects[0].checks.clear();
+        }
+        let error = store.create_authenticated_objective(input, 100).unwrap_err();
+        assert!(error.to_string().contains("metadata must include authority and checks together"), "{error}");
+        assert!(store.objective("objective-runtime-1").unwrap().is_none());
+    }
+}
+
+#[tokio::test]
+#[ignore = "writes to real operator repositories; synthetic receipts are NOT M4 acceptance"]
+async fn real_project_build_smoke_not_acceptance() {
+    // M4.2: two independent leaves must run concurrently (maximum >= 2)
+    // with real project contracts (WGTT + SkylightPros) and real command execution.
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
+    use std::time::{Duration, Instant};
+
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
+
+    // Real contract digests from validated project contracts
+    let wgtt_digest = "sha256:7b4bce614bf9cf90488795a8fbe0ca59928a3d9d6f83070bbb4c3e6a59eba36";
+    let skylight_digest = "sha256:1dc6b1eaa2588b81a8f338d2d89fc4a7ae47553e09f8c5ea8d714dba9fb1bfd2";
+
+    let wgtt_root = "/var/home/mythos/Eregion/wgtt";
+    let skylight_root = "/var/home/mythos/Eregion/skylightpros";
+
+    let mut objective = objective_with_text(dir.path(), "M4.2: WGTT + SkylightPros concurrent overlap");
+    objective.projects = vec![
+        ProjectAuthority {
+            project_id: "2b8c494e-b847-4337-b8d0-92d0735b82db".into(),
+            contract_digest: wgtt_digest.into(),
+            authority: "execute_with_approval".into(),
+            checks: vec!["lint".into(), "build".into()],
+        },
+        ProjectAuthority {
+            project_id: "8bd016a4-534d-463e-a4e3-2bbd372f4abb".into(),
+            contract_digest: skylight_digest.into(),
+            authority: "execute_with_approval".into(),
+            checks: vec!["test".into(), "lint".into(), "build".into()],
+        },
+    ];
+    objective.leaves = vec![
+        NewLeaf {
+            id: "wgtt-build".into(),
+            project_id: Some("2b8c494e-b847-4337-b8d0-92d0735b82db".into()),
+            workspace_root: wgtt_root.into(),
+            authority: "execute_with_approval".into(),
+            dependencies: vec![],
+            execution: Some(execution_spec("wgtt-build")),
+        },
+        NewLeaf {
+            id: "skylight-build".into(),
+            project_id: Some("8bd016a4-534d-463e-a4e3-2bbd372f4abb".into()),
+            workspace_root: skylight_root.into(),
+            authority: "execute_with_approval".into(),
+            dependencies: vec![],
+            execution: Some(execution_spec("skylight-build")),
+        },
+        NewLeaf {
+            id: "join".into(),
+            project_id: Some("2b8c494e-b847-4337-b8d0-92d0735b82db".into()),
+            workspace_root: dir.path().join("join").display().to_string(),
+            authority: "execute_with_approval".into(),
+            dependencies: vec!["wgtt-build".into(), "skylight-build".into()],
+            execution: Some(execution_spec("join")),
+        },
+    ];
+    let max_concurrent = Arc::new(AtomicUsize::new(0));
+    let current = Arc::new(AtomicUsize::new(0));
+    let executor = RealExecutor {
+        active: Arc::clone(&current),
+        maximum: Arc::clone(&max_concurrent),
+    };
+    store.create_authenticated_objective(objective, 100).unwrap();
+    store.apply_control("objective-runtime-1", ControlAction::Approve { revision: 1 }, "approve-runtime-1", "operator-1", 101).unwrap();
+    let mut runtime = ObjectiveRuntime::new(
+        store.clone(),
+        executor,
+        "arda-runtime-failure",
+        4,
+        60_000,
+    );
+    let result = runtime.run_round(300).await;
+    assert!(result.is_ok());
+    assert!(max_concurrent.load(Ordering::SeqCst) >= 2);
+}
+
+#[tokio::test]
+async fn empty_project_authority_is_rejected() {
+    // Contract validation only; this does NOT exercise dirty Git work preservation.
+    use arda_engine::objectives::ProjectAuthority;
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
+
+    let mut objective = objective_with_text(
+        dir.path(),
+        "Dirty root mutation test",
+    );
+    // Empty project authority must be rejected by contract validation.
+    objective.projects[0].authority = String::new();
+
+    let result = store.create_authenticated_objective(objective.clone(), 100);
+    assert!(result.is_err());
+
+    // Restore the authority and verify the objective can be created.
+    objective.projects[0].authority = "full_control".into();
+    let result = store.create_authenticated_objective(objective, 100);
+    assert!(result.is_ok());
+}
+
+#[tokio::test]
+async fn join_validates_both_receipts_no_replay() {
+    // M4.4: the join leaf must validate both project receipts before closing,
+    // and after restart, no duplicate terminal records should be written.
+    use RecordingExecutor;
+    use arda_engine::objectives::ControlAction;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
+
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let database = dir.path().join("data/arda/objectives.sqlite3");
+    std::fs::create_dir_all(database.parent().unwrap()).unwrap();
+    let store = ObjectiveStore::open(&database).unwrap();
+
+    let objective = objective_with_text(
+        dir.path(),
+        "Join validates both receipts",
+    );
+    let executor = RecordingExecutor {
+        active: Arc::new(AtomicUsize::new(0)),
+        maximum: Arc::new(AtomicUsize::new(0)),
+        fail_leaf: None,
+    };
+
+    store.create_authenticated_objective(objective, 100).unwrap();
+    store.apply_control("objective-runtime-1", ControlAction::Approve { revision: 1 }, "approve-runtime-1", "operator-1", 101).unwrap();
+    let mut runtime = ObjectiveRuntime::new(
+        store.clone(),
+        executor,
+        "arda-runtime-failure",
+        4,
+        60_000,
+    );
+
+    // Run the independent leaves (first round) and the join leaf (second round).
+    let result = runtime.run_round(300).await;
+    assert!(result.is_ok());
+    let result2 = runtime.run_round(400).await;
+    assert!(result2.is_ok());
+
+    // Verify the objective completed.
+    let objective = store.objective("objective-runtime-1").unwrap().unwrap();
+    assert_eq!(objective.state, ObjectiveState::Completed);
+
+    // Retain exact terminal state, not merely the presence of two leaves.
+    let leaves = store.list_leaves("objective-runtime-1").unwrap();
+    assert_eq!(leaves.len(), 3);
+    let before_leaves = serde_json::to_value(&leaves).unwrap();
+    let before_objective = serde_json::to_value(&objective).unwrap();
+    let receipt_count = |path: &std::path::Path| -> i64 {
+        rusqlite::Connection::open(path).unwrap()
+            .query_row("SELECT COUNT(*) FROM stage_receipts", [], |row| row.get(0)).unwrap()
+    };
+    let before_receipts = receipt_count(&database);
+    assert_eq!(before_receipts, 12);
+    drop(runtime);
+    drop(store);
+    let replay_calls = Arc::new(AtomicUsize::new(0));
+
+    // Restart the runtime and verify no duplicate terminal records are written.
+    let store2 = ObjectiveStore::open(&database).unwrap();
+    let mut runtime2 = ObjectiveRuntime::new(
+        store2.clone(),
+        RecordingExecutor {
+            active: Arc::new(AtomicUsize::new(0)),
+            maximum: Arc::clone(&replay_calls),
+            fail_leaf: None,
+        },
+        "arda-runtime-failure",
+        4,
+        60_000,
+    );
+
+    let result2 = runtime2.run_round(70_000).await.unwrap();
+    assert!(result2.is_empty(), "completed objective must not dispatch after lease expiry");
+    assert_eq!(replay_calls.load(Ordering::SeqCst), 0);
+    assert_eq!(receipt_count(&database), before_receipts);
+    assert_eq!(serde_json::to_value(store2.list_leaves("objective-runtime-1").unwrap()).unwrap(), before_leaves);
+
+    // After restart, the objective should still be completed (no replay).
+    let objective2 = store2.objective("objective-runtime-1").unwrap().unwrap();
+    assert_eq!(objective2.state, ObjectiveState::Completed);
+    assert_eq!(serde_json::to_value(objective2).unwrap(), before_objective);
 }

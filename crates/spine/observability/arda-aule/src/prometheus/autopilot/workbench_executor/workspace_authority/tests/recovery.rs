@@ -92,7 +92,10 @@ async fn recovery_never_plans_approves_or_reexecutes() {
         };
         let (url, requests) = scripted_harness(vec![Some((status, body))]).await;
         let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
-        let error = adapter.execute_authorized(&work, &guard).await.unwrap_err();
+        let error = adapter
+            .execute_authorized(&work, &guard, &runtime_admission::FixtureAdmission)
+            .await
+            .unwrap_err();
         assert!(error.to_string().contains(expected), "{case}: {error:#}");
         let requests = requests.await.unwrap();
         assert_eq!(requests.len(), 1);
@@ -135,7 +138,10 @@ async fn recovery_rejects_missing_context_writes_and_invalid_window_before_netwo
         };
         let adapter =
             WorkbenchExecutionAdapter::with_harness_url(root.path(), "http://127.0.0.1:9").unwrap();
-        let error = adapter.execute_authorized(&work, &guard).await.unwrap_err();
+        let error = adapter
+            .execute_authorized(&work, &guard, &runtime_admission::FixtureAdmission)
+            .await
+            .unwrap_err();
         assert!(error.to_string().contains(expected), "{case}: {error:#}");
     }
 }
@@ -167,7 +173,10 @@ async fn recovery_resumes_verify_review_and_provider_free_close_only() {
     ])
     .await;
     let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
-    let outcome = adapter.execute_authorized(&work, &guard).await.unwrap();
+    let outcome = adapter
+        .execute_authorized(&work, &guard, &runtime_admission::FixtureAdmission)
+        .await
+        .unwrap();
     assert_eq!(outcome.status, "succeeded");
     let requests = requests.await.unwrap();
     assert_eq!(requests.len(), 4);

@@ -53,6 +53,16 @@ pub trait SnapshotAdmission: Send + Sync {
     /// requires the independent owner's durable release receipt; an absent socket
     /// alone is not proof of release. Never prepare a replacement on this path.
     fn release(&self, snapshot: &RetainedSnapshot, run_id: &str) -> Result<()>;
+
+    /// Read-only proof query, never a replacement capability or cleanup ACK.
+    fn terminal_revocation(
+        &self,
+        _run: &str,
+        _workspace: &str,
+        _identity: &str,
+    ) -> Result<super::terminal_revocation::TerminalRevocationProof> {
+        bail!("terminal revocation query unsupported")
+    }
 }
 
 pub(super) fn check_policy(transaction: &Transaction<'_>, configured: bool) -> Result<()> {
@@ -82,6 +92,7 @@ pub(super) fn prepare(
     identity: &str,
     first_attempt: bool,
 ) -> Result<()> {
+    super::abandonment::guards::reject_in(transaction, None, Some(leaf_id), None)?;
     let saved: Option<String> = transaction
         .query_row(
             "SELECT capability_json FROM retained_workspace_snapshots WHERE leaf_id = ?1",
@@ -140,12 +151,14 @@ impl super::store::ObjectiveStore {
     /// Resolve only an acknowledged, current, live lease. This is read-only and
     /// does not require an admission client on the Harness's reopened store.
     /// None means the legacy/nonresident path, never a missing required snapshot.
+    /// The lookup is internally fenced, but the returned value is not a permit
+    /// for later effects; those must recheck authority under their writer fence.
     pub fn retained_execution(
         &self,
         run_id: &str,
         now_ms: i64,
     ) -> Result<Option<RetainedExecution>> {
-        let connection = self.connection()?;
+        self.with_unabandoned_run(run_id, |connection| {
         let saved = connection.query_row(
             "SELECT s.capability_json, l.attempt, i.lease_owner, i.lease_expires_ms,
                     COALESCE(s.run_id = l.execution_run_id
@@ -187,6 +200,7 @@ impl super::store::ObjectiveStore {
                 expires_ms: expires.context("retained lease expiry missing")?,
             },
         }))
+        })
     }
 
     /// Reconcile SQLite-committed admission intents after an acknowledgement loss
@@ -247,6 +261,19 @@ impl super::store::ObjectiveStore {
             })?;
             rows.collect::<rusqlite::Result<Vec<_>>>()?
         };
+        // Validate every persisted retirement and current fingerprint before
+        // excluding any member. Exact-leaf requests remain permanently denied.
+        let retired = super::abandonment::verified_reservations(&transaction)?;
+        let rows: Vec<_> = rows
+            .into_iter()
+            .filter(|(leaf, run, ..)| !retired.contains(&(leaf.clone(), run.clone())))
+            .collect();
+        // Preflight the entire batch before any irreversible keeper call. A
+        // denial on a later row cannot undo earlier external acknowledgements.
+        super::abandonment::guards::reject_in(&transaction, None, leaf_id, None)?;
+        for (leaf, run, ..) in &rows {
+            super::abandonment::guards::reject_in(&transaction, None, Some(leaf), Some(run))?;
+        }
         for (leaf, run, encoded, generation, owner, expires, terminal) in rows {
             let keeper = self
                 .snapshot_admission
@@ -257,7 +284,14 @@ impl super::store::ObjectiveStore {
             if terminal {
                 // Terminal authority supersedes an unacknowledged admission.
                 // Do not reconstruct or recommit the cleared mutable leaf lease.
-                keeper.release(&snapshot, &run)?;
+                if let Err(error) = keeper.release(&snapshot, &run) {
+                    if error.downcast_ref::<super::keeper_client::KeeperFailure>()
+                        != Some(&super::keeper_client::KeeperFailure::MissingRevokedAuthority)
+                    {
+                        return Err(error);
+                    }
+                    super::terminal_revocation::retain(&transaction, keeper, &leaf, &run)?;
+                }
                 transaction.execute(
                     "INSERT INTO retained_snapshot_releases VALUES (?1)",
                     [&leaf],

@@ -469,6 +469,12 @@ impl ObjectiveStore {
         grant.validate().map_err(anyhow::Error::msg)?;
         let mut connection = self.connection()?;
         let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        super::super::abandonment::guards::reject_in(
+            &transaction,
+            Some(&grant.bindings.objective_id),
+            Some(&grant.bindings.leaf_id),
+            Some(grant.bindings.run_id.as_str()),
+        )?;
         let valid: bool = transaction.query_row(
             "SELECT EXISTS(SELECT 1 FROM objectives o JOIN leaves l ON l.objective_id=o.id
              WHERE o.id=?1 AND o.operator_id=?2 AND o.state='paused'
@@ -525,6 +531,14 @@ fn read_admission(
     let Some((owner, objective, leaf, run, json)) = row else {
         return Ok(None);
     };
+    // This resolver yields execution/recovery authority, not historical display
+    // data. Every replay consumer must refuse before callbacks or cleanup.
+    super::super::abandonment::guards::reject_in(
+        connection,
+        Some(&objective),
+        Some(&leaf),
+        Some(&run),
+    )?;
     let grant: RecoveryGrant =
         serde_json::from_str(&json).context("invalid recovery admission intent")?;
     grant.validate().map_err(anyhow::Error::msg)?;

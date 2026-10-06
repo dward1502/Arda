@@ -1,0 +1,151 @@
+{
+  "ok": true,
+  "status": {
+    "alerts": [],
+    "bootstrap_state_path": "/var/home/mythos/Eregion/Arda/core/state/fleet_bootstrap.json",
+    "budget_pressure": {
+      "cooldown_total": 0,
+      "critical_total": 0,
+      "exhausted_total": 0,
+      "highest_level": "ok",
+      "providers": [
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_backbone_coder",
+          "provider_name": "Annunimas Server Nanbeige4.2 3B Coding Lane"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_backbone_long",
+          "provider_name": "Annunimas Server Bonsai 27B Q1 Review Lane"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_beelink_light",
+          "provider_name": "Beelink Light Ternary Bonsai 8B Worker"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_core",
+          "provider_name": "Annunimas Core (3080 Workstation)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_guardhouse",
+          "provider_name": "Warden Pi5 Guardhouse"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.0,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "google",
+          "provider_name": "Google Gemini"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.0,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "openai_sub",
+          "provider_name": "OpenAI Codex (ChatGPT subscription via Hermes auth)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.0,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "openrouter",
+          "provider_name": "OpenRouter"
+        }
+      ],
+      "providers_total": 8,
+      "warning_total": 0
+    },
+    "capability_summary": {
+      "models_with_failed_streaming_receipts": 0,
+      "models_with_failed_structured_output_receipts": 0,
+      "models_with_failed_tool_receipts": 0,
+      "providers_with_no_capability_evidence": 0,
+      "receipt_model_count": 20,
+      "recent_capability_failures": 0
+    },
+    "catalog_generation": 2,
+    "config_path": "/var/home/mythos/Eregion/Arda/config/manwe.providers.toml",
+    "config_source": "provider_file",
+    "governance_events_path": "/var/home/mythos/Eregion/Arda/data/manwe/governance_events.jsonl",
+    "llmfit_backend": "optional_signal_absent",
+    "llmfit_recommendation_count": 0,
+    "malformed_governance_events": 0,
+    "malformed_state_events": 0,
+    "manwe_version": "0.1.0",
+    "nanoclaw_probe_state": "not_configured",
+    "nanoclaw_runtime_ready": false,
+    "provider_state_counts": {
+      "disabled": 14,
+      "ready": 3,
+      "unhealthy": 5
+    },
+    "providers_degraded": 7,
+    "providers_enabled": 8,
+    "providers_exhausted": 0,
+    "providers_healthy": 3,
+    "providers_in_cooldown": 0,
+    "providers_ready": 3,
+    "providers_total": 22,
+    "recent_local_fallback_routes": 0,
+    "recent_route_failures": 0,
+    "recent_route_successes": 8,
+    "route_guardrails": {
+      "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+      "low_context_tool_model_total": 14,
+      "tool_execution_min_context_window": 64000,
+      "tool_incompatible_model_total": 13,
+      "visible_reasoning_model_total": 16
+    },
+    "runtime_build_cache_observed_bytes": 9568654849,
+    "runtime_build_cache_removed_bytes": 3948552094,
+    "runtime_build_cache_status": "pressure_remaining",
+    "socket_path": "/var/home/mythos/Eregion/Arda/data/manwe/manwe.sock",
+    "state_path": "/var/home/mythos/Eregion/Arda/data/manwe/state.jsonl"
+  }
+}

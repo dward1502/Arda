@@ -13,6 +13,8 @@ fn add(store: &ObjectiveStore, root: &Path, authority: &str) {
                 projects: vec![ProjectAuthority {
                     project_id: "second".into(),
                     contract_digest: "sha256:second".into(),
+                    authority: "operator_test".into(),
+                    checks: vec!["build".into(), "lint".into()],
                 }],
                 leaves: vec![NewLeaf {
                     id: "other-leaf".into(),

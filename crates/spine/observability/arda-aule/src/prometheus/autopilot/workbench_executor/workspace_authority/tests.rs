@@ -139,7 +139,10 @@ async fn explicit_read_only_dispatch_posts_inspection_graph() {
         calls: std::sync::atomic::AtomicUsize::new(0),
         allowed: 2,
     };
-    let error = adapter.execute_authorized(&work, &guard).await.unwrap_err();
+    let error = adapter
+        .execute_authorized(&work, &guard, &runtime_admission::FixtureAdmission)
+        .await
+        .unwrap_err();
     assert!(error.to_string().contains("fixture authority fenced"));
     let requests = requests.await.unwrap();
     assert_eq!(requests.len(), 2);
@@ -184,7 +187,7 @@ async fn fencing_after_get_prevents_approval_post() {
         allowed: 1,
     };
     assert!(adapter
-        .execute_authorized(&work, &guard)
+        .execute_authorized(&work, &guard, &runtime_admission::FixtureAdmission)
         .await
         .unwrap_err()
         .to_string()
@@ -217,7 +220,7 @@ async fn fencing_after_execute_prevents_verify_and_carries_original_lease() {
         allowed: 3,
     };
     assert!(adapter
-        .execute_authorized(&work, &guard)
+        .execute_authorized(&work, &guard, &runtime_admission::FixtureAdmission)
         .await
         .unwrap_err()
         .to_string()
@@ -265,13 +268,16 @@ async fn missing_execution_needs_process_local_authorization() {
     let work = item(root.path());
     let (url, server) = scripted_harness(vec![]).await;
     let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
-    assert!(adapter.execute(&work).await.is_err());
+    assert!(adapter
+        .execute(&work, &runtime_admission::FixtureAdmission)
+        .await
+        .is_err());
     assert!(server.await.unwrap().is_empty());
     let (url, server) = scripted_harness(vec![]).await;
     let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
     let deny = |_: &ExplicitWorkbenchWorkItem| -> Result<()> { bail!("fixture authority denied") };
     assert!(adapter
-        .execute_authorized(&work, &deny)
+        .execute_authorized(&work, &deny, &runtime_admission::FixtureAdmission)
         .await
         .unwrap_err()
         .to_string()
@@ -285,7 +291,7 @@ async fn missing_execution_needs_process_local_authorization() {
     let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
     let allow = |_: &ExplicitWorkbenchWorkItem| -> Result<()> { Ok(()) };
     assert!(adapter
-        .execute_authorized(&work, &allow)
+        .execute_authorized(&work, &allow, &runtime_admission::FixtureAdmission)
         .await
         .unwrap_err()
         .to_string()
@@ -330,7 +336,7 @@ async fn mismatched_run_scope_is_rejected_before_any_post() {
         let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
         let allow = |_: &ExplicitWorkbenchWorkItem| -> Result<()> { Ok(()) };
         let error = adapter
-            .execute_authorized(&work, &allow)
+            .execute_authorized(&work, &allow, &runtime_admission::FixtureAdmission)
             .await
             .unwrap_err()
             .to_string();
@@ -366,7 +372,11 @@ async fn missing_workspace_receipt_reconciliation_is_get_only() {
     }
     let (url, server) = scripted_harness(vec![Some((200, value.to_string()))]).await;
     let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
-    assert!(adapter.reconcile(&work).await.unwrap().is_some());
+    assert!(adapter
+        .reconcile(&work, &runtime_admission::FixtureAdmission)
+        .await
+        .unwrap()
+        .is_some());
     let requests = server.await.unwrap();
     assert_eq!(requests.len(), 1);
     assert!(requests[0].starts_with("GET "));
@@ -384,9 +394,16 @@ async fn running_retry_inspection_is_get_only_and_preserves_receipt_only_deferra
         let (url, server) = scripted_harness(vec![Some((200, value.to_string()))]).await;
         let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
         if retry {
-            assert!(adapter.reconcile_for_retry(&work).await.unwrap().is_none());
+            assert!(adapter
+                .reconcile_for_retry(&work, &runtime_admission::FixtureAdmission)
+                .await
+                .unwrap()
+                .is_none());
         } else {
-            assert!(adapter.reconcile(&work).await.is_err());
+            assert!(adapter
+                .reconcile(&work, &runtime_admission::FixtureAdmission)
+                .await
+                .is_err());
         }
         let requests = server.await.unwrap();
         assert_eq!(requests.len(), 1);
@@ -418,7 +435,10 @@ async fn running_retry_inspection_rejects_corruption_before_classifying_incomple
         let (url, server) = scripted_harness(vec![Some((200, value.to_string()))]).await;
         let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
         assert!(
-            adapter.reconcile_for_retry(&work).await.is_err(),
+            adapter
+                .reconcile_for_retry(&work, &runtime_admission::FixtureAdmission)
+                .await
+                .is_err(),
             "{corruption}"
         );
         let requests = server.await.unwrap();

@@ -27,13 +27,38 @@ pub enum KeeperRequest {
         snapshot: RetainedSnapshot,
         run: String,
     },
+    QueryTerminalRevocation {
+        run: String,
+        workspace: String,
+        identity: String,
+    },
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum KeeperFailure {
+    MissingRevokedAuthority,
+    OperatorAbandoned,
+}
+impl std::fmt::Display for KeeperFailure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::MissingRevokedAuthority => "revoked keeper admission has no saved authority",
+            Self::OperatorAbandoned => "operator abandoned this execution attempt",
+        })
+    }
+}
+impl std::error::Error for KeeperFailure {}
+
+#[derive(Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct KeeperResponse {
     pub ok: bool,
     pub snapshot: Option<RetainedSnapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failure: Option<KeeperFailure>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub terminal_revocation: Option<super::terminal_revocation::TerminalRevocationProof>,
 }
 
 /// Never derive Debug on transport payloads or capability-bearing clients.
@@ -46,13 +71,54 @@ impl KeeperClient {
     }
     fn request(&self, request: KeeperRequest) -> Result<KeeperResponse> {
         let response: KeeperResponse = exchange(&self.endpoint, &request, CONTROL_TIMEOUT)?;
+        if let Some(failure) = response.failure {
+            if !response.ok
+                && response.snapshot.is_none()
+                && response.terminal_revocation.is_none()
+                && (failure == KeeperFailure::OperatorAbandoned
+                    || matches!(request, KeeperRequest::Release { .. }))
+            {
+                return Err(failure.into());
+            }
+            bail!("inconsistent keeper failure response");
+        }
         if !response.ok {
             bail!("snapshot keeper refused operation; explicit reconciliation may be required");
+        }
+        match &request {
+            KeeperRequest::QueryTerminalRevocation { .. } => {
+                if response.snapshot.is_some() || response.terminal_revocation.is_none() {
+                    bail!("keeper omitted non-capability revocation proof");
+                }
+            }
+            _ if response.terminal_revocation.is_some() => {
+                bail!("unexpected keeper revocation proof")
+            }
+            _ => {}
         }
         Ok(response)
     }
 }
 impl SnapshotAdmission for KeeperClient {
+    fn terminal_revocation(
+        &self,
+        run: &str,
+        workspace: &str,
+        identity: &str,
+    ) -> Result<super::terminal_revocation::TerminalRevocationProof> {
+        let proof = self
+            .request(KeeperRequest::QueryTerminalRevocation {
+                run: run.into(),
+                workspace: workspace.into(),
+                identity: identity.into(),
+            })?
+            .terminal_revocation
+            .context("keeper omitted terminal revocation proof")?;
+        if proof.run != run || proof.workspace != workspace || proof.identity != identity {
+            bail!("keeper terminal revocation response binding mismatch");
+        }
+        Ok(proof)
+    }
     fn prepare(&self, run: &str, workspace: &Path, identity: &str) -> Result<RetainedSnapshot> {
         self.request(KeeperRequest::Prepare {
             run: run.into(),

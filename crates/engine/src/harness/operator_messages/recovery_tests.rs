@@ -20,6 +20,7 @@ async fn authenticated_recovery_completion_replay_releases_only_exact_leaf() {
     if std::env::var_os("ARDA_RECOVERY_INGRESS_TEST_CHILD").is_none() {
         for mode in [
             "success",
+            "abandoned",
             "pending-control",
             "pending-journal",
             "applied-journal",
@@ -92,7 +93,7 @@ async fn authenticated_recovery_completion_replay_releases_only_exact_leaf() {
     let objective: NewObjective = serde_json::from_value(json!({
         "id":b.objective_id,"source_id":"fixture","idempotency_key":"fixture",
         "operator_id":"operator:fixture","text":"fixture","priority":1,
-        "projects":[{"project_id":"project-a","contract_digest":b.project_contract_digest}],
+        "projects":[{"project_id":"project-a","contract_digest":b.project_contract_digest,"authority":"operator_test","checks":["build","lint"]}],
         "leaves":[{"id":b.leaf_id,"project_id":"project-a","workspace_root":root,
             "authority":"read_only","dependencies":[],"execution":null},
             {"id":"sibling","project_id":"project-a","workspace_root":root,
@@ -181,6 +182,9 @@ async fn authenticated_recovery_completion_replay_releases_only_exact_leaf() {
     db.execute("UPDATE leaves SET stage='complete',current_receipt_digest=?1,lease_owner=NULL,lease_expires_ms=NULL WHERE id=?2",params![parent,b.leaf_id]).unwrap();
     check_pending_completion_fences(root, &store, &db, &grant);
     let mode = std::env::var("ARDA_RECOVERY_CLEANUP_MODE").unwrap();
+    if mode == "abandoned" {
+        return;
+    }
     if mode.starts_with("pending") {
         // Restore the fixture's pre-ACK crash boundary; no real effect was made
         // by the sentinel callback used by the preceding store-fence matrix.

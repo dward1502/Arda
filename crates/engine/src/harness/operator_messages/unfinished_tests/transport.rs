@@ -88,6 +88,9 @@ pub(super) fn start(
                     assert_eq!(run, "recovery-evidence-fixture");
                 }
                 KeeperRequest::Prepare { .. } => panic!("recovery recaptured authority"),
+                KeeperRequest::QueryTerminalRevocation { .. } => {
+                    panic!("live recovery queried terminal revocation")
+                }
             }
             stream
                 .get_mut()

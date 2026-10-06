@@ -1,0 +1,36 @@
+{
+  "daemon": "arda",
+  "operator_id": "operator:mythos",
+  "harness_addr": "127.0.0.1:7878",
+  "manwe_url": "http://127.0.0.1:7171",
+  "warden_scout_url": "http://100.110.85.37:8092",
+  "services": [
+    "arda-launcher",
+    "arda-hud",
+    "manwe"
+  ],
+  "service_statuses": [
+    {
+      "name": "manwe",
+      "required": true,
+      "optional": false,
+      "state": "healthy",
+      "pid": 1936,
+      "restart_count": 0,
+      "backoff_ms": null,
+      "detail": "readiness probe passed: http://127.0.0.1:7171/healthz"
+    }
+  ],
+  "child_pids": [
+    1936
+  ],
+  "telemetry": {
+    "configured": true,
+    "transport": "http_protobuf_otlp"
+  },
+  "fleet_observability": {
+    "prometheus_configured": true,
+    "prometheus_reachable": false,
+    "beelink_targets": []
+  }
+}

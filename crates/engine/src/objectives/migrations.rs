@@ -96,6 +96,39 @@ fn apply_locked(connection: &Connection) -> Result<()> {
                 leaf_id TEXT PRIMARY KEY REFERENCES retained_workspace_snapshots(leaf_id)
             );
 
+            CREATE TABLE IF NOT EXISTS operator_abandonment_authorizations (
+            event_id TEXT PRIMARY KEY NOT NULL,
+            record_json TEXT NOT NULL
+        );
+        CREATE TRIGGER IF NOT EXISTS abandonment_auth_no_update BEFORE UPDATE ON operator_abandonment_authorizations BEGIN SELECT RAISE(ABORT,'immutable abandonment authorization'); END;
+        CREATE TRIGGER IF NOT EXISTS abandonment_auth_no_delete BEFORE DELETE ON operator_abandonment_authorizations BEGIN SELECT RAISE(ABORT,'immutable abandonment authorization'); END;
+        CREATE TRIGGER IF NOT EXISTS abandonment_auth_no_replace BEFORE INSERT ON operator_abandonment_authorizations WHEN EXISTS(SELECT 1 FROM operator_abandonment_authorizations WHERE event_id=NEW.event_id) BEGIN SELECT RAISE(ABORT,'immutable abandonment authorization'); END;
+        CREATE TABLE IF NOT EXISTS retained_snapshot_operator_abandonments (
+            leaf_id TEXT PRIMARY KEY NOT NULL REFERENCES retained_workspace_snapshots(leaf_id),
+            run_id TEXT NOT NULL UNIQUE,
+            objective_id TEXT NOT NULL REFERENCES objectives(id),
+            event_id TEXT NOT NULL REFERENCES operator_abandonment_authorizations(event_id),
+            record_json TEXT NOT NULL
+        );
+        CREATE TRIGGER IF NOT EXISTS engine_abandonment_no_update BEFORE UPDATE ON retained_snapshot_operator_abandonments BEGIN SELECT RAISE(ABORT,'immutable Engine abandonment'); END;
+        CREATE TRIGGER IF NOT EXISTS engine_abandonment_no_delete BEFORE DELETE ON retained_snapshot_operator_abandonments BEGIN SELECT RAISE(ABORT,'immutable Engine abandonment'); END;
+        CREATE TRIGGER IF NOT EXISTS engine_abandonment_no_replace BEFORE INSERT ON retained_snapshot_operator_abandonments WHEN EXISTS(SELECT 1 FROM retained_snapshot_operator_abandonments WHERE leaf_id=NEW.leaf_id OR run_id=NEW.run_id) BEGIN SELECT RAISE(ABORT,'immutable Engine abandonment'); END;
+        CREATE TABLE IF NOT EXISTS retained_snapshot_terminal_revocations (
+                leaf_id TEXT PRIMARY KEY REFERENCES retained_workspace_snapshots(leaf_id),
+                objective_id TEXT NOT NULL REFERENCES objectives(id),
+                run_id TEXT NOT NULL,
+                workspace TEXT NOT NULL,
+                identity_json TEXT NOT NULL,
+                disposition TEXT NOT NULL CHECK(disposition = 'terminal_revocation'),
+                proof_json TEXT NOT NULL
+            );
+            CREATE TRIGGER IF NOT EXISTS immutable_terminal_revocations_update
+            BEFORE UPDATE ON retained_snapshot_terminal_revocations
+            BEGIN SELECT RAISE(ABORT, 'terminal revocation proof is immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS immutable_terminal_revocations_delete
+            BEFORE DELETE ON retained_snapshot_terminal_revocations
+            BEGIN SELECT RAISE(ABORT, 'terminal revocation proof is immutable'); END;
+
             CREATE TABLE IF NOT EXISTS leaf_dependencies (
                 leaf_id TEXT NOT NULL REFERENCES leaves(id) ON DELETE CASCADE,
                 dependency_leaf_id TEXT NOT NULL REFERENCES leaves(id) ON DELETE CASCADE,

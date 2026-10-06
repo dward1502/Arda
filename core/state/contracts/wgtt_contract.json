@@ -1,0 +1,209 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {
+    "project_id": "70656753-1e03-4375-9a29-ecf220292c19",
+    "name": "wgtt",
+    "kind": "web-app",
+    "class": "business",
+    "owner": "mythos",
+    "lifecycle": "active"
+  },
+  "workspace": {
+    "root": "/var/home/mythos/Eregion/wgtt",
+    "repository": {
+      "remote": "https://github.com/dward1502/wgtt.git",
+      "fetch": true,
+      "push": true
+    }
+  },
+  "runtime": {
+    "adapter": "node",
+    "language": "typescript",
+    "package_manager": "pnpm",
+    "node_version": ">=18"
+  },
+  "commands": [
+    {
+      "id": "build",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 300,
+      "verified": {
+        "ran_at": "2026-09-17",
+        "result": "passed",
+        "exit_code": 0,
+        "notes": "next build with NODE_OPTIONS suppress-baseline-warnings; .next/ output produced"
+      }
+    },
+    {
+      "id": "lint",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "lint"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 120,
+      "verified": {
+        "ran_at": "2026-09-17",
+        "result": "passing",
+        "exit_code": 0,
+        "notes": "0 errors, 17 warnings (all unused-var and no-img-element warnings); May 2026 doc reported 51 problems/16 errors \u2014 resolved since"
+      }
+    },
+    {
+      "id": "start",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "start"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 60,
+      "verified": null
+    },
+    {
+      "id": "dev",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "dev"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 60,
+      "verified": null
+    }
+  ],
+  "checks": [
+    {
+      "id": "lint",
+      "command": "lint",
+      "status": "passing",
+      "verified_at": "2026-09-17",
+      "notes": "17 warnings remain; 0 errors"
+    },
+    {
+      "id": "build",
+      "command": "build",
+      "status": "passing",
+      "verified_at": "2026-09-17"
+    },
+    {
+      "id": "test",
+      "command": "test",
+      "status": "none_suite",
+      "notes": "package.json test script runs pnpm lint \u2014 not a real test suite; gap recorded"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "build-output",
+      "path": ".next/",
+      "type": "build-output",
+      "verified": {
+        "exists_at": "2026-09-17",
+        "notes": "present from prior build"
+      }
+    },
+    {
+      "id": "database-schema",
+      "path": "database/schema.sql",
+      "type": "schema",
+      "verified": {
+        "exists_at": "2026-09-17"
+      }
+    },
+    {
+      "id": "database-rls",
+      "path": "database/rls_policies.sql",
+      "type": "security-policy",
+      "verified": {
+        "exists_at": "2026-09-17"
+      }
+    }
+  ],
+  "permissions": {
+    "authority": "approval_required",
+    "network": {
+      "allow": true,
+      "notes": "WeTravel API, Travefy API, Crossbar webhooks, Resend, Supabase, OpenRouter all require outbound network"
+    },
+    "filesystem": {
+      "write": true,
+      "notes": "build output writes to .next/; pnpm-lock.yaml updates possible"
+    },
+    "secrets": {
+      "env_names": [
+        "WETRAVEL_PARTNER_API_KEY",
+        "WETRAVEL_WEBHOOK_SIGNING_SECRET",
+        "CROSSBAR_WEBHOOK_SECRET",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "TRAVEFY_API_KEY",
+        "OPENROUTER_API_KEY",
+        "RESEND_API_KEY"
+      ],
+      "notes": "declared names only from wgtt/.env.local; values not read or reproduced. NEXT_PUBLIC_* vars are public client vars, not secrets. Admin_ALLOWED_EMAILS is config, not secret."
+    }
+  },
+  "protected_paths": [
+    {
+      "path": ".env.local",
+      "policy": "read_only",
+      "notes": "contains real secret values (19 keys); do not mutate"
+    },
+    {
+      "path": ".env.example",
+      "policy": "read_only",
+      "notes": "template file; reference only"
+    }
+  ],
+  "dirty_worktree_policy": {
+    "mode": "clean",
+    "notes": "working tree clean as of 2026-09-17; no dirty work to preserve"
+  },
+  "rollback": {
+    "strategy": "git_revert",
+    "notes": "standard git revert on main branch"
+  },
+  "memory": {
+    "scope": "project"
+  },
+  "requirements": {
+    "source": [
+      "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md",
+      "/var/home/mythos/Eregion/wgtt/SETUP.md",
+      "/var/home/mythos/Eregion/wgtt/PROJECT_STATUS.md",
+      "/var/home/mythos/Eregion/wgtt/docs/ADMIN_OPERATIONS_PLAN.md",
+      "/var/home/mythos/Eregion/wgtt/docs/AMAZON-AWS-AMPLIFY-CHECKLIST.md"
+    ],
+    "plans": [
+      "/var/home/mythos/Eregion/wgtt/docs/ADMIN_OPERATIONS_PLAN.md",
+      "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md"
+    ],
+    "notes": "PROJECT_STATUS.md is stale (says Next.js 14, March 2026; actual is Next.js 16.0.5). ADMIN_OPERATIONS_PLAN.md has open ownership questions (trip/booking/itinerary/payment/roster) that affect acceptance criteria."
+  },
+  "acceptance": [
+    "pnpm build passes",
+    "pnpm lint passes (0 errors; warnings tracked)",
+    "deployment target configured (operator to specify \u2014 AWS Amplify checklist exists but not completed)",
+    "Supabase schema/migrations/RLS verified in actual target project",
+    "WeTravel sync/admin flows, webhook ingestion, and email/contact flows verified",
+    "ADMIN_OPERATIONS_PLAN.md open questions settled (trip/booking/itinerary/payment/roster ownership)",
+    "PROJECT_STATUS.md updated to match current code (Next.js 16.0.5, current integrations)"
+  ],
+  "audit_integrated": true,
+  "audit_refs": [
+    "/var/home/mythos/Eregion/audits/wgtt/"
+  ],
+  "audit_status": "audit_folder_exists_no_files_2026-03-26",
+  "audit_notes": "wgtt/audits/ folder exists but contains no audit files as of 2026-03-26; PROJECTS_REPORT.md lists wgtt as 'Modern & Well-Structured, Low priority' but no per-category audits completed. Audit gap relative to CoverCoINC.",
+  "provenance": {
+    "declared_by": "hermes-local:20260922_100107_a798eb:message:m1-objective-plan",
+    "declared_at": "2026-09-22T17:05:33.264679+00:00",
+    "purpose": "Attach wgtt project to daemon for M1 objective plan request. Fixes missing provenance field in project contract."
+  }
+}

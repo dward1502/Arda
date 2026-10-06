@@ -27,6 +27,8 @@ use sha2::{Digest, Sha256};
 #[cfg(test)]
 mod recovery_tests;
 #[cfg(test)]
+mod abandonment_tests;
+#[cfg(test)]
 mod unfinished_tests;
 use std::net::SocketAddr;
 
@@ -71,6 +73,7 @@ enum Command {
     },
     Context,
     Objectives,
+    AuthorizeAbandonment(crate::objectives::abandonment::AbandonmentManifest),
     DeleteRecoveryContext {
         objective_id: String,
         run_id: String,
@@ -323,6 +326,19 @@ async fn ingest_authenticated_message(
     }
     preflight_canonical_control(&state, &command)?;
     let session_id = session_id(&incoming.event);
+    if let Command::AuthorizeAbandonment(manifest) = &command {
+        let store=objective_store(&state)?;
+        store.bind_gateway_event(&message_id,&payload_digest).map_err(objective_store_error)?;
+        if store.has_abandonment_authorization(&message_id).map_err(objective_store_error)? {
+            store.authorize_abandonment(&message_id,&payload_digest,&incoming.operator.operator_id,manifest,Utc::now().timestamp_millis()).map_err(objective_store_error)?;
+            return Ok(Json(GatewayOperatorResponse {
+                schema_version:"arda.gateway-operator-response.v1".into(),
+                summary:"Abandonment authorization recorded only; this command does not abandon attempts or release reservations.".into(),
+                evidence_refs:vec![format!("arda://abandonment-authorizations/{message_id}")],
+                session_id,run_id:None,
+            }));
+        }
+    }
     if let Command::RecoverRetained {
         objective_id,
         leaf_id,
@@ -520,10 +536,12 @@ async fn ingest_authenticated_message(
         }
         None => apply_command(&state, &incoming, &command, &payload_digest).await?,
     };
-    evidence_refs.insert(
-        0,
-        format!("arda://operator-events/{}", session.incoming.event_id),
-    );
+    if !matches!(command, Command::AuthorizeAbandonment(_)) {
+        evidence_refs.insert(
+            0,
+            format!("arda://operator-events/{}", session.incoming.event_id),
+        );
+    }
     let response = GatewayOperatorResponse {
         schema_version: "arda.gateway-operator-response.v1".into(),
         summary,
@@ -680,6 +698,10 @@ async fn apply_command(
         .ok_or_else(|| ApiError::bad_request("MessageEvent message_id is required"))?;
     let envelope = mutation_envelope(message_id, &incoming.event.timestamp);
     match command {
+        Command::AuthorizeAbandonment(manifest) => {
+            objective_store(state)?.authorize_abandonment(message_id,_payload_digest,&incoming.operator.operator_id,manifest,Utc::now().timestamp_millis()).map_err(objective_store_error)?;
+            Ok(("Abandonment authorization recorded only; this command does not abandon attempts or release reservations.".into(),vec![format!("arda://abandonment-authorizations/{message_id}")]))
+        }
         Command::RecoverRetained { .. } => Err(ApiError::forbidden(
             "recovery requires authenticated saved-admission ingress",
         )),
@@ -1371,6 +1393,13 @@ fn create_operator_objective(
         projects.push(ProjectAuthority {
             project_id: project_id.clone(),
             contract_digest: project_digest,
+            authority: if attached.contract.permissions.authority == arda_core::project_contract::AuthorityMode::ReadOnly
+                || !attached.contract.permissions.filesystem.write {
+                "read_only"
+            } else {
+                "operator_approved_workbench"
+            }.into(),
+            checks: attached.contract.checks.iter().map(|c| c.id.clone()).collect(),
         });
         leaves.push(NewLeaf {
             id: format!("{objective_id}-project-{}", index + 1),
@@ -1542,6 +1571,11 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
         .ok_or_else(|| ApiError::bad_request("missing operator command"))?;
     let args = parts.next().unwrap_or("").trim();
     match verb.as_str() {
+        "authorize-abandonment" => {
+            let manifest: crate::objectives::abandonment::AbandonmentManifest = serde_json::from_str(args).map_err(|error| ApiError::bad_request(error.to_string()))?;
+            manifest.validate().map_err(|error| ApiError::bad_request(error.to_string()))?;
+            Ok(Command::AuthorizeAbandonment(manifest))
+        }
         "capture" => {
             if args.is_empty() {
                 Err(ApiError::bad_request("capture text cannot be empty"))
@@ -1816,7 +1850,8 @@ fn command_operation(command: &Command) -> BridgeOperation {
         | Command::ReviseObjective { .. }
         | Command::ApproveObjective { .. }
         | Command::DeleteRecoveryContext { .. }
-        | Command::RecoverRetained { .. } => BridgeOperation::Control,
+        | Command::RecoverRetained { .. }
+        | Command::AuthorizeAbandonment(_) => BridgeOperation::Control,
         Command::Cancel { .. } | Command::CancelTask { .. } => BridgeOperation::Cancel,
         Command::Acknowledge { .. } => BridgeOperation::Acknowledge,
         Command::Defer { .. } => BridgeOperation::Defer,
@@ -1828,6 +1863,7 @@ fn command_run_id(command: &Command) -> Option<&str> {
         Command::Capture(_)
         | Command::Research(_)
         | Command::ResearchResult(_)
+        | Command::AuthorizeAbandonment(_)
         | Command::Objective { .. }
         | Command::Context
         | Command::Objectives
@@ -1890,6 +1926,7 @@ fn is_resident_objective_mutation(command: &Command) -> bool {
     matches!(
         command,
         Command::Objective { .. }
+            | Command::AuthorizeAbandonment(_)
             | Command::PauseTask { .. }
             | Command::ResumeTask { .. }
             | Command::ReprioritizeTask { .. }

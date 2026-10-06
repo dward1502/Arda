@@ -1,0 +1,306 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {
+    "project_id": "f6d1304d-1da1-463a-8af9-6b1fd8226fc5",
+    "name": "skylightpros",
+    "kind": "web-app",
+    "class": "business",
+    "owner": "mythos",
+    "lifecycle": "active"
+  },
+  "workspace": {
+    "root": "/var/home/mythos/Eregion/skylightpros",
+    "repository": {
+      "remote": "https://github.com/dward1502/skylightpros.git",
+      "fetch": true,
+      "push": true
+    }
+  },
+  "runtime": {
+    "adapter": "node",
+    "language": "typescript",
+    "package_manager": "pnpm",
+    "node_version": ">=20"
+  },
+  "commands": [
+    {
+      "id": "build",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 300,
+      "verified": {
+        "ran_at": "2026-09-17",
+        "result": "passed",
+        "exit_code": 0,
+        "notes": "next build --no-lint produced .next/ output; May 2026 doc reported 300s timeout \u2014 resolved since"
+      }
+    },
+    {
+      "id": "test",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "test"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 120,
+      "verified": {
+        "ran_at": "2026-09-17",
+        "result": "passing",
+        "exit_code": 0,
+        "notes": "32 tests, 8 test files passed; May 2026 doc reported SES Region + agenda failures \u2014 resolved since"
+      }
+    },
+    {
+      "id": "lint",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "lint"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 120,
+      "verified": {
+        "ran_at": "2026-09-17",
+        "result": "passing",
+        "exit_code": 0,
+        "notes": "0 ESLint errors or warnings"
+      }
+    },
+    {
+      "id": "typecheck",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "typecheck"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 300,
+      "verified": {
+        "ran_at": null,
+        "result": "not_verified_current_state",
+        "notes": "May 2026 doc reported 240s timeout; not re-verified on 2026-09-17. Build passing is a positive signal but typecheck not confirmed."
+      }
+    },
+    {
+      "id": "ci",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "ci"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 600,
+      "verified": {
+        "ran_at": null,
+        "result": "not_verified_current_state",
+        "notes": "combines lint + typecheck + test + build; not run on 2026-09-17 due to typecheck uncertainty"
+      }
+    },
+    {
+      "id": "prisma:generate",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "prisma:generate"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 60,
+      "verified": null,
+      "notes": "prebuild step; generates Prisma client"
+    },
+    {
+      "id": "smoke:e2e",
+      "program": "pnpm",
+      "args": [
+        "run",
+        "smoke:e2e"
+      ],
+      "working_dir": ".",
+      "timeout_seconds": 120,
+      "verified": null
+    }
+  ],
+  "checks": [
+    {
+      "id": "test",
+      "command": "test",
+      "status": "passing",
+      "verified_at": "2026-09-17",
+      "notes": "32 tests, 8 files; SES Region + agenda failures from May 2026 resolved"
+    },
+    {
+      "id": "lint",
+      "command": "lint",
+      "status": "passing",
+      "verified_at": "2026-09-17"
+    },
+    {
+      "id": "build",
+      "command": "build",
+      "status": "passing",
+      "verified_at": "2026-09-17",
+      "notes": "previously timing out per May 2026 doc; now passing"
+    },
+    {
+      "id": "typecheck",
+      "command": "typecheck",
+      "status": "not_verified",
+      "notes": "historically timing out (May 2026 doc, 240s); not re-verified 2026-09-17"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "build-output",
+      "path": ".next/",
+      "type": "build-output",
+      "verified": {
+        "exists_at": "2026-09-17",
+        "notes": "present from prior build"
+      }
+    },
+    {
+      "id": "prisma-client",
+      "path": "node_modules/@prisma/client",
+      "type": "generated-library",
+      "verified": {
+        "exists_at": "2026-09-17"
+      }
+    }
+  ],
+  "permissions": {
+    "authority": "approval_required",
+    "network": {
+      "allow": true,
+      "notes": "Supabase, SES, S3, SNS, Twilio, HubSpot, Google APIs, Anthropic, OpenAI, Agenda postgres backend, Redis/Upstash all require outbound network"
+    },
+    "filesystem": {
+      "write": true,
+      "notes": "build output writes to .next/; Prisma client generation writes to node_modules/@prisma/client; pnpm-lock.yaml updates possible"
+    },
+    "secrets": {
+      "env_names": [
+        "DATABASE_URL",
+        "DIRECT_URL",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "NEXT_PUBLIC_RECAPTCHA_SITE_KEY",
+        "RECAPTCHA_SECRET_KEY",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "AWS_REGION",
+        "RESEND_API_KEY",
+        "TWILIO_ACCOUNT_SID",
+        "TWILIO_AUTH_TOKEN",
+        "TWILIO_PHONE_NUMBER",
+        "HUBSPOT_ACCESS_TOKEN",
+        "HUBSPOT_APP_SECRET",
+        "HUBSPOT_PRIVATE_APP_TOKEN",
+        "LEAD_INGEST_TOKEN",
+        "YELP_API_KEY",
+        "YELP_CLIENT_ID",
+        "ANTHROPIC_API_KEY",
+        "ANTHROPIC_MODEL",
+        "GOOGLE_CALENDAR_CLIENT_EMAIL",
+        "GOOGLE_CALENDAR_ID",
+        "GOOGLE_CALENDAR_PRIVATE_KEY",
+        "GOOGLE_CALENDAR_TIMEZONE",
+        "EMAIL_FROM",
+        "ADMIN_EMAILS"
+      ],
+      "notes": "28 declared env names from skylightpros/.env.example (full set) + 11 currently in .env.local. Values not read or reproduced. Operator to confirm which are required for the contract's scoped authority vs nice-to-have."
+    }
+  },
+  "protected_paths": [
+    {
+      "path": ".env.local",
+      "policy": "read_only",
+      "notes": "contains real secret values (11 keys currently active); do not mutate"
+    },
+    {
+      "path": ".env.example",
+      "policy": "read_only",
+      "notes": "full 28-var template; reference only"
+    },
+    {
+      "path": ".env",
+      "policy": "read_only",
+      "notes": "exists; contains real values; do not mutate"
+    }
+  ],
+  "dirty_worktree_policy": {
+    "mode": "read_only_aware",
+    "modified_files": [
+      "M PRODUCTION_HARDENING_CHECKLIST.md",
+      "M README.md",
+      "M docs/CONFIG_INDEX.md",
+      "M docs/TESTING_CHECKLIST.md",
+      "M middleware.ts",
+      "M src/app/(public)/login/page.tsx",
+      "M src/app/admin/components/AdminTopBar.tsx",
+      "M src/app/admin/layout.tsx",
+      "A src/app/admin/users/UsersInviteClient.tsx",
+      "A src/app/admin/users/page.tsx",
+      "A src/app/api/admin/users/invite/route.ts",
+      "M src/lib/access-control.ts",
+      "A src/lib/admin/users.ts",
+      "M src/lib/field-access.ts"
+    ],
+    "notes": "14 modified files as of 2026-09-17. Active admin-users feature development in progress (new files + modified files). Arda is aware of this dirty work and should clean it up \u2014 meaning Arda should help get the tree to a clean state, not force writes to manufacture test conditions. No writes into this tree until operator approves mutation scope. PRODUCTION_HARDENING_CHECKLIST.md modified but no conflict markers present as of 2026-09-17 (resolved since May 2026 doc flagged them)."
+  },
+  "rollback": {
+    "strategy": "git_revert",
+    "notes": "standard git revert on master branch; note dirty worktree must be resolved before revert is clean"
+  },
+  "requirements": {
+    "source": [
+      "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md",
+      "/var/home/mythos/Eregion/skylightpros/AGENT.md",
+      "/var/home/mythos/Eregion/skylightpros/STRUCTURE_AND_SCHEMA.md",
+      "/var/home/mythos/Eregion/skylightpros/SUPABASE_FINAL.md",
+      "/var/home/mythos/Eregion/skylightpros/ROUTES_AND_ENTRYPOINTS.md",
+      "/var/home/mythos/Eregion/skylightpros/PRODUCTION_HARDENING_CHECKLIST.md",
+      "/var/home/mythos/Eregion/skylightpros/STAGING_SIGNOFF_CHECKLIST.md",
+      "/var/home/mythos/Eregion/skylightpros/progress.txt",
+      "/var/home/mythos/Eregion/skylightpros/FIELD_WORKER_BACKLOG.md",
+      "/var/home/mythos/Eregion/skylightpros/docs/TASKS.md"
+    ],
+    "plans": [
+      "/var/home/mythos/Eregion/PROJECT_MONETIZATION_STATUS_2026-05-13.md",
+      "/var/home/mythos/Eregion/skylightpros/docs/TASKS.md",
+      "/var/home/mythos/Eregion/skylightpros/FIELD_WORKER_BACKLOG.md"
+    ],
+    "notes": "Richest documentation of the three business apps. STAGING_SIGNOFF_CHECKLIST.md incomplete per May 2026 doc (missing sign-off date, approvers, known-issues). PRODUCTION_HARDENING_CHECKLIST.md is comprehensive but was modified in working tree."
+  },
+  "acceptance": [
+    "pnpm test passes (32 tests currently passing)",
+    "pnpm lint passes",
+    "pnpm build passes",
+    "pnpm typecheck completes without timeout (not yet re-verified 2026-09-17 \u2014 current gap)",
+    "pnpm ci passes (lint + typecheck + test + build combined \u2014 blocked until typecheck verified)",
+    "dirty worktree cleaned up (admin-users feature work landed or stashed)",
+    "Supabase migrations and env contract verified in staging",
+    "STAGING_SIGNOFF_CHECKLIST.md completed with sign-off date, approvers, known-issues",
+    "PRODUCTION_HARDENING_CHECKLIST.md conflict markers resolved (currently clean) and reviews completed",
+    "Demo field worker flow: job list -> open job -> media capture -> scan/outtake -> office media queue"
+  ],
+  "audit_integrated": true,
+  "audit_refs": [
+    "/var/home/mythos/Eregion/audits/skylightpros/"
+  ],
+  "audit_status": "audit_folder_exists_no_files_2026-03-26",
+  "audit_notes": "skylightpros/audits/ folder exists but contains no audit files as of 2026-03-26; PROJECTS_REPORT.md lists skylightpros as 'Empty Project, Medium priority' \u2014 that assessment is stale (project is now full Next.js 15.5.4 app with 28 env vars, 32 tests, rich docs). Audit gap relative to CoverCoINC; update needed.",
+  "memory": {
+    "scope": "project"
+  },
+  "provenance": {
+    "declared_by": "hermes-local:2026-09-22T17:05:41.970967+00:00:message:project-registry-repair",
+    "declared_at": "2026-09-22T17:05:41.970967+00:00",
+    "purpose": "Add missing provenance field for skylightpros project contract"
+  }
+}

@@ -43,11 +43,16 @@ pub(super) fn recurrence_ms(value: &str) -> Result<i64> {
 /// Recurrence means periodic wake of this unfinished objective, not permission
 /// to repeat completed actions. Coalesce missed ticks onto the original phase.
 pub(super) fn consume_due(transaction: &Transaction<'_>, now_ms: i64) -> Result<()> {
+    // Complete-set/current-integrity validation precedes all scheduler writes.
+    // Under this same writer transaction, table membership is now checked,
+    // never authorization inferred from a bare tombstone.
+    super::abandonment::verified_reservations(transaction)?;
     let due = {
         let mut statement = transaction.prepare(
             "SELECT s.id, s.next_wake_ms, s.recurrence FROM schedules s
              JOIN objectives o ON o.id = s.objective_id
              WHERE o.state IN ('approved', 'running') AND s.next_wake_ms <= ?1
+               AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.objective_id=o.id)
                AND NOT EXISTS (SELECT 1 FROM schedule_errors e WHERE e.schedule_id = s.id)
                AND (s.recurrence IS NOT NULL OR NOT EXISTS
                     (SELECT 1 FROM schedule_wakes w WHERE w.schedule_id = s.id))

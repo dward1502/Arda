@@ -91,7 +91,9 @@ pub struct ExplicitWorkbenchWorkItem {
     pub context_assembly: Option<ContextAssembly>,
 }
 
+mod runtime_admission;
 mod workspace_authority;
+pub use runtime_admission::{ExplicitRuntimeAdmission, ExplicitRuntimeLease};
 pub use workspace_authority::{ExplicitRecoveryWindow, ExplicitWorkspaceAuthorization};
 
 impl ExplicitWorkbenchWorkItem {
@@ -122,7 +124,13 @@ impl ExplicitWorkbenchWorkItem {
     }
 
     /// Call only while the caller holds the current objective mutation fence.
-    pub fn persist_close_receipt(&self, root: &Path, parent: &str) -> Result<()> {
+    pub fn persist_close_receipt(
+        &self,
+        root: &Path,
+        parent: &str,
+        owner: &dyn ExplicitRuntimeAdmission,
+    ) -> Result<()> {
+        let _runtime = owner.admit(root, self)?;
         let receipt = canonical_explicit_close_receipt(self, parent)?;
         persist_explicit_close_receipt(root, self, &receipt)
     }
@@ -216,7 +224,9 @@ impl WorkbenchExecutionAdapter {
     pub async fn reconcile_for_retry(
         &self,
         item: &ExplicitWorkbenchWorkItem,
+        owner: &dyn ExplicitRuntimeAdmission,
     ) -> Result<Option<ExplicitExecutionOutcome>> {
+        let _runtime = owner.admit(&self.root, item)?;
         self.reconcile_internal(item, true).await
     }
 
@@ -224,7 +234,9 @@ impl WorkbenchExecutionAdapter {
     pub async fn reconcile(
         &self,
         item: &ExplicitWorkbenchWorkItem,
+        owner: &dyn ExplicitRuntimeAdmission,
     ) -> Result<Option<ExplicitExecutionOutcome>> {
+        let _runtime = owner.admit(&self.root, item)?;
         self.reconcile_internal(item, false).await
     }
 
@@ -291,7 +303,9 @@ impl WorkbenchExecutionAdapter {
     pub async fn execute(
         &self,
         item: &ExplicitWorkbenchWorkItem,
+        owner: &dyn ExplicitRuntimeAdmission,
     ) -> Result<ExplicitExecutionOutcome> {
+        let _runtime = owner.admit(&self.root, item)?;
         self.execute_internal(item, None).await
     }
 
@@ -300,7 +314,9 @@ impl WorkbenchExecutionAdapter {
         &self,
         item: &ExplicitWorkbenchWorkItem,
         authority: &dyn ExplicitWorkspaceAuthorization,
+        owner: &dyn ExplicitRuntimeAdmission,
     ) -> Result<ExplicitExecutionOutcome> {
+        let _runtime = owner.admit(&self.root, item)?;
         self.execute_internal(item, Some(authority)).await
     }
 
@@ -2624,7 +2640,10 @@ fn objective_plan_for_task(root: &Path, task: &QueueRecord) -> Result<ObjectiveP
     );
     let project_ids = task_project_ids(task);
     let project_id = project_ids.first().copied().ok_or_else(|| {
-        anyhow!("task `{}` omitted `meta.project_id` — project identity is required", task.id)
+        anyhow!(
+            "task `{}` omitted `meta.project_id` — project identity is required",
+            task.id
+        )
     })?;
     let read_only_template = plan
         .leaf_contracts
@@ -3651,8 +3670,12 @@ fn objective_execution_prompt(plan: &ObjectivePlan, objective: &str, task: &Queu
     let authority_class = contract
         .map(|contract| contract.authority_class.as_str())
         .unwrap_or("execute_with_approval");
-    let max_joules = contract.map(|contract| contract.max_joules).unwrap_or(5000.0);
-    let max_cost_usd = contract.map(|contract| contract.max_cost_usd).unwrap_or(2.0);
+    let max_joules = contract
+        .map(|contract| contract.max_joules)
+        .unwrap_or(5000.0);
+    let max_cost_usd = contract
+        .map(|contract| contract.max_cost_usd)
+        .unwrap_or(2.0);
     let outcome_requirement = match leaf_key {
         Some("recover-context") => {
             "Final output must be an evidence-backed context summary sufficient for downstream objective leaves."
@@ -3735,8 +3758,22 @@ fn required_meta<'a>(
 }
 
 #[cfg(test)]
-fn run_graph(run_id: &str, task_id: &str, objective: &str, approval_id: &str, project_contract_digest: &str) -> Value {
-    run_graph_value(run_id, task_id, objective, approval_id, None, None, project_contract_digest)
+fn run_graph(
+    run_id: &str,
+    task_id: &str,
+    objective: &str,
+    approval_id: &str,
+    project_contract_digest: &str,
+) -> Value {
+    run_graph_value(
+        run_id,
+        task_id,
+        objective,
+        approval_id,
+        None,
+        None,
+        project_contract_digest,
+    )
 }
 
 fn run_graph_with_objective_plan_receipt(
@@ -4128,7 +4165,10 @@ mod tests {
             let (url, server) = scripted_harness(vec![Some((200, corrupt.to_string()))]).await;
             let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), url).unwrap();
             assert!(
-                adapter.reconcile(&item).await.is_err(),
+                adapter
+                    .reconcile(&item, &runtime_admission::FixtureAdmission)
+                    .await
+                    .is_err(),
                 "malformed successful GET must remain retryable"
             );
             assert_eq!(server.await.unwrap().len(), 1);
@@ -4149,7 +4189,10 @@ mod tests {
         .await;
         let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
 
-        let outcome = adapter.execute(&item).await.unwrap();
+        let outcome = adapter
+            .execute(&item, &runtime_admission::FixtureAdmission)
+            .await
+            .unwrap();
         let requests = server.await.unwrap();
 
         assert_eq!(outcome.status, "succeeded");
@@ -4230,7 +4273,10 @@ mod tests {
         .await;
         let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
 
-        let outcome = adapter.execute(&item).await.unwrap();
+        let outcome = adapter
+            .execute(&item, &runtime_admission::FixtureAdmission)
+            .await
+            .unwrap();
         let requests = server.await.unwrap();
 
         assert_eq!(outcome.status, "succeeded");
@@ -4318,7 +4364,10 @@ mod tests {
             dependency_receipts: Vec::new(),
             context_assembly: None,
         };
-        let error = adapter.execute(&item).await.unwrap_err();
+        let error = adapter
+            .execute(&item, &runtime_admission::FixtureAdmission)
+            .await
+            .unwrap_err();
         let requests = server.await.unwrap();
 
         assert!(error.to_string().contains("returned 409"));
@@ -4470,7 +4519,10 @@ mod tests {
             context_assembly: None,
         };
 
-        let outcome = adapter.execute(&item).await.unwrap();
+        let outcome = adapter
+            .execute(&item, &runtime_admission::FixtureAdmission)
+            .await
+            .unwrap();
         let requests = server.await.unwrap();
 
         assert_eq!(outcome.status, "succeeded");
@@ -6197,7 +6249,13 @@ mod tests {
 
     #[test]
     fn graph_requires_the_approved_parent_and_bounded_worker() {
-        let graph = run_graph("queue-task-1", "task-1", "bounded fixture", "approval-1", "sha256:test-digest");
+        let graph = run_graph(
+            "queue-task-1",
+            "task-1",
+            "bounded fixture",
+            "approval-1",
+            "sha256:test-digest",
+        );
         let raw = serde_json::to_string(&graph).unwrap();
         let parsed = arda_core::run_graph::RunGraph::from_json_str(&raw).unwrap();
         assert_eq!(parsed.nodes.len(), 6);
@@ -7001,7 +7059,13 @@ mod tests {
     fn cancellation_endpoint_preserves_governed_run_identity() {
         let run_id = workbench_run_id("task/one");
         assert_eq!(run_id, "queue-task-one");
-        let graph = run_graph(&run_id, "task/one", "bounded fixture", "approval-1", "sha256:test-digest");
+        let graph = run_graph(
+            &run_id,
+            "task/one",
+            "bounded fixture",
+            "approval-1",
+            "sha256:test-digest",
+        );
         assert_eq!(graph["run_id"], run_id);
         assert_eq!(graph["provenance"]["parent_receipts"][0], "approval-1");
     }

@@ -6,6 +6,12 @@ use sha2::{Digest, Sha256};
 pub struct ProjectAuthority {
     pub project_id: String,
     pub contract_digest: String,
+    // Optional admission metadata, not execution permission. Legacy bindings
+    // contain only ID/digest; preserve their exact serialization and hashes.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub authority: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub checks: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

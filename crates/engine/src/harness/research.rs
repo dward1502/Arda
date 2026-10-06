@@ -276,6 +276,7 @@ pub(super) async fn create_brief(
     policy
         .validate()
         .map_err(|field| ApiError::internal(format!("invalid research beta policy: {field}")))?;
+    let _runtime = super::runs::admit_run_operation(&state, &request.run_id)?;
     let _guard = WORKBENCH_MUTATIONS.lock().await;
 
     let run_id = RunId::new(&request.run_id)

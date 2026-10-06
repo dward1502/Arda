@@ -16,6 +16,8 @@ pub mod runtime_operation;
 pub mod runtime_policy;
 mod scheduling;
 pub mod snapshot_protocol;
+pub mod abandonment;
+pub mod terminal_revocation;
 mod snapshots;
 mod store;
 #[cfg(target_os = "linux")]
@@ -35,7 +37,7 @@ pub(crate) use store::encode_workspace_identity;
 #[cfg(target_os = "linux")]
 pub use store::validate_snapshot_owner_paths;
 pub(crate) use store::RecoveryPublication;
-pub use store::{ObjectiveStore, RecoveryMaterial, MAX_OBJECTIVE_ATTEMPTS};
+pub use store::{ObjectiveMaintenance, ObjectiveStore, RecoveryMaterial, MAX_OBJECTIVE_ATTEMPTS};
 #[cfg(target_os = "linux")]
 pub use workbench::RecoveryProviderDispatch;
 pub use workbench::{ExplicitWorkbenchExecution, RecoveryAuthorization, WorkbenchLeafExecution};

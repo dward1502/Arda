@@ -1,6 +1,10 @@
 //! Explicit owner initialization and separately locked endpoint ownership.
 use anyhow::{bail, Context, Result};
 use fs2::FileExt;
+mod abandonment;
+pub(super) fn migrate_abandonments(db: &Connection) -> Result<()> {
+    abandonment::migrate(db)
+}
 mod anchored_vfs;
 pub mod offline;
 
@@ -106,6 +110,7 @@ pub fn initialize(durable: &Path) -> Result<()> {
     let db = connection(&durable.join("owner.sqlite3"), false)?;
     db.execute_batch("CREATE TABLE owner_identity(id TEXT PRIMARY KEY); CREATE TABLE snapshots(run TEXT PRIMARY KEY, workspace TEXT NOT NULL, identity TEXT NOT NULL, state TEXT NOT NULL, authority TEXT);")?;
     db.execute("INSERT INTO owner_identity(id) VALUES(?1)", [&identity])?;
+    abandonment::migrate(&db)?;
     db.execute_batch("PRAGMA wal_checkpoint(TRUNCATE);")?;
     File::open(durable)?.sync_all()?;
     Ok(())
@@ -195,8 +200,10 @@ pub fn open_pinned(durable_pin: File, runtime_pin: File) -> Result<(PinnedConnec
     if saved != identity {
         bail!("owner journal identity mismatch");
     }
+    abandonment::migrate(&db)?;
     db.execute(
-        "UPDATE snapshots SET state='lost' WHERE state NOT IN ('released','reconciled_revoked')",
+        "UPDATE snapshots SET state='lost' WHERE state NOT IN ('released','reconciled_revoked')
+         AND NOT EXISTS(SELECT 1 FROM snapshot_operator_abandonments a WHERE a.run=snapshots.run)",
         [],
     )?;
     Ok((

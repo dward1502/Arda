@@ -102,6 +102,70 @@ count, architectural novelty or claims of being ahead of the market—measure pr
 The [next-step sequence](../plans/ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md#next-step-sequence)
 applies this direction within existing implementation owners.
 
+## Adaptive device mesh and philosophical judgment
+
+The operator clarified this direction in the September 27, 2026 discussion.
+This is enduring product intent, not a new implementation checklist or evidence
+that discovery, placement, learning or governance is already connected end to end.
+
+Arda should recognize a newly available network device, establish its identity
+and permitted participation, assess its actual capabilities and current condition,
+and adapt its role to useful work. Multiple inference models may cooperate on one
+project or carry separate responsibilities while exchanging scoped evidence,
+results and corrections. The operator describes this as a physical neural mesh:
+a coordination analogy, not a claim that models share a mind or implicit context.
+
+The operator's own fleet is the proving environment, not a universal topology.
+The following is operator-described context, not a live inventory or health probe:
+
+- Phones can serve as scouts or approved social-media/communications workers.
+- Pi5 devices can take varied lightweight or specialized roles.
+- The Beelink is intended as a central storage node with inference capacity and
+  records/operations monitoring through Grafana and Prometheus.
+- The current workstation coordinates and contributes work.
+- `annunimas-server` is the main inference workstation and is intentionally off.
+- An intermittently available laptop may contribute a basic local model.
+
+Earlier military-style hierarchy expressed responsibility and delegation. Keep
+those useful role boundaries without hard-coding rank or function to hardware.
+Device identity, capability, assigned role and task authority are distinct. Roles
+may change with availability, model suitability, privacy, energy, latency, cost,
+reliability and actual need. An offline optional device must not stop unrelated
+work, and discovering a device grants neither private-data access nor execution
+authority. Discovery, trust/enrollment, capability assessment, permitted placement,
+verified outcomes and reassessment form one bounded lifecycle.
+
+Coordination must preserve explicit task ownership, dependencies, durable state,
+scoped communication and recovery when a participant disappears. Different models
+need appropriate context, not identical copies of everything. Local-model limits
+and stronger-model failures both provide evidence for improving coordination;
+model confidence or a larger model is not a substitute for system-level contracts.
+
+The operator-authored philosophical function, Love equation governance and
+JouleWork are intended building blocks for observation and judgment throughout
+this system, not decorative scores or a final approval stamp. Inspect and reuse
+[existing governance primitives](../../crates/spine/governance/arda-governance/README.md)
+and [economic/resource accounting](../../crates/spine/runtime/arda-economics/README.md)
+before inventing replacements. Preserve their actual semantics: canonical Love
+Dynamics, the legacy task-value compatibility proxy and economics relationship
+scoring are distinct surfaces; estimated resource values are not measurements.
+Evidence-based judgment should influence proposals, role selection, cooperation,
+resource use, human impact and revision, with traceable reasons and operator
+correction. Returned scores alone do not establish consumer enforcement.
+
+This intent includes Hermes conversational agents, planners, implementers and
+reviewers, not only remote or local-model workers. Their choices, communication,
+resource use and claims of success belong within the same accountable system.
+This does not claim this conversation is currently evaluated by every governance
+function, grant new authority, or authorize global blocking policy.
+
+Long term, Arda Launcher should make this adaptable arrangement reproducible on
+someone else's available hardware rather than clone this fleet. That onboarding
+and distribution goal is downstream; it is not a prerequisite to connecting the
+operator's present system. Existing provider, personal-device, daily-improvement
+and whole-system plans retain implementation ownership. Do not create another
+mesh backlog or reduce Arda to device orchestration alone.
+
 ## Why Arda exists
 
 The operator's life is not divided into independent software silos. Health,

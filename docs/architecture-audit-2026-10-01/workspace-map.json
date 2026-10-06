@@ -1,0 +1,2204 @@
+[
+  {
+    "name": "arda",
+    "path": ".",
+    "targets": [
+      {
+        "name": "arda",
+        "kind": [
+          "bin"
+        ],
+        "path": "src/main.rs",
+        "required_features": []
+      },
+      {
+        "name": "root_authority",
+        "kind": [
+          "test"
+        ],
+        "path": "tests/root_authority.rs",
+        "required_features": []
+      },
+      {
+        "name": "root_daemon",
+        "kind": [
+          "test"
+        ],
+        "path": "tests/root_daemon.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [
+      {
+        "name": "arda-aule",
+        "kind": "normal",
+        "optional": false,
+        "features": [
+          "telemetry"
+        ],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-engine",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 24,
+    "source_lines": 3446
+  },
+  {
+    "name": "arda-aule",
+    "path": "crates/spine/observability/arda-aule",
+    "targets": [
+      {
+        "name": "arda_aule",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/observability/arda-aule/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-cli",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/spine/observability/arda-aule/src/cli/main.rs",
+        "required_features": [
+          "full-cli"
+        ]
+      },
+      {
+        "name": "autopilot_surface",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/autopilot_surface.rs",
+        "required_features": []
+      },
+      {
+        "name": "ceo_surface",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/ceo_surface.rs",
+        "required_features": []
+      },
+      {
+        "name": "company_ops",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/company_ops.rs",
+        "required_features": []
+      },
+      {
+        "name": "contract_smoke",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/contract_smoke.rs",
+        "required_features": []
+      },
+      {
+        "name": "council_surface",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/council_surface.rs",
+        "required_features": []
+      },
+      {
+        "name": "council_surface_full",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/council_surface_full.rs",
+        "required_features": []
+      },
+      {
+        "name": "governance_cli",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/governance_cli.rs",
+        "required_features": []
+      },
+      {
+        "name": "metrics_exporter_cli",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/metrics_exporter_cli.rs",
+        "required_features": [
+          "http"
+        ]
+      },
+      {
+        "name": "retired_autopilot_cli",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/retired_autopilot_cli.rs",
+        "required_features": []
+      },
+      {
+        "name": "retired_queue_writers",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/retired_queue_writers.rs",
+        "required_features": []
+      },
+      {
+        "name": "stage6_arandur_ceo_cycle",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/stage6_arandur_ceo_cycle.rs",
+        "required_features": []
+      },
+      {
+        "name": "telemetry_surface",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/observability/arda-aule/tests/telemetry_surface.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "arda-core": [
+        "dep:arda-core"
+      ],
+      "arda-economics": [
+        "dep:arda-economics"
+      ],
+      "arda-mandos": [
+        "dep:arda-mandos"
+      ],
+      "arda-orome": [
+        "dep:arda-orome"
+      ],
+      "arda-vaire": [
+        "dep:arda-vaire"
+      ],
+      "arda-varda": [
+        "dep:arda-varda"
+      ],
+      "axum": [
+        "dep:axum"
+      ],
+      "default": [],
+      "full-cli": [
+        "arda-core",
+        "arda-vaire",
+        "arda-economics",
+        "arda-orome",
+        "arda-mandos",
+        "arda-varda",
+        "telemetry"
+      ],
+      "http": [
+        "full-cli",
+        "axum",
+        "tower",
+        "tokio-stream",
+        "sysinfo"
+      ],
+      "opentelemetry": [
+        "dep:opentelemetry"
+      ],
+      "opentelemetry-otlp": [
+        "dep:opentelemetry-otlp"
+      ],
+      "opentelemetry_sdk": [
+        "dep:opentelemetry_sdk"
+      ],
+      "sysinfo": [
+        "dep:sysinfo"
+      ],
+      "telemetry": [
+        "opentelemetry",
+        "opentelemetry-otlp",
+        "opentelemetry-otlp/grpc-tonic",
+        "opentelemetry-otlp/http-proto",
+        "opentelemetry-otlp/reqwest-blocking-client",
+        "opentelemetry-otlp/trace",
+        "tracing-opentelemetry",
+        "opentelemetry_sdk",
+        "tonic"
+      ],
+      "tempfile": [
+        "dep:tempfile"
+      ],
+      "tokio-stream": [
+        "dep:tokio-stream"
+      ],
+      "tonic": [
+        "dep:tonic"
+      ],
+      "tower": [
+        "dep:tower"
+      ],
+      "tracing-opentelemetry": [
+        "dep:tracing-opentelemetry"
+      ]
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-economics",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-mandos",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-orome",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-outpost-protocol",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-vaire",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-varda",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 104,
+    "source_lines": 50280
+  },
+  {
+    "name": "arda-core",
+    "path": "crates/spine/governance/arda-core",
+    "targets": [
+      {
+        "name": "arda_core",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/governance/arda-core/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "validate_contracts",
+        "kind": [
+          "example"
+        ],
+        "path": "crates/spine/governance/arda-core/examples/validate_contracts.rs",
+        "required_features": []
+      },
+      {
+        "name": "capability_composition",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/capability_composition.rs",
+        "required_features": []
+      },
+      {
+        "name": "capability_registry",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/capability_registry.rs",
+        "required_features": []
+      },
+      {
+        "name": "company_ops",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/company_ops.rs",
+        "required_features": []
+      },
+      {
+        "name": "council_run",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/council_run.rs",
+        "required_features": []
+      },
+      {
+        "name": "deterministic_composition",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/deterministic_composition.rs",
+        "required_features": []
+      },
+      {
+        "name": "external_capability",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/external_capability.rs",
+        "required_features": []
+      },
+      {
+        "name": "next_action",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/next_action.rs",
+        "required_features": []
+      },
+      {
+        "name": "operator_projection",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/operator_projection.rs",
+        "required_features": []
+      },
+      {
+        "name": "organism_manifest",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/organism_manifest.rs",
+        "required_features": []
+      },
+      {
+        "name": "payment_capability",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/payment_capability.rs",
+        "required_features": []
+      },
+      {
+        "name": "personal_ops",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/personal_ops.rs",
+        "required_features": []
+      },
+      {
+        "name": "personal_ops_projection",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/personal_ops_projection.rs",
+        "required_features": []
+      },
+      {
+        "name": "proactive_communication",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/proactive_communication.rs",
+        "required_features": []
+      },
+      {
+        "name": "project_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/project_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "retired_jsonl_authority",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/retired_jsonl_authority.rs",
+        "required_features": []
+      },
+      {
+        "name": "run_graph",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/run_graph.rs",
+        "required_features": []
+      },
+      {
+        "name": "tool_harness_smoke",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-core/tests/tool_harness_smoke.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [],
+    "source_files": 77,
+    "source_lines": 18814
+  },
+  {
+    "name": "arda-economics",
+    "path": "crates/spine/runtime/arda-economics",
+    "targets": [
+      {
+        "name": "arda_economics",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/runtime/arda-economics/src/lib.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "default": [
+        "http"
+      ],
+      "http": [
+        "dep:axum",
+        "dep:tower",
+        "dep:tokio-stream"
+      ]
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 12,
+    "source_lines": 3647
+  },
+  {
+    "name": "arda-governance",
+    "path": "crates/spine/governance/arda-governance",
+    "targets": [
+      {
+        "name": "arda_governance",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/governance/arda-governance/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "alignment_stack",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/alignment_stack.rs",
+        "required_features": []
+      },
+      {
+        "name": "governance_observability",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/governance_observability.rs",
+        "required_features": []
+      },
+      {
+        "name": "path_independence",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/path_independence.rs",
+        "required_features": []
+      },
+      {
+        "name": "phase7_philosopher_expansion",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/phase7_philosopher_expansion.rs",
+        "required_features": []
+      },
+      {
+        "name": "phase8_realm_policy",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/phase8_realm_policy.rs",
+        "required_features": []
+      },
+      {
+        "name": "philosopher_profiles",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/philosopher_profiles.rs",
+        "required_features": []
+      },
+      {
+        "name": "policy_versioning",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/policy_versioning.rs",
+        "required_features": []
+      },
+      {
+        "name": "public_api_compat",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/public_api_compat.rs",
+        "required_features": []
+      },
+      {
+        "name": "structured_evidence",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/governance/arda-governance/tests/structured_evidence.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "default": [],
+      "llm-scorer": []
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 34,
+    "source_lines": 10718
+  },
+  {
+    "name": "arda-mandos",
+    "path": "crates/spine/runtime/arda-mandos",
+    "targets": [
+      {
+        "name": "arda_mandos",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/runtime/arda-mandos/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "rumil_evidence_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-mandos/tests/rumil_evidence_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "target_local",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-mandos/tests/target_local.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "default": [
+        "http"
+      ],
+      "http": [
+        "dep:axum",
+        "dep:tower",
+        "dep:tokio-stream"
+      ]
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-economics",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-rumil",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 15,
+    "source_lines": 7276
+  },
+  {
+    "name": "arda-rumil",
+    "path": "crates/spine/runtime/arda-rumil",
+    "targets": [
+      {
+        "name": "arda_rumil",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "adapter_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/adapter_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "contract_compliance",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/contract_compliance.rs",
+        "required_features": []
+      },
+      {
+        "name": "evidence_consumer_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/evidence_consumer_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "findings_comparison_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/findings_comparison_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "inventory_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/inventory_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "organization_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/organization_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "profile_generalization_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/profile_generalization_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "provider_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/runtime/arda-rumil/tests/provider_contract.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "cargo": [
+        "dep:cargo_metadata"
+      ],
+      "crypto": [
+        "dep:sha2"
+      ],
+      "default": [
+        "std",
+        "walkdir",
+        "crypto"
+      ],
+      "git": [],
+      "json": [],
+      "provider": [
+        "dep:tokio",
+        "crypto"
+      ],
+      "std": [],
+      "walkdir": [
+        "dep:walkdir"
+      ]
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-outpost-protocol",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 32,
+    "source_lines": 5511
+  },
+  {
+    "name": "arda-outpost-protocol",
+    "path": "outposts/arda-outpost-protocol",
+    "targets": [
+      {
+        "name": "arda_outpost_protocol",
+        "kind": [
+          "lib"
+        ],
+        "path": "outposts/arda-outpost-protocol/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "mirromere_surface",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/mirromere_surface.rs",
+        "required_features": []
+      },
+      {
+        "name": "observation_authority",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/observation_authority.rs",
+        "required_features": []
+      },
+      {
+        "name": "observation_feedback",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/observation_feedback.rs",
+        "required_features": []
+      },
+      {
+        "name": "queue_generate_consume",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/queue_generate_consume.rs",
+        "required_features": []
+      },
+      {
+        "name": "research_beta_fixtures",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/research_beta_fixtures.rs",
+        "required_features": []
+      },
+      {
+        "name": "research_receipt_cursor",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/research_receipt_cursor.rs",
+        "required_features": []
+      },
+      {
+        "name": "research_receipt_ledger",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/research_receipt_ledger.rs",
+        "required_features": []
+      },
+      {
+        "name": "research_receipts",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/research_receipts.rs",
+        "required_features": []
+      },
+      {
+        "name": "research_suggestion_ledger",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/research_suggestion_ledger.rs",
+        "required_features": []
+      },
+      {
+        "name": "runtime_presence",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/runtime_presence.rs",
+        "required_features": []
+      },
+      {
+        "name": "watchlist_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-protocol/tests/watchlist_contract.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [],
+    "source_files": 22,
+    "source_lines": 3192
+  },
+  {
+    "name": "arda-orome",
+    "path": "crates/spine/interface/arda-orome",
+    "targets": [
+      {
+        "name": "arda_orome",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/interface/arda-orome/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "a2a_mesh",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-orome/tests/a2a_mesh.rs",
+        "required_features": []
+      },
+      {
+        "name": "commercial_delivery",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-orome/tests/commercial_delivery.rs",
+        "required_features": []
+      },
+      {
+        "name": "governance_ledger",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-orome/tests/governance_ledger.rs",
+        "required_features": []
+      },
+      {
+        "name": "http_provider_transport",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-orome/tests/http_provider_transport.rs",
+        "required_features": []
+      },
+      {
+        "name": "operator_bridge",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-orome/tests/operator_bridge.rs",
+        "required_features": []
+      },
+      {
+        "name": "personal_reminder",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-orome/tests/personal_reminder.rs",
+        "required_features": []
+      },
+      {
+        "name": "provider_orchestration",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-orome/tests/provider_orchestration.rs",
+        "required_features": []
+      },
+      {
+        "name": "build-script-build",
+        "kind": [
+          "custom-build"
+        ],
+        "path": "crates/spine/interface/arda-orome/build.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "default": [],
+      "service-runtime": [
+        "dep:arda-economics",
+        "dep:arda-mandos",
+        "dep:arda-vaire",
+        "dep:once_cell",
+        "dep:reqwest",
+        "dep:tracing"
+      ]
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-economics",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-mandos",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-vaire",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 64,
+    "source_lines": 18567
+  },
+  {
+    "name": "arda-vaire",
+    "path": "crates/spine/memory/arda-vaire",
+    "targets": [
+      {
+        "name": "arda_vaire",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/memory/arda-vaire/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "context_capsule",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/context_capsule.rs",
+        "required_features": []
+      },
+      {
+        "name": "durable_metrics",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/durable_metrics.rs",
+        "required_features": []
+      },
+      {
+        "name": "knowledge_deltas",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/knowledge_deltas.rs",
+        "required_features": []
+      },
+      {
+        "name": "organism_context",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/organism_context.rs",
+        "required_features": []
+      },
+      {
+        "name": "public_flows",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/public_flows.rs",
+        "required_features": []
+      },
+      {
+        "name": "retrieval_equivalence",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/retrieval_equivalence.rs",
+        "required_features": []
+      },
+      {
+        "name": "schema_migration",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/schema_migration.rs",
+        "required_features": []
+      },
+      {
+        "name": "soak_recovery",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/memory/arda-vaire/tests/soak_recovery.rs",
+        "required_features": []
+      },
+      {
+        "name": "recall_fidelity",
+        "kind": [
+          "bench"
+        ],
+        "path": "crates/spine/memory/arda-vaire/benches/recall_fidelity.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "default": [
+        "http"
+      ],
+      "http": [
+        "dep:axum",
+        "dep:tower",
+        "dep:tokio-stream"
+      ],
+      "obsidian-import": []
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-economics",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 35,
+    "source_lines": 9519
+  },
+  {
+    "name": "arda-varda",
+    "path": "crates/spine/executors/arda-varda",
+    "targets": [
+      {
+        "name": "arda_varda",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/executors/arda-varda/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-varda-benchmark",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/spine/executors/arda-varda/src/bin/arda-varda-benchmark.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-varda-server",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/spine/executors/arda-varda/src/bin/arda-varda-server.rs",
+        "required_features": []
+      },
+      {
+        "name": "rumil_evaluation_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/executors/arda-varda/tests/rumil_evaluation_contract.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "default": [
+        "http"
+      ],
+      "http": [
+        "dep:axum",
+        "dep:tower",
+        "dep:tokio-stream"
+      ],
+      "human-import": [],
+      "tempfile": [
+        "dep:tempfile"
+      ]
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-economics",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-outpost-protocol",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-rumil",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-vaire",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 38,
+    "source_lines": 15979
+  },
+  {
+    "name": "arda-engine",
+    "path": "crates/engine",
+    "targets": [
+      {
+        "name": "arda_engine",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/engine/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-objective-store",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/engine/src/bin/arda-objective-store.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-snapshot-keeper",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/engine/src/bin/arda-snapshot-keeper.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-snapshot-worker",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/engine/src/bin/arda-snapshot-worker.rs",
+        "required_features": []
+      },
+      {
+        "name": "test_validation",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/engine/src/bin/test_validation.rs",
+        "required_features": []
+      },
+      {
+        "name": "replay_objective_leaf_tmp",
+        "kind": [
+          "example"
+        ],
+        "path": "crates/engine/examples/replay_objective_leaf_tmp.rs",
+        "required_features": []
+      },
+      {
+        "name": "adapter_catalog",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/adapter_catalog.rs",
+        "required_features": []
+      },
+      {
+        "name": "assimilation",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/assimilation.rs",
+        "required_features": []
+      },
+      {
+        "name": "calendar_adapter",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/calendar_adapter.rs",
+        "required_features": []
+      },
+      {
+        "name": "company_adapter_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/company_adapter_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "context_bootstrap_restart",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/context_bootstrap_restart.rs",
+        "required_features": []
+      },
+      {
+        "name": "council_execution",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/council_execution.rs",
+        "required_features": []
+      },
+      {
+        "name": "deterministic_composition",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/deterministic_composition.rs",
+        "required_features": []
+      },
+      {
+        "name": "governance_enforcer",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/governance_enforcer.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_a2a_mesh",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_a2a_mesh.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_adaptive_placement",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_adaptive_placement.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_continuity",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_continuity.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_next_action",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_next_action.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_operator_messages",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_operator_messages.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_operator_projection",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_operator_projection.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_organism_manifest",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_organism_manifest.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_personal_ops",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_personal_ops.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_presence",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_presence.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_projects",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_projects.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_research_operator",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_research_operator.rs",
+        "required_features": []
+      },
+      {
+        "name": "harness_runs",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/harness_runs.rs",
+        "required_features": []
+      },
+      {
+        "name": "hermes_adapter_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/hermes_adapter_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "hud_convergence_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/hud_convergence_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "keeper_managed_release",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/keeper_managed_release.rs",
+        "required_features": []
+      },
+      {
+        "name": "keeper_offline_readonly",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/keeper_offline_readonly.rs",
+        "required_features": []
+      },
+      {
+        "name": "keeper_reconcile",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/keeper_reconcile.rs",
+        "required_features": []
+      },
+      {
+        "name": "keeper_revocation_transport",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/keeper_revocation_transport.rs",
+        "required_features": []
+      },
+      {
+        "name": "keeper_storage_anchor",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/keeper_storage_anchor.rs",
+        "required_features": []
+      },
+      {
+        "name": "knowledge_delta_loop",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/knowledge_delta_loop.rs",
+        "required_features": []
+      },
+      {
+        "name": "next_action_projection",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/next_action_projection.rs",
+        "required_features": []
+      },
+      {
+        "name": "objective_authority",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/objective_authority.rs",
+        "required_features": []
+      },
+      {
+        "name": "objective_runtime",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/objective_runtime.rs",
+        "required_features": []
+      },
+      {
+        "name": "objective_snapshots",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/objective_snapshots.rs",
+        "required_features": []
+      },
+      {
+        "name": "objective_store",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/objective_store.rs",
+        "required_features": []
+      },
+      {
+        "name": "operator_projection_publisher",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/operator_projection_publisher.rs",
+        "required_features": []
+      },
+      {
+        "name": "orome_operator_bridge",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/orome_operator_bridge.rs",
+        "required_features": []
+      },
+      {
+        "name": "orome_smoke",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/orome_smoke.rs",
+        "required_features": []
+      },
+      {
+        "name": "personal_ops_store",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/personal_ops_store.rs",
+        "required_features": []
+      },
+      {
+        "name": "proactive_cycle",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/proactive_cycle.rs",
+        "required_features": []
+      },
+      {
+        "name": "project_adapter_jsonl",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/project_adapter_jsonl.rs",
+        "required_features": []
+      },
+      {
+        "name": "research_store_isolation",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/research_store_isolation.rs",
+        "required_features": []
+      },
+      {
+        "name": "retained_tree_identity",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/retained_tree_identity.rs",
+        "required_features": []
+      },
+      {
+        "name": "retired_queue_projection",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/retired_queue_projection.rs",
+        "required_features": []
+      },
+      {
+        "name": "run_recovery",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/run_recovery.rs",
+        "required_features": []
+      },
+      {
+        "name": "runtime_bundle_worker",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/runtime_bundle_worker.rs",
+        "required_features": []
+      },
+      {
+        "name": "runtime_config_generation",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/runtime_config_generation.rs",
+        "required_features": []
+      },
+      {
+        "name": "runtime_grant_capture",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/runtime_grant_capture.rs",
+        "required_features": []
+      },
+      {
+        "name": "same_mount_test",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/same_mount_test.rs",
+        "required_features": []
+      },
+      {
+        "name": "snapshot_capture",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/snapshot_capture.rs",
+        "required_features": []
+      },
+      {
+        "name": "snapshot_keeper_storage",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/snapshot_keeper_storage.rs",
+        "required_features": []
+      },
+      {
+        "name": "snapshot_worker",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/snapshot_worker.rs",
+        "required_features": []
+      },
+      {
+        "name": "stage4_memory_learning_context",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/stage4_memory_learning_context.rs",
+        "required_features": []
+      },
+      {
+        "name": "stage5_homeostasis_recovery",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/stage5_homeostasis_recovery.rs",
+        "required_features": []
+      },
+      {
+        "name": "tree_witness",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/tree_witness.rs",
+        "required_features": []
+      },
+      {
+        "name": "workbench_boundary_recovery",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/workbench_boundary_recovery.rs",
+        "required_features": []
+      },
+      {
+        "name": "workbench_javascript_golden",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/workbench_javascript_golden.rs",
+        "required_features": []
+      },
+      {
+        "name": "workbench_python_golden",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/workbench_python_golden.rs",
+        "required_features": []
+      },
+      {
+        "name": "workbench_rust_golden",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/workbench_rust_golden.rs",
+        "required_features": []
+      },
+      {
+        "name": "worker_orchestrator",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/engine/tests/worker_orchestrator.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [
+      {
+        "name": "arda-aule",
+        "kind": "normal",
+        "optional": false,
+        "features": [
+          "full-cli"
+        ],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-mandos",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-orome",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-outpost-protocol",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-rumil",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-vaire",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-varda",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "manwe",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 280,
+    "source_lines": 88483
+  },
+  {
+    "name": "manwe",
+    "path": "crates/spine/runtime/manwe",
+    "targets": [
+      {
+        "name": "manwe",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/runtime/manwe/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "manwe",
+        "kind": [
+          "bin"
+        ],
+        "path": "crates/spine/runtime/manwe/src/main.rs",
+        "required_features": []
+      }
+    ],
+    "features": {
+      "adaptive": [
+        "dep:arda-core",
+        "dep:arda-governance",
+        "dep:arda-economics",
+        "dep:arda-vaire"
+      ],
+      "arda-aule": [
+        "dep:arda-aule"
+      ],
+      "default": [
+        "adaptive"
+      ],
+      "telemetry": [
+        "arda-aule/telemetry"
+      ]
+    },
+    "internal_dependencies": [
+      {
+        "name": "arda-aule",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-economics",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-governance",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-vaire",
+        "kind": "normal",
+        "optional": true,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 52,
+    "source_lines": 31877
+  },
+  {
+    "name": "arda-contract-registry",
+    "path": "crates/spine/contract/arda-contract-registry",
+    "targets": [
+      {
+        "name": "arda_contract_registry",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/contract/arda-contract-registry/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "registry_smoke",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/contract/arda-contract-registry/tests/registry_smoke.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [],
+    "source_files": 3,
+    "source_lines": 264
+  },
+  {
+    "name": "arda-mirromere",
+    "path": "crates/spine/interface/arda-mirromere",
+    "targets": [
+      {
+        "name": "arda_mirromere",
+        "kind": [
+          "lib"
+        ],
+        "path": "crates/spine/interface/arda-mirromere/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "projection",
+        "kind": [
+          "test"
+        ],
+        "path": "crates/spine/interface/arda-mirromere/tests/projection.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [
+      {
+        "name": "arda-outpost-protocol",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 2,
+    "source_lines": 1240
+  },
+  {
+    "name": "arda-launcher",
+    "path": "apps/arda-launcher/src-tauri",
+    "targets": [
+      {
+        "name": "arda_launcher_lib",
+        "kind": [
+          "staticlib",
+          "cdylib",
+          "rlib"
+        ],
+        "path": "apps/arda-launcher/src-tauri/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-launcher",
+        "kind": [
+          "bin"
+        ],
+        "path": "apps/arda-launcher/src-tauri/src/main.rs",
+        "required_features": []
+      },
+      {
+        "name": "build-script-build",
+        "kind": [
+          "custom-build"
+        ],
+        "path": "apps/arda-launcher/src-tauri/build.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [
+      {
+        "name": "arda-contract-registry",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-core",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 27,
+    "source_lines": 6332
+  },
+  {
+    "name": "arda-outpost-scout",
+    "path": "outposts/arda-outpost-scout",
+    "targets": [
+      {
+        "name": "arda_outpost_scout",
+        "kind": [
+          "lib"
+        ],
+        "path": "outposts/arda-outpost-scout/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-outpost-scout",
+        "kind": [
+          "bin"
+        ],
+        "path": "outposts/arda-outpost-scout/src/main.rs",
+        "required_features": []
+      },
+      {
+        "name": "memory_fixtures",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/memory_fixtures.rs",
+        "required_features": []
+      },
+      {
+        "name": "observation_fixtures",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/observation_fixtures.rs",
+        "required_features": []
+      },
+      {
+        "name": "research_fixtures",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/research_fixtures.rs",
+        "required_features": []
+      },
+      {
+        "name": "rumil_audit_contract",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/rumil_audit_contract.rs",
+        "required_features": []
+      },
+      {
+        "name": "rumil_runtime_api",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/rumil_runtime_api.rs",
+        "required_features": []
+      },
+      {
+        "name": "runtime_api",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/runtime_api.rs",
+        "required_features": []
+      },
+      {
+        "name": "runtime_cli",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/runtime_cli.rs",
+        "required_features": []
+      },
+      {
+        "name": "survey_fixtures",
+        "kind": [
+          "test"
+        ],
+        "path": "outposts/arda-outpost-scout/tests/survey_fixtures.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [
+      {
+        "name": "arda-outpost-protocol",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-rumil",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      },
+      {
+        "name": "arda-vaire",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 18,
+    "source_lines": 3664
+  },
+  {
+    "name": "arda-relic-bridge",
+    "path": "outposts/arda-relic-bridge",
+    "targets": [
+      {
+        "name": "arda_relic_bridge",
+        "kind": [
+          "lib"
+        ],
+        "path": "outposts/arda-relic-bridge/src/lib.rs",
+        "required_features": []
+      },
+      {
+        "name": "arda-relic-presence-sync",
+        "kind": [
+          "bin"
+        ],
+        "path": "outposts/arda-relic-bridge/src/bin/arda-relic-presence-sync.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [
+      {
+        "name": "arda-outpost-protocol",
+        "kind": "normal",
+        "optional": false,
+        "features": [],
+        "uses_default_features": true
+      }
+    ],
+    "source_files": 3,
+    "source_lines": 608
+  },
+  {
+    "name": "arda-project-adapter-sdk",
+    "path": "sdk/rust",
+    "targets": [
+      {
+        "name": "arda_project_adapter_sdk",
+        "kind": [
+          "lib"
+        ],
+        "path": "sdk/rust/src/lib.rs",
+        "required_features": []
+      }
+    ],
+    "features": {},
+    "internal_dependencies": [],
+    "source_files": 1,
+    "source_lines": 149
+  }
+]

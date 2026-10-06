@@ -108,8 +108,21 @@ fn abrupt_exit_keeps_receipt_tombstone_and_allocation_atomic() {
         initialize(&db);
         drop(db);
         let result = std::process::Command::new(std::env::current_exe().unwrap())
-            .args(["--exact", "keeper_reconcile::tests::abrupt_exit_keeps_receipt_tombstone_and_allocation_atomic", "--nocapture"])
-            .env("ARDA_TEST_REVOKE_DB", &path).env("ARDA_TEST_REVOKE_CRASH", point).status().unwrap();
+            .args([
+                "--exact",
+                concat!(
+                    module_path!(),
+                    "::abrupt_exit_keeps_receipt_tombstone_and_allocation_atomic"
+                )
+                .split_once("::")
+                .unwrap()
+                .1,
+                "--nocapture",
+            ])
+            .env("ARDA_TEST_REVOKE_DB", &path)
+            .env("ARDA_TEST_REVOKE_CRASH", point)
+            .status()
+            .unwrap();
         assert_eq!(result.code(), Some(86));
         let mut db = Connection::open(&path).unwrap();
         assert_state(&db, point == "committed");
@@ -121,6 +134,21 @@ fn abrupt_exit_keeps_receipt_tombstone_and_allocation_atomic() {
         }
         assert_state(&db, true);
     }
+}
+#[test]
+fn abandonment_refuses_offline_revocation_without_history_writes() {
+    let mut db = Connection::open_in_memory().unwrap();
+    initialize(&db);
+    db.execute_batch("CREATE TABLE snapshot_operator_abandonments(run TEXT PRIMARY KEY, receipt_json TEXT NOT NULL);
+        INSERT INTO snapshot_operator_abandonments VALUES('run','{}');").unwrap();
+    let before = db.total_changes();
+    let tx = db.transaction().unwrap();
+    let error = commit_revocation(tx, receipt(), true, || Ok(()))
+        .err()
+        .expect("abandoned run must refuse offline revocation");
+    assert!(error.to_string().contains("operator abandoned"), "{error}");
+    assert_eq!(db.total_changes(), before);
+    assert_state(&db, false);
 }
 #[test]
 fn failed_final_stop_recheck_rolls_back_all_mutations() {

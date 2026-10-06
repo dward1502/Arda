@@ -140,6 +140,48 @@
         "arda workbench project validate",
         "arda workbench run inspect <run_id>"
       ]
+    },
+    {
+      "track_id": "arda-ecosystem-standard-track-6-wgtt",
+      "title": "WGTT Web Application Contract",
+      "owner": "ARDA",
+      "status": "pending_review",
+      "source_modules": [
+        "core/state/contracts/wgtt_contract.json"
+      ],
+      "evidence_class_current": "contract_tested",
+      "evidence_class_target": "runtime_receipted",
+      "schema_versions": [
+        "arda.project-contract.v1"
+      ],
+      "receipt_stores": [
+        "data/runs/"
+      ],
+      "cli_verbs": [
+        "arda workbench project validate",
+        "arda workbench run inspect <run_id>"
+      ]
+    },
+    {
+      "track_id": "arda-ecosystem-standard-track-7-skylightpros",
+      "title": "SkylightPros Web Application Contract",
+      "owner": "ARDA",
+      "status": "pending_review",
+      "source_modules": [
+        "core/state/contracts/skylightpros_contract.json"
+      ],
+      "evidence_class_current": "contract_tested",
+      "evidence_class_target": "runtime_receipted",
+      "schema_versions": [
+        "arda.project-contract.v1"
+      ],
+      "receipt_stores": [
+        "data/runs/"
+      ],
+      "cli_verbs": [
+        "arda workbench project validate",
+        "arda workbench run inspect <run_id>"
+      ]
     }
   ]
 }

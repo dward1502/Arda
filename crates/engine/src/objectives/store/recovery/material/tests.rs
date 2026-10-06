@@ -82,7 +82,7 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
     let objective: NewObjective = serde_json::from_value(json!({
         "id":b.objective_id,"source_id":"fixture","idempotency_key":"fixture",
         "operator_id":"operator:fixture","text":"fixture", "priority":1,
-        "projects":[{"project_id":"project-a","contract_digest":b.project_contract_digest}],
+        "projects":[{"project_id":"project-a","contract_digest":b.project_contract_digest,"authority":"operator_test","checks":["build","lint"]}],
         "leaves":[{"id":b.leaf_id,"project_id":"project-a","workspace_root":root.to_str().unwrap(),
             "authority":"read_only","dependencies":[],"execution":null}]
     }))

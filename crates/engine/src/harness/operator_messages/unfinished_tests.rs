@@ -296,7 +296,9 @@ async fn run() {
         "priority": 1,
         "projects": [{
             "project_id": project,
-            "contract_digest": contract_digest
+            "contract_digest": contract_digest,
+            "authority": "operator_test",
+            "checks": ["build", "lint"]
         }],
         "leaves": [{
             "id": bindings.leaf_id,
@@ -1021,7 +1023,9 @@ async fn run_waiter_loss_positive() {
         "priority": 1,
         "projects": [{
             "project_id": project,
-            "contract_digest": contract_digest
+            "contract_digest": contract_digest,
+            "authority": "operator_test",
+            "checks": ["build", "lint"]
         }],
         "leaves": [{
             "id": bindings.leaf_id,

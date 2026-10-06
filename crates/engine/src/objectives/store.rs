@@ -17,6 +17,7 @@ use tokio::sync::watch;
 
 mod admissions;
 mod authority;
+mod explicit_runtime;
 mod recovery;
 pub use recovery::RecoveryMaterial;
 pub(crate) use recovery::RecoveryPublication;
@@ -25,8 +26,19 @@ pub(crate) use recovery::RecoveryPublication;
 pub struct ObjectiveStore {
     path: PathBuf,
     authority: authority::Authority,
+    authority_lease: Arc<authority::AuthorityLease>,
     changes: Arc<watch::Sender<()>>,
     pub(super) snapshot_admission: Option<Arc<dyn super::snapshots::SnapshotAdmission>>,
+}
+
+/// Exclusive offline handle. Deliberately exposes no runtime execution APIs.
+pub struct ObjectiveMaintenance {
+    store: ObjectiveStore,
+}
+impl ObjectiveMaintenance {
+    pub(super) fn maintenance_connection(&self) -> Result<Connection> {
+        self.store.maintenance_connection()
+    }
 }
 
 impl std::fmt::Debug for ObjectiveStore {
@@ -90,13 +102,65 @@ impl ObjectiveStore {
         Self::open_existing(path)
     }
 
+    /// Non-migrating maintenance entry point; incompatible stores are refused.
+    pub fn open_existing_maintenance(path: impl AsRef<Path>) -> Result<ObjectiveMaintenance> {
+        let path = authority::normalize(path.as_ref())?;
+        let (authority, authority_lease) = authority::AuthorityLease::acquire(&path, true)?;
+        let store = Self {
+            path,
+            authority,
+            authority_lease: Arc::new(authority_lease),
+            changes: Arc::new(watch::channel(()).0),
+            snapshot_admission: None,
+        };
+        let db = store.maintenance_connection()?;
+        for sql in [
+            "SELECT event_id,record_json FROM operator_abandonment_authorizations LIMIT 0",
+            "SELECT event_id,payload_digest FROM gateway_event_bindings LIMIT 0",
+            "SELECT id,workspace_root,execution_run_id,execution_json,context_bound FROM leaves LIMIT 0",
+            "SELECT id,operator_id,state,stop_generation FROM objectives LIMIT 0",
+            "SELECT leaf_id,run_id,capability_json,committed_generation FROM retained_workspace_snapshots LIMIT 0",
+            "SELECT leaf_id,identity_json FROM lease_workspace_identities LIMIT 0",
+            "SELECT leaf_id,generation,lease_owner,lease_expires_ms FROM retained_snapshot_lease_intents LIMIT 0",
+            "SELECT leaf_id FROM retained_snapshot_releases LIMIT 0",
+            "SELECT leaf_id FROM retained_snapshot_terminal_revocations LIMIT 0",
+        ] { db.prepare(sql).context("incompatible maintenance schema; migration forbidden")?; }
+        Ok(ObjectiveMaintenance { store })
+    }
+
+    pub(super) fn maintenance_connection(&self) -> Result<Connection> {
+        if !self.authority_lease.is_exclusive() {
+            bail!("exclusive maintenance handle required");
+        }
+        if self.authority_lease.load(&self.path)? != self.authority {
+            bail!("ObjectiveStore authority binding changed");
+        }
+        let db = Connection::open_with_flags(
+            &self.path,
+            OpenFlags::SQLITE_OPEN_READ_WRITE
+                | OpenFlags::SQLITE_OPEN_NO_MUTEX
+                | OpenFlags::SQLITE_OPEN_NOFOLLOW,
+        )?;
+        self.authority.check_path(&self.path)?;
+        self.authority.check_connection(&db)?;
+        let journal: String = db.query_row("PRAGMA journal_mode", [], |r| r.get(0))?;
+        if journal != "wal" {
+            bail!("maintenance requires existing WAL mode; conversion forbidden");
+        }
+        db.busy_timeout(Duration::from_secs(5))?;
+        db.pragma_update(None, "foreign_keys", "ON")?;
+        db.pragma_update(None, "synchronous", "FULL")?;
+        Ok(db)
+    }
+
     /// Reopen provisioned authority without creating a database or marker.
     pub fn open_existing(path: impl AsRef<Path>) -> Result<Self> {
         let path = authority::normalize(path.as_ref())?;
-        let authority = authority::Authority::load(&path)?;
+        let (authority, authority_lease) = authority::AuthorityLease::acquire(&path, false)?;
         let mut store = Self {
             path,
             authority,
+            authority_lease: Arc::new(authority_lease),
             changes: Arc::new(watch::channel(()).0),
             snapshot_admission: None,
         };
@@ -219,7 +283,15 @@ impl ObjectiveStore {
     }
 
     pub(crate) fn can_prepare_resident_context(&self, claim: &ClaimedLeaf) -> Result<bool> {
-        Ok(self.connection()?.query_row(
+        let mut connection = self.connection()?;
+        let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        super::abandonment::guards::reject_in(
+            &transaction,
+            Some(&claim.objective_id),
+            Some(&claim.leaf_id),
+            claim.execution_run_id.as_deref(),
+        )?;
+        Ok(transaction.query_row(
             "SELECT EXISTS(SELECT 1 FROM leaves WHERE id = ?1 AND execution_run_id = ?2
              AND lease_owner = ?3 AND attempt = ?4 AND context_bound = 0)",
             params![
@@ -469,6 +541,7 @@ impl ObjectiveStore {
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .context("begin objective control")?;
+        super::abandonment::guards::reject_in(&transaction, Some(objective_id), None, None)?;
 
         if transaction.query_row(
             "SELECT EXISTS(SELECT 1 FROM objectives WHERE ingress_key = ?1)",
@@ -729,7 +802,15 @@ impl ObjectiveStore {
     }
 
     pub(crate) fn fail_reconciliation(&self, claim: &ClaimedLeaf, now_ms: i64) -> Result<()> {
-        self.connection()?.execute(
+        let mut connection = self.connection()?;
+        let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        super::abandonment::guards::reject_in(
+            &transaction,
+            Some(&claim.objective_id),
+            Some(&claim.leaf_id),
+            claim.execution_run_id.as_deref(),
+        )?;
+        transaction.execute(
             "UPDATE objectives SET state = 'failed', updated_at_ms = ?1
              WHERE id = ?2 AND state IN ('approved', 'running')
              AND EXISTS (SELECT 1 FROM leaves WHERE id = ?3 AND lease_owner = ?4
@@ -744,6 +825,7 @@ impl ObjectiveStore {
                 claim.execution_run_id
             ],
         )?;
+        transaction.commit()?;
         Ok(())
     }
 
@@ -800,6 +882,7 @@ impl ObjectiveStore {
         transaction.execute(
             "UPDATE objectives SET state = 'failed', updated_at_ms = ?1
              WHERE state IN ('approved', 'running')
+               AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.objective_id=objectives.id)
                AND EXISTS (
                    SELECT 1 FROM leaves l WHERE l.objective_id = objectives.id
                      AND l.stage NOT IN ('complete', 'cancelled', 'failed')
@@ -816,6 +899,7 @@ impl ObjectiveStore {
             let pending: bool = transaction.query_row(
                 "SELECT EXISTS(SELECT 1 FROM leaves l JOIN objectives o ON o.id = l.objective_id
                  WHERE o.state IN ('approved', 'running')
+                   AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=l.id)
                    AND l.stage NOT IN ('complete', 'cancelled', 'failed')
                    AND l.attempt >= ?1 AND l.context_bound = 1
                    AND l.execution_run_id IS NOT NULL)",
@@ -834,6 +918,7 @@ impl ObjectiveStore {
         let exclusive_live: bool = transaction.query_row(
             "SELECT EXISTS(SELECT 1 FROM leaves l
              WHERE l.lease_expires_ms > ?1
+               AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=l.id)
                AND l.stage IN ('execute','verify','review','close')
                AND (l.authority != 'read_only' OR l.attempt != 1))",
             [now_ms],
@@ -845,6 +930,7 @@ impl ObjectiveStore {
         }
         let live_any: bool = transaction.query_row(
             "SELECT EXISTS(SELECT 1 FROM leaves WHERE lease_expires_ms > ?1
+             AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=leaves.id)
              AND stage IN ('execute','verify','review','close'))",
             [now_ms],
             |row| row.get(0),
@@ -862,6 +948,7 @@ impl ObjectiveStore {
                 "SELECT l.workspace_root, i.identity_json FROM leaves l
                  LEFT JOIN lease_workspace_identities i ON i.leaf_id = l.id
                  WHERE l.lease_expires_ms > ?1
+                 AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=l.id)
                  AND l.stage IN ('execute', 'verify', 'review', 'close')
                  AND NOT (l.authority = 'read_only' AND EXISTS (
                     SELECT 1 FROM retained_workspace_snapshots s
@@ -899,10 +986,12 @@ impl ObjectiveStore {
                  FROM leaves l
                  JOIN objectives o ON o.id = l.objective_id
                  WHERE o.state IN (?1, ?2)
+                   AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.objective_id=o.id)
                    AND (l.attempt > 0 OR NOT EXISTS (
                        SELECT 1 FROM leaves interrupted
                        JOIN objectives recovering ON recovering.id = interrupted.objective_id
                        WHERE recovering.state IN (?1, ?2)
+                         AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=interrupted.id)
                          AND interrupted.attempt > 0 AND interrupted.context_bound = 1
                          AND (COALESCE(interrupted.lease_expires_ms, 0) <= ?7 OR NOT EXISTS (
                              SELECT 1 FROM retained_workspace_snapshots active_reader
@@ -929,6 +1018,7 @@ impl ObjectiveStore {
                    AND NOT EXISTS (
                        SELECT 1 FROM leaves active
                        WHERE active.id != l.id
+                         AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=active.id)
                          AND active.workspace_root = l.workspace_root
                          AND active.lease_expires_ms > ?7
                          AND active.stage IN (?3, ?4, ?5, ?6)
@@ -1019,6 +1109,7 @@ impl ObjectiveStore {
                         "SELECT EXISTS(SELECT 1 FROM retained_workspace_snapshots s
                          JOIN leaves holder ON holder.id = s.leaf_id
                          WHERE NOT EXISTS (SELECT 1 FROM retained_snapshot_releases r WHERE r.leaf_id = s.leaf_id)
+                         AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=s.leaf_id AND a.run_id=s.run_id)
                          AND (?1 = 0 OR holder.authority != 'read_only'))",
                         [fresh_read_only], |row| row.get(0),
                     )?;
@@ -1069,6 +1160,7 @@ impl ObjectiveStore {
                    AND NOT EXISTS (
                        SELECT 1 FROM leaves active
                        WHERE active.id != target.id
+                         AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=active.id)
                          AND active.workspace_root = target.workspace_root
                          AND active.lease_expires_ms > ?3
                          AND active.stage IN (?5, ?6, ?7, ?8)
@@ -1244,6 +1336,7 @@ impl ObjectiveStore {
         receipt: &StageReceipt,
         now_ms: i64,
     ) -> Result<bool> {
+        super::abandonment::guards::reject_in(transaction, None, Some(leaf_id), None)?;
         validate_receipt(receipt)?;
 
         if let Some((digest, predecessor, outcome_id, outcome_digest, binding_digest)) = transaction
@@ -1358,6 +1451,7 @@ impl ObjectiveStore {
         }
         let mut connection = self.connection()?;
         let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        super::abandonment::guards::reject_in(&transaction, Some(objective_id), None, None)?;
         let current = objective_in(&transaction, objective_id)?
             .ok_or_else(|| anyhow!("objective {objective_id} does not exist"))?;
         if current.state == ObjectiveState::Completed {
@@ -1416,6 +1510,12 @@ impl ObjectiveStore {
         let payload_digest = digest_json(&schedule)?;
         let mut connection = self.connection()?;
         let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        super::abandonment::guards::reject_in(
+            &transaction,
+            Some(&schedule.objective_id),
+            None,
+            None,
+        )?;
         if objective_in(&transaction, &schedule.objective_id)?.is_none() {
             bail!("scheduled objective does not exist");
         }
@@ -1525,7 +1625,7 @@ impl ObjectiveStore {
     }
 
     pub(super) fn connection(&self) -> Result<Connection> {
-        if authority::Authority::load(&self.path)? != self.authority {
+        if self.authority_lease.load(&self.path)? != self.authority {
             bail!("ObjectiveStore authority binding changed");
         }
         let connection = Connection::open_with_flags(
@@ -1562,6 +1662,17 @@ fn validate_objective(objective: &NewObjective) -> Result<()> {
     for project in &objective.projects {
         if project.project_id.trim().is_empty() || project.contract_digest.trim().is_empty() {
             bail!("project authority fields must not be empty");
+        }
+        // Original admissions bind canonical contracts by ID/digest alone.
+        // Do not invent metadata on replay or treat its absence as permission.
+        // If supplied, the additional metadata must form a complete pair.
+        let legacy_binding = project.authority.is_empty() && project.checks.is_empty();
+        if !legacy_binding
+            && (project.authority.trim().is_empty()
+                || project.checks.is_empty()
+                || project.checks.iter().any(|check| check.trim().is_empty()))
+        {
+            bail!("project authority metadata must include authority and checks together");
         }
         if !projects.insert(project.project_id.as_str()) {
             bail!("duplicate project authority {}", project.project_id);

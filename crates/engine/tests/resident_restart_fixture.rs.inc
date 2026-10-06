@@ -67,6 +67,8 @@ async fn resident_receipt_crash_child() {
                 projects: vec![ProjectAuthority {
                     project_id: PROJECT_ID.into(),
                     contract_digest: digest,
+                    authority: "operator_resident_test".into(),
+                    checks: vec!["build".into(), "lint".into()],
                 }],
                 leaves: vec![NewLeaf {
                     id: "resident-leaf".into(),

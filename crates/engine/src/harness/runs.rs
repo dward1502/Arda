@@ -318,6 +318,23 @@ fn mark_current_run(root: &FsPath, run_id: &str) -> Result<(), ApiError> {
         .map_err(|error| ApiError::internal(format!("write current-run registry: {error}")))
 }
 
+/// Lifetime participation for run-authority/evidence mutations. The caller
+/// retains this owned handle until all asynchronous work and publication finish.
+pub(super) fn admit_run_operation(
+    state: &HarnessState,
+    id: &str,
+) -> Result<crate::objectives::ObjectiveStore, ApiError> {
+    validate_run_id(id)?;
+    let objectives = crate::objectives::ObjectiveStore::open_existing(
+        state.workbench_root.join("data/arda/objectives.sqlite3"),
+    )
+    .map_err(|error| ApiError::conflict(format!("run runtime/maintenance exclusion: {error}")))?;
+    objectives
+        .with_unabandoned_run(id, |_| Ok(()))
+        .map_err(|error| ApiError::conflict(error.to_string()))?;
+    Ok(objectives)
+}
+
 pub(super) async fn plan_run(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
@@ -325,6 +342,7 @@ pub(super) async fn plan_run(
 ) -> Result<(StatusCode, Json<RunResponse>), ApiError> {
     require_loopback(peer)?;
     request.envelope.validate()?;
+    let _runtime = admit_run_operation(&state, request.graph.run_id.as_str())?;
     let _guard = WORKBENCH_MUTATIONS.lock().await;
     validate_run_id(request.graph.run_id.as_str())?;
     request
@@ -432,6 +450,7 @@ pub(super) async fn approve_run(
 ) -> Result<Json<RunResponse>, ApiError> {
     require_loopback(peer)?;
     request.envelope.validate()?;
+    let _runtime = admit_run_operation(&state, &id)?;
     let _guard = WORKBENCH_MUTATIONS.lock().await;
     let (store, mut graph) = load_run(&state, &id)?;
     let recovered = store.recover().map_err(store_error)?;
@@ -515,6 +534,7 @@ pub(super) async fn cancel_run(
     if request.reason.trim().is_empty() {
         return Err(ApiError::bad_request("cancellation reason cannot be empty"));
     }
+    let _runtime = admit_run_operation(&state, &id)?;
     let _guard = WORKBENCH_MUTATIONS.lock().await;
     cancel_active_provider_run(&id).await;
     let (store, mut graph) = load_run(&state, &id)?;
@@ -593,6 +613,7 @@ pub(super) async fn complete_run_node(
         validate_review_evidence(evidence, &request.receipt_digest)?;
     }
 
+    let _runtime = admit_run_operation(&state, &id)?;
     let _guard = WORKBENCH_MUTATIONS.lock().await;
     complete_run_node_inner(&state, &id, node_id, request, None)
 }
@@ -921,6 +942,11 @@ async fn execute_provider_node_authorized(
         return Err(ApiError::bad_request("provider objective cannot be empty"));
     }
 
+    // This future belongs to OwnedJobs, not its HTTP waiter. Retain runtime
+    // exclusion from before RunStore/replay access through child reaping and
+    // final publication. No SQLite writer is held across provider execution.
+    let objectives = admit_run_operation(&state, &id)?;
+
     // Serialize setup and terminal projection with the Workbench mutation lock,
     // but release it while Hermes runs so an authenticated cancel request can
     // propagate to the live child process.
@@ -1159,10 +1185,6 @@ async fn execute_provider_node_authorized(
                 "stored provider receipt does not match the requested context capsule authority",
             ));
         }
-        let objectives = crate::objectives::ObjectiveStore::open_existing(
-            state.workbench_root.join("data/arda/objectives.sqlite3"),
-        )
-        .map_err(|error| ApiError::internal(error.to_string()))?;
         let uses_retained = objectives
             .has_retained_snapshot(id.as_str())
             .map_err(|error| ApiError::conflict(error.to_string()))?;
@@ -1181,10 +1203,6 @@ async fn execute_provider_node_authorized(
         receipt
     } else {
         let environment = std::env::vars().collect::<BTreeMap<_, _>>();
-        let objectives = crate::objectives::ObjectiveStore::open_existing(
-            state.workbench_root.join("data/arda/objectives.sqlite3"),
-        )
-        .map_err(|error| ApiError::internal(error.to_string()))?;
         let retained = if let Some((_, binding)) = &recovery_binding {
             Some(binding.clone())
         } else {
@@ -1351,6 +1369,7 @@ async fn execute_provider_node_authorized(
         }
         if node.state != NodeState::Ready {
             with_provider_mutation(
+                &state.workbench_root,
                 &store,
                 recovery.as_deref(),
                 &node_id,
@@ -1524,6 +1543,7 @@ async fn execute_provider_node_authorized(
                     .ok_or_else(|| ApiError::internal("provider node disappeared after failure"))?;
                 if current.state == NodeState::Running {
                     with_provider_mutation(
+                        &state.workbench_root,
                         &store,
                         recovery.as_deref(),
                         &node_id,
@@ -1553,6 +1573,7 @@ async fn execute_provider_node_authorized(
             ApiError::internal(format!("failed to serialize provider receipt: {error}"))
         })?;
         with_provider_mutation(
+            &state.workbench_root,
             &store,
             recovery.as_deref(),
             &node_id,
@@ -1594,6 +1615,7 @@ async fn execute_provider_node_authorized(
     };
 
     with_provider_mutation(
+        &state.workbench_root,
         &store,
         recovery.as_deref(),
         &node_id,
@@ -1618,6 +1640,7 @@ async fn execute_provider_node_authorized(
 }
 
 fn with_provider_mutation<T>(
+    workbench_root: &std::path::Path,
     store: &RunStore,
     authority: Option<&crate::objectives::RecoveryAuthorization>,
     node_id: &NodeId,
@@ -1629,8 +1652,47 @@ fn with_provider_mutation<T>(
             .with_provider_mutation(node_id.as_str(), request, operation)
             .map_err(|error| ApiError::conflict(error.to_string()))?
     } else {
-        operation(store)
+        let objectives = crate::objectives::ObjectiveStore::open_existing(
+            workbench_root.join("data/arda/objectives.sqlite3"),
+        )
+        .map_err(|error| ApiError::internal(error.to_string()))?;
+        objectives
+            .with_unabandoned_run(store.run_id().as_str(), |_| Ok(operation(store)))
+            .map_err(|error| ApiError::conflict(error.to_string()))?
     }
+}
+
+#[test]
+fn abandoned_ordinary_provider_mutation_never_invokes_publication() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("data/arda/objectives.sqlite3");
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    let _objectives = crate::objectives::ObjectiveStore::initialize(&path).unwrap();
+    let store = RunStore::open(temp.path(), RunId::new("historical-run").unwrap()).unwrap();
+    let node = NodeId::new("verify").unwrap();
+    let request = serde_json::json!({});
+    with_provider_mutation(temp.path(), &store, None, &node, &request, |_| Ok(())).unwrap();
+    // Deliberately incomplete fixture; deny-only code cannot require a valid set.
+    let db = rusqlite::Connection::open(path).unwrap();
+    db.execute_batch("INSERT INTO objectives(id,source_id,ingress_key,payload_digest,operator_id,text,priority,revision,state,created_at_ms,updated_at_ms) VALUES('objective','source','key','digest','operator','fixture',1,1,'paused',1,1);
+        INSERT INTO leaves(id,objective_id,workspace_root,authority,stage,attempt,updated_at_ms,execution_run_id) VALUES('leaf','objective','/fixture','read_only','execute',1,1,'historical-run');
+        INSERT INTO retained_workspace_snapshots VALUES('leaf','historical-run','{}',1);
+        INSERT INTO operator_abandonment_authorizations VALUES('event','{}');").unwrap();
+    db.execute("INSERT INTO retained_snapshot_operator_abandonments VALUES('leaf','historical-run','objective','event','{}')", []).unwrap();
+    let sentinel = temp.path().join("publication");
+    std::fs::write(&sentinel, "retained-original").unwrap();
+    let called = std::cell::Cell::new(false);
+    let result = with_provider_mutation(temp.path(), &store, None, &node, &request, |_| {
+        called.set(true);
+        std::fs::write(&sentinel, "replayed").unwrap();
+        Ok(())
+    });
+    assert!(!called.get(), "abandoned provider publication callback ran");
+    assert!(result.is_err());
+    assert_eq!(
+        std::fs::read_to_string(sentinel).unwrap(),
+        "retained-original"
+    );
 }
 
 async fn cancel_active_provider_run(run_id: &str) {

@@ -1,0 +1,18 @@
+# Rúmil Markdown Link Check
+
+- Root: `/var/home/mythos/Eregion/Arda/docs/plans`
+- Local links checked: 80
+- Broken local links: 4
+- Completion-language check enabled: true
+- Completion-language issues: 0
+
+## Broken Links
+
+- `ARDA_PRODUCT_PLAN_SUITE.md` -> `2026-09-01-arda-objective-runtime-cutover.md`
+- `ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md` -> `2026-09-01-arda-objective-runtime-cutover.md`
+- `DAILY_RESEARCH_IMPROVEMENT_LOOP.md` -> `2026-09-01-arda-objective-runtime-cutover.md#c2--finish-retiring-competing-writers`
+- `PROVIDER_WORKER_CONVERGENCE.md` -> `2026-09-01-arda-objective-runtime-cutover.md#retained-evidence`
+
+## Completion Language
+
+No completion-language issues found.

@@ -97,7 +97,7 @@ impl RecoveryAuthorization {
                                 &grant.bindings.close_node_id,
                                 self.lease.expires_ms.try_into()?,
                             )?;
-                    item.persist_close_receipt(&self.root, parent)?;
+                    item.persist_close_receipt(&self.root, parent, &self.store)?;
                     let result = operation(&guarded, request);
                     Ok((guarded, result))
                 },

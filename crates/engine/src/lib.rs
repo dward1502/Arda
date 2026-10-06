@@ -3,6 +3,9 @@
 //! spine so callers import from `arda_engine` rather than reaching into the
 //! vendored crates directly.
 
+// Shared keeper maintenance sources retain their binary/library crate path.
+extern crate self as arda_engine;
+
 pub use arda_orome::provider::{
     DispatchMetricsSnapshot, DispatchReceipt, ManualTransport, ProviderConfig, ProviderRuntime,
     ProviderType, RoutingIntent, TransportRequest,

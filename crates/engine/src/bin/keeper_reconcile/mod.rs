@@ -140,6 +140,20 @@ fn record(db: &Connection, owner: &str, run: &str, runtime: &Path) -> Result<Rec
         binding,
     })
 }
+// Reuse the exact historical record serialization; this is an independent
+// binding of damaged keeper records, not proof of original Engine pairing.
+pub(super) fn abandonment_record(
+    db: &Connection,
+    owner: &str,
+    run: &str,
+    runtime: &Path,
+) -> Result<(serde_json::Value, managed::Binding, String)> {
+    let current = record(db, owner, run, runtime)?;
+    // Hash before projection: historical inspection/revocation uses struct
+    // declaration order. Value map ordering must never redefine that digest.
+    let digest = hash(&current)?;
+    Ok((serde_json::to_value(&current)?, current.binding, digest))
+}
 fn saved_receipt(db: &Connection, request: &str) -> Result<Option<Receipt>> {
     if !table(db, "snapshot_reconciliations")? {
         return Ok(None);
@@ -183,6 +197,45 @@ fn validate_receipt(db: &Connection, receipt: &Receipt, mut current: Record) -> 
     }
     Ok(())
 }
+#[cfg(test)]
+mod missing_authority_tests;
+
+pub fn query_missing_authority_revocation(
+    db: &Connection,
+    run: &str,
+    workspace: &str,
+    identity: &str,
+    runtime: &Path,
+) -> Result<arda_engine::objectives::terminal_revocation::TerminalRevocationProof> {
+    use arda_engine::objectives::terminal_revocation::TerminalRevocationProof;
+    let owner: String = db.query_row("SELECT id FROM owner_identity", [], |r| r.get(0))?;
+    let current = record(db, &owner, run, runtime)?;
+    if current.authority.is_some()
+        || current.state != "reconciled_revoked"
+        || current.workspace != workspace
+        || current.identity != identity
+        || run.is_empty()
+        || workspace.is_empty()
+        || identity.is_empty()
+    {
+        bail!("missing-authority terminal query binding mismatch");
+    }
+    let text: String = db.query_row(
+        "SELECT receipt FROM snapshot_reconciliations WHERE run=?1",
+        [run],
+        |r| r.get(0),
+    )?;
+    let receipt: Receipt = serde_json::from_str(&text)?;
+    validate_receipt(db, &receipt, current)?;
+    // Return only the typed immutable receipt, never the capability-bearing Record.
+    Ok(TerminalRevocationProof {
+        run: run.to_owned(),
+        workspace: workspace.to_owned(),
+        identity: identity.to_owned(),
+        receipt: serde_json::from_str(&text)?,
+    })
+}
+
 pub fn release_ack(db: &Connection, run: &str, runtime: &Path) -> Result<()> {
     let text: String = db.query_row(
         "SELECT receipt FROM snapshot_reconciliations WHERE run=?1",
@@ -213,6 +266,24 @@ fn evidence(path: &Path) -> Result<Evidence> {
     }
     Ok(serde_json::from_slice(&bytes)?)
 }
+fn reject_abandoned(db: &Connection, run: &str) -> Result<()> {
+    // Offline legacy owners may predate the additive tombstone schema. Never
+    // migrate/sweep historical rows merely to inspect or refuse maintenance.
+    let exists: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type='table' AND name='snapshot_operator_abandonments')", [], |r| r.get(0))?;
+    if exists
+        && db.query_row(
+            "SELECT EXISTS(SELECT 1 FROM snapshot_operator_abandonments WHERE run=?1)",
+            [run],
+            |r| r.get::<_, bool>(0),
+        )?
+    {
+        return Err(
+            arda_engine::objectives::keeper_client::KeeperFailure::OperatorAbandoned.into(),
+        );
+    }
+    Ok(())
+}
+
 fn apply(
     db: &mut Connection,
     wanted: Receipt,
@@ -220,6 +291,7 @@ fn apply(
     runtime: &Path,
 ) -> Result<Receipt> {
     let tx = db.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+    reject_abandoned(&tx, &wanted.run)?;
     if let Some(saved) = saved_receipt(&tx, &wanted.request_id)? {
         if saved != wanted {
             bail!("reconciliation request ID payload conflict");
@@ -253,6 +325,7 @@ fn commit_revocation(
     allocation: bool,
     recheck: impl FnOnce() -> Result<()>,
 ) -> Result<Receipt> {
+    reject_abandoned(&tx, &wanted.run)?;
     tx.execute_batch("CREATE TABLE IF NOT EXISTS snapshot_reconciliations(request_id TEXT PRIMARY KEY, run TEXT NOT NULL UNIQUE, receipt TEXT NOT NULL);
         CREATE TRIGGER IF NOT EXISTS reconciliation_no_update BEFORE UPDATE ON snapshot_reconciliations BEGIN SELECT RAISE(ABORT,'immutable reconciliation'); END;
         CREATE TRIGGER IF NOT EXISTS reconciliation_no_delete BEFORE DELETE ON snapshot_reconciliations BEGIN SELECT RAISE(ABORT,'immutable reconciliation'); END;")?;

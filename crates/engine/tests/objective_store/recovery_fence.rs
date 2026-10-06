@@ -66,6 +66,42 @@ fn fixture() -> (TempDir, ObjectiveStore, RecoveryGrant, String) {
 }
 
 #[test]
+fn abandonment_blocks_preexisting_recovery_grant_before_callback() {
+    let (temp, store, grant, owner) = fixture();
+    store
+        .with_recovery_control_fence(&owner, &grant, |_| Ok(()))
+        .unwrap();
+    let db = rusqlite::Connection::open(temp.path().join("objective.sqlite3")).unwrap();
+    // Corrupt/partial evidence is a deny fence, never retirement authority.
+    db.execute(
+        "INSERT INTO operator_abandonment_authorizations VALUES('abandon-event','{}')",
+        [],
+    )
+    .unwrap();
+    db.execute(
+        "INSERT INTO retained_workspace_snapshots VALUES(?1,'run','{}',1)",
+        [&grant.bindings.leaf_id],
+    )
+    .unwrap();
+    db.execute("INSERT INTO retained_snapshot_operator_abandonments VALUES(?1,'run','fenced','abandon-event','{}')", [&grant.bindings.leaf_id]).unwrap();
+    let called = std::cell::Cell::new(false);
+    let result = store.with_recovery_control_fence(&owner, &grant, |_| {
+        called.set(true);
+        Ok(())
+    });
+    assert!(!called.get(), "abandoned recovery invoked callback");
+    assert!(result.unwrap_err().to_string().contains("abandonment"));
+    let reopened = ObjectiveStore::open_existing(temp.path().join("objective.sqlite3")).unwrap();
+    assert!(reopened
+        .with_recovery_control_fence(&owner, &grant, |_| -> anyhow::Result<()> {
+            panic!("reopened abandonment invoked callback")
+        })
+        .unwrap_err()
+        .to_string()
+        .contains("abandonment"));
+}
+
+#[test]
 fn fence_rejects_changed_lineage_stops_and_time_before_callback() {
     let (_temp, store, grant, owner) = fixture();
     store

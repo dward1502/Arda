@@ -1,0 +1,419 @@
+{
+  "agent_id": "openai_shim",
+  "execution_lane": "execution",
+  "explanation": {
+    "confidence": 0.98,
+    "execution_lane": "execution",
+    "fallback_tier": "local",
+    "pacing_state": "available",
+    "quota_state": {
+      "cooldown_until_utc": null,
+      "in_cooldown": false,
+      "requests_per_day": null,
+      "requests_per_minute": 60,
+      "requests_used_day": 27,
+      "requests_used_minute": 0
+    },
+    "rejected_providers": [
+      {
+        "pacing_state": "available",
+        "provider_id": "edge_beelink_light",
+        "reason": "provider_unhealthy",
+        "tier": "local"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "edge_carnice",
+        "reason": "provider_disabled",
+        "tier": "local"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "edge_backbone_long",
+        "reason": "provider_unhealthy",
+        "tier": "local"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "edge_backbone_coder",
+        "reason": "provider_unhealthy",
+        "tier": "local"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "edge_laptop",
+        "reason": "provider_disabled",
+        "tier": "local"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "edge_guardhouse",
+        "reason": "provider_unhealthy",
+        "tier": "local"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "local_fallback",
+        "reason": "provider_disabled",
+        "tier": "local"
+      },
+      {
+        "details": {
+          "model_rejections": [
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch"
+              ],
+              "model_id": "openrouter/auto"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "qwen/qwen3-coder:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "nvidia/nemotron-3-super-120b-a12b:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "nvidia/nemotron-3-ultra-550b-a55b:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "google/gemma-4-26b-a4b-it:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "google/gemma-4-31b-it:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "poolside/laguna-m.1:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "poolside/laguna-xs-2.1:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:required_but_unsupported"
+              ],
+              "model_id": "qwen/qwen3-next-80b-a3b-instruct:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "tencent/hy3:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "cohere/north-mini-code:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "nvidia/nemotron-3-nano-30b-a3b:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:known_incompatible_model",
+                "reasoning_surface:visible_reasoning_not_allowed"
+              ],
+              "model_id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch"
+              ],
+              "model_id": "openrouter/free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "model_role:missing_task_type:code",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "meta-llama/llama-3.2-3b-instruct:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "meta-llama/llama-3.3-70b-instruct:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "model_role:missing_task_type:code",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "nousresearch/hermes-3-llama-3.1-405b:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model",
+                "reasoning_surface:visible_reasoning_not_allowed"
+              ],
+              "model_id": "openai/gpt-oss-120b:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model",
+                "reasoning_surface:visible_reasoning_not_allowed"
+              ],
+              "model_id": "openai/gpt-oss-20b:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:missing_task_type:code",
+                "model_role:generation_incompatible",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "nvidia/nemotron-3.5-content-safety:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "nvidia/nemotron-nano-12b-v2-vl:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "nvidia/nemotron-nano-9b-v2:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "model_role:missing_task_type:code",
+                "context_window:required=64000,available=32768",
+                "tools:known_incompatible_model"
+              ],
+              "model_id": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "model_role:missing_task_type:code",
+                "context_window:required=64000,available=32768",
+                "tools:known_incompatible_model",
+                "reasoning_surface:visible_reasoning_not_allowed"
+              ],
+              "model_id": "liquid/lfm-2.5-1.2b-instruct:free"
+            },
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "model_role:model_unhealthy",
+                "model_role:model_in_cooldown",
+                "context_window:required=64000,available=32768",
+                "tools:known_incompatible_model",
+                "reasoning_surface:visible_reasoning_not_allowed"
+              ],
+              "model_id": "liquid/lfm-2.5-1.2b-thinking:free"
+            }
+          ],
+          "requested_task_type": "code"
+        },
+        "pacing_state": "available",
+        "provider_id": "openrouter",
+        "reason": "no_compatible_model",
+        "tier": "mixed"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "openai",
+        "reason": "provider_disabled",
+        "tier": "paid_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "litellm_gateway",
+        "reason": "provider_disabled",
+        "tier": "mixed"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "google",
+        "reason": "provider_unhealthy",
+        "tier": "free_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "mistral",
+        "reason": "provider_disabled",
+        "tier": "mixed"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "zai",
+        "reason": "provider_disabled",
+        "tier": "paid_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "nvidia",
+        "reason": "provider_disabled",
+        "tier": "mixed"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "minimax",
+        "reason": "provider_disabled",
+        "tier": "paid_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "kimi",
+        "reason": "provider_disabled",
+        "tier": "paid_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "anthropic",
+        "reason": "provider_disabled",
+        "tier": "paid_cloud"
+      },
+      {
+        "details": {
+          "model_rejections": [
+            {
+              "missing_capabilities": [
+                "model_role:forced_model_mismatch",
+                "tools:required_but_unsupported"
+              ],
+              "model_id": "gpt-6-astra"
+            }
+          ],
+          "requested_task_type": "code"
+        },
+        "pacing_state": "available",
+        "provider_id": "openai_sub",
+        "reason": "no_compatible_model",
+        "tier": "paid_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "hermes_nous_proxy",
+        "reason": "provider_disabled",
+        "tier": "paid_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "cerebras",
+        "reason": "provider_disabled",
+        "tier": "free_cloud"
+      },
+      {
+        "pacing_state": "available",
+        "provider_id": "groq",
+        "reason": "provider_disabled",
+        "tier": "free_cloud"
+      }
+    ],
+    "route_class": "tool_oriented",
+    "route_id": "e516f49fdf3de41d",
+    "score": 171.7,
+    "score_components": {
+      "access_tier": "local",
+      "agent_id": "openai_shim",
+      "budget_class": "balanced",
+      "context_window_target": 32000,
+      "cost_tier": "balanced",
+      "lane_latency_target_ms": 7500,
+      "latency_sla_ms": null,
+      "local_device_pressure": null,
+      "local_pressure_applied": false,
+      "local_pressure_score_adjustment": 0.0,
+      "observed_latency_ms": 86,
+      "origin_preference": "auto",
+      "priority": "normal",
+      "privacy_tier": "public",
+      "provider_failures": 0,
+      "provider_latency_ms": 86,
+      "quality_tier": "high",
+      "require_local": false,
+      "score": 171.7,
+      "selected_model_context_window": 73728,
+      "selected_model_latency_ms": 86,
+      "selection_summary": "local route selected because latency, capability, budget, and quota scored best",
+      "task_type": "code",
+      "workload_role": "execution"
+    },
+    "selected_model_id": "Qwen3.5-9B-Q4_K_M",
+    "selected_provider_id": "edge_core"
+  },
+  "model_id": "Qwen3.5-9B-Q4_K_M",
+  "priority": "normal",
+  "provider_id": "edge_core",
+  "route_class": "tool_oriented",
+  "route_id": "e516f49fdf3de41d",
+  "score": 171.7,
+  "task_type": "code",
+  "ts_utc": "2026-10-02T04:00:44.208152489+00:00"
+}

@@ -1,0 +1,2378 @@
+[
+  {
+    "path": [],
+    "role": "application",
+    "name": "arda_hud"
+  },
+  {
+    "path": [
+      0
+    ],
+    "role": "frame",
+    "name": "ARDA HUD"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "role": "button",
+    "name": "Minimize"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      0,
+      2
+    ],
+    "role": "button",
+    "name": "Maximize"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      0,
+      3
+    ],
+    "role": "button",
+    "name": "Close"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    "role": "label",
+    "name": "ARDA HUD"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "role": "document web",
+    "name": "arda-hud"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "role": "button",
+    "name": "Minimize"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "role": "button",
+    "name": "Toggle Fullscreen"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      2
+    ],
+    "role": "button",
+    "name": "Close"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4
+    ],
+    "role": "landmark",
+    "name": "Boardroom controls"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0
+    ],
+    "role": "heading",
+    "name": "Boardroom controls"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      0
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      0,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to World Gate"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      1
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      1,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to Arandur Presence"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      2
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      2,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to Sovereign World"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      3
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      3,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to Sovereign World Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      4
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      4,
+      0
+    ],
+    "role": "button",
+    "name": "Open Sovereign World Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      5
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      5,
+      0
+    ],
+    "role": "button",
+    "name": "Open Governance And Guardhouse Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      6
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      6,
+      0
+    ],
+    "role": "button",
+    "name": "Open Knowledge And Reasoning Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      7
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      7,
+      0
+    ],
+    "role": "button",
+    "name": "Open Routing And Communications Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      8
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      8,
+      0
+    ],
+    "role": "button",
+    "name": "Open Lifecycle Execution Economics Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      9
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      9,
+      0
+    ],
+    "role": "button",
+    "name": "Open Memory And Continuity Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      10
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      10,
+      0
+    ],
+    "role": "button",
+    "name": "Open Planning And Queue Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      11
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      11,
+      0
+    ],
+    "role": "button",
+    "name": "Open Soterion Language Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      12
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      12,
+      0
+    ],
+    "role": "button",
+    "name": "Open Governance And Operations Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      13
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      13,
+      0
+    ],
+    "role": "button",
+    "name": "Open Paperclip Alignment Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      14
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      14,
+      0
+    ],
+    "role": "button",
+    "name": "Open Operations Health Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      15
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      15,
+      0
+    ],
+    "role": "button",
+    "name": "Open Framework Extensions Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      16
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      16,
+      0
+    ],
+    "role": "button",
+    "name": "Open Package Marketplace Doctrine Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      17
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      17,
+      0
+    ],
+    "role": "button",
+    "name": "Open Communication Adapters Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      18
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      18,
+      0
+    ],
+    "role": "button",
+    "name": "Open Edge Enrollment Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      19
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      19,
+      0
+    ],
+    "role": "button",
+    "name": "Open Network Native Onboarding Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      20
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      20,
+      0
+    ],
+    "role": "button",
+    "name": "Open Output Topology Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      21
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      21,
+      0
+    ],
+    "role": "button",
+    "name": "Open Output Accounting Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      22
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      22,
+      0
+    ],
+    "role": "button",
+    "name": "Open Fleet And Backbone Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      23
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      23,
+      0
+    ],
+    "role": "button",
+    "name": "Open Human Business Personal Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      24
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      24,
+      0
+    ],
+    "role": "button",
+    "name": "Open Business Operations Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      25
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      25,
+      0
+    ],
+    "role": "button",
+    "name": "Open Personal Growth Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      26
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      26,
+      0
+    ],
+    "role": "button",
+    "name": "Open Factory AI Surface workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      27
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      27,
+      0
+    ],
+    "role": "button",
+    "name": "Open Warp Surface workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      28
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      28,
+      0
+    ],
+    "role": "button",
+    "name": "Open VAST AI OS Surface workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      29
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      29,
+      0
+    ],
+    "role": "button",
+    "name": "Open Beelink Grafana workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      30
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      30,
+      0
+    ],
+    "role": "button",
+    "name": "Open Beelink Open WebUI workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      31
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      31,
+      0
+    ],
+    "role": "button",
+    "name": "Open ARDA Media Library workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      32
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      32,
+      0
+    ],
+    "role": "button",
+    "name": "Open Agent Remote Session workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      33
+    ],
+    "role": "list item",
+    "name": "Mirromere privacy.veil; Private content is hidden on this display.; freshness stale; availability available details\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      33,
+      0,
+      0
+    ],
+    "role": "unknown",
+    "name": "Mirromere privacy.veil; Private content is hidden on this display.; freshness stale; availability available details"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      34
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      34,
+      0
+    ],
+    "role": "button",
+    "name": "Open Hermes dashboard"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      35
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      35,
+      0
+    ],
+    "role": "button",
+    "name": "Open Hermes CLI"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      36
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      36,
+      0
+    ],
+    "role": "button",
+    "name": "Open settings"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5
+    ],
+    "role": "section",
+    "name": "WORKSTATION\nBusiness Operations Workstation\nready / human_operator\n\ufffc\ufffc\ufffc\n\ufffc\nTERM READY\nOpen focused module and run boardroom action flow.\nOPERATIONS AND PRODUCT CONTEXT\nBusiness\nBUSINESS RUNTIME: PROJECTED\nSOURCE MAP UNMAPPED\n0 MISSING\nHighest-value next operator action\nReview evidence before creating commercial work.\nNo scored opportunity is currently available.\nActive paid and client work\nNo active client engagements.\nCommitments due soon\nNo approved commitments due.\nOpportunity board\nNo qualified opportunities.\nRevenue experiments\nNo bounded paid experiments.\nDrafts awaiting approval\nNo external drafts awaiting approval.\nExpected versus realized value\nForecast\n$0\u2013$0 (0% confidence)\nRealized\n$0 \u00b7 receipt none\nConsumption\n$0 \u00b7 0 operator hours\nMode\nfull\nClient Records\n3\nState Keys\n11\nCompany View\n--- soterion: sigil: \"SCROLL\"\nBUSINESS SOURCE FRESHNESS\nHuman Business Personal / Human_context\n2026-07-14T05:03:01.357Z\n\ud83d\udfe1\nStale\nHuman Business Personal / Index\n2026-10-02T03:47:46.590Z\n\ud83d\udfe1\nStale\nHuman Business Personal / Onboard\n2026-10-02T03:47:46.590Z\n\ud83d\udfe1\nStale\nCLIENT PATHS\nwgtt/control.json\ndata/business/clients/wgtt/control.json\nskylight-pros/control.json\ndata/business/clients/skylight-pros/control.json\npool-service/soterion.json\ndata/business/clients/pool-service/soterion.json\nSTATE KEYS\nauthority\navailable\ngenerated_note\navailable\nmetrics\navailable\noffers\navailable\noperating_posture\navailable\npipeline\navailable\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0
+    ],
+    "role": "dialog",
+    "name": "Business Operations Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      1
+    ],
+    "role": "unknown",
+    "name": "Business Operations Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      2
+    ],
+    "role": "button",
+    "name": "Focus workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      3
+    ],
+    "role": "button",
+    "name": "Pop out workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      4
+    ],
+    "role": "button",
+    "name": "Close workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      5
+    ],
+    "role": "button",
+    "name": "BUSINESS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      7
+    ],
+    "role": "section",
+    "name": "OPERATIONS AND PRODUCT CONTEXT"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      8
+    ],
+    "role": "heading",
+    "name": "Business"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      9
+    ],
+    "role": "section",
+    "name": "BUSINESS RUNTIME: PROJECTED"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      9,
+      0
+    ],
+    "role": "section",
+    "name": "BUSINESS RUNTIME: PROJECTED"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      10
+    ],
+    "role": "unknown",
+    "name": "0 MISSING"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      11
+    ],
+    "role": "landmark",
+    "name": "Highest-value next operator action"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      11,
+      0
+    ],
+    "role": "heading",
+    "name": "Highest-value next operator action"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      11,
+      1
+    ],
+    "role": "section",
+    "name": "Review evidence before creating commercial work."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      11,
+      2
+    ],
+    "role": "paragraph",
+    "name": "No scored opportunity is currently available."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      12
+    ],
+    "role": "landmark",
+    "name": "Active paid and client work"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      12,
+      0
+    ],
+    "role": "heading",
+    "name": "Active paid and client work"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      12,
+      1
+    ],
+    "role": "paragraph",
+    "name": "No active client engagements."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      13
+    ],
+    "role": "landmark",
+    "name": "Commitments due soon"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      13,
+      0
+    ],
+    "role": "heading",
+    "name": "Commitments due soon"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      13,
+      1
+    ],
+    "role": "paragraph",
+    "name": "No approved commitments due."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      14
+    ],
+    "role": "landmark",
+    "name": "Opportunity board"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      14,
+      0
+    ],
+    "role": "heading",
+    "name": "Opportunity board"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      14,
+      1
+    ],
+    "role": "paragraph",
+    "name": "No qualified opportunities."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      15
+    ],
+    "role": "landmark",
+    "name": "Revenue experiments"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      15,
+      0
+    ],
+    "role": "heading",
+    "name": "Revenue experiments"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      15,
+      1
+    ],
+    "role": "paragraph",
+    "name": "No bounded paid experiments."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      16
+    ],
+    "role": "landmark",
+    "name": "Drafts awaiting approval"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      16,
+      0
+    ],
+    "role": "heading",
+    "name": "Drafts awaiting approval"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      16,
+      1
+    ],
+    "role": "paragraph",
+    "name": "No external drafts awaiting approval."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17
+    ],
+    "role": "landmark",
+    "name": "Expected versus realized value"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17,
+      0
+    ],
+    "role": "heading",
+    "name": "Expected versus realized value"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17,
+      1,
+      0
+    ],
+    "role": "description term",
+    "name": "Forecast"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17,
+      1,
+      1
+    ],
+    "role": "description value",
+    "name": "$0\u2013$0 (0% confidence)"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17,
+      1,
+      2
+    ],
+    "role": "description term",
+    "name": "Realized"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17,
+      1,
+      3
+    ],
+    "role": "description value",
+    "name": "$0 \u00b7 receipt none"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17,
+      1,
+      4
+    ],
+    "role": "description term",
+    "name": "Consumption"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17,
+      1,
+      5
+    ],
+    "role": "description value",
+    "name": "$0 \u00b7 0 operator hours"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      18
+    ],
+    "role": "section",
+    "name": "Mode"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      19
+    ],
+    "role": "section",
+    "name": "full"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      20
+    ],
+    "role": "section",
+    "name": "Client Records"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      21
+    ],
+    "role": "section",
+    "name": "3"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      22
+    ],
+    "role": "section",
+    "name": "State Keys"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      23
+    ],
+    "role": "section",
+    "name": "11"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      24,
+      0
+    ],
+    "role": "unknown",
+    "name": "Company View"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      24,
+      1
+    ],
+    "role": "paragraph",
+    "name": "--- soterion: sigil: \"SCROLL\""
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25
+    ],
+    "role": "section",
+    "name": "Business Source Freshness"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25,
+      0
+    ],
+    "role": "section",
+    "name": "BUSINESS SOURCE FRESHNESS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25,
+      1,
+      0
+    ],
+    "role": "unknown",
+    "name": "Human Business Personal / Human_context"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25,
+      1,
+      1
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25,
+      2,
+      0
+    ],
+    "role": "unknown",
+    "name": "Human Business Personal / Index"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25,
+      2,
+      1
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25,
+      3,
+      0
+    ],
+    "role": "unknown",
+    "name": "Human Business Personal / Onboard"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25,
+      3,
+      1
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      26
+    ],
+    "role": "section",
+    "name": "CLIENT PATHS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27
+    ],
+    "role": "unknown",
+    "name": "data/business/clients/wgtt/control.json"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28
+    ],
+    "role": "unknown",
+    "name": "data/business/clients/skylight-pros/control.json"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      29
+    ],
+    "role": "unknown",
+    "name": "data/business/clients/pool-service/soterion.json"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      30
+    ],
+    "role": "section",
+    "name": "STATE KEYS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      31
+    ],
+    "role": "unknown",
+    "name": "available"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32
+    ],
+    "role": "unknown",
+    "name": "available"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      33
+    ],
+    "role": "unknown",
+    "name": "available"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      34
+    ],
+    "role": "unknown",
+    "name": "available"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      35
+    ],
+    "role": "unknown",
+    "name": "available"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      36
+    ],
+    "role": "unknown",
+    "name": "available"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      6
+    ],
+    "role": "section",
+    "name": "OPEN WORKSTATIONS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      7
+    ],
+    "role": "button",
+    "name": "TILE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      8
+    ],
+    "role": "button",
+    "name": "BUSINESS OPERATIONS WORKSTATION"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      9
+    ],
+    "role": "button",
+    "name": "Close Business Operations Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      10
+    ],
+    "role": "button",
+    "name": "CLEAR ALL"
+  }
+]

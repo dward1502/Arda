@@ -1,0 +1,9 @@
+{
+  "ready": false,
+  "pending_recovery": 0,
+  "quarantined_schedules": 0,
+  "phase": "degraded",
+  "active_leaves": [],
+  "next_wake_ms": null,
+  "last_error": "objective_round_failed"
+}

@@ -1,0 +1,897 @@
+{
+  "captured": "2026-10-01T20:14:15.538287-07:00",
+  "head": "db43d6948c081affc8f4d9ced371f4a509d303b5",
+  "files": 6375,
+  "tracked": 6341,
+  "source_files": 1429,
+  "source_lines": 367385,
+  "packages": 19,
+  "top_level": [
+    {
+      "path": "#!",
+      "type": "directory",
+      "inventoried_files": 0,
+      "tracked_files": 0,
+      "source_lines": 0,
+      "inventoried_bytes": 0
+    },
+    {
+      "path": ".gitattributes",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 104
+    },
+    {
+      "path": ".github",
+      "type": "directory",
+      "inventoried_files": 3,
+      "tracked_files": 3,
+      "source_lines": 0,
+      "inventoried_bytes": 4865
+    },
+    {
+      "path": ".gitignore",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 1019
+    },
+    {
+      "path": ".hermes",
+      "type": "directory",
+      "inventoried_files": 30,
+      "tracked_files": 30,
+      "source_lines": 75,
+      "inventoried_bytes": 303253
+    },
+    {
+      "path": ".pytest_cache",
+      "type": "directory",
+      "inventoried_files": 0,
+      "tracked_files": 0,
+      "source_lines": 0,
+      "inventoried_bytes": 0
+    },
+    {
+      "path": ".tmp",
+      "type": "directory",
+      "inventoried_files": 0,
+      "tracked_files": 0,
+      "source_lines": 0,
+      "inventoried_bytes": 0
+    },
+    {
+      "path": "AGENTS.md",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 1419
+    },
+    {
+      "path": "ARDA_ROOT_PROTOCOL.md",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 7802
+    },
+    {
+      "path": "ARDA_SYSTEM_STATUS_REPORT.md",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 10329
+    },
+    {
+      "path": "Cargo.lock",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 170827
+    },
+    {
+      "path": "Cargo.toml",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 4353
+    },
+    {
+      "path": "LICENSE",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 1062
+    },
+    {
+      "path": "NOTICE",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 3053
+    },
+    {
+      "path": "README.md",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 5954
+    },
+    {
+      "path": "SECURITY.md",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 2848
+    },
+    {
+      "path": "adapters",
+      "type": "directory",
+      "inventoried_files": 11,
+      "tracked_files": 11,
+      "source_lines": 2250,
+      "inventoried_bytes": 106614
+    },
+    {
+      "path": "apps",
+      "type": "directory",
+      "inventoried_files": 929,
+      "tracked_files": 929,
+      "source_lines": 76617,
+      "inventoried_bytes": 138630290
+    },
+    {
+      "path": "audit",
+      "type": "directory",
+      "inventoried_files": 239,
+      "tracked_files": 239,
+      "source_lines": 0,
+      "inventoried_bytes": 7732528
+    },
+    {
+      "path": "benchmarks",
+      "type": "directory",
+      "inventoried_files": 6,
+      "tracked_files": 6,
+      "source_lines": 693,
+      "inventoried_bytes": 26865
+    },
+    {
+      "path": "books",
+      "type": "directory",
+      "inventoried_files": 0,
+      "tracked_files": 0,
+      "source_lines": 0,
+      "inventoried_bytes": 0
+    },
+    {
+      "path": "config",
+      "type": "directory",
+      "inventoried_files": 103,
+      "tracked_files": 103,
+      "source_lines": 61,
+      "inventoried_bytes": 247104
+    },
+    {
+      "path": "core",
+      "type": "directory",
+      "inventoried_files": 1362,
+      "tracked_files": 1358,
+      "source_lines": 0,
+      "inventoried_bytes": 19526832
+    },
+    {
+      "path": "crates",
+      "type": "directory",
+      "inventoried_files": 885,
+      "tracked_files": 863,
+      "source_lines": 262175,
+      "inventoried_bytes": 9878331
+    },
+    {
+      "path": "crawls",
+      "type": "directory",
+      "inventoried_files": 0,
+      "tracked_files": 0,
+      "source_lines": 0,
+      "inventoried_bytes": 0
+    },
+    {
+      "path": "data",
+      "type": "directory",
+      "inventoried_files": 1996,
+      "tracked_files": 1988,
+      "source_lines": 0,
+      "inventoried_bytes": 33123661
+    },
+    {
+      "path": "deny.toml",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 11467
+    },
+    {
+      "path": "docs",
+      "type": "directory",
+      "inventoried_files": 437,
+      "tracked_files": 437,
+      "source_lines": 39,
+      "inventoried_bytes": 11838224
+    },
+    {
+      "path": "integrations",
+      "type": "directory",
+      "inventoried_files": 4,
+      "tracked_files": 4,
+      "source_lines": 172,
+      "inventoried_bytes": 13297
+    },
+    {
+      "path": "manwe.toml",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 293
+    },
+    {
+      "path": "meta",
+      "type": "directory",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 7205
+    },
+    {
+      "path": "metrics",
+      "type": "directory",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 210
+    },
+    {
+      "path": "outposts",
+      "type": "directory",
+      "inventoried_files": 58,
+      "tracked_files": 58,
+      "source_lines": 7464,
+      "inventoried_bytes": 285503
+    },
+    {
+      "path": "packages",
+      "type": "directory",
+      "inventoried_files": 11,
+      "tracked_files": 11,
+      "source_lines": 869,
+      "inventoried_bytes": 75265
+    },
+    {
+      "path": "project",
+      "type": "directory",
+      "inventoried_files": 0,
+      "tracked_files": 0,
+      "source_lines": 0,
+      "inventoried_bytes": 0
+    },
+    {
+      "path": "scripts",
+      "type": "directory",
+      "inventoried_files": 69,
+      "tracked_files": 69,
+      "source_lines": 12610,
+      "inventoried_bytes": 570052
+    },
+    {
+      "path": "sdk",
+      "type": "directory",
+      "inventoried_files": 11,
+      "tracked_files": 11,
+      "source_lines": 914,
+      "inventoried_bytes": 55715
+    },
+    {
+      "path": "services.toml",
+      "type": "file",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 0,
+      "inventoried_bytes": 3086
+    },
+    {
+      "path": "spec",
+      "type": "directory",
+      "inventoried_files": 59,
+      "tracked_files": 59,
+      "source_lines": 0,
+      "inventoried_bytes": 176795
+    },
+    {
+      "path": "src",
+      "type": "directory",
+      "inventoried_files": 1,
+      "tracked_files": 1,
+      "source_lines": 357,
+      "inventoried_bytes": 13344
+    },
+    {
+      "path": "target",
+      "type": "directory",
+      "inventoried_files": 0,
+      "tracked_files": 0,
+      "source_lines": 0,
+      "inventoried_bytes": 0
+    },
+    {
+      "path": "tests",
+      "type": "directory",
+      "inventoried_files": 23,
+      "tracked_files": 23,
+      "source_lines": 3089,
+      "inventoried_bytes": 129040
+    },
+    {
+      "path": "vendor",
+      "type": "directory",
+      "inventoried_files": 122,
+      "tracked_files": 122,
+      "source_lines": 52322,
+      "inventoried_bytes": 1718616
+    }
+  ],
+  "largest_source_files": [
+    {
+      "path": "crates/spine/observability/arda-aule/src/prometheus/autopilot/task_queue.rs",
+      "tracked": true,
+      "bytes": 318049,
+      "lines": 8155,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/observability/arda-aule/src/prometheus/autopilot/workbench_executor.rs",
+      "tracked": true,
+      "bytes": 285941,
+      "lines": 7082,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/observability/arda-aule/src/prometheus/autopilot/runner.rs",
+      "tracked": true,
+      "bytes": 179641,
+      "lines": 4546,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/transport/http.rs",
+      "tracked": true,
+      "bytes": 150991,
+      "lines": 4172,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/executors/arda-varda/src/ingest.rs",
+      "tracked": true,
+      "bytes": 145771,
+      "lines": 3815,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src-tauri/src/lib.rs",
+      "tracked": true,
+      "bytes": 106118,
+      "lines": 3252,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/route_policy_tests.rs",
+      "tracked": true,
+      "bytes": 100059,
+      "lines": 2948,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src/App.tsx",
+      "tracked": true,
+      "bytes": 122081,
+      "lines": 2788,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/tests.rs",
+      "tracked": true,
+      "bytes": 92282,
+      "lines": 2731,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/harness/runs.rs",
+      "tracked": true,
+      "bytes": 95044,
+      "lines": 2555,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/tests/harness_runs.rs",
+      "tracked": true,
+      "bytes": 93103,
+      "lines": 2539,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/objectives/store.rs",
+      "tracked": true,
+      "bytes": 105149,
+      "lines": 2513,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/arda-mandos/src/reasoning.rs",
+      "tracked": true,
+      "bytes": 87865,
+      "lines": 2454,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/interface/arda-orome/src/service.rs",
+      "tracked": true,
+      "bytes": 89491,
+      "lines": 2233,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/observability/arda-aule/src/prometheus/core_link.rs",
+      "tracked": true,
+      "bytes": 88119,
+      "lines": 2182,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/route_selection.rs",
+      "tracked": true,
+      "bytes": 79485,
+      "lines": 2170,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/adapters/hermes.rs",
+      "tracked": true,
+      "bytes": 83182,
+      "lines": 2152,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/observability/arda-aule/src/prometheus/autopilot/knowledge_triage.rs",
+      "tracked": true,
+      "bytes": 77792,
+      "lines": 2148,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/harness/operator_messages.rs",
+      "tracked": true,
+      "bytes": 80141,
+      "lines": 2090,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/tests/harness_operator_messages.rs",
+      "tracked": true,
+      "bytes": 72227,
+      "lines": 2042,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/route_policy.rs",
+      "tracked": true,
+      "bytes": 66591,
+      "lines": 1927,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/harness/research.rs",
+      "tracked": true,
+      "bytes": 67886,
+      "lines": 1859,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/tests/objective_store.rs",
+      "tracked": true,
+      "bytes": 62129,
+      "lines": 1800,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/tests/objective_runtime.rs",
+      "tracked": true,
+      "bytes": 60729,
+      "lines": 1703,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/proxy.rs",
+      "tracked": true,
+      "bytes": 70595,
+      "lines": 1696,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/governance/arda-core/src/loop_engine.rs",
+      "tracked": true,
+      "bytes": 56753,
+      "lines": 1579,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/harness/operator_messages/unfinished_tests.rs",
+      "tracked": true,
+      "bytes": 60866,
+      "lines": 1535,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src/scene/boardroom/BoardroomViewport.tsx",
+      "tracked": true,
+      "bytes": 54153,
+      "lines": 1489,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/arda-mandos/src/service.rs",
+      "tracked": true,
+      "bytes": 54062,
+      "lines": 1436,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/observability/arda-aule/src/cli/main.rs",
+      "tracked": true,
+      "bytes": 48883,
+      "lines": 1432,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/bootstrap_overlay.rs",
+      "tracked": true,
+      "bytes": 48872,
+      "lines": 1386,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/governance/arda-governance/src/bacon_lite.rs",
+      "tracked": true,
+      "bytes": 42784,
+      "lines": 1296,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/harness.rs",
+      "tracked": true,
+      "bytes": 47043,
+      "lines": 1287,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src/lib/ardaSource.ts",
+      "tracked": true,
+      "bytes": 49729,
+      "lines": 1271,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/objectives/workbench.rs",
+      "tracked": true,
+      "bytes": 53956,
+      "lines": 1261,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src/lib/boardroomSlotSettings.ts",
+      "tracked": true,
+      "bytes": 50881,
+      "lines": 1256,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src-tauri/src/commands/monitor_surface/browser_capture.rs",
+      "tracked": true,
+      "bytes": 44065,
+      "lines": 1254,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/memory/arda-vaire/src/service.rs",
+      "tracked": true,
+      "bytes": 47658,
+      "lines": 1250,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/harness/personal_ops.rs",
+      "tracked": true,
+      "bytes": 41151,
+      "lines": 1231,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/tests/hermes_adapter_contract.rs",
+      "tracked": true,
+      "bytes": 45071,
+      "lines": 1217,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "scripts/arda_beta_ops.py",
+      "tracked": true,
+      "bytes": 49201,
+      "lines": 1200,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/executors/arda-varda/src/transport/http.rs",
+      "tracked": true,
+      "bytes": 40738,
+      "lines": 1165,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src-tauri/src/commands/workbench.rs",
+      "tracked": true,
+      "bytes": 37761,
+      "lines": 1148,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/interface/arda-orome/src/service/council.rs",
+      "tracked": true,
+      "bytes": 42767,
+      "lines": 1146,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "apps/arda-hud/src/lib/systemActionBus.ts",
+      "tracked": true,
+      "bytes": 43519,
+      "lines": 1123,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/interface/arda-mirromere/src/lib.rs",
+      "tracked": true,
+      "bytes": 38842,
+      "lines": 1063,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/runs/store.rs",
+      "tracked": true,
+      "bytes": 39055,
+      "lines": 1051,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/tests/harness_personal_ops.rs",
+      "tracked": true,
+      "bytes": 33259,
+      "lines": 1039,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full_service.rs",
+      "tracked": true,
+      "bytes": 41260,
+      "lines": 1039,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/state_mutation.rs",
+      "tracked": true,
+      "bytes": 36766,
+      "lines": 1006,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/route_scoring.rs",
+      "tracked": true,
+      "bytes": 32660,
+      "lines": 999,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/runtime/manwe/src/adaptive/service/full/routing.rs",
+      "tracked": true,
+      "bytes": 31090,
+      "lines": 968,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/observability/arda-aule/src/prometheus/core_link/arda.rs",
+      "tracked": true,
+      "bytes": 42189,
+      "lines": 951,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/governance/arda-governance/src/resonance.rs",
+      "tracked": true,
+      "bytes": 35713,
+      "lines": 946,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/src/harness/research_operator.rs",
+      "tracked": true,
+      "bytes": 33968,
+      "lines": 933,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/governance/arda-core/src/run_graph.rs",
+      "tracked": true,
+      "bytes": 33693,
+      "lines": 927,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/observability/arda-aule/src/prometheus/autopilot/schedule.rs",
+      "tracked": true,
+      "bytes": 33783,
+      "lines": 919,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/memory/arda-vaire/src/service/governance.rs",
+      "tracked": true,
+      "bytes": 34775,
+      "lines": 917,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/spine/governance/arda-governance/src/triad.rs",
+      "tracked": true,
+      "bytes": 29666,
+      "lines": 906,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    },
+    {
+      "path": "crates/engine/tests/workbench_rust_golden.rs",
+      "tracked": true,
+      "bytes": 31531,
+      "lines": 894,
+      "kind": "source",
+      "sensitive_content_not_read": false,
+      "symlink": false
+    }
+  ]
+}

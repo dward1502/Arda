@@ -22,7 +22,7 @@ and failure, revise after independent criticism, use Vairë context, and reach
 verified closure with explicit operator acceptance. This file owns all five
 milestones; their former separate files are consolidated here.
 
-The [cutover](../2026-09-01-arda-objective-runtime-cutover.md) owns runtime repairs,
+The [cutover](../../archive/2026-09-01-arda-objective-runtime-cutover.md) owns runtime repairs,
 retry limits, physical isolation and loss/recovery qualification. Do not duplicate
 those implementation tasks here. [Project fabric](../CONNECTED_PROJECT_FABRIC.md)
 owns contract review/attachment; [provider convergence](../PROVIDER_WORKER_CONVERGENCE.md)
@@ -50,7 +50,7 @@ Each milestone has a dedicated execution plan below. Plans are session-friendly 
 
 - Bounded installed execute/verify/review/close, paused due scheduling, cancellation,
   same-run interrupted-verifier recovery and terminal reboot reconciliation are
-  recorded in the [cutover evidence](../2026-09-01-arda-objective-runtime-cutover.md#retained-evidence).
+  recorded in the [cutover evidence](../../archive/2026-09-01-arda-objective-runtime-cutover.md#retained-evidence).
   These are local CLI-authorized fixtures, not this combined product scenario.
 - Historical loopback controls, live critic rejection/revision and a serial
   two-project joined close remain [bounded evidence](../../audits/autonomous-task-completion-history.md).
@@ -154,7 +154,7 @@ has finished without establishing Verify success or termination. Project-2's bou
 has original approval, but Paused/no-Resume controls still prevent its dispatch
 without scoped continuation or an explicit changed control decision. Project-2
 and join remain unstarted; neither overlap nor joined acceptance is established.
-The [cutover C3.2 record](../2026-09-01-arda-objective-runtime-cutover.md) owns
+The [cutover C3.2 record](../../archive/2026-09-01-arda-objective-runtime-cutover.md) owns
 installed identities, diagnostics, remaining safety gates and live observations.
 Its S1-S8 matrix orders continuation by operator interruption boundaries: lost
 response waiter, duplicate/reconnected caller, shutdown/control changes, actual

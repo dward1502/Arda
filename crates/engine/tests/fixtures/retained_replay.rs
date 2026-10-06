@@ -46,6 +46,8 @@ async fn stored_receipt_replays_after_retained_lease_expiry_and_release() {
                     projects: vec![ProjectAuthority {
                         project_id: PROJECT_ID.into(),
                         contract_digest: "sha256:fixture".into(),
+                    authority: "operator_test".into(),
+                    checks: vec!["build".into(), "lint".into()],
                     }],
                     leaves: vec![NewLeaf {
                         id: "leaf".into(),

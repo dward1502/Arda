@@ -3,6 +3,8 @@ pub(crate) mod pending;
 #[cfg(test)]
 mod preparation_tests;
 mod qualification;
+#[cfg(test)]
+mod revocation_tests;
 mod runtime_state;
 
 pub struct Owner {
@@ -24,6 +26,13 @@ struct Inspection {
 }
 type SavedAdmission = (String, String, String, Option<String>);
 impl Owner {
+    fn abandoned(&self, run: &str) -> Result<bool> {
+        Ok(self.db.query_row(
+            "SELECT EXISTS(SELECT 1 FROM snapshot_operator_abandonments WHERE run=?1)",
+            [run],
+            |r| r.get(0),
+        )?)
+    }
     fn saved(&self, run: &str) -> Result<Option<SavedAdmission>> {
         Ok(self
             .db
@@ -54,10 +63,47 @@ impl Owner {
         Ok(())
     }
     pub fn handle(&mut self, request: KeeperRequest) -> Result<KeeperResponse> {
+        let run = match &request {
+            KeeperRequest::Prepare { run, .. }
+            | KeeperRequest::Release { run, .. }
+            | KeeperRequest::QueryTerminalRevocation { run, .. } => run,
+            KeeperRequest::Commit { lease, .. } => &lease.run_id,
+        };
+        // Deny even when the original snapshot row is missing or malformed.
+        // This is never a Release acknowledgement or terminal-revocation proof.
+        if self.abandoned(run)? {
+            return Ok(KeeperResponse {
+                ok: false,
+                failure: Some(
+                    arda_engine::objectives::keeper_client::KeeperFailure::OperatorAbandoned,
+                ),
+                ..Default::default()
+            });
+        }
+        if let KeeperRequest::QueryTerminalRevocation {
+            run,
+            workspace,
+            identity,
+        } = &request
+        {
+            let proof = crate::keeper_reconcile::query_missing_authority_revocation(
+                &self.db,
+                run,
+                workspace,
+                identity,
+                &self.runtime,
+            )?;
+            return Ok(KeeperResponse {
+                ok: true,
+                terminal_revocation: Some(proof),
+                ..Default::default()
+            });
+        }
         let _ = std::fs::write("/tmp/keeper-debug.log", "H1\n");
         let cleanup_pending = self.failed_qualifications.pending();
         let _ = std::fs::write("/tmp/keeper-debug.log", "H2\n");
         let snapshot = match request {
+            KeeperRequest::QueryTerminalRevocation { .. } => unreachable!("query handled above"),
             KeeperRequest::Prepare {
                 run,
                 workspace,
@@ -72,7 +118,10 @@ impl Owner {
                     bail!("invalid admission identifier");
                 }
                 if let Some((root, prior, state, saved)) = self.saved(&run)? {
-                    let _ = std::fs::write("/tmp/keeper-debug.log", format!("H_saved root={} prior={} state={}\n", root, prior, state));
+                    let _ = std::fs::write(
+                        "/tmp/keeper-debug.log",
+                        format!("H_saved root={} prior={} state={}\n", root, prior, state),
+                    );
                     if root != workspace.to_str().context("UTF-8 workspace required")?
                         || prior != identity
                         || state != "prepared"
@@ -304,6 +353,15 @@ impl Owner {
                 None
             }
             KeeperRequest::Release { snapshot, run } => {
+                if matches!(self.saved(&run)?, Some((_, _, state, None)) if state == "reconciled_revoked")
+                {
+                    // Still refuse Release. This typed failure only permits a separate
+                    // non-capability receipt query, with its own complete binding checks.
+                    return Ok(KeeperResponse {
+                        failure: Some(arda_engine::objectives::keeper_client::KeeperFailure::MissingRevokedAuthority),
+                        ..Default::default()
+                    });
+                }
                 let state = self.check_saved(&run, &snapshot)?;
                 if state == "reconciled_revoked" {
                     super::keeper_reconcile::release_ack(&self.db, &run, &self.runtime)?;
@@ -355,7 +413,11 @@ impl Owner {
                 None
             }
         };
-        Ok(KeeperResponse { ok: true, snapshot })
+        Ok(KeeperResponse {
+            ok: true,
+            snapshot,
+            ..Default::default()
+        })
     }
 }
 impl Drop for Owner {

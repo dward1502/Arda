@@ -1,0 +1,49 @@
+{
+  "elapsed_seconds": 4.51,
+  "http_status": 200,
+  "response": {
+    "_manwe_route": {
+      "context_window_target": 32000,
+      "execution_lane": "execution",
+      "latency_ms": 2036,
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "provider_id": "edge_core",
+      "route_class": "tool_oriented",
+      "route_id": "e516f49fdf3de41d"
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "content": "### Implemented UI Capabilities\n1.  Renders the R3F boardroom as the primary operating scene.\n2.  Treats five upper monitors as independent agent-owned canvases that render authoritative typed sessions or ambient identities based on state.\n3.  Renders five lower apertures as distinct, nearly textless command instruments derived from live state.\n\n### Claims Requiring Runtime Verification\n1.  Idle upper monitors remain deliberately non-interactive.\n2.  Legacy Hermes dashboard/CLI launchers are not upper-monitor ownership authority.\n3.  Only a valid typed monitor session or live agent claim may activate a monitor workstation.",
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1790913646,
+    "id": "chatcmpl-Tsm1iCgG5oiUW1PijWSHbm8cBKm7t0c7",
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "object": "chat.completion",
+    "system_fingerprint": "b8668-b2f6a68ae",
+    "timings": {
+      "cache_n": 0,
+      "predicted_ms": 1613.28,
+      "predicted_n": 131,
+      "predicted_per_second": 81.20103143905584,
+      "predicted_per_token_ms": 12.315114503816794,
+      "prompt_ms": 362.737,
+      "prompt_n": 900,
+      "prompt_per_second": 2481.1364707763473,
+      "prompt_per_token_ms": 0.4030411111111111
+    },
+    "usage": {
+      "completion_tokens": 131,
+      "prompt_tokens": 900,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "total_tokens": 1031
+    }
+  }
+}

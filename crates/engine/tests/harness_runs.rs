@@ -12,11 +12,11 @@ use std::sync::Arc;
 use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
 
-#[path = "fixtures/retained_replay.rs"]
-mod retained_replay;
 #[cfg(target_os = "linux")]
 #[path = "fixtures/retained_harness_loss.rs"]
 mod retained_harness_loss;
+#[path = "fixtures/retained_replay.rs"]
+mod retained_replay;
 
 const PROJECT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";
 
@@ -58,6 +58,128 @@ fn harness_state(root: &TempDir) -> HarnessState {
         workbench_root: root.path().to_path_buf(),
         operator_id: "operator-0".to_string(),
     }
+}
+
+#[tokio::test]
+async fn direct_run_mutations_refuse_maintenance_and_abandonment_before_replay() {
+    fn retained_files(
+        path: &std::path::Path,
+    ) -> std::collections::BTreeMap<std::path::PathBuf, Vec<u8>> {
+        let mut files = std::collections::BTreeMap::new();
+        if path.is_dir() {
+            for entry in fs::read_dir(path).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    files.extend(retained_files(&path));
+                } else {
+                    files.insert(path.clone(), fs::read(path).unwrap());
+                }
+            }
+        }
+        files
+    }
+    for abandoned in [false, true] {
+        let root = TempDir::new().unwrap();
+        let (bound, _, server) = start_harness(&root).await;
+        let client = reqwest::Client::new();
+        attach(&client, bound).await;
+        let plan_body = json!({"project_id": PROJECT_ID,
+            "graph": graph("guarded-run", "approval", "approval"),
+            "envelope": envelope("guarded-plan")});
+        client
+            .post(format!("http://{bound}/v1/runs/plan"))
+            .json(&plan_body)
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap();
+        let approve_body = json!({"node_id":"approval", "envelope":envelope("guarded-approve")});
+        client
+            .post(format!("http://{bound}/v1/runs/guarded-run/approve"))
+            .json(&approve_body)
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap();
+        let path = root.path().join("data/arda/objectives.sqlite3");
+        let maintenance = if abandoned {
+            let db = rusqlite::Connection::open(&path).unwrap();
+            db.execute_batch("INSERT INTO objectives(id,source_id,ingress_key,payload_digest,operator_id,text,priority,revision,state,created_at_ms,updated_at_ms) VALUES('objective','source','key','digest','operator','fixture',1,1,'paused',1,1);
+                INSERT INTO leaves(id,objective_id,workspace_root,authority,stage,attempt,updated_at_ms,execution_run_id) VALUES('leaf','objective','/fixture','read_only','execute',1,1,'guarded-run');
+                INSERT INTO retained_workspace_snapshots VALUES('leaf','guarded-run','{}',1);
+                INSERT INTO operator_abandonment_authorizations VALUES('event','{}');
+                INSERT INTO retained_snapshot_operator_abandonments VALUES('leaf','guarded-run','objective','event','{}');").unwrap();
+            None
+        } else {
+            Some(arda_engine::objectives::ObjectiveStore::open_existing_maintenance(&path).unwrap())
+        };
+        let before = retained_files(&root.path().join("data/runs"));
+        let workbench_before = retained_files(&root.path().join("data/workbench"));
+        let requests = [
+            ("/v1/runs/plan", plan_body),
+            ("/v1/runs/guarded-run/approve", approve_body),
+            (
+                "/v1/runs/guarded-run/cancel",
+                json!({"reason":"fixture", "envelope":envelope("guarded-cancel")}),
+            ),
+            (
+                "/v1/runs/guarded-run/nodes/approval/complete",
+                json!({"receipt_digest":receipt_digest("execute"), "envelope":envelope("guarded-complete")}),
+            ),
+            (
+                "/v1/research/brief",
+                json!({"run_id":"guarded-run", "node_id":"approval", "question":"fixture question", "source_limit":1, "envelope":envelope("guarded-research")}),
+            ),
+        ];
+        let mut errors = Vec::new();
+        for (route, body) in requests {
+            let response = client
+                .post(format!("http://{bound}{route}"))
+                .json(&body)
+                .send()
+                .await
+                .unwrap();
+            let status = response.status();
+            let text = response.text().await.unwrap();
+            let expected = if abandoned { "abandon" } else { "maintenance" };
+            if status != reqwest::StatusCode::CONFLICT || !text.contains(expected) {
+                errors.push(format!("{route}: {status} {text}"));
+            }
+        }
+        server.abort();
+        drop(maintenance);
+        assert!(errors.is_empty(), "abandoned={abandoned}: {errors:?}");
+        assert_eq!(before, retained_files(&root.path().join("data/runs")));
+        assert_eq!(
+            workbench_before,
+            retained_files(&root.path().join("data/workbench"))
+        );
+    }
+}
+
+#[tokio::test]
+async fn provider_owner_admission_precedes_run_lookup_during_maintenance() {
+    let root = TempDir::new().unwrap();
+    let (bound, _, server) = start_harness(&root).await;
+    let path = root.path().join("data/arda/objectives.sqlite3");
+    let maintenance =
+        arda_engine::objectives::ObjectiveStore::open_existing_maintenance(&path).unwrap();
+    let client = reqwest::Client::new();
+    let url = format!("http://{bound}/v1/runs/unplanned-run/nodes/inspect/execute-provider");
+    let body =
+        json!({"envelope": envelope("maintenance-provider"), "objective": "inspect fixture"});
+    let response = client.post(&url).json(&body).send().await.unwrap();
+    let status = response.status();
+    let message = response.text().await.unwrap();
+    drop(maintenance);
+    let after = client.post(&url).json(&body).send().await.unwrap();
+    server.abort();
+    assert_eq!(status, reqwest::StatusCode::CONFLICT, "{message}");
+    assert!(message.contains("maintenance"), "{message}");
+    assert_eq!(after.status(), reqwest::StatusCode::NOT_FOUND);
+    assert!(!root.path().join("data/runs/unplanned-run").exists());
 }
 
 #[tokio::test]
@@ -404,15 +526,38 @@ async fn assert_managed_provider_shutdown(disconnect: bool) {
         assert!(result >= 0);
         result == 0
     };
-    assert!(
-        provider.as_ref().is_some_and(&is_alive),
-        "provider not live before shutdown"
-    );
+    if !provider.as_ref().is_some_and(&is_alive) {
+        let observation = format!(
+            "accept={started:?}, request_finished={}",
+            request.is_finished()
+        );
+        shutdown.trigger();
+        let response = match tokio::time::timeout(Duration::from_secs(3), request).await {
+            Ok(Ok(response)) => format!(
+                "{} {}",
+                response.status(),
+                response.text().await.unwrap_or_default()
+            ),
+            other => format!("{other:?}"),
+        };
+        if tokio::time::timeout(Duration::from_secs(3), &mut handle)
+            .await
+            .is_err()
+        {
+            handle.abort();
+        }
+        panic!("provider not live before shutdown: {observation}; response={response}");
+    }
     if disconnect {
         request.abort();
         // Let the closed client transport reach the server before stopping it.
         tokio::time::sleep(Duration::from_millis(50)).await;
     }
+    let objective_path = root.path().join("data/arda/objectives.sqlite3");
+    let exclusion =
+        arda_engine::objectives::ObjectiveStore::open_existing_maintenance(&objective_path)
+            .err()
+            .map(|error| error.to_string());
     shutdown.trigger();
     let stopped = tokio::time::timeout(Duration::from_millis(800), &mut handle).await;
     let alive = provider.as_ref().is_some_and(&is_alive);
@@ -444,6 +589,15 @@ async fn assert_managed_provider_shutdown(disconnect: bool) {
         "Harness did not join shutdown within bound"
     );
     assert!(!alive, "provider survived Harness shutdown");
+    assert!(
+        exclusion
+            .as_deref()
+            .is_some_and(|error| error.contains("runtime/maintenance exclusion is busy")),
+        "execution owner did not exclude maintenance: {exclusion:?}"
+    );
+    let _maintenance =
+        arda_engine::objectives::ObjectiveStore::open_existing_maintenance(&objective_path)
+            .expect("joined provider must release runtime exclusion");
 
     let store = arda_engine::runs::RunStore::open(
         root.path(),

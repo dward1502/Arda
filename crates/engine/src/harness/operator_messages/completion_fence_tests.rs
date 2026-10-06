@@ -51,6 +51,79 @@ pub(super) fn check_pending_completion_fences(
     db.execute("INSERT INTO recovery_publications(authenticated_event_id,publication_key,kind,node_id,payload_json,payload_digest,grant_digest,lease_generation,lease_owner,lease_expires_ms,authorized_at_ms)
         VALUES(?1,'completion','completion','close',?2,?3,?4,1,'fixture-owner',?5,1)",
         params![grant.authenticated_event_id,publication.payload.to_string(),hash(&publication),hash(grant),expiry]).unwrap();
+    if std::env::var("ARDA_RECOVERY_CLEANUP_MODE").as_deref() == Ok("abandoned") {
+        db.execute(
+            "INSERT INTO operator_abandonment_authorizations VALUES('abandon-event','{}')",
+            [],
+        )
+        .unwrap();
+        db.execute("INSERT INTO retained_snapshot_operator_abandonments VALUES(?1,?2,?3,'abandon-event','{}')",
+            params![grant.bindings.leaf_id,grant.bindings.run_id.as_str(),grant.bindings.objective_id]).unwrap();
+        let b = &grant.bindings;
+        let payload = grant
+            .authenticated_payload_digest
+            .strip_prefix("sha256:")
+            .unwrap();
+        for result in [
+            store
+                .prepare_recovery_admission(
+                    root,
+                    "operator:fixture",
+                    &grant.authenticated_event_id,
+                    payload,
+                    &b.objective_id,
+                    &b.leaf_id,
+                    b.run_id.as_str(),
+                )
+                .map(|_| ()),
+            store
+                .reconcile_completed_recovery(
+                    "operator:fixture",
+                    &grant.authenticated_event_id,
+                    &receipts,
+                    |_, _, _| panic!("abandoned completion validation invoked"),
+                )
+                .map(|_| ()),
+            store.reconcile_recovery_completion(
+                root,
+                "operator:fixture",
+                &grant.authenticated_event_id,
+                |_| panic!("abandoned completion publication invoked"),
+            ),
+            store
+                .cleanup_stopped_recovery_completion(
+                    root,
+                    "operator:fixture",
+                    &grant.authenticated_event_id,
+                    payload,
+                    &b.objective_id,
+                    &b.leaf_id,
+                    b.run_id.as_str(),
+                )
+                .map(|_| ()),
+        ] {
+            let error = result.unwrap_err();
+            assert!(error.to_string().contains("abandonment"), "{error}");
+        }
+        let pending: i64 = db
+            .query_row(
+                "SELECT COUNT(*) FROM recovery_publications WHERE applied_at_ms IS NULL",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(pending, 1);
+        for table in [
+            "retained_snapshot_releases",
+            "recovery_completion_suppressions",
+        ] {
+            let count: i64 = db
+                .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(count, 0, "{table}");
+        }
+        return;
+    }
     for (mutate, restore) in [
         (
             "UPDATE objectives SET state='cancelled'",

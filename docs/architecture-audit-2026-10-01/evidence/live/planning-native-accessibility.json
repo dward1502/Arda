@@ -1,0 +1,4181 @@
+[
+  {
+    "path": [],
+    "role": "application",
+    "name": "arda_hud"
+  },
+  {
+    "path": [
+      0
+    ],
+    "role": "frame",
+    "name": "ARDA HUD"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "role": "button",
+    "name": "Minimize"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      0,
+      2
+    ],
+    "role": "button",
+    "name": "Maximize"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      0,
+      3
+    ],
+    "role": "button",
+    "name": "Close"
+  },
+  {
+    "path": [
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    "role": "label",
+    "name": "ARDA HUD"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "role": "document web",
+    "name": "arda-hud"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "role": "button",
+    "name": "Minimize"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "role": "button",
+    "name": "Toggle Fullscreen"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      2
+    ],
+    "role": "button",
+    "name": "Close"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4
+    ],
+    "role": "landmark",
+    "name": "Boardroom controls"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0
+    ],
+    "role": "heading",
+    "name": "Boardroom controls"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      0
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      0,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to World Gate"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      1
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      1,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to Arandur Presence"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      2
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      2,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to Sovereign World"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      3
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      3,
+      0
+    ],
+    "role": "button",
+    "name": "Navigate to Sovereign World Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      4
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      4,
+      0
+    ],
+    "role": "button",
+    "name": "Open Sovereign World Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      5
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      5,
+      0
+    ],
+    "role": "button",
+    "name": "Open Governance And Guardhouse Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      6
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      6,
+      0
+    ],
+    "role": "button",
+    "name": "Open Knowledge And Reasoning Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      7
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      7,
+      0
+    ],
+    "role": "button",
+    "name": "Open Routing And Communications Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      8
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      8,
+      0
+    ],
+    "role": "button",
+    "name": "Open Lifecycle Execution Economics Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      9
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      9,
+      0
+    ],
+    "role": "button",
+    "name": "Open Memory And Continuity Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      10
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      10,
+      0
+    ],
+    "role": "button",
+    "name": "Open Planning And Queue Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      11
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      11,
+      0
+    ],
+    "role": "button",
+    "name": "Open Soterion Language Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      12
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      12,
+      0
+    ],
+    "role": "button",
+    "name": "Open Governance And Operations Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      13
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      13,
+      0
+    ],
+    "role": "button",
+    "name": "Open Paperclip Alignment Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      14
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      14,
+      0
+    ],
+    "role": "button",
+    "name": "Open Operations Health Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      15
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      15,
+      0
+    ],
+    "role": "button",
+    "name": "Open Framework Extensions Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      16
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      16,
+      0
+    ],
+    "role": "button",
+    "name": "Open Package Marketplace Doctrine Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      17
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      17,
+      0
+    ],
+    "role": "button",
+    "name": "Open Communication Adapters Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      18
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      18,
+      0
+    ],
+    "role": "button",
+    "name": "Open Edge Enrollment Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      19
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      19,
+      0
+    ],
+    "role": "button",
+    "name": "Open Network Native Onboarding Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      20
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      20,
+      0
+    ],
+    "role": "button",
+    "name": "Open Output Topology Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      21
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      21,
+      0
+    ],
+    "role": "button",
+    "name": "Open Output Accounting Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      22
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      22,
+      0
+    ],
+    "role": "button",
+    "name": "Open Fleet And Backbone Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      23
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      23,
+      0
+    ],
+    "role": "button",
+    "name": "Open Human Business Personal Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      24
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      24,
+      0
+    ],
+    "role": "button",
+    "name": "Open Business Operations Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      25
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      25,
+      0
+    ],
+    "role": "button",
+    "name": "Open Personal Growth Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      26
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      26,
+      0
+    ],
+    "role": "button",
+    "name": "Open Factory AI Surface workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      27
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      27,
+      0
+    ],
+    "role": "button",
+    "name": "Open Warp Surface workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      28
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      28,
+      0
+    ],
+    "role": "button",
+    "name": "Open VAST AI OS Surface workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      29
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      29,
+      0
+    ],
+    "role": "button",
+    "name": "Open Beelink Grafana workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      30
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      30,
+      0
+    ],
+    "role": "button",
+    "name": "Open Beelink Open WebUI workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      31
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      31,
+      0
+    ],
+    "role": "button",
+    "name": "Open ARDA Media Library workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      32
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      32,
+      0
+    ],
+    "role": "button",
+    "name": "Open Agent Remote Session workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      33
+    ],
+    "role": "list item",
+    "name": "Mirromere privacy.veil; Private content is hidden on this display.; freshness stale; availability available details\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      33,
+      0,
+      0
+    ],
+    "role": "unknown",
+    "name": "Mirromere privacy.veil; Private content is hidden on this display.; freshness stale; availability available details"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      34
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      34,
+      0
+    ],
+    "role": "button",
+    "name": "Open Hermes dashboard"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      35
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      35,
+      0
+    ],
+    "role": "button",
+    "name": "Open Hermes CLI"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      36
+    ],
+    "role": "list item",
+    "name": "\ufffc"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      4,
+      1,
+      36,
+      0
+    ],
+    "role": "button",
+    "name": "Open settings"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5
+    ],
+    "role": "section",
+    "name": "WORKSTATION\nPlanning And Queue Workstation\nready / prometheus\n\ufffc\ufffc\ufffc\n\ufffc\ufffc\nTERM READY\nOpen focused module and run boardroom action flow.\nTASK LEDGER\nPlanning\nQUEUE SUMMARY: PROJECTED\nSOURCE MAP UNMAPPED\n0 MISSING\nPRIORITY LOAD\ncritical\n50\nhigh\n1341\nmedium\n2177\nnormal\n7\nunknown\n18\nOWNER SPREAD\narandur\n1\nathena\n4\naule\n1\nceo\n1087\nhades\n1\nhermes\n2\nmanwe\n1\noperator:mythos\n131\nQUEUE SOURCE FRESHNESS\ncanonical_project_tasksexecution_attempt\nlane: canonical_task; receipt: none_already_canonical\nruntime_queueevidence\nlane: runtime_message; receipt: flywheel_plan_packet_or_prometheus_safe_local_task_promotion\nknowledge_actionable_reviewevidence\nlane: review_signal; receipt: human_or_triad_review_receipt\nathena_policy_tasksproposal\nlane: promotion_candidate; receipt: prometheus_safe_local_task_promotion\nhades_action_queueapproval\nlane: review_signal; receipt: hades_lifecycle_action_receipt\nhades_action_closeoutsterminal_result\nlane: closeout; receipt: result_evidence_receipt\nPlanning And Queue / Queue_summary\ncore/state/queue_summary.json\nAPPROVAL REQUIRED\n\ud83d\udfe1\nStale\nEdge Enrollment / Operator_actions\ncore/state/operator_actions.json\n\ud83d\udfe1\nStale\nKnowledge And Reasoning / Deep_queue\ndata/athena/deep_queue.jsonl\n\ud83d\udfe1\nStale\nNetwork Native Onboarding / Operator_actions\ncore/state/operator_actions.json\n\ud83d\udfe1\nStale\nOperations Health / Operator_actions\ncore/state/operator_actions.json\n\ud83d\udfe1\nStale\nPLANNING ACTION CONTRACT\nPreview Queue Cleanupdry_run\nSummarize queued/completed/cancelled project work before any cleanup or lifecycle action.\nEXECUTOR\narda-cli export autonomy-resume\nGATE\nqueue_cleanup_preview_only\nSTATUS\nsucceeded\nRECEIPT\ncore/state/queue_summary.json\n\ufffc\nCapture Task Pivotgoverned_mutation\nRecord meaningful project pivots into the durable task queue with owner, priority, scope, and glyph metadata.\nEXECUTOR\narda-cli utility task-pivot\nGATE\noperator_intent_required\nSTATUS\nblocked\nRECEIPT\ncore/state/queue_summary.json\nTask Pivot Record Previewoperator-gated\nTITLE\nARDA workstation action contract follow-up\nOWNER\nprometheus\nPRIORITY\nhigh\nSCOPE\narda_hud\nORIGIN\narda_planning_workstation\nGLYPH\n\u219d\ncargo run -p arda-cli -- utility task-pivot 'ARDA workstation action contract follow-up' --owner prometheus --priority high --origin arda_planning_workstation --scope arda_hud --glyph '\u219d' --status queued --result pending\nARDA shows the exact queue-write shape here, but the governed mutation remains operator-gated and is not mixed into the generic refresh lane.\nGOVERNED OPERATOR SURFACE\nWorkbench\nProject attachment\nnot attached\nProject contract path\ufffc\n\ufffc\ufffc\nApproval reference\ufffc\nReceipt digest\ufffc\nReview evidence JSON\ufffc\nResume run ID\ufffc\n\ufffc\nObjective\ntext first\nObjective\ufffc\n\ufffc\ufffc\nVoice input will produce the same arda.workbench.objective.v1 contract; it does not bypass this boundary.\nValidate a typed project contract before attachment. Run events: idle.\nOperator summary\nplain-language run state\nWHAT HAPPENED?\nValidate a typed project contract before attachment.\nWHY?\nNo run decision has been made yet.\nWHAT CAN ACT?\nArda may inspect and validate only. Only the operator can authorize a project mutation.\nWHAT EVIDENCE IS AVAILABLE?\nNo execution receipt or project verification evidence exists yet.\nWHAT SHOULD I DO NEXT?\nValidate a project contract before attaching it.\nRun graph\nNo run planned. Capture an objective to prepare the graph.\nApprovals\n0 need attention\nNo approvals are waiting.\nObjective review\n0 files / 0 checks\nSelect a run-graph node to inspect its review boundary.\nChanged\nNo changes recorded.\nTests\nNo tests have run.\nNo provider receipt recorded.\nTimeline and receipt\nBudget ceiling $0.00\nCOST\n$0.00 maximum\nRESUME\nNo run to resume\nFRESHNESS\nUnavailable: no run data loaded.\nNo run events recorded.\nHUMAN PLAN SHELF\ndocs/plans\nReadable plan root for graph and operator thought.\nCORE QUICK REFS\ncore/projects/Plans\nSovereign quick-reference root for runtime and task linkage.\nLIFECYCLE CONTRACT\nQueued\n19\nActive\n1\nCompleted\n145\nDisposal Review\n0\nArchive Ready\n0\nplan -> task_emission -> task_retrieval -> bounded_execution -> completion_evidence -> hades_disposal_review -> archive_or_retention\nHADES REVIEW QUEUE\nNo disposal candidates\nCompleted work marked with \u219d will surface here for HADES review.\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0
+    ],
+    "role": "dialog",
+    "name": "Planning And Queue Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      1
+    ],
+    "role": "unknown",
+    "name": "Planning And Queue Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      2
+    ],
+    "role": "button",
+    "name": "Focus workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      3
+    ],
+    "role": "button",
+    "name": "Pop out workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      4
+    ],
+    "role": "button",
+    "name": "Close workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      5
+    ],
+    "role": "button",
+    "name": "PLANNING"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      6
+    ],
+    "role": "button",
+    "name": "OPERATING SURFACE REVIEW"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      8
+    ],
+    "role": "section",
+    "name": "TASK LEDGER"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      9
+    ],
+    "role": "heading",
+    "name": "Planning"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      10
+    ],
+    "role": "section",
+    "name": "QUEUE SUMMARY: PROJECTED"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      10,
+      0
+    ],
+    "role": "section",
+    "name": "QUEUE SUMMARY: PROJECTED"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      11
+    ],
+    "role": "unknown",
+    "name": "0 MISSING"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      12
+    ],
+    "role": "section",
+    "name": "PRIORITY LOAD"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      13
+    ],
+    "role": "unknown",
+    "name": "50"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      14
+    ],
+    "role": "unknown",
+    "name": "1341"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      15
+    ],
+    "role": "unknown",
+    "name": "2177"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      16
+    ],
+    "role": "unknown",
+    "name": "7"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      17
+    ],
+    "role": "unknown",
+    "name": "18"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      18
+    ],
+    "role": "section",
+    "name": "OWNER SPREAD"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      19
+    ],
+    "role": "unknown",
+    "name": "1"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      20
+    ],
+    "role": "unknown",
+    "name": "4"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      21
+    ],
+    "role": "unknown",
+    "name": "1"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      22
+    ],
+    "role": "unknown",
+    "name": "1087"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      23
+    ],
+    "role": "unknown",
+    "name": "1"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      24
+    ],
+    "role": "unknown",
+    "name": "2"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      25
+    ],
+    "role": "unknown",
+    "name": "1"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      26
+    ],
+    "role": "unknown",
+    "name": "131"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27
+    ],
+    "role": "landmark",
+    "name": "Queue source freshness"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      0
+    ],
+    "role": "section",
+    "name": "QUEUE SOURCE FRESHNESS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1
+    ],
+    "role": "section",
+    "name": "Queue stage contracts"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      0,
+      0
+    ],
+    "role": "section",
+    "name": "canonical_project_tasksexecution_attempt"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      0,
+      1
+    ],
+    "role": "paragraph",
+    "name": "lane: canonical_task; receipt: none_already_canonical"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      1,
+      0
+    ],
+    "role": "section",
+    "name": "runtime_queueevidence"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      1,
+      1
+    ],
+    "role": "paragraph",
+    "name": "lane: runtime_message; receipt: flywheel_plan_packet_or_prometheus_safe_local_task_promotion"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      2,
+      0
+    ],
+    "role": "section",
+    "name": "knowledge_actionable_reviewevidence"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      2,
+      1
+    ],
+    "role": "paragraph",
+    "name": "lane: review_signal; receipt: human_or_triad_review_receipt"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      3,
+      0
+    ],
+    "role": "section",
+    "name": "athena_policy_tasksproposal"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      3,
+      1
+    ],
+    "role": "paragraph",
+    "name": "lane: promotion_candidate; receipt: prometheus_safe_local_task_promotion"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      4,
+      0
+    ],
+    "role": "section",
+    "name": "hades_action_queueapproval"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      4,
+      1
+    ],
+    "role": "paragraph",
+    "name": "lane: review_signal; receipt: hades_lifecycle_action_receipt"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      5,
+      0
+    ],
+    "role": "section",
+    "name": "hades_action_closeoutsterminal_result"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      1,
+      5,
+      1
+    ],
+    "role": "paragraph",
+    "name": "lane: closeout; receipt: result_evidence_receipt"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      2,
+      0
+    ],
+    "role": "unknown",
+    "name": "Planning And Queue / Queue_summary"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      2,
+      1
+    ],
+    "role": "section",
+    "name": "APPROVAL REQUIRED"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      2,
+      2
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      3,
+      0
+    ],
+    "role": "unknown",
+    "name": "Edge Enrollment / Operator_actions"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      3,
+      1
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      4,
+      0
+    ],
+    "role": "unknown",
+    "name": "Knowledge And Reasoning / Deep_queue"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      4,
+      1
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      5,
+      0
+    ],
+    "role": "unknown",
+    "name": "Network Native Onboarding / Operator_actions"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      5,
+      1
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      6,
+      0
+    ],
+    "role": "unknown",
+    "name": "Operations Health / Operator_actions"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      27,
+      6,
+      1
+    ],
+    "role": "section",
+    "name": "\ud83d\udfe1\nStale\n"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28
+    ],
+    "role": "landmark",
+    "name": "Planning workstation action contract"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      0
+    ],
+    "role": "section",
+    "name": "PLANNING ACTION CONTRACT"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      0
+    ],
+    "role": "section",
+    "name": "Preview Queue Cleanupdry_run"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      1
+    ],
+    "role": "paragraph",
+    "name": "Summarize queued/completed/cancelled project work before any cleanup or lifecycle action."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      0
+    ],
+    "role": "description term",
+    "name": "EXECUTOR"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      1
+    ],
+    "role": "description value",
+    "name": "arda-cli export autonomy-resume"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      2
+    ],
+    "role": "description term",
+    "name": "GATE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      3
+    ],
+    "role": "description value",
+    "name": "queue_cleanup_preview_only"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      4
+    ],
+    "role": "description term",
+    "name": "STATUS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      5
+    ],
+    "role": "description value",
+    "name": "succeeded"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      6
+    ],
+    "role": "description term",
+    "name": "RECEIPT"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      2,
+      7
+    ],
+    "role": "description value",
+    "name": "core/state/queue_summary.json"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      1,
+      3
+    ],
+    "role": "button",
+    "name": "Run Queue Preview"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      0
+    ],
+    "role": "section",
+    "name": "Capture Task Pivotgoverned_mutation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      1
+    ],
+    "role": "paragraph",
+    "name": "Record meaningful project pivots into the durable task queue with owner, priority, scope, and glyph metadata."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      0
+    ],
+    "role": "description term",
+    "name": "EXECUTOR"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      1
+    ],
+    "role": "description value",
+    "name": "arda-cli utility task-pivot"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      2
+    ],
+    "role": "description term",
+    "name": "GATE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      3
+    ],
+    "role": "description value",
+    "name": "operator_intent_required"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      4
+    ],
+    "role": "description term",
+    "name": "STATUS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      5
+    ],
+    "role": "description value",
+    "name": "blocked"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      6
+    ],
+    "role": "description term",
+    "name": "RECEIPT"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      2,
+      2,
+      7
+    ],
+    "role": "description value",
+    "name": "core/state/queue_summary.json"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      0
+    ],
+    "role": "section",
+    "name": "Task Pivot Record Previewoperator-gated"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      0
+    ],
+    "role": "description term",
+    "name": "TITLE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      1
+    ],
+    "role": "description value",
+    "name": "ARDA workstation action contract follow-up"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      2
+    ],
+    "role": "description term",
+    "name": "OWNER"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      3
+    ],
+    "role": "description value",
+    "name": "prometheus"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      4
+    ],
+    "role": "description term",
+    "name": "PRIORITY"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      5
+    ],
+    "role": "description value",
+    "name": "high"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      6
+    ],
+    "role": "description term",
+    "name": "SCOPE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      7
+    ],
+    "role": "description value",
+    "name": "arda_hud"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      8
+    ],
+    "role": "description term",
+    "name": "ORIGIN"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      9
+    ],
+    "role": "description value",
+    "name": "arda_planning_workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      10
+    ],
+    "role": "description term",
+    "name": "GLYPH"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      1,
+      11
+    ],
+    "role": "description value",
+    "name": "\u219d"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      2
+    ],
+    "role": "section",
+    "name": "cargo run -p arda-cli -- utility task-pivot 'ARDA workstation action contract follow-up' --owner prometheus --priority high --origin arda_planning_workstation --scope arda_hud --glyph '\u219d' --status queued --result pending"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      28,
+      3,
+      3
+    ],
+    "role": "paragraph",
+    "name": "ARDA shows the exact queue-write shape here, but the governed mutation remains operator-gated and is not mixed into the generic refresh lane."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      30
+    ],
+    "role": "section",
+    "name": "GOVERNED OPERATOR SURFACE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      31
+    ],
+    "role": "heading",
+    "name": "Workbench"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32
+    ],
+    "role": "section",
+    "name": "ARDA Workbench"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0
+    ],
+    "role": "landmark",
+    "name": "Project attachment"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      0
+    ],
+    "role": "heading",
+    "name": "Project attachment"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      1,
+      0
+    ],
+    "role": "section",
+    "name": "Project contract path"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      1,
+      1
+    ],
+    "role": "entry",
+    "name": "Project contract path /absolute/path/project.json"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      2
+    ],
+    "role": "button",
+    "name": "Validate project contract"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      3
+    ],
+    "role": "button",
+    "name": "Attach project"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      4,
+      0
+    ],
+    "role": "section",
+    "name": "Approval reference"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      4,
+      1
+    ],
+    "role": "entry",
+    "name": "Approval reference"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      5,
+      0
+    ],
+    "role": "section",
+    "name": "Receipt digest"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      5,
+      1
+    ],
+    "role": "entry",
+    "name": "Receipt digest sha256:..."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      6,
+      0
+    ],
+    "role": "section",
+    "name": "Review evidence JSON"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      6,
+      1
+    ],
+    "role": "entry",
+    "name": "Review evidence JSON {\"changes\":[],\"tests\":[],\"provider_receipt\":null}"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      7,
+      0
+    ],
+    "role": "section",
+    "name": "Resume run ID"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      7,
+      1
+    ],
+    "role": "entry",
+    "name": "Resume run ID"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      0,
+      8
+    ],
+    "role": "button",
+    "name": "Resume durable run"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      1
+    ],
+    "role": "heading",
+    "name": "Objective"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      2,
+      0
+    ],
+    "role": "section",
+    "name": "Objective"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      2,
+      1
+    ],
+    "role": "entry",
+    "name": "Objective"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      3
+    ],
+    "role": "button",
+    "name": "Capture objective"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      4
+    ],
+    "role": "button",
+    "name": "Plan governed run"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      5
+    ],
+    "role": "section",
+    "name": "Voice input will produce the same arda.workbench.objective.v1 contract; it does not bypass this boundary."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      6
+    ],
+    "role": "status bar",
+    "name": "Validate a typed project contract before attachment. Run events: idle."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7
+    ],
+    "role": "landmark",
+    "name": "Operator summary"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      0
+    ],
+    "role": "heading",
+    "name": "Operator summary"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      0
+    ],
+    "role": "description term",
+    "name": "WHAT HAPPENED?"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      1
+    ],
+    "role": "description value",
+    "name": "Validate a typed project contract before attachment."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      2
+    ],
+    "role": "description term",
+    "name": "WHY?"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      3
+    ],
+    "role": "description value",
+    "name": "No run decision has been made yet."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      4
+    ],
+    "role": "description term",
+    "name": "WHAT CAN ACT?"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      5
+    ],
+    "role": "description value",
+    "name": "Arda may inspect and validate only. Only the operator can authorize a project mutation."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      6
+    ],
+    "role": "description term",
+    "name": "WHAT EVIDENCE IS AVAILABLE?"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      7
+    ],
+    "role": "description value",
+    "name": "No execution receipt or project verification evidence exists yet."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      8
+    ],
+    "role": "description term",
+    "name": "WHAT SHOULD I DO NEXT?"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      7,
+      1,
+      9
+    ],
+    "role": "description value",
+    "name": "Validate a project contract before attaching it."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      8
+    ],
+    "role": "landmark",
+    "name": "Run graph"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      8,
+      0
+    ],
+    "role": "heading",
+    "name": "Run graph"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      8,
+      1
+    ],
+    "role": "paragraph",
+    "name": "No run planned. Capture an objective to prepare the graph."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      9
+    ],
+    "role": "landmark",
+    "name": "Approvals"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      9,
+      0
+    ],
+    "role": "heading",
+    "name": "Approvals"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      9,
+      1
+    ],
+    "role": "paragraph",
+    "name": "No approvals are waiting."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10
+    ],
+    "role": "landmark",
+    "name": "Objective review"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      0
+    ],
+    "role": "heading",
+    "name": "Objective review"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      1
+    ],
+    "role": "paragraph",
+    "name": "Select a run-graph node to inspect its review boundary."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      2
+    ],
+    "role": "heading",
+    "name": "Changed"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      3
+    ],
+    "role": "paragraph",
+    "name": "No changes recorded."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      4
+    ],
+    "role": "heading",
+    "name": "Tests"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      5
+    ],
+    "role": "paragraph",
+    "name": "No tests have run."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      6
+    ],
+    "role": "section",
+    "name": "Provider receipt"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      10,
+      6,
+      0
+    ],
+    "role": "paragraph",
+    "name": "No provider receipt recorded."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11
+    ],
+    "role": "landmark",
+    "name": "Timeline and receipt"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      0
+    ],
+    "role": "heading",
+    "name": "Timeline and receipt"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      1,
+      0
+    ],
+    "role": "description term",
+    "name": "COST"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      1,
+      1
+    ],
+    "role": "description value",
+    "name": "$0.00 maximum"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      1,
+      2
+    ],
+    "role": "description term",
+    "name": "RESUME"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      1,
+      3
+    ],
+    "role": "description value",
+    "name": "No run to resume"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      1,
+      4
+    ],
+    "role": "description term",
+    "name": "FRESHNESS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      1,
+      5
+    ],
+    "role": "description value",
+    "name": "Unavailable: no run data loaded."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      32,
+      11,
+      2
+    ],
+    "role": "paragraph",
+    "name": "No run events recorded."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      35
+    ],
+    "role": "section",
+    "name": "HUMAN PLAN SHELF"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      36,
+      0
+    ],
+    "role": "unknown",
+    "name": "docs/plans"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      36,
+      1
+    ],
+    "role": "paragraph",
+    "name": "Readable plan root for graph and operator thought."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      37
+    ],
+    "role": "section",
+    "name": "CORE QUICK REFS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      38,
+      0
+    ],
+    "role": "unknown",
+    "name": "core/projects/Plans"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      38,
+      1
+    ],
+    "role": "paragraph",
+    "name": "Sovereign quick-reference root for runtime and task linkage."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      39
+    ],
+    "role": "section",
+    "name": "LIFECYCLE CONTRACT"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      40
+    ],
+    "role": "unknown",
+    "name": "19"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      41
+    ],
+    "role": "unknown",
+    "name": "1"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      42
+    ],
+    "role": "unknown",
+    "name": "145"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      43
+    ],
+    "role": "unknown",
+    "name": "0"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      44
+    ],
+    "role": "unknown",
+    "name": "0"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      45
+    ],
+    "role": "paragraph",
+    "name": "plan -> task_emission -> task_retrieval -> bounded_execution -> completion_evidence -> hades_disposal_review -> archive_or_retention"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      46
+    ],
+    "role": "section",
+    "name": "HADES REVIEW QUEUE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      47,
+      0
+    ],
+    "role": "unknown",
+    "name": "No disposal candidates"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      47,
+      1
+    ],
+    "role": "paragraph",
+    "name": "Completed work marked with \u219d will surface here for HADES review."
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      6
+    ],
+    "role": "section",
+    "name": "OPEN WORKSTATIONS"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      7
+    ],
+    "role": "button",
+    "name": "TILE"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      8
+    ],
+    "role": "button",
+    "name": "PLANNING AND QUEUE WORKSTATION"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      9
+    ],
+    "role": "button",
+    "name": "Close Planning And Queue Workstation"
+  },
+  {
+    "path": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      10
+    ],
+    "role": "button",
+    "name": "CLEAR ALL"
+  }
+]

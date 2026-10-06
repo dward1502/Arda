@@ -680,10 +680,14 @@ fn objective(id: &str, idempotency_key: &str) -> NewObjective {
             ProjectAuthority {
                 project_id: "project-a".to_owned(),
                 contract_digest: "sha256:project-a".to_owned(),
+                authority: "operator_test".into(),
+                checks: vec!["build".into(), "lint".into()],
             },
             ProjectAuthority {
                 project_id: "project-b".to_owned(),
                 contract_digest: "sha256:project-b".to_owned(),
+                authority: "operator_test".into(),
+                checks: vec!["build".into(), "lint".into()],
             },
         ],
         leaves: vec![

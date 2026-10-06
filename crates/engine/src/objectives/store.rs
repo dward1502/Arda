@@ -1643,6 +1643,24 @@ impl ObjectiveStore {
     }
 }
 
+fn validate_project_authority(project: &super::ProjectAuthority) -> Result<()> {
+    if project.project_id.trim().is_empty() || project.contract_digest.trim().is_empty() {
+        bail!("project authority fields must not be empty");
+    }
+    // Historical bindings contain only the canonical contract ID/digest.
+    // Read-only file inspection may legitimately have no executable checks.
+    // Neither case grants execution permission; canonical admission still owns it.
+    let legacy_binding = project.authority.is_empty() && project.checks.is_empty();
+    if !legacy_binding
+        && (project.authority.trim().is_empty()
+            || (project.checks.is_empty() && project.authority != "read_only")
+            || project.checks.iter().any(|check| check.trim().is_empty()))
+    {
+        bail!("project authority metadata requires authority and checks unless read_only");
+    }
+    Ok(())
+}
+
 fn validate_objective(objective: &NewObjective) -> Result<()> {
     for (name, value) in [
         ("objective id", objective.id.as_str()),
@@ -1660,20 +1678,7 @@ fn validate_objective(objective: &NewObjective) -> Result<()> {
     }
     let mut projects = HashSet::new();
     for project in &objective.projects {
-        if project.project_id.trim().is_empty() || project.contract_digest.trim().is_empty() {
-            bail!("project authority fields must not be empty");
-        }
-        // Original admissions bind canonical contracts by ID/digest alone.
-        // Do not invent metadata on replay or treat its absence as permission.
-        // If supplied, the additional metadata must form a complete pair.
-        let legacy_binding = project.authority.is_empty() && project.checks.is_empty();
-        if !legacy_binding
-            && (project.authority.trim().is_empty()
-                || project.checks.is_empty()
-                || project.checks.iter().any(|check| check.trim().is_empty()))
-        {
-            bail!("project authority metadata must include authority and checks together");
-        }
+        validate_project_authority(project)?;
         if !projects.insert(project.project_id.as_str()) {
             bail!("duplicate project authority {}", project.project_id);
         }

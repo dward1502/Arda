@@ -33,6 +33,19 @@ incremental compilation are disabled to bound disk use. Tests must continue to
 use temporary state; ignored installed qualification is not enabled here.
 The container unit/integration suite runs directly: the local Xvfb wrapper stalled
 before launching Cargo. GitHub's Ubuntu runner supports Xvfb and uses it there.
+The container runs as the host user with an init process, and binds its temporary
+directory from the checkout's filesystem (ext4/XFS/Btrfs required for keeper
+tests). Proc masking is removed inside this rootless container so nested
+bubblewrap can establish its own proc mount. Node and bubblewrap are explicit
+test prerequisites. No `--privileged`, host namespace or inference device is used.
+
+The root CI job temporarily permits unprivileged user namespaces on its disposable
+Ubuntu VM, verifies a real bubblewrap launch, and restores the prior setting in
+an always-run step. This addresses Ubuntu's
+[AppArmor namespace restriction](https://documentation.ubuntu.com/release-notes/24.04/)
+without modifying the operator host. Ordinary isolated namespace fixtures run;
+tests declared ignored for installed authority or additional qualification remain
+opt-in.
 
 ## Coverage and opt-in work
 
@@ -51,6 +64,13 @@ Each frontend uses its own lockfile. Existing oxlint warnings remain warnings;
 errors fail the job. Clippy warnings are errors. Compilation, tests and Clippy
 are separate steps so one failure does not hide the remaining checks. Ignored
 tests retain their source-declared reasons; no global `--ignored` is used.
+
+HUD has narrowly documented lint expectations for its staged, unregistered
+personal-operations/research command modules and two existing Tauri commands
+whose named IPC argument lists must remain compatible with the frontend.
+These expectations do not register commands or expand execution authority.
+Unused monitor-registry helpers are compiled only for their existing tests.
+The rest of the native warning baseline is enforced, including root/launcher.
 
 Real providers/credentials, installed systemd/keeper authority, namespace and
 device qualification, browser-runtime cases marked ignored, operator-scale

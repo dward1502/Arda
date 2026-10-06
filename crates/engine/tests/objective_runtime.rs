@@ -1619,6 +1619,33 @@ async fn empty_project_authority_is_rejected() {
     assert!(result.is_ok());
 }
 
+#[test]
+fn only_read_only_project_metadata_may_omit_declared_checks() {
+    let dir = tempfile::tempdir().unwrap();
+    for path in ["project-a", "project-b", "join"] {
+        std::fs::create_dir_all(dir.path().join(path)).unwrap();
+    }
+    let store = ObjectiveStore::open(dir.path().join("objectives.sqlite3")).unwrap();
+    let mut objective = objective_with_text(dir.path(), "Inspect files without executable checks");
+    objective.projects[0].checks.clear();
+    assert!(store
+        .create_authenticated_objective(objective.clone(), 100)
+        .is_err());
+    objective.projects[0].authority = "read_only".into();
+    objective.projects[0].checks = vec![" ".into()];
+    assert!(store
+        .create_authenticated_objective(objective.clone(), 100)
+        .is_err());
+    objective.projects[0].checks.clear();
+    store
+        .create_authenticated_objective(objective, 100)
+        .unwrap();
+    assert!(store
+        .claim_runnable("unapproved", 101, 1_000, 1)
+        .unwrap()
+        .is_empty());
+}
+
 #[tokio::test]
 async fn join_validates_both_receipts_no_replay() {
     // M4.4: the join leaf must validate both project receipts before closing,

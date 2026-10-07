@@ -1,11 +1,12 @@
 # R06 provider qualification — October 7, 2026
 
-R06 remains open. Initial route reconciliation found an installed health/catalog
-stall before live inference qualification. A source repair passed tests and an
-isolated process check; the installed daemon has not been replaced or restarted.
-No model request or real-channel message was sent during this qualification.
+R06 remains open, with rollout and bounded live-provider qualification now recorded.
+The health repair is installed, three Hermes auxiliary endpoints are repaired,
+and subscription tool use, emulated streamed-tool replay, native OpenRouter
+streaming and a Hermes auxiliary request passed. Local inference was unavailable.
+No real-channel message was sent; canonical fallback/budget gates remain open.
 
-## Installed observations
+## Initial installed observations (before rollout)
 
 Evidence: `target/qualification/r06-20261007/installed-snapshot.json`.
 It contains allowlisted route metadata, credential-variable presence (never
@@ -49,9 +50,9 @@ from readiness and catalog lock ownership.
 
 | Requirement | Current evidence | Remaining gate |
 | --- | --- | --- |
-| Health and unavailable capacity | Isolated candidate returns HTTP 503 promptly with all fixture providers disabled; catalog stays responsive. | Roll out the qualified health repair and repeat installed checks. |
-| Tool use / streamed tool replay | Existing Manwe source regressions pass. | Actual pinned-route tool loop and streamed response, with actual provider/model receipts. |
-| Timeout / quota / failure | Source timeout, quota and failure-classification regressions pass; installed health/catalog timeouts captured. | Bounded real route failure with recorded attempt count and latency. |
+| Health and unavailable capacity | Isolated candidate returns HTTP 503 promptly with all fixture providers disabled; catalog stays responsive. | Installed checks now pass; retain unavailable-capacity fixture coverage. |
+| Tool use / streamed tool replay | Existing Manwe source regressions pass. | Subscription tool loop and emulated streamed replay pass; native OpenRouter streaming passes. Local route remains unavailable. |
+| Timeout / quota / failure | Source timeout, quota and failure-classification regressions pass; installed health/catalog timeouts captured. | Missing/local-only routes refuse with HTTP 502. Upstream timeout/quota and retry-count qualification remain open. |
 | Fallback / privacy / budget | Existing routing, local-only and fallback policy regressions pass. | Admitted canonical work proving authorized fallback and refusal without authority; measured retry/token/cost evidence. |
 | Channel duplicates / cancellation / reconnect / acknowledgement | No live-channel test performed. | A bounded real-channel fixture with recipient and delivery evidence. |
 
@@ -65,5 +66,57 @@ qualification evidence. The candidate process was stopped and its fixture remove
 
 The source baseline was `e9478631`; validation includes the existing working-tree
 provider changes. The commit includes only the health repair and this R06 record.
-P1 is partial because live catalog and actual route agreement remain unproven;
-P2–P6 and G2.1–G2.7 are not closed by source tests or this disabled-provider fixture.
+This initial fixture alone did not establish live catalog/route agreement.
+The following rollout supersedes that limitation for the sampled routes;
+P2–P6 and G2.1–G2.7 remain open.
+
+
+## Installed rollout and live checks
+
+Evidence directory: `target/qualification/r06-rollout-20261007/` (local, ignored).
+The release build passed (`cargo build --release -p manwe --bin manwe -j2`).
+The prior executable was preserved as `manwe.before` before building. Only the
+supervised Manwe child received SIGTERM; Arda's supervisor restarted it from the
+release path. Root PID 973416 remained active with zero root restarts; Manwe
+changed from PID 973433 to 1189229. The executable read through `/proc/1189229/exe`
+matched SHA-256 `5e2190e9426804c5d63d3a9ab189948a26adddbca732d1b1a5d69c3cae2693d6`.
+This binary includes the existing working-tree provider changes, as did the prior
+303-test qualification; it is not a claim of a clean-tree reproducible release.
+
+Immediately after rollout, `/health` returned 200 in 10.175 ms and `/v1/models`
+in 0.899 ms. After all live checks, three health requests returned 200 in
+1.160–10.582 ms; three catalog requests returned 200 in 0.591–0.754 ms with
+127 entries. Catalog entries do not imply that every model is usable.
+The root and Manwe PIDs remained stable. Both mesh services remained inactive.
+
+Exactly three URLs in `~/.hermes/config.yaml` changed from port 5110 to 7171:
+`auxiliary.compression`, `auxiliary.session_search`, and
+`auxiliary.flush_memories`. A parsed-config comparison checked that no other
+setting changed. The original configuration is retained privately with mode 0600;
+never stage or publish that backup. The installed Hermes runtime resolved all
+three clients to `http://127.0.0.1:7171/v1/`, model `gpt-6-astra`. One synthetic
+session-search-client request then passed in 2.859 seconds, with actual route
+`openai_sub/gpt-6-astra`, route ID `aea36621aaf0d2c4`, and 33 reported total tokens.
+This exercised the client transport, not a search of user sessions or a memory
+flush. Existing long-lived client instances were not inspected or restarted.
+
+| Live check | Result and actual-route evidence |
+| --- | --- |
+| Subscription tool loop | PASS: `openai_sub/gpt-6-astra`; route IDs `50cd34bf1e30fa7b`, `fb8bc877a6bca6c0`; reported route latencies 2.544 and 6.260 seconds. A random receipt generated only after the tool call was consumed exactly. |
+| Streamed tool replay | PASS: same provider/model; routes `76fe4ab98fec09c5`, `ac09df2690c2b910`. Both responses explicitly carried `x-manwe-stream-emulated: true`, valid SSE termination and linked tool-result consumption. This is buffered stream emulation, not native subscription streaming. |
+| Native streaming | PASS: pinned `openrouter/nvidia/nemotron-3-super-120b-a12b:free`, route `bfe3a2a15f83926d`; first event 507 ms, complete in 1.091 seconds, exact marker and `[DONE]`. Upstream reported 28 prompt + 59 completion = 87 tokens, including 51 reasoning tokens, and cost 0. |
+| Native subscription streaming | HTTP 502 in 10.541 ms. Route policy excludes native streaming for `codex_responses` and `hermes_agent_cli`; no native-stream success is claimed. |
+| Local tool use | HTTP 502 for pinned `edge_core/Qwen3.5-9B-Q4_K_M`; subsequent local-only request rejected unavailable capacity. No local service was enabled. |
+| Missing-route/local-only refusal | HTTP 502 with no actual-route receipt and forced fallback disabled. This bounded refusal is not proof of the entire canonical privacy/fallback matrix. |
+
+All successful checks pinned provider/model and disabled forced-provider fallback.
+The tool loops capped each response at 256 tokens; marker requests at 64 tokens.
+The free-route cost is provider-reported, not an independent billing audit.
+Subscription cost and upstream retry accounting were not established. No paid
+fallback, artificial quota exhaustion or real-channel messaging was performed.
+
+Remaining: upstream timeout/quota and retry accounting; admitted canonical work
+with privacy, budget and fallback evidence; local-capacity qualification when
+available; real-channel duplicates, cancellation, reconnect and acknowledgement.
+See the [storage audit](storage-retention-2026-10-07.md) for the separate history
+retention and corruption findings. No history was deleted during rollout.

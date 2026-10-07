@@ -30,13 +30,16 @@ redacted configuration and observed route metadata before the next change.
 
 ## October 7 qualification
 
-Initial R06 reconciliation and the [qualification matrix](../operations/provider-qualification-2026-10-07.md)
-record 22 configured providers, eight enabled, repeated installed health/catalog
-timeouts and three Hermes auxiliary routes pointing at the unserved port 5110.
-The health/diagnostic boundary repair passed 303 source tests and an isolated
-large-history process check. It has not been installed. P1 remains partial and
-the canonical G2 gates remain open; next qualify the installed repair, reconcile
-the auxiliary route configuration and collect pinned-route execution evidence.
+The [R06 qualification matrix](../operations/provider-qualification-2026-10-07.md)
+now records an installed health repair, a responsive 127-entry catalog, three
+repaired Hermes auxiliary endpoints, pinned subscription tool use, emulated
+streamed-tool replay, native free OpenRouter streaming and a live auxiliary-client
+completion. Local inference is unavailable; mesh remains off. P1 remains partial
+outside the sampled live routes, and the canonical G2 gates remain open. Continue
+with canonical budget/fallback and upstream failure/retry evidence, followed by
+real-channel delivery qualification. The accompanying
+[storage audit](../operations/storage-retention-2026-10-07.md) records retention
+and malformed-history findings without deleting records.
 
 ## Work checklist
 

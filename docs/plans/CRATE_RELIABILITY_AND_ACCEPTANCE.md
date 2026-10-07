@@ -264,12 +264,15 @@ Exit evidence: actual route/transport identity, success and latency, retry cost,
 bounded failure and no unauthorized fallback. Use LiteLLM/A2A comparisons as
 references, not assumptions that current mechanisms are absent or compliant.
 
-October 7: the [initial R06 qualification](../operations/provider-qualification-2026-10-07.md)
-records installed health/catalog timeouts and unserved Hermes auxiliary routes.
-Health reporting is now separated from full diagnostics and provider lock ownership;
-303 Manwe tests, strict Clippy, formatting and an isolated process test passed.
-The installed binary is unchanged. R06 stays open pending rollout and actual-route,
-budget/fallback and real-channel evidence.
+October 7: the [R06 qualification](../operations/provider-qualification-2026-10-07.md)
+now includes the installed health repair, three repaired Hermes auxiliary URLs,
+pinned subscription tool use and emulated streamed-tool replay, native free-route
+streaming, and an actual Hermes auxiliary-client completion. Final health/catalog
+checks pass; the root remains running and mesh services remain off. Local inference
+is unavailable. R06 stays open for canonical budget/fallback, upstream failure/retry
+and real-channel evidence. The [storage audit](../operations/storage-retention-2026-10-07.md)
+records larger cache/Git consumers, retention gaps and two malformed Manwe records;
+no historical data was deleted.
 
 ### R07 Measure memory and research quality
 

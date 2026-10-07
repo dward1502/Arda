@@ -57,6 +57,8 @@
 pub mod company_ops;
 pub mod contract;
 pub mod council;
+#[cfg(feature = "execution-contract")]
+pub mod execution_contract;
 pub mod governance_metrics;
 pub mod presence_projection;
 pub mod service;

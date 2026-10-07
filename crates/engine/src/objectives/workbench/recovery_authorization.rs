@@ -4,7 +4,7 @@ use super::*;
 use crate::objectives::snapshot_protocol::Lease;
 use crate::objectives::{ObjectiveStore, RecoveryMaterial};
 use crate::runs::RecoveryGrant;
-use arda_aule::prometheus::autopilot::workbench_executor::ExplicitRecoveryWindow;
+use arda_aule::execution_contract::ExplicitRecoveryWindow;
 #[cfg(target_os = "linux")]
 mod dispatch;
 mod provider;

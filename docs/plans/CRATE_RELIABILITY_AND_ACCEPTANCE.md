@@ -6,7 +6,7 @@ soterion:
   role: "execution_plan"
   owner: "ARDA"
   status: "active"
-  reviewed: "2026-10-06"
+  reviewed: "2026-10-07"
 ---
 
 # Arda reliability tasks and next session handoff
@@ -77,8 +77,10 @@ both projects stayed unchanged. This qualifies bounded conversational planning;
 it does not execute fixes, mint resident authority or supply the operator verdict.
 See the [interactive M5 record](autonomous-task-completion/M5_VAIRE_CONTINUITY.md#interactive-local-cli-continuation--october-7-2026).
 
-Current milestone: M5 Vaire continuity and operator acceptance. Gate 1's
-genuine combined outcome and remaining M1/M2/M5 obligations remain open. Source
+October 7 operator verdict: the demonstrated CLI process is accepted; see the
+[M5 verdict](autonomous-task-completion/M5_VAIRE_CONTINUITY.md#operator-verdict--october-7-2026).
+Continue forward at R05 execution/observability separation. Gate 1's
+combined outcome and remaining M1/M2/M5 technical obligations remain open. Source
 findings still require remediation; real-project worker native-check execution
 and staging acceptance are not established by this bounded review.
 
@@ -108,17 +110,17 @@ R01 readiness repair and R02/R03 source qualification have recorded evidence bel
 R03 remains on its qualified branch; merging and required-check enforcement are
 separate actions. Today's bounded real-project source review and join are complete.
 M4 and its current resident M3 prerequisite are closed for the admitted bounded
-scope. Continue R04 at M5 continuity and operator acceptance, while retaining the
-parent plan’s open genuine combined-scenario M1/M2 obligations.
+scope. The operator accepted the bounded M5 CLI workflow on October 7. Continue
+R05 execution/observability separation while retaining the parent plan's open
+combined-scenario obligations under R04.
 Keep mesh-llm off and preserve both completed project runs and operator workspaces.
 
 Suggested next-session request:
 
-> Continue R04 with M5 Vaire continuity and operator acceptance. Preserve the
-> completed two-project objective and qualified M3 correction evidence. Prove
-> consumed context and a new-session continuation using canonical lineage; retain
-> the parent plan's open genuine messaging/scheduling obligations. Keep mesh-llm
-> off and preserve both real project workspaces.
+> Continue R05 execution/observability separation from its boundary map. Preserve
+> the accepted M5 CLI result, completed two-project objective and M3 correction
+> evidence. Keep the remaining combined-scenario obligations explicit, keep
+> mesh-llm off, and preserve both real project workspaces.
 
 ## Ordered task list
 
@@ -217,7 +219,7 @@ readiness timeouts return to R06 and its existing provider owner.
 
 ### R05 Separate execution from observability
 
-- [ ] **Priority P2; owners: Engine and Aule.** Map live callers, authority,
+- [x] **Priority P2; owners: Engine and Aule.** Map live callers, authority,
   persistence and feature requirements of the explicit Workbench adapter.
   Preserve behavior with meaningful boundary/recovery tests before changing it.
 - [ ] Establish a narrow execution contract and move implementation ownership out
@@ -227,6 +229,17 @@ readiness timeouts return to R06 and its existing provider owner.
 Exit evidence: Engine depends on a documented executor boundary, observer changes
 do not require execution internals, and recovery/authorization regressions pass.
 Follow the AGENTS requirement to refactor the boundary before changing behavior.
+
+October 7: the [boundary map](../operations/workbench-execution-boundary.md)
+records live callers, stores and feature ownership. The existing 85 executor
+tests passed before extraction. A narrow `execution-contract` feature now exposes
+the shared work/authority/executor interface without telemetry or provider-owner
+dependencies; the concrete trait implementation moved beside its adapter.
+Compatibility exports and admission behavior are preserved. Final qualification:
+391 Aule and 216 Engine library tests passed (9 ignored), 12 restart-continuity
+tests passed (5 ignored), and 3 contract-only tests passed; strict library Clippy
+and formatting passed. Concrete executor
+ownership still resides in Aule, so the second task and R05 exit gate remain open.
 
 ### R06 Qualify providers and communication
 

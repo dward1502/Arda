@@ -174,8 +174,14 @@ defect-characterization test as a positive recovery regression.
   making the operator reconstruct context. Inspect status and correct a decision.
 - [ ] M5.4 — Record required policy decisions separately from avoidable status/continue/
   context-restatement prompts, with attempts, budget and elapsed-use evidence.
-- [ ] M5.5 — Present the verified result and obtain the operator's explicit reduced-burden
+- [x] M5.5 — Present the verified result and obtain the operator's explicit reduced-burden
   verdict or named defects. Defects return to their owning milestone.
+
+October 7: the operator explicitly accepted the demonstrated local CLI workflow
+and requested forward progress. The [M5 verdict](M5_VAIRE_CONTINUITY.md#operator-verdict--october-7-2026)
+records the bounded scope; this does not close the outstanding combined-scenario
+M1/M2/G1 obligations. R05 execution-boundary work proceeds without replaying
+completed projects or asking for the same verdict again.
 
 Exit gate: the operator accepts that the complete loop materially reduces management
 burden. An agent summary, successful build, health response or empty memory baseline

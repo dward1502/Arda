@@ -2,9 +2,9 @@ use super::model::{ClaimedLeaf, ReceiptStage, StageReceipt};
 use super::runtime::{LeafExecution, LeafExecutionResult};
 use crate::adapters::{HermesExecutionReceipt, HermesReceiptStatus};
 use anyhow::{anyhow, bail, Context, Result};
-use arda_aule::prometheus::autopilot::workbench_executor::{
-    ExplicitRuntimeAdmission, ExplicitWorkspaceAuthorization,
-};
+#[cfg(test)]
+use arda_aule::execution_contract::ExplicitRuntimeAdmission;
+use arda_aule::execution_contract::ExplicitWorkspaceAuthorization;
 
 /// Independent critic disposition produced by P0.6 challenge/review.
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -22,10 +22,10 @@ pub struct Criticism {
     pub findings: Vec<String>,
     pub evidence: Vec<String>,
 }
-use arda_aule::prometheus::autopilot::{
+use arda_aule::execution_contract::{
     ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
-    WorkbenchExecutionAdapter,
 };
+use arda_aule::prometheus::autopilot::WorkbenchExecutionAdapter;
 use arda_core::capability_composition::{
     CompositionAuthorityClass, DataClass, EgressTarget, RoleKind,
 };
@@ -48,71 +48,7 @@ pub use recovery_authorization::RecoveryAuthorization;
 #[cfg(target_os = "linux")]
 pub use recovery_authorization::RecoveryProviderDispatch;
 
-pub trait ExplicitWorkbenchExecution: Send + Sync {
-    fn inspect_retry_explicit<'a>(
-        &'a self,
-        item: &'a ExplicitWorkbenchWorkItem,
-        owner: &'a dyn ExplicitRuntimeAdmission,
-    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
-        self.reconcile_explicit(item, owner)
-    }
-    fn execute_explicit_authorized<'a>(
-        &'a self,
-        _item: &'a ExplicitWorkbenchWorkItem,
-        _owner: &'a dyn ExplicitRuntimeAdmission,
-        _authority: &'a dyn ExplicitWorkspaceAuthorization,
-    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
-        Box::pin(
-            async move { bail!("executor does not implement retained workspace authorization") },
-        )
-    }
-    fn reconcile_explicit<'a>(
-        &'a self,
-        _item: &'a ExplicitWorkbenchWorkItem,
-        _owner: &'a dyn ExplicitRuntimeAdmission,
-    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
-        Box::pin(async { Ok(None) })
-    }
-
-    fn execute_explicit<'a>(
-        &'a self,
-        item: &'a ExplicitWorkbenchWorkItem,
-        owner: &'a dyn ExplicitRuntimeAdmission,
-    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>>;
-}
-
-impl ExplicitWorkbenchExecution for WorkbenchExecutionAdapter {
-    fn inspect_retry_explicit<'a>(
-        &'a self,
-        item: &'a ExplicitWorkbenchWorkItem,
-        owner: &'a dyn ExplicitRuntimeAdmission,
-    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
-        Box::pin(async move { self.reconcile_for_retry(item, owner).await })
-    }
-    fn execute_explicit_authorized<'a>(
-        &'a self,
-        item: &'a ExplicitWorkbenchWorkItem,
-        owner: &'a dyn ExplicitRuntimeAdmission,
-        authority: &'a dyn ExplicitWorkspaceAuthorization,
-    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
-        Box::pin(async move { self.execute_authorized(item, authority, owner).await })
-    }
-    fn reconcile_explicit<'a>(
-        &'a self,
-        item: &'a ExplicitWorkbenchWorkItem,
-        owner: &'a dyn ExplicitRuntimeAdmission,
-    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
-        Box::pin(async move { self.reconcile(item, owner).await })
-    }
-
-    fn execute_explicit<'a>(
-        &'a self,
-        item: &'a ExplicitWorkbenchWorkItem,
-        owner: &'a dyn ExplicitRuntimeAdmission,
-    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
-        Box::pin(async move { self.execute(item, owner).await })
-    }
-}
+pub use arda_aule::execution_contract::ExplicitWorkbenchExecution;
 
 #[derive(Clone, Debug)]
 pub struct WorkbenchLeafExecution<E = WorkbenchExecutionAdapter> {
@@ -976,7 +912,7 @@ mod tests {
             predecessor = Some(receipt.receipt_digest.clone());
             let path = receipt_root.join(format!("{stage}.json"));
             std::fs::write(&path, serde_json::to_vec_pretty(&receipt).unwrap()).unwrap();
-            references.push(arda_aule::prometheus::autopilot::ExplicitReceiptReference {
+            references.push(arda_aule::execution_contract::ExplicitReceiptReference {
                 stage: stage.into(),
                 digest: receipt.receipt_digest,
                 path: path.display().to_string(),

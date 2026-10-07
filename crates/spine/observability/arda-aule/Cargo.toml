@@ -6,7 +6,9 @@ license.workspace = true
 
 [features]
 default = []
+execution-contract = ["arda-vaire"]
 full-cli = [
+  "execution-contract",
   "arda-core",
   "arda-vaire",
   "arda-economics",

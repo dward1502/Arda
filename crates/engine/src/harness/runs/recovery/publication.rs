@@ -12,7 +12,7 @@ pub(super) fn apply_publication(
     publication: &RecoveryPublication,
 ) -> anyhow::Result<()> {
     if publication.kind == "close" {
-        let item: arda_aule::prometheus::autopilot::ExplicitWorkbenchWorkItem =
+        let item: arda_aule::execution_contract::ExplicitWorkbenchWorkItem =
             serde_json::from_value(publication.payload["item"].clone())?;
         anyhow::ensure!(
             item.run_id == store.run_id().as_str() && publication.node_id.as_str() == "close",

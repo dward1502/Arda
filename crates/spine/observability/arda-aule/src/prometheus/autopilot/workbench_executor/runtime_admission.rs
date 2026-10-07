@@ -1,19 +1,8 @@
 //! Execution-owner lifetime participation, separate from workspace authority.
+#[cfg(test)]
 use super::*;
 
-/// Implementors retain the runtime's shared maintenance-exclusion lease.
-/// This lease grants no workspace permission or retained execution authority.
-pub trait ExplicitRuntimeLease: Send + Sync {}
-
-/// Admission must validate the exact root and canonical objective/leaf/run binding
-/// and refuse permanently abandoned history before returning an owned lease.
-pub trait ExplicitRuntimeAdmission: Send + Sync {
-    fn admit(
-        &self,
-        root: &Path,
-        item: &ExplicitWorkbenchWorkItem,
-    ) -> Result<Box<dyn ExplicitRuntimeLease>>;
-}
+pub use crate::execution_contract::{ExplicitRuntimeAdmission, ExplicitRuntimeLease};
 
 #[cfg(test)]
 pub(super) struct FixtureAdmission;

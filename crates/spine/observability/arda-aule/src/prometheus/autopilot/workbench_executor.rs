@@ -24,6 +24,7 @@ use arda_vaire::{
 };
 use chrono::{DateTime, Utc};
 use fs2::FileExt;
+use futures::future::BoxFuture;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -67,30 +68,10 @@ pub struct QueueExecutionReceipt {
     pub recorded_at_utc: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct ExplicitWorkbenchWorkItem {
-    /// Narrow the execution graph to file-only inspection. Never grants authority.
-    #[serde(default)]
-    pub read_only: bool,
-    pub objective_id: String,
-    pub leaf_id: String,
-    pub run_id: String,
-    pub objective: String,
-    pub execution_prompt: String,
-    pub verification_prompt: String,
-    pub review_prompt: String,
-    pub project_id: String,
-    pub project_contract_digest: String,
-    pub workspace_root: PathBuf,
-    pub approval_envelope: Value,
-    pub objective_plan_receipt: String,
-    #[serde(default)]
-    pub dependency_receipts: Vec<ExplicitReceiptReference>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub context_assembly: Option<ContextAssembly>,
-}
-
+use crate::execution_contract::ExplicitWorkbenchExecution;
+pub use crate::execution_contract::{
+    ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
+};
 mod runtime_admission;
 mod workspace_authority;
 pub use runtime_admission::{ExplicitRuntimeAdmission, ExplicitRuntimeLease};
@@ -178,26 +159,44 @@ impl ExplicitWorkbenchWorkItem {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ExplicitReceiptReference {
-    pub stage: String,
-    pub digest: String,
-    pub path: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ExplicitExecutionOutcome {
-    pub run_id: String,
-    pub status: String,
-    pub root_receipt_digest: Option<String>,
-    pub receipts: Vec<ExplicitReceiptReference>,
-}
-
 #[derive(Debug, Clone)]
 pub struct WorkbenchExecutionAdapter {
     root: PathBuf,
     harness_url: String,
     client: reqwest::Client,
+}
+
+impl ExplicitWorkbenchExecution for WorkbenchExecutionAdapter {
+    fn inspect_retry_explicit<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
+    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
+        Box::pin(async move { self.reconcile_for_retry(item, owner).await })
+    }
+    fn execute_explicit_authorized<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
+        authority: &'a dyn ExplicitWorkspaceAuthorization,
+    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
+        Box::pin(async move { self.execute_authorized(item, authority, owner).await })
+    }
+    fn reconcile_explicit<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
+    ) -> BoxFuture<'a, Result<Option<ExplicitExecutionOutcome>>> {
+        Box::pin(async move { self.reconcile(item, owner).await })
+    }
+
+    fn execute_explicit<'a>(
+        &'a self,
+        item: &'a ExplicitWorkbenchWorkItem,
+        owner: &'a dyn ExplicitRuntimeAdmission,
+    ) -> BoxFuture<'a, Result<ExplicitExecutionOutcome>> {
+        Box::pin(async move { self.execute(item, owner).await })
+    }
 }
 
 impl WorkbenchExecutionAdapter {

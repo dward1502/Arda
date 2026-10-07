@@ -3,28 +3,7 @@ use super::*;
 #[cfg(test)]
 mod tests;
 
-pub trait ExplicitWorkspaceAuthorization: Send + Sync {
-    fn authorize(&self, item: &ExplicitWorkbenchWorkItem) -> Result<()>;
-    /// Opaque Engine-owned lease, sent only at provider dispatch. It is not part
-    /// of the serialized work item and Aule does not interpret its schema.
-    fn provider_lease(&self, _item: &ExplicitWorkbenchWorkItem) -> Result<Value> {
-        anyhow::bail!("retained provider dispatch requires an Engine lease")
-    }
-    /// Engine-owned saved admission; never deserialize this from a work item.
-    fn recovery_window(
-        &self,
-        _item: &ExplicitWorkbenchWorkItem,
-    ) -> Result<Option<ExplicitRecoveryWindow>> {
-        Ok(None)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ExplicitRecoveryWindow {
-    pub event_id: String,
-    pub activated_at_unix_ms: u64,
-    pub expires_at_unix_ms: u64,
-}
+pub use crate::execution_contract::{ExplicitRecoveryWindow, ExplicitWorkspaceAuthorization};
 
 impl ExplicitRecoveryWindow {
     pub(super) fn validate(&self) -> Result<()> {
@@ -42,15 +21,6 @@ impl ExplicitRecoveryWindow {
         Ok(())
     }
 }
-impl<F> ExplicitWorkspaceAuthorization for F
-where
-    F: Fn(&ExplicitWorkbenchWorkItem) -> Result<()> + Send + Sync,
-{
-    fn authorize(&self, item: &ExplicitWorkbenchWorkItem) -> Result<()> {
-        self(item)
-    }
-}
-
 pub(super) fn reauthorize(
     authority: Option<&dyn ExplicitWorkspaceAuthorization>,
     item: &ExplicitWorkbenchWorkItem,

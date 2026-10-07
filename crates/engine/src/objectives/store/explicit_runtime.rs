@@ -1,6 +1,6 @@
 //! Mandatory Aule owner admission. Lifetime exclusion is not execution authority.
 use super::*;
-use arda_aule::prometheus::autopilot::workbench_executor::{
+use arda_aule::execution_contract::{
     ExplicitRuntimeAdmission, ExplicitRuntimeLease, ExplicitWorkbenchWorkItem,
 };
 

@@ -17,7 +17,65 @@ soterion:
 - Vairë context available and bound to the objective lineage
 - Fresh installed daemon readiness and authenticated ingress; do not reuse historical project counts.
 
+## Interactive local CLI continuation — October 7, 2026
+
+The operator selected the local CLI and explicitly delegated the continuation.
+Two fresh interactive Hermes CLI sessions now recovered the completed two-project
+review through the installed local bridge, with an Arda restart between their
+turns. Each session used its own persisted, non-summary user row; the bridge
+retained its content digest and returned HTTP 200 for canonical objective status.
+Neither session resumed the other conversation or received its answer as input.
+Local CLI is the selected operator surface; changing to Discord is not required.
+
+Both sessions read the complete three active Vairë outcomes for the same completed
+objective: WGTT (6,891 bytes), SkylightPros (7,576 bytes), and join (7,116 bytes).
+The full strings were verified in the actual terminal tool responses. Initial
+file-tool reads truncated long JSON content lines; the agents retrieved the full
+content through read-only terminal commands before answering. They cross-checked
+objective/project scope, execution-run identities and accepted receipt references.
+They did not inspect either project's current source or prior provider transcripts.
+
+The first turn produced a broad remediation roadmap. After restart, the second
+fresh session narrowed the immediate deliverable to **WGTT authorization
+regression-test design**, deferring SkylightPros implementation to the backlog.
+The resulting checklist covers lookup-error versus missing-account behavior,
+bootstrap membership, stored admin/non-admin roles, failed authentication and a
+behavioral test gate distinct from lint. Staging checks and unresolved deployment
+questions remain separate. This is a revised conversational plan; it does not
+change or reopen the completed resident objective and does not execute fixes.
+
+Evidence: `target/qualification/m5-cli-20261007/manifest.json`, with finalized
+session/provenance captures, request text, answers, memory-content hashes,
+service identities and before/after preservation audits. The second reviewed
+answer is `cli-second-final-answer.txt` in that directory. Both completed M3/M4
+objectives, run files, original provider sessions, context/use/outcome records and
+both real project workspaces remained unchanged. Mesh-llm and its probe stayed off.
+Both qualification CLI processes were closed after their turns completed.
+
+The two CLI sessions report 9 and 14 API calls, respectively, and retain token
+counts and session timestamps. Session duration includes idle UI time, so it is
+not active model time. Billing reports `included` with no actual-dollar value;
+zero estimated dollars is not a measured zero resource cost. These measurements
+do not repair unknown usage counters on the original resident runs.
+
+Boundaries retained:
+
+- These were agent-submitted interpretations under the operator's explicit
+  delegation, not independently human-authored CLI turns or a human verdict.
+- Saved governed files were read and checked locally. No new typed Vairë
+  ContextUseReceipt or resident execution receipt was emitted for these CLI plans.
+- The initial sandbox attempt stalled before persisting a turn and was stopped.
+  A host one-shot attempt was correctly rejected because its source was `oneshot`;
+  normal interactive `cli` sessions succeeded without relabeling provenance.
+- **M5 remains open for the applicable combined-scenario obligations and the
+  operator's reduced-burden verdict.** M1/M2/G1 are not closed by these local plans.
+  Correction/revocation/privacy source tests remain recorded below; no live memory
+  was revoked or modified to manufacture a test.
+
 ## Qualification progress — October 6–7, 2026
+
+The later interactive CLI evidence above advances the initial status-only result
+below; retain its commands and limitations as the first qualification baseline.
 
 **M5 remains open.** The completed two-project objective and separate M3 correction
 were inspected without new worker execution. A root restart and a fresh

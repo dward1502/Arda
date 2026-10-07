@@ -42,6 +42,14 @@ bind the actual persisted originating session; never insert history to satisfy
 the adapter. Persisted compression continuations keep root conversation identity.
 Delegated/branched/foreign sessions and synthetic summary rows are rejected.
 
+Use a normal interactive `hermes chat --cli` session for this path. In the
+installed CLI qualified on October 7, one-shot execution persisted
+`source=oneshot`; this bridge correctly rejected it with `CLI session required`.
+Do not rewrite session metadata or force a different source label to pass the
+check. For an operator-delegated automated exercise, a real interactive TTY can
+seed the request with `--query-file`; retain that delegated provenance and use an
+external process timeout as well as the turn budget.
+
 `POST /v1/operator/local-messages` requires a separate `ARDA_HERMES_LOCAL_CAPABILITY`
 on the daemon and the same owner-private capability in
 `$HERMES_HOME/state/arda-operator-bridge/local-capability` (mode 0600).

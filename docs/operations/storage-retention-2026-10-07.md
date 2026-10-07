@@ -1,5 +1,9 @@
 # Storage and retention audit — October 7, 2026
 
+A subsequent user-authorized cleanup recovered **177.1 GiB**. See the
+[cleanup results](#cleanup-results-later-the-same-day) below; the original audit
+measurements are retained for comparison.
+
 The 311 MB of main Manwe history is manageable as archived evidence, but it
 should not grow indefinitely or be scanned on every health request. The
 [installed health repair](provider-qualification-2026-10-07.md) removes that
@@ -101,3 +105,44 @@ backup; it must not be bulk-staged, published or archived into public evidence.
 
 These are follow-up actions, not claims that new retention has been installed.
 The current change supplies measured findings and a reusable integrity scanner.
+
+
+## Cleanup results (later the same day)
+
+The user authorized cleanup after reviewing the inventory. Filesystem free space
+increased from 38.17 GiB to 215.25 GiB, a measured gain of **177.08 GiB**; usage
+fell from 96% to approximately 76%. Concurrent system writes and shared extents
+mean this whole-filesystem delta is more useful than adding rounded directory
+sizes. The original audit above describes the pre-cleanup state.
+
+| Action | Result |
+| --- | --- |
+| Remove inactive Arda build outputs | Removed `target/debug`, `target/native-check`, the S8 isolated build target, and release dependency/build/fingerprint caches. Kept top-level release executables, current rollback copy, qualification source snapshots and acceptance receipts. `target/` fell from 86 GiB to 1.9 GiB. |
+| Remove disposable build/package caches | Cleared Arda/Annunimas build caches and pnpm, Electron, Homebrew, node-gyp and Hermes uv caches. Host process/file-descriptor checks preceded the build cleanup. Future builds/package installs will recreate needed caches. |
+| Consolidate Hermes Git | `git repack -a -d --keep-unreachable` with two threads and bounded delta-window memory reduced packed storage from 47.61 GiB to 643.04 MiB, from 1,010 to three packs. Reachable and unreachable packed objects were retained; refs and working-tree status matched before/after. Removed three obsolete temporary pack/index files. |
+| Repair derived Git cache | Full verification exposed commit-graph references to unavailable objects. Preserved that old cache in local evidence, rebuilt the graph from reachable commits, and verified it. Final `git fsck --full --no-dangling` exited 0 with an empty log. The cause/timing of the stale graph was not established. |
+| Prune old Hermes checkpoints | Used the installed owner command: `hermes checkpoints prune --retention-days 30 --keep-orphans --max-size-mb 0`. Scanned 254 entries, deleted 232 stale entries, no orphan-based deletion, zero errors; store fell from 2.7 GiB to 91 MiB. Recent checkpoints were not forced under a size cap. |
+| Compress pre-update snapshot | Replaced `~/.hermes/state-snapshots/20260716-231929-pre-update/` with a mode-0600 `.tar.gz` archive, 1,017,714,747 bytes. Compared SHA-256 for all 11 files through the archive before deleting the uncompressed directory. Snapshot contents remain recoverable. |
+| Remove obsolete model download | Removed the unused `~/.cache/llama.cpp/old_qwen3.5-9b-q4_k_xl.gguf` (5,966,095,584 bytes), after checking host open files and memory maps. Kept the current Qwen model and referenced Hugging Face model cache. |
+| Prune unused container images | `podman image prune --all --force` removed eight images unused by any container. Image count fell from 14 to six; reported image size from 22.36 GB to 11.03 GB. All six containers, both running containers and all seven volumes remained. |
+
+Post-cleanup checks: `/health` and `/v1/models` returned HTTP 200 with valid JSON.
+Arda root PID 973416 remained active with zero restarts. Manwe PID 1189229 still
+ran SHA-256 `5e2190e9426804c5d63d3a9ab189948a26adddbca732d1b1a5d69c3cae2693d6`.
+Both mesh services remained inactive. Git refs and working-tree changes were
+unchanged; full Git integrity and commit-graph checks passed. The snapshot
+archive SHA-256 is `32e7d9893e8e8d654af6376fad6dc981d045f465b3807b427c64cebe3556dae6`.
+
+Retained deliberately: production histories (including the two malformed records
+for provenance), canonical databases, conversations, current model/browser
+installations, stopped containers with potentially useful writable state, volumes,
+active runtimes, and acceptance/rollback evidence. Remaining top-level allocated
+sizes were approximately 13 GiB in `~/.cache`, 11 GiB in `~/.hermes`, and 1.9 GiB
+in Arda `target/`. These are retained resources, not a claim that every remaining
+file is necessary forever. No recurring retention job or new production-history
+rotation policy was installed; the writer-owned retention follow-ups remain.
+
+Local receipts: `target/qualification/cleanup-20261007/`, including the deletion
+journal, checkpoint log, snapshot verification summary, before/after Git refs
+and working-tree status, final Git verification, and runtime/disk observations.
+Do not bulk-publish private evidence or the snapshot archive.

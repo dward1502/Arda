@@ -143,7 +143,7 @@ async fn resident_receipt_crash_child() {
         None => bound,
     };
     let executor = WorkbenchLeafExecution::with_adapter(&root,
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(&root, format!("http://{bound}")).unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(&root, format!("http://{bound}")).unwrap());
     if std::env::var("ARDA_RESIDENT_CRASH_POINT").as_deref() == Ok("before-context") {
         std::process::exit(74);
     }
@@ -194,7 +194,7 @@ async fn retry_limit_missing_run_fails_without_replanning_or_dispatch() {
     fs::rename(&run_path, root.path().join("withheld-fixture-run")).unwrap();
     let (bound, shutdown, handle) = start(&root).await;
     let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
     let mut runtime = ObjectiveRuntime::new(store, executor, "missing-run-recovery", 1, 100);
     assert!(runtime.run_round(621).await.is_err());
     assert_eq!(
@@ -224,7 +224,7 @@ async fn retry_limit_harness_outage_does_not_discard_completed_evidence() {
     assert_eq!(output.status.code(), Some(73));
     let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
     let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), "http://127.0.0.1:0").unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), "http://127.0.0.1:0").unwrap());
     let mut runtime = ObjectiveRuntime::new(store, executor, "offline-recovery", 1, 100);
     assert!(runtime.run_round(621).await.is_err());
     assert_eq!(
@@ -238,7 +238,7 @@ async fn retry_limit_harness_outage_does_not_discard_completed_evidence() {
     );
     let (bound, shutdown, handle) = start(&root).await;
     let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
     let mut runtime =
         ObjectiveRuntime::new(runtime.store().clone(), executor, "online-recovery", 1, 100);
     assert_eq!(runtime.run_round(722).await.unwrap().len(), 1);
@@ -275,7 +275,7 @@ async fn resident_reconciles_completed_run_at_retry_limit_without_dispatch() {
     let (bound, shutdown, handle) = start(&root).await;
     let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
     let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
     let mut runtime = ObjectiveRuntime::new(store, executor, "retry-limit-recovery", 1, 100);
     assert!(runtime.run_round(619).await.unwrap().is_empty());
     assert_eq!(runtime.run_round(621).await.unwrap().len(), 1);
@@ -431,7 +431,7 @@ async fn resident_recovers_intermediate_stage_process_interruptions() {
         let (bound, shutdown, handle) = start(&root).await;
         let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
         let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-            arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
+            arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
         let mut runtime =
             ObjectiveRuntime::new(store, executor, "intermediate-recovery", 1, 60_000);
         let recovered = runtime.run_round(221).await;
@@ -537,7 +537,7 @@ async fn resident_recovers_process_exit_before_initial_context_binding() {
     let (bound, shutdown, handle) = start(&root).await;
     let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
     let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
     let mut runtime = ObjectiveRuntime::new(store, executor, "pre-bind-recovery", 1, 60_000);
     assert_eq!(runtime.run_round(221).await.unwrap().len(), 1);
     assert_eq!(
@@ -587,7 +587,7 @@ async fn resident_unknown_context_binding_fails_closed() {
         .unwrap();
     let store = ObjectiveStore::open(path).unwrap();
     let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), "http://127.0.0.1:1").unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), "http://127.0.0.1:1").unwrap());
     let mut runtime = ObjectiveRuntime::new(store, executor, "unknown-binding", 1, 100);
     let error = runtime
         .run_round(221)
@@ -632,7 +632,7 @@ async fn verify_resident_projection_recovery(root: TempDir) {
     assert_eq!(claim.attempt, 2);
     let (bound, shutdown, handle) = start(&root).await;
     let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{bound}")).unwrap());
     let use_path = root.path().join("data/vaire/context_use_receipts.jsonl");
     let use_bytes = fs::read(&use_path).unwrap();
     let connection =

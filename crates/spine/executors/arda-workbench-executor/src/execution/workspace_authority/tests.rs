@@ -8,9 +8,10 @@ fn explicit_external_workspace_requires_matching_registered_contract() {
     let external = tempfile::tempdir().unwrap();
     let mut work = item(external.path());
     work.workspace_root = external.path().to_path_buf();
-    let mut contract: Value = serde_json::from_str(include_str!(
-        "../../../../../../../../../spec/project-contract/v1/examples/rust-project.json"
-    ))
+    let mut contract: Value = serde_json::from_str(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../../../spec/project-contract/v1/examples/rust-project.json"
+    )))
     .unwrap();
     work.project_id = contract["identity"]["project_id"].as_str().unwrap().into();
     contract["workspace"]["root"] = external.path().to_str().unwrap().into();

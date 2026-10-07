@@ -3,8 +3,8 @@ use super::runtime::{LeafExecution, LeafExecutionResult};
 use crate::adapters::{HermesExecutionReceipt, HermesReceiptStatus};
 use anyhow::{anyhow, bail, Context, Result};
 #[cfg(test)]
-use arda_aule::execution_contract::ExplicitRuntimeAdmission;
-use arda_aule::execution_contract::ExplicitWorkspaceAuthorization;
+use arda_workbench_executor::ExplicitRuntimeAdmission;
+use arda_workbench_executor::ExplicitWorkspaceAuthorization;
 
 /// Independent critic disposition produced by P0.6 challenge/review.
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -22,10 +22,6 @@ pub struct Criticism {
     pub findings: Vec<String>,
     pub evidence: Vec<String>,
 }
-use arda_aule::execution_contract::{
-    ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
-};
-use arda_aule::prometheus::autopilot::WorkbenchExecutionAdapter;
 use arda_core::capability_composition::{
     CompositionAuthorityClass, DataClass, EgressTarget, RoleKind,
 };
@@ -36,6 +32,10 @@ use arda_vaire::{
     ContextAssembly, ContextConsumer, ContextDisposition, ContextLineage, ContextObjective,
     ContextOutcomeInput, ContextOutcomeReceipt, ContextReturnContract, MnemosyneService,
     OrganismContext,
+};
+use arda_workbench_executor::WorkbenchExecutionAdapter;
+use arda_workbench_executor::{
+    ExplicitExecutionOutcome, ExplicitReceiptReference, ExplicitWorkbenchWorkItem,
 };
 use chrono::Utc;
 use futures::future::BoxFuture;
@@ -48,7 +48,7 @@ pub use recovery_authorization::RecoveryAuthorization;
 #[cfg(target_os = "linux")]
 pub use recovery_authorization::RecoveryProviderDispatch;
 
-pub use arda_aule::execution_contract::ExplicitWorkbenchExecution;
+pub use arda_workbench_executor::ExplicitWorkbenchExecution;
 
 #[derive(Clone, Debug)]
 pub struct WorkbenchLeafExecution<E = WorkbenchExecutionAdapter> {
@@ -912,7 +912,7 @@ mod tests {
             predecessor = Some(receipt.receipt_digest.clone());
             let path = receipt_root.join(format!("{stage}.json"));
             std::fs::write(&path, serde_json::to_vec_pretty(&receipt).unwrap()).unwrap();
-            references.push(arda_aule::execution_contract::ExplicitReceiptReference {
+            references.push(arda_workbench_executor::ExplicitReceiptReference {
                 stage: stage.into(),
                 digest: receipt.receipt_digest,
                 path: path.display().to_string(),

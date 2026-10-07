@@ -355,7 +355,7 @@ async fn retained_installed_restart_case(replacement: bool, interrupt_verify: bo
         .unwrap()
         .with_snapshot_admission(Arc::new(KeeperClient::new(socket.clone())));
     let executor = WorkbenchLeafExecution::with_adapter(&root,
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(&root, format!("http://{bound}")).unwrap());
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(&root, format!("http://{bound}")).unwrap());
     let mut resident =
         ObjectiveRuntime::new(store, executor.clone(), "retained-recovery", 1, 120_000);
     let recovered = resident

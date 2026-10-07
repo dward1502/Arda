@@ -79,7 +79,7 @@ See the [interactive M5 record](autonomous-task-completion/M5_VAIRE_CONTINUITY.m
 
 October 7 operator verdict: the demonstrated CLI process is accepted; see the
 [M5 verdict](autonomous-task-completion/M5_VAIRE_CONTINUITY.md#operator-verdict--october-7-2026).
-Continue forward at R05 execution/observability separation. Gate 1's
+R05 source separation is complete; continue at R06 provider/communication qualification. Gate 1's
 combined outcome and remaining M1/M2/M5 technical obligations remain open. Source
 findings still require remediation; real-project worker native-check execution
 and staging acceptance are not established by this bounded review.
@@ -110,14 +110,15 @@ R01 readiness repair and R02/R03 source qualification have recorded evidence bel
 R03 remains on its qualified branch; merging and required-check enforcement are
 separate actions. Today's bounded real-project source review and join are complete.
 M4 and its current resident M3 prerequisite are closed for the admitted bounded
-scope. The operator accepted the bounded M5 CLI workflow on October 7. Continue
-R05 execution/observability separation while retaining the parent plan's open
+scope. The operator accepted the bounded M5 CLI workflow on October 7. R05 source
+separation is qualified. Continue R06 provider/communication work, retaining the parent plan's open
 combined-scenario obligations under R04.
 Keep mesh-llm off and preserve both completed project runs and operator workspaces.
 
 Suggested next-session request:
 
-> Continue R05 execution/observability separation from its boundary map. Preserve
+> Continue R06 provider and communication qualification using the existing
+> provider convergence matrix and real transport evidence. Preserve
 > the accepted M5 CLI result, completed two-project objective and M3 correction
 > evidence. Keep the remaining combined-scenario obligations explicit, keep
 > mesh-llm off, and preserve both real project workspaces.
@@ -222,7 +223,7 @@ readiness timeouts return to R06 and its existing provider owner.
 - [x] **Priority P2; owners: Engine and Aule.** Map live callers, authority,
   persistence and feature requirements of the explicit Workbench adapter.
   Preserve behavior with meaningful boundary/recovery tests before changing it.
-- [ ] Establish a narrow execution contract and move implementation ownership out
+- [x] Establish a narrow execution contract and move implementation ownership out
   of observability where justified. Preserve Engine admission/workspace controls
   and receipts; retain metrics as observers. Do not simply rename a large module.
 
@@ -238,8 +239,18 @@ dependencies; the concrete trait implementation moved beside its adapter.
 Compatibility exports and admission behavior are preserved. Final qualification:
 391 Aule and 216 Engine library tests passed (9 ignored), 12 restart-continuity
 tests passed (5 ignored), and 3 contract-only tests passed; strict library Clippy
-and formatting passed. Concrete executor
-ownership still resides in Aule, so the second task and R05 exit gate remain open.
+and formatting passed. That first step retained concrete execution in Aule.
+
+October 7 executor extraction: `arda-workbench-executor` now owns explicit HTTP,
+reconciliation, Close and admission contracts. Legacy queue scheduling stays in
+Aule and consumes shared graph/receipt/project helpers. Engine imports the new
+executor directly and no longer requires Aule's `full-cli`. Dependency inspection
+shows the executor has no Aule, OpenTelemetry, Manwe or Varda dependency.
+Working-tree regression results: 364 Aule, 216 Engine, 27 executor and 12 restart
+tests passed (14 ignored); contract-only and compatibility tests each passed 3.
+Clippy/formatting passed. The exact staged source compiled separately and passed
+25 executor plus 3 contract tests. R05 is complete for source qualification;
+installed deployment and the R04 combined acceptance scenario remain separate.
 
 ### R06 Qualify providers and communication
 

@@ -139,6 +139,7 @@ dependencies = [
  "arda-outpost-protocol",
  "arda-vaire",
  "arda-varda",
+ "arda-workbench-executor",
  "async-trait",
  "axum 0.7.9",
  "base64 0.22.1",
@@ -245,6 +246,7 @@ dependencies = [
  "arda-rumil",
  "arda-vaire",
  "arda-varda",
+ "arda-workbench-executor",
  "async-stream",
  "axum 0.7.9",
  "chrono",
@@ -505,6 +507,25 @@ dependencies = [
  "tokio-stream",
  "tower",
  "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "arda-workbench-executor"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "arda-core",
+ "arda-orome",
+ "arda-vaire",
+ "chrono",
+ "futures",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "tokio",
  "uuid",
 ]
 

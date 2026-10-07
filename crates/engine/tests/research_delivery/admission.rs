@@ -310,8 +310,14 @@ pub(super) async fn exercise(
     for _ in 0..3 {
         // Reopen durable state and replace the resident executor between leaves.
         let store = ObjectiveStore::open(&db).unwrap();
-        let executor = WorkbenchLeafExecution::with_adapter(root.path(),
-            arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(root.path(), format!("http://{recovered_bound}")).unwrap());
+        let executor = WorkbenchLeafExecution::with_adapter(
+            root.path(),
+            arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(
+                root.path(),
+                format!("http://{recovered_bound}"),
+            )
+            .unwrap(),
+        );
         let mut runtime =
             ObjectiveRuntime::new(store, executor, "admitted-evidence-worker", 1, 60_000);
         let result = runtime

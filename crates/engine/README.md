@@ -33,6 +33,15 @@ validates and resolves the real service registry before `--once` exits.
 - Manwe proxy timeout: five seconds by default and explicitly owned by
   `HarnessState`.
 
+## Execution ownership
+
+ObjectiveStore owns objective/control/scheduling authority; RunStore owns durable
+run evidence. Engine consumes `arda-workbench-executor` directly for explicit
+execution and receipt reconciliation. Its Aule dependency supplies presence
+projections without enabling `full-cli`. Snapshot-keeper and maintenance modules
+continue to own retained execution; this source refactor does not qualify an
+installed deployment. See the [execution boundary map](../../docs/operations/workbench-execution-boundary.md).
+
 ## Verification
 
 The 2026-08-08 capability-registry gate passed formatting, the full 112-test

@@ -21,7 +21,13 @@ The default library surface is deliberately small:
 - `governance_metrics`: Prometheus rendering for governance snapshots;
 - `service`: readiness and observability briefs.
 
-`arda-aule` owns observability projection and durable coordination records. It does not own provider/model selection (Manwe), task execution (core executors), source memory (Vaire), or the governance decisions it observes (`arda-governance`).
+`arda-aule` owns observability projections and durable coordination records.
+Engine consumes the explicit adapter from `arda-workbench-executor`; Aule retains
+compatibility exports under `execution_contract` and `prometheus::autopilot`.
+Legacy queue scheduling and migration code remain here, using the executor's
+shared graph, receipt and project-binding helpers. Engine owns runtime/workspace
+admission, control and scheduling; RunStore owns run evidence. Aule projections
+do not grant execution authority.
 
 ## Governed task activation
 
@@ -42,6 +48,7 @@ Annunimas-era autopilot projections are not current evidence. They are archived 
 ## Features
 
 - Default / `--no-default-features`: the four stable library modules above.
+- `execution-contract`: compatibility exports of the executor-owned contracts.
 - `telemetry`: OpenTelemetry/tracing event, configuration, and shutdown surfaces. This is the feature consumed directly by Manwe.
 - `full-cli`: CEO/autonomy-profile and Prometheus/autopilot/service projections plus the `arda-cli` operator binary. It activates the concrete cross-crate contracts required by that closure.
 - `http`: implies `full-cli` and adds HTTP transport, node metrics, and the `arda-cli metrics` exporter/snapshot command.
@@ -50,7 +57,9 @@ All 77 `src/**/*.rs` files are compiled by one of these feature closures. There 
 
 ## Consumers and integration
 
-Direct Cargo consumer:
+Direct Cargo consumers:
+
+- Engine uses presence projections; it consumes execution directly from `arda-workbench-executor`.
 
 - Manwe enables `arda-aule/telemetry` and uses `arda_aule::telemetry` in daemon startup and adaptive service events.
 

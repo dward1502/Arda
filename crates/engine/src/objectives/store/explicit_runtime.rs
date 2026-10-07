@@ -1,6 +1,6 @@
 //! Mandatory Aule owner admission. Lifetime exclusion is not execution authority.
 use super::*;
-use arda_aule::execution_contract::{
+use arda_workbench_executor::{
     ExplicitRuntimeAdmission, ExplicitRuntimeLease, ExplicitWorkbenchWorkItem,
 };
 
@@ -50,7 +50,7 @@ mod tests {
 
     #[tokio::test]
     async fn explicit_runtime_lease_covers_http_await_and_releases_on_return_or_drop() {
-        use arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter;
+        use arda_workbench_executor::WorkbenchExecutionAdapter;
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
         struct Transfer(std::sync::Mutex<Option<ObjectiveStore>>);
         impl ExplicitRuntimeAdmission for Transfer {

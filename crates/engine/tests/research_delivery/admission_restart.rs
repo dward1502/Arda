@@ -57,8 +57,14 @@ async fn admitted_stage_crash_child() {
         serde_json::to_vec(&claim).unwrap(),
     )
     .unwrap();
-    let executor = WorkbenchLeafExecution::with_adapter(&root,
-        arda_aule::prometheus::autopilot::workbench_executor::WorkbenchExecutionAdapter::with_harness_url(&root, format!("http://{bound}")).unwrap());
+    let executor = WorkbenchLeafExecution::with_adapter(
+        &root,
+        arda_workbench_executor::WorkbenchExecutionAdapter::with_harness_url(
+            &root,
+            format!("http://{bound}"),
+        )
+        .unwrap(),
+    );
     let outcome = executor.execute(claim).await;
     panic!("crash boundary not reached: {outcome:?}");
 }

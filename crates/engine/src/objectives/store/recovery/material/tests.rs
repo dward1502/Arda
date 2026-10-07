@@ -296,7 +296,7 @@ fn recovery_material_reads_canonical_stores_and_rejects_drift() {
     );
     use crate::objectives::RecoveryAuthorization;
     let event_id = grant.authenticated_event_id.clone();
-    use arda_aule::prometheus::autopilot::workbench_executor::ExplicitWorkspaceAuthorization;
+    use arda_workbench_executor::ExplicitWorkspaceAuthorization;
     let authority = RecoveryAuthorization::new(
         root.to_owned(),
         store.clone(),

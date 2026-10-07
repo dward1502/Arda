@@ -48,6 +48,13 @@ including measured timeout and zero-call privacy refusal. These fixtures do not
 close canonical G2 or real-provider billing/retry evidence. Next trace P2/P3
 admission-to-placement-to-receipt bindings before the canonical budget matrix.
 
+The [admission/receipt verification](../operations/provider-authority-verification-2026-10-07.md)
+passed 31 adapter tests, seven broker/profile tests and one explicit retained-runtime
+admission test. P2/P3 remain open: actual routes are checked in flight but canonical
+receipts retain wrapper identity; unknown billing does not establish a spending cap.
+Next bind verified upstream route evidence into the existing typed receipt owner,
+then qualify cumulative budget/fallback authority without rewriting old receipts.
+
 ## Work checklist
 
 - [ ] P1 — Reconcile repository Manwë/fleet configuration, live catalog, installed

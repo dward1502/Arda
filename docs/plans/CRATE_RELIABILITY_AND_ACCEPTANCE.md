@@ -281,6 +281,12 @@ production health and local-only refusal checks pass. Canonical G2 remains open.
 Next trace admitted placement requirements and actual adapter receipts (P2/P3),
 then qualify canonical budget/privacy/fallback; preserve the current M3/M4/M5 evidence.
 
+The subsequent [P2/P3 verification](../operations/provider-authority-verification-2026-10-07.md)
+passed 39 executed tests across adapter, broker and retained admission. It found
+that upstream route attestation is not persisted in typed canonical receipts and
+unknown billing is not a proven spending cap. Next repair durable actual-route
+binding through the existing adapter/receipt owner; keep canonical G2 open.
+
 ### R07 Measure memory and research quality
 
 - [ ] **Priority P2; owners: Vaire and Varda.** Extend existing retrieval evaluation

@@ -536,6 +536,7 @@ fn critic_projection_uses_exact_execute_and_verify_receipts() {
                         test_evidence: Vec<CanonicalHermesTestEvidence>| {
         let mut receipt = CanonicalHermesExecutionReceipt {
             schema_version: "arda.execution-receipt.v3".into(),
+            inference_routes: None,
             receipt_digest: String::new(),
             authority_binding_digest: authority_binding_digest.into(),
             run_id: "run-review".into(),

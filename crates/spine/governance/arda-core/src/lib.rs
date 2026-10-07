@@ -12,6 +12,7 @@ pub mod error;
 pub mod external_capability;
 pub mod governance;
 pub mod governance_gates;
+pub mod inference_receipt;
 pub mod layout;
 pub mod learning;
 pub mod learning_adapter;

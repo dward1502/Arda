@@ -646,7 +646,7 @@ fn project_receipts(
                     canonical_path.display()
                 )
             })?;
-        if receipt.schema_version != "arda.execution-receipt.v3"
+        if !receipt.valid_route_evidence()
             || receipt.run_id != run_id
             || receipt.node_id != expected_name
             || receipt.receipt_digest != reference.digest
@@ -864,6 +864,7 @@ mod tests {
         {
             let mut receipt = HermesExecutionReceipt {
                 schema_version: "arda.execution-receipt.v3".into(),
+                inference_routes: None,
                 receipt_digest: String::new(),
                 authority_binding_digest: format!("sha256:{}", "b".repeat(64)),
                 run_id: run_id.into(),

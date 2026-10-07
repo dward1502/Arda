@@ -37,6 +37,10 @@ pub use retained::RecoveryDispatchGate;
 mod workspace;
 const RESULT_SCHEMA_VERSION: &str = "arda.hermes-job-result.v1";
 const RECEIPT_SCHEMA_VERSION: &str = "arda.execution-receipt.v3";
+const ATTESTED_RECEIPT_SCHEMA_VERSION: &str = "arda.execution-receipt.v4";
+pub use arda_core::inference_receipt::{
+    InferenceRouteEvidence, ObservedInferenceRoute, MAX_INFERENCE_ROUTES,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -264,6 +268,8 @@ pub struct HermesExecutionReceipt {
     pub test_evidence: Vec<HermesTestEvidence>,
     pub artifacts: Vec<HermesArtifactEvidence>,
     pub usage: NormalizedHermesUsage,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inference_routes: Option<InferenceRouteEvidence>,
     pub adapter: String,
     pub adapter_version: String,
     pub project_contract_digest: String,
@@ -280,6 +286,14 @@ pub struct HermesExecutionReceipt {
 }
 
 impl HermesExecutionReceipt {
+    pub fn valid_route_evidence(&self) -> bool {
+        arda_core::inference_receipt::valid_receipt_routes(
+            &self.schema_version,
+            self.usage.model.as_deref(),
+            self.inference_routes.as_ref(),
+        )
+    }
+
     /// Recompute the canonical digest from the typed receipt with the digest
     /// field cleared, matching receipt construction in [`HermesAdapter`].
     pub fn computed_digest(&self) -> Result<String, HermesAdapterError> {
@@ -289,10 +303,9 @@ impl HermesExecutionReceipt {
     }
 
     pub fn has_valid_digest(&self) -> Result<bool, HermesAdapterError> {
-        Ok(
-            is_sha256_digest(&self.receipt_digest)
-                && self.computed_digest()? == self.receipt_digest,
-        )
+        Ok(self.valid_route_evidence()
+            && is_sha256_digest(&self.receipt_digest)
+            && self.computed_digest()? == self.receipt_digest)
     }
 
     /// Project the normalized receipt into canonical run state. No Hermes
@@ -799,7 +812,7 @@ impl HermesAdapter {
         task: &HermesNodeTask,
         receipt: &HermesExecutionReceipt,
     ) -> Result<(), HermesAdapterError> {
-        if receipt.schema_version != RECEIPT_SCHEMA_VERSION {
+        if !receipt.valid_route_evidence() {
             return Err(HermesAdapterError::InvalidResult(format!(
                 "unsupported execution receipt schema {}",
                 receipt.schema_version
@@ -1000,7 +1013,12 @@ impl HermesAdapter {
             })
             .transpose()?;
         let mut receipt = HermesExecutionReceipt {
-            schema_version: RECEIPT_SCHEMA_VERSION.into(),
+            schema_version: if chat_output.inference_routes.is_some() {
+                ATTESTED_RECEIPT_SCHEMA_VERSION
+            } else {
+                RECEIPT_SCHEMA_VERSION
+            }
+            .into(),
             receipt_digest: String::new(),
             authority_binding_digest: task.authority_binding_digest()?,
             run_id: task.run_id.as_str().into(),
@@ -1012,6 +1030,7 @@ impl HermesAdapter {
             test_evidence,
             artifacts: result.artifacts,
             usage,
+            inference_routes: chat_output.inference_routes,
             adapter: "hermes-workbench".into(),
             adapter_version: self.config.adapter_version.clone(),
             project_contract_digest: task.project_contract_digest.clone(),
@@ -1031,6 +1050,11 @@ impl HermesAdapter {
             context_handoff,
             recorded_at_unix_ms,
         };
+        if !receipt.valid_route_evidence() {
+            return Err(HermesAdapterError::InvalidResult(
+                "invalid supervisor route evidence".into(),
+            ));
+        }
         receipt.receipt_digest = digest_serializable(&receipt)?;
         Ok(receipt)
     }
@@ -1270,6 +1294,7 @@ impl HermesAdapter {
 struct BoundedProcessOutput {
     stdout: Vec<u8>,
     stderr: Vec<u8>,
+    inference_routes: Option<InferenceRouteEvidence>,
 }
 
 async fn run_bounded(
@@ -1384,7 +1409,11 @@ async fn run_bounded_owned(
         }
     };
     if status.success() {
-        Ok(BoundedProcessOutput { stdout, stderr })
+        Ok(BoundedProcessOutput {
+            stdout,
+            stderr,
+            inference_routes: None,
+        })
     } else {
         Err(HermesAdapterError::ProcessFailed {
             code: status.code(),

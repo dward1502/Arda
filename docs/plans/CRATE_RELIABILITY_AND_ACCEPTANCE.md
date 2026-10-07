@@ -284,8 +284,11 @@ then qualify canonical budget/privacy/fallback; preserve the current M3/M4/M5 ev
 The subsequent [P2/P3 verification](../operations/provider-authority-verification-2026-10-07.md)
 passed 39 executed tests across adapter, broker and retained admission. It found
 that upstream route attestation is not persisted in typed canonical receipts and
-unknown billing is not a proven spending cap. Next repair durable actual-route
-binding through the existing adapter/receipt owner; keep canonical G2 open.
+unknown billing is not a proven spending cap. The subsequent
+[durable route receipt implementation](../operations/provider-route-receipts-2026-10-07.md)
+adds broker-owned evidence to versioned receipts while preserving historical
+digests. Installed Engine/worker rollout, live attested acceptance and the
+canonical budget/fallback gate remain open; keep canonical G2 open.
 
 ### R07 Measure memory and research quality
 

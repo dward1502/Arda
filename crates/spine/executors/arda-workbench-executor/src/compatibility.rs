@@ -68,6 +68,8 @@ pub struct CanonicalHermesExecutionReceipt {
     pub test_evidence: Vec<CanonicalHermesTestEvidence>,
     pub artifacts: Vec<CanonicalHermesArtifactEvidence>,
     pub usage: CanonicalHermesUsage,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inference_routes: Option<arda_core::inference_receipt::InferenceRouteEvidence>,
     pub adapter: String,
     pub adapter_version: String,
     pub project_contract_digest: String,
@@ -84,6 +86,14 @@ pub struct CanonicalHermesExecutionReceipt {
 }
 
 impl CanonicalHermesExecutionReceipt {
+    pub fn valid_route_evidence(&self) -> bool {
+        arda_core::inference_receipt::valid_receipt_routes(
+            &self.schema_version,
+            self.usage.model.as_deref(),
+            self.inference_routes.as_ref(),
+        )
+    }
+
     pub fn computed_digest(&self) -> Result<String> {
         let mut unsigned = self.clone();
         unsigned.receipt_digest.clear();
@@ -94,12 +104,13 @@ impl CanonicalHermesExecutionReceipt {
     }
 
     pub fn has_valid_digest(&self) -> Result<bool> {
-        Ok(self
-            .receipt_digest
-            .strip_prefix("sha256:")
-            .is_some_and(|value| {
-                value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
-            })
+        Ok(self.valid_route_evidence()
+            && self
+                .receipt_digest
+                .strip_prefix("sha256:")
+                .is_some_and(|value| {
+                    value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+                })
             && self.computed_digest()? == self.receipt_digest)
     }
 }
@@ -255,7 +266,7 @@ pub fn exact_pre_review_receipt(path: &Path, stage: &str, expected_digest: &str)
                 path.display()
             )
         })?;
-    if canonical.schema_version != "arda.execution-receipt.v3" {
+    if !canonical.valid_route_evidence() {
         return Err(anyhow!(
             "exact {stage} receipt uses unsupported schema `{}`",
             canonical.schema_version

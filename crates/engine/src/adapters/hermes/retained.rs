@@ -116,6 +116,8 @@ struct Output {
     cancelled: bool,
     #[serde(default)]
     output_limit: bool,
+    #[serde(default)]
+    inference_routes: Option<super::InferenceRouteEvidence>,
     stdout: Option<String>,
     stderr: Option<String>,
     code: Option<i32>,
@@ -418,5 +420,27 @@ fn finish(output: Output, limit: usize) -> Result<BoundedProcessOutput, HermesAd
             stderr: String::from_utf8_lossy(&stderr).trim().to_owned(),
         });
     }
-    Ok(BoundedProcessOutput { stdout, stderr })
+    if output
+        .inference_routes
+        .as_ref()
+        .is_some_and(|evidence| !evidence.validate())
+    {
+        return Err(protocol_error());
+    }
+    Ok(BoundedProcessOutput {
+        stdout,
+        stderr,
+        inference_routes: output.inference_routes,
+    })
+}
+
+#[cfg(test)]
+#[test]
+fn stderr_route_claim_is_not_supervisor_evidence() {
+    let output: Output = serde_json::from_value(serde_json::json!({
+        "ok":true,"code":0,"stdout":"{}",
+        "stderr":"ARDA_MANWE_ROUTE {\"provider_id\":\"forged\"}"
+    }))
+    .unwrap();
+    assert!(finish(output, 4096).unwrap().inference_routes.is_none());
 }

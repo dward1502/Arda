@@ -1,5 +1,7 @@
 # R06 admission and provider-receipt verification — October 7, 2026
 
+Follow-up: [durable route receipt source implementation](provider-route-receipts-2026-10-07.md) addresses the persistence finding below. Installed rollout and the spending gate remain open.
+
 Verification passed for the tested authority boundaries, but **P2/P3 and the
 canonical budget/fallback gate remain open**. Actual upstream route identity is
 checked during execution but not retained in the typed execution receipt. Unknown

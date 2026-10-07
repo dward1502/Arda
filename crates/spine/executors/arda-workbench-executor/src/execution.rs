@@ -615,6 +615,7 @@ fn canonical_explicit_close_receipt(
     );
     let mut receipt = CanonicalHermesExecutionReceipt {
         schema_version: "arda.execution-receipt.v3".into(),
+        inference_routes: None,
         receipt_digest: String::new(),
         authority_binding_digest,
         run_id: item.run_id.clone(),

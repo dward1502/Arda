@@ -11,6 +11,7 @@ const REQUEST_LIMIT: usize = 2_097_152;
 const RESPONSE_LIMIT: usize = 8_388_608;
 
 pub struct Broker {
+    routes: attestation::RouteLog,
     failure: std::sync::Arc<std::sync::Mutex<Option<&'static str>>>,
     stop: Option<tokio::sync::oneshot::Sender<()>>,
     thread: Option<JoinHandle<()>>,
@@ -41,6 +42,10 @@ impl Broker {
         }
         let profile: Value = serde_json::from_slice(&raw)?;
         let policy = Policy::from_profile(&profile)?;
+        use sha2::{Digest, Sha256};
+        let routes =
+            attestation::RouteLog::new(format!("sha256:{:x}", Sha256::digest(&raw)), &policy);
+        let captured_routes = routes.clone();
         let (host, payload) = UnixStream::pair()?;
         host.set_nonblocking(true)?;
         let (stop, stopped) = tokio::sync::oneshot::channel();
@@ -60,7 +65,7 @@ impl Broker {
                     tokio::select! {
                         _ = stopped => {},
                         _ = tokio::time::sleep_until(deadline.into()) => {},
-                        result = serve(host, policy) => {
+                        result = serve(host, policy, captured_routes) => {
                             if let Err(error) = result {
                                 let phase = if let Some(error) = error.downcast_ref::<reqwest::Error>() {
                                     if error.is_builder() { "http_client_init" } else { "http_transport" }
@@ -86,12 +91,16 @@ impl Broker {
             })?;
         Ok((
             Self {
+                routes,
                 failure,
                 stop: Some(stop),
                 thread: Some(thread),
             },
             payload,
         ))
+    }
+    pub fn evidence(&self) -> arda_engine::adapters::InferenceRouteEvidence {
+        self.routes.snapshot()
     }
     pub fn failure(&self) -> Option<&'static str> {
         *self.failure.lock().unwrap()
@@ -191,12 +200,31 @@ impl Policy {
         Ok(body)
     }
 }
+#[path = "inference_attestation.rs"]
+mod attestation;
 
-async fn serve(host: UnixStream, policy: Policy) -> Result<()> {
-    serve_at(host, policy, "http://127.0.0.1:7171/v1/chat/completions").await
+async fn serve(host: UnixStream, policy: Policy, routes: attestation::RouteLog) -> Result<()> {
+    serve_at_with_routes(
+        host,
+        policy,
+        "http://127.0.0.1:7171/v1/chat/completions",
+        routes,
+    )
+    .await
 }
 
+#[cfg(test)]
 async fn serve_at(host: UnixStream, policy: Policy, endpoint: &str) -> Result<()> {
+    let routes = attestation::RouteLog::new(format!("sha256:{}", "0".repeat(64)), &policy);
+    serve_at_with_routes(host, policy, endpoint, routes).await
+}
+
+async fn serve_at_with_routes(
+    host: UnixStream,
+    policy: Policy,
+    endpoint: &str,
+    routes: attestation::RouteLog,
+) -> Result<()> {
     let mut channel = tokio::net::UnixStream::from_std(host)?;
     let client = reqwest::Client::builder()
         .no_proxy()
@@ -210,6 +238,7 @@ async fn serve_at(host: UnixStream, policy: Policy, endpoint: &str) -> Result<()
         let mut raw = vec![0; size];
         channel.read_exact(&mut raw).await?;
         let body = policy.request(&raw).context("broker_body_policy")?;
+        routes.ensure_capacity()?;
         let mut response = client.post(endpoint).json(&body).send().await?;
         if !response.status().is_success() {
             let status = response.status().as_u16();
@@ -223,28 +252,7 @@ async fn serve_at(host: UnixStream, policy: Policy, endpoint: &str) -> Result<()
             channel.write_all(&out).await?;
             continue;
         }
-        let mut headers = serde_json::Map::new();
-        for key in ["route-id", "provider-id", "model-id", "route-class"] {
-            let name = format!("x-manwe-{key}");
-            let value = response
-                .headers()
-                .get(&name)
-                .context("missing route evidence")?
-                .to_str()?;
-            if value.is_empty()
-                || value.len() > 256
-                || !value.bytes().all(|b| (32..127).contains(&b))
-            {
-                bail!("malformed route evidence");
-            }
-            if (key == "provider-id" && value != policy.provider)
-                || (key == "model-id" && value != policy.model)
-                || (key == "route-class" && value != "tool_oriented")
-            {
-                bail!("unapproved inference route");
-            }
-            headers.insert(name, json!(value));
-        }
+        let mut headers = attestation::verified_headers(&response, &policy)?;
         if let Some(kind) = response.headers().get("content-type") {
             headers.insert("content-type".into(), json!(kind.to_str()?));
         }
@@ -261,6 +269,7 @@ async fn serve_at(host: UnixStream, policy: Policy, endpoint: &str) -> Result<()
         if frame.len() > 16_777_216 {
             bail!("broker serialized response exceeds bound");
         }
+        routes.record(&headers)?;
         channel.write_u32(frame.len() as u32).await?;
         channel.write_all(&frame).await?;
     }
@@ -292,8 +301,10 @@ mod tests {
             payload.set_nonblocking(true).unwrap();
             let mut payload = tokio::net::UnixStream::from_std(payload).unwrap();
             let (stop, stopped) = tokio::sync::oneshot::channel::<()>();
+            let routes = attestation::RouteLog::new(format!("sha256:{}", "1".repeat(64)), &policy);
+            let observed = routes.clone();
             let task = tokio::spawn(async move {
-                tokio::select! { _ = stopped => {}, result = serve_at(host, policy, &endpoint) => { result.unwrap(); } }
+                tokio::select! { _ = stopped => {}, result = serve_at_with_routes(host, policy, &endpoint, routes) => { result.unwrap(); } }
             });
             let request =
                 serde_json::to_vec(&json!({"model":"fixture-model","messages":[]})).unwrap();
@@ -361,6 +372,12 @@ mod tests {
                 0
             );
             assert_eq!(payload.read(&mut [0; 1]).await.unwrap(), 0);
+            let evidence = observed.snapshot();
+            assert_eq!(evidence.routes.len(), usize::from(!cancel && status == 200));
+            if !evidence.routes.is_empty() {
+                assert!(evidence.validate());
+                assert_eq!(evidence.routes[0].route_id, "fixture");
+            }
         }
     }
     #[test]

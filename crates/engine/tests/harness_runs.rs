@@ -712,6 +712,7 @@ fn stored_review_receipt(
     };
     let mut receipt = HermesExecutionReceipt {
         schema_version: "arda.execution-receipt.v3".into(),
+        inference_routes: None,
         receipt_digest: String::new(),
         authority_binding_digest: task
             .authority_binding_digest()

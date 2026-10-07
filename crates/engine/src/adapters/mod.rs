@@ -24,7 +24,8 @@ pub use company::{
 pub use hermes::{
     CostMeasurement, HermesAdapter, HermesAdapterConfig, HermesAdapterError,
     HermesArtifactEvidence, HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus,
-    HermesTestEvidence, HermesToolEvidence, HermesToolsets, NormalizedHermesUsage,
+    HermesTestEvidence, HermesToolEvidence, HermesToolsets, InferenceRouteEvidence,
+    NormalizedHermesUsage, ObservedInferenceRoute, MAX_INFERENCE_ROUTES,
 };
 pub use homeostasis::{
     evaluate_conservation, synthesize_health, AttemptState, AuthorityEnvelope,

@@ -260,6 +260,12 @@ pub(super) fn start(
                             "timed_out": false,
                             "cancelled": false,
                             "output_limit": false,
+                            "inference_routes": {
+                                "profile_digest": format!("sha256:{}", "1".repeat(64)),
+                                "selected_provider": "fixture-provider",
+                                "selected_model": "fixture-model",
+                                "routes": [{"route_id":"fixture-route", "provider_id":"fixture-provider", "model_id":"fixture-model", "route_class":"tool_oriented"}]
+                            },
                             "stdout": String::from_utf8(output.stdout).unwrap(),
                             "stderr": "",
                             "code": 0,
@@ -349,6 +355,12 @@ pub(super) fn start(
                             "timed_out": false,
                             "cancelled": false,
                             "output_limit": false,
+                            "inference_routes": {
+                                "profile_digest": format!("sha256:{}", "1".repeat(64)),
+                                "selected_provider": "fixture-provider",
+                                "selected_model": "fixture-model",
+                                "routes": [{"route_id":"fixture-route", "provider_id":"fixture-provider", "model_id":"fixture-model", "route_class":"tool_oriented"}]
+                            },
                             "stdout": String::from_utf8(output.stdout).unwrap(),
                             "stderr": "",
                             "code": 0,

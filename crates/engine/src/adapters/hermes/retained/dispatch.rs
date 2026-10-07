@@ -100,7 +100,7 @@ pub(in crate::adapters::hermes) async fn invoke(
         operation.validate().map_err(|_| {
             HermesAdapterError::InvalidTask("invalid typed runtime operation".into())
         })?;
-        execute_inner(
+        let output = execute_inner(
             binding,
             legacy_argv,
             environment,
@@ -113,7 +113,13 @@ pub(in crate::adapters::hermes) async fn invoke(
             Some(operation.clone()),
             gate.map(|gate| (gate, &operation)),
         )
-        .await
+        .await?;
+        if matches!(operation, RuntimeOperation::Chat { .. }) && output.inference_routes.is_none() {
+            return Err(HermesAdapterError::InvalidResult(
+                "configured chat omitted supervisor route evidence; reconciliation required".into(),
+            ));
+        }
+        Ok(output)
     } else {
         let mut legacy_argv = legacy_argv;
         let executable = legacy_argv

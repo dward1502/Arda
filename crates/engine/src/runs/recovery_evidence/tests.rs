@@ -14,7 +14,7 @@ pub(crate) fn fixture() -> (
     let temp = tempfile::tempdir().unwrap();
     let digest = format!("sha256:{}", "a".repeat(64));
     let mut receipt: HermesExecutionReceipt = serde_json::from_value(json!({
-        "schema_version":"arda.hermes.execution-receipt.v1", "receipt_digest":"",
+        "schema_version":"arda.execution-receipt.v3", "receipt_digest":"",
         "authority_binding_digest":digest, "run_id":"recovery-evidence-fixture", "node_id":"execute",
         "idempotency_key":"execute-key", "status":"succeeded", "summary":"synthetic test receipt",
         "tool_evidence":[],"test_evidence":[],"artifacts":[],

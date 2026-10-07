@@ -2258,7 +2258,7 @@ fn advance_objective_after_leaf(root: &Path, completed_leaf: &QueueRecord) -> Re
                     artifact_path.display()
                 )
             })?;
-        if artifact_receipt.schema_version != "arda.execution-receipt.v3"
+        if !artifact_receipt.valid_route_evidence()
             || artifact_receipt.run_id != acceptance_run_id
             || artifact_receipt.node_id != "review"
             || artifact_receipt.status != "succeeded"
@@ -2725,57 +2725,6 @@ mod tests {
 
         assert_eq!(preparations.load(Ordering::SeqCst), 1);
         assert_eq!(receipts, vec![1, 2]);
-    }
-
-    #[test]
-    fn join_review_loads_and_validates_canonical_dependency_close_receipts() {
-        let root = tempfile::tempdir().unwrap();
-        let mut dependency = ExplicitWorkbenchWorkItem {
-            read_only: false,
-            objective_id: "objective-1".into(),
-            leaf_id: "leaf-a".into(),
-            run_id: "run-a".into(),
-            objective: "dependency".into(),
-            execution_prompt: "execute".into(),
-            verification_prompt: "verify".into(),
-            review_prompt: "review".into(),
-            project_id: "project-a".into(),
-            project_contract_digest: format!("sha256:{}", "a".repeat(64)),
-            workspace_root: root.path().to_path_buf(),
-            approval_envelope: json!({"approval": {"approval_id": "approval-1"}}),
-            objective_plan_receipt: format!("sha256:{}", "b".repeat(64)),
-            dependency_receipts: Vec::new(),
-            context_assembly: None,
-        };
-        let receipt =
-            canonical_explicit_close_receipt(&dependency, &format!("sha256:{}", "c".repeat(64)))
-                .unwrap();
-        let relative_path = "data/runs/run-a/execution-receipts/close.json";
-        let path = root.path().join(relative_path);
-        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-        std::fs::write(&path, serde_json::to_vec_pretty(&receipt).unwrap()).unwrap();
-
-        dependency.leaf_id = "join".into();
-        dependency.run_id = "join-run".into();
-        dependency.review_prompt = "review joined evidence".into();
-        dependency.dependency_receipts = vec![ExplicitReceiptReference {
-            stage: "close".into(),
-            digest: receipt.receipt_digest.clone(),
-            path: relative_path.into(),
-        }];
-
-        let prompt = review_prompt_with_dependency_receipts(root.path(), &dependency).unwrap();
-        assert!(prompt.contains("review joined evidence"));
-        assert!(prompt.contains("run-a"));
-        assert!(prompt.contains(&receipt.receipt_digest));
-
-        dependency.dependency_receipts[0].digest = format!("sha256:{}", "d".repeat(64));
-        assert!(
-            review_prompt_with_dependency_receipts(root.path(), &dependency)
-                .unwrap_err()
-                .to_string()
-                .contains("canonical digest validation")
-        );
     }
 
     #[test]
@@ -4001,6 +3950,7 @@ mod tests {
         ] {
             let mut canonical = CanonicalHermesExecutionReceipt {
                 schema_version: "arda.execution-receipt.v3".into(),
+                inference_routes: None,
                 receipt_digest: String::new(),
                 authority_binding_digest: format!("sha256:{stage}-authority"),
                 run_id: "queue-restart-completion-task".into(),

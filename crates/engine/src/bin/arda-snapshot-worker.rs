@@ -375,6 +375,7 @@ fn execute(
     Ok(
         serde_json::json!({"ok": true, "timed_out": timed_out, "cancelled": cancelled,
         "output_limit": stdout.overflow || stderr.overflow,
+        "inference_routes": broker.as_ref().map(|broker| broker.evidence()),
         "stdout": String::from_utf8_lossy(&stdout.bytes),
         "stderr": format!("{}{}", String::from_utf8_lossy(&stderr.bytes), broker.as_ref().and_then(|b| b.failure()).map(|phase| format!("\ninference broker stopped: phase={phase}\n")).unwrap_or_default()), "code": status.code()}),
     )

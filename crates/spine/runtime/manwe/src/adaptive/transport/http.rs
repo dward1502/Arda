@@ -183,49 +183,14 @@ async fn status(State(service): State<ManweService>) -> impl IntoResponse {
 }
 
 async fn health(State(service): State<ManweService>) -> impl IntoResponse {
-    match service.status().await {
-        Ok(status) => {
-            let blocked = status.providers_total.saturating_sub(
-                status
-                    .provider_state_counts
-                    .get("ready")
-                    .copied()
-                    .unwrap_or(0)
-                    + status
-                        .provider_state_counts
-                        .get("degraded")
-                        .copied()
-                        .unwrap_or(0),
-            );
-            let http_status = if status.providers_enabled > 0 && status.providers_healthy > 0 {
+    match service.health_snapshot().await {
+        Ok(snapshot) => {
+            let status = if snapshot["ok"] == true {
                 StatusCode::OK
             } else {
                 StatusCode::SERVICE_UNAVAILABLE
             };
-            (
-                http_status,
-                Json(json!({
-                    "ok": http_status == StatusCode::OK,
-                    "service": "manwe",
-                    "providers_total": status.providers_total,
-                    "providers_enabled": status.providers_enabled,
-                    "providers_healthy": status.providers_healthy,
-                    "providers_ready": status.providers_ready,
-                    "providers_blocked": blocked,
-                    "provider_state_counts": status.provider_state_counts,
-                    "recent_route_failures": status.recent_route_failures,
-                    "recent_route_successes": status.recent_route_successes,
-                    "capability_summary": status.capability_summary,
-                    "budget_pressure": status.budget_pressure,
-                    "route_guardrails": status.route_guardrails,
-                    "alerts": status.alerts,
-                    "config_source": status.config_source,
-                    "config_path": status.config_path,
-                    "bootstrap_state_path": status.bootstrap_state_path,
-                    "catalog_generation": status.catalog_generation,
-                })),
-            )
-                .into_response()
+            (status, Json(snapshot)).into_response()
         }
         Err(err) => (
             StatusCode::SERVICE_UNAVAILABLE,
@@ -3008,6 +2973,54 @@ mod tests {
     use tempfile::tempdir;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[tokio::test]
+    async fn health_uses_bounded_history_without_running_full_diagnostics() {
+        use axum::response::IntoResponse;
+        let root = tempdir().unwrap();
+        let service = ManweService::new(root.path()).unwrap();
+        let mut history = vec![b'x'; 1024 * 1024];
+        history
+            .extend_from_slice(b"\n{\"event\":\"route_selected\"}\n{\"event\":\"route_failed\"}\n");
+        fs::write(root.path().join("state.jsonl"), &history).unwrap();
+        fs::write(
+            root.path().join("governance_events.jsonl"),
+            "invalid archived event\n",
+        )
+        .unwrap();
+        let providers = service.providers().await;
+        let expected_healthy = providers
+            .iter()
+            .filter(|p| p.healthy && p.enabled && p.has_api_key && !p.in_cooldown)
+            .count();
+        let response = super::health(State(service.clone())).await.into_response();
+        assert_eq!(
+            response.status(),
+            if expected_healthy > 0 {
+                StatusCode::OK
+            } else {
+                StatusCode::SERVICE_UNAVAILABLE
+            }
+        );
+        let value: Value =
+            serde_json::from_slice(&to_bytes(response.into_body(), 1024 * 1024).await.unwrap())
+                .unwrap();
+        assert_eq!(value["providers_total"], providers.len());
+        assert_eq!(value["providers_healthy"], expected_healthy);
+        assert_eq!(value["recent_route_successes"], 1);
+        assert_eq!(value["recent_route_failures"], 1);
+        assert_eq!(value["recent_event_sample_complete"], false);
+        assert_eq!(value["recent_event_sample_limit"], 48);
+        assert!(
+            !root.path().join("package_runtime_signals.json").exists(),
+            "health must not run external package probes or write their diagnostics"
+        );
+        assert_eq!(fs::read(root.path().join("state.jsonl")).unwrap(), history);
+        assert_eq!(
+            fs::read_to_string(root.path().join("governance_events.jsonl")).unwrap(),
+            "invalid archived event\n"
+        );
+    }
 
     #[test]
     fn mutation_authorization_requires_exact_bearer_secret() {

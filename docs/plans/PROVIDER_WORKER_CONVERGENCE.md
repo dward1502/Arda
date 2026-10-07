@@ -28,6 +28,16 @@ matrix below. Old provider counts, the retired queue-executor route, port 5110
 claims and billing/health snapshots are not current runtime truth. Inspect only
 redacted configuration and observed route metadata before the next change.
 
+## October 7 qualification
+
+Initial R06 reconciliation and the [qualification matrix](../operations/provider-qualification-2026-10-07.md)
+record 22 configured providers, eight enabled, repeated installed health/catalog
+timeouts and three Hermes auxiliary routes pointing at the unserved port 5110.
+The health/diagnostic boundary repair passed 303 source tests and an isolated
+large-history process check. It has not been installed. P1 remains partial and
+the canonical G2 gates remain open; next qualify the installed repair, reconcile
+the auxiliary route configuration and collect pinned-route execution evidence.
+
 ## Work checklist
 
 - [ ] P1 — Reconcile repository Manwë/fleet configuration, live catalog, installed

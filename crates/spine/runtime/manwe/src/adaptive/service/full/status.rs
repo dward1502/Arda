@@ -1,9 +1,9 @@
 use super::capabilities::ProviderCapabilitySummary;
+use super::runtime_state::refresh_provider_windows;
 use super::{
     bootstrap::collect_package_runtime_signals, count_malformed_jsonl, read_recent_jsonl,
     runtime_build_cache_autorun_enabled, runtime_build_cache_command_args,
-    runtime_build_cache_command_program, runtime_build_cache_state_path,
-    runtime_state::refresh_provider_windows, CharonService,
+    runtime_build_cache_command_program, runtime_build_cache_state_path, CharonService,
 };
 use crate::adaptive::types::ProviderState;
 use arda_core::error::Result;
@@ -124,89 +124,156 @@ pub(super) struct RuntimeBuildCacheSignals {
 }
 
 impl CharonService {
-    pub async fn status(&self) -> Result<ManweStatus> {
+    async fn status_inputs(&self) -> (Vec<ProviderState>, String, u64) {
+        // Reload takes locks in this order too. Retain one catalog generation,
+        // then release both locks before any disk read or diagnostic process.
         let mut providers = self.providers.write().await;
         refresh_provider_windows(&mut providers, Utc::now());
-        let recent_events = read_recent_jsonl(&self.state_path, 48);
-        let package_runtime = self.read_package_runtime_signals();
-        let build_cache = self.read_runtime_build_cache_signals();
-        let providers_total = providers.len();
-        let providers_enabled = providers.iter().filter(|p| p.enabled).count();
-        let providers_ready = provider_ready_count(&providers, Utc::now());
-        let providers_healthy = providers
+        let source = self.config_source.read().await.clone();
+        let generation = self.catalog_generation.load(Ordering::Relaxed);
+        (providers.clone(), source, generation)
+    }
+
+    pub async fn health_snapshot(&self) -> Result<serde_json::Value> {
+        let (providers, config_source, catalog_generation) = self.status_inputs().await;
+        let path = self.state_path.clone();
+        let (events, complete) = tokio::task::spawn_blocking(move || {
+            super::state_io::read_recent_jsonl_bounded(&path, 48, 256 * 1024)
+        })
+        .await
+        .map_err(|error| arda_core::error::ArdaError::Agent {
+            agent: "manwe".into(),
+            message: format!("health event sample failed: {error}"),
+        })?;
+        let enabled = providers.iter().filter(|p| p.enabled).count();
+        let healthy = providers
             .iter()
             .filter(|p| p.healthy && p.enabled && p.has_api_key && !p.in_cooldown)
             .count();
-        let providers_degraded = providers
-            .iter()
-            .filter(|p| p.consecutive_failures >= 2 || p.error_count >= 5)
-            .count();
-        let providers_exhausted = providers
-            .iter()
-            .filter(|p| {
-                p.requests_per_day
-                    .is_some_and(|max| p.requests_used_day >= max)
+        let states = provider_state_counts(&providers, Utc::now());
+        let blocked = providers.len().saturating_sub(
+            states.get("ready").copied().unwrap_or(0)
+                + states.get("degraded").copied().unwrap_or(0),
+        );
+        let budget = build_budget_pressure_summary(&providers);
+        let count = |kind: &str| events.iter().filter(|v| v["event"] == kind).count();
+        Ok(serde_json::json!({
+            "ok": enabled > 0 && healthy > 0,
+            "service": "manwe",
+            "providers_total": providers.len(),
+            "providers_enabled": enabled,
+            "providers_healthy": healthy,
+            "providers_ready": provider_ready_count(&providers, Utc::now()),
+            "providers_blocked": blocked,
+            "provider_state_counts": states,
+            "recent_route_failures": count("route_failed"),
+            "recent_route_successes": count("route_selected"),
+            "recent_event_sample_complete": complete,
+            "recent_event_sample_limit": 48,
+            "capability_summary": self.provider_capability_summary(&providers),
+            "alerts": build_budget_alerts(&budget),
+            "budget_pressure": budget,
+            "route_guardrails": build_route_guardrail_summary(&providers),
+            "config_source": config_source,
+            "config_path": self.config_path,
+            "bootstrap_state_path": self.bootstrap_state_path,
+            "catalog_generation": catalog_generation,
+        }))
+    }
+
+    pub async fn status(&self) -> Result<ManweStatus> {
+        // Snapshot routing state before any ledger I/O or external diagnostics.
+        let (providers, config_source, catalog_generation) = self.status_inputs().await;
+        let service = self.clone();
+        tokio::task::spawn_blocking(move || {
+            let recent_events = read_recent_jsonl(&service.state_path, 48);
+            let package_runtime = service.read_package_runtime_signals();
+            let build_cache = service.read_runtime_build_cache_signals();
+            let providers_total = providers.len();
+            let providers_enabled = providers.iter().filter(|p| p.enabled).count();
+            let providers_ready = provider_ready_count(&providers, Utc::now());
+            let providers_healthy = providers
+                .iter()
+                .filter(|p| p.healthy && p.enabled && p.has_api_key && !p.in_cooldown)
+                .count();
+            let providers_degraded = providers
+                .iter()
+                .filter(|p| p.consecutive_failures >= 2 || p.error_count >= 5)
+                .count();
+            let providers_exhausted = providers
+                .iter()
+                .filter(|p| {
+                    p.requests_per_day
+                        .is_some_and(|max| p.requests_used_day >= max)
+                })
+                .count();
+            let providers_in_cooldown = providers.iter().filter(|p| p.in_cooldown).count();
+            let provider_state_counts = provider_state_counts(&providers, Utc::now());
+            let recent_route_failures = recent_events
+                .iter()
+                .filter(|value| value.get("event").and_then(|v| v.as_str()) == Some("route_failed"))
+                .count();
+            let recent_route_successes = recent_events
+                .iter()
+                .filter(|value| {
+                    value.get("event").and_then(|v| v.as_str()) == Some("route_selected")
+                })
+                .count();
+            let recent_local_fallback_routes = recent_events
+                .iter()
+                .filter(|value| {
+                    value.get("event").and_then(|v| v.as_str()) == Some("route_selected")
+                        && value
+                            .get("payload")
+                            .and_then(|v| v.get("provider_id"))
+                            .and_then(|v| v.as_str())
+                            == Some("local_fallback")
+                })
+                .count();
+            let budget_pressure = build_budget_pressure_summary(&providers);
+            let capability_summary = service.provider_capability_summary(&providers);
+            let route_guardrails = build_route_guardrail_summary(&providers);
+            let alerts = build_budget_alerts(&budget_pressure);
+            Ok(ManweStatus {
+                manwe_version: "0.1.0".to_string(),
+                providers_total,
+                providers_enabled,
+                providers_ready,
+                providers_healthy,
+                providers_exhausted,
+                providers_degraded,
+                providers_in_cooldown,
+                provider_state_counts,
+                malformed_state_events: count_malformed_jsonl(&service.state_path),
+                malformed_governance_events: count_malformed_jsonl(&service.governance_events_path),
+                recent_route_failures,
+                recent_route_successes,
+                recent_local_fallback_routes,
+                capability_summary,
+                budget_pressure,
+                route_guardrails,
+                alerts,
+                llmfit_backend: package_runtime.llmfit_backend,
+                llmfit_recommendation_count: package_runtime.llmfit_recommendation_count,
+                nanoclaw_runtime_ready: package_runtime.nanoclaw_runtime_ready,
+                nanoclaw_probe_state: package_runtime.nanoclaw_probe_state,
+                runtime_build_cache_status: build_cache.status,
+                runtime_build_cache_observed_bytes: build_cache.observed_bytes,
+                runtime_build_cache_removed_bytes: build_cache.removed_bytes,
+                state_path: service.state_path.display().to_string(),
+                governance_events_path: service.governance_events_path.display().to_string(),
+                socket_path: service.socket_path.display().to_string(),
+                config_path: service.config_path.display().to_string(),
+                config_source,
+                bootstrap_state_path: service.bootstrap_state_path.display().to_string(),
+                catalog_generation,
             })
-            .count();
-        let providers_in_cooldown = providers.iter().filter(|p| p.in_cooldown).count();
-        let provider_state_counts = provider_state_counts(&providers, Utc::now());
-        let recent_route_failures = recent_events
-            .iter()
-            .filter(|value| value.get("event").and_then(|v| v.as_str()) == Some("route_failed"))
-            .count();
-        let recent_route_successes = recent_events
-            .iter()
-            .filter(|value| value.get("event").and_then(|v| v.as_str()) == Some("route_selected"))
-            .count();
-        let recent_local_fallback_routes = recent_events
-            .iter()
-            .filter(|value| {
-                value.get("event").and_then(|v| v.as_str()) == Some("route_selected")
-                    && value
-                        .get("payload")
-                        .and_then(|v| v.get("provider_id"))
-                        .and_then(|v| v.as_str())
-                        == Some("local_fallback")
-            })
-            .count();
-        let budget_pressure = build_budget_pressure_summary(&providers);
-        let capability_summary = self.provider_capability_summary(&providers);
-        let route_guardrails = build_route_guardrail_summary(&providers);
-        let alerts = build_budget_alerts(&budget_pressure);
-        Ok(ManweStatus {
-            manwe_version: "0.1.0".to_string(),
-            providers_total,
-            providers_enabled,
-            providers_ready,
-            providers_healthy,
-            providers_exhausted,
-            providers_degraded,
-            providers_in_cooldown,
-            provider_state_counts,
-            malformed_state_events: count_malformed_jsonl(&self.state_path),
-            malformed_governance_events: count_malformed_jsonl(&self.governance_events_path),
-            recent_route_failures,
-            recent_route_successes,
-            recent_local_fallback_routes,
-            capability_summary,
-            budget_pressure,
-            route_guardrails,
-            alerts,
-            llmfit_backend: package_runtime.llmfit_backend,
-            llmfit_recommendation_count: package_runtime.llmfit_recommendation_count,
-            nanoclaw_runtime_ready: package_runtime.nanoclaw_runtime_ready,
-            nanoclaw_probe_state: package_runtime.nanoclaw_probe_state,
-            runtime_build_cache_status: build_cache.status,
-            runtime_build_cache_observed_bytes: build_cache.observed_bytes,
-            runtime_build_cache_removed_bytes: build_cache.removed_bytes,
-            state_path: self.state_path.display().to_string(),
-            governance_events_path: self.governance_events_path.display().to_string(),
-            socket_path: self.socket_path.display().to_string(),
-            config_path: self.config_path.display().to_string(),
-            config_source: self.config_source.read().await.clone(),
-            bootstrap_state_path: self.bootstrap_state_path.display().to_string(),
-            catalog_generation: self.catalog_generation.load(Ordering::Relaxed),
         })
+        .await
+        .map_err(|error| arda_core::error::ArdaError::Agent {
+            agent: "manwe".into(),
+            message: format!("status diagnostics failed: {error}"),
+        })?
     }
 
     pub(super) fn read_package_runtime_signals(&self) -> PackageRuntimeSignals {

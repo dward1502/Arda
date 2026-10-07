@@ -41,6 +41,13 @@ real-channel delivery qualification. The accompanying
 [storage audit](../operations/storage-retention-2026-10-07.md) records retention
 and malformed-history findings without deleting records.
 
+The subsequent [failure/privacy qualification](../operations/provider-failure-qualification-2026-10-07.md)
+found that HTTP normalization dropped local-only privacy. That boundary is now
+repaired and installed: 306 source tests and 13 isolated process scenarios pass,
+including measured timeout and zero-call privacy refusal. These fixtures do not
+close canonical G2 or real-provider billing/retry evidence. Next trace P2/P3
+admission-to-placement-to-receipt bindings before the canonical budget matrix.
+
 ## Work checklist
 
 - [ ] P1 — Reconcile repository Manwë/fleet configuration, live catalog, installed

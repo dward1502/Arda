@@ -274,6 +274,13 @@ and real-channel evidence. The [storage audit](../operations/storage-retention-2
 records larger cache/Git consumers, retention gaps and two malformed Manwe records;
 no historical data was deleted.
 
+October 7 follow-up: the [failure/privacy qualification](../operations/provider-failure-qualification-2026-10-07.md)
+exposed and repaired dropped HTTP privacy selectors. The installed repair passes
+306 library tests and all 13 isolated timeout/quota/fallback/privacy scenarios;
+production health and local-only refusal checks pass. Canonical G2 remains open.
+Next trace admitted placement requirements and actual adapter receipts (P2/P3),
+then qualify canonical budget/privacy/fallback; preserve the current M3/M4/M5 evidence.
+
 ### R07 Measure memory and research quality
 
 - [ ] **Priority P2; owners: Vaire and Varda.** Extend existing retrieval evaluation

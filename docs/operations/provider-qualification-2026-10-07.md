@@ -120,3 +120,10 @@ with privacy, budget and fallback evidence; local-capacity qualification when
 available; real-channel duplicates, cancellation, reconnect and acknowledgement.
 See the [storage audit](storage-retention-2026-10-07.md) for the separate history
 retention and corruption findings. No history was deleted during rollout.
+
+
+Later October 7: the [failure/privacy follow-up](provider-failure-qualification-2026-10-07.md)
+records 13 isolated process cases and an installed repair for dropped HTTP
+`local_only` / `privacy_tier` selectors. Earlier missing-route refusals alone did
+not prove privacy enforcement. The controlled gateway matrix now passes; canonical
+G2, real-provider accounting and channel acceptance remain open.

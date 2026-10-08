@@ -366,8 +366,18 @@ cases, not validation of a real expiring capability. No live service changed.
 Raw registry calls remain in-process compatibility APIs, not authorization gates.
 Logs: `target/qualification/r08-*` (local build artifacts, not durable acceptance).
 
-Next: qualify Varda's governance-record failure path
-(`AthenaStore::ingest_batch` currently proceeds on record errors) and resident
+The MCP boundary repair is committed as `5ccdea23`. Varda's next source repair
+passed independent source review: `AthenaStore::ingest_with_pipeline_id`
+now refuses unavailable governance evidence before scholarly fetches, interceptors
+or ingest-state writes instead of treating record errors as acceptance. A
+RED/GREEN fixture blocks each evidence destination and checks unchanged digest
+and absent Books for ordinary and heavy-deny inputs. Varda tests pass 140 with
+1 ignored; strict all-target Clippy passes. Evidence logging is not transactional:
+a machine event may remain when the human log fails. Batches retain earlier
+successful items if a later item fails; no atomic batch claim is made. No live
+deployment occurred.
+
+Next: qualify resident
 Engine effect admission. Trace actual proposal changes rather than treating the
 unwired enforcer or advisory route receipts as G6.5 acceptance. Human-labeled
 outcomes and false-approval/rejection measurement remain unqualified; do not

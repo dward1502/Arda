@@ -954,6 +954,26 @@ impl AthenaStore {
             let source_type = self.classification_cache.classify(&canonical_input);
             let url = extract_url(&canonical_input);
             let deduplicated = book_path.exists();
+            let mut bacon_task = Task::new(format!("ingest {normalized}"), "ingest");
+            bacon_task.clarifications_resolved = if url.is_some() { 1 } else { 0 };
+            let quarantine_reason = match self.record_governance_event(
+                "ingest",
+                &bacon_task,
+                serde_json::json!({
+                    "pipeline_id": pipeline_id,
+                    "source_id": source_id,
+                    "deduplicated": deduplicated,
+                    "source_type": format!("{:?}", source_type),
+                }),
+            ) {
+                Ok(event) => ingest_quarantine_reason(&event),
+                Err(_) => {
+                    // Missing retained decisions must not turn a denied or
+                    // unavailable judgment into an accepted book. Stop before
+                    // metadata fetches, interceptors, or ingest-state writes.
+                    return Err(athena_error("ingest governance evidence unavailable"));
+                }
+            };
             let scholarly_metadata =
                 if !deduplicated && matches!(&source_type, SourceType::ScholarlyLink) {
                     match url.as_deref() {
@@ -989,24 +1009,6 @@ impl AthenaStore {
                 url.as_deref(),
                 scholarly_metadata,
             );
-            let mut bacon_task = Task::new(format!("ingest {normalized}"), "ingest");
-            bacon_task.clarifications_resolved = if url.is_some() { 1 } else { 0 };
-            let quarantine_reason = match self.record_governance_event(
-                "ingest",
-                &bacon_task,
-                serde_json::json!({
-                    "pipeline_id": pipeline_id,
-                    "source_id": source_id,
-                    "deduplicated": deduplicated,
-                    "source_type": format!("{:?}", source_type),
-                }),
-            ) {
-                Ok(event) => ingest_quarantine_reason(&event),
-                Err(err) => {
-                    tracing::debug!(error = %err, "ATHENA bacon-lite record failed");
-                    None
-                }
-            };
             let quarantine = quarantine_reason.is_some();
             let digest_status = if quarantine {
                 "quarantine"
@@ -2022,6 +2024,28 @@ mod tests {
         let book = fs::read_to_string(book_path).expect("book");
         assert!(book.contains("\"stage\":\"shallow\""));
         assert!(book.contains(&record.pipeline_id));
+    }
+
+    #[test]
+    fn ingest_refuses_unavailable_governance_evidence_before_landing() {
+        for fail_machine in [true, false] {
+            for input in ["local research note", "always never urgent"] {
+                let dir = tempdir().expect("tempdir");
+                let store = AthenaStore::new(dir.path()).expect("store");
+                let blocked_path = if fail_machine {
+                    &store.bacon_lite_paths.machine
+                } else {
+                    &store.bacon_lite_paths.human
+                };
+                // A directory at the append target fails regardless of uid.
+                fs::create_dir_all(blocked_path).expect("block evidence destination");
+                let digest_before = fs::read(store.digest_path()).ok();
+                let result = store.ingest(input, "test", "governance unavailable");
+                assert!(result.is_err(), "evidence failure must not allow ingestion");
+                assert_eq!(fs::read(store.digest_path()).ok(), digest_before);
+                assert_eq!(fs::read_dir(&store.books_dir).unwrap().count(), 0);
+            }
+        }
     }
 
     #[test]

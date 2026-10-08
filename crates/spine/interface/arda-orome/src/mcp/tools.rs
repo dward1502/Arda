@@ -85,6 +85,26 @@ impl ToolRegistry {
         tools.values().map(|(t, _)| t.clone()).collect()
     }
 
+    /// Validate the registered descriptor before dispatch; return the descriptor
+    /// used for the decision alongside its result for truthful presentation.
+    pub async fn call_checked(
+        &self,
+        name: &str,
+        input: serde_json::Value,
+        validate: impl FnOnce(&McpTool) -> Result<(), McpError>,
+    ) -> Result<Option<(McpTool, serde_json::Value)>, McpError> {
+        // Snapshot both halves under one guard. Release it before validation
+        // and user code so replacement cannot change this admitted invocation
+        // and handlers do not run while holding the registry lock.
+        let entry = self.tools.read().await.get(name).cloned();
+        let Some((tool, handler)) = entry else {
+            return Ok(None);
+        };
+        validate(&tool)?;
+        Ok(Some((tool, handler(input))))
+    }
+
+    /// In-process compatibility dispatch; does not establish execution authority.
     pub async fn call(&self, name: &str, input: serde_json::Value) -> Option<serde_json::Value> {
         let tools = self.tools.read().await;
         tools.get(name).map(|(_, h)| h(input))

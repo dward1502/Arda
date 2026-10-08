@@ -346,6 +346,33 @@ R08 is the next numbered work item; R06's separately recorded live gates remain 
 Exit evidence: enforcement at each reviewed effect boundary, explainable decisions
 and measured judgment quality. Advisory scores must not mint execution authority.
 
+October 8 in progress (after R07 commit `c9c95e2d`): governance/Mandos baseline
+passes 198 tests. Caller tracing distinguishes Manwe's conservatively non-blocking
+realm evaluation, Aule's legacy Oracle delegation gate, and Engine's standalone
+`ArdaEngineGovernanceEnforcer` (only test callers found, not resident enforcement).
+No global blocking has been enabled and these are not whole-system guarantees.
+
+The Orome MCP compatibility dispatcher accepted any nonempty approval string
+before invoking a protected handler. A new regression reached a panic-only handler
+with forged metadata (RED). The source repair refuses approval/network/destructive
+calls before dispatch because this server has no canonical authority verifier;
+initialization now discloses that protected dispatch is unavailable. Ordinary
+local tools retain their positive round-trip test. Registry dispatch now snapshots
+the descriptor and handler together; a deterministic RED/GREEN regression covers
+same-name replacement between validation and invocation. Orome all-feature tests
+pass 139/139 and strict all-target Clippy passes. Independent source re-review
+found no blockers. The missing, forged and `expired` strings are unverified-token
+cases, not validation of a real expiring capability. No live service changed.
+Raw registry calls remain in-process compatibility APIs, not authorization gates.
+Logs: `target/qualification/r08-*` (local build artifacts, not durable acceptance).
+
+Next: qualify Varda's governance-record failure path
+(`AthenaStore::ingest_batch` currently proceeds on record errors) and resident
+Engine effect admission. Trace actual proposal changes rather than treating the
+unwired enforcer or advisory route receipts as G6.5 acceptance. Human-labeled
+outcomes and false-approval/rejection measurement remain unqualified; do not
+substitute model labels or declare R08 complete.
+
 ### R09 Clarify state lifecycle and installation
 
 - [ ] **Priority P2; owners: persistence modules, root and launcher.** Inventory

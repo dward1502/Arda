@@ -75,7 +75,8 @@ impl McpServer {
                         "schema_version": "arda.mcp.v1",
                         "sigil": "∇◈",
                         "policy_gate": {
-                            "approval_token_supported": true,
+                            "approval_token_supported": false,
+                            "protected_dispatch_available": false,
                             "destructive_calls_require_approval": true,
                             "network_calls_require_explicit_allow": true,
                             "triad_metadata_supported": true
@@ -99,36 +100,27 @@ impl McpServer {
                     .cloned()
                     .unwrap_or(serde_json::Value::Object(Default::default()));
 
-                match self.tools.get(name).await {
-                    Some(tool) => {
-                        if let Err(error) = validate_governance(&tool, &params) {
-                            return McpResponse::error(id, error);
-                        }
-                        match self.tools.call(name, args).await {
-                            Some(result) => {
-                                let runtime_governance =
-                                    evaluate_runtime_governance(name, &tool, &params);
-                                emit_mcp_work_signal_background(name, &runtime_governance);
-                                McpResponse::success(
-                                    id,
-                                    serde_json::json!({
-                                        "tool": name,
-                                        "result": result,
-                                        "governance": tool.governance,
-                                        "runtime_governance": runtime_governance
-                                    }),
-                                )
-                            }
-                            None => McpResponse::error(
-                                id,
-                                McpError::method_not_found(format!("Tool not found: {}", name)),
-                            ),
-                        }
+                match self
+                    .tools
+                    .call_checked(name, args, |tool| validate_governance(tool, &params))
+                    .await
+                {
+                    Ok(Some((tool, result))) => {
+                        let runtime_governance = evaluate_runtime_governance(name, &tool, &params);
+                        emit_mcp_work_signal_background(name, &runtime_governance);
+                        McpResponse::success(
+                            id,
+                            serde_json::json!({
+                                "tool": name, "result": result, "governance": tool.governance,
+                                "runtime_governance": runtime_governance
+                            }),
+                        )
                     }
-                    None => McpResponse::error(
+                    Ok(None) => McpResponse::error(
                         id,
                         McpError::method_not_found(format!("Tool not found: {}", name)),
                     ),
+                    Err(error) => McpResponse::error(id, error),
                 }
             }
             McpMethod::ResourcesList => {
@@ -193,6 +185,18 @@ impl McpServer {
 }
 
 fn validate_governance(tool: &McpTool, params: &serde_json::Value) -> Result<(), McpError> {
+    // This compatibility server has no canonical authority verifier. Request
+    // metadata is untrusted and cannot establish operator approval or scoped
+    // network/destructive permission. Keep protected dispatch unavailable until
+    // an effect-owning canonical admission boundary is connected.
+    if tool.governance.requires_approval
+        || tool.governance.allows_network
+        || tool.governance.allows_destructive
+    {
+        return Err(McpError::invalid_params(
+            "protected MCP dispatch requires canonical execution authority; request metadata is not authorization",
+        ));
+    }
     let governance = params.get("governance").cloned().unwrap_or_default();
     let sigil = governance
         .get("sigil")
@@ -201,44 +205,6 @@ fn validate_governance(tool: &McpTool, params: &serde_json::Value) -> Result<(),
     if sigil != tool.governance.sigil {
         return Err(McpError::invalid_params(format!(
             "governance sigil mismatch for tool {}",
-            tool.name
-        )));
-    }
-
-    if tool.governance.requires_approval
-        && governance
-            .get("approval_token")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .trim()
-            .is_empty()
-    {
-        return Err(McpError::invalid_params(format!(
-            "approval token required for tool {}",
-            tool.name
-        )));
-    }
-
-    if tool.governance.allows_network
-        && !governance
-            .get("network_allowed")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false)
-    {
-        return Err(McpError::invalid_params(format!(
-            "network allowance required for tool {}",
-            tool.name
-        )));
-    }
-
-    if tool.governance.allows_destructive
-        && !governance
-            .get("destructive_allowed")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false)
-    {
-        return Err(McpError::invalid_params(format!(
-            "destructive allowance required for tool {}",
             tool.name
         )));
     }
@@ -381,6 +347,9 @@ mod tests {
                 .and_then(|v| v.as_str()),
             Some("∇◈")
         );
+        let policy = &response.result.as_ref().unwrap()["governance"]["policy_gate"];
+        assert_eq!(policy["approval_token_supported"], json!(false));
+        assert_eq!(policy["protected_dispatch_available"], json!(false));
     }
 
     #[tokio::test]
@@ -439,6 +408,100 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn registration_replacement_cannot_change_validated_handler() {
+        let registry = Arc::new(ToolRegistry::new());
+        registry
+            .register(
+                McpTool::new("replaceable", "local"),
+                Arc::new(|_| json!("local")),
+            )
+            .await;
+        let result = registry
+            .call_checked("replaceable", json!({}), |tool| {
+                validate_governance(
+                    tool,
+                    &json!({"governance": {"sigil": "∇◈", "triad": {"status": "pass"}}}),
+                )?;
+                // Force replacement after validation and before invocation, without
+                // relying on scheduler timing or sleeps.
+                let registry = registry.clone();
+                std::thread::spawn(move || {
+                    tokio::runtime::Builder::new_current_thread()
+                        .build()
+                        .unwrap()
+                        .block_on(registry.register(
+                            McpTool::new("replaceable", "protected").with_governance(
+                                McpToolGovernance {
+                                    requires_approval: true,
+                                    ..Default::default()
+                                },
+                            ),
+                            Arc::new(|_| json!("protected")),
+                        ));
+                })
+                .join()
+                .unwrap();
+                Ok(())
+            })
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(result.1, json!("local"));
+        assert!(!result.0.governance.requires_approval);
+        assert!(
+            registry
+                .get("replaceable")
+                .await
+                .unwrap()
+                .governance
+                .requires_approval
+        );
+    }
+
+    #[tokio::test]
+    async fn caller_metadata_cannot_authorize_protected_effects() {
+        for (approval, network, destructive) in [
+            (true, false, false),
+            (false, true, false),
+            (false, false, true),
+        ] {
+            let server = McpServer::new();
+            server
+                .register_tool(
+                    McpTool::new("protected", "Protected effect").with_governance(
+                        McpToolGovernance {
+                            requires_approval: approval,
+                            allows_network: network,
+                            allows_destructive: destructive,
+                            ..Default::default()
+                        },
+                    ),
+                    |_| panic!("unverified authority reached the effect handler"),
+                )
+                .await;
+            for token in [json!(null), json!("forged"), json!("expired")] {
+                let response = server
+                    .handle_request(McpRequest {
+                        jsonrpc: "2.0".into(),
+                        id: Some(json!(1)),
+                        method: "tools/call".into(),
+                        params: Some(json!({
+                            "name": "protected", "arguments": {},
+                            "governance": {
+                                "sigil": "∇◈", "approval_token": token,
+                                "network_allowed": true, "destructive_allowed": true,
+                                "triad": {"status": "pass"}
+                            }
+                        })),
+                    })
+                    .await;
+                assert!(response.error.is_some());
+                assert!(response.result.is_none());
+            }
+        }
+    }
+
+    #[tokio::test]
     async fn governance_blocks_missing_approval_or_triad_metadata() {
         let server = McpServer::new();
         server
@@ -483,7 +546,8 @@ mod tests {
                 })),
             })
             .await;
-        assert!(allowed.error.is_none());
+        assert!(allowed.result.is_none());
+        assert_eq!(allowed.error.as_ref().map(|e| e.code), Some(-32602));
     }
 
     #[tokio::test]

@@ -246,6 +246,12 @@ pub(super) fn build_shallow_analysis(
         meta.abstract_text.clone()
     } else if let Some(meta) = &github_metadata {
         github_summary(meta)
+    } else if url.is_none() {
+        // Preserve a bounded extractive summary for local text. A generic
+        // ingest status erased everything beyond the 80-character title from
+        // retrieval. The complete original remains in the ingest ledger; this
+        // excerpt is not an LLM analysis or evidence of deep extraction.
+        input.chars().take(16_384).collect()
     } else {
         format!("Initial shallow ingest completed for {:?}.", source_type)
     };

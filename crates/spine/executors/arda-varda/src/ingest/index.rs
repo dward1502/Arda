@@ -21,6 +21,40 @@ use std::time::{Duration, Instant, SystemTime};
 
 use super::{athena_error, CitationSpan, ExtractedKnowledge};
 
+impl super::AthenaStore {
+    /// Benchmark callers must exclusively own a fresh store for the entire run.
+    /// Inspect all Books and index state, not merely the returned query hits.
+    pub(crate) fn require_pristine_benchmark_store(&self) -> Result<()> {
+        let mut books =
+            fs::read_dir(&self.books_dir).map_err(|err| athena_error(err.to_string()))?;
+        if books
+            .next()
+            .transpose()
+            .map_err(|err| athena_error(err.to_string()))?
+            .is_some()
+        {
+            return Err(athena_error("benchmark requires an empty Books directory"));
+        }
+        for path in [&self.digest_path, &self.digest_index_path] {
+            match fs::metadata(path) {
+                Ok(meta) if meta.len() == 0 => {}
+                Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+                Ok(_) => return Err(athena_error("benchmark requires fresh digest/index state")),
+                Err(err) => return Err(athena_error(err.to_string())),
+            }
+        }
+        if self
+            .digest_index
+            .read()
+            .map_err(|err| athena_error(err.to_string()))?
+            .is_some()
+        {
+            return Err(athena_error("benchmark requires an unwarmed index"));
+        }
+        Ok(())
+    }
+}
+
 const INDEX_TTL_SECS: u64 = 300;
 const INDEX_SCHEMA_VERSION: u32 = 1;
 

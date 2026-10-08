@@ -6,7 +6,7 @@ soterion:
   role: "execution_plan"
   owner: "ARDA"
   status: "active"
-  reviewed: "2026-10-07"
+  reviewed: "2026-10-08"
 ---
 
 # Arda reliability tasks and next session handoff
@@ -108,20 +108,20 @@ Preserve operator workspace files, SQLite state, histories and project work.
 
 R01 readiness repair and R02/R03 source qualification have recorded evidence below.
 R03 remains on its qualified branch; merging and required-check enforcement are
-separate actions. Today's bounded real-project source review and join are complete.
+separate actions. Bounded source-review and join evidence is retained above.
 M4 and its current resident M3 prerequisite are closed for the admitted bounded
 scope. The operator accepted the bounded M5 CLI workflow on October 7. R05 source
-separation is qualified. Continue R06 provider/communication work, retaining the parent plan's open
-combined-scenario obligations under R04.
+separation is qualified. [R07 measurement qualification](../operations/retrieval-quality-qualification-2026-10-08.md)
+records retrieval, generated-answer and crawler results; R06 canonical budget/fallback and installed
+route-attestation acceptance remain open, as do R04 combined-scenario obligations.
 Keep mesh-llm off and preserve both completed project runs and operator workspaces.
 
 Suggested next-session request:
 
-> Continue R06 provider and communication qualification using the existing
-> provider convergence matrix and real transport evidence. Preserve
-> the accepted M5 CLI result, completed two-project objective and M3 correction
-> evidence. Keep the remaining combined-scenario obligations explicit, keep
-> mesh-llm off, and preserve both real project workspaces.
+> Continue R08 by tracing governance allow/deny/advisory outcomes through actual
+> effect-owning callers; test missing/expired authority and unavailable scorers.
+> Preserve accepted M5 CLI and M3/M4 evidence, keep R06 and combined-scenario gaps
+> explicit, leave mesh-llm off, and preserve operator state.
 
 ## Ordered task list
 
@@ -249,7 +249,7 @@ shows the executor has no Aule, OpenTelemetry, Manwe or Varda dependency.
 Working-tree regression results: 364 Aule, 216 Engine, 27 executor and 12 restart
 tests passed (14 ignored); contract-only and compatibility tests each passed 3.
 Clippy/formatting passed. The exact staged source compiled separately and passed
-25 executor plus 3 contract tests. R05 is complete for source qualification;
+25 executor plus 3 contract tests. These results qualify the R05 source boundary;
 installed deployment and the R04 combined acceptance scenario remain separate.
 
 ### R06 Qualify providers and communication
@@ -292,16 +292,47 @@ canonical budget/fallback gate remain open; keep canonical G2 open.
 
 ### R07 Measure memory and research quality
 
-- [ ] **Priority P2; owners: Vaire and Varda.** Extend existing retrieval evaluation
+- [x] **Priority P2; owners: Vaire and Varda.** Extend existing retrieval evaluation
   with representative authorized questions and known relevant sources. Compare
   lexical/BM25 and only justified alternative retrieval methods on the same data.
-- [ ] Record selected/excluded context, scope, budget and actual consumption;
+- [x] Record selected/excluded context, scope, budget and actual consumption;
   test correction/revocation and cross-session continuation through existing M5.
   Evaluate citations, source faithfulness and degraded crawler behavior.
 
 Exit evidence: versioned dataset and reproducible retrieval/answer scores,
 consumed-context evidence and correction/privacy regressions. A vector database
 is not a prerequisite; choose changes from measured deficiencies.
+
+[October 8 R07 measurement qualification](../operations/retrieval-quality-qualification-2026-10-08.md):
+12 frozen repository excerpts / 24 agent-labeled questions compare lexical and
+production BM25 retrieval. Evaluator cutoff/duplicate-recall defects and plain-text
+source coverage were repaired. BM25 Hit@1 rose from 0.375 to 0.708333; Recall@3
+from 0.354167 to 0.958333. Lexical Hit@1 remains better at 0.916667.
+
+The retained real-model answer experiment scores 23/24 corpus answers correct;
+both unsupported controls abstain (25/26 overall). All 26 answers were judged
+source-faithful by the parent agent and their exact citation quotes were checked
+programmatically. The remaining corpus miss lacks the required boundary source
+in top-three retrieval; its honest abstention is retained. These are agent labels
+and judgments, not independent human ground truth or general quality claims.
+
+242 source tests pass under default parallel execution, 2 live tests are ignored;
+strict Clippy and the retained M5 audit pass. Independent code review found no
+blocking defects after the benchmark repairs; its test-only server timeout nit
+was addressed and checks rerun. Four local HTTP degradation cases confirm visible
+failure activity and no partial-text indexing at the fetch boundary. Existing
+M5 consumption evidence and current scope/budget/correction/revocation regressions
+supply the continuity boundary; no new context-use receipt is claimed.
+
+The isolated commit candidate passes 237 tests (1 ignored) and strict Clippy;
+its only prerequisite is the missing empty `excluded_refs` test initialization.
+Unrelated working-tree changes are excluded. No installation occurred.
+Do not introduce vector storage from
+this small corpus, migrate historical Books, or promote this offline measurement
+to installed crawler/answer-service acceptance. Versioned corpus, model input,
+answers, rubric and judgments are linked in the qualification report. Local raw
+logs and current source hashes: `target/qualification/r07-20261008/manifest.json`.
+R08 is the next numbered work item; R06's separately recorded live gates remain open.
 
 ### R08 Verify governance and reasoning influence
 

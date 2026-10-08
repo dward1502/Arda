@@ -1,0 +1,213 @@
+{
+  "schema_version": "arda.r07.answer-scores.v1",
+  "method": "Parent-agent semantic review against rubric frozen before generated answers were read; exact source-quote validation by Python. Not independent human grading.",
+  "generator": "Hermes delegate gpt-6-astra; actual output from deleg_4984af08 task 1",
+  "generation_contract": "Use only per-case sources; 1-3 sentences; explicitly abstain when unsupported; exact nonempty source quotes; no gold labels supplied. Retrieval top-three IDs resolved to frozen source content, not production capsule assembly.",
+  "artifacts": {
+    "reliability_questions_v1.json": "34c6bc7d16906b482f82076ef5f705286cd06b85990db47824389a3c1279e515",
+    "reliability_answer_rubric_v1.json": "3f1dc881ebe35443e46a8878e93f509ecfa83711062048be8be29e481f20fea1",
+    "reliability_answers_v1.json": "6686930704db10024f20b3d67bdc61f4b3f6835ebb20082441d27003caaf962f",
+    "reliability_answer_input_v1.json": "904272672ded24e1a21699f1829d6908d02a792680a85e22437a8d0a1b74056c"
+  },
+  "cases": [
+    {
+      "id": "q01",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q02",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q03",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q04",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q05",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q06",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q07",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q08",
+      "correct": false,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Appropriate abstention, but retrieval omitted m5-boundaries, so the corpus-level question was not answered."
+    },
+    {
+      "id": "q09",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q10",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Correct partial answer with explicit missing detail; no path/job names invented."
+    },
+    {
+      "id": "q11",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q12",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Correct partial answer with explicit missing detail; no path/job names invented."
+    },
+    {
+      "id": "q13",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q14",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q15",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q16",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q17",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q18",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q19",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q20",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q21",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q22",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q23",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "q24",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "R05 staged-source evidence directly answers the requested distinction; R03 corroboration in rubric is not necessary."
+    },
+    {
+      "id": "abstain-energy",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    },
+    {
+      "id": "abstain-score",
+      "correct": true,
+      "faithful": true,
+      "citation_quotes_valid": true,
+      "rationale": "Matches frozen expected facts without unsupported claims."
+    }
+  ],
+  "summary": {
+    "total": 26,
+    "corpus_answer_correct": 23,
+    "corpus_questions": 24,
+    "all_cases_correct": 25,
+    "source_faithful": 26,
+    "exact_quote_cases": 26,
+    "unsupported_controls_abstained": 2,
+    "unsupported_controls": 2
+  },
+  "limits": [
+    "Small agent-labeled development corpus, no human ground truth or held-out generalization.",
+    "Semantic scores are retained judgments, not a deterministic entailment oracle.",
+    "Exact-quote checks are syntactic and do not replace semantic review.",
+    "Frozen historical excerpts do not establish present live status.",
+    "No production answer-serving or new Vaire ContextUseReceipt qualification."
+  ]
+}

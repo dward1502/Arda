@@ -1,6 +1,11 @@
-use crate::ingest::AthenaStore;
+mod comparison;
+use crate::ingest::{AthenaStore, QueryCitation};
 use arda_core::error::{ArdaError, Result};
+use arda_vaire::retrieval_eval::{
+    evaluate_adapter, LexicalBaselineAdapter, RetrievalAdapter, RetrievalEvaluation,
+};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{collections::HashMap, path::Path, time::Instant};
 
 #[derive(Debug, Clone, Deserialize)]
@@ -37,6 +42,9 @@ pub struct RetrievalBenchmarkReport {
     pub fixture_schema_version: String,
     pub fixture_path: String,
     pub queries_total: usize,
+    pub fixture_sha256: String,
+    pub lexical: RetrievalEvaluation,
+    pub bm25: RetrievalEvaluation,
     pub recall_at_1: f64,
     pub citation_correctness_rate: f64,
     pub shallow_only_rate: f64,
@@ -57,8 +65,14 @@ pub struct RetrievalBenchmarkCase {
     pub citation_correct: bool,
     pub shallow_only: bool,
     pub latency_micros: u128,
+    pub ranked_document_ids: Vec<String>,
+    pub lexical_document_ids: Vec<String>,
+    pub citations: Vec<QueryCitation>,
+    pub citation_spans_valid: bool,
 }
 
+/// The caller must exclusively own a fresh isolated store for this run.
+/// Reusing a populated or warmed store is rejected before any corpus writes.
 pub fn run_retrieval_benchmark(
     fixture_path: impl AsRef<Path>,
     store: &AthenaStore,
@@ -68,6 +82,7 @@ pub fn run_retrieval_benchmark(
     let fixture: RetrievalBenchmarkFixture =
         serde_json::from_slice(&bytes).map_err(benchmark_error)?;
     validate_fixture(&fixture)?;
+    store.require_pristine_benchmark_store()?;
 
     let mut source_to_document = HashMap::with_capacity(fixture.documents.len());
     for document in &fixture.documents {
@@ -75,23 +90,31 @@ pub fn run_retrieval_benchmark(
         source_to_document.insert(record.id, document.id.clone());
     }
 
+    let dataset = comparison::dataset(&fixture);
+    let mut rankings = comparison::ProductionRankings(HashMap::new());
     let mut cases = Vec::with_capacity(fixture.queries.len());
     for judgment in &fixture.queries {
         let started = Instant::now();
-        let response = store.query(&judgment.query, 1)?;
+        let response = store.query(&judgment.query, 3)?;
         let elapsed = started.elapsed().as_micros();
         let matched = response.matches.first();
         let matched_document_id = matched.and_then(|item| source_to_document.get(&item.source_id));
         let recall_at_1 =
             matched_document_id.is_some_and(|id| judgment.expected_document_ids.contains(id));
-        let citation_correct = matched.is_some_and(|item| {
-            !item.citations.is_empty()
-                && item.citations.iter().all(|citation| {
-                    citation.source_id == item.source_id
-                        && !citation.doc_id.is_empty()
-                        && !citation.span.text.is_empty()
-                })
-        });
+        let citation_correct = matched.is_some_and(comparison::citation_spans_valid);
+        let ranked_document_ids = response
+            .matches
+            .iter()
+            .map(|item| {
+                source_to_document
+                    .get(&item.source_id)
+                    .cloned()
+                    .ok_or_else(|| benchmark_error("store contains a source outside the fixture"))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        rankings
+            .0
+            .insert(judgment.query.clone(), ranked_document_ids.clone());
         cases.push(RetrievalBenchmarkCase {
             query: judgment.query.clone(),
             expected_document_ids: judgment.expected_document_ids.clone(),
@@ -102,6 +125,16 @@ pub fn run_retrieval_benchmark(
             citation_correct,
             shallow_only: matched.is_some_and(|item| item.shallow_only),
             latency_micros: elapsed,
+            ranked_document_ids,
+            lexical_document_ids: LexicalBaselineAdapter.retrieve(
+                &judgment.query,
+                &dataset.documents,
+                3,
+            ),
+            citations: matched
+                .map(|item| item.citations.clone())
+                .unwrap_or_default(),
+            citation_spans_valid: matched.is_some_and(comparison::citation_spans_valid),
         });
     }
 
@@ -109,11 +142,24 @@ pub fn run_retrieval_benchmark(
     let denominator = queries_total.max(1) as f64;
     let latency_micros_total = cases.iter().map(|case| case.latency_micros).sum();
     Ok(RetrievalBenchmarkReport {
-        schema_version: "arda.varda.retrieval_benchmark_report.v1",
+        schema_version: "arda.varda.retrieval_benchmark_report.v2",
         fixture_schema_version: fixture.schema_version,
         fixture_path: fixture_path.display().to_string(),
         queries_total,
-        recall_at_1: cases.iter().filter(|case| case.recall_at_1).count() as f64 / denominator,
+        fixture_sha256: format!("{:x}", Sha256::digest(&bytes)),
+        lexical: evaluate_adapter(&LexicalBaselineAdapter, &dataset, 3).map_err(benchmark_error)?,
+        bm25: evaluate_adapter(&rankings, &dataset, 3).map_err(benchmark_error)?,
+        recall_at_1: cases
+            .iter()
+            .map(|case| {
+                let relevant = case
+                    .expected_document_ids
+                    .iter()
+                    .collect::<std::collections::HashSet<_>>();
+                f64::from(case.recall_at_1) / relevant.len() as f64
+            })
+            .sum::<f64>()
+            / denominator,
         citation_correctness_rate: cases.iter().filter(|case| case.citation_correct).count() as f64
             / denominator,
         shallow_only_rate: cases.iter().filter(|case| case.shallow_only).count() as f64
@@ -139,6 +185,16 @@ fn validate_fixture(fixture: &RetrievalBenchmarkFixture) -> Result<()> {
         .iter()
         .map(|document| document.id.as_str())
         .collect::<std::collections::HashSet<_>>();
+    let unique_content = fixture
+        .documents
+        .iter()
+        .map(|document| AthenaStore::canonical_source_identity(&document.content).1)
+        .collect::<std::collections::HashSet<_>>();
+    if document_ids.len() != fixture.documents.len()
+        || unique_content.len() != fixture.documents.len()
+    {
+        return Err(benchmark_error("duplicate document identity or content"));
+    }
     if fixture
         .documents
         .iter()

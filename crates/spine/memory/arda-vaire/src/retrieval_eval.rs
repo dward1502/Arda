@@ -144,7 +144,13 @@ pub fn evaluate_adapter(
             .iter()
             .map(String::as_str)
             .collect::<HashSet<_>>();
-        let ranked = adapter.retrieve(&query.query, &dataset.documents, limit);
+        // The evaluator owns the cutoff; adapters cannot inflate a score by
+        // returning additional results. Duplicate hits count only once below.
+        let ranked = adapter
+            .retrieve(&query.query, &dataset.documents, limit)
+            .into_iter()
+            .take(limit)
+            .collect::<Vec<_>>();
         if ranked
             .first()
             .is_some_and(|document_id| relevant.contains(document_id.as_str()))
@@ -154,7 +160,8 @@ pub fn evaluate_adapter(
         let relevant_retrieved = ranked
             .iter()
             .filter(|document_id| relevant.contains(document_id.as_str()))
-            .count();
+            .collect::<HashSet<_>>()
+            .len();
         recall_sum += relevant_retrieved as f64 / relevant.len() as f64;
         if let Some(rank) = ranked
             .iter()

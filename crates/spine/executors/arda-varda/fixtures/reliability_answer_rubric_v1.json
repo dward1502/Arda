@@ -1,0 +1,116 @@
+{
+  "schema_version": "arda.r07.answer-rubric.v1",
+  "provenance": "Agent-authored expected facts frozen before reading generated answers. Not independent human labeling. Evaluate frozen evidence, not present live status.",
+  "scoring": {
+    "correct": "All material requested facts supported; permit appropriately explicit partial answers where excerpt lacks exact detail. No unsupported names, paths, numerical results, or completion claims.",
+    "faithful": "All factual assertions entailed by this case's supplied sources; absence claims may state information not provided.",
+    "abstention": "Unsupported control must explicitly abstain; ordinary cases can answer partially with clear limitations.",
+    "citations": "Validate each quote as exact nonempty substring of a provided source; this is syntactic integrity, not semantic entailment."
+  },
+  "cases": [
+    {
+      "id": "q01",
+      "expected": "Refactor to the applicable design principle before changing behavior."
+    },
+    {
+      "id": "q02",
+      "expected": "Composition over inheritance and encapsulation/information hiding with small stable contracts."
+    },
+    {
+      "id": "q03",
+      "expected": "No. Operator selected local CLI; Discord was not required."
+    },
+    {
+      "id": "q04",
+      "expected": "Each fresh interactive session used its own persisted non-summary user row and retained content digest; no prior conversation or answer was resumed."
+    },
+    {
+      "id": "q05",
+      "expected": "WGTT authorization regression design: lookup error versus missing account, bootstrap membership, stored admin/non-admin roles, failed authentication; behavioral gate distinct from lint."
+    },
+    {
+      "id": "q06",
+      "expected": "No. Staging checks and unresolved deployment remain separate from conversational planning."
+    },
+    {
+      "id": "q07",
+      "expected": "No new typed Vaire ContextUseReceipt was emitted for CLI plans."
+    },
+    {
+      "id": "q08",
+      "expected": "No. Local plans do not close M1/M2/G1 or the applicable combined-scenario obligations."
+    },
+    {
+      "id": "q09",
+      "expected": "Yes. Mesh-llm stayed off behind a startup guard and inference probe paused."
+    },
+    {
+      "id": "q10",
+      "expected": "Rollback state and prior binaries were preserved while objective and keeper stores were initialized together. The excerpt supplies no exact filesystem location; do not invent one."
+    },
+    {
+      "id": "q11",
+      "expected": "No required status checks or rulesets; settings unchanged; enforcement remains separate."
+    },
+    {
+      "id": "q12",
+      "expected": "Both separate native workspaces and all four frontend/shared-UI jobs passed, plus root/launcher and formatting. The excerpt does not name each workspace/job."
+    },
+    {
+      "id": "q13",
+      "expected": "arda-workbench-executor owns explicit HTTP, reconciliation, Close and admission contracts."
+    },
+    {
+      "id": "q14",
+      "expected": "No OpenTelemetry or Manwe dependency (also no Aule/Varda dependency in excerpt)."
+    },
+    {
+      "id": "q15",
+      "expected": "No. Unknown billing is not proof of a spending cap."
+    },
+    {
+      "id": "q16",
+      "expected": "No. Installed rollout, live attested acceptance and canonical budget/fallback remain open; G2 remains open."
+    },
+    {
+      "id": "q17",
+      "expected": "Qualify backup/restore on copies, clean installation and upgrade/rollback, preserve identity/history with reviewed ownership."
+    },
+    {
+      "id": "q18",
+      "expected": "No. Generated appearance alone does not authorize removal or migration of live/tracked state."
+    },
+    {
+      "id": "q19",
+      "expected": "Accepted completion, intervention count, elapsed time, duplicate effects and cost/energy per accepted result; accepted reduction in operator burden, not telemetry volume."
+    },
+    {
+      "id": "q20",
+      "expected": "Distinguish hardware measurements from estimates."
+    },
+    {
+      "id": "q21",
+      "expected": "Honest offline/stale observations during actual disconnect/reconnect; do not present stale observations as live."
+    },
+    {
+      "id": "q22",
+      "expected": "Framing, capabilities, compatibility, timeout/cancellation and error reporting conformance with a working adapter example."
+    },
+    {
+      "id": "q23",
+      "expected": "Yes. Existing Vaire retrieval evaluation exposes Hit@1, Recall@K and MRR."
+    },
+    {
+      "id": "q24",
+      "expected": "R05 qualifies source extraction/dependencies/tests while installed deployment and combined acceptance remain separate; R03 source CI does not establish installation."
+    },
+    {
+      "id": "abstain-energy",
+      "expected": "Abstain: source requests energy measurement but supplies no measured joule value."
+    },
+    {
+      "id": "abstain-score",
+      "expected": "Abstain: source identifies retrieval metrics, not a generated-answer faithfulness score."
+    }
+  ]
+}

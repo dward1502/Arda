@@ -47,7 +47,11 @@ impl AthenaStore {
         match crawl4ai_fetch_markdown(service_url, url, filter, query).await {
             Ok(mut result) => {
                 result.pipeline_id = pipeline_id.clone();
-                activity.complete();
+                if result.success {
+                    activity.complete();
+                } else {
+                    activity.fail(url, "crawl4ai returned an unsuccessful result");
+                }
                 Ok(result)
             }
             Err(error) => {

@@ -1,0 +1,278 @@
+{
+  "schema_version": "arda.varda.retrieval_benchmark_fixture.v1",
+  "provenance": {
+    "owner": "ARDA R07",
+    "purpose": "Repository-document questions: agent-authored relevance judgments, not independent human labels; frozen authorized source excerpts; no model answers",
+    "created_at_utc": "2026-10-08T07:17:20.893010+00:00",
+    "license": "repository-test-fixture"
+  },
+  "documents": [
+    {
+      "id": "rules",
+      "content": "When two principles collide, pick the one that cuts future cost in THIS codebase.\n\nHARD RULE: refactor to the principle FIRST, then change behavior.\n\n1. Separation of Concerns \u2014 one kind of work per part (UI / domain / persistence / infra). Root principle.\n2. Encapsulation / Information Hiding \u2014 small stable contract; hide internals.\n3. High Cohesion + Loose Coupling \u2014 change-together lives together; independents talk narrow.\n4. DRY \u2014 one authoritative representation of each piece of *knowledge* (not every similar line). Avoid over-DRY.\n5. KISS \u2014 simplest design that works; complexity is the long-term tax.\n6. Single Responsibility \u2014 one reason to change.\n7. Depend on Abstractions \u2014 policy doesn\u2019t depend on details; both depend on contracts.\n8. YAGNI \u2014 no speculative features, frameworks, or \u201clater\u201d hooks.\n9. Composition over Inheritance \u2014 assemble pieces; don\u2019t grow fragile hierarchies.\n10. Open/Closed (with discipline) \u2014 extend at stable boundaries; only where change showed up twice.\n",
+      "source_path": "AGENTS.md",
+      "source_lines": [
+        10,
+        24
+      ],
+      "content_sha256": "3089476801f6203dc3b57941e37f4afd3c8288b105da79f318280be78f772004"
+    },
+    {
+      "id": "m5-scope",
+      "content": "## Interactive local CLI continuation \u2014 October 7, 2026\n\nThe operator selected the local CLI and explicitly delegated the continuation.\nTwo fresh interactive Hermes CLI sessions now recovered the completed two-project\nreview through the installed local bridge, with an Arda restart between their\nturns. Each session used its own persisted, non-summary user row; the bridge\nretained its content digest and returned HTTP 200 for canonical objective status.\nNeither session resumed the other conversation or received its answer as input.\nLocal CLI is the selected operator surface; changing to Discord is not required.",
+      "source_path": "docs/plans/autonomous-task-completion/M5_VAIRE_CONTINUITY.md",
+      "source_lines": [
+        35,
+        43
+      ],
+      "content_sha256": "0aec1dd97d6c63de8a8c2c125ca0715241337ef79370578928a7aba2aa6ff6e2"
+    },
+    {
+      "id": "m5-consumption",
+      "content": "Both sessions read the complete three active Vair\u00eb outcomes for the same completed\nobjective: WGTT (6,891 bytes), SkylightPros (7,576 bytes), and join (7,116 bytes).\nThe full strings were verified in the actual terminal tool responses. Initial\nfile-tool reads truncated long JSON content lines; the agents retrieved the full\ncontent through read-only terminal commands before answering. They cross-checked\nobjective/project scope, execution-run identities and accepted receipt references.\nThey did not inspect either project's current source or prior provider transcripts.\n\nThe first turn produced a broad remediation roadmap. After restart, the second\nfresh session narrowed the immediate deliverable to **WGTT authorization\nregression-test design**, deferring SkylightPros implementation to the backlog.\nThe resulting checklist covers lookup-error versus missing-account behavior,\nbootstrap membership, stored admin/non-admin roles, failed authentication and a\nbehavioral test gate distinct from lint. Staging checks and unresolved deployment\nquestions remain separate. This is a revised conversational plan; it does not",
+      "source_path": "docs/plans/autonomous-task-completion/M5_VAIRE_CONTINUITY.md",
+      "source_lines": [
+        45,
+        59
+      ],
+      "content_sha256": "33796b67177c6e92fad36b52b6c128abd59df6e89f6f880744ddf6cfa065888f"
+    },
+    {
+      "id": "m5-boundaries",
+      "content": "Boundaries retained:\n\n- These were agent-submitted interpretations under the operator's explicit\n  delegation, not independently human-authored CLI turns or a human verdict.\n- Saved governed files were read and checked locally. No new typed Vair\u00eb\n  ContextUseReceipt or resident execution receipt was emitted for these CLI plans.\n- The initial sandbox attempt stalled before persisting a turn and was stopped.\n  A host one-shot attempt was correctly rejected because its source was `oneshot`;\n  normal interactive `cli` sessions succeeded without relabeling provenance.\n- **M5 remains open for the applicable combined-scenario obligations and the\n  operator's reduced-burden verdict.** M1/M2/G1 are not closed by these local plans.\n  Correction/revocation/privacy source tests remain recorded below; no live memory\n  was revoked or modified to manufacture a test.",
+      "source_path": "docs/plans/autonomous-task-completion/M5_VAIRE_CONTINUITY.md",
+      "source_lines": [
+        76,
+        88
+      ],
+      "content_sha256": "3f0d7a57c5fa09f3dbf039acfad331f518527ae93bf1d513e76baee1a41f5646"
+    },
+    {
+      "id": "r01",
+      "content": "The operator chose to archive historical authority and start fresh. Objective and\nkeeper stores were explicitly initialized together, with rollback state and prior\nbinaries preserved. All five local service health endpoints pass; root and keeper\nremain running with zero automatic restarts beyond their restart intervals.\nMesh-llm remains off behind a runtime startup guard; the inference probe is paused.\n[R01 recovery evidence and the superseding operator decision](autonomous-task-completion/M4_REAL_MULTI_PROJECT.md#fresh-development-authority--operator-decision-october-6-2026)\nclose the installed startup blocker. This does not claim historical retirement,\nmodel inference, remote telemetry availability or M4 multi-project acceptance.",
+      "source_path": "docs/plans/CRATE_RELIABILITY_AND_ACCEPTANCE.md",
+      "source_lines": [
+        478,
+        485
+      ],
+      "content_sha256": "d0f614e3539a83bfe8621a5e0432fa18b56d3d6bd783aaf8ef5c3cab08214b55"
+    },
+    {
+      "id": "r03",
+      "content": "On October 6, the [final remote run](https://github.com/dward1502/Arda/actions/runs/37438628947)\npassed all eight jobs at source revision `ee6d0d1833824b3a163ba96c6711d0a76bc222c4`:\nroot including launcher, both separate native workspaces, Rust formatting and\nall four frontend/shared-UI jobs. Full local root tests passed **2,378 / 0 failed /\n61 ignored**; full strict Clippy passed. Declared ignored tests remain opt-in.\nThe earlier third run was canceled by the final source push; it is not acceptance\nevidence. Main protection was inspected: one approval, code-owner review and\nconversation resolution, with no required status checks and no rulesets. No\nprotection settings changed. R03 implementation and branch qualification are\ncomplete; merging and status-check enforcement remain separate actions.\nReproducible commands and coverage/skip distinctions are in the linked operations\nrecord; raw logs and hashes are under `target/qualification/reliability-20261006/`.",
+      "source_path": "docs/plans/CRATE_RELIABILITY_AND_ACCEPTANCE.md",
+      "source_lines": [
+        190,
+        201
+      ],
+      "content_sha256": "d3c9e64ffe39c8cecad637bdd61e376ae20179270f188ebf99638cd1300f6070"
+    },
+    {
+      "id": "r05",
+      "content": "October 7 executor extraction: `arda-workbench-executor` now owns explicit HTTP,\nreconciliation, Close and admission contracts. Legacy queue scheduling stays in\nAule and consumes shared graph/receipt/project helpers. Engine imports the new\nexecutor directly and no longer requires Aule's `full-cli`. Dependency inspection\nshows the executor has no Aule, OpenTelemetry, Manwe or Varda dependency.\nWorking-tree regression results: 364 Aule, 216 Engine, 27 executor and 12 restart\ntests passed (14 ignored); contract-only and compatibility tests each passed 3.\nClippy/formatting passed. The exact staged source compiled separately and passed\n25 executor plus 3 contract tests. R05 is complete for source qualification;\ninstalled deployment and the R04 combined acceptance scenario remain separate.",
+      "source_path": "docs/plans/CRATE_RELIABILITY_AND_ACCEPTANCE.md",
+      "source_lines": [
+        244,
+        253
+      ],
+      "content_sha256": "4463d119ad36900174e4b320362d8a13f99a9419e86e029662cdf192ae93225f"
+    },
+    {
+      "id": "r06",
+      "content": "The subsequent [P2/P3 verification](../operations/provider-authority-verification-2026-10-07.md)\npassed 39 executed tests across adapter, broker and retained admission. It found\nthat upstream route attestation is not persisted in typed canonical receipts and\nunknown billing is not a proven spending cap. The subsequent\n[durable route receipt implementation](../operations/provider-route-receipts-2026-10-07.md)\nadds broker-owned evidence to versioned receipts while preserving historical\ndigests. Installed Engine/worker rollout, live attested acceptance and the\ncanonical budget/fallback gate remain open; keep canonical G2 open.",
+      "source_path": "docs/plans/CRATE_RELIABILITY_AND_ACCEPTANCE.md",
+      "source_lines": [
+        284,
+        291
+      ],
+      "content_sha256": "84b0e51120ddd5edd3a8174881f0421cddd35f7e16fcb403e2d7e1598363524e"
+    },
+    {
+      "id": "r09",
+      "content": "- [ ] **Priority P2; owners: persistence modules, root and launcher.** Inventory\n  paths as shipped inputs, mutable private state, retained evidence, cache or\n  test fixtures. Define backup/export/redaction/retention and migration ownership.\n- [ ] Qualify consistent backup and restore on copies, then clean installation,\n  upgrade/rollback and truthful native readiness under existing\n  [launcher acceptance](../operations/launcher-local-runtime-acceptance.md).\n  Separate development composition from packaged startup.\n\nExit evidence: reviewed ownership table, proven restore/rollback and preserved\nidentity/history. Do not remove tracked state or migrate live databases merely\nbecause they look generated.",
+      "source_path": "docs/plans/CRATE_RELIABILITY_AND_ACCEPTANCE.md",
+      "source_lines": [
+        320,
+        330
+      ],
+      "content_sha256": "b7b7b23d79eb351c85fef7e56797cc3022a6e7bf1f38c372260b242d524d1621"
+    },
+    {
+      "id": "r10",
+      "content": "- [ ] **Priority P3; owners: Aule, economics, Rumil and existing daily-loop owner.**\n  Connect objective \u2192 provider calls \u2192 artifacts \u2192 checks \u2192 feedback. Turn\n  meaningful failures into regression cases. Measure accepted completion,\n  intervention count, elapsed time, duplicate effects and cost/energy per accepted\n  result, distinguishing hardware measurements from estimates.\n- [ ] Complete the existing [daily improvement](DAILY_RESEARCH_IMPROVEMENT_LOOP.md)\n  acceptance window and retain useful no-change/rejection outcomes as well as\n  improvements. Link findings to exact revisions and confirmed resolutions.\n\nExit evidence: repeatable evaluation dataset, comparable outcomes and accepted\nreduction in operator burden; telemetry volume alone is not success.",
+      "source_path": "docs/plans/CRATE_RELIABILITY_AND_ACCEPTANCE.md",
+      "source_lines": [
+        334,
+        344
+      ],
+      "content_sha256": "3bd04be5f12a6863fbf6afd25eb02d926b2ccc216c4b56e6ded78f4e2482b654"
+    },
+    {
+      "id": "r11",
+      "content": "- [ ] **Priority P3; owners: SDK, outpost crates and native UI owners.** Provide a\n  working adapter example and conformance checks for framing, capabilities,\n  compatibility, timeout/cancellation and error reporting.\n- [ ] Qualify actual outpost disconnect/reconnect, stale observations and honest\n  offline displays. Use existing project/device/native owners; broader embodiment\n  remains deferred and is not a prerequisite for G1.\n\nExit evidence: a second real consumer where extension is justified, compatibility\nresults and native/device observations with no authority expansion.",
+      "source_path": "docs/plans/CRATE_RELIABILITY_AND_ACCEPTANCE.md",
+      "source_lines": [
+        348,
+        356
+      ],
+      "content_sha256": "d0d58b7fe8f7916858f8f6a890ef981bc80433d5f95a03546f995b3631f796d5"
+    },
+    {
+      "id": "assessment",
+      "content": "Existing Vaire retrieval evaluation already exposes Hit@1, Recall@K and MRR.\nManwe already contains retry/fallback/budget machinery. The opportunity is to\nqualify and expose these capabilities, not assume they are missing or replace\nthe Rust system with the comparison projects.",
+      "source_path": "docs/audits/2026-10-05-crate-assessment.md",
+      "source_lines": [
+        113,
+        116
+      ],
+      "content_sha256": "0cf3d62b0a62309412339493d8876c861d6a11dcb901fd5bd310873a9e053b48"
+    }
+  ],
+  "queries": [
+    {
+      "query": "What should be refactored before changing behavior?",
+      "expected_document_ids": [
+        "rules"
+      ]
+    },
+    {
+      "query": "Which principles favor composition and small stable contracts?",
+      "expected_document_ids": [
+        "rules"
+      ]
+    },
+    {
+      "query": "Did the accepted CLI continuation require switching to Discord?",
+      "expected_document_ids": [
+        "m5-scope"
+      ]
+    },
+    {
+      "query": "How were fresh sessions authenticated without resuming an earlier conversation?",
+      "expected_document_ids": [
+        "m5-scope"
+      ]
+    },
+    {
+      "query": "What authorization regression tests were chosen for WGTT?",
+      "expected_document_ids": [
+        "m5-consumption"
+      ]
+    },
+    {
+      "query": "Were staging checks established by the conversational plan?",
+      "expected_document_ids": [
+        "m5-consumption"
+      ]
+    },
+    {
+      "query": "Did CLI plans emit a new ContextUseReceipt?",
+      "expected_document_ids": [
+        "m5-boundaries"
+      ]
+    },
+    {
+      "query": "Can local continuity evidence close the combined M1 M2 obligations?",
+      "expected_document_ids": [
+        "m5-boundaries"
+      ]
+    },
+    {
+      "query": "Was mesh-llm kept off during fresh authority recovery?",
+      "expected_document_ids": [
+        "r01"
+      ]
+    },
+    {
+      "query": "Where was rollback state preserved when the operator chose fresh authority?",
+      "expected_document_ids": [
+        "r01"
+      ]
+    },
+    {
+      "query": "Were required status checks enforced by R03?",
+      "expected_document_ids": [
+        "r03"
+      ]
+    },
+    {
+      "query": "Which native workspaces and frontend jobs passed source validation?",
+      "expected_document_ids": [
+        "r03"
+      ]
+    },
+    {
+      "query": "Which crate owns explicit HTTP reconciliation Close and admission contracts?",
+      "expected_document_ids": [
+        "r05"
+      ]
+    },
+    {
+      "query": "Does the Workbench executor depend on OpenTelemetry or Manwe?",
+      "expected_document_ids": [
+        "r05"
+      ]
+    },
+    {
+      "query": "Does unknown billing prove a spending cap?",
+      "expected_document_ids": [
+        "r06"
+      ]
+    },
+    {
+      "query": "Are typed durable route receipts sufficient to close canonical G2?",
+      "expected_document_ids": [
+        "r06"
+      ]
+    },
+    {
+      "query": "How should backup restore and identity history be qualified?",
+      "expected_document_ids": [
+        "r09"
+      ]
+    },
+    {
+      "query": "May generated-looking live databases simply be migrated or removed?",
+      "expected_document_ids": [
+        "r09"
+      ]
+    },
+    {
+      "query": "What measures demonstrate reduced operator burden rather than telemetry volume?",
+      "expected_document_ids": [
+        "r10"
+      ]
+    },
+    {
+      "query": "How should cost energy per accepted result distinguish estimates?",
+      "expected_document_ids": [
+        "r10"
+      ]
+    },
+    {
+      "query": "What should outpost offline displays report after disconnect?",
+      "expected_document_ids": [
+        "r11"
+      ]
+    },
+    {
+      "query": "Which adapter compatibility and cancellation checks are required?",
+      "expected_document_ids": [
+        "r11"
+      ]
+    },
+    {
+      "query": "Does retrieval evaluation already expose Hit Recall and MRR?",
+      "expected_document_ids": [
+        "assessment"
+      ]
+    },
+    {
+      "query": "Which source evidence distinguishes executor source qualification from installed validation?",
+      "expected_document_ids": [
+        "r05",
+        "r03"
+      ]
+    }
+  ]
+}

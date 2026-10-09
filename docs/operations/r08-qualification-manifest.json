@@ -1,0 +1,56 @@
+{
+  "schema": "r08.qualification.manifest.v1",
+  "scope": "working-tree source qualification and human-labeled baseline measurement; no deployment or usefulness acceptance",
+  "files": {
+    "crates/spine/runtime/manwe/src/adaptive/service/full/governance_failures.rs": "ed111b8499538e043911be8e2e05d15a487a7453351aae5f047ed072d8c169a5",
+    "crates/spine/runtime/manwe/src/adaptive/service/full_service.rs": "c26051046fb2dc89f3073f125494aa14e3b2c3addf762242e2c96f88b6d35986",
+    "crates/spine/runtime/manwe/src/adaptive/service/full/tests.rs": "2f8887f34f75174bafa354151b540be11575f6f9230d574a5aa7c26f94e72499",
+    "crates/spine/executors/arda-varda/src/ingest.rs": "13b18488f7b5f6c0a675db8ea1ddd5ad789c2ec1067d812c2cb43c3b1f465290",
+    "crates/spine/governance/arda-governance/src/bacon_lite.rs": "4e57e80747e6ae15b7a662484c452affb1e834260da2d2ea19ed18793e86b264",
+    "crates/spine/governance/arda-governance/src/lib.rs": "d07f84036a800857ee0de42b0f86b41e09e412ccc3b253ea51d433f25983ba05",
+    "crates/spine/runtime/arda-mandos/examples/qualify_judgments.rs": "e248c163dc556acf581e94d14ddf60bd7648ed65b404d6b018d04c8dcdf43a99",
+    "scripts/qualify_r08_judgments.py": "e2703b65ae33dfa679636fb1313e3a2798552ab19dd4d54bad02d345d608c4aa",
+    "scripts/test_qualify_r08_judgments.py": "c299bc8b7d129d68557a0930de2fc7622dd918a6cc861350cec16e1a79db7bab",
+    "docs/operations/r08-judgment-cases.json": "99e66b625a9e3d640c7adcac8488ded5fdb5d36e79f12076d7ec6a0ee25cb7e0"
+  },
+  "logs": {
+    "r08-final-tests.log": {
+      "sha256": "92721116c258e27d99d859be0210fe12c552c3a53b026f63b7b4c553cc3713b0",
+      "local_build_artifact": true
+    },
+    "r08-final-clippy.log": {
+      "sha256": "1007d83c91c3d08681c4df1eeba54bc9ccf5935810c2bd69e258e84a297acef6",
+      "local_build_artifact": true
+    },
+    "r08-metrics-red.log": {
+      "sha256": "621638586355406466249c8f187ef5446d00c222083507a0364007d0295d3c2d",
+      "local_build_artifact": true
+    },
+    "r08-metrics-green.log": {
+      "sha256": "698d16d7b93c4bd9707d3cfacda6fb1e0fea99ed0cda6e69bedc42772940540a",
+      "local_build_artifact": true
+    },
+    "r08-redaction-red.log": {
+      "sha256": "38d3ffb890862ebf4aa45575c4786dd8e434a57d4d78b0ec0d5a6d40f1850340",
+      "local_build_artifact": true
+    },
+    "r08-redaction-green.log": {
+      "sha256": "8a164002fd7c2c55736bc773a23ae7e15cbaff51e86c13146102566f5e2bf39d",
+      "local_build_artifact": true
+    },
+    "r08-judgments-example.log": {
+      "sha256": "ac112744e7284a6a7a3dba2b173bb896c30042ca27c72f2fe11c66c12199c798",
+      "local_build_artifact": true
+    },
+    "r08-stream-correlation-red.log": {
+      "local_build_artifact": true,
+      "sha256": "34177411e08115c8c0a48424cf5e0588eeb7a98e4c352d0a6762406c5a9e5d33"
+    }
+  },
+  "artifacts": {
+    "r08-judgments.json": "ed60ee042a3d2922d6366ac47a4b84bc6c4de46ae7705c2e2eb6a6201002d865",
+    "r08-quality.json": "be68ae2d01972e1c597e01d43524333a55d73777ec5c3c0b288d00d497ce6a87",
+    "r08-human-labels.template.json": "58ea1e5f59d916bcbab4a58723c40b60ff94804f40ed257c8064f3c53066b9fa",
+    "r08-human-labels.json": "bd328e70f2e3ab1c1722f8bd72d760caa9d50a50da547f5aa5b6c1b5ae7d4c29"
+  }
+}

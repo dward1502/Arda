@@ -854,6 +854,41 @@ impl RunStore {
             .join(format!("{digest:x}.json"))
     }
 
+    /// Immutable advisory snapshot; never an execution or approval receipt.
+    pub(crate) fn write_reasoning_advice(
+        &self,
+        node: &NodeId,
+        advice: &Value,
+    ) -> anyhow::Result<()> {
+        let _guard = self.journal_lock(true)?;
+        self.check_mutation_clock()?;
+        let path = self
+            .directory
+            .join("reasoning")
+            .join(format!("{}.json", node.as_str()));
+        if path.exists() {
+            let existing: Value = serde_json::from_slice(&fs::read(&path)?)?;
+            anyhow::ensure!(existing == *advice, "conflicting retained reasoning advice");
+            return Ok(());
+        }
+        fs::create_dir_all(path.parent().expect("reasoning parent"))?;
+        atomic_write(&path, &serde_json::to_vec(advice)?)?;
+        Ok(())
+    }
+
+    pub(crate) fn read_reasoning_advice(&self, node: &NodeId) -> anyhow::Result<Option<Value>> {
+        let _guard = self.journal_lock(false)?;
+        let path = self
+            .directory
+            .join("reasoning")
+            .join(format!("{}.json", node.as_str()));
+        match fs::read(&path) {
+            Ok(bytes) => Ok(Some(serde_json::from_slice(&bytes)?)),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(error) => Err(error.into()),
+        }
+    }
+
     pub fn write_execution_receipt(
         &self,
         node_id: &NodeId,

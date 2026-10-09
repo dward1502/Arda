@@ -415,6 +415,7 @@ fn router(state: HarnessState, provider_jobs: recovery_jobs::ProviderJobs) -> ax
         ))
         .with_state(state)
         .layer(axum::Extension(provider_jobs))
+        .layer(axum::Extension(runs::ResidentReasoning::default()))
         .layer(harness_cors_layer())
 }
 

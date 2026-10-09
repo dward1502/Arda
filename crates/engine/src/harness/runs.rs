@@ -2,6 +2,10 @@ use arda_core::run_graph::{
     NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRole, WorkerRouteClass,
 };
 use arda_vaire::{ContextAssembly, MnemosyneService};
+mod provider_instructions;
+mod reasoning;
+use provider_instructions::provider_instructions;
+pub(super) use reasoning::ResidentReasoning;
 mod retained_dispatch;
 use axum::{
     extract::{ConnectInfo, Path, State},
@@ -160,12 +164,18 @@ pub struct CompleteRunNodeRequest {
 pub struct ExecuteProviderNodeRequest {
     envelope: MutationEnvelope,
     objective: String,
+    #[serde(default = "default_reasoning_advice")]
+    reasoning_advice: bool,
     #[serde(default)]
     recovery_event_id: Option<String>,
     #[serde(default)]
     expected_retained_lease: Option<crate::objectives::snapshot_protocol::Lease>,
     #[serde(default)]
     context_assembly: Option<ContextAssembly>,
+}
+
+fn default_reasoning_advice() -> bool {
+    true
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize, Serialize)]
@@ -779,27 +789,6 @@ fn complete_run_node_inner(
     Ok(Json(run_response(&store, graph)?))
 }
 
-fn provider_instructions(kind: NodeKind, declared_checks: &[String]) -> String {
-    if kind == NodeKind::Review {
-        format!(
-            "Work only inside the attached project root. Do not commit or modify project files. Independently inspect the implementation and durable verification evidence without rerunning the declared checks. Judge whether the parent receipt's result satisfies this node's bounded objective, and report named defects that contradict the objective or invalidate its evidence. Begin the summary with exactly `VERDICT: APPROVE` and use status `succeeded` only when the bounded result and evidence are approved. Begin with exactly `VERDICT: BLOCK` and use status `failed` when any named defect blocks approval. Requested analytical findings are an output to validate, not defects that fail the run unless they contradict the bounded objective or invalidate its evidence. For an intermediate run-graph node, judge only this node's objective and evidence; do not require downstream whole-objective deliverables such as synthesis, repair backlogs, operator outcomes, or joined closure. Fail rather than approve unsupported completion. For read-only source evidence, exported tool output digests authenticate the actual calls and must not equal source content digests because they hash different envelopes. Treat absence of mutating tool calls under read-only authority as the no-modification evidence. Require a context_use_receipt only when supplied by the governed capsule. Declared checks already covered by the verification receipt: {}",
-            declared_checks.join("; ")
-        )
-    } else if kind == NodeKind::Verify && declared_checks.is_empty() {
-        "Work only inside the attached project root. Do not commit or modify project files. No project-native checks are declared: do not invent checks or claim tests passed. Independently verify the parent inspection summary against relevant project files using the allowed file tools; return material file-tool evidence and cited findings. Keep test_evidence and artifacts empty. Fail if the parent result is unsupported.".into()
-    } else if kind == NodeKind::Inspect {
-        format!(
-            "Work only inside the attached project root. Do not commit or modify project files. Use the file tools to read at least one relevant project file and return material file-tool evidence supporting the bounded inspection. Do not run the declared checks; the independent verifier owns project-native check execution. Declared checks reserved for verification: {}",
-            declared_checks.join("; ")
-        )
-    } else {
-        format!(
-            "Work only inside the attached project root. Do not commit. Execute every declared check exactly as printed before any optional exploratory command, and make no changes outside the objective. In test_evidence, reference the terminal tool call that ran the exact declared command; never reference an exploratory command. If a declared check succeeds, do not substitute ls, pwd, or inspection output for its evidence. Declared checks: {}",
-            declared_checks.join("; ")
-        )
-    }
-}
-
 fn dependency_receipt_instructions(
     store: &RunStore,
     graph: &RunGraph,
@@ -882,6 +871,7 @@ pub(super) async fn execute_provider_node(
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
     shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
     axum::Extension(jobs): axum::Extension<super::recovery_jobs::ProviderJobs>,
+    axum::Extension(reasoning): axum::Extension<ResidentReasoning>,
     Json(raw_request): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
     require_loopback(peer)?;
@@ -892,9 +882,16 @@ pub(super) async fn execute_provider_node(
     // The waiter is disposable; admission, child ownership and terminal evidence
     // belong to the Harness. Only identical concurrent requests may subscribe.
     jobs.execute(key, digest, async move {
-        let Json(response) =
-            execute_provider_node_authorized(state, id, node_id, shutdown, raw_request, None)
-                .await?;
+        let Json(response) = execute_provider_node_authorized(
+            state,
+            id,
+            node_id,
+            shutdown,
+            raw_request,
+            None,
+            Some(reasoning),
+        )
+        .await?;
         serde_json::to_value(response).map_err(|error| ApiError::internal(error.to_string()))
     })
     .await
@@ -910,6 +907,7 @@ async fn execute_provider_node_authorized(
     shutdown: Option<axum::Extension<crate::supervisor::Shutdown>>,
     raw_request: serde_json::Value,
     recovery: Option<std::sync::Arc<crate::objectives::RecoveryAuthorization>>,
+    reasoning: Option<ResidentReasoning>,
 ) -> Result<Json<ExecuteProviderNodeResponse>, ApiError> {
     let request: ExecuteProviderNodeRequest = serde_json::from_value(raw_request.clone())
         .map_err(|error| ApiError::bad_request(format!("invalid provider request: {error}")))?;
@@ -1100,11 +1098,28 @@ async fn execute_provider_node_authorized(
         .iter()
         .map(|(id, command)| format!("{id}: {command}"))
         .collect::<Vec<_>>();
-    let mut instructions = provider_instructions(ready_node.kind, &declared_checks);
+    // Advice presence versions the instruction contract. Tasks dispatched before
+    // this integration (and advice-disabled tasks) retain the old Verify bytes.
+    let current_instructions = store
+        .read_reasoning_advice(&node_id)
+        .map_err(store_error)?
+        .is_some()
+        || (request.reasoning_advice
+            && reasoning.is_some()
+            && !reasoning::has_started(&store, &node_id)?);
+    let instruction_kind = if !current_instructions
+        && ready_node.kind == NodeKind::Verify
+        && !declared_checks.is_empty()
+    {
+        NodeKind::Execute
+    } else {
+        ready_node.kind
+    };
+    let mut instructions = provider_instructions(instruction_kind, &declared_checks);
     if let Some(receipt_instructions) = dependency_receipt_instructions(&store, &graph, &node_id)? {
         instructions.push_str(&receipt_instructions);
     }
-    let task = HermesNodeTask {
+    let mut task = HermesNodeTask {
         run_id: graph.run_id.clone(),
         node: ready_node,
         objective: request.objective.clone(),
@@ -1131,6 +1146,7 @@ async fn execute_provider_node_authorized(
         .read_execution_receipt(&node_id)
         .map_err(store_error)?
     {
+        reasoning::attach(&state, &store, &mut task, false, None).await?;
         let receipt: HermesExecutionReceipt = serde_json::from_value(value).map_err(|error| {
             ApiError::internal(format!("stored provider receipt is invalid: {error}"))
         })?;
@@ -1265,6 +1281,21 @@ async fn execute_provider_node_authorized(
                 ));
             }
         }
+        reasoning::preflight_new(
+            &adapter,
+            &store,
+            &task,
+            request.reasoning_advice,
+            reasoning.is_some(),
+        )?;
+        let prepared_advice = reasoning::attach(
+            &state,
+            &store,
+            &mut task,
+            request.reasoning_advice,
+            reasoning.as_ref(),
+        )
+        .await?;
         let attempt =
             next_provider_attempt(&store.recover().map_err(store_error)?.events, &node_id);
         let adapter = if let Some((grant, _)) = &recovery_binding {
@@ -1397,6 +1428,12 @@ async fn execute_provider_node_authorized(
             .expect("provider node remains present")
             .checkpoint
             .sequence = attempt;
+        // Commit only after request/adapter/admission and final prompt checks.
+        if let Some(advice) = prepared_advice {
+            store
+                .write_reasoning_advice(&node_id, &advice)
+                .map_err(|_| ApiError::conflict("could not retain reasoning advice"))?;
+        }
         // Recovery's journal-fenced delimiter owns the only Running append.
         if recovery.is_none() {
             apply_transition_once(

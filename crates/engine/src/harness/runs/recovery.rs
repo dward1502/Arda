@@ -209,6 +209,7 @@ async fn drive(
             Some(axum::Extension(shutdown.clone())),
             raw,
             Some(Arc::clone(&authorization)),
+            None,
         )
         .await?;
         if response.receipt.status != HermesReceiptStatus::Succeeded {

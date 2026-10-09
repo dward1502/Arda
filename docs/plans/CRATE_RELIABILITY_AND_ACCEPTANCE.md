@@ -118,8 +118,10 @@ Keep mesh-llm off and preserve both completed project runs and operator workspac
 
 Suggested next-session request:
 
-> Continue R08 by tracing governance allow/deny/advisory outcomes through actual
-> effect-owning callers; test missing/expired authority and unavailable scorers.
+> Execute R09 state lifecycle and installation qualification, then R10 and R11
+> in dependency order. Start with ownership classification and consistent backup
+> and restore on copies; preserve live identity/history and separate development
+> composition from packaged startup. R08's bounded acceptance is recorded below.
 > Preserve accepted M5 CLI and M3/M4 evidence, keep R06 and combined-scenario gaps
 > explicit, leave mesh-llm off, and preserve operator state.
 
@@ -332,56 +334,74 @@ this small corpus, migrate historical Books, or promote this offline measurement
 to installed crawler/answer-service acceptance. Versioned corpus, model input,
 answers, rubric and judgments are linked in the qualification report. Local raw
 logs and current source hashes: `target/qualification/r07-20261008/manifest.json`.
-R08 is the next numbered work item; R06's separately recorded live gates remain open.
+R08's bounded acceptance is recorded below; R06's separately recorded live gates remain open.
 
 ### R08 Verify governance and reasoning influence
 
-- [ ] **Priority P2; owners: governance, Mandos and effect-owning callers.** Trace
+- [x] **Priority P2; owners: governance, Mandos and effect-owning callers.** Trace
   allow/deny/advisory results through actual execution boundaries. Test expired,
   missing or invalid authority and unavailable scorers without bypass effects.
-- [ ] Retain understandable policy/version/result evidence with appropriate
+- [x] Retain understandable policy/version/result evidence with appropriate
   redaction. Compare advisory judgments against human-labeled outcomes and
   quantify false approvals/rejections under existing G6.5.
 
 Exit evidence: enforcement at each reviewed effect boundary, explainable decisions
 and measured judgment quality. Advisory scores must not mint execution authority.
 
-October 8 in progress (after R07 commit `c9c95e2d`): governance/Mandos baseline
-passes 198 tests. Caller tracing distinguishes Manwe's conservatively non-blocking
-realm evaluation, Aule's legacy Oracle delegation gate, and Engine's standalone
-`ArdaEngineGovernanceEnforcer` (only test callers found, not resident enforcement).
-No global blocking has been enabled and these are not whole-system guarantees.
+Current evidence: [R08 qualification](../operations/r08-governance-qualification.md)
+contains the boundary matrix, reproduction commands, source hashes and frozen
+judgment experiment. MCP protected-dispatch repair `5ccdea23` and Varda retained-
+evidence repair `a9153029` are committed. The latest continuation is uncommitted. Earlier boundary reviews found no
+remaining blockers within their scopes; the resident integration and its
+additional installed changed-proposal evidence are described below.
+The first row is closed for the reviewed source boundaries, not installed-runtime
+acceptance. The bounded resident integration is now installed; global blocking
+remains unchanged.
 
-The Orome MCP compatibility dispatcher accepted any nonempty approval string
-before invoking a protected handler. A new regression reached a panic-only handler
-with forged metadata (RED). The source repair refuses approval/network/destructive
-calls before dispatch because this server has no canonical authority verifier;
-initialization now discloses that protected dispatch is unavailable. Ordinary
-local tools retain their positive round-trip test. Registry dispatch now snapshots
-the descriptor and handler together; a deterministic RED/GREEN regression covers
-same-name replacement between validation and invocation. Orome all-feature tests
-pass 139/139 and strict all-target Clippy passes. Independent source re-review
-found no blockers. The missing, forged and `expired` strings are unverified-token
-cases, not validation of a real expiring capability. No live service changed.
-Raw registry calls remain in-process compatibility APIs, not authorization gates.
-Logs: `target/qualification/r08-*` (local build artifacts, not durable acceptance).
+| Requirement | Current evidence | Remaining |
+|---|---|---|
+| Reviewed effect boundaries | Orome protected-dispatch refusal; 45 layered Engine authority/lease/replay checks; Varda evidence-unavailable refusal and quarantine/landing control | Source qualification reviewed; no single end-to-end canonical negative matrix claimed |
+| Unavailable scorers | Manwe loopback HTTP and streaming dispatch exercise timeout/unavailable/backend errors; advisory status retained and provider exclusion sends no request | Production asynchronous receipt durability is outside this source-test claim |
+| Explainable redacted decisions | Varda safe-description adapter preserves full scoring and correlated policy/rationale; source-text leak reproduced then repaired | Adapter and regression reviewed; historical logs not rewritten |
+| Human judgment quality | Eight operator-labeled scenarios: four accept/four reject; false approvals 0/4, false rejections 0/4; all eight outputs conditional, decisive coverage 0/8 | Measurement complete; useful reasoning influence remains at G6.5, not established by zero error rates |
 
-The MCP boundary repair is committed as `5ccdea23`. Varda's next source repair
-passed independent source review: `AthenaStore::ingest_with_pipeline_id`
-now refuses unavailable governance evidence before scholarly fetches, interceptors
-or ingest-state writes instead of treating record errors as acceptance. A
-RED/GREEN fixture blocks each evidence destination and checks unchanged digest
-and absent Books for ordinary and heavy-deny inputs. Varda tests pass 140 with
-1 ignored; strict all-target Clippy passes. Evidence logging is not transactional:
-a machine event may remain when the human log fails. Batches retain earlier
-successful items if a later item fails; no atomic batch claim is made. No live
-deployment occurred.
+Current checks: 651 Rust tests pass (1 ignored), 2 example tests, 8 Python metric
+tests, strict all-target Clippy for Manwe/Varda/governance/Mandos. The working tree
+contains concurrent changes; these counts are not an isolated release-tree claim.
 
-Next: qualify resident
-Engine effect admission. Trace actual proposal changes rather than treating the
-unwired enforcer or advisory route receipts as G6.5 acceptance. Human-labeled
-outcomes and false-approval/rejection measurement remain unqualified; do not
-substitute model labels or declare R08 complete.
+Operator labels and verbatim explanations are retained and the comparison ran
+successfully. The operator rejected measurement-only closure, requiring the
+operational caller to consume judgments and change a proposal/action. The
+empty-context, fresh-engine baseline remains diagnostic only.
+The resident provider route now consumes shared, persisted Mandos advice and
+passes it to Hermes without granting authority or adding recurring approvals.
+A real-provider source assessment consumed conditional advice, inspected source,
+and distinguished proceeding within authority from revising private publication.
+Independent review found neutral-evidence inflation, premature advice retention,
+and legacy Verify replay drift. Further review found typed transport limits
+checked after retention and indirect neutral-evidence confidence inflation.
+These were also reproduced and repaired; scoped Engine/Mandos tests and strict
+Clippy pass. The correction review confirmed both semantic repairs and found a
+Linux-only field guard, now applied. The release root is installed and a real
+Hermes source-assessment run consumed the resident service's conditional advice;
+state, advice and its single verdict survive a root restart. The keeper remained
+running. [Installed evidence](../operations/r08-resident-runtime-evidence.json)
+records artifact identity and the bounded control. A completed-node POST retry
+is refused by scheduler admission; no successful POST replay is claimed.
+Independent review accepted the integration but found the prescribed source
+question insufficient to prove a changed proposal. The follow-on installed run
+`r08-installed-proposal-revision-20261008` supplies that missing assertion: after
+conditional advice and actual source inspection, Hermes replaced the concrete
+candidate to label all authorized memories Supporting/Independent with selective
+claim- and provenance-backed classification while preserving Neutral/Unknown
+defaults. The request prescribed no filename or verdict. The retained receipt
+correlates original proposal, judgment, evidence and revision; authoritative
+readback matches, one verdict exists, and no project source was modified.
+R08's bounded operational continuation is complete; [acceptance and limits](../operations/r08-governance-qualification.md).
+No more label input is needed. General G6.5 usefulness/calibration, R06 live gates,
+successful terminal POST replay and interrupted-worker recovery are not claimed
+by this evidence. No new implementation, publication or human approval was
+authorized by the judgment. R09 remains a separate numbered assignment.
 
 ### R09 Clarify state lifecycle and installation
 

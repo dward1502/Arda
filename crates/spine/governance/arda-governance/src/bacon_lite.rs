@@ -231,7 +231,33 @@ pub fn record_bacon_lite_to(
     context: Value,
     paths: &BaconLiteLogPaths,
 ) -> std::io::Result<BaconLiteEvent> {
-    let event = build_bacon_lite_event(crate_name, action, task, context)?;
+    record_bacon_lite_to_with_description(
+        crate_name,
+        action,
+        task,
+        task.description.clone(),
+        context,
+        paths,
+    )
+}
+
+/// Score the full task, but persist a caller-selected safe description.
+/// Context is caller-owned and must also be safe for the chosen log audience.
+pub fn record_bacon_lite_to_with_description(
+    crate_name: &str,
+    action: &str,
+    task: &Task,
+    persisted_description: String,
+    context: Value,
+    paths: &BaconLiteLogPaths,
+) -> std::io::Result<BaconLiteEvent> {
+    let event = build_bacon_lite_event_with_description(
+        crate_name,
+        action,
+        task,
+        persisted_description,
+        context,
+    )?;
     persist_batch(
         paths,
         std::slice::from_ref(&event),

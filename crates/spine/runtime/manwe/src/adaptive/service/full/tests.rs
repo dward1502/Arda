@@ -254,6 +254,9 @@ async fn route_selects_provider_and_writes_state() {
     assert!(total > 0.0);
 }
 
+#[path = "governance_failures.rs"]
+mod governance_failures;
+
 #[tokio::test]
 async fn route_preserves_non_passing_realm_receipts_without_enabling_blocking() {
     let _guard = isolate_env_lock(&ENV_LOCK);

@@ -1,0 +1,48 @@
+{
+  "corpus_sha256": "99e66b625a9e3d640c7adcac8488ded5fdb5d36e79f12076d7ec6a0ee25cb7e0",
+  "reviewer": "operator:mythos",
+  "provenance": "human",
+  "source": "Operator verdicts, J08 clarification, and numbered explanations in Hermes session 20261007_223353_52a3f3; reasons transcribed verbatim, not inferred. Evaluation only; no execution authority.",
+  "labels": [
+    {
+      "id": "J01",
+      "judgment": "accept",
+      "reason": "one line keeps data down when it accumalates at scale but still provide relavant info"
+    },
+    {
+      "id": "J02",
+      "judgment": "reject",
+      "reason": "i dont want private journals to a public source"
+    },
+    {
+      "id": "J03",
+      "judgment": "accept",
+      "reason": "space was an aissue"
+    },
+    {
+      "id": "J04",
+      "judgment": "accept",
+      "reason": "that is one of the research goals is for Arda to self learn and improve its core infrastructure"
+    },
+    {
+      "id": "J05",
+      "judgment": "reject",
+      "reason": "no because that is when you get the model believeing itself and halluciantions and false info form"
+    },
+    {
+      "id": "J06",
+      "judgment": "reject",
+      "reason": "no need"
+    },
+    {
+      "id": "J07",
+      "judgment": "accept",
+      "reason": "yes its a good idea"
+    },
+    {
+      "id": "J08",
+      "judgment": "reject",
+      "reason": "pointless and machine is lying, makes no sense"
+    }
+  ]
+}

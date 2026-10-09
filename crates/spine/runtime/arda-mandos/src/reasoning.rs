@@ -22,7 +22,7 @@ use crate::pageindex::{IndexingReport, PageIndex};
 
 pub const ORACLE_SCHEMA_VERSION: &str = "arda.mandos.v3";
 pub const DEFAULT_ORACLE_POLICY_ID: &str = "arda.mandos.default";
-pub const DEFAULT_ORACLE_POLICY_VERSION: &str = "1.1.0";
+pub const DEFAULT_ORACLE_POLICY_VERSION: &str = "1.1.2";
 pub const MAX_QUERY_ID_BYTES: usize = 128;
 pub const MAX_QUERY_TASK_BYTES: usize = 8 * 1024;
 pub const MAX_QUERY_REQUESTER_BYTES: usize = 128;
@@ -884,7 +884,9 @@ impl OracleEngine {
             } else {
                 let effect = match evidence_ref.stance {
                     EvidenceStance::Contradicting => -0.15 * evidence_ref.source_quality,
-                    EvidenceStance::Supporting | EvidenceStance::Neutral => {
+                    // Unclassified context is uncertainty, not affirmative support.
+                    EvidenceStance::Neutral => 0.0,
+                    EvidenceStance::Supporting => {
                         if evidence_ref.kind == EvidenceKind::Retrieved {
                             0.2 * evidence_ref.source_quality / retrieved_count as f64
                         } else {
@@ -939,7 +941,10 @@ impl OracleEngine {
 
         let accepted_evidence_count = evidence
             .iter()
-            .filter(|assessment| assessment.disposition == EvidenceDisposition::Accepted)
+            .filter(|assessment| {
+                assessment.disposition == EvidenceDisposition::Accepted
+                    && assessment.evidence.stance == EvidenceStance::Supporting
+            })
             .count();
         if has_financial && accepted_evidence_count < 2 {
             concerns.push("Financial task requires stronger evidence base".to_string());
@@ -1251,6 +1256,8 @@ impl OracleEngine {
                     || assessment.evidence.stance == EvidenceStance::Contradicting
                 {
                     ReasoningEdgeType::ObjectsTo
+                } else if assessment.evidence.stance == EvidenceStance::Neutral {
+                    ReasoningEdgeType::DependsOn
                 } else {
                     ReasoningEdgeType::Supports
                 };
@@ -1289,7 +1296,10 @@ impl OracleEngine {
             .bacon
             .evidence
             .iter()
-            .filter(|assessment| assessment.disposition == EvidenceDisposition::Accepted)
+            .filter(|assessment| {
+                assessment.disposition == EvidenceDisposition::Accepted
+                    && assessment.evidence.stance == EvidenceStance::Supporting
+            })
             .count();
         let context_bonus = (accepted_evidence_count as f64 * 0.02).min(0.1);
         let outcome_modifier = match outcome {
@@ -1614,6 +1624,69 @@ mod tests {
         .with_independence(crate::evidence::EvidenceIndependence::Independent)
         .with_source_quality(0.9)
         .with_sensitive_excerpt(true)
+    }
+
+    #[test]
+    fn neutral_evidence_cannot_boost_mixed_scores_or_resonance() {
+        for task in ["review budget", "review deployment"] {
+            let mut request = query(task, vec![]);
+            request.evidence = vec![typed_evidence(
+                "support",
+                request.timestamp,
+                "proposal",
+                EvidenceStance::Supporting,
+            )
+            .with_source_quality(1.0)];
+            let baseline = evaluate(&mut OracleEngine::new(), request.clone());
+            request.evidence.push(
+                typed_evidence(
+                    "unclassified",
+                    request.timestamp,
+                    "proposal",
+                    EvidenceStance::Neutral,
+                )
+                .with_source_quality(1.0),
+            );
+            let mixed = evaluate(&mut OracleEngine::new(), request);
+            assert_eq!(
+                baseline.gates.bacon.score, mixed.gates.bacon.score,
+                "{task}"
+            );
+            assert_eq!(baseline.outcome, mixed.outcome, "{task}");
+            assert_eq!(baseline.resonance_score, mixed.resonance_score, "{task}");
+        }
+    }
+
+    #[test]
+    fn neutral_evidence_is_not_a_supporting_reasoning_edge() {
+        let mut request = query("review deployment", vec![]);
+        request.evidence = vec![typed_evidence(
+            "unclassified",
+            request.timestamp,
+            "proposal",
+            EvidenceStance::Neutral,
+        )];
+        let verdict = evaluate(&mut OracleEngine::new(), request);
+        let nodes = verdict.reasoning.traverse().unwrap();
+        let evidence = nodes
+            .iter()
+            .find(|node| {
+                node.kind == ReasoningNodeKind::Evidence
+                    && node.public_rationale.contains("source 'unclassified'")
+            })
+            .unwrap();
+        assert!(verdict
+            .reasoning
+            .edges()
+            .iter()
+            .any(|edge| edge.child_id == evidence.id
+                && edge.edge_type == ReasoningEdgeType::DependsOn));
+        assert!(!verdict
+            .reasoning
+            .edges()
+            .iter()
+            .any(|edge| edge.child_id == evidence.id
+                && edge.edge_type == ReasoningEdgeType::Supports));
     }
 
     #[test]

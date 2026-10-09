@@ -12,6 +12,10 @@ use std::sync::Arc;
 use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
 
+#[path = "fixtures/resident_reasoning_live.rs"]
+mod resident_reasoning_live;
+#[path = "fixtures/resident_reasoning_rejections.rs"]
+mod resident_reasoning_rejections;
 #[cfg(target_os = "linux")]
 #[path = "fixtures/retained_harness_loss.rs"]
 mod retained_harness_loss;
@@ -58,6 +62,71 @@ fn harness_state(root: &TempDir) -> HarnessState {
         workbench_root: root.path().to_path_buf(),
         operator_id: "operator-0".to_string(),
     }
+}
+
+#[tokio::test]
+async fn resident_reasoning_reaches_the_provider_with_retained_advice() {
+    let root = TempDir::new().expect("temp root");
+    write_file_only_hermes_config(&root);
+    // Protocol fixture: capture the actual spawned worker prompt, then return
+    // no session header. This proves dispatch, not real-model reasoning quality.
+    let worker = root.path().join("capture-worker.py");
+    let capture = root.path().join("captured-prompt.txt");
+    fs::write(&worker, format!(
+        "#!/usr/bin/python3\nimport sys\nfrom pathlib import Path\nPath({}).write_text(sys.argv[sys.argv.index('-q') + 1])\n",
+        serde_json::to_string(&capture.to_string_lossy()).unwrap()
+    )).unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(&worker, fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    let config = root.path().join("config/adapters/hermes-workbench.toml");
+    fs::write(
+        &config,
+        fs::read_to_string(&config)
+            .unwrap()
+            .replace("/bin/true", &worker.to_string_lossy()),
+    )
+    .unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+    let mut graph = provider_review_graph("run-reasoning");
+    graph["nodes"][0]["state"] = json!("ready");
+    graph["nodes"][0]["parent_receipts"] = json!(["receipt:verify"]);
+    client.post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({"project_id": PROJECT_ID, "graph": graph, "envelope": envelope("plan-reasoning")}))
+        .send().await.unwrap().error_for_status().unwrap();
+    let response = client.post(format!("http://{bound}/v1/runs/run-reasoning/nodes/review/execute-provider"))
+        .json(&json!({"envelope": envelope("execute-reasoning"), "objective": "Inspect authorized project evidence before drawing a conclusion"}))
+        .send().await.unwrap();
+    let status = response.status();
+    let body = response.text().await.unwrap();
+    assert_ne!(status, reqwest::StatusCode::BAD_REQUEST, "{body}");
+    let advice_path = root
+        .path()
+        .join("data/runs/run-reasoning/reasoning/review.json");
+    assert!(
+        advice_path.exists(),
+        "resident request did not retain advice; response {status}: {body}"
+    );
+    let advice: Value = serde_json::from_slice(&fs::read(&advice_path).unwrap()).unwrap();
+    assert_eq!(advice["execution_authority"], false);
+    assert_eq!(advice["next_action"], "inspect_within_existing_authority");
+    assert!(root
+        .path()
+        .join("data/oracle/verdict_history.jsonl")
+        .exists());
+    let prompt = fs::read_to_string(&capture).expect("worker received the actual provider prompt");
+    assert!(prompt.contains("Mandos advisory (not execution permission)"));
+    assert!(prompt.contains(advice["query_id"].as_str().unwrap()));
+    assert!(prompt.contains("inspect_within_existing_authority"));
+    assert!(prompt.contains("Preserve the required review verdict as the first summary line"));
+    assert_eq!(status, reqwest::StatusCode::INTERNAL_SERVER_ERROR);
+    assert!(body.contains("omitted its session header"));
+    shutdown.notify_waiters();
+    handle.await.unwrap();
 }
 
 #[tokio::test]

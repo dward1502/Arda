@@ -262,6 +262,7 @@ pub struct CharonService {
     bandit: Arc<bandit::BanditStore>,
     lane_fitness_lock: Arc<std::sync::Mutex<()>>,
     realm_policy_store: Arc<RealmPolicyStore>,
+    realm_scorer: Arc<dyn arda_governance::GovernanceScorer>,
 }
 
 impl CharonService {
@@ -393,6 +394,7 @@ impl CharonService {
             bandit: Arc::new(bandit::BanditStore::new(bandit_path)),
             lane_fitness_lock: Arc::new(std::sync::Mutex::new(())),
             realm_policy_store: load_route_realm_policy_store(),
+            realm_scorer: Arc::new(LocalGovernanceScorer),
         };
         Ok(service)
     }
@@ -464,7 +466,7 @@ impl CharonService {
             &policy,
             &realm,
             &action_class,
-            &LocalGovernanceScorer,
+            self.realm_scorer.as_ref(),
             StdDuration::from_millis(100),
         )
         .await

@@ -27,6 +27,7 @@ use tokio::time::timeout;
 
 const CONFIG_SCHEMA_VERSION: &str = "arda.hermes-adapter.v1";
 mod launch;
+mod prompt_context;
 mod recovery;
 #[cfg(target_os = "linux")]
 mod retained;
@@ -782,6 +783,13 @@ impl HermesAdapter {
         task: &HermesNodeTask,
     ) -> Result<crate::objectives::runtime_operation::RuntimeOperation, HermesAdapterError> {
         self.preflight(task)?;
+        self.build_chat_operation(task)
+    }
+
+    fn build_chat_operation(
+        &self,
+        task: &HermesNodeTask,
+    ) -> Result<crate::objectives::runtime_operation::RuntimeOperation, HermesAdapterError> {
         Ok(
             crate::objectives::runtime_operation::RuntimeOperation::Chat {
                 query: self.build_prompt(task)?,
@@ -803,6 +811,15 @@ impl HermesAdapter {
                 actual: prompt.len(),
                 limit: self.config.max_prompt_bytes,
             });
+        }
+        // Retained mode is discovered at dispatch. Before retaining any advice
+        // or start, require the common typed bounds even for legacy workers;
+        // a larger operator-configured adapter limit cannot widen this wire.
+        #[cfg(target_os = "linux")]
+        if self.retained.is_some() {
+            self.build_chat_operation(task)?.validate().map_err(|_| {
+                HermesAdapterError::InvalidTask("invalid bounded typed runtime operation".into())
+            })?;
         }
         Ok(())
     }
@@ -1157,18 +1174,7 @@ impl HermesAdapter {
     }
 
     fn build_prompt(&self, task: &HermesNodeTask) -> Result<String, HermesAdapterError> {
-        let context = serde_json::json!({
-            "run_id": task.run_id,
-            "node": task.node,
-            "objective": task.objective,
-            "instructions": task.instructions,
-            "checks": task.checks,
-            "check_commands": task.check_commands,
-            "project_contract_digest": task.project_contract_digest,
-            "project_root": self.project_root,
-            "organism_context_capsule": task.context_assembly.as_ref().map(|assembly| &assembly.capsule),
-            "context_use_receipt": task.context_assembly.as_ref().map(|assembly| &assembly.use_receipt),
-        });
+        let context = prompt_context::project(task, &self.project_root)?;
         Self::render_context(&context, task.node.kind)
     }
 

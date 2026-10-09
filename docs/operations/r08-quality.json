@@ -1,0 +1,25 @@
+{
+  "schema": "r08.quality.v1",
+  "corpus_sha256": "99e66b625a9e3d640c7adcac8488ded5fdb5d36e79f12076d7ec6a0ee25cb7e0",
+  "prediction_sha256": "69e089ec9fb2371f202218e41887483375159978212a1b567b968ddacd4a9f3f",
+  "case_count": 8,
+  "execution_authority": false,
+  "status": "measured_not_accepted",
+  "false_approval_rate": 0.0,
+  "false_rejection_rate": 0.0,
+  "human_label_count": 8,
+  "reviewer": "operator:mythos",
+  "provenance": "human_attested_not_authenticated",
+  "labels_sha256": "d378faef2fb9e6d90c68ef2f9811d650265030e99ebafdcd4ce715239c5d5b10",
+  "false_approvals": 0,
+  "false_rejections": 0,
+  "human_accept_count": 4,
+  "human_reject_count": 4,
+  "decisive_count": 0,
+  "decision_coverage": 0.0,
+  "deferred_count": 8,
+  "confusion_matrix": {
+    "accept/conditional": 4,
+    "reject/conditional": 4
+  }
+}

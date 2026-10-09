@@ -1,0 +1,2810 @@
+{
+  "corpus_sha256": "99e66b625a9e3d640c7adcac8488ded5fdb5d36e79f12076d7ec6a0ee25cb7e0",
+  "execution_authority": false,
+  "schema": "r08.judgments.v1",
+  "verdicts": [
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:06.993254302Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:178aa368545571fe9c840341bd8a5f1118d614f6f529406b0c19bfcbcabd5988",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.990679006Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:ca55962c1c5e4334031fd8125f77b48a65be239fa120ae5fa92d3dc9e7399be0",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:06.990679006Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.55,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:1a8dcfef98bb1f20983edbd2453a511c6ca57c96167f9ac7e1a79b7a50ba7c80",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.990679006Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5565,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.7499999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5565,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.718825
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.7499999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J01",
+      "query_timestamp": "2026-10-08T15:37:06.990679006Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:38bab76c8ad800165418c28010539fe807fb597ab5131ec4a0166e817f194086",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:6eb1f62a6b71c9fed1e15b217e2cb04b8eef6e463f8f7adec5918e11c0853620",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:cb37e4ae470bf712692173c481d4cc1ffcd87d7e63cc2aa647e190d299c1aa18",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:178aa368545571fe9c840341bd8a5f1118d614f6f529406b0c19bfcbcabd5988": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:178aa368545571fe9c840341bd8a5f1118d614f6f529406b0c19bfcbcabd5988",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.990679006Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          },
+          "sha256:1a8dcfef98bb1f20983edbd2453a511c6ca57c96167f9ac7e1a79b7a50ba7c80": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:1a8dcfef98bb1f20983edbd2453a511c6ca57c96167f9ac7e1a79b7a50ba7c80",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.990679006Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          },
+          "sha256:ca55962c1c5e4334031fd8125f77b48a65be239fa120ae5fa92d3dc9e7399be0": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:ca55962c1c5e4334031fd8125f77b48a65be239fa120ae5fa92d3dc9e7399be0",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:06.990679006Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:38bab76c8ad800165418c28010539fe807fb597ab5131ec4a0166e817f194086": {
+            "evidence_id": "sha256:178aa368545571fe9c840341bd8a5f1118d614f6f529406b0c19bfcbcabd5988",
+            "id": "reasoning:sha256:38bab76c8ad800165418c28010539fe807fb597ab5131ec4a0166e817f194086",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          },
+          "reasoning:sha256:6eb1f62a6b71c9fed1e15b217e2cb04b8eef6e463f8f7adec5918e11c0853620": {
+            "evidence_id": "sha256:1a8dcfef98bb1f20983edbd2453a511c6ca57c96167f9ac7e1a79b7a50ba7c80",
+            "id": "reasoning:sha256:6eb1f62a6b71c9fed1e15b217e2cb04b8eef6e463f8f7adec5918e11c0853620",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:cb37e4ae470bf712692173c481d4cc1ffcd87d7e63cc2aa647e190d299c1aa18": {
+            "evidence_id": "sha256:ca55962c1c5e4334031fd8125f77b48a65be239fa120ae5fa92d3dc9e7399be0",
+            "id": "reasoning:sha256:cb37e4ae470bf712692173c481d4cc1ffcd87d7e63cc2aa647e190d299c1aa18",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:06.990679006Z",
+      "vetoes": []
+    },
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:06.995796049Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:1b3c610cf2f5de83f426673d6015a705c648dc969c4e9bfcff173158b2236571",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.993306033Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:1d56079ba22e5c9b90f056e49fd770de0e43d6172c968013accd235e3bd30e05",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:06.993306033Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.55,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:bb1b439db430a9d07496d2c1393015f3c69483a389cab5ccb6ccc66252206ccd",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.993306033Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5415,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.6749999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5415,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.7143250000000001
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.6749999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J02",
+      "query_timestamp": "2026-10-08T15:37:06.993306033Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:3124e929694ebeb569239a676091954ea014f57f5df157e6fe49f05d09cf1c39",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:7485c25a1ecb4cc997d01e6dbba93b440111d5cec12ae23fabfaba86477a637f",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:f7de04cd090ef68e1f6b29d98dc53f0e17dcca93a5c7bd65c5d9d85d901fa925",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:1b3c610cf2f5de83f426673d6015a705c648dc969c4e9bfcff173158b2236571": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:1b3c610cf2f5de83f426673d6015a705c648dc969c4e9bfcff173158b2236571",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.993306033Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          },
+          "sha256:1d56079ba22e5c9b90f056e49fd770de0e43d6172c968013accd235e3bd30e05": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:1d56079ba22e5c9b90f056e49fd770de0e43d6172c968013accd235e3bd30e05",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:06.993306033Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          },
+          "sha256:bb1b439db430a9d07496d2c1393015f3c69483a389cab5ccb6ccc66252206ccd": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:bb1b439db430a9d07496d2c1393015f3c69483a389cab5ccb6ccc66252206ccd",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.993306033Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:3124e929694ebeb569239a676091954ea014f57f5df157e6fe49f05d09cf1c39": {
+            "evidence_id": "sha256:1b3c610cf2f5de83f426673d6015a705c648dc969c4e9bfcff173158b2236571",
+            "id": "reasoning:sha256:3124e929694ebeb569239a676091954ea014f57f5df157e6fe49f05d09cf1c39",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          },
+          "reasoning:sha256:7485c25a1ecb4cc997d01e6dbba93b440111d5cec12ae23fabfaba86477a637f": {
+            "evidence_id": "sha256:bb1b439db430a9d07496d2c1393015f3c69483a389cab5ccb6ccc66252206ccd",
+            "id": "reasoning:sha256:7485c25a1ecb4cc997d01e6dbba93b440111d5cec12ae23fabfaba86477a637f",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          },
+          "reasoning:sha256:f7de04cd090ef68e1f6b29d98dc53f0e17dcca93a5c7bd65c5d9d85d901fa925": {
+            "evidence_id": "sha256:1d56079ba22e5c9b90f056e49fd770de0e43d6172c968013accd235e3bd30e05",
+            "id": "reasoning:sha256:f7de04cd090ef68e1f6b29d98dc53f0e17dcca93a5c7bd65c5d9d85d901fa925",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:06.993306033Z",
+      "vetoes": []
+    },
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:06.998347366Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:bdbaa4f99f6600cf6bf2642af3d04a1ec40d405851b4a7fb77854b1fb5814088",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.995841540Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:07936710865a9a1022eb6df4132bd84348f9a2dc15ab6a2f0d6b20f21405c922",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:06.995841540Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.55,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:7345bd2860fdd43a5d66f4bdc60aa010dd69dbacc5b286dc39695f2f2f248429",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.995841540Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5565,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.7499999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5565,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.718825
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.7499999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J03",
+      "query_timestamp": "2026-10-08T15:37:06.995841540Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:fbd88b1c3f8947557847c86dd6b900e626522bff3af650b30d06520317aa6e0b",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:403c97fd36143c2fddec72f679e5b00aa54d83498f4c0e51aa90e5c63f8b64d5",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:f0e846776a953ed29f7e050fdf46e933459e83c63c45a7b96f5c05f130a53fdb",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:07936710865a9a1022eb6df4132bd84348f9a2dc15ab6a2f0d6b20f21405c922": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:07936710865a9a1022eb6df4132bd84348f9a2dc15ab6a2f0d6b20f21405c922",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:06.995841540Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          },
+          "sha256:7345bd2860fdd43a5d66f4bdc60aa010dd69dbacc5b286dc39695f2f2f248429": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:7345bd2860fdd43a5d66f4bdc60aa010dd69dbacc5b286dc39695f2f2f248429",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.995841540Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          },
+          "sha256:bdbaa4f99f6600cf6bf2642af3d04a1ec40d405851b4a7fb77854b1fb5814088": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:bdbaa4f99f6600cf6bf2642af3d04a1ec40d405851b4a7fb77854b1fb5814088",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.995841540Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:403c97fd36143c2fddec72f679e5b00aa54d83498f4c0e51aa90e5c63f8b64d5": {
+            "evidence_id": "sha256:7345bd2860fdd43a5d66f4bdc60aa010dd69dbacc5b286dc39695f2f2f248429",
+            "id": "reasoning:sha256:403c97fd36143c2fddec72f679e5b00aa54d83498f4c0e51aa90e5c63f8b64d5",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:f0e846776a953ed29f7e050fdf46e933459e83c63c45a7b96f5c05f130a53fdb": {
+            "evidence_id": "sha256:07936710865a9a1022eb6df4132bd84348f9a2dc15ab6a2f0d6b20f21405c922",
+            "id": "reasoning:sha256:f0e846776a953ed29f7e050fdf46e933459e83c63c45a7b96f5c05f130a53fdb",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          },
+          "reasoning:sha256:fbd88b1c3f8947557847c86dd6b900e626522bff3af650b30d06520317aa6e0b": {
+            "evidence_id": "sha256:bdbaa4f99f6600cf6bf2642af3d04a1ec40d405851b4a7fb77854b1fb5814088",
+            "id": "reasoning:sha256:fbd88b1c3f8947557847c86dd6b900e626522bff3af650b30d06520317aa6e0b",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:06.995841540Z",
+      "vetoes": []
+    },
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:07.000965223Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:6f7d60aacf645583e86d745a142a7b74119fc8ae1b915b9555d79d6d7ea5ac72",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.998395376Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:8f7608de1c483e2c620d25878967cfd9f083d14a2c3ade4d98730a35764dcfb7",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:06.998395376Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.55,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:121218552153ec506fb0b99dec0486b28aa3026189f365ad4bdd9f300c4ba3bf",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:06.998395376Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5415,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.6749999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5415,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.7143250000000001
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.6749999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J04",
+      "query_timestamp": "2026-10-08T15:37:06.998395376Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:27afd2256f9008330e7f5787dd64b4aefcd0fd8b2df5cdbbc7b59280a5794783",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:18467f4fb783315e2c9d0ae5600b4b613d77610f6c55b33d0c12c9dcb78d4bc8",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:e0202aaf572a53112e412f86753fcb8200fd3e22e9a77e9f94151b2a105440c8",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:121218552153ec506fb0b99dec0486b28aa3026189f365ad4bdd9f300c4ba3bf": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:121218552153ec506fb0b99dec0486b28aa3026189f365ad4bdd9f300c4ba3bf",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.998395376Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          },
+          "sha256:6f7d60aacf645583e86d745a142a7b74119fc8ae1b915b9555d79d6d7ea5ac72": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:6f7d60aacf645583e86d745a142a7b74119fc8ae1b915b9555d79d6d7ea5ac72",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:06.998395376Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          },
+          "sha256:8f7608de1c483e2c620d25878967cfd9f083d14a2c3ade4d98730a35764dcfb7": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:8f7608de1c483e2c620d25878967cfd9f083d14a2c3ade4d98730a35764dcfb7",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:06.998395376Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:18467f4fb783315e2c9d0ae5600b4b613d77610f6c55b33d0c12c9dcb78d4bc8": {
+            "evidence_id": "sha256:121218552153ec506fb0b99dec0486b28aa3026189f365ad4bdd9f300c4ba3bf",
+            "id": "reasoning:sha256:18467f4fb783315e2c9d0ae5600b4b613d77610f6c55b33d0c12c9dcb78d4bc8",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:27afd2256f9008330e7f5787dd64b4aefcd0fd8b2df5cdbbc7b59280a5794783": {
+            "evidence_id": "sha256:6f7d60aacf645583e86d745a142a7b74119fc8ae1b915b9555d79d6d7ea5ac72",
+            "id": "reasoning:sha256:27afd2256f9008330e7f5787dd64b4aefcd0fd8b2df5cdbbc7b59280a5794783",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:e0202aaf572a53112e412f86753fcb8200fd3e22e9a77e9f94151b2a105440c8": {
+            "evidence_id": "sha256:8f7608de1c483e2c620d25878967cfd9f083d14a2c3ade4d98730a35764dcfb7",
+            "id": "reasoning:sha256:e0202aaf572a53112e412f86753fcb8200fd3e22e9a77e9f94151b2a105440c8",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:06.998395376Z",
+      "vetoes": []
+    },
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:07.003511280Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:3f0dffacda9dbb3c2f2cef1476f2adc048470570d537fdba5c3ac9f5a2b8ab0a",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.001007933Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:c3318c1aa489d4ba4e78196c3d0f51fecf10ea2176626de758fd2f333f5638c2",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:07.001007933Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.55,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:928de9eed5aba19a666ba293ffbc9bb6aca4e388dcb46c774a29e7cca19e0bda",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.001007933Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5415,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.6749999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5415,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.7143250000000001
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.6749999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J05",
+      "query_timestamp": "2026-10-08T15:37:07.001007933Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:b2d54f32e414e399f516a70739b31d8475f7e9225bd8f4052768e56edfe2680e",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:9cc9a064930f95613bb31211393cefcc02eaffb4a75741e75c8168fb9fe75cd5",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:26158ba6e21d36c7a7a0d90e0ff29704b2a23f54d0ad1be5341e20007fbd80d7",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:3f0dffacda9dbb3c2f2cef1476f2adc048470570d537fdba5c3ac9f5a2b8ab0a": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:3f0dffacda9dbb3c2f2cef1476f2adc048470570d537fdba5c3ac9f5a2b8ab0a",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.001007933Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          },
+          "sha256:928de9eed5aba19a666ba293ffbc9bb6aca4e388dcb46c774a29e7cca19e0bda": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:928de9eed5aba19a666ba293ffbc9bb6aca4e388dcb46c774a29e7cca19e0bda",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.001007933Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          },
+          "sha256:c3318c1aa489d4ba4e78196c3d0f51fecf10ea2176626de758fd2f333f5638c2": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:c3318c1aa489d4ba4e78196c3d0f51fecf10ea2176626de758fd2f333f5638c2",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:07.001007933Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:26158ba6e21d36c7a7a0d90e0ff29704b2a23f54d0ad1be5341e20007fbd80d7": {
+            "evidence_id": "sha256:c3318c1aa489d4ba4e78196c3d0f51fecf10ea2176626de758fd2f333f5638c2",
+            "id": "reasoning:sha256:26158ba6e21d36c7a7a0d90e0ff29704b2a23f54d0ad1be5341e20007fbd80d7",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:9cc9a064930f95613bb31211393cefcc02eaffb4a75741e75c8168fb9fe75cd5": {
+            "evidence_id": "sha256:928de9eed5aba19a666ba293ffbc9bb6aca4e388dcb46c774a29e7cca19e0bda",
+            "id": "reasoning:sha256:9cc9a064930f95613bb31211393cefcc02eaffb4a75741e75c8168fb9fe75cd5",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b2d54f32e414e399f516a70739b31d8475f7e9225bd8f4052768e56edfe2680e": {
+            "evidence_id": "sha256:3f0dffacda9dbb3c2f2cef1476f2adc048470570d537fdba5c3ac9f5a2b8ab0a",
+            "id": "reasoning:sha256:b2d54f32e414e399f516a70739b31d8475f7e9225bd8f4052768e56edfe2680e",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:07.001007933Z",
+      "vetoes": []
+    },
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:07.006771346Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:9af7c57ffa879e40d33962762716ba2c91c6ccb65592e43700165bbc584978db",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.003563270Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index",
+            "Financial task requires stronger evidence base"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:db4f2c64cd958060b7359c70297ba53cec07d4fbb465aa8def321ad785af75ed",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:07.003563270Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.35000000000000003,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:d8023e4ed6035dc05614fe5f0f17c001f8ca8ff44cd4998bbcad064ffb795311",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.003563270Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5565,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.7499999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5565,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.718825
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.7499999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J06",
+      "query_timestamp": "2026-10-08T15:37:07.003563270Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:59af8c19658bd39ceb170e1186fd01b237e2ba93abfefb9af26993e1b6e3b964",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:efa3a485be111cda75eb7d37802fc47a6d09ca505e56d3c6bc42e31be08108fe",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b6162573ebda6cb1ea29c0ebc2ba937dfbc5ad6e106549eaa8fdc50995482687",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:fc94e184c035e47967d998a6beb839d4eb86e44585e868f84ddb63a21c0016e2",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:9af7c57ffa879e40d33962762716ba2c91c6ccb65592e43700165bbc584978db": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:9af7c57ffa879e40d33962762716ba2c91c6ccb65592e43700165bbc584978db",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.003563270Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          },
+          "sha256:d8023e4ed6035dc05614fe5f0f17c001f8ca8ff44cd4998bbcad064ffb795311": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:d8023e4ed6035dc05614fe5f0f17c001f8ca8ff44cd4998bbcad064ffb795311",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.003563270Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          },
+          "sha256:db4f2c64cd958060b7359c70297ba53cec07d4fbb465aa8def321ad785af75ed": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:db4f2c64cd958060b7359c70297ba53cec07d4fbb465aa8def321ad785af75ed",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:07.003563270Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:59af8c19658bd39ceb170e1186fd01b237e2ba93abfefb9af26993e1b6e3b964": {
+            "evidence_id": "sha256:9af7c57ffa879e40d33962762716ba2c91c6ccb65592e43700165bbc584978db",
+            "id": "reasoning:sha256:59af8c19658bd39ceb170e1186fd01b237e2ba93abfefb9af26993e1b6e3b964",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:b6162573ebda6cb1ea29c0ebc2ba937dfbc5ad6e106549eaa8fdc50995482687": {
+            "id": "reasoning:sha256:b6162573ebda6cb1ea29c0ebc2ba937dfbc5ad6e106549eaa8fdc50995482687",
+            "kind": "objection",
+            "public_rationale": "Bacon: Financial task requires stronger evidence base"
+          },
+          "reasoning:sha256:efa3a485be111cda75eb7d37802fc47a6d09ca505e56d3c6bc42e31be08108fe": {
+            "evidence_id": "sha256:d8023e4ed6035dc05614fe5f0f17c001f8ca8ff44cd4998bbcad064ffb795311",
+            "id": "reasoning:sha256:efa3a485be111cda75eb7d37802fc47a6d09ca505e56d3c6bc42e31be08108fe",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          },
+          "reasoning:sha256:fc94e184c035e47967d998a6beb839d4eb86e44585e868f84ddb63a21c0016e2": {
+            "evidence_id": "sha256:db4f2c64cd958060b7359c70297ba53cec07d4fbb465aa8def321ad785af75ed",
+            "id": "reasoning:sha256:fc94e184c035e47967d998a6beb839d4eb86e44585e868f84ddb63a21c0016e2",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:07.003563270Z",
+      "vetoes": []
+    },
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:07.009334053Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:5f62124b500b5fd34f818d228bb0535a2f34d075833e44b52aa146152344dc93",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.006815117Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:78d0309fd3a356944eb95a82bc7b62e7d9e7c41ce457e246a9de46c1851fb4b5",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:07.006815117Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.55,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:d10197816707aaca53bdfeb8cc8a4d3f3f4c3f4219f52bc5d2ba362015a05a37",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.006815117Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5415,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.6749999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5415,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.7143250000000001
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.6749999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J07",
+      "query_timestamp": "2026-10-08T15:37:07.006815117Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f6a5951d305d44e23daf11b71af0f94fce1fcb558bb9d8bf1b275395cbd44103",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:02d1b0644c24c1209a20a9ac9f3fefca519d707caab821238ae6dec0764d3d81",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:a728f244350bd932fd9c0885f2a781dcddb5900717c386fe5bce4eaf87d2538a",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:5f62124b500b5fd34f818d228bb0535a2f34d075833e44b52aa146152344dc93": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:5f62124b500b5fd34f818d228bb0535a2f34d075833e44b52aa146152344dc93",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.006815117Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          },
+          "sha256:78d0309fd3a356944eb95a82bc7b62e7d9e7c41ce457e246a9de46c1851fb4b5": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:78d0309fd3a356944eb95a82bc7b62e7d9e7c41ce457e246a9de46c1851fb4b5",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:07.006815117Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          },
+          "sha256:d10197816707aaca53bdfeb8cc8a4d3f3f4c3f4219f52bc5d2ba362015a05a37": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:d10197816707aaca53bdfeb8cc8a4d3f3f4c3f4219f52bc5d2ba362015a05a37",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.006815117Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:02d1b0644c24c1209a20a9ac9f3fefca519d707caab821238ae6dec0764d3d81": {
+            "evidence_id": "sha256:d10197816707aaca53bdfeb8cc8a4d3f3f4c3f4219f52bc5d2ba362015a05a37",
+            "id": "reasoning:sha256:02d1b0644c24c1209a20a9ac9f3fefca519d707caab821238ae6dec0764d3d81",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:a728f244350bd932fd9c0885f2a781dcddb5900717c386fe5bce4eaf87d2538a": {
+            "evidence_id": "sha256:78d0309fd3a356944eb95a82bc7b62e7d9e7c41ce457e246a9de46c1851fb4b5",
+            "id": "reasoning:sha256:a728f244350bd932fd9c0885f2a781dcddb5900717c386fe5bce4eaf87d2538a",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          },
+          "reasoning:sha256:f6a5951d305d44e23daf11b71af0f94fce1fcb558bb9d8bf1b275395cbd44103": {
+            "evidence_id": "sha256:5f62124b500b5fd34f818d228bb0535a2f34d075833e44b52aa146152344dc93",
+            "id": "reasoning:sha256:f6a5951d305d44e23daf11b71af0f94fce1fcb558bb9d8bf1b275395cbd44103",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:07.006815117Z",
+      "vetoes": []
+    },
+    {
+      "conditions": [
+        {
+          "description": "The proposal lacks sufficient supporting evidence",
+          "gate": "Bacon",
+          "kind": "provide_evidence",
+          "required_action": "Provide at least two relevant, independently reviewable evidence items"
+        }
+      ],
+      "evaluated_at": "2026-10-08T15:37:07.011905290Z",
+      "gates": {
+        "aurelius": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured contradiction pattern detected",
+                "digest": "sha256:7d97efd07c5995fd2f80ed6648954162c54d9c1ef4768a24400bca96a7137537",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.009372563Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:aurelius",
+                "source_quality": 0.5,
+                "stance": "supporting"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic contradiction analysis found no score adjustment",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "aurelius",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        },
+        "bacon": {
+          "concerns": [
+            "No explicit evidence provided - querying document index"
+          ],
+          "disposition": "rejected",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "rejected",
+              "evidence": {
+                "claim": "No supplied or retrieved evidence matched the query",
+                "digest": "sha256:293548e16e4540c6ca921dbd4e28ca4374b007df526b9ad762adaca5a0414a14",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "unknown",
+                "kind": "unavailable",
+                "locator": "pageindex://search",
+                "observed_at": "2026-10-08T15:37:07.009372563Z",
+                "sensitive_excerpt": false,
+                "source_id": "pageindex-search",
+                "source_quality": 0.0,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Unavailable evidence cannot affect the score",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [
+            {
+              "description": "Evidence is unavailable; this is explicit uncertainty",
+              "kind": "missing",
+              "source_ids": [
+                "pageindex-search"
+              ]
+            }
+          ],
+          "kind": "bacon",
+          "passed": false,
+          "score": 0.55,
+          "scored": true
+        },
+        "sun_tzu": {
+          "concerns": [],
+          "disposition": "accepted",
+          "evidence": [
+            {
+              "affected_score": false,
+              "disposition": "accepted",
+              "evidence": {
+                "claim": "No configured urgency or dangerous-operation pattern detected",
+                "digest": "sha256:2a1f6e56d29bb9e5c70deff6037fe50f89ebae66632cd7987419d067c0ea60d3",
+                "excerpt": null,
+                "freshness": "unknown",
+                "independence": "related",
+                "kind": "inferred",
+                "locator": "query.task",
+                "observed_at": "2026-10-08T15:37:07.009372563Z",
+                "sensitive_excerpt": false,
+                "source_id": "oracle:sun-tzu",
+                "source_quality": 0.5,
+                "stance": "neutral"
+              },
+              "integrity": "verified",
+              "rationale": "Deterministic strategy analysis recorded as inferred evidence",
+              "score_effect": 0.0
+            }
+          ],
+          "evidence_signals": [],
+          "kind": "sun_tzu",
+          "passed": true,
+          "score": 1.0,
+          "scored": true
+        }
+      },
+      "governance": {
+        "bacon_lite": {
+          "confidence": 0.5415,
+          "mode": "bacon_lite",
+          "passed": true,
+          "policy_version": "arda.governance.bacon_lite.v2",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.6749999999999999,
+            "bacon": "Conditional",
+            "bacon_score": 0.49,
+            "chain_id": "default_triad",
+            "chain_version": "structured_evidence_v2",
+            "evidence": {
+              "grade": "no_evidence",
+              "missing_fields": [
+                "evidence_anchors",
+                "action_intent",
+                "cooperation",
+                "defection",
+                "disconfirming_evidence",
+                "risk_boundary",
+                "fallback_path"
+              ],
+              "schema_version": "arda.governance.evidence.v1",
+              "scoring_source": "heuristic_fallback",
+              "validation_errors": []
+            },
+            "passed": true,
+            "policy_version": "arda.governance.triad.v2",
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.5625,
+            "veto": null,
+            "veto_reason": null
+          }
+        },
+        "love_equation_guard": {
+          "attention": 0.5415,
+          "reciprocity": 0.70625,
+          "resonance": 0.85,
+          "score": 0.7143250000000001
+        },
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.6749999999999999,
+          "bacon": "Conditional",
+          "bacon_score": 0.49,
+          "chain_id": "default_triad",
+          "chain_version": "structured_evidence_v2",
+          "evidence": {
+            "grade": "no_evidence",
+            "missing_fields": [
+              "evidence_anchors",
+              "action_intent",
+              "cooperation",
+              "defection",
+              "disconfirming_evidence",
+              "risk_boundary",
+              "fallback_path"
+            ],
+            "schema_version": "arda.governance.evidence.v1",
+            "scoring_source": "heuristic_fallback",
+            "validation_errors": []
+          },
+          "passed": true,
+          "policy_version": "arda.governance.triad.v2",
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.5625,
+          "veto": null,
+          "veto_reason": null
+        }
+      },
+      "outcome": "conditional",
+      "policy_id": "arda.mandos.default",
+      "policy_version": "1.1.0",
+      "query_id": "J08",
+      "query_timestamp": "2026-10-08T15:37:07.009372563Z",
+      "reasoning": {
+        "edges": [
+          {
+            "child_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "edge_type": "depends_on",
+            "parent_id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d"
+          },
+          {
+            "child_id": "reasoning:sha256:a07c220dbba410b37be9ff09ed295b61ea483ac3ba1f61dbea4130455c70d5ee",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5"
+          },
+          {
+            "child_id": "reasoning:sha256:9ddb2fd7a425dd213e8a461c0407279d944a30b760aada481c9beea9dcf2c757",
+            "edge_type": "supports",
+            "parent_id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d"
+          },
+          {
+            "child_id": "reasoning:sha256:093c700dbac05b5a6ed5d820ed90426a18062840e957d001f3128de33ef82173",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          },
+          {
+            "child_id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "edge_type": "objects_to",
+            "parent_id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9"
+          }
+        ],
+        "evidence": {
+          "sha256:293548e16e4540c6ca921dbd4e28ca4374b007df526b9ad762adaca5a0414a14": {
+            "claim": "No supplied or retrieved evidence matched the query",
+            "digest": "sha256:293548e16e4540c6ca921dbd4e28ca4374b007df526b9ad762adaca5a0414a14",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "unknown",
+            "kind": "unavailable",
+            "locator": "pageindex://search",
+            "observed_at": "2026-10-08T15:37:07.009372563Z",
+            "sensitive_excerpt": false,
+            "source_id": "pageindex-search",
+            "source_quality": 0.0,
+            "stance": "neutral"
+          },
+          "sha256:2a1f6e56d29bb9e5c70deff6037fe50f89ebae66632cd7987419d067c0ea60d3": {
+            "claim": "No configured urgency or dangerous-operation pattern detected",
+            "digest": "sha256:2a1f6e56d29bb9e5c70deff6037fe50f89ebae66632cd7987419d067c0ea60d3",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.009372563Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:sun-tzu",
+            "source_quality": 0.5,
+            "stance": "neutral"
+          },
+          "sha256:7d97efd07c5995fd2f80ed6648954162c54d9c1ef4768a24400bca96a7137537": {
+            "claim": "No configured contradiction pattern detected",
+            "digest": "sha256:7d97efd07c5995fd2f80ed6648954162c54d9c1ef4768a24400bca96a7137537",
+            "excerpt": null,
+            "freshness": "unknown",
+            "independence": "related",
+            "kind": "inferred",
+            "locator": "query.task",
+            "observed_at": "2026-10-08T15:37:07.009372563Z",
+            "sensitive_excerpt": false,
+            "source_id": "oracle:aurelius",
+            "source_quality": 0.5,
+            "stance": "supporting"
+          }
+        },
+        "limits": {
+          "max_bytes": 524288,
+          "max_depth": 8,
+          "max_nodes": 256
+        },
+        "nodes": {
+          "reasoning:sha256:093c700dbac05b5a6ed5d820ed90426a18062840e957d001f3128de33ef82173": {
+            "evidence_id": "sha256:293548e16e4540c6ca921dbd4e28ca4374b007df526b9ad762adaca5a0414a14",
+            "id": "reasoning:sha256:093c700dbac05b5a6ed5d820ed90426a18062840e957d001f3128de33ef82173",
+            "kind": "evidence",
+            "public_rationale": "Bacon: source 'pageindex-search' was rejected — Unavailable evidence cannot affect the score"
+          },
+          "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5": {
+            "id": "reasoning:sha256:0c18c0f359433b2fdf98183cf741f3c51c2a907213d7f77a835ca646236fa5a5",
+            "kind": "objection",
+            "public_rationale": "Bacon: Evidence is unavailable; this is explicit uncertainty"
+          },
+          "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d": {
+            "id": "reasoning:sha256:1d868f7d5e7e5ad4ed0342c9a7f7bd01dd9f881800224980bb0e9f749e3dc44d",
+            "kind": "claim",
+            "public_rationale": "Oracle outcome is conditional"
+          },
+          "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5": {
+            "id": "reasoning:sha256:2c43a586b9b3002e5084764b64363c29b899911b58711fb041457985719017b5",
+            "kind": "claim",
+            "public_rationale": "Aurelius: Task is logically consistent and well-formed"
+          },
+          "reasoning:sha256:9ddb2fd7a425dd213e8a461c0407279d944a30b760aada481c9beea9dcf2c757": {
+            "evidence_id": "sha256:2a1f6e56d29bb9e5c70deff6037fe50f89ebae66632cd7987419d067c0ea60d3",
+            "id": "reasoning:sha256:9ddb2fd7a425dd213e8a461c0407279d944a30b760aada481c9beea9dcf2c757",
+            "kind": "evidence",
+            "public_rationale": "Sun Tzu: source 'oracle:sun-tzu' was accepted — Deterministic strategy analysis recorded as inferred evidence"
+          },
+          "reasoning:sha256:a07c220dbba410b37be9ff09ed295b61ea483ac3ba1f61dbea4130455c70d5ee": {
+            "evidence_id": "sha256:7d97efd07c5995fd2f80ed6648954162c54d9c1ef4768a24400bca96a7137537",
+            "id": "reasoning:sha256:a07c220dbba410b37be9ff09ed295b61ea483ac3ba1f61dbea4130455c70d5ee",
+            "kind": "evidence",
+            "public_rationale": "Aurelius: source 'oracle:aurelius' was accepted — Deterministic contradiction analysis found no score adjustment"
+          },
+          "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d": {
+            "id": "reasoning:sha256:a9455f28c26201eb0c05647ea64df113e3d363b3f4a014e7006bbb7b53123a8d",
+            "kind": "claim",
+            "public_rationale": "Sun Tzu: Task timing and strategy are appropriate"
+          },
+          "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d": {
+            "id": "reasoning:sha256:b3c7d6666b4aadfd8c19e71d98c4589face90267ca11f54d3b9d120095a1207d",
+            "kind": "objection",
+            "public_rationale": "Bacon: No explicit evidence provided - querying document index"
+          },
+          "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9": {
+            "id": "reasoning:sha256:f29c465e816c88c549a28b7134aae3d996eac34832a9d4aba72f8e745e2b86a9",
+            "kind": "claim",
+            "public_rationale": "Bacon: Task lacks sufficient evidence or context"
+          }
+        }
+      },
+      "resonance_score": 0.85,
+      "timestamp": "2026-10-08T15:37:07.009372563Z",
+      "vetoes": []
+    }
+  ]
+}

@@ -39,10 +39,10 @@ pub use bacon_lite::{
     bacon_lite_validate, build_bacon_lite_event, build_bacon_lite_event_with_description,
     enqueue_bacon_lite, enqueue_bacon_lite_with, enqueue_bacon_lite_with_description,
     global_bacon_lite_counters, read_bacon_lite_summary, read_latest_bacon_lite_event,
-    record_bacon_lite, record_bacon_lite_to, BaconLiteAggregate, BaconLiteBackpressurePolicy,
-    BaconLiteEnqueueError, BaconLiteEvent, BaconLiteLedgerSummary, BaconLiteLogPaths,
-    BaconLiteReadWindow, BaconLiteResult, BaconLiteWriter, BaconLiteWriterConfig,
-    BaconLiteWriterCounters, MalformedLineBehavior,
+    record_bacon_lite, record_bacon_lite_to, record_bacon_lite_to_with_description,
+    BaconLiteAggregate, BaconLiteBackpressurePolicy, BaconLiteEnqueueError, BaconLiteEvent,
+    BaconLiteLedgerSummary, BaconLiteLogPaths, BaconLiteReadWindow, BaconLiteResult,
+    BaconLiteWriter, BaconLiteWriterConfig, BaconLiteWriterCounters, MalformedLineBehavior,
 };
 pub use empirical_distrust::{
     assess_empirical_distrust, EmpiricalDistrustAssessment, EmpiricalDistrustVerdict,

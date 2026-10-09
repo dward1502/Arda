@@ -5,8 +5,8 @@ use arda_core::task::Task;
 use arda_core::try_run_bounded;
 use arda_economics::JouleWorkUnit;
 use arda_governance::{
-    calculate_resonance_with_triad, record_bacon_lite_to, triad_validate, BaconLiteEvent,
-    BaconLiteLogPaths, GateOutcome, TriadConfig, TriadPuritySource,
+    calculate_resonance_with_triad, record_bacon_lite_to_with_description, triad_validate,
+    BaconLiteEvent, BaconLiteLogPaths, GateOutcome, TriadConfig, TriadPuritySource,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -779,7 +779,14 @@ impl AthenaStore {
         task: &Task,
         context: Value,
     ) -> std::io::Result<BaconLiteEvent> {
-        record_bacon_lite_to("athena", action, task, context, &self.bacon_lite_paths)
+        record_bacon_lite_to_with_description(
+            "athena",
+            action,
+            task,
+            format!("athena {action}: source text omitted"),
+            context,
+            &self.bacon_lite_paths,
+        )
     }
 
     /// Build (or rebuild) the in-memory digest index. Reads every book file
@@ -2063,6 +2070,65 @@ mod tests {
         assert!(!dir.path().join(&record.book_ref).exists());
         let digest = fs::read_to_string(store.digest_path()).expect("digest");
         assert!(digest.contains("\"quarantine\":true"));
+
+        // A positive control proves that quarantine changes the landing action,
+        // rather than merely annotating an otherwise universally blocked store.
+        let admitted = store
+            .ingest("bounded local research note", "test", "judgment control")
+            .expect("ordinary ingest");
+        assert!(!admitted.quarantine);
+        assert!(dir.path().join(&admitted.book_ref).exists());
+        let events =
+            fs::read_to_string(&store.bacon_lite_paths.machine).expect("judgment evidence");
+        let rejected = events
+            .lines()
+            .map(|line| serde_json::from_str::<serde_json::Value>(line).unwrap())
+            .find(|event| event["context"]["source_id"] == record.id)
+            .expect("correlated judgment");
+        assert_eq!(rejected["passed"], false);
+        assert_eq!(rejected["triad_passed"], false);
+        let policy = rejected["policy_version"].as_str().expect("policy version");
+        let rationale = rejected["rationale"].as_str().expect("rationale");
+        assert!(!policy.is_empty());
+        assert!(!rationale.is_empty());
+        assert_eq!(
+            record.quarantine_reason.as_deref(),
+            Some(format!("bacon_lite_failure:{policy}:{rationale}").as_str())
+        );
+    }
+
+    #[test]
+    fn governance_logs_omit_source_text_without_changing_judgment() {
+        let dir = tempdir().unwrap();
+        let store = AthenaStore::new(dir.path()).unwrap();
+        let raw = "PRIVATE_SOURCE_MARKER_4719 always never urgent";
+        let expected = arda_governance::bacon_lite_validate(&arda_core::Task::new(
+            format!("ingest {raw}"),
+            "ingest",
+        ));
+        let record = store.ingest(raw, "test", "privacy fixture").unwrap();
+        for path in [
+            &store.bacon_lite_paths.machine,
+            &store.bacon_lite_paths.human,
+        ] {
+            let evidence = fs::read_to_string(path).unwrap();
+            assert!(
+                !evidence.contains("PRIVATE_SOURCE_MARKER_4719"),
+                "source text leaked into governance evidence"
+            );
+            assert!(!evidence.trim().is_empty());
+        }
+        let machine = fs::read_to_string(&store.bacon_lite_paths.machine).unwrap();
+        let event: serde_json::Value =
+            serde_json::from_str(machine.lines().next().unwrap()).unwrap();
+        assert_eq!(event["context"]["source_id"], record.id);
+        assert_eq!(event["passed"], expected.passed);
+        assert_eq!(event["confidence"], expected.confidence);
+        assert_eq!(event["rationale"], expected.rationale);
+        assert!(event["policy_version"]
+            .as_str()
+            .is_some_and(|s| !s.is_empty()));
+        assert!(event["rationale"].as_str().is_some_and(|s| !s.is_empty()));
     }
 
     #[test]

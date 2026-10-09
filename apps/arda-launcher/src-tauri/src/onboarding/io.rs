@@ -25,90 +25,86 @@ pub fn write_readiness(path: &Path, projection: &ReadinessProjection) -> Result<
 }
 
 pub fn build_proposed_config(profile: &EnvironmentProfile, root: &Path) -> Result<PathBuf> {
-    let template_path = root.join("config/arda.template.toml");
+    let template_path = root.join("config/templates/arda.local.profile.toml");
     let template = fs::read_to_string(&template_path)
         .with_context(|| format!("read template {}", template_path.display()))?;
-    let mut rendered = template;
-    let ann_root = profile.paths.arda_root.value.clone();
-    let replacements = [
-        ("{{profile_id}}", profile.profile.clone()),
-        ("{{machine_role}}", profile.machine_role.clone()),
-        ("{{arda_root}}", ann_root),
-        ("{{config_dir}}", profile.paths.config_dir.value.clone()),
-        ("{{data_dir}}", profile.paths.data_dir.value.clone()),
-        ("{{cache_dir}}", profile.paths.cache_dir.value.clone()),
-        ("{{runtime_dir}}", profile.paths.runtime_dir.value.clone()),
-        (
-            "{{build_cache_root}}",
-            profile
-                .paths
-                .build_cache_root
-                .as_ref()
-                .map(|p| p.value.clone())
-                .unwrap_or_default(),
-        ),
-        (
-            "{{manwe_base_url}}",
-            profile
-                .endpoints
-                .manwe_base_url
-                .as_ref()
-                .map(|u| u.value.clone())
-                .unwrap_or_default(),
-        ),
-        (
-            "{{hermes_base_url}}",
-            profile
-                .endpoints
-                .hermes_base_url
-                .as_ref()
-                .map(|u| u.value.clone())
-                .unwrap_or_default(),
-        ),
-        (
-            "{{arda_hud_url}}",
-            profile
-                .endpoints
-                .arda_hud_url
-                .as_ref()
-                .map(|u| u.value.clone())
-                .unwrap_or_default(),
-        ),
-        (
-            "{{local_model_base_url}}",
-            profile
-                .endpoints
-                .local_model_base_url
-                .as_ref()
-                .map(|u| u.value.clone())
-                .unwrap_or_default(),
-        ),
-        (
-            "{{local_model_default}}",
-            profile
-                .endpoints
-                .local_model_default
-                .as_ref()
-                .map(|u| u.value.clone())
-                .unwrap_or_default(),
-        ),
-        (
-            "{{litellm_proxy_url}}",
-            profile
-                .endpoints
-                .litellm_proxy_url
-                .as_ref()
-                .map(|u| u.value.clone())
-                .unwrap_or_default(),
-        ),
-        (
-            "{{autonomy_posture}}",
-            profile.safety.autonomy_posture.clone(),
-        ),
-    ];
-    for (old, new_value) in replacements {
-        rendered = rendered.replace(old, &new_value);
+    // Parse and replace owned fields structurally: shell placeholders are not a renderer,
+    // and string substitution fails to escape operator paths correctly.
+    let mut rendered: toml::Value = toml::from_str(&template)?;
+    for section in ["profile", "paths", "endpoints", "safety"] {
+        anyhow::ensure!(
+            rendered
+                .get(section)
+                .and_then(toml::Value::as_table)
+                .is_some(),
+            "template missing table {section}"
+        );
     }
+    let table = rendered
+        .as_table_mut()
+        .context("template must be a table")?;
+    let section = table
+        .get_mut("profile")
+        .and_then(toml::Value::as_table_mut)
+        .context("profile table")?;
+    section.insert("id".into(), profile.profile.clone().into());
+    section.insert("machine_role".into(), profile.machine_role.clone().into());
+    let paths = table
+        .get_mut("paths")
+        .and_then(toml::Value::as_table_mut)
+        .context("paths table")?;
+    for (key, value) in [
+        ("arda_root", &profile.paths.arda_root.value),
+        ("config_dir", &profile.paths.config_dir.value),
+        ("data_dir", &profile.paths.data_dir.value),
+        ("cache_dir", &profile.paths.cache_dir.value),
+        ("runtime_dir", &profile.paths.runtime_dir.value),
+    ] {
+        paths.insert(key.into(), value.clone().into());
+    }
+    paths.remove("build_cache_root");
+    if let Some(path) = &profile.paths.build_cache_root {
+        paths.insert("build_cache_root".into(), path.value.clone().into());
+    }
+    let endpoints = table
+        .get_mut("endpoints")
+        .and_then(toml::Value::as_table_mut)
+        .context("endpoints table")?;
+    for (key, value) in [
+        ("manwe_base_url", &profile.endpoints.manwe_base_url),
+        ("hermes_base_url", &profile.endpoints.hermes_base_url),
+        ("arda_hud_url", &profile.endpoints.arda_hud_url),
+        (
+            "local_model_base_url",
+            &profile.endpoints.local_model_base_url,
+        ),
+        ("litellm_proxy_url", &profile.endpoints.litellm_proxy_url),
+        ("crawl4ai_url", &profile.endpoints.crawl4ai_url),
+        ("search_runtime_url", &profile.endpoints.search_runtime_url),
+    ] {
+        endpoints.remove(key);
+        if let Some(value) = value {
+            endpoints.insert(key.to_string(), value.value.clone().into());
+        }
+    }
+    endpoints.remove("local_model_default");
+    if let Some(model) = &profile.endpoints.local_model_default {
+        endpoints.insert("local_model_default".into(), model.value.clone().into());
+    }
+    let safety = table
+        .get_mut("safety")
+        .and_then(toml::Value::as_table_mut)
+        .context("safety table")?;
+    safety.insert(
+        "autonomy_posture".into(),
+        profile.safety.autonomy_posture.clone().into(),
+    );
+    safety.insert(
+        "mutation_requires_human_gate".into(),
+        profile.safety.mutation_requires_human_gate.into(),
+    );
+    safety.insert("destructive_allowed_by_default".into(), false.into());
+    let rendered = toml::to_string_pretty(&rendered)?;
     let out_dir = onboarding_run_dir(root)?;
     let out_path = out_dir.join("proposed-config.toml");
     fs::write(&out_path, rendered)?;

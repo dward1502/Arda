@@ -38,6 +38,97 @@ fn fixture() -> (Fixture, EnvironmentProfile) {
 }
 
 #[test]
+fn selected_runtime_configuration_is_the_only_required_endpoint() {
+    let (root, _) = fixture();
+    let manifest = root.path().join("services.toml");
+    fs::write(
+        &manifest,
+        r#"[[service]]
+name = "manwe"
+start = { command = "manwe", args = ["--bind", "127.0.0.1", "--port", "17171"] }
+health = { url = "http://127.0.0.1:17171/healthz" }
+"#,
+    )
+    .unwrap();
+    let profile = build_environment_profile(Some(root.path()), None, None).unwrap();
+    let endpoint = profile.endpoints.manwe_base_url.unwrap();
+    assert_eq!(endpoint.value, "http://127.0.0.1:17171");
+    assert!(matches!(endpoint.source, ValueSource::ServiceRegistry));
+    assert!(endpoint.health.is_none());
+    assert!(profile.missing_gates.is_empty());
+    for invalid in ["not toml", ""] {
+        fs::write(&manifest, invalid).unwrap();
+        let profile = build_environment_profile(Some(root.path()), None, None).unwrap();
+        assert!(profile.endpoints.manwe_base_url.is_none());
+        assert!(profile
+            .missing_gates
+            .iter()
+            .any(|gate| gate.starts_with("services.toml:")));
+        assert!(!profile
+            .missing_gates
+            .iter()
+            .any(|gate| gate.contains("HERMES_BASE_URL")));
+    }
+}
+
+#[test]
+fn proposal_uses_shipped_template_and_escapes_paths() {
+    let (root, mut profile) = fixture();
+    let template = root.path().join("config/templates/arda.local.profile.toml");
+    fs::create_dir_all(template.parent().unwrap()).unwrap();
+    fs::write(
+        &template,
+        include_str!("../../../../../config/templates/arda.local.profile.toml"),
+    )
+    .unwrap();
+    profile.paths.data_dir.value = "/private/a\"quoted\\path".to_string();
+    profile.endpoints.hermes_base_url = None;
+    let path = crate::onboarding::io::build_proposed_config(&profile, root.path()).unwrap();
+    let output = fs::read_to_string(path).unwrap();
+    let parsed: toml::Value = toml::from_str(&output).unwrap();
+    assert_eq!(
+        parsed["paths"]["data_dir"].as_str().unwrap(),
+        profile.paths.data_dir.value
+    );
+    assert!(parsed["endpoints"].get("hermes_base_url").is_none());
+    assert!(!output.contains("${"));
+    for populated in [true, false] {
+        fs::write(&template, "[profile]\n[paths]\n[endpoints]\n[safety]\n").unwrap();
+        profile.endpoints.local_model_default =
+            populated.then(|| crate::onboarding::types::LocalModelDefaultValue {
+                value: "selected-model".into(),
+                source: ValueSource::OperatorInput,
+            });
+        profile.endpoints.crawl4ai_url = populated.then(|| crate::onboarding::types::UrlValue {
+            value: "http://127.0.0.1:1234".into(),
+            source: ValueSource::OperatorInput,
+            health: None,
+        });
+        profile.endpoints.search_runtime_url = profile.endpoints.crawl4ai_url.clone();
+        let path = crate::onboarding::io::build_proposed_config(&profile, root.path()).unwrap();
+        let parsed: toml::Value = toml::from_str(&fs::read_to_string(path).unwrap()).unwrap();
+        assert_eq!(
+            parsed["endpoints"]
+                .get("local_model_default")
+                .and_then(toml::Value::as_str),
+            populated.then_some("selected-model")
+        );
+        for key in ["crawl4ai_url", "search_runtime_url"] {
+            assert_eq!(
+                parsed["endpoints"].get(key).and_then(toml::Value::as_str),
+                populated.then_some("http://127.0.0.1:1234")
+            );
+        }
+        assert_eq!(
+            parsed["profile"]["id"].as_str(),
+            Some(profile.profile.as_str())
+        );
+    }
+    fs::write(&template, "[paths]\n").unwrap();
+    assert!(crate::onboarding::io::build_proposed_config(&profile, root.path()).is_err());
+}
+
+#[test]
 fn canonical_protocol_is_case_sensitive() {
     let (root, profile) = fixture();
     let status = || {

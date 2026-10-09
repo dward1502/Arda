@@ -128,10 +128,13 @@ pub fn build_readiness_projection(
             ),
             format!(
                 "present: {}",
-                if root.join("config/arda.template.toml").exists() {
-                    "config/arda.template.toml"
+                if root
+                    .join("config/templates/arda.local.profile.toml")
+                    .exists()
+                {
+                    "config/templates/arda.local.profile.toml"
                 } else {
-                    "missing config/arda.template.toml"
+                    "missing config/templates/arda.local.profile.toml"
                 }
             ),
         ],

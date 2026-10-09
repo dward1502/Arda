@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://annunimas.local/schemas/environment_profile.schema.json",
-  "title": "Annunimas Environment Profile",
-  "description": "Machine-readable representation of an Annunimas operator environment profile for onboarding, audits, and ARDA/Hermes visibility.",
+  "$id": "https://arda.local/schemas/environment_profile.schema.json",
+  "title": "Arda Environment Profile",
+  "description": "Machine-readable representation of an Arda operator environment profile for onboarding, audits, and ARDA/Hermes visibility.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,7 +16,7 @@
   ],
   "properties": {
     "contract": {
-      "const": "annunimas.environment_profile.v1"
+      "const": "arda.environment_profile.v1"
     },
     "generated_at": {
       "type": "string",
@@ -31,8 +31,8 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "annunimas_user": {
-          "type": "string",
+        "arda_user": {
+          "type": ["string", "null"],
           "description": "Logical operator/profile name. This is not used to construct paths."
         },
         "source": {
@@ -47,9 +47,9 @@
     "paths": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["annunimas_root", "home", "config_dir", "data_dir", "cache_dir", "runtime_dir"],
+      "required": ["arda_root", "home", "config_dir", "data_dir", "cache_dir", "runtime_dir"],
       "properties": {
-        "annunimas_root": { "$ref": "#/$defs/path_value" },
+        "arda_root": { "$ref": "#/$defs/path_value" },
         "home": { "$ref": "#/$defs/path_value" },
         "config_dir": { "$ref": "#/$defs/path_value" },
         "data_dir": { "$ref": "#/$defs/path_value" },
@@ -94,7 +94,7 @@
       "properties": {
         "environment_file_pattern": {
           "type": "string",
-          "const": "%h/.config/annunimas/annunimas.env"
+          "const": "%h/.config/arda/arda.env"
         },
         "user_units_available": { "type": "boolean" },
         "notes": { "type": "array", "items": { "type": "string" } }
@@ -134,7 +134,7 @@
   "$defs": {
     "value_source": {
       "type": "string",
-      "enum": ["environment", "env_file", "default", "service_registry", "operator_input", "detected", "unknown"]
+      "enum": ["environment", "envfile", "default", "serviceregistry", "operatorinput", "detected", "unknown"]
     },
     "path_value": {
       "type": "object",

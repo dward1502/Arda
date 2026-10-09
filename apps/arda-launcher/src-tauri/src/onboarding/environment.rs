@@ -136,9 +136,12 @@ pub fn build_environment_profile(
         .map(PathBuf::from)
         .or_else(|| Some(home.join(".cache/arda-build")));
 
-    let manwe_base = env::var("MANWE_BASE_URL")
+    let manwe_base = std::fs::read_to_string(ann_root.join("services.toml"))
         .ok()
-        .or_else(|| env::var("ARDA_MANWE_BASE_URL").ok());
+        .and_then(|text| {
+            arda_core::local_runtime_endpoint::LocalRuntimeEndpoint::from_services_toml(&text).ok()
+        })
+        .map(|endpoint| endpoint.base_url);
 
     let hermes_base = env::var("HERMES_BASE_URL")
         .ok()
@@ -157,10 +160,7 @@ pub fn build_environment_profile(
     let search_runtime = env::var("ARDA_SEARCH_RUNTIME_URL").ok();
 
     if manwe_base.is_none() {
-        missing_gates.push("MANWE_BASE_URL".to_string());
-    }
-    if hermes_base.is_none() {
-        missing_gates.push("HERMES_BASE_URL".to_string());
+        missing_gates.push("services.toml: valid selected Manwe endpoint required".to_string());
     }
 
     let mut agent_homes = BTreeMap::new();
@@ -223,9 +223,9 @@ pub fn build_environment_profile(
     };
     if let Some(url) = manwe_base {
         endpoints.manwe_base_url = Some(UrlValue {
-            value: url.clone(),
-            source: ValueSource::Environment,
-            health: Some(check_url_health(&url.clone())),
+            value: url,
+            source: ValueSource::ServiceRegistry,
+            health: None,
         });
     }
     if let Some(url) = hermes_base {

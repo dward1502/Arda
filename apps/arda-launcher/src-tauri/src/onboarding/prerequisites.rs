@@ -144,7 +144,7 @@ pub fn build_prerequisite_report(profile: &EnvironmentProfile, root: &Path) -> P
         (
             "repo.template",
             "Config template",
-            root.join("config/arda.template.toml"),
+            root.join("config/templates/arda.local.profile.toml"),
             "Restore config template before setup proposal generation.",
         ),
         (

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { observeLifecycle } from '../lib/lifecycle-observer'
 import {
   invokeLaunchNativeHud,
   invokeLifecycleStatus,
@@ -12,17 +13,21 @@ import {
 export default function LifecyclePanel() {
   const [snapshot, setSnapshot] = useState<LifecycleSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [observationError, setObservationError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const cancelled = useRef(false)
   const [closeAfterHud, setCloseAfterHud] = useState(() => localStorage.getItem('arda.closeAfterHud') === 'true')
 
-  const refresh = useCallback(async () => {
-    try { setSnapshot(await invokeLifecycleStatus()); setError(null) }
-    catch (cause) { setError(`Lifecycle status unavailable: ${cause}`) }
+  const observer = useRef<ReturnType<typeof observeLifecycle> | null>(null)
+  useEffect(() => {
+    const current = observeLifecycle(invokeLifecycleStatus, value => {
+      setSnapshot(value.snapshot)
+      setObservationError(value.error)
+    })
+    observer.current = current
+    return () => { current.stop(); observer.current = null }
   }, [])
-
-  useEffect(() => { void refresh() }, [refresh])
 
   const act = async () => {
     if (!snapshot) return
@@ -48,12 +53,12 @@ export default function LifecyclePanel() {
         }
       }
       if (cancelled.current) return
-      await refresh()
+      await observer.current?.refresh()
     } catch (cause) { setError(`Lifecycle command failed: ${cause}`) }
     finally { window.clearInterval(timer); setBusy(false) }
   }
 
-  if (!snapshot) return <aside className="absolute left-6 top-6 z-40 font-mono text-xs text-white/70">{error ?? 'LIFECYCLE UNKNOWN'}</aside>
+  if (!snapshot) return <aside aria-label="Arda lifecycle" className="absolute left-6 top-6 z-40 font-mono text-xs text-white/70">{observationError ?? error ?? 'LIFECYCLE UNKNOWN'}</aside>
   const action = lifecyclePrimaryAction(snapshot)
   return (
     <aside aria-label="Arda lifecycle" className="absolute left-6 top-6 z-40 w-80 border-l border-white/20 pl-4 font-mono text-xs text-white/70">

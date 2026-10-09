@@ -54,6 +54,48 @@ Diagnostic export is a distinct existing command with best-effort pattern
 redaction; review its output before sharing. Retention defaults to preservation:
 no new scheduled deletion, external log truncation or tracked-state removal.
 
+## Runnable restore: bounded owner design
+
+Original-identity reinstatement and backup-copy authorization are different gates.
+The installed qualification rejected an extracted database plus its copied marker
+at the canonical path, then reinstated the displaced original by same-filesystem
+rename. Device, inode, marker hash and complete ObjectiveStore SQL history matched
+before/after; full managed root/keeper restart retained the terminal release and
+passed selected-endpoint health. Private evidence is
+`/var/home/arda-qualification/evidence/reviewed-runtime-05623ba3/original-reinstatement.json`.
+This proves original recovery, not authorization of a new backup inode. The probe
+is qualification evidence, not a shipped recovery command.
+
+Independent owner design review requires a narrow Engine-owned offline transfer
+before runnable backup-copy acceptance. Implement alongside
+`objectives/store/authority.rs` and expose through `arda-objective-store`; keep
+Python beta operations an extraction/validation caller, not authority owner.
+The first version must:
+
+- Authenticate the operator outside archive contents and bind account, canonical
+  destination, request ID, archive digest and expected predecessor identity. An
+  arbitrary operator string or copied marker is not authentication.
+- Require the surviving trusted original authority and exclusive maintenance
+  ownership. Fence the complete managed stack, including keeper and workers.
+- Accept only quiescent, terminal/settled, history-equivalent state; compare the
+  latest WAL-visible history and paired keeper/run inventory. Refuse stale or
+  divergent backups, unresolved leases/publications and unacknowledged cleanup.
+  Do not merge historical SQL or infer cleanup acknowledgement from process exit.
+- Publish exactly one successor and retire the predecessor. A durable bound
+  intent/receipt and exclusion across both inodes must fail closed at every crash
+  boundary; per-inode locks alone cannot authorize transfer safely.
+- Preserve terminal receipts, releases/revocations and gateway replay protection.
+  Refuse replay of retired authority, changed-payload request reuse, aliases and
+  path substitution; exact request replay must be idempotent.
+
+Required tests cover stale backups after each terminal/replay event, copied and
+missing markers, active/lost leases, runtime/maintenance races, symlink/hard-link
+and special-file inputs, every publication interruption, and predecessor replay.
+The installed positive case must use a genuinely new inode and restart the whole
+managed stack without resurrecting old work. Disaster recovery without surviving
+trusted continuity, schema conversion and cross-account migration are excluded;
+operator approval cannot establish missing historical facts.
+
 ## Installation acceptance boundary
 
 Reuse [launcher acceptance](launcher-local-runtime-acceptance.md) and

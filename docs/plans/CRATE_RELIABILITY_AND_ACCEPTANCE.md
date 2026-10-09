@@ -525,18 +525,18 @@ approved this bounded slice. Exact-tree export `2816d148eead31d14caeaf136310be6e
 passes 44 launcher and 117 core tests, including healthy-old-endpoint rejection and
 real selected-port/redirect HTTP probes. No live services or state were changed.
 The previously observed sudo/cross-user systemd access limitation is not resolved
-by these source tests. The next source slice (not yet committed) captures the
+by these source tests. Independently reviewed commit `94aed0c7` captures the
 endpoint from the registry's loaded bytes, wires it to the root Harness client,
 and disables proxy/redirect routing for root and supervisor HTTP. Exact exported
 source passes 11 registry, 9 supervisor, 8 root daemon and 74 Harness tests (two
-Harness tests ignored); independent review remains pending. The retained root
+Harness tests ignored). The retained root
 shutdown fixture correction is included so this evidence does not depend on dirty
 local tests. Root process fixtures verify selected-port
 models routing despite proxy environment variables; the supervisor redirect
 regression reproduced false healthy status before repair. Retained snapshot-worker
 inference now carries the release-selected endpoint through an explicitly admitted
 readonly NetworkInput manifest descriptor into the broker and Rust/Python guards
-(source changes pending independent review; not installed). Capture caches the
+(independently reviewed commit `05623ba3`; not installed). Capture caches the
 endpoint once under existing object-identity authority; the runtime bundle digest
 does not attest manifest bytes. Chat/export without that authority refuse, while
 probe/artifact verification remain compatible. The generator publishes matching
@@ -545,11 +545,65 @@ it. Worker tests: 23 passed / 1 ignored; endpoint/parser parity: 4 passed; provi
 5 passed; Python bootstrap/transport: 8 / 3 passed, including HTTPX default-port
 normalization (the initial independent review finding). The synthetic production-broker
 fixture exercises nondefault HTTP forwarding and post-capture mutation isolation;
-it is not installed keeper or live-provider acceptance. Next: independent review,
-exact-tree verification and commit, then explicit private-policy migration and
-installed qualification without mutating original-account authority. Complete public release inputs, fresh
-authority and native lifecycle/restore acceptance remain open; R10/R11 remain
-dependency-gated.
+it is not installed keeper or live-provider acceptance. Exact exported tree
+`0f06f99135293b3d3df92388f143b7e65ec1beda` passed the worker and Python guard
+reruns; independent correction review confirmed the default-port repair.
+Installed qualification has resumed in the dedicated account, without changing
+original-account authority. The operator explicitly authorized persistent pkexec
+for mythos; a noninteractive PolicyKit check now succeeds. Earlier successful
+pkexec calls could still trigger desktop authentication and were not evidence of
+unattended access.
+
+Reviewed tree `0f06f99135293b3d3df92388f143b7e65ec1beda` produced release root,
+worker, keeper and objective-store binaries. Installed hashes and prior backups
+are retained at `/var/home/arda-qualification/evidence/reviewed-runtime-05623ba3/`.
+The account's existing objective authority bytes/inode were preserved. Its new
+private retained policy/profile capture the account release manifest's port 17171;
+no original-account credentials or retained authority were copied. Fresh keeper
+initialization and hardened managed startup succeeded. The reviewed root uses
+Harness port 17878 and the private keeper socket. In the account manager's existing
+isolated network namespace, selected Manwe/Harness health succeeds and old port
+7171 refuses connection (`startup.json`). This is installed startup and endpoint
+isolation, not retained admission, inference, native lifecycle or restore acceptance.
+Independent installed-checkpoint review confirmed the bounded startup claim.
+The root was stopped before the installed admission probe. A qualification helper
+using the reviewed Engine library admitted one real read-only objective through
+the installed managed keeper/worker and generated runtime policy, reopened the
+same snapshot binding, then cancelled and durably released it without provider
+execution. Readback found one objective/admission/snapshot/release, two controls,
+and one keeper snapshot in `released` state. This is cancellation/reopen evidence,
+not successful work, provider inference or backup restore. The helper's initial
+invalid project metadata was refused; the corrected read-only authority passed.
+Evidence and helper source are retained alongside `admission.json`.
+
+The quiescent archive passed all 13 file hashes. An extracted copy plus copied
+marker was refused at the canonical path; reinstating the displaced original
+preserved its device/inode, marker hash and entire SQL history. Full managed
+root/keeper restart passed health and retained the terminal release
+(`original-reinstatement.json`). This is original-identity recovery, not runnable
+backup-copy authorization. The reviewed transfer design and adversarial acceptance
+are retained in [R09 state lifecycle](../operations/r09-state-lifecycle.md#runnable-restore-bounded-owner-design);
+no transfer implementation or marker rewrite is claimed.
+
+The same reviewed tree built and installed native launcher SHA-256
+`48c93691f252a43a22df1ce0bbf791118785a188c41eb50b23320e40f730eba2`.
+Its native WebKit document loaded from `tauri://localhost` with `ARDA_ROOT` unset
+and observed the isolated runtime and gateway as healthy. Required-gateway outage
+exposed a real stale-status defect: `LifecyclePanel` fetches only on mount/action.
+The pending source repair adds sequential observation, failure/timeout invalidation,
+late-result rejection and unmount cleanup; six observer regressions plus the
+existing frontend suite pass (26 total), lint and production build pass. Independent
+precommit review and corrected installed outage/recovery acceptance are next.
+No visible-monitor or complete HUD/session lifecycle acceptance is claimed.
+
+First-run still reports four warnings: stale root-protocol, environment-template
+and portability-audit prerequisites, plus missing endpoint environment gates despite
+selected-release lifecycle health. Trace their current readiness owner next; do not
+add dummy files or bypass gates. The account Manwe uses governed defaults, not the
+profile's edge_core provider. Temporary launcher/compositor/root/keeper units are
+stopped with `MainPID=0`; the previously running gateway was restored. Public release
+inputs, runnable copy restore and complete native acceptance remain open; R10/R11
+remain dependency-gated.
 
 ### R10 Connect evaluation to daily usefulness
 

@@ -13,13 +13,18 @@ use serde::Serialize;
 use std::path::PathBuf;
 
 fn resolve_root(root: Option<String>) -> PathBuf {
-    let seed = match root {
-        Some(r) if !r.trim().is_empty() => PathBuf::from(r.trim()),
-        _ => std::env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
-            .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))),
-    };
+    if let Some(explicit) = root.as_deref().map(str::trim).filter(|r| !r.is_empty()) {
+        return PathBuf::from(explicit);
+    }
+    if let Some(configured) = std::env::var_os("ARDA_ROOT").filter(|r| !r.is_empty()) {
+        // An explicitly selected release must fail there if incomplete, rather
+        // than silently discovering another checkout or operator's registry.
+        return PathBuf::from(configured);
+    }
+    let seed = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+        .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
 
     if seed
         .join("core")
@@ -238,6 +243,40 @@ pub fn run() {
 #[cfg(test)]
 mod release_identity_tests {
     use super::*;
+
+    #[test]
+    fn documented_release_root_controls_installed_discovery() {
+        const CHILD: &str = "ARDA_LAUNCHER_ROOT_TEST_CHILD";
+        if std::env::var_os(CHILD).is_some() {
+            let expected = PathBuf::from(std::env::var_os("ARDA_ROOT").unwrap());
+            assert_eq!(resolve_root(None), expected);
+            assert_eq!(resolve_root(Some("  ".into())), expected);
+            let explicit = expected.join("explicit");
+            assert_eq!(
+                resolve_root(Some(explicit.to_string_lossy().into())),
+                explicit
+            );
+            return;
+        }
+        let release = std::env::temp_dir().join("arda root discovery missing release");
+        // A subprocess avoids mutating environment shared with parallel tests.
+        let result = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "release_identity_tests::documented_release_root_controls_installed_discovery",
+                "--nocapture",
+            ])
+            .env(CHILD, "1")
+            .env("ARDA_ROOT", release)
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}\n{}",
+            String::from_utf8_lossy(&result.stdout),
+            String::from_utf8_lossy(&result.stderr)
+        );
+    }
 
     #[test]
     fn release_identity_reports_compiled_package_version() {

@@ -491,8 +491,22 @@ All 26 Python tests pass. The repaired account lifecycle now completes prior ins
 candidate upgrade, prior rollback and final candidate upgrade with exact installed
 hash readbacks (`clean-account-lifecycle-fixed.log`). The account has zero durable
 Arda state files: this proves artifact lifecycle, not terminal-history acceptance.
-The new directory-allocation repair still requires isolated-source verification and
-independent review before commit.
+The directory-allocation repair is independently reviewed and committed as
+`4ffe33e5`; all 26 tests passed from its exact exported source.
+
+The next source audit found that native command root discovery ignored `ARDA_ROOT`.
+The pending launcher correction respects explicit command root, then the documented
+environment root, without silently falling back from a selected incomplete release.
+Its subprocess regression failed before the repair; 41 launcher native tests pass
+in the isolated build-source export. Release rebuild and independent review are
+pending. This does not yet persist release-root selection in a desktop installation.
+A separate qualification account also shares host loopback: launcher health and root
+Harness both use port 7171, already owned by the original runtime. Do not count that
+runtime's health as clean-account acceptance or start competing fixed-port services.
+The existing root unit is workstation-specific; root/HUD identity, complete public
+release inputs, fresh store initialization and independent Hermes provisioning still
+need qualification through their current owners. No missing external credential has
+been established as the immediate blocker.
 Next: complete native lifecycle and authority-preserving restore acceptance;
 R09 stays open and R10/R11 remain dependency-gated.
 

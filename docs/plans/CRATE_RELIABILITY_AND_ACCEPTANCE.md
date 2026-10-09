@@ -602,25 +602,34 @@ Private `observer-native-acceptance.json` retains the DOM observations and final
 stopped temporary-unit PIDs. This verifies headless native observation/reconnect,
 not visible-monitor or complete HUD/session lifecycle acceptance.
 
-First-run still reports four installed warnings. Targeted review identified an
-incorrect lowercase protocol lookup and a historical May audit wrongly required as
-an installation input. The pending source repair checks `ARDA_ROOT_PROTOCOL.md`
-exactly, removes that historical receipt from startup prerequisites and reports
-malformed/missing audit context without inventing zero findings. Both regressions
-failed before repair; all 46 native launcher tests pass in the isolated build tree.
-This bounded repair awaits independent review and is not installed.
+The installed first-run readiness defects are repaired in `86ce5299`, `1d86ea19`
+and `80fcddb6`, each independently reviewed. Native tests pass 48/48 and frontend
+ tests pass 30/30; the production frontend and embedded native release build pass.
+The qualification account now has launcher SHA-256
+`51a198cecb8661622a005d8113dfe1c7ca8c3f08a5e655a3f4b3f64dc3b29ee3`,
+verified against installed bytes and its install manifest through the existing
+upgrade command. Its prior artifact and state backup remain retained.
 
-Remaining readiness work is owner-coupled, not solved by placeholder files:
-correct the stale Annunimas environment-profile schema and include it through the
-release-input owner; reconcile `io::build_proposed_config` and prerequisite/service
-plan guidance with `config/templates/arda.local.profile.toml` (current renderer
-expects a nonexistent template and incompatible placeholder syntax); source Manwe
-from selected `services.toml` using the existing validated endpoint parser, without
-ambient/default fallback, and stop requiring Hermes HTTP configuration for its
-watchdog-managed gateway. Preserve invalid selected config and real missing inputs
-as blockers. `App.tsx::onBegin` must reevaluate readiness after refresh. Do not
-fabricate historical receipts or equate structural readiness with runtime health.
-The account Manwe uses governed defaults, not the
+The canonical root protocol, environment schema and profile template were added
+as exact public source inputs to the qualification release. Native first-run IPC,
+with `ARDA_ROOT` unset, reports overall `pass`, readiness `pass` (three passing
+checks), and `can_start_workbench=true`. Historical portability evidence remains
+honestly missing; it is not an installation prerequisite. The first probe correctly
+reported the absent root protocol; the final probe passed after delivering that
+actual public input. Both temporary native/compositor units finished with PID 0.
+Evidence: account `evidence/readiness-80fcddb6/install.json` and
+`evidence/reviewed-runtime-05623ba3/readiness-installed-80fcddb6.json`.
+This proves headless installed structural readiness, not complete native lifecycle,
+visible-monitor acceptance, or live provider execution. Developer-tool warnings
+remain informational. The schema matches source but has no schema-validator run.
+
+The renderer now uses the shipped TOML template, preserves selected optional
+endpoints/model, escapes paths structurally, and handles absent leaf keys without
+panicking. Selected Manwe configuration comes only from `services.toml`; invalid
+selected configuration remains a blocker. Hermes HTTP is not required for its
+watchdog-managed gateway. Refresh reevaluates both inputs and rejects stale replies.
+Public input delivery above is qualification provisioning, not a complete shipped
+release-input packaging capability. The account Manwe uses governed defaults, not the
 profile's edge_core provider. Temporary launcher/compositor/root/keeper units are
 stopped with `MainPID=0`; the previously running gateway was restored. Public release
 inputs, runnable copy restore and complete native acceptance remain open; R10/R11

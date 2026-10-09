@@ -534,7 +534,9 @@ def restore(layout: Layout, archive_path: Path, force: bool = False) -> dict[str
     staging_parent = layout.operation_state / "restore-staging"
     staging_parent.mkdir(parents=True, exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix="restore-", dir=staging_parent))
-    displaced_root = layout.operation_state / "displaced" / utc_stamp()
+    displaced_parent = layout.operation_state / "displaced"
+    displaced_parent.mkdir(parents=True, exist_ok=True)
+    displaced_root = Path(tempfile.mkdtemp(prefix=f"{utc_stamp()}-", dir=displaced_parent))
     displaced: dict[str, str] = {}
     installed: list[tuple[Path, Path | None]] = []
     try:

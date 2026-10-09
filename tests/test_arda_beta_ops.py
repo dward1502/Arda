@@ -93,6 +93,21 @@ class PrivateBetaOpsTests(unittest.TestCase):
         self.assertEqual((self.layout.data / "runs.jsonl").read_text(), '{"run":"one"}\n')
         self.assertFalse((self.layout.config / "arda.env").exists())
 
+    def test_repeated_restore_retains_each_displaced_history(self):
+        self.seed_state()
+        archive = self.base / "backup.tar.gz"
+        beta_ops.backup(self.layout, archive)
+        with mock.patch.object(beta_ops, "utc_stamp", return_value="same-second"):
+            first = beta_ops.restore(self.layout, archive, force=True)
+            (self.layout.data / "runs.jsonl").write_text('{"run":"two"}\n')
+            second = beta_ops.restore(self.layout, archive, force=True)
+        first_data = Path(first["displaced"]["data"])
+        second_data = Path(second["displaced"]["data"])
+        self.assertNotEqual(first_data, second_data)
+        self.assertEqual((first_data / "runs.jsonl").read_text(), '{"run":"one"}\n')
+        self.assertEqual((second_data / "runs.jsonl").read_text(), '{"run":"two"}\n')
+        self.assertEqual((self.layout.data / "runs.jsonl").read_text(), '{"run":"one"}\n')
+
     def test_backup_refuses_source_mutation_before_publication(self):
         self.seed_state()
         archive = self.base / "backup.tar.gz"

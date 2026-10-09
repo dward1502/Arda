@@ -8,6 +8,9 @@ USER_UNIT_DIR="${ARDA_SYSTEMD_USER_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/system
 HUD_INSTALL_PATH="$HOME/.local/lib/arda/hud/arda_hud"
 HUD_SOURCE="${ARDA_HUD_NATIVE_SOURCE:-${1:-}}"
 SKIP_RELOAD="${ARDA_SKIP_SYSTEMD_RELOAD:-false}"
+ROOT_COMPOSITION="${ARDA_ROOT_COMPOSITION:-}"
+ROOT_HAD_PREVIOUS=false
+ROOT_DEST="$USER_UNIT_DIR/arda.service"
 
 systemctl_user() {
   systemctl --user "$@" 2>/dev/null || \
@@ -72,7 +75,9 @@ restore_path() {
 
 cleanup_backup() {
   [[ -n "$BACKUP_DIR" ]] || return 0
+  rm -rf "$BACKUP_DIR/rendered"
   rm -f \
+    "$BACKUP_DIR/arda.service" \
     "$BACKUP_DIR/arda-session.target" \
     "$BACKUP_DIR/arda-hud.service" \
     "$BACKUP_DIR/arda-mirromere.service" \
@@ -83,6 +88,9 @@ cleanup_backup() {
 
 rollback() {
   local failed=0
+  if [[ -n "$ROOT_COMPOSITION" ]]; then
+    restore_path "$ROOT_DEST" "$BACKUP_DIR/arda.service" "$ROOT_HAD_PREVIOUS" 0644 || failed=1
+  fi
   restore_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target" "$SESSION_HAD_PREVIOUS" 0644 || failed=1
   restore_path "$HUD_UNIT_DEST" "$BACKUP_DIR/arda-hud.service" "$HUD_UNIT_HAD_PREVIOUS" 0644 || failed=1
   restore_path "$MIRROMERE_UNIT_DEST" "$BACKUP_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_HAD_PREVIOUS" 0644 || failed=1
@@ -122,6 +130,14 @@ mkdir -p "$USER_UNIT_DIR" "$(dirname "$HUD_INSTALL_PATH")" "$(dirname "$GATEWAY_
 # Recovery data must survive logout/reboot and temporary-directory cleanup.
 BACKUP_DIR="$(mktemp -d "$USER_UNIT_DIR/arda-user-unit-install.XXXXXX")"
 trap on_exit EXIT
+if [[ -n "$ROOT_COMPOSITION" ]]; then
+  python3 "$ROOT_DIR/scripts/arda_root_composition.py" "$ROOT_COMPOSITION" "$BACKUP_DIR/rendered"
+  SOURCE_UNIT_DIR="$BACKUP_DIR/rendered"
+  if backup_path "$ROOT_DEST" "$BACKUP_DIR/arda.service"; then
+    ROOT_HAD_PREVIOUS=true
+  fi
+fi
+"$ROOT_DIR/scripts/verify_arda_user_units.sh" "$SOURCE_UNIT_DIR"
 if backup_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target"; then
   SESSION_HAD_PREVIOUS=true
 fi
@@ -145,7 +161,9 @@ if [[ -n "$HUD_SOURCE" ]]; then
   atomic_install "$HUD_SOURCE" "$HUD_INSTALL_PATH" 0755
 fi
 
-"$ROOT_DIR/scripts/verify_arda_user_units.sh" "$SOURCE_UNIT_DIR"
+if [[ -n "$ROOT_COMPOSITION" ]]; then
+  atomic_install "$SOURCE_UNIT_DIR/arda.service" "$ROOT_DEST" 0644
+fi
 atomic_install "$SOURCE_UNIT_DIR/arda-session.target" "$SESSION_DEST" 0644
 atomic_install "$SOURCE_UNIT_DIR/arda-hud.service" "$HUD_UNIT_DEST" 0644
 atomic_install "$SOURCE_UNIT_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_DEST" 0644
@@ -167,6 +185,9 @@ if [[ "$SKIP_RELOAD" != "true" ]]; then
   fi
 
   systemctl_user daemon-reload
+  if [[ -n "$ROOT_COMPOSITION" ]]; then
+    [[ "$(systemctl_user show arda.service --property=LoadState --value)" == "loaded" ]]
+  fi
   [[ "$(systemctl_user show arda-session.target --property=LoadState --value)" == "loaded" ]]
   [[ "$(systemctl_user show arda-hud.service --property=LoadState --value)" == "loaded" ]]
   [[ "$(systemctl_user show arda-mirromere.service --property=LoadState --value)" == "loaded" ]]

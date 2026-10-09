@@ -29,6 +29,122 @@ class UserUnitInstallTests(unittest.TestCase):
         return subprocess.run(['bash', str(ROOT / 'scripts/install_arda_user_units.sh')],
                               env=self.env, capture_output=True, text=True)
 
+    def root_composition(self):
+        import json
+        release = self.home / 'relocated release'
+        release.mkdir()
+        (release / 'services.toml').write_text('[services]\n')
+        config = self.home / 'runtime settings.env'
+        config.write_text('# explicitly selected account settings\n')
+        provider = self.home / 'providers.toml'
+        provider.write_text('provider = []\n')
+        composition = self.home / 'composition.json'
+        composition.write_text(json.dumps(dict(
+            release_root=str(release), root_executable=str(self.hud),
+            operator_id='operator:qualification', environment_file=str(config),
+            provider_config=str(provider), credentials={})))
+        self.env['ARDA_ROOT_COMPOSITION'] = str(composition)
+        return composition
+
+    def test_explicit_root_composition_installs_relocated_identity(self):
+        self.root_composition()
+        result = self.install()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        root = self.units / 'arda.service'
+        self.assertTrue(root.is_file(), 'root composition omitted arda.service')
+        text = root.read_text()
+        self.assertIn(f'WorkingDirectory={self.home}/relocated release', text)
+        self.assertIn('ARDA_OPERATOR_ID=operator:qualification', text)
+        for unwanted in ('operator:mythos', '/Eregion/Arda', '.lo...tion',
+                         '100.103.125.88', 'LoadCredential='):
+            self.assertNotIn(unwanted, text)
+        for name in ('arda-hud.service', 'arda-mirromere.service'):
+            self.assertIn('ARDA_OPERATOR_ID=operator:qualification', (self.units / name).read_text())
+        root.unlink()
+        checked = subprocess.run(['bash', str(ROOT / 'scripts/verify_arda_user_units.sh'),
+                                  str(self.units)], env=self.env, capture_output=True, text=True)
+        self.assertNotEqual(checked.returncode, 0, 'root composition verifier accepted missing root')
+
+    def test_invalid_root_composition_preserves_existing_units(self):
+        import json
+        composition = self.root_composition()
+        data = json.loads(composition.read_text())
+        data['environment_file'] = str(self.home / 'missing.env')
+        composition.write_text(json.dumps(data))
+        root = self.units / 'arda.service'
+        root.write_text('previous root\n')
+        result = self.install()
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(root.read_text(), 'previous root\n')
+        self.assertFalse((self.units / 'arda-session.target').exists())
+
+    def test_failed_reload_restores_root_composition(self):
+        self.root_composition()
+        root = self.units / 'arda.service'
+        root.write_text('previous root\n')
+        bindir = self.home / 'bin'
+        bindir.mkdir()
+        command = bindir / 'systemctl'
+        command.write_text('#!/bin/sh\n'
+                           f'test -e "{self.home}/root-at-reload" || cp "{root}" "{self.home}/root-at-reload"\n'
+                           'exit 1\n')
+        command.chmod(0o700)
+        self.env.update(ARDA_SKIP_SYSTEMD_RELOAD='false', PATH=str(bindir) + ':' + os.environ['PATH'])
+        for key in ('DISPLAY', 'WAYLAND_DISPLAY', 'DBUS_SESSION_BUS_ADDRESS', 'XDG_SESSION_TYPE', 'XDG_RUNTIME_DIR'):
+            self.env.pop(key, None)
+        result = self.install()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(root.read_text(), 'previous root\n')
+        self.assertFalse((self.units / 'arda-session.target').exists())
+        self.assertIn('operator:qualification', (self.home / 'root-at-reload').read_text())
+
+    def test_rendered_root_passes_native_systemd_parser(self):
+        import shutil
+        if not shutil.which('systemd-analyze'):
+            self.skipTest('systemd-analyze not installed')
+        import json
+        composition = self.root_composition()
+        secret = self.home / 'private capability'
+        secret.write_text('synthetic-private-value')
+        data = json.loads(composition.read_text())
+        data['credentials'] = {'arda-manwe-mutation': str(secret)}
+        composition.write_text(json.dumps(data))
+        result = self.install()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checked = subprocess.run(['systemd-analyze', '--user', 'verify', '--man=no',
+                                  str(self.units / 'arda.service')], env=self.env,
+                                 capture_output=True, text=True)
+        self.assertEqual(checked.returncode, 0, checked.stderr)
+        self.assertEqual(checked.stderr.strip(), '', checked.stderr)
+
+    def test_explicit_credentials_are_references_only(self):
+        import json
+        composition = self.root_composition()
+        secret = self.home / 'capability'
+        secret.write_text('synthetic-private-value')
+        data = json.loads(composition.read_text())
+        data['credentials'] = {'arda-manwe-mutation': str(secret)}
+        composition.write_text(json.dumps(data))
+        result = self.install()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        text = (self.units / 'arda.service').read_text()
+        self.assertIn(f'LoadCredential=arda-manwe-mutation:{secret}', text)
+        self.assertNotIn('synthetic-private-value', text + result.stdout + result.stderr)
+        self.assertEqual(secret.read_text(), 'synthetic-private-value')
+
+    def test_composition_rejects_directive_injection_before_install(self):
+        import json
+        composition = self.root_composition()
+        original = json.loads(composition.read_text())
+        for key, value in [('operator_id', 'operator:other\nExecStart=/bin/false'),
+                           ('release_root', str(self.home) + '/%h'),
+                           ('credentials', {'bad\nname': str(self.hud)})]:
+            composition.write_text(json.dumps({**original, key: value}))
+            result = self.install()
+            self.assertNotEqual(result.returncode, 0, key)
+            self.assertFalse((self.units / 'arda.service').exists())
+            self.assertFalse((self.units / 'arda-session.target').exists())
+
     def test_installs_watchdog_without_overwriting_hermes_service(self):
         base = self.units / 'hermes-gateway.service'
         base.write_text('owned by Hermes\n')

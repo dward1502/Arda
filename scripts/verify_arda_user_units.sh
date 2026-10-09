@@ -9,6 +9,9 @@ HUD_UNIT="$UNIT_DIR/arda-hud.service"
 MIRROMERE_UNIT="$UNIT_DIR/arda-mirromere.service"
 MANWE_PROVIDER_CONFIG="$ROOT_DIR/config/manwe.providers.toml"
 
+if [[ -n "${ARDA_ROOT_COMPOSITION:-}" ]]; then
+  python3 "$ROOT_DIR/scripts/arda_root_composition.py" "$ARDA_ROOT_COMPOSITION" "$UNIT_DIR" --verify
+else
 python3 - "$TARGET_UNIT" "$HUD_UNIT" "$MIRROMERE_UNIT" "$MANWE_PROVIDER_CONFIG" <<'PY'
 from pathlib import Path
 import sys
@@ -110,6 +113,7 @@ capabilities = model.get("capabilities", {})
 if not capabilities.get("tools") or not capabilities.get("structured_output"):
     raise SystemExit("Manwe provider config: gemini-2.5-flash must support tools and structured output")
 PY
+fi
 
 if command -v systemd-analyze >/dev/null 2>&1 \
   && [[ -x "$HOME/.local/lib/arda/hud/arda_hud" ]] \

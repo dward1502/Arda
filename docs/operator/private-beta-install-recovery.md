@@ -151,6 +151,48 @@ isolation: a different UID alone still shares the operator's loopback endpoints.
 This setup does not provision Arda's root runtime, authenticate a provider, or
 close native HUD/restore acceptance.
 
+## Explicit account-local root service
+
+The default user-unit installation still manages only the desktop/session units
+and watchdog integration. To also install `arda.service`, set
+`ARDA_ROOT_COMPOSITION` to an absolute JSON file with exactly these fields:
+
+```json
+{
+  "release_root": "/home/example/releases/Arda",
+  "root_executable": "/home/example/.local/bin/arda",
+  "operator_id": "operator:example",
+  "environment_file": "/home/example/.config/arda/runtime.env",
+  "provider_config": "/home/example/.config/arda/providers.toml",
+  "credentials": {}
+}
+```
+
+All paths must already exist. The release must contain `services.toml`, the
+root executable must be executable, and private configuration/credential paths
+must resolve inside the installing account's HOME. The credential map contains
+systemd credential names and absolute source paths, never secret values.
+Telemetry is not implicitly added; any telemetry configuration belongs in the
+explicitly selected private environment file. The operator identity is rendered
+consistently for root, HUD and Mirromere. Use the same composition for verification:
+
+```bash
+ARDA_ROOT_COMPOSITION="$HOME/.config/arda/composition.json" \
+  ARDA_HUD_NATIVE_SOURCE="$HUD_ARTIFACT" \
+  "$ARDA_ROOT/scripts/install_arda_user_units.sh"
+ARDA_ROOT_COMPOSITION="$HOME/.config/arda/composition.json" \
+  "$ARDA_ROOT/scripts/verify_arda_user_units.sh" "$HOME/.config/systemd/user"
+```
+
+The installer validates selected inputs before replacing managed files, includes
+the root unit in backup/rollback, and does not start services or copy secrets,
+databases or authority markers. It does not provision the release's registry,
+provider access, store authority or network isolation. In particular, selected
+private environment settings must not contradict the composition; systemd
+EnvironmentFile settings override Environment entries. Root operator identity is
+also supplied through its CLI. This path does not yet qualify shared-host Manwe
+endpoint isolation or native runtime readiness.
+
 ## 2a. Stage 5 compatibility and release manifest
 
 Installation records the selected absolute release root in the existing

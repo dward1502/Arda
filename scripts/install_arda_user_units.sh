@@ -17,6 +17,8 @@ systemctl_user() {
 SESSION_DEST="$USER_UNIT_DIR/arda-session.target"
 HUD_UNIT_DEST="$USER_UNIT_DIR/arda-hud.service"
 MIRROMERE_UNIT_DEST="$USER_UNIT_DIR/arda-mirromere.service"
+GATEWAY_WATCHDOG_DEST="$USER_UNIT_DIR/hermes-gateway.service.d/arda-watchdog.conf"
+GATEWAY_WATCHDOG_HAD_PREVIOUS=false
 BACKUP_DIR=""
 SESSION_HAD_PREVIOUS=false
 HUD_UNIT_HAD_PREVIOUS=false
@@ -45,7 +47,12 @@ backup_path() {
   local source="$1"
   local backup="$2"
   if [[ -f "$source" ]]; then
-    install -m0600 "$source" "$backup"
+    # This function is called in an if condition, where Bash disables errexit.
+    # A failed backup must abort before any installed file is replaced.
+    if ! install -m0600 "$source" "$backup"; then
+      printf 'cannot back up installed file: %s\n' "$source" >&2
+      exit 1
+    fi
     return 0
   fi
   return 1
@@ -69,6 +76,7 @@ cleanup_backup() {
     "$BACKUP_DIR/arda-session.target" \
     "$BACKUP_DIR/arda-hud.service" \
     "$BACKUP_DIR/arda-mirromere.service" \
+    "$BACKUP_DIR/arda-watchdog.conf" \
     "$BACKUP_DIR/arda_hud"
   rmdir "$BACKUP_DIR" 2>/dev/null || true
 }
@@ -77,6 +85,7 @@ rollback() {
   restore_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target" "$SESSION_HAD_PREVIOUS" 0644 || true
   restore_path "$HUD_UNIT_DEST" "$BACKUP_DIR/arda-hud.service" "$HUD_UNIT_HAD_PREVIOUS" 0644 || true
   restore_path "$MIRROMERE_UNIT_DEST" "$BACKUP_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_HAD_PREVIOUS" 0644 || true
+  restore_path "$GATEWAY_WATCHDOG_DEST" "$BACKUP_DIR/arda-watchdog.conf" "$GATEWAY_WATCHDOG_HAD_PREVIOUS" 0644 || true
   if [[ "$HUD_BINARY_CHANGED" == "true" ]]; then
     restore_path "$HUD_INSTALL_PATH" "$BACKUP_DIR/arda_hud" "$HUD_BINARY_HAD_PREVIOUS" 0755 || true
   fi
@@ -106,8 +115,8 @@ if [[ -z "$HUD_SOURCE" && ! -x "$HUD_INSTALL_PATH" ]]; then
   exit 1
 fi
 
-mkdir -p "$USER_UNIT_DIR" "$(dirname "$HUD_INSTALL_PATH")"
-BACKUP_DIR="$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/arda-user-unit-install.XXXXXX")"
+mkdir -p "$USER_UNIT_DIR" "$(dirname "$HUD_INSTALL_PATH")" "$(dirname "$GATEWAY_WATCHDOG_DEST")"
+BACKUP_DIR="$(mktemp -d "${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/arda-user-unit-install.XXXXXX")"
 trap on_exit EXIT
 if backup_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target"; then
   SESSION_HAD_PREVIOUS=true
@@ -117,6 +126,9 @@ if backup_path "$HUD_UNIT_DEST" "$BACKUP_DIR/arda-hud.service"; then
 fi
 if backup_path "$MIRROMERE_UNIT_DEST" "$BACKUP_DIR/arda-mirromere.service"; then
   MIRROMERE_UNIT_HAD_PREVIOUS=true
+fi
+if backup_path "$GATEWAY_WATCHDOG_DEST" "$BACKUP_DIR/arda-watchdog.conf"; then
+  GATEWAY_WATCHDOG_HAD_PREVIOUS=true
 fi
 if [[ -n "$HUD_SOURCE" ]] && backup_path "$HUD_INSTALL_PATH" "$BACKUP_DIR/arda_hud"; then
   HUD_BINARY_HAD_PREVIOUS=true
@@ -133,6 +145,7 @@ fi
 atomic_install "$SOURCE_UNIT_DIR/arda-session.target" "$SESSION_DEST" 0644
 atomic_install "$SOURCE_UNIT_DIR/arda-hud.service" "$HUD_UNIT_DEST" 0644
 atomic_install "$SOURCE_UNIT_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_DEST" 0644
+atomic_install "$SOURCE_UNIT_DIR/hermes-gateway.service.d/arda-watchdog.conf" "$GATEWAY_WATCHDOG_DEST" 0644
 "$ROOT_DIR/scripts/verify_arda_user_units.sh" "$USER_UNIT_DIR"
 
 if [[ "$SKIP_RELOAD" != "true" ]]; then

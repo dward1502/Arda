@@ -105,6 +105,52 @@ The install writes only:
 - `~/.local/bin/arda-launcher` as a symlink;
 - `~/.local/share/applications/arda-launcher.desktop`.
 
+## Independent Hermes runtime prerequisite
+
+The launcher requires an independently managed `hermes-gateway.service` with
+an advancing systemd watchdog. Installing the launcher does not install Hermes.
+A running process alone is insufficient: Hermes' generated base service can omit
+`WatchdogSec`, leaving Arda's gateway observation unavailable.
+
+For a fresh account, use an identified Hermes source checkout and its lockfile,
+not another user's environment, profile, credentials or agent-cache scripts.
+For Hermes revision `7565f6477c211c315110fc12173e500f013366fc`, the source
+installation commands exercised in the qualification account are:
+
+```bash
+uv sync --project "$HERMES_SOURCE" --python 3.14 --frozen --no-dev --extra messaging
+"$HERMES_SOURCE/.venv/bin/hermes" gateway install --no-start-now --no-start-on-login
+```
+
+Configure an actual supported transport using Hermes' setup before starting it.
+The isolated R09 account uses the loopback API adapter with its own generated
+secret in its private `.hermes/.env`; this checks gateway availability, not model
+or external-message delivery. Never copy the operator's provider credentials to
+make qualification pass. A Python 3.12 editable install of the qualified Hermes
+revision omits its Python-3.14-guarded runtime dependencies; use its declared
+runtime rather than installing missing modules one at a time.
+
+The existing `scripts/install_arda_user_units.sh` installs the Arda-owned
+`config/systemd/hermes-gateway.service.d/arda-watchdog.conf` alongside the session
+and HUD units, transactionally preserving any prior drop-in on failure. Hermes
+continues to own its base service. The installer does not restart services. After
+installing the units with the verified HUD artifact, restart only the target
+account's gateway and inspect real notifications:
+
+```bash
+ARDA_HUD_NATIVE_SOURCE="$HUD_ARTIFACT" scripts/install_arda_user_units.sh
+systemctl --user restart hermes-gateway.service
+systemctl --user show hermes-gateway.service \
+  -p ActiveState -p SubState -p NRestarts \
+  -p WatchdogUSec -p WatchdogTimestampMonotonic
+```
+
+Observe the timestamp advancing across the watchdog cadence; a static timestamp
+or active process is not sustained-health evidence. Keep clean-account network
+isolation: a different UID alone still shares the operator's loopback endpoints.
+This setup does not provision Arda's root runtime, authenticate a provider, or
+close native HUD/restore acceptance.
+
 ## 2a. Stage 5 compatibility and release manifest
 
 Installation records the selected absolute release root in the existing

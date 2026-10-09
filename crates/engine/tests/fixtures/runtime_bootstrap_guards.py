@@ -61,10 +61,25 @@ class GuardTests(unittest.TestCase):
                      "tools.registry": SimpleNamespace(registry=registry)}.get(name)
                     or importlib.import_module(name))
         scope = {"importlib": SimpleNamespace(import_module=load), "profile": PROFILE, "json": json, "sys": sys}
-        scope["broker_send"] = lambda httpx_module, request: self.transport(request)
+        scope["endpoint"] = "http://127.0.0.1:17171"
+        scope["broker_send"] = lambda httpx_module, request, endpoint: self.transport(request)
         exec((SOURCE.parent / "finalization.py").read_text(), scope)
         exec(compile(ast.Module(body=block.body, type_ignores=[]), str(SOURCE), "exec"), scope)
         self.scope = scope
+
+    def test_selected_http_default_port_survives_httpx_normalization(self):
+        self.scope["endpoint"] = "http://127.0.0.1:80"
+        self.transport = lambda request: httpx.Response(200, headers=self.headers())
+        with httpx.Client() as client:
+            with contextlib.redirect_stderr(io.StringIO()):
+                response = client.post("http://127.0.0.1:80/v1/chat/completions", json={})
+            self.assertEqual(response.status_code, 200)
+
+    def test_old_endpoint_is_rejected_before_transport(self):
+        self.transport = lambda request: self.fail("stale destination reached transport")
+        with httpx.Client() as client:
+            with self.assertRaisesRegex(RuntimeError, "unexpected inference destination"):
+                client.post("http://127.0.0.1:7171/v1/chat/completions", json={})
 
     def test_finalization_denies_tools_and_second_http_request(self):
         self.scope["finalization_state"]["active"] = True
@@ -77,9 +92,9 @@ class GuardTests(unittest.TestCase):
         self.transport = transport
         with httpx.Client(transport=httpx.MockTransport(transport)) as client:
             body = {"messages": [], "tools": [{"type": "function"}], "tool_choice": "required"}
-            client.post("http://127.0.0.1:7171/v1/chat/completions", json=body)
+            client.post("http://127.0.0.1:17171/v1/chat/completions", json=body)
             with self.assertRaisesRegex(RuntimeError, "budget exhausted"):
-                client.post("http://127.0.0.1:7171/v1/chat/completions", json=body)
+                client.post("http://127.0.0.1:17171/v1/chat/completions", json=body)
         self.assertEqual(len(seen), 1)
         self.assertNotIn("tools", seen[0])
         self.assertNotIn("tool_choice", seen[0])
@@ -102,7 +117,7 @@ class GuardTests(unittest.TestCase):
                              [{'role': 'user', 'content': 'Review files'},
                               {'role': 'tool', 'tool_call_id': 'actual-call', 'content': 'actual output'}]):
                 with contextlib.redirect_stderr(io.StringIO()):
-                    client.post('http://127.0.0.1:7171/v1/chat/completions', json={
+                    client.post('http://127.0.0.1:17171/v1/chat/completions', json={
                         'messages': messages, 'tools': [{'type': 'function', 'function': {'name': 'read_file'}}],
                         'tool_choice': 'auto', 'stream': True})
         self.assertEqual(seen[0]['tool_choice'], 'required')
@@ -120,16 +135,16 @@ class GuardTests(unittest.TestCase):
             self.transport = transport
             with httpx.Client(transport=httpx.MockTransport(transport), follow_redirects=True) as client:
                 with contextlib.redirect_stderr(io.StringIO()):
-                    response = client.post("http://127.0.0.1:7171/v1/chat/completions", json={"fixture": "not a real inference request"})
+                    response = client.post("http://127.0.0.1:17171/v1/chat/completions", json={"fixture": "not a real inference request"})
                 self.assertEqual(response.status_code, status)
-                self.assertEqual(seen, ["http://127.0.0.1:7171/v1/chat/completions"])
+                self.assertEqual(seen, ["http://127.0.0.1:17171/v1/chat/completions"])
 
     def test_unapproved_route_class_is_rejected(self):
         self.transport = lambda request: httpx.Response(200, headers=self.headers("unapproved-class"))
         with httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(200, headers=self.headers("unapproved-class")))) as client:
             with contextlib.redirect_stderr(io.StringIO()):
                 with self.assertRaisesRegex(RuntimeError, "unapproved route"):
-                    client.post("http://127.0.0.1:7171/v1/chat/completions", json={})
+                    client.post("http://127.0.0.1:17171/v1/chat/completions", json={})
 
 if __name__ == "__main__":
     unittest.main()

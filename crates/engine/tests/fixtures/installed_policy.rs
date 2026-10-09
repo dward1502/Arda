@@ -13,6 +13,8 @@ pub fn write(root: &Path) -> PathBuf {
         include_str!("../../../../config/retained/hermes-profile.json"),
     )
     .unwrap();
+    let manifest = profile_dir.join("services.toml");
+    fs::write(&manifest, "[[service]]\nname='manwe'\nstart={args=['--bind=127.0.0.1','--port=7171']}\nhealth={url='http://127.0.0.1:7171/healthz'}\n").unwrap();
     let sessions = root.join("sessions");
     fs::create_dir(&sessions).unwrap();
     fs::set_permissions(&sessions, fs::Permissions::from_mode(0o700)).unwrap();
@@ -28,6 +30,7 @@ pub fn write(root: &Path) -> PathBuf {
         {"id":"code","source":source,"destination":source,"kind":"directory","access":"read_only","role":"runtime"},
         {"id":"site","source":site,"destination":site,"kind":"directory","access":"read_only","role":"runtime"},
         {"id":"profile","source":profile,"destination":"/hermes/profiles/retained/config.yaml","kind":"file","access":"read_only","role":"profile_input"},
+        {"id":"manifest","source":manifest,"destination":"/run/arda-runtime/services.toml","kind":"file","access":"read_only","role":"network_input"},
         {"id":"state","source":sessions,"destination":"/hermes/profiles/retained","kind":"directory","access":"read_write","role":"session_state"}
     ],"fixed_environment":{"HOME":"/hermes/profiles/retained","HERMES_HOME":"/hermes/profiles/retained","PATH":"/usr/bin:/bin"}});
     let policy = arda_engine::objectives::runtime_policy::ValidatedRuntimePolicy::parse(

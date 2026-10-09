@@ -10,11 +10,15 @@ pub(super) struct Policy {
     pub(super) routing: Value,
 }
 impl Policy {
+    #[cfg(test)]
     pub(super) fn from_profile(profile: &Value) -> Result<Self> {
+        Self::from_selected_profile(profile, "http://127.0.0.1:7171")
+    }
+    pub(super) fn from_selected_profile(profile: &Value, endpoint: &str) -> Result<Self> {
         let custom = profile["custom_providers"]
             .as_array()
             .context("provider array missing")?;
-        if custom.len() != 1 || custom[0]["base_url"] != "http://127.0.0.1:7171/v1" {
+        if custom.len() != 1 || custom[0]["base_url"] != format!("{endpoint}/v1") {
             bail!("broker requires exact local endpoint");
         }
         let model = profile["model"]["default"]
@@ -93,6 +97,14 @@ impl Policy {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn selected_endpoint_not_profile_owns_destination() {
+        let mut candidate = profile("local", "local-provider");
+        assert!(Policy::from_selected_profile(&candidate, "http://127.0.0.1:17171").is_err());
+        candidate["custom_providers"][0]["base_url"] = json!("http://127.0.0.1:17171/v1");
+        assert!(Policy::from_selected_profile(&candidate, "http://127.0.0.1:17171").is_ok());
+        assert!(Policy::from_selected_profile(&candidate, "http://127.0.0.1:27171").is_err());
+    }
     fn profile(origin: &str, provider: &str) -> Value {
         json!({"model":{"default":"selected-model"},"custom_providers":[{
             "base_url":"http://127.0.0.1:7171/v1","extra_body":{"routing":{
@@ -160,6 +172,7 @@ mod tests {
                 "../../../../../config/retained/hermes-profile.json"
             ))
             .unwrap();
+            p["custom_providers"][0]["base_url"] = json!("http://127.0.0.1:17171/v1");
             let model = p["model"]["default"].clone();
             p["custom_providers"][0]["extra_body"]["routing"] = json!({
                 "local_only":origin=="local", "inference_origin":origin, "origin_preference":origin,
@@ -181,14 +194,17 @@ mod tests {
                 changed["custom_providers"][0]["extra_body"]["routing"][field] = value;
                 cases.push(changed);
             }
+            let mut stale = p.clone();
+            stale["custom_providers"][0]["base_url"] = json!("http://127.0.0.1:7171/v1");
+            cases.push(stale);
             p["custom_providers"][0]["base_url"] = json!("https://external.invalid/v1");
             cases.push(p);
         }
         let expected: Vec<_> = cases
             .iter()
-            .map(|p| Policy::from_profile(p).is_ok())
+            .map(|p| Policy::from_selected_profile(p, "http://127.0.0.1:17171").is_ok())
             .collect();
-        let code = concat!(include_str!("profile_guard.py"), "\nimport sys\nresults=[]\nfor config in json.load(sys.stdin):\n    try:\n        validate_profile_config(config)\n        results.append(True)\n    except (ValueError, KeyError, TypeError):\n        results.append(False)\nprint(json.dumps(results))\n");
+        let code = concat!(include_str!("profile_guard.py"), "\nimport sys\nresults=[]\nfor config in json.load(sys.stdin):\n    try:\n        validate_profile_config(config, 'http://127.0.0.1:17171')\n        results.append(True)\n    except (ValueError, KeyError, TypeError):\n        results.append(False)\nprint(json.dumps(results))\n");
         let mut child = Command::new("python3")
             .args(["-I", "-S", "-B", "-c", code])
             .stdin(Stdio::piped())

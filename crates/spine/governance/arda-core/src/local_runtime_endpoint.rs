@@ -103,6 +103,72 @@ health = {{ url = "{health}" }}
         )
     }
     #[test]
+    fn provisioning_parser_matches_rust_endpoint_contract() {
+        use std::{
+            io::Write,
+            process::{Command, Stdio},
+        };
+        let good = registry("127.0.0.1", "17171", "http://127.0.0.1:17171/healthz");
+        let mut cases = vec![
+            good.clone(),
+            good.replace("[[service]]", "[[services]]"),
+            good.replace(
+                "\"--bind\", \"127.0.0.1\", \"--port\", \"17171\"",
+                "\"--bind=127.0.0.1\", \"--port=17171\"",
+            ),
+            good.replace(
+                "url = \"http://127.0.0.1:17171/healthz\"",
+                "url = \"http://127.0.0.1:17171/\", path = \"/healthz\"",
+            ),
+            format!("{good}\n{good}"),
+            String::new(),
+            good.replace("\"--port\"", "\"--port\", \"17171\", \"--port\""),
+            good.replace("\"--port\", \"17171\"", "\"--port\", 17171"),
+            format!("{good}\n[[services]]\nname='other'"),
+        ];
+        for (bind, port, health) in [
+            ("0.0.0.0", "17171", "http://0.0.0.0:17171/healthz"),
+            ("localhost", "17171", "http://localhost:17171/healthz"),
+            ("127.0.0.1", "0", "http://127.0.0.1:0/healthz"),
+            ("127.0.0.1", "65536", "http://127.0.0.1:65536/healthz"),
+            ("127.0.0.1", "+17171", "http://127.0.0.1:17171/healthz"),
+            ("127.0.0.1", "017171", "http://127.0.0.1:17171/healthz"),
+            ("127.0.0.1", "17171", "http://127.0.0.1:7171/healthz"),
+            ("127.0.0.1", "17171", "http://user@127.0.0.1:17171/healthz"),
+        ] {
+            cases.push(registry(bind, port, health));
+        }
+        let expected: Vec<_> = cases
+            .iter()
+            .map(|text| {
+                LocalRuntimeEndpoint::from_services_toml(text)
+                    .ok()
+                    .map(|endpoint| endpoint.base_url)
+            })
+            .collect();
+        let script = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../../scripts/configure-retained-runtime.py");
+        let code = "import importlib.util,json,sys\ns=importlib.util.spec_from_file_location('g',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)\nresults=[]\nfor case in json.load(sys.stdin):\n try: results.append(m.local_runtime_endpoint(case.encode()))\n except (ValueError,TypeError,KeyError): results.append(None)\nprint(json.dumps(results))";
+        let mut child = Command::new("python3")
+            .args(["-I", "-S", "-B", "-c", code])
+            .arg(script)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(&serde_json::to_vec(&cases).unwrap())
+            .unwrap();
+        let result = child.wait_with_output().unwrap();
+        assert!(result.status.success());
+        let actual: Vec<Option<String>> = serde_json::from_slice(&result.stdout).unwrap();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
     fn selected_endpoint_matches_process_and_probe() {
         let endpoint = LocalRuntimeEndpoint::from_services_toml(&registry(
             "127.0.0.1",

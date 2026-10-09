@@ -14,7 +14,7 @@ def _unique_fields(pairs):
     return result
 
 
-def validate_profile(home):
+def validate_profile(home, endpoint):
     for name in (".env", ".op.env", "auth.json", "active_profile", "managed-settings.json"):
         if os.path.lexists(os.path.join(home, name)):
             raise ValueError("ambient profile authority is forbidden")
@@ -32,10 +32,10 @@ def validate_profile(home):
     if len(raw) > 65536 or b"${" in raw:
         raise ValueError("profile exceeds bounds or expands environment")
     config = json.loads(raw, object_pairs_hook=_unique_fields)
-    return validate_profile_config(config)
+    return validate_profile_config(config, endpoint)
 
 
-def validate_profile_config(config):
+def validate_profile_config(config, endpoint):
     """Validate the captured policy independently of filesystem admission."""
     custom = config["custom_providers"]
     if type(custom) is not list or len(custom) != 1:
@@ -54,7 +54,7 @@ def validate_profile_config(config):
         raise ValueError("invalid context budget")
     expected = {
         "model": {"provider": "retained-manwe", "default": model, "context_length": context},
-        "custom_providers": [{"name": "retained-manwe", "base_url": "http://127.0.0.1:7171/v1", "api_mode": "chat_completions", "model": model, "extra_body": {"routing": {"local_only": origin == "local", "inference_origin": origin, "origin_preference": origin, "force_provider_id": provider, "force_model_id": model, "allow_forced_provider_fallback": False, "tool_use_required": True}}}],
+        "custom_providers": [{"name": "retained-manwe", "base_url": endpoint + "/v1", "api_mode": "chat_completions", "model": model, "extra_body": {"routing": {"local_only": origin == "local", "inference_origin": origin, "origin_preference": origin, "force_provider_id": provider, "force_model_id": model, "allow_forced_provider_fallback": False, "tool_use_required": True}}}],
         "fallback_providers": [],
         "terminal": {"backend": "local", "cwd": "auto", "timeout": 180, "persistent_shell": False},
         "memory": {"memory_enabled": False, "user_profile_enabled": False, "provider": ""},

@@ -1,5 +1,6 @@
 //! Complete runtime admission/capture; no partial bundle is publishable.
 mod dispatch;
+mod endpoint;
 use crate::snapshot_admission::grant::{CapturedGrant, GrantAdmission};
 use anyhow::{bail, Result};
 use arda_engine::objectives::{
@@ -15,6 +16,8 @@ pub struct RuntimeAdmission {
 pub struct CapturedRuntime {
     pub policy: ValidatedRuntimePolicy,
     pub grants: Vec<CapturedGrant>,
+    // Object-identity authority, parsed once. RuntimeBundle does not attest bytes.
+    endpoint: Option<String>,
 }
 impl RuntimeAdmission {
     pub fn policy(&self) -> &ValidatedRuntimePolicy {
@@ -89,13 +92,20 @@ impl RuntimeAdmission {
             }
             grants.push(capture);
         }
+        let endpoint = endpoint::capture(&self.policy, &grants)?;
         Ok(CapturedRuntime {
+            endpoint,
             policy: self.policy,
             grants,
         })
     }
 }
 impl CapturedRuntime {
+    pub(crate) fn endpoint(&self) -> Result<&str> {
+        self.endpoint.as_deref().ok_or_else(|| {
+            anyhow::anyhow!("chat/export requires captured Manwe manifest authority")
+        })
+    }
     pub fn manifest(&self) -> RuntimeBundle {
         RuntimeBundle {
             version: 1,

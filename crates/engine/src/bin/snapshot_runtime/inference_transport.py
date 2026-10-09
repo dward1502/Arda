@@ -2,15 +2,15 @@
 import threading
 _inference_transaction_lock = threading.Lock()
 
-def broker_send(httpx, request):
+def broker_send(httpx, request, endpoint):
     with _inference_transaction_lock:
-        return _broker_exchange(httpx, request)
+        return _broker_exchange(httpx, request, endpoint)
 
-def _broker_exchange(httpx, request):
+def _broker_exchange(httpx, request, endpoint):
     import json
     import os
     import struct
-    if request.method != "POST" or str(request.url) != "http://127.0.0.1:7171/v1/chat/completions":
+    if request.method != "POST" or str(request.url) != str(httpx.URL(endpoint + "/v1/chat/completions")):
         raise RuntimeError("inference broker rejects destination/method")
     payload = request.content
     if not 0 < len(payload) <= 2097152:

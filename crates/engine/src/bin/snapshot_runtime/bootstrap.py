@@ -7,6 +7,9 @@ import sys
 
 roots = json.loads(sys.argv.pop(1))
 mode = sys.argv.pop(1)
+endpoint = sys.argv.pop(1)
+if mode != "probe" and not endpoint:
+    raise RuntimeError("captured Manwe endpoint required")
 os.environ.update(HERMES_SAFE_MODE="1", HERMES_REDACT_SECRETS="true", HERMES_GUEST_ONBOARDING="0")
 for root in roots:
     for name in (".env", ".op.env", "auth.json", "config.yaml"):
@@ -15,7 +18,7 @@ for root in roots:
 guard = globals().get("validate_profile")
 if not callable(guard):
     raise RuntimeError("owned profile guard is missing")
-profile = guard(os.environ["HERMES_HOME"]) if mode != "probe" else None
+profile = guard(os.environ["HERMES_HOME"], endpoint) if mode != "probe" else None
 sys.path[:0] = roots
 sys.argv[0] = "hermes"
 
@@ -52,7 +55,7 @@ if mode == "chat":
     registry.dispatch = guarded_dispatch
 
     def observed_send(client, request, *args, **kwargs):
-        if request.method == "POST" and str(request.url) != "http://127.0.0.1:7171/v1/chat/completions":
+        if request.method == "POST" and str(request.url) != str(httpx.URL(endpoint + "/v1/chat/completions")):
             raise RuntimeError("unexpected inference destination")
         if request.method == "POST":
             body = json.loads(request.content)
@@ -79,7 +82,7 @@ if mode == "chat":
                     content=json.dumps(body).encode(), extensions=request.extensions)
         # HTTPX follows redirects inside send, without re-entering this guard.
         kwargs["follow_redirects"] = False
-        response = broker_send(httpx, request)
+        response = broker_send(httpx, request, endpoint)
         if 400 <= response.status_code <= 599:
             # Failed requests carry no success attestation. Preserve the status
             # without opening a direct-network or provider-fallback path.

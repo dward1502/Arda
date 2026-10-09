@@ -534,9 +534,20 @@ shutdown fixture correction is included so this evidence does not depend on dirt
 local tests. Root process fixtures verify selected-port
 models routing despite proxy environment variables; the supervisor redirect
 regression reproduced false healthy status before repair. Retained snapshot-worker
-inference still hardcodes 7171: next carry the release-selected endpoint through
-trusted runtime capture and Rust/Python profile guards before installed
-qualification. Complete public release inputs, fresh
+inference now carries the release-selected endpoint through an explicitly admitted
+readonly NetworkInput manifest descriptor into the broker and Rust/Python guards
+(source changes pending independent review; not installed). Capture caches the
+endpoint once under existing object-identity authority; the runtime bundle digest
+does not attest manifest bytes. Chat/export without that authority refuse, while
+probe/artifact verification remain compatible. The generator publishes matching
+profile/manifest bytes and refuses conflicting existing output rather than migrating
+it. Worker tests: 23 passed / 1 ignored; endpoint/parser parity: 4 passed; provisioning:
+5 passed; Python bootstrap/transport: 8 / 3 passed, including HTTPX default-port
+normalization (the initial independent review finding). The synthetic production-broker
+fixture exercises nondefault HTTP forwarding and post-capture mutation isolation;
+it is not installed keeper or live-provider acceptance. Next: independent review,
+exact-tree verification and commit, then explicit private-policy migration and
+installed qualification without mutating original-account authority. Complete public release inputs, fresh
 authority and native lifecycle/restore acceptance remain open; R10/R11 remain
 dependency-gated.
 

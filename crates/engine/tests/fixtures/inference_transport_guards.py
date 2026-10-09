@@ -11,10 +11,18 @@ scope = {}
 exec((Path(__file__).resolve().parents[2] / 'src/bin/snapshot_runtime/inference_transport.py').read_text(), scope)
 
 class TransportTests(unittest.TestCase):
+    def test_selected_default_port_reaches_channel(self):
+        import httpx
+        from unittest.mock import patch
+        request = httpx.Request('POST', 'http://127.0.0.1:80/v1/chat/completions', content=b'{}')
+        with patch('os.write', side_effect=RuntimeError('reached channel')):
+            with self.assertRaisesRegex(RuntimeError, 'reached channel'):
+                scope['broker_send'](httpx, request, 'http://127.0.0.1:80')
+
     def test_destination_and_size_are_denied_before_io(self):
-        for method, url, body in [('GET', 'http://127.0.0.1:7171/v1/chat/completions', b'{}'), ('POST', 'http://evil.invalid/', b'{}'), ('POST', 'http://127.0.0.1:7171/v1/chat/completions', b'x' * 2097153)]:
+        for method, url, body in [('POST', 'http://127.0.0.1:7171/v1/chat/completions', b'{}'), ('GET', 'http://127.0.0.1:17171/v1/chat/completions', b'{}'), ('POST', 'http://evil.invalid/', b'{}'), ('POST', 'http://127.0.0.1:17171/v1/chat/completions', b'x' * 2097153)]:
             with self.assertRaises(RuntimeError):
-                scope['broker_send'](None, SimpleNamespace(method=method, url=url, content=body))
+                scope['broker_send'](SimpleNamespace(URL=str), SimpleNamespace(method=method, url=url, content=body), 'http://127.0.0.1:17171')
 
     def test_private_channel_and_disconnect_without_fallback(self):
         parent, child = socket.socketpair()
@@ -23,11 +31,11 @@ class TransportTests(unittest.TestCase):
             try:
                 parent.close()
                 os.dup2(child.fileno(), 0)
-                request = SimpleNamespace(method='POST', url='http://127.0.0.1:7171/v1/chat/completions', content=b'{"fixture":true}')
-                result = scope['broker_send'](SimpleNamespace(Response=lambda status, **kw: (status, kw)), request)
+                request = SimpleNamespace(method='POST', url='http://127.0.0.1:17171/v1/chat/completions', content=b'{"fixture":true}')
+                result = scope['broker_send'](SimpleNamespace(URL=str, Response=lambda status, **kw: (status, kw)), request, 'http://127.0.0.1:17171')
                 assert result[0] == 200 and result[1]['content'] == b'fixture SSE'
                 try:
-                    scope['broker_send'](None, request)
+                    scope['broker_send'](SimpleNamespace(URL=str), request, 'http://127.0.0.1:17171')
                 except (RuntimeError, BrokenPipeError):
                     os._exit(0)
                 os._exit(2)

@@ -65,5 +65,53 @@ class PublicationTests(unittest.TestCase):
                 generator.adapter_config(invalid)
 
 
+import json
+from types import SimpleNamespace
+from unittest.mock import patch
+
+class EndpointProvisioningTests(unittest.TestCase):
+    def test_release_endpoint_snapshot_and_conflict_refusal(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            release = root / "release"
+            (release / "config/retained").mkdir(parents=True)
+            (release / "config/retained/hermes-profile.json").write_bytes(
+                (generator.REPO / "config/retained/hermes-profile.json").read_bytes())
+            manifest = b'[[service]]\nname="manwe"\nstart={command="manwe",args=["--bind=127.0.0.1","--port=17171"]}\nhealth={url="http://127.0.0.1:17171",path="/healthz"}\n'
+            (release / "services.toml").write_bytes(manifest)
+            for name in ("code", "site"):
+                (root / name).mkdir()
+            legacy = root / "adapter.toml"
+            legacy.write_text('schema_version="arda.hermes-adapter.v1"\nadapter_version="test"\nmax_timeout_ms=1000\ncancellation_grace_ms=100\nmax_prompt_bytes=1024\nmax_output_bytes=1024\nmax_turns=1\n[toolsets]\nread_only=[]\nverify=[]\nexecute_with_approval=[]\nhuman_approval=[]\ncompensate_with_approval=[]\n')
+            args = SimpleNamespace(output_root=str(root / "output"), session_base=str(root / "sessions"),
+                hermes_source=str(root / "code"), user_site=str(root / "site"),
+                python=str(Path("/usr/bin/python3").resolve()), legacy_adapter=str(legacy), apply=True)
+            with patch.object(generator, "REPO", release), patch.dict(os.environ, {"ARDA_ROOT": str(root / "decoy"), "ARDA_MANWE_URL": "http://127.0.0.1:7171"}):
+                args.apply = False
+                generator.generate(args)
+                self.assertFalse((root / "output").exists())
+                self.assertFalse((root / "sessions").exists())
+                args.apply = True
+                (release / "services.toml").write_text("invalid manifest")
+                with self.assertRaises(ValueError):
+                    generator.generate(args)
+                self.assertFalse((root / "output").exists())
+                (release / "services.toml").write_bytes(manifest)
+                generator.generate(args)
+                output = root / "output"
+                profile = json.loads((output / "config.yaml").read_text())
+                self.assertEqual(profile["custom_providers"][0]["base_url"], "http://127.0.0.1:17171/v1")
+                self.assertEqual((output / "services.toml").read_bytes(), manifest)
+                policy = json.loads((output / "runtime-policy.json").read_text())
+                grant = next(g for g in policy["grants"] if g["destination"] == "/run/arda-runtime/services.toml")
+                self.assertEqual((grant["source"], grant["role"], grant["kind"], grant["access"]),
+                    (str(output / "services.toml"), "network_input", "file", "read_only"))
+                generator.generate(args)
+                saved = {p.name: p.read_bytes() for p in output.iterdir()}
+                (release / "services.toml").write_bytes(manifest.replace(b"17171", b"27171"))
+                with self.assertRaises(ValueError):
+                    generator.generate(args)
+                self.assertEqual({p.name: p.read_bytes() for p in output.iterdir()}, saved)
+
 if __name__ == "__main__":
     unittest.main()

@@ -41,7 +41,8 @@ impl Broker {
             bail!("profile exceeds broker bound");
         }
         let profile: Value = serde_json::from_slice(&raw)?;
-        let policy = Policy::from_profile(&profile)?;
+        let endpoint = format!("{}/v1/chat/completions", runtime.endpoint()?);
+        let policy = Policy::from_selected_profile(&profile, runtime.endpoint()?)?;
         use sha2::{Digest, Sha256};
         let routes =
             attestation::RouteLog::new(format!("sha256:{:x}", Sha256::digest(&raw)), &policy);
@@ -65,7 +66,7 @@ impl Broker {
                     tokio::select! {
                         _ = stopped => {},
                         _ = tokio::time::sleep_until(deadline.into()) => {},
-                        result = serve(host, policy, captured_routes) => {
+                        result = serve(host, policy, captured_routes, &endpoint) => {
                             if let Err(error) = result {
                                 let phase = if let Some(error) = error.downcast_ref::<reqwest::Error>() {
                                     if error.is_builder() { "http_client_init" } else { "http_transport" }
@@ -126,14 +127,13 @@ use policy::Policy;
 #[path = "inference_attestation.rs"]
 mod attestation;
 
-async fn serve(host: UnixStream, policy: Policy, routes: attestation::RouteLog) -> Result<()> {
-    serve_at_with_routes(
-        host,
-        policy,
-        "http://127.0.0.1:7171/v1/chat/completions",
-        routes,
-    )
-    .await
+async fn serve(
+    host: UnixStream,
+    policy: Policy,
+    routes: attestation::RouteLog,
+    endpoint: &str,
+) -> Result<()> {
+    serve_at_with_routes(host, policy, endpoint, routes).await
 }
 
 #[cfg(test)]

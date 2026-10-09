@@ -75,6 +75,7 @@ impl CapturedRuntime {
             operation,
             RuntimeOperation::Chat { .. } | RuntimeOperation::Export { .. }
         ) {
+            self.endpoint()?;
             let home = std::path::Path::new(&self.policy.policy().fixed_environment["HERMES_HOME"]);
             if home
                 .parent()
@@ -126,6 +127,7 @@ impl CapturedRuntime {
                 &self.policy.policy().entrypoint.ordered_import_roots,
             )?);
             argv.push(bootstrap_mode(operation).into());
+            argv.push(self.endpoint.as_deref().unwrap_or_default().into());
             argv.extend(operation.hermes_arguments()?);
         }
         Ok(argv)

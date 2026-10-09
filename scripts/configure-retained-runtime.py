@@ -129,7 +129,75 @@ def adapter_config(legacy):
     return text.encode()
 
 
+def local_runtime_endpoint(raw):
+    """Match arda-core's services manifest contract, never ambient endpoints."""
+    import ipaddress
+    import re
+    document = tomllib.loads(raw.decode("utf-8"))
+    if "service" in document and "services" in document:
+        raise ValueError("duplicate service array")
+    entries = document.get("service", document.get("services", []))
+    if not isinstance(entries, list):
+        raise ValueError("service array required")
+    for entry in entries:
+        if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
+            raise ValueError("service name required")
+        if "start" in entry:
+            start = entry["start"]
+            if (not isinstance(start, dict) or not isinstance(start.get("args", []), list)
+                    or any(not isinstance(arg, str) for arg in start.get("args", []))):
+                raise ValueError("invalid start arguments")
+        if "health" in entry:
+            health = entry["health"]
+            if (not isinstance(health, dict) or not isinstance(health.get("url"), str)
+                    or ("path" in health and not isinstance(health["path"], str))):
+                raise ValueError("invalid health declaration")
+    selected = [entry for entry in entries if entry["name"] == "manwe"]
+    if len(selected) != 1:
+        raise ValueError("one Manwe declaration required")
+    entry = selected[0]
+    if "start" not in entry or "health" not in entry:
+        raise ValueError("Manwe start and health required")
+    args = entry["start"].get("args", [])
+    def flag(name):
+        values = []
+        for index, arg in enumerate(args):
+            if arg == name:
+                if index + 1 >= len(args):
+                    raise ValueError("missing endpoint argument")
+                values.append(args[index + 1])
+            elif arg.startswith(name + "="):
+                values.append(arg[len(name) + 1:])
+        if len(values) != 1:
+            raise ValueError("one explicit endpoint argument required")
+        return values[0]
+    bind = flag("--bind")
+    address = ipaddress.IPv4Address(bind)
+    if not address.is_loopback or str(address) != bind:
+        raise ValueError("canonical IPv4 loopback required")
+    port = flag("--port")
+    if not re.fullmatch(r"\+?[0-9]+", port) or not 0 < int(port) <= 65535:
+        raise ValueError("fixed nonzero port required")
+    base = f"http://{address}:{int(port)}"
+    health = entry["health"]
+    url = health["url"]
+    if "path" in health:
+        url = url.rstrip("/") + health["path"]
+    if url != base + "/healthz":
+        raise ValueError("Manwe bind and health endpoint disagree")
+    return base
+
+
 def generate(args):
+    # Script location selects the release. Verifying that release is an installation
+    # prerequisite; no environment variable or task workspace can select its URL.
+    with (REPO / "services.toml").open("rb") as stream:
+        manifest = stream.read(65537)
+    if len(manifest) > 65536:
+        raise ValueError("services manifest exceeds bound")
+    endpoint = local_runtime_endpoint(manifest)
+    profile_config = json.loads((REPO / "config/retained/hermes-profile.json").read_bytes())
+    profile_config["custom_providers"][0]["base_url"] = endpoint + "/v1"
     output = canonical(args.output_root, directory=True, must_exist=False)
     sessions = canonical(args.session_base, directory=True, must_exist=False)
     source = canonical(args.hermes_source, directory=True)
@@ -169,11 +237,13 @@ def generate(args):
             grant("hermes", source, str(source), "directory", "read_only", "runtime"),
             grant("user_site", site, str(site), "directory", "read_only", "runtime"),
             grant("profile", profile, home + "/config.yaml", "file", "read_only", "profile_input"),
+            grant("manwe_manifest", output / "services.toml", "/run/arda-runtime/services.toml", "file", "read_only", "network_input"),
             grant("state", sessions, home, "directory", "read_write", "session_state"),
         ], fixed_environment=dict(HOME=home, HERMES_HOME=home, PATH="/usr/bin:/bin"))
     legacy = tomllib.loads(canonical(args.legacy_adapter).read_text())
     files = {
-        output / "config.yaml": (REPO / "config/retained/hermes-profile.json").read_bytes(),
+        output / "config.yaml": (json.dumps(profile_config, indent=2) + "\n").encode(),
+        output / "services.toml": manifest,
         output / "runtime-policy.json": (json.dumps(policy, indent=2) + "\n").encode(),
         output / "hermes-adapter.toml": adapter_config(legacy),
     }

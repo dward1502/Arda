@@ -1073,36 +1073,49 @@ def rollback_launcher(
     prior_artifact = Path(receipt["prior_artifact"])
     if not prior_artifact.is_file() or hash_file(prior_artifact) != receipt["prior_artifact_sha256"]:
         raise BetaOpsError("rollback artifact checksum mismatch")
+    # The archive is retained recovery evidence, not an instruction to replace
+    # current stores during a binary rollback. Validate it before installation.
+    manifest, _ = load_archive(state_archive)
+    with tarfile.open(state_archive, "r:gz") as archive:
+        for entry in manifest["files"]:
+            handle = archive.extractfile(entry["path"])
+            if handle is None:
+                raise BetaOpsError(f"cannot read archive member: {entry['path']}")
+            digest = hashlib.sha256()
+            with handle:
+                while chunk := handle.read(1024 * 1024):
+                    digest.update(chunk)
+            if digest.hexdigest() != entry.get("sha256"):
+                raise BetaOpsError(f"backup hash verification failed: {entry['path']}")
+    prior_manifest = upgrade_receipt.parent / "install-manifest.json"
+    prior_payload = None
+    if prior_manifest.exists():
+        try:
+            prior_payload = json.loads(prior_manifest.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            raise BetaOpsError(f"invalid prior install manifest: {error}") from error
+        if not isinstance(prior_payload, dict):
+            raise BetaOpsError("prior install manifest must be an object")
     source_before = receipt["source_identity_before"]
     run_truth_before = tree_digest(layout.data)
-    secret_state: list[tuple[str, Path, bytes, int]] = []
-    for kind in STATE_KINDS:
-        state_root = getattr(layout, kind)
-        for path in iter_regular_files(state_root):
-            relative = path.relative_to(state_root)
-            if secret_named(relative):
-                secret_state.append((kind, relative, path.read_bytes(), stat.S_IMODE(path.stat().st_mode)))
     install_launcher(layout, prior_artifact)
-    prior_manifest = upgrade_receipt.parent / "install-manifest.json"
-    if prior_manifest.is_file():
-        shutil.copy2(prior_manifest, layout.install_lib / "install-manifest.json")
-    restored = restore(layout, state_archive, force=True)
-    for kind, relative, content, mode in secret_state:
-        destination = getattr(layout, kind) / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(content)
-        os.chmod(destination, mode)
+    # Schema/state recovery belongs to persistence owners. Even byte-identical
+    # restore replaces inodes and invalidates filesystem-bound authority.
     run_truth_after = tree_digest(layout.data)
     source_after = source_identity(layout.root)
     rollback_result = {
         "status": "ok",
+        "state_action": "preserved_in_place",
+        "restored_state_file_count": 0,
         "state_archive_sha256": hash_file(state_archive),
         "terminal_run_truth_preserved": run_truth_before == run_truth_after,
         "source_repository_touched": source_before != source_after,
     }
     install_manifest = layout.install_lib / "install-manifest.json"
     if install_manifest.is_file():
-        installed_payload = json.loads(install_manifest.read_text(encoding="utf-8"))
+        installed_payload = prior_payload if prior_payload is not None else json.loads(
+            install_manifest.read_text(encoding="utf-8")
+        )
         installed_payload["rollback_result"] = rollback_result
         installed_payload["backup_sha256"] = hash_file(state_archive)
         install_manifest.write_text(
@@ -1114,7 +1127,8 @@ def rollback_launcher(
         "operation": "rollback",
         "status": "ok",
         "restored_artifact_sha256": hash_file(layout.install_lib / "arda-launcher"),
-        "restored_state_file_count": restored["file_count"],
+        "restored_state_file_count": 0,
+        "state_action": "preserved_in_place",
         "terminal_run_truth_preserved": rollback_result["terminal_run_truth_preserved"],
         "source_repository_touched": rollback_result["source_repository_touched"],
     }

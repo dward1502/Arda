@@ -137,7 +137,7 @@ python3 scripts/arda_beta_ops.py upgrade-launcher \
 ```
 
 After completing and backing up the candidate run, restore the prior launcher
-and verified post-run state:
+without replacing current configuration, history or database files:
 
 ```bash
 python3 scripts/arda_beta_ops.py rollback-launcher \
@@ -146,10 +146,14 @@ python3 scripts/arda_beta_ops.py rollback-launcher \
   --state-archive "$HOME/arda-post-run.tar.gz"
 ```
 
-Default state archives omit secret-named files. Rollback preserves those files
-in place while restoring verified non-secret config/data and records the backup
-hash, run-truth comparison, and source-tree comparison in machine-readable
-receipts.
+Default state archives omit secret-named files. Binary rollback validates the
+archive and its payload hashes before installing the prior launcher, but retains
+all current config/data files in place, including their filesystem identities and
+history written after that archive. The archive is recovery evidence, not an
+instruction to rewind state. Receipts report `state_action=preserved_in_place`,
+zero restored state files, the archive hash and run/source comparisons. Separate
+state restore or schema migration still requires its persistence owner's recovery
+procedure; binary rollback does not establish older-runtime schema compatibility.
 
 Run `arda-launcher` inside the user's graphical session. The launcher evaluates
 one first-run projection before claiming `Ready`. Select `REVIEW` to follow the

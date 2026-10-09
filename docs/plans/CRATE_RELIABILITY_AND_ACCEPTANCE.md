@@ -405,7 +405,7 @@ authorized by the judgment. R09 remains a separate numbered assignment.
 
 ### R09 Clarify state lifecycle and installation
 
-- [ ] **Priority P2; owners: persistence modules, root and launcher.** Inventory
+- [x] **Priority P2; owners: persistence modules, root and launcher.** Inventory
   paths as shipped inputs, mutable private state, retained evidence, cache or
   test fixtures. Define backup/export/redaction/retention and migration ownership.
 - [ ] Qualify consistent backup and restore on copies, then clean installation,
@@ -436,6 +436,54 @@ preflight, not native-window, current-artifact or runnable authority-restore
 acceptance. No live state migration, authority rewrite, service restart or mesh
 activation occurred. Raw bounded results: `target/qualification/r09-20261008/`.
 R09 remains open; R10/R11 have not advanced past this dependency.
+
+The bounded repair and ownership slice is committed as `6b66ee99`, independently
+reviewed against tree `4d92367cd177cb768247f19806af695cf8c726d9`; all 22 tests were
+repeated from exact exported blobs. The operator authorized a dedicated clean
+Bluefin account. Native PolicyKit authentication succeeded after noninteractive
+sudo refused: `arda-qualification` is UID/GID 1001, with private mode-0700 home
+`/var/home/arda-qualification` and no supplementary groups. At that stage no
+graphical login or runtime installation was established. Sanitized preinstall
+readiness correctly fails for missing release, launcher, development tools and
+provider configuration (`clean-account-preinstall-readiness.json` in the evidence
+directory above); the earlier sudo blocker is superseded. The operator session
+remains active and mesh remains off.
+
+An isolated build-source export from `6b66ee99` passes launcher Cargo check,
+20 frontend tests and the production frontend build. The export initially omitted
+the source `scenes/state/OnboardingText.tsx`; restoring that exact committed source
+fixed the export mistake without copying private state. The native release build
+with embedded frontend (`tauri/custom-protocol`) succeeded. Its exact artifact
+SHA-256 is `e4bf57dcf08321f92a3fd42f6c7fc8d18b82f269f8fc0bd36eef03d3816bc3b1`;
+installation in the dedicated account and installed-hash readback succeeded.
+Sanitized readiness now passes the native-library and installed-artifact checks
+but truthfully reports missing provider configuration and development tools. The
+installed process was observed `active/running` in the account's isolated Wayland
+session under a bounded transient smoke unit. A retained repeat observation and
+clean stop are in `native-process-observation-retry.log`; its first attempt found
+the expired qualification compositor and did not start the launcher. This is native process startup,
+not visual, complete first-run or operator useful-outcome acceptance. Launcher
+native tests pass 40/40 after adding three exact committed workspace test inputs
+(`services.toml`, provider configuration and contract registry) only to the isolated
+test export, never to account state. Initial 36/40 evidence is retained; omitted
+test inputs were an export error, not four repaired product regressions.
+Build identities/logs are in `build-source.json`, `native-test-inputs.json`,
+`clean-source-native-build.log`, `native-tests-with-declared-inputs.log` and
+`clean-account-candidate-install.log` in the evidence directory. Scratch exports
+and the account's minimal declared inputs are not full release distributions.
+
+A subsequent regression exposed binary rollback replacing current stores from an
+archive: it could discard post-backup history, replace database inodes and install
+the older artifact before noticing an invalid archive. The pending repair validates
+archive payloads before installation and preserves all current config/data in place;
+state/schema restore remains with the persistence owner. Both new tests failed on
+the old code. Independent review accepted the bounded repair and exposed a prior
+manifest-validation ordering defect; malformed saved manifests now fail before
+installation. State-preservation fields are persisted, and a valid archive with
+corrupted payload has explicit non-mutation coverage. All 25 Python tests pass;
+exact staged-source verification and review of these corrections precede commit.
+Next: complete native lifecycle and authority-preserving restore acceptance;
+R09 stays open and R10/R11 remain dependency-gated.
 
 ### R10 Connect evaluation to daily usefulness
 

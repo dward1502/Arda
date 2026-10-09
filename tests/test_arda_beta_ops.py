@@ -580,6 +580,91 @@ class PrivateBetaOpsTests(unittest.TestCase):
             beta_ops.hash_file(post_run_backup),
         )
 
+    def test_binary_rollback_preserves_post_backup_history_and_identity(self):
+        self.seed_state()
+        prior = self.base / "prior"
+        candidate = self.base / "candidate"
+        for artifact, content in ((prior, b"#!/bin/sh\n# prior\n"), (candidate, b"#!/bin/sh\n# next\n")):
+            artifact.write_bytes(content)
+            artifact.chmod(0o700)
+        beta_ops.install_launcher(self.layout, prior)
+        archive = self.base / "before-upgrade.tar.gz"
+        upgraded = beta_ops.upgrade_launcher(self.layout, candidate, archive)
+        history = self.layout.data / "runs.jsonl"
+        with history.open("a") as handle:
+            handle.write('{"run":"after-backup","terminal":"succeeded"}\n')
+        before = {p: (p.read_bytes(), p.stat().st_dev, p.stat().st_ino)
+                  for root in (self.layout.data, self.layout.config)
+                  for p in root.rglob("*") if p.is_file()}
+        result = beta_ops.rollback_launcher(self.layout, Path(upgraded["rollback_receipt"]), archive)
+        for path, identity in before.items():
+            self.assertEqual((path.read_bytes(), path.stat().st_dev, path.stat().st_ino), identity)
+        self.assertTrue(result["terminal_run_truth_preserved"])
+        persisted = json.loads((self.layout.install_lib / "install-manifest.json").read_text())["rollback_result"]
+        self.assertEqual(persisted.get("state_action"), "preserved_in_place")
+        self.assertEqual(persisted.get("restored_state_file_count"), 0)
+        self.assertEqual(beta_ops.hash_file(self.layout.install_lib / "arda-launcher"), beta_ops.hash_file(prior))
+
+    def test_binary_rollback_rejects_invalid_archive_before_install(self):
+        self.seed_state()
+        prior = self.base / "prior"
+        candidate = self.base / "candidate"
+        for artifact in (prior, candidate):
+            artifact.write_text("#!/bin/sh\n# " + artifact.name + "\n")
+            artifact.chmod(0o700)
+        beta_ops.install_launcher(self.layout, prior)
+        archive = self.base / "before-upgrade.tar.gz"
+        upgraded = beta_ops.upgrade_launcher(self.layout, candidate, archive)
+        archive.write_bytes(b"not an archive")
+        before = beta_ops.hash_file(self.layout.install_lib / "arda-launcher")
+        with self.assertRaises((beta_ops.BetaOpsError, tarfile.TarError)):
+            beta_ops.rollback_launcher(self.layout, Path(upgraded["rollback_receipt"]), archive)
+        self.assertEqual(beta_ops.hash_file(self.layout.install_lib / "arda-launcher"), before)
+
+    def test_binary_rollback_rejects_corrupt_inputs_without_mutation(self):
+        self.seed_state()
+        prior = self.base / "prior"
+        candidate = self.base / "candidate"
+        for artifact in (prior, candidate):
+            artifact.write_text("#!/bin/sh\n# " + artifact.name + "\n")
+            artifact.chmod(0o700)
+        beta_ops.install_launcher(self.layout, prior)
+        archive = self.base / "before-upgrade.tar.gz"
+        upgraded = beta_ops.upgrade_launcher(self.layout, candidate, archive)
+        receipt = Path(upgraded["rollback_receipt"])
+        saved_manifest = receipt.parent / "install-manifest.json"
+        original_manifest = saved_manifest.read_bytes()
+        roots = (self.layout.install_lib, self.layout.data, self.layout.config)
+        def snapshot():
+            return {p: (p.read_bytes(), p.stat().st_dev, p.stat().st_ino)
+                    for root in roots for p in root.rglob("*") if p.is_file()}
+        for payload in (b"not json", b"[]", b"null"):
+            with self.subTest(manifest=payload):
+                saved_manifest.write_bytes(payload)
+                before = snapshot()
+                with self.assertRaises(beta_ops.BetaOpsError):
+                    beta_ops.rollback_launcher(self.layout, receipt, archive)
+                self.assertEqual(snapshot(), before)
+        saved_manifest.write_bytes(original_manifest)
+        corrupted = self.base / "corrupt-payload.tar.gz"
+        changed = False
+        with tarfile.open(archive, "r:gz") as source, tarfile.open(corrupted, "w:gz") as target:
+            for member in source.getmembers():
+                handle = source.extractfile(member)
+                assert handle is not None
+                with handle:
+                    data = handle.read()
+                if member.name != "manifest.json" and not changed:
+                    data += b"tampered"
+                    member.size = len(data)
+                    changed = True
+                target.addfile(member, io.BytesIO(data))
+        self.assertTrue(changed)
+        before = snapshot()
+        with self.assertRaisesRegex(beta_ops.BetaOpsError, "hash verification failed"):
+            beta_ops.rollback_launcher(self.layout, receipt, corrupted)
+        self.assertEqual(snapshot(), before)
+
     def test_diagnostics_identifies_installed_release_without_source_content(self):
         artifact = self.base / "candidate"
         artifact.write_bytes(b"#!/bin/sh\n# source-canary-must-not-ship\nexit 0\n")

@@ -86,17 +86,17 @@ pub fn build_readiness_projection(
     checks.push(ReadinessCheck {
         check_id: "ARDA_ROOT_PROTOCOL.md".to_string(),
         title: "Root protocol available".to_string(),
-        status: if root.join("arda_ROOT_PROTOCOL.md").exists() {
+        status: if root.join("ARDA_ROOT_PROTOCOL.md").exists() {
             "pass"
         } else {
             "warn"
         }
         .to_string(),
         severity: "high".to_string(),
-        evidence: if root.join("arda_ROOT_PROTOCOL.md").exists() {
-            vec!["present: arda_ROOT_PROTOCOL.md".to_string()]
+        evidence: if root.join("ARDA_ROOT_PROTOCOL.md").exists() {
+            vec!["present: ARDA_ROOT_PROTOCOL.md".to_string()]
         } else {
-            vec!["missing: arda_ROOT_PROTOCOL.md".to_string()]
+            vec!["missing: ARDA_ROOT_PROTOCOL.md".to_string()]
         },
         recommendation: "Preserve root protocol pointer for new-machine onboarding.".to_string(),
     });
@@ -140,18 +140,7 @@ pub fn build_readiness_projection(
                 .to_string(),
     });
 
-    checks.push(ReadinessCheck {
-        check_id: "portability.receipt".to_string(),
-        title: "Portability/config hygiene findings classified".to_string(),
-        status: if portability_source.exists() { "pass" } else { "warn" }.to_string(),
-        severity: "medium".to_string(),
-        evidence: if portability_source.exists() {
-            vec![format!("receipt: {}", portability_source.display())]
-        } else {
-            vec!["missing: audit/PORTABILITY_AUDIT_2026-05-24/summary.json".to_string()]
-        },
-        recommendation: "Keep setup console read-only until portability findings are parameterized.".to_string(),
-    });
+    // Historical repository audit evidence is context, not an installed input.
 
     if !profile.missing_gates.is_empty() {
         checks.push(ReadinessCheck {
@@ -182,25 +171,31 @@ pub fn build_readiness_projection(
     };
 
     let portability_status = if portability_source.exists() {
-        let raw = read_json_optional(&portability_source)
-            .and_then(|value| value.get("summary").and_then(Value::as_object).cloned())
-            .unwrap_or_default();
-        let active_blockers = raw
-            .get("active_blocker_findings")
-            .and_then(Value::as_i64)
-            .unwrap_or(0);
-        let findings_total = raw
-            .get("findings_total")
-            .or_else(|| raw.get("total_findings"))
-            .and_then(Value::as_i64)
-            .unwrap_or(0);
-        json!({
-            "status": if active_blockers == 0 { "pass" } else { "warn" },
-            "active_blocker_findings": active_blockers,
-            "findings_total": findings_total,
-            "label": if active_blockers == 0 { "zero active portability blockers" } else { "active portability blockers present" },
-            "source": portability_source.to_string_lossy(),
-        })
+        let counts = read_json_optional(&portability_source).and_then(|raw| {
+            let summary = raw.get("summary")?;
+            let active = summary.get("active_blocker_findings")?.as_u64()?;
+            let total = summary
+                .get("findings_total")
+                .or_else(|| summary.get("total_findings"))?
+                .as_u64()?;
+            (active <= total).then_some((active, total))
+        });
+        match counts {
+            Some((active, total)) => json!({
+                "status": if active == 0 { "pass" } else { "warn" },
+                "active_blocker_findings": active,
+                "findings_total": total,
+                "label": if active == 0 { "zero active portability blockers in historical audit" } else { "active portability blockers in historical audit" },
+                "source": portability_source.to_string_lossy(),
+            }),
+            None => json!({
+                "status": "invalid",
+                "active_blocker_findings": null,
+                "findings_total": null,
+                "label": "historical portability receipt invalid or unreadable",
+                "source": portability_source.to_string_lossy(),
+            }),
+        }
     } else {
         json!({
             "status": "missing",
@@ -242,3 +237,7 @@ pub fn build_readiness_projection(
         runner: Some("arda-onboarding".to_string()),
     }
 }
+
+#[cfg(test)]
+#[path = "readiness_tests.rs"]
+mod tests;

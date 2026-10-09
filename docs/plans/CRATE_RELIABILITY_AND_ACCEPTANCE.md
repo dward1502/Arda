@@ -590,16 +590,37 @@ The same reviewed tree built and installed native launcher SHA-256
 Its native WebKit document loaded from `tauri://localhost` with `ARDA_ROOT` unset
 and observed the isolated runtime and gateway as healthy. Required-gateway outage
 exposed a real stale-status defect: `LifecyclePanel` fetches only on mount/action.
-The pending source repair adds sequential observation, failure/timeout invalidation,
-late-result rejection and unmount cleanup; six observer regressions plus the
-existing frontend suite pass (26 total), lint and production build pass. Independent
-precommit review and corrected installed outage/recovery acceptance are next.
-No visible-monitor or complete HUD/session lifecycle acceptance is claimed.
+Independently reviewed commit `0b16556c` adds sequential observation,
+failure/timeout invalidation, late-result rejection and unmount cleanup. All 26
+frontend tests, lint and production build passed from exact staged export. Native
+release SHA-256 `90bf83547aba44e30ec9eea9e795a8d5cdb4e22b751b6781c89cf696288506aa`
+is installed with hash readback. The unchanged native document automatically
+transitioned HEALTHY -> UNKNOWN (gateway inactive/unavailable, OPEN HUD removed)
+-> HEALTHY on real gateway stop/start. Root and launcher PIDs remained unchanged;
+closing/reopening launcher preserved root/gateway PIDs and reconnected healthy.
+Private `observer-native-acceptance.json` retains the DOM observations and final
+stopped temporary-unit PIDs. This verifies headless native observation/reconnect,
+not visible-monitor or complete HUD/session lifecycle acceptance.
 
-First-run still reports four warnings: stale root-protocol, environment-template
-and portability-audit prerequisites, plus missing endpoint environment gates despite
-selected-release lifecycle health. Trace their current readiness owner next; do not
-add dummy files or bypass gates. The account Manwe uses governed defaults, not the
+First-run still reports four installed warnings. Targeted review identified an
+incorrect lowercase protocol lookup and a historical May audit wrongly required as
+an installation input. The pending source repair checks `ARDA_ROOT_PROTOCOL.md`
+exactly, removes that historical receipt from startup prerequisites and reports
+malformed/missing audit context without inventing zero findings. Both regressions
+failed before repair; all 46 native launcher tests pass in the isolated build tree.
+This bounded repair awaits independent review and is not installed.
+
+Remaining readiness work is owner-coupled, not solved by placeholder files:
+correct the stale Annunimas environment-profile schema and include it through the
+release-input owner; reconcile `io::build_proposed_config` and prerequisite/service
+plan guidance with `config/templates/arda.local.profile.toml` (current renderer
+expects a nonexistent template and incompatible placeholder syntax); source Manwe
+from selected `services.toml` using the existing validated endpoint parser, without
+ambient/default fallback, and stop requiring Hermes HTTP configuration for its
+watchdog-managed gateway. Preserve invalid selected config and real missing inputs
+as blockers. `App.tsx::onBegin` must reevaluate readiness after refresh. Do not
+fabricate historical receipts or equate structural readiness with runtime health.
+The account Manwe uses governed defaults, not the
 profile's edge_core provider. Temporary launcher/compositor/root/keeper units are
 stopped with `MainPID=0`; the previously running gateway was restored. Public release
 inputs, runnable copy restore and complete native acceptance remain open; R10/R11

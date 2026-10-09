@@ -107,6 +107,15 @@ The install writes only:
 
 ## 2a. Stage 5 compatibility and release manifest
 
+Installation records the selected absolute release root in the existing
+`install-manifest.json`. Native commands resolve an explicit root first, then
+nonempty `ARDA_ROOT`, then that installed selection. Desktop launches therefore
+need no inherited shell environment. Keep the release checkout at its selected
+path or reinstall with the new `--root`; incomplete selections fail there rather
+than silently choosing another checkout. Missing install records retain development
+ancestor discovery; malformed records do not. This records a path, not registry
+or execution authority, and does not make the source-backed runtime self-contained.
+
 S5-RC0 supports only `bluefin-lts-10-x86_64`: Linux x86_64 with Bluefin LTS
 10 (`ID=centos`, `VERSION_ID=10`). Check before packaging or installation:
 

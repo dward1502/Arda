@@ -26,6 +26,37 @@ fn resolve_root(root: Option<String>) -> PathBuf {
         .and_then(|p| p.parent().map(|p| p.to_path_buf()))
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
 
+    resolve_discovered_root(seed)
+}
+
+fn resolve_discovered_root(seed: PathBuf) -> PathBuf {
+    match std::fs::File::open(seed.join("install-manifest.json")) {
+        Ok(file) => {
+            use std::io::Read;
+            let mut text = String::new();
+            let selected = file
+                .take(65537)
+                .read_to_string(&mut text)
+                .ok()
+                .filter(|_| text.len() <= 65536)
+                .and_then(|_| serde_json::from_str::<serde_json::Value>(&text).ok())
+                .filter(|value| {
+                    value.get("contract").and_then(|v| v.as_str())
+                        == Some("arda.private_beta_ops.v1")
+                })
+                .and_then(|value| {
+                    value
+                        .get("release_root")
+                        .and_then(|v| v.as_str())
+                        .map(PathBuf::from)
+                })
+                .filter(|path| path.is_absolute());
+            // A malformed installation record must not select another checkout.
+            return selected.unwrap_or(seed);
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(_) => return seed,
+    }
     if seed
         .join("core")
         .join("state")
@@ -276,6 +307,69 @@ mod release_identity_tests {
             String::from_utf8_lossy(&result.stdout),
             String::from_utf8_lossy(&result.stderr)
         );
+    }
+
+    #[test]
+    fn installed_manifest_selects_release_without_environment() {
+        const EXPECTED: &str = "ARDA_INSTALLED_ROOT_TEST_EXPECTED";
+        if let Some(expected) = std::env::var_os(EXPECTED) {
+            assert_eq!(resolve_root(None), PathBuf::from(expected));
+            println!("installed-root-assertion-executed");
+            return;
+        }
+        let fixture = std::env::temp_dir().join(format!(
+            "arda-installed-root-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let installed = fixture.join("home/.local/lib/arda");
+        let release = fixture.join("separate release");
+        std::fs::create_dir_all(&installed).unwrap();
+        let decoy = fixture.join("core/state");
+        std::fs::create_dir_all(&decoy).unwrap();
+        std::fs::write(decoy.join("contract_registry.json"), "{}").unwrap();
+        let manifest = installed.join("install-manifest.json");
+        std::fs::write(
+            &manifest,
+            serde_json::json!({"contract":"arda.private_beta_ops.v1", "release_root":release})
+                .to_string(),
+        )
+        .unwrap();
+        assert_eq!(resolve_discovered_root(installed.clone()), release);
+        let executable = installed.join("launcher-test");
+        std::fs::copy(std::env::current_exe().unwrap(), &executable).unwrap();
+        for empty_environment in [false, true] {
+            let mut command = std::process::Command::new(&executable);
+            command.args(["--exact", "release_identity_tests::installed_manifest_selects_release_without_environment", "--nocapture"])
+                .env_remove("ARDA_ROOT").env(EXPECTED, &release);
+            if empty_environment {
+                command.env("ARDA_ROOT", "");
+            }
+            let result = command.output().unwrap();
+            assert!(
+                result.status.success(),
+                "{}\n{}",
+                String::from_utf8_lossy(&result.stdout),
+                String::from_utf8_lossy(&result.stderr)
+            );
+            assert!(String::from_utf8_lossy(&result.stdout)
+                .contains("installed-root-assertion-executed"));
+        }
+        for payload in [
+            "not json",
+            "[]",
+            r#"{"contract":"wrong","release_root":"/other"}"#,
+            r#"{"contract":"arda.private_beta_ops.v1","release_root":"relative"}"#,
+        ] {
+            std::fs::write(&manifest, payload).unwrap();
+            assert_eq!(resolve_discovered_root(installed.clone()), installed);
+        }
+        std::fs::remove_file(&manifest).unwrap();
+        assert_eq!(resolve_discovered_root(installed), fixture);
+        std::fs::remove_dir_all(fixture).unwrap();
     }
 
     #[test]

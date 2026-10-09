@@ -320,6 +320,8 @@ class PrivateBetaOpsTests(unittest.TestCase):
         self.assertTrue(Path(installed["launcher"]).is_file())
         self.assertTrue(self.layout.install_bin.is_symlink())
         self.assertTrue(self.layout.desktop_file.is_file())
+        manifest = json.loads((self.layout.install_lib / "install-manifest.json").read_text())
+        self.assertEqual(manifest.get("release_root"), str(self.layout.root))
         desktop_text = self.layout.desktop_file.read_text(encoding="utf-8")
         self.assertIn(f"Exec={self.layout.install_lib / 'arda-launcher'}", desktop_text)
         self.assertIn("Icon=arda-launcher", desktop_text)

@@ -971,6 +971,7 @@ def install_launcher(
     manifest = layout.install_lib / "install-manifest.json"
     install_payload = {
         "contract": CONTRACT,
+        "release_root": str(layout.root),
         "installed_at_utc": utc_iso(),
         "artifact_sha256": hash_file(destination),
         "managed_paths": [

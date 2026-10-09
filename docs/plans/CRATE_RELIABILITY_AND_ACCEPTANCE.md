@@ -495,11 +495,19 @@ The directory-allocation repair is independently reviewed and committed as
 `4ffe33e5`; all 26 tests passed from its exact exported source.
 
 The next source audit found that native command root discovery ignored `ARDA_ROOT`.
-The pending launcher correction respects explicit command root, then the documented
+The launcher correction respects explicit command root, then the documented
 environment root, without silently falling back from a selected incomplete release.
-Its subprocess regression failed before the repair; 41 launcher native tests pass
-in the isolated build-source export. Release rebuild and independent review are
-pending. This does not yet persist release-root selection in a desktop installation.
+Its subprocess regression failed before the repair; 41 launcher native tests passed
+in the isolated build-source export.
+The environment-root repair is committed as `1b83ea38`; its native release build
+succeeded. Desktop persistence is now implemented in the pending follow-up: the
+existing install manifest records the absolute release root, and native discovery
+reads it after explicit/environment overrides. A relocated native test executable
+selects the separate release with unset and empty `ARDA_ROOT`, rejects malformed
+records without selecting a decoy ancestor registry, and preserves legacy discovery
+when the manifest is absent. Both Python producer and native consumer regressions
+failed before repair; 26 Python and 42 native tests pass. Independent review,
+release rebuild and installed qualification are still pending.
 A separate qualification account also shares host loopback: launcher health and root
 Harness both use port 7171, already owned by the original runtime. Do not count that
 runtime's health as clean-account acceptance or start competing fixed-port services.

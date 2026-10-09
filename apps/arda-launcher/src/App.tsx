@@ -12,7 +12,7 @@ import {
   invokeRegistryStatus,
   type OnboardingSnapshot,
 } from './lib/tauri-core-compat'
-import { evaluateReadinessGate } from './lib/readiness-gate'
+import { createReadinessRequests } from './lib/readiness-refresh'
 
 export type RegistryGate = 'loading' | 'pass' | 'warn' | 'fail'
 export type OpenGate = 'locked' | 'open'
@@ -48,6 +48,7 @@ function FrameClock({ reducedMotion }: { reducedMotion: boolean }) {
 }
 
 export default function App() {
+  const requests = useRef(createReadinessRequests())
   const [state, setState] = useState<GateState>(INITIAL_STATE)
   const [onboarding, setOnboarding] = useState<OnboardingSnapshot | null>(null)
   const [onboardingError, setOnboardingError] = useState<string | null>(null)
@@ -91,6 +92,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const requestOwner = requests.current
     let cancelled = false
     loadReadinessGate()
 
@@ -98,33 +100,19 @@ export default function App() {
       if (cancelled) return
       setOnboardingLoading(true)
 
-      try {
-        const [result, snapshot] = await Promise.all([
-          invokeRegistryStatus({}),
-          invokeOnboardingSnapshot({}),
-        ])
-
-        if (cancelled) return
-        setOnboarding(snapshot)
-
-        setState(prev => ({ ...prev, ...evaluateReadinessGate(result, snapshot) }))
-      } catch (e) {
-        if (!cancelled) {
-          setOnboardingError(`Readiness diagnostics failed: ${e}`)
-          setState(prev => ({
-            ...prev,
-            registry: 'fail',
-            statusLabel: `Readiness diagnostics failed: ${e}`,
-            isReady: false,
-          }))
-        }
-      } finally {
-        if (!cancelled) setOnboardingLoading(false)
-      }
+      const result = await requests.current.run(
+        () => invokeRegistryStatus({}), () => invokeOnboardingSnapshot({}),
+      )
+      if (cancelled || !result) return
+      setOnboarding(result.snapshot)
+      setOnboardingError(result.error)
+      setState(prev => ({ ...prev, ...result.decision }))
+      setOnboardingLoading(false)
     }
 
     return () => {
       cancelled = true
+      requestOwner.invalidate()
     }
   }, [])
 
@@ -137,25 +125,20 @@ export default function App() {
     setOnboardingLoading(true)
     setOnboardingError(null)
 
-    try {
-      const snapshot = await invokeOnboardingSnapshot({})
-      setOnboarding(snapshot)
-      if (snapshot.readiness?.gate_status !== 'pass') {
-        setOnboardingError(
-          `Readiness changed to ${snapshot.readiness?.gate_status ?? 'unavailable'}; review the diagnostics below.`,
-        )
-      }
-    } catch (e) {
-      console.error('Onboarding load failed', e)
-      setOnboardingError(`Onboarding commands failed: ${e}`)
-    } finally {
-      setOnboardingLoading(false)
-    }
-
-    setState(prev => ({ ...prev, phase: 11, open: 'open' }))
+    // Invalidate the previous ready label while fresh evidence is in flight.
+    setState(prev => ({ ...prev, registry: 'loading', isReady: false, statusLabel: 'Refreshing readiness...' }))
+    const result = await requests.current.run(
+      () => invokeRegistryStatus({}), () => invokeOnboardingSnapshot({}),
+    )
+    if (!result) return
+    setOnboarding(result.snapshot)
+    setOnboardingError(result.error)
+    setOnboardingLoading(false)
+    setState(prev => ({ ...prev, ...result.decision, phase: 11, open: 'open' }))
   }
 
   const replay = () => {
+    requests.current.invalidate()
     setState(INITIAL_STATE)
     setOnboarding(null)
     setOnboardingError(null)

@@ -628,8 +628,30 @@ endpoints/model, escapes paths structurally, and handles absent leaf keys withou
 panicking. Selected Manwe configuration comes only from `services.toml`; invalid
 selected configuration remains a blocker. Hermes HTTP is not required for its
 watchdog-managed gateway. Refresh reevaluates both inputs and rejects stale replies.
-Public input delivery above is qualification provisioning, not a complete shipped
-release-input packaging capability. The account Manwe uses governed defaults, not the
+The subsequent rendered-window probe found a separate gate mismatch: unrelated
+portfolio tracks awaiting review locked BEGIN despite passing startup checks.
+Independently reviewed `3f5cb041` preserves that portfolio audit and validates
+explicit startup metadata separately (schema, unique active Workbench track and
+required contract versions); missing startup evidence fails closed. Native tests
+and 33 frontend tests pass, as do lint and production build. Installed launcher
+SHA-256 `93460da66cdf4857776d7deb1e225fd852e4b88aef9b6b699d92a46b75004395`
+was read back against the install manifest. The actual headless native document,
+with `ARDA_ROOT` unset, rendered enabled BEGIN; clicking it opened the first-run
+panel with passing setup evidence. Runtime remained honestly UNKNOWN with the
+root stopped. Both temporary launcher/compositor PIDs returned to zero. Evidence:
+account `evidence/readiness-3f5cb041/install.json` and
+`evidence/reviewed-runtime-05623ba3/readiness-installed-3f5cb041.json`.
+This is rendered onboarding acceptance, not full runtime/HUD acceptance.
+
+Public input delivery above was qualification provisioning. The beta-operations
+entry point now has an `export-release-inputs` candidate: eight allowlisted public
+files from an exact commit, no dirty/private-state copy, per-file hashes and a
+completion manifest, with refusal on missing/non-regular input or existing output.
+All 28 beta-operations tests pass. Export from `3f5cb041` was exercised outside the
+repository working directory; its exported installer installed the exact launcher
+into a fresh isolated HOME, verified the artifact hash and uninstalled it. This
+closes neither native runtime acceptance of a complete package nor a full runtime
+distribution; the source change awaits independent review. The account Manwe uses governed defaults, not the
 profile's edge_core provider. Temporary launcher/compositor/root/keeper units are
 stopped with `MainPID=0`; the previously running gateway was restored. Public release
 inputs, runnable copy restore and complete native acceptance remain open; R10/R11

@@ -70,6 +70,54 @@ class PrivateBetaOpsTests(unittest.TestCase):
         (self.layout.config / "arda.env").write_text("OPENAI_API_KEY=super-secret\n", encoding="utf-8")
         (self.layout.data / "runs.jsonl").write_text('{"run":"one"}\n', encoding="utf-8")
 
+    def test_release_inputs_export_uses_only_committed_allowlist(self):
+        import subprocess
+        public = (
+            'ARDA_ROOT_PROTOCOL.md', 'core/state/contract_registry.json',
+            'core/state/environment_profile.schema.json',
+            'config/templates/arda.local.profile.toml',
+            'apps/arda-launcher/packaging/linux/io.arda.Launcher.desktop',
+            'apps/arda-launcher/src-tauri/icons/128x128.png',
+            'scripts/arda_beta_ops.py', 'docs/operator/private-beta-install-recovery.md',
+        )
+        for name in public:
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if not path.exists():
+                path.write_text('public fixture\n')
+        def git(*args):
+            return subprocess.check_output(['git', '-C', str(self.root), *args], text=True).strip()
+        git('init', '-q')
+        git('add', '.')
+        git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'fixture')
+        commit = git('rev-parse', 'HEAD')
+        (self.root / 'config/templates/arda.local.profile.toml').write_text('PRIVATE DIRTY DATA')
+        (self.root / 'core/state/private-history.json').write_text('PRIVATE HISTORY')
+        output = self.base / 'release'
+        result = beta_ops.export_release_inputs(self.layout, commit, output)
+        self.assertEqual(result['source_commit'], commit)
+        self.assertEqual(set(result['files']), set(public))
+        self.assertEqual((output / 'config/templates/arda.local.profile.toml').read_text(), 'public fixture\n')
+        self.assertFalse((output / 'core/state/private-history.json').exists())
+        self.assertEqual(json.loads((output / 'release-inputs.json').read_text()), result)
+        for name, digest in result['files'].items():
+            self.assertEqual(beta_ops.hash_file(output / name), digest)
+        with self.assertRaises(beta_ops.BetaOpsError):
+            beta_ops.export_release_inputs(self.layout, commit, output)
+        with self.assertRaises(beta_ops.BetaOpsError):
+            beta_ops.export_release_inputs(self.layout, 'HEAD', self.base / 'bad-ref')
+        git('rm', 'ARDA_ROOT_PROTOCOL.md')
+        git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'missing input')
+        with self.assertRaises(beta_ops.BetaOpsError):
+            beta_ops.export_release_inputs(self.layout, git('rev-parse', 'HEAD'), self.base / 'missing')
+        self.assertFalse((self.base / 'missing').exists())
+        (self.root / 'ARDA_ROOT_PROTOCOL.md').symlink_to('/etc/passwd')
+        git('add', 'ARDA_ROOT_PROTOCOL.md')
+        git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'symlink input')
+        with self.assertRaises(beta_ops.BetaOpsError):
+            beta_ops.export_release_inputs(self.layout, git('rev-parse', 'HEAD'), self.base / 'linked')
+        self.assertFalse((self.base / 'linked').exists())
+
     def test_backup_restore_round_trip_excludes_secret_named_files(self):
         self.seed_state()
         archive = self.base / "backup.tar.gz"

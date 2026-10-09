@@ -308,6 +308,85 @@ def declared_build_inputs(layout: Layout) -> dict[str, Any]:
     }
 
 
+PUBLIC_RELEASE_INPUTS = (
+    "ARDA_ROOT_PROTOCOL.md",
+    "core/state/contract_registry.json",
+    "core/state/environment_profile.schema.json",
+    "config/templates/arda.local.profile.toml",
+    "apps/arda-launcher/packaging/linux/io.arda.Launcher.desktop",
+    "apps/arda-launcher/src-tauri/icons/128x128.png",
+    "scripts/arda_beta_ops.py",
+    "docs/operator/private-beta-install-recovery.md",
+)
+
+
+def export_release_inputs(layout: Layout, source_commit: str, output: Path) -> dict[str, Any]:
+    """Export public launcher inputs, never private configuration or runtime state.
+
+    This is an input bundle, not a complete runtime distribution. The manifest is
+    written last; interrupted output is retained and never overwritten on retry.
+    """
+    if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        raise BetaOpsError("release inputs require an exact 40-character source commit")
+    output = output.expanduser().absolute()
+    resolved = output.resolve()
+    if is_relative_to(resolved, layout.root) or is_relative_to(layout.root, resolved):
+        raise BetaOpsError("release input output must be outside the source repository")
+    for kind in (*RESET_KINDS, "operation_state", "install_lib"):
+        state = getattr(layout, kind).resolve()
+        if is_relative_to(resolved, state) or is_relative_to(state, resolved):
+            raise BetaOpsError("release input output overlaps managed private state")
+    if output.exists() or output.is_symlink():
+        raise BetaOpsError("release input output already exists; refusing replacement")
+
+    def git(*args: str) -> bytes:
+        try:
+            return subprocess.check_output(
+                ["git", "--no-replace-objects", "-C", str(layout.root), *args],
+                stderr=subprocess.PIPE, timeout=30,
+            )
+        except (OSError, subprocess.SubprocessError) as error:
+            raise BetaOpsError("cannot read declared public release input from source commit") from error
+
+    if git("cat-file", "-t", source_commit).strip() != b"commit":
+        raise BetaOpsError("release input identity is not a commit")
+    contents: dict[str, bytes] = {}
+    for name in PUBLIC_RELEASE_INPUTS:
+        entry = git("ls-tree", "-z", source_commit, "--", name)
+        fields = entry.split(b"\t", 1)
+        if len(fields) != 2 or fields[1] != name.encode() + b"\0":
+            raise BetaOpsError(f"missing declared release input: {name}")
+        mode, kind, oid = fields[0].split()
+        if mode not in (b"100644", b"100755") or kind != b"blob":
+            raise BetaOpsError(f"release input must be a regular committed file: {name}")
+        object_id = oid.decode("ascii")
+        if int(git("cat-file", "-s", object_id)) > 4 * 1024 * 1024:
+            raise BetaOpsError(f"release input exceeds size limit: {name}")
+        contents[name] = git("cat-file", "blob", object_id)
+    result = {
+        "contract": "arda.launcher-release-inputs.v1",
+        "source_commit": source_commit,
+        "scope": "public_launcher_inputs_not_runtime_distribution",
+        "files": {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()},
+    }
+    try:
+        output.mkdir(mode=0o700)
+        for name, data in contents.items():
+            path = output / name
+            path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            with path.open("xb") as handle:
+                handle.write(data)
+            path.chmod(0o600)
+            if hash_file(path) != result["files"][name]:
+                raise BetaOpsError(f"release input readback failed: {name}")
+        with (output / "release-inputs.json").open("x", encoding="utf-8") as handle:
+            json.dump(result, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+    except OSError as error:
+        raise BetaOpsError("release input publication failed; retain incomplete output for inspection") from error
+    return result
+
+
 def generate_release_manifest(
     layout: Layout,
     artifact: Path,
@@ -1171,6 +1250,12 @@ def parser() -> argparse.ArgumentParser:
     subparsers.add_parser("compatibility", parents=[common], help="check the declared Stage 5 Linux profile")
     subparsers.add_parser("readiness", parents=[common], help="emit honest private-beta readiness JSON")
 
+    inputs_parser = subparsers.add_parser(
+        "export-release-inputs", parents=[common], help="export allowlisted public launcher inputs from an exact commit"
+    )
+    inputs_parser.add_argument("--source-commit", required=True)
+    inputs_parser.add_argument("--output", required=True, type=Path)
+
     release_parser = subparsers.add_parser(
         "release-manifest", parents=[common], help="write a deterministic release manifest"
     )
@@ -1225,6 +1310,8 @@ def main(argv: list[str] | None = None) -> int:
                 return 2
         elif args.command == "readiness":
             result = readiness(layout)
+        elif args.command == "export-release-inputs":
+            result = export_release_inputs(layout, args.source_commit, args.output)
         elif args.command == "release-manifest":
             require_supported_profile()
             result = generate_release_manifest(

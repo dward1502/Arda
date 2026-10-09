@@ -62,6 +62,31 @@ sha256sum "$LAUNCHER_ARTIFACT"
 
 A dirty checkout is not a release artifact. Runtime state changes under `core/state/` must not be bundled or silently cleaned.
 
+## Public launcher input bundle
+
+The existing beta-operations entry point can export the fixed public launcher
+input set from an exact committed revision, without reading dirty worktree files:
+
+```bash
+python3 /path/to/Arda/scripts/arda_beta_ops.py export-release-inputs \
+  --root /path/to/Arda \
+  --source-commit <exact-40-character-commit> \
+  --output /existing/output-parent/new-launcher-inputs
+```
+
+The destination must be new, outside the source tree and managed private state.
+Missing, non-regular or oversized committed inputs refuse before publication.
+`release-inputs.json` records source identity and every exported SHA-256; it is
+written last. Interrupted output is retained for inspection, never overwritten by
+retry. The bundle contains protocol, registry metadata, environment schema,
+public profile template, desktop/icon assets, beta operations and this runbook.
+It excludes service selections, credentials, provider configuration, source
+modules and historical receipts. This is not a full runtime distribution:
+selected runtime services and their private configuration still require their
+existing provisioning owners. Do not treat export success as runtime readiness.
+The exporter reads a committed script, so a revision predating the exporter still
+contains its older beta-operations command set.
+
 ## 2. Reproduce a clean-profile install
 
 Use a genuinely new OS user or VM for evaluator evidence. A temporary home is suitable only for testing the installer mechanics:

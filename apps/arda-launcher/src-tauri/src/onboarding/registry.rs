@@ -29,6 +29,30 @@ pub struct RegistryCheckResult {
     pub checked_at_utc: String,
 }
 
+/// Installed startup consumes metadata, not portfolio implementation or prior receipts.
+pub fn startup_blockers(registry: &ContractRegistry) -> Vec<String> {
+    let mut blockers = Vec::new();
+    if registry.schema_version != "arda.contract-registry.v1" {
+        blockers.push("Unsupported contract registry schema".into());
+    }
+    let required: Vec<_> = registry.tracks.iter()
+        .filter(|t| t.track_id == "arda-ecosystem-standard-track-5-workbench").collect();
+    if required.len() != 1 {
+        blockers.push("Require exactly one Workbench track declaration".into());
+        return blockers;
+    }
+    let track = required[0];
+    if track.status != "active" {
+        blockers.push("Required Workbench track is not active".into());
+    }
+    for contract in ["arda.project-contract.v1", "arda.run-graph.v1"] {
+        if track.schema_versions.iter().filter(|v| v.as_str() == contract).count() != 1 {
+            blockers.push(format!("Require exactly one Workbench declaration of {contract}"));
+        }
+    }
+    blockers
+}
+
 pub fn load_registry(root: &Path) -> Result<ContractRegistry> {
     Ok(ContractRegistry::load_from_root(root)?)
 }
@@ -118,6 +142,34 @@ pub fn resolve_store(root: &Path, store: &str) -> PathBuf {
 #[cfg(test)]
 pub mod tests {
     use super::*;
+
+    #[test]
+    fn startup_metadata_is_distinct_from_portfolio_audit() {
+        let mut registry = load_registry(&workspace_root()).unwrap();
+        assert!(registry.tracks.iter().any(|t| t.status == "pending_review"));
+        assert!(startup_blockers(&registry).is_empty());
+        for track in &mut registry.tracks {
+            track.source_modules = vec!["absent-source.rs".into()];
+            track.receipt_stores = vec!["absent-history".into()];
+        }
+        assert!(startup_blockers(&registry).is_empty());
+        let index = registry.tracks.iter().position(|t| t.track_id.ends_with("track-5-workbench")).unwrap();
+        let valid = registry.clone();
+        registry.tracks[index].status = "pending_review".into();
+        assert!(!startup_blockers(&registry).is_empty());
+        registry = valid.clone();
+        registry.tracks[index].schema_versions.clear();
+        assert!(!startup_blockers(&registry).is_empty());
+        registry = valid.clone();
+        registry.tracks.push(registry.tracks[index].clone());
+        assert!(!startup_blockers(&registry).is_empty());
+        registry = valid.clone();
+        registry.tracks.remove(index);
+        assert!(!startup_blockers(&registry).is_empty());
+        registry = valid;
+        registry.schema_version = "unknown".into();
+        assert!(!startup_blockers(&registry).is_empty());
+    }
 
     #[test]
     fn registry_loads_from_workspace() {

@@ -115,6 +115,8 @@ struct RegistryStatusPayload {
     authority: String,
     track_count: usize,
     gate_status: String,
+    startup_gate_status: String,
+    startup_blockers: Vec<String>,
     tracks: Vec<RegistryTrackView>,
     checked_at_utc: String,
     error: Option<String>,
@@ -129,6 +131,8 @@ fn registry_status(root: Option<String>) -> RegistryStatusPayload {
         authority: String::new(),
         track_count: 0,
         gate_status: String::new(),
+        startup_gate_status: "fail".into(),
+        startup_blockers: vec!["Registry unavailable".into()],
         tracks: Vec::new(),
         checked_at_utc: String::new(),
         error: None,
@@ -154,6 +158,8 @@ fn registry_status(root: Option<String>) -> RegistryStatusPayload {
         });
     }
 
+    payload.startup_blockers = crate::onboarding::registry::startup_blockers(&registry);
+    payload.startup_gate_status = if payload.startup_blockers.is_empty() { "pass" } else { "fail" }.into();
     payload.loaded = true;
     payload.schema_version = registry.schema_version;
     payload.authority = registry.authority;

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createReadinessRequests, refreshReadiness } from './readiness-refresh'
 import type { OnboardingSnapshot, RegistryStatusPayload } from './tauri-core-compat'
 
-const registry = { loaded: true, gate_status: 'pass', track_count: 4 } as RegistryStatusPayload
+const registry = { loaded: true, gate_status: 'pass', startup_gate_status: 'pass', track_count: 4 } as RegistryStatusPayload
 function snapshot(pass: boolean): OnboardingSnapshot {
   return {
     compatibility: { status: 'supported' },

@@ -28,20 +28,25 @@ export function evaluateReadinessGate(
     }
   }
 
+  if (registry.startup_gate_status !== 'pass') {
+    return { registry: 'fail', isReady: false, statusLabel: `Registry startup blocked: ${registry.startup_blockers?.join('; ') || 'startup requirements unavailable'}` }
+  }
+
   if (
-    registry.gate_status === 'pass' &&
+    registry.startup_gate_status === 'pass' &&
     snapshot.gate_status === 'pass' &&
     readiness.gate_status === 'pass' &&
     snapshot.can_start_workbench
   ) {
     return {
       registry: 'pass',
-      statusLabel: `Ready: ${registry.track_count} tracks and ${readiness.summary.pass ?? 0} setup checks verified`,
+      statusLabel: `Registry startup requirements verified; ${readiness.summary.pass ?? 0} setup checks passed`,
       isReady: true,
     }
   }
 
-  if (registry.gate_status === 'warn' || readiness.gate_status === 'warn') {
+  if (snapshot.gate_status !== 'fail' && readiness.gate_status !== 'fail' &&
+      (snapshot.gate_status === 'warn' || readiness.gate_status === 'warn')) {
     return {
       registry: 'warn',
       statusLabel: `Readiness review: ${readiness.summary.warn ?? 0} warning(s)`,

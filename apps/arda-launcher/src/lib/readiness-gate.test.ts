@@ -13,6 +13,8 @@ function registry(overrides: Partial<RegistryStatusPayload> = {}): RegistryStatu
     authority: 'fixture',
     track_count: 4,
     gate_status: 'pass',
+    startup_gate_status: 'pass',
+    startup_blockers: [],
     tracks: [],
     checked_at_utc: '2026-07-31T00:00:00Z',
     error: null,
@@ -69,10 +71,25 @@ function readiness(
 }
 
 describe('evaluateReadinessGate', () => {
+  it('keeps unrelated portfolio warnings separate from startup requirements', () => {
+    expect(evaluateReadinessGate(registry({ gate_status: 'warn' }), readiness('pass', { pass: 3 })).isReady).toBe(true)
+  })
+  it('fails closed on absent or failing startup evidence', () => {
+    for (const startup_gate_status of [undefined, 'fail', 'warn'] as const) {
+      const result = evaluateReadinessGate(registry({ startup_gate_status }), readiness('pass', { pass: 3 }))
+      expect(result.isReady).toBe(false)
+      expect(result.statusLabel).toContain('Registry startup blocked')
+    }
+  })
+  it('does not let a warning hide a failed first-run gate', () => {
+    const snapshot = readiness('warn', { warn: 1 })
+    snapshot.gate_status = 'fail'
+    expect(evaluateReadinessGate(registry(), snapshot).registry).toBe('fail')
+  })
   it('opens only when registry and setup readiness both pass', () => {
     expect(evaluateReadinessGate(registry(), readiness('pass', { pass: 7 }))).toEqual({
       registry: 'pass',
-      statusLabel: 'Ready: 4 tracks and 7 setup checks verified',
+      statusLabel: 'Registry startup requirements verified; 7 setup checks passed',
       isReady: true,
     })
   })

@@ -17,6 +17,8 @@ export interface RegistryStatusPayload {
   authority: string
   track_count: number
   gate_status: RegistryGate
+  startup_gate_status?: RegistryGate
+  startup_blockers?: string[]
   tracks: RegistryTrack[]
   checked_at_utc: string
   error: string | null

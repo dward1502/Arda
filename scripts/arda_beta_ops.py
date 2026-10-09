@@ -1018,8 +1018,11 @@ def upgrade_launcher(
     prior_sha = hash_file(installed)
     backup_output = backup_output.expanduser().resolve()
     backup(layout, backup_output)
-    rollback_dir = layout.operation_state / "upgrades" / f"{utc_stamp()}-{prior_sha[:12]}"
-    rollback_dir.mkdir(parents=True, exist_ok=False)
+    upgrades_dir = layout.operation_state / "upgrades"
+    upgrades_dir.mkdir(parents=True, exist_ok=True)
+    rollback_dir = Path(tempfile.mkdtemp(
+        prefix=f"{utc_stamp()}-{prior_sha[:12]}-", dir=upgrades_dir
+    ))
     prior_artifact = rollback_dir / "arda-launcher"
     shutil.copy2(installed, prior_artifact)
     prior_manifest = layout.install_lib / "install-manifest.json"

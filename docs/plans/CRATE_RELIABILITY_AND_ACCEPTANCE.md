@@ -474,14 +474,25 @@ and the account's minimal declared inputs are not full release distributions.
 
 A subsequent regression exposed binary rollback replacing current stores from an
 archive: it could discard post-backup history, replace database inodes and install
-the older artifact before noticing an invalid archive. The pending repair validates
+the older artifact before noticing an invalid archive. The committed repair validates
 archive payloads before installation and preserves all current config/data in place;
 state/schema restore remains with the persistence owner. Both new tests failed on
 the old code. Independent review accepted the bounded repair and exposed a prior
 manifest-validation ordering defect; malformed saved manifests now fail before
 installation. State-preservation fields are persisted, and a valid archive with
-corrupted payload has explicit non-mutation coverage. All 25 Python tests pass;
-exact staged-source verification and review of these corrections precede commit.
+corrupted payload has explicit non-mutation coverage. All 25 Python tests passed
+from exact exported source; independent review approved tree
+`4fad48041ea368eff5e48ab16041dfc5e898c8c7`, committed as `417205f1`.
+
+Real account install/upgrade/rollback exposed a second-granularity rollback-directory
+collision on immediate re-upgrade. A frozen-clock regression reproduced it; the
+pending repair uses atomic unique directory allocation, preserving prior receipts.
+All 26 Python tests pass. The repaired account lifecycle now completes prior install,
+candidate upgrade, prior rollback and final candidate upgrade with exact installed
+hash readbacks (`clean-account-lifecycle-fixed.log`). The account has zero durable
+Arda state files: this proves artifact lifecycle, not terminal-history acceptance.
+The new directory-allocation repair still requires isolated-source verification and
+independent review before commit.
 Next: complete native lifecycle and authority-preserving restore acceptance;
 R09 stays open and R10/R11 remain dependency-gated.
 

@@ -665,6 +665,25 @@ class PrivateBetaOpsTests(unittest.TestCase):
             beta_ops.rollback_launcher(self.layout, receipt, corrupted)
         self.assertEqual(snapshot(), before)
 
+    def test_repeated_upgrade_after_rollback_in_same_second(self):
+        self.seed_state()
+        prior = self.base / "prior"
+        candidate = self.base / "candidate"
+        for artifact in (prior, candidate):
+            artifact.write_text("#!/bin/sh\n# " + artifact.name + "\n")
+            artifact.chmod(0o700)
+        beta_ops.install_launcher(self.layout, prior)
+        with mock.patch.object(beta_ops, "utc_stamp", return_value="20261009T032635Z"):
+            archive = self.base / "first.tar.gz"
+            first = beta_ops.upgrade_launcher(self.layout, candidate, archive)
+            receipt = Path(first["rollback_receipt"])
+            original = receipt.read_bytes()
+            beta_ops.rollback_launcher(self.layout, receipt, archive)
+            second = beta_ops.upgrade_launcher(self.layout, candidate, self.base / "second.tar.gz")
+        self.assertNotEqual(first["rollback_receipt"], second["rollback_receipt"])
+        self.assertEqual(receipt.read_bytes(), original)
+        self.assertEqual(beta_ops.hash_file(self.layout.install_lib / "arda-launcher"), beta_ops.hash_file(candidate))
+
     def test_diagnostics_identifies_installed_release_without_source_content(self):
         artifact = self.base / "candidate"
         artifact.write_bytes(b"#!/bin/sh\n# source-canary-must-not-ship\nexit 0\n")

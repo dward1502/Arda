@@ -105,6 +105,9 @@ pub struct Registry {
     pub adapters: Vec<AdapterSpec>,
     #[serde(skip)]
     source_root: PathBuf,
+    #[serde(skip)]
+    captured_endpoint:
+        Option<Result<arda_core::local_runtime_endpoint::LocalRuntimeEndpoint, String>>,
 }
 
 impl Registry {
@@ -119,7 +122,21 @@ impl Registry {
             .unwrap_or_else(|| Path::new("."))
             .to_path_buf();
         reg.validate(path)?;
+        reg.captured_endpoint = Some(
+            arda_core::local_runtime_endpoint::LocalRuntimeEndpoint::from_services_toml(&text)
+                .map_err(|error| error.to_string()),
+        );
         Ok(reg)
+    }
+
+    /// Endpoint bound to the same manifest snapshot as supervised processes.
+    pub fn local_runtime_endpoint(
+        &self,
+    ) -> anyhow::Result<arda_core::local_runtime_endpoint::LocalRuntimeEndpoint> {
+        self.captured_endpoint
+            .clone()
+            .ok_or_else(|| anyhow::anyhow!("registry has no captured manifest endpoint"))?
+            .map_err(anyhow::Error::msg)
     }
 
     fn validate(&self, path: &Path) -> anyhow::Result<()> {
@@ -308,6 +325,50 @@ mod tests {
     use arda_core::service_registry::{
         CapabilityHealth, CapabilityRegistryError, CapabilityRuntimeState,
     };
+
+    #[test]
+    fn local_endpoint_and_process_use_one_manifest_snapshot() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("services.toml");
+        let text = r#"[[service]]
+name = "manwe"
+start = { command = "/usr/bin/true", args = ["--bind", "127.0.0.1", "--port", "17171"] }
+health = { url = "http://127.0.0.1:17171/healthz" }
+"#;
+        std::fs::write(&path, text).unwrap();
+        let registry = Registry::load(&path).unwrap();
+        std::fs::write(&path, text.replace("17171", "27171")).unwrap();
+        let endpoint = registry.local_runtime_endpoint().unwrap();
+        let (services, errors) = registry.resolve(root.path(), true);
+        assert!(errors.is_empty());
+        assert_eq!(endpoint.base_url, "http://127.0.0.1:17171");
+        assert_eq!(
+            services[0].health.as_ref().unwrap().url,
+            endpoint.health_url
+        );
+        assert_eq!(services[0].args.last().unwrap(), "17171");
+        assert_eq!(
+            Registry::load(&path)
+                .unwrap()
+                .local_runtime_endpoint()
+                .unwrap()
+                .base_url,
+            "http://127.0.0.1:27171"
+        );
+    }
+
+    #[test]
+    fn local_endpoint_refuses_missing_and_mismatched_manwe() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("services.toml");
+        for text in [
+            "[[service]]\nname='headless'\nstart.command='/usr/bin/true'",
+            "[[service]]\nname='manwe'\nstart.command='/usr/bin/true'\nstart.args=['--bind','127.0.0.1','--port','17171']\nhealth.url='http://127.0.0.1:7171/healthz'",
+        ] {
+            std::fs::write(&path, text).unwrap();
+            assert!(Registry::load(&path).unwrap().local_runtime_endpoint().is_err());
+        }
+    }
 
     #[test]
     fn workspace_registry_declares_canonical_manwe_process() {

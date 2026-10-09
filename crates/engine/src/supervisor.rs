@@ -411,7 +411,20 @@ async fn probe_health(
     let Some(health) = health else {
         return std::future::pending().await;
     };
-    let client = reqwest::Client::new();
+    let client = match reqwest::Client::builder()
+        .no_proxy()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+    {
+        Ok(client) => client,
+        Err(error) => {
+            let mut runtime = statuses.write().await;
+            runtime[idx].state = ServiceLifecycle::Degraded;
+            runtime[idx].detail = format!("readiness client initialization failed: {error}");
+            drop(runtime);
+            return std::future::pending().await;
+        }
+    };
     loop {
         let result = client.get(&health.url).timeout(health.timeout).send().await;
         let mut runtime = statuses.write().await;
@@ -442,6 +455,73 @@ async fn probe_health(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn health_probe_does_not_follow_another_runtime_redirect() {
+        use axum::{routing::get, Router};
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        let hits = Arc::new(AtomicUsize::new(0));
+        let decoy = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let decoy_url = format!("http://{}/healthz", decoy.local_addr().unwrap());
+        let counter = hits.clone();
+        let decoy_task = tokio::spawn(async move {
+            axum::serve(
+                decoy,
+                Router::new().route(
+                    "/healthz",
+                    get(move || {
+                        let counter = counter.clone();
+                        async move {
+                            counter.fetch_add(1, Ordering::SeqCst);
+                            "healthy"
+                        }
+                    }),
+                ),
+            )
+            .await
+            .unwrap();
+        });
+        let selected = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let probe = HealthProbe {
+            url: format!("http://{}/healthz", selected.local_addr().unwrap()),
+            timeout: Duration::from_secs(1),
+            interval: Duration::from_secs(60),
+        };
+        let selected_task = tokio::spawn(async move {
+            axum::serve(
+                selected,
+                Router::new().route(
+                    "/healthz",
+                    get(move || {
+                        let url = decoy_url.clone();
+                        async move { axum::response::Redirect::temporary(&url) }
+                    }),
+                ),
+            )
+            .await
+            .unwrap();
+        });
+        let supervisor = Supervisor::new(vec![sleeper("probe-only")], Shutdown::new());
+        let statuses = supervisor.statuses();
+        let outcome = tokio::time::timeout(Duration::from_secs(3), async {
+            tokio::select! {
+                _ = probe_health(0, Some(&probe), &statuses) => unreachable!(),
+                state = async {
+                    loop {
+                        let state = statuses.read().await[0].state;
+                        if matches!(state, ServiceLifecycle::Healthy | ServiceLifecycle::Degraded) { break state; }
+                        tokio::time::sleep(Duration::from_millis(5)).await;
+                    }
+                } => state,
+            }
+        }).await;
+        decoy_task.abort();
+        selected_task.abort();
+        let _ = decoy_task.await;
+        let _ = selected_task.await;
+        assert_eq!(outcome.unwrap(), ServiceLifecycle::Degraded);
+        assert_eq!(hits.load(Ordering::SeqCst), 0);
+    }
 
     fn sleeper(name: &'static str) -> Service {
         Service {

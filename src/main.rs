@@ -133,6 +133,9 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
+    // --once remains a process-resolution smoke; a resident daemon requires
+    // one validated endpoint captured from the same manifest as its children.
+    let local_endpoint = reg.local_runtime_endpoint()?;
     let shutdown = Shutdown::new();
     // Install SIGTERM before starting background work. systemd uses TERM, not
     // Ctrl-C, and an early signal must remain pending until the listener runs.
@@ -152,8 +155,9 @@ async fn main() -> anyhow::Result<()> {
     // to 127.0.0.1:7878.
     let client = reqwest::Client::builder()
         .timeout(arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT)
-        .build()
-        .unwrap_or_default();
+        .no_proxy()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()?;
     let presence_access_path = root.join("config/outposts/access.toml");
     let presence_inputs =
         arda_engine::harness::presence::HarnessPresenceState::load_access_contract(
@@ -172,7 +176,7 @@ async fn main() -> anyhow::Result<()> {
         child_pids: harness_pids,
         service_names: Arc::new(reg.services.iter().map(|s| s.name.clone()).collect()),
         service_statuses,
-        manwe_url: "http://127.0.0.1:7171".to_string(),
+        manwe_url: local_endpoint.base_url,
         client,
         manwe_proxy_timeout: arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT,
         manwe_proxy_bearer: std::env::var("ARDA_MANWE_PROXY_BEARER").ok(),

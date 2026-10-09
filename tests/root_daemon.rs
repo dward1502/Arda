@@ -159,6 +159,17 @@ async fn assert_signal_shutdown_with_environment(
     let temp = TempDir::new().expect("temporary repository");
     let root = temp.path();
     let pid_file = root.join("worker.pid");
+    let selected = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let manwe_port = selected.local_addr().unwrap().port();
+    let selected_task = tokio::spawn(async move {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let (mut stream, _) = selected.accept().await.unwrap();
+        let mut request = [0; 4096];
+        let size = stream.read(&mut request).await.unwrap();
+        assert!(String::from_utf8_lossy(&request[..size]).starts_with("GET /v1/models HTTP/1.1"));
+        let body = r#"{"data":[{"id":"selected-runtime"}]}"#;
+        stream.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();
+    });
     arda_engine::objectives::ObjectiveStore::open(root.join("data/arda/objectives.sqlite3"))
         .unwrap();
     let worker = root.join("worker.sh");
@@ -178,6 +189,13 @@ required = true
 tags = ["gateway"]
 start.command = "{}"
 start.cwd = "."
+
+[[service]]
+name = "manwe"
+optional = true
+start.command = "missing-test-manwe-no-spawn"
+start.args = ["--bind", "127.0.0.1", "--port", "{manwe_port}"]
+health.url = "http://127.0.0.1:{manwe_port}/healthz"
 "#,
             worker.display()
         ),
@@ -199,6 +217,13 @@ scout_url = "http://fleet.example:8092"
     let harness_addr = format!("127.0.0.1:{port}");
     let mut command = Command::new(arda_bin());
     command.env_remove("ARDA_SNAPSHOT_KEEPER_SOCKET");
+    command
+        .env("HTTP_PROXY", "http://127.0.0.1:9")
+        .env("http_proxy", "http://127.0.0.1:9")
+        .env("ALL_PROXY", "http://127.0.0.1:9")
+        .env("all_proxy", "http://127.0.0.1:9")
+        .env("NO_PROXY", "")
+        .env("no_proxy", "");
     if retained && environment {
         command.env(
             "ARDA_SNAPSHOT_KEEPER_SOCKET",
@@ -239,6 +264,17 @@ scout_url = "http://fleet.example:8092"
         root.join("data/arda/objectives.sqlite3").exists(),
         "resident daemon must open the canonical ObjectiveStore"
     );
+    let models = match client
+        .get(format!("http://{harness_addr}/v1/models"))
+        .timeout(Duration::from_secs(2))
+        .send()
+        .await
+    {
+        Ok(response) => response.json::<Value>().await.unwrap_or(Value::Null),
+        Err(_) => Value::Null,
+    };
+    selected_task.abort();
+    let _ = selected_task.await;
     assert_eq!(
         status_json["warden_scout_url"], "http://env.example:8092",
         "environment override must take precedence over fleet discovery"
@@ -280,42 +316,33 @@ scout_url = "http://fleet.example:8092"
         child_pid.trim().parse::<u32>().expect("numeric child pid")
     );
 
-    let objective_status = client
-        .get(format!("http://{harness_addr}/v1/objective-runtime"))
-        .send()
-        .await
-        .expect("objective runtime status")
-        .json::<Value>()
-        .await
-        .expect("objective runtime status JSON");
+    // Readiness is observable while the server is alive. Shutdown publishes
+    // "stopped" and closes HTTP; it does not promise a post-signal "waiting".
+    let objective_status = tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            let response = client
+                .get(format!("http://{harness_addr}/v1/objective-runtime"))
+                .send()
+                .await
+                .expect("objective runtime status");
+            let body = response
+                .json::<Value>()
+                .await
+                .expect("objective status JSON");
+            if body["phase"] == "waiting" {
+                break body;
+            }
+            tokio::time::sleep(Duration::from_millis(25)).await;
+        }
+    })
+    .await
+    .expect("objective runtime did not become ready before shutdown");
 
     let signal = Command::new("kill")
         .args([signal_name, &daemon.id().to_string()])
         .status()
         .expect("send shutdown signal");
     assert!(signal.success(), "{signal_name} delivery must succeed");
-
-    // Poll the objective runtime until it reaches "waiting" (drained).
-    // The runtime transitions through "checking" before "waiting" during
-    // shutdown, so a single read can race and observe the interim phase.
-    let shutdown_objective_status = tokio::time::timeout(Duration::from_secs(10), async {
-        loop {
-            let response = client
-                .get(format!("http://{harness_addr}/v1/objective-runtime"))
-                .send()
-                .await;
-            if let Ok(response) = response {
-                if let Ok(body) = response.json::<Value>().await {
-                    if body["phase"] == "waiting" {
-                        break body;
-                    }
-                }
-            }
-            tokio::time::sleep(Duration::from_millis(50)).await;
-        }
-    })
-    .await
-    .expect("objective runtime did not reach waiting phase after shutdown");
 
     let daemon_status = tokio::time::timeout(Duration::from_secs(10), async {
         loop {
@@ -361,9 +388,22 @@ scout_url = "http://fleet.example:8092"
         "daemon shutdown failed: {daemon_status}"
     );
     assert!(!child_alive, "supervised child survived daemon shutdown");
-    assert_eq!(shutdown_objective_status["phase"], "waiting");
-    assert_eq!(shutdown_objective_status["ready"], true);
-    assert_eq!(shutdown_objective_status["pending_recovery"], 0);
-    assert_eq!(shutdown_objective_status["active_leaves"], serde_json::json!([]));
-    assert!(shutdown_objective_status["last_error"].is_null());
+    assert!(
+        client
+            .get(format!("http://{harness_addr}/v1/objective-runtime"))
+            .send()
+            .await
+            .is_err(),
+        "Harness must close with the daemon"
+    );
+    assert_eq!(objective_status["phase"], "waiting");
+    assert_eq!(objective_status["ready"], true);
+    assert_eq!(objective_status["pending_recovery"], 0);
+    assert_eq!(objective_status["active_leaves"], serde_json::json!([]));
+    assert!(objective_status["last_error"].is_null());
+    assert_eq!(
+        status_json["manwe_url"],
+        format!("http://127.0.0.1:{manwe_port}")
+    );
+    assert_eq!(models["data"][0]["id"], "selected-runtime");
 }

@@ -512,20 +512,33 @@ authority-preserving restore qualification remain open. Gateway watchdog
 integration and backup-failure refusal are committed as `f580a4bb`; incomplete
 rollback now preserves persistent recovery backups in `6c20c367` (five isolated
 installer tests and independent exact-tree review). These do not close R09.
-A separate qualification account also shares host loopback: launcher Manwe health
-uses port 7171, already owned by the original runtime; Harness defaults to 7878.
-Do not count that runtime's health as clean-account acceptance or start competing
-fixed-port services. Repeated copy restores now preserve distinct displaced
-histories (`747009a0`, 27 tests). The pending account-local installer slice adds
-explicit root composition, consistent root/HUD/Mirromere identity, mandatory root
-verification and root-unit rollback. Eleven isolated installer tests pass,
-including native systemd parsing; independent review and installed qualification
-remain pending. No live services or state were changed. The current session cannot
-access the qualification account through sudo or cross-user systemd.
-Next: qualify the installer slice, then wire the selected Manwe endpoint through
-registry, Harness upstream and launcher lifecycle checks with a healthy-old-endpoint
-decoy regression. Complete public release inputs, fresh authority and native
-lifecycle/restore acceptance remain open; R10/R11 remain dependency-gated.
+A separate qualification account shares host loopback; the original runtime owns
+port 7171 and Harness defaults to 7878. Do not count that runtime's health as
+clean-account acceptance or start competing fixed-port services. Repeated copy
+restores preserve distinct displaced histories (`747009a0`, 27 tests). Account-local
+root composition, root/HUD/Mirromere identity, mandatory root verification and
+root-unit rollback are committed as `2c01e9f8`; installed qualification remains open.
+Launcher endpoint selection is committed as `83d1180c`: the selected release's
+`services.toml` supplies its exact loopback health endpoint; invalid configuration
+cannot fall back, and HTTP proxies/redirects are disabled. Independent review
+approved this bounded slice. Exact-tree export `2816d148eead31d14caeaf136310be6e4ae451e2`
+passes 44 launcher and 117 core tests, including healthy-old-endpoint rejection and
+real selected-port/redirect HTTP probes. No live services or state were changed.
+The previously observed sudo/cross-user systemd access limitation is not resolved
+by these source tests. The next source slice (not yet committed) captures the
+endpoint from the registry's loaded bytes, wires it to the root Harness client,
+and disables proxy/redirect routing for root and supervisor HTTP. Exact exported
+source passes 11 registry, 9 supervisor, 8 root daemon and 74 Harness tests (two
+Harness tests ignored); independent review remains pending. The retained root
+shutdown fixture correction is included so this evidence does not depend on dirty
+local tests. Root process fixtures verify selected-port
+models routing despite proxy environment variables; the supervisor redirect
+regression reproduced false healthy status before repair. Retained snapshot-worker
+inference still hardcodes 7171: next carry the release-selected endpoint through
+trusted runtime capture and Rust/Python profile guards before installed
+qualification. Complete public release inputs, fresh
+authority and native lifecycle/restore acceptance remain open; R10/R11 remain
+dependency-gated.
 
 ### R10 Connect evaluation to daily usefulness
 

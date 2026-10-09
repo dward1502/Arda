@@ -8,6 +8,7 @@ use futures::future::BoxFuture;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
+mod dependency_reports;
 mod provider_transport;
 #[cfg(test)]
 mod runtime_admission;
@@ -61,13 +62,10 @@ impl ExplicitWorkbenchWorkItem {
         let Some(original) = &self.context_assembly else {
             return Ok(None);
         };
-        let purpose = match stage {
-            "execute" => self.execution_prompt.clone(),
-            "verify" => self.verification_prompt.clone(),
-            "review" => review_prompt_with_dependency_receipts(root, self)?,
-            "close" => return Ok(Some(original.clone())),
-            _ => bail!("unsupported explicit Workbench context stage"),
-        };
+        if stage == "close" {
+            return Ok(Some(original.clone()));
+        }
+        let purpose = dependency_reports::stage_prompt(root, self, stage)?;
         // Vairë and the provider adapter share the bounded purpose projection.
         // The full stage payload remains separately retained in this work item.
         Ok(Some(original.for_run_stage(stage, &purpose, parents)?))
@@ -80,12 +78,7 @@ impl ExplicitWorkbenchWorkItem {
         stage: &str,
         context: Option<ContextAssembly>,
     ) -> Result<Value> {
-        let prompt = match stage {
-            "execute" => self.execution_prompt.clone(),
-            "verify" => self.verification_prompt.clone(),
-            "review" => review_prompt_with_dependency_receipts(root, self)?,
-            _ => bail!("unsupported explicit provider stage {stage}"),
-        };
+        let prompt = dependency_reports::stage_prompt(root, self, stage)?;
         Ok(json!({
             "objective": prompt,
             "envelope": explicit_stage_envelope(self, stage)?,
@@ -536,55 +529,6 @@ async fn wait_for_explicit_stage(
             _ => tokio::time::sleep(std::time::Duration::from_millis(250)).await,
         }
     }
-}
-
-fn review_prompt_with_dependency_receipts(
-    root: &Path,
-    item: &ExplicitWorkbenchWorkItem,
-) -> Result<String> {
-    if item.dependency_receipts.is_empty() {
-        return Ok(item.review_prompt.clone());
-    }
-    let mut receipts = Vec::with_capacity(item.dependency_receipts.len());
-    for reference in &item.dependency_receipts {
-        if reference.stage != "close" {
-            return Err(anyhow!(
-                "explicit dependency receipt `{}` is not a close receipt",
-                reference.path
-            ));
-        }
-        let path = root.join(&reference.path);
-        let bytes = std::fs::read(&path)
-            .with_context(|| format!("read explicit dependency receipt `{}`", path.display()))?;
-        let receipt: CanonicalHermesExecutionReceipt = serde_json::from_slice(&bytes)
-            .with_context(|| format!("decode explicit dependency receipt `{}`", path.display()))?;
-        if receipt.receipt_digest != reference.digest || !receipt.has_valid_digest()? {
-            return Err(anyhow!(
-                "explicit dependency receipt `{}` failed canonical digest validation",
-                path.display()
-            ));
-        }
-        if receipt.node_id != "close" || receipt.status != json!("succeeded") {
-            return Err(anyhow!(
-                "explicit dependency receipt `{}` is not a successful close receipt",
-                path.display()
-            ));
-        }
-        receipts.push(json!({
-            "run_id": receipt.run_id,
-            "node_id": receipt.node_id,
-            "receipt_digest": receipt.receipt_digest,
-            "status": receipt.status,
-            "summary": receipt.summary,
-            "project_contract_digest": receipt.project_contract_digest,
-            "parent_receipts": receipt.parent_receipts,
-        }));
-    }
-    Ok(format!(
-        "{} Canonical dependency close-receipt payloads (loaded from durable run paths and digest-validated before review): {}",
-        item.review_prompt,
-        serde_json::to_string(&receipts)?
-    ))
 }
 
 fn explicit_stage_envelope(item: &ExplicitWorkbenchWorkItem, stage: &str) -> Result<Value> {

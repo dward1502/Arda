@@ -32,21 +32,29 @@ def validate_profile(home):
     if len(raw) > 65536 or b"${" in raw:
         raise ValueError("profile exceeds bounds or expands environment")
     config = json.loads(raw, object_pairs_hook=_unique_fields)
+    return validate_profile_config(config)
+
+
+def validate_profile_config(config):
+    """Validate the captured policy independently of filesystem admission."""
     custom = config["custom_providers"]
     if type(custom) is not list or len(custom) != 1:
-        raise ValueError("one local provider is required")
+        raise ValueError("one Manwe gateway profile is required")
     model = config["model"]["default"]
     context = config["model"]["context_length"]
     provider = custom[0]["extra_body"]["routing"]["force_provider_id"]
+    origin = custom[0]["extra_body"]["routing"]["inference_origin"]
     if type(model) is not str or not re.fullmatch(r"[A-Za-z0-9._/-]{1,128}", model):
-        raise ValueError("invalid local model identifier")
-    if type(provider) is not str or not re.fullmatch(r"edge_[a-z0-9_]{1,64}", provider):
-        raise ValueError("an explicit edge provider is required")
+        raise ValueError("invalid model identifier")
+    if type(provider) is not str or not provider.strip():
+        raise ValueError("an explicit provider is required")
+    if origin not in ("local", "cloud"):
+        raise ValueError("an explicit local or cloud origin is required")
     if type(context) is not int or not 256 <= context <= 262144:
         raise ValueError("invalid context budget")
     expected = {
         "model": {"provider": "retained-manwe", "default": model, "context_length": context},
-        "custom_providers": [{"name": "retained-manwe", "base_url": "http://127.0.0.1:7171/v1", "api_mode": "chat_completions", "model": model, "extra_body": {"routing": {"local_only": True, "inference_origin": "local", "origin_preference": "local", "force_provider_id": provider, "force_model_id": model, "allow_forced_provider_fallback": False, "tool_use_required": True}}}],
+        "custom_providers": [{"name": "retained-manwe", "base_url": "http://127.0.0.1:7171/v1", "api_mode": "chat_completions", "model": model, "extra_body": {"routing": {"local_only": origin == "local", "inference_origin": origin, "origin_preference": origin, "force_provider_id": provider, "force_model_id": model, "allow_forced_provider_fallback": False, "tool_use_required": True}}}],
         "fallback_providers": [],
         "terminal": {"backend": "local", "cwd": "auto", "timeout": 180, "persistent_shell": False},
         "memory": {"memory_enabled": False, "user_profile_enabled": False, "provider": ""},
@@ -57,5 +65,5 @@ def validate_profile(home):
     }
 
     if json.dumps(config, sort_keys=True) != json.dumps(expected, sort_keys=True):
-        raise ValueError("profile is outside the retained local contract")
+        raise ValueError("profile is outside the retained Manwe contract")
     return config

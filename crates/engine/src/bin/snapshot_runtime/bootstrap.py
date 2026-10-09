@@ -19,6 +19,9 @@ profile = guard(os.environ["HERMES_HOME"]) if mode != "probe" else None
 sys.path[:0] = roots
 sys.argv[0] = "hermes"
 
+if mode in ("chat", "chat_read_only"):
+    install_session_provenance(importlib.import_module("hermes_state").SessionDB, profile)
+
 # Env safe mode preserves the dedicated config, unlike CLI --safe-mode.
 env_loader = importlib.import_module("hermes_cli.env_loader")
 setattr(env_loader, "load_hermes_dotenv", lambda *args, **kwargs: [])

@@ -84,3 +84,5 @@ pub use soterion_watcher::SoterionWatcher;
 pub use systemd::{parse_list_units, SystemctlClient, SystemdClient, SystemdError, Unit, UnitKind};
 pub use task::{JouleWorkMeasurementSource, Task, TaskId, TaskStatus};
 pub use tool::ToolRegistry;
+
+pub mod workspace_policy;

@@ -34,6 +34,39 @@ fn readonly_chat_selects_guarded_bootstrap() {
     }
 }
 
+#[test]
+fn inference_session_provenance_records_config_without_billing_claims() {
+    let code = concat!(
+        include_str!("session_provenance.py"),
+        r#"
+class Session:
+    def create_session(self, **kwargs):
+        self.saved = kwargs
+        return kwargs['session_id']
+profile = {'model': {'provider': 'retained-manwe', 'default': 'selected-model'}}
+install_session_provenance(Session, profile)
+db = Session()
+config = {'max_iterations': 4}
+assert db.create_session('fixture', 'tool', model='selected-model', model_config=config) == 'fixture'
+assert db.saved['model_config'] == {'provider': 'retained-manwe', 'max_iterations': 4}
+assert config == {'max_iterations': 4}
+assert 'billing_provider' not in db.saved
+assert 'actual_cost_usd' not in db.saved
+for kwargs in ({'model': 'other'}, {'model': 'selected-model', 'model_config': {'provider': 'other'}}):
+    try:
+        db.create_session('bad', 'tool', **kwargs)
+        raise AssertionError('conflicting provenance accepted')
+    except RuntimeError:
+        pass
+"#
+    );
+    assert!(Command::new("python3")
+        .args(["-I", "-S", "-B", "-c", code])
+        .status()
+        .unwrap()
+        .success());
+}
+
 impl CapturedRuntime {
     pub fn operation_argv(&self, operation: &RuntimeOperation) -> Result<Vec<String>> {
         operation.validate()?;
@@ -76,6 +109,8 @@ impl CapturedRuntime {
             argv.push(
                 concat!(
                     include_str!("profile_guard.py"),
+                    "\n",
+                    include_str!("session_provenance.py"),
                     "\n",
                     include_str!("readonly_tools.py"),
                     "\n",

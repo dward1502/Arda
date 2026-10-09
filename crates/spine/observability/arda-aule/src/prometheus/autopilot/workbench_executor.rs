@@ -28,6 +28,7 @@ use std::collections::BTreeSet;
 use std::fs::{File, OpenOptions};
 use std::future::Future;
 use std::path::{Path, PathBuf};
+#[cfg(test)]
 use std::process::Command;
 
 pub const QUEUE_EXECUTION_RECEIPT_CONTRACT: &str = "arda.workbench.queue_execution_receipt.v1";
@@ -839,69 +840,7 @@ fn ensure_fresh_mutation_workspace_clean(
     if binding.read_only || exact_persisted_attempt {
         return Ok(());
     }
-    let output = Command::new("git")
-        .args([
-            "-c",
-            "core.fsmonitor=false",
-            "status",
-            "--porcelain=v1",
-            "--untracked-files=all",
-            "--ignore-submodules=none",
-        ])
-        .current_dir(&binding.workspace_root)
-        .env("LC_ALL", "C")
-        .env_remove("GIT_DIR")
-        .env_remove("GIT_WORK_TREE")
-        .env_remove("GIT_INDEX_FILE")
-        .env_remove("GIT_OBJECT_DIRECTORY")
-        .env_remove("GIT_ALTERNATE_OBJECT_DIRECTORIES")
-        .env_remove("GIT_CONFIG")
-        .env_remove("GIT_CONFIG_GLOBAL")
-        .env_remove("GIT_CONFIG_SYSTEM")
-        .env_remove("GIT_CONFIG_COUNT")
-        .output()
-        .with_context(|| {
-            format!(
-                "inspect Git worktree `{}` before mutation admission",
-                binding.workspace_root.display()
-            )
-        })?;
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        if !has_git_control_marker(&binding.workspace_root)? {
-            return Ok(());
-        }
-        return Err(anyhow!(
-            "could not inspect Git worktree `{}` before mutation admission: {}",
-            binding.workspace_root.display(),
-            stderr.trim()
-        ));
-    }
-    if !output.stdout.is_empty() {
-        return Err(anyhow!(
-            "refusing mutation in dirty Git worktree `{}`; preserve unrelated local changes in a clean registered worktree",
-            binding.workspace_root.display()
-        ));
-    }
-    Ok(())
-}
-
-fn has_git_control_marker(workspace_root: &Path) -> Result<bool> {
-    for ancestor in workspace_root.ancestors() {
-        match std::fs::symlink_metadata(ancestor.join(".git")) {
-            Ok(_) => return Ok(true),
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-            Err(error) => {
-                return Err(error).with_context(|| {
-                    format!(
-                        "inspect Git control metadata above `{}`",
-                        workspace_root.display()
-                    )
-                });
-            }
-        }
-    }
-    Ok(false)
+    arda_core::workspace_policy::ensure_clean_for_fresh_mutation(&binding.workspace_root)
 }
 
 fn try_acquire_task_execution_lock(root: &Path, task_id: &str) -> Result<Option<File>> {

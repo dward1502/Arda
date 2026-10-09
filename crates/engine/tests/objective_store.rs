@@ -1798,3 +1798,177 @@ fn revision_invalidates_approval_and_terminal_root_requires_every_leaf_close() {
         .to_string()
         .contains("not complete"));
 }
+
+#[test]
+fn m4_fresh_mutation_rejects_staged_unstaged_and_untracked_operator_work() {
+    use std::process::Command;
+    for kind in ["staged", "unstaged", "untracked"] {
+        let temp = TempDir::new().unwrap();
+        let workspace = temp.path().join("project");
+        std::fs::create_dir(&workspace).unwrap();
+        let git = |args: &[&str]| {
+            let output = Command::new("git")
+                .args(args)
+                .current_dir(&workspace)
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "{}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            output.stdout
+        };
+        git(&["init", "-q"]);
+        std::fs::write(workspace.join("tracked"), b"original\n").unwrap();
+        git(&["add", "tracked"]);
+        git(&[
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@invalid",
+            "commit",
+            "-qm",
+            "baseline",
+        ]);
+        match kind {
+            "untracked" => {
+                std::fs::write(workspace.join("untracked"), b"operator draft\n").unwrap()
+            }
+            _ => {
+                std::fs::write(workspace.join("tracked"), b"operator edit\n").unwrap();
+                if kind == "staged" {
+                    git(&["add", "tracked"]);
+                }
+            }
+        }
+        let before_status = git(&["status", "--porcelain=v1", "-z"]);
+        let before_index = std::fs::read(workspace.join(".git/index")).unwrap();
+        let before_file = std::fs::read(workspace.join("tracked")).unwrap();
+        let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
+        let mut input = objective("dirty", "dirty-event");
+        input.leaves.truncate(1);
+        input.leaves[0].workspace_root = workspace.display().to_string();
+        input.leaves[0].authority = "execute_with_approval".into();
+        store.create_authenticated_objective(input, 1).unwrap();
+        store
+            .apply_control(
+                "dirty",
+                ControlAction::Approve { revision: 1 },
+                "approve-dirty",
+                "operator:primary",
+                2,
+            )
+            .unwrap();
+        assert!(store
+            .claim_runnable("writer", 3, 1000, 1)
+            .unwrap()
+            .is_empty());
+        assert_eq!(
+            std::fs::read(workspace.join("tracked")).unwrap(),
+            before_file
+        );
+        assert_eq!(git(&["status", "--porcelain=v1", "-z"]), before_status);
+        assert_eq!(
+            std::fs::read(workspace.join(".git/index")).unwrap(),
+            before_index
+        );
+        // Rejection is before claim/attempt/snapshot mutation.
+        let db = rusqlite::Connection::open(temp.path().join("objectives.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT attempt FROM leaves WHERE id='dirty-a'", [], |r| r
+                .get::<_, i64>(
+                0
+            ))
+            .unwrap(),
+            0
+        );
+        let mut read = objective("reader", "reader-event");
+        read.leaves.truncate(1);
+        read.leaves[0].workspace_root = workspace.display().to_string();
+        store.create_authenticated_objective(read, 4).unwrap();
+        store
+            .apply_control(
+                "reader",
+                ControlAction::Approve { revision: 1 },
+                "approve-reader",
+                "operator:primary",
+                5,
+            )
+            .unwrap();
+        // The blocked writer must not starve another eligible leaf. It stays
+        // approved, so this proves scheduling progresses without operator help.
+        let claims = store.claim_runnable("reader", 7, 1000, 1).unwrap();
+        assert_eq!(claims.len(), 1);
+        assert_eq!(claims[0].leaf_id, "reader-a");
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn m4_physical_aliases_cannot_double_mutate_disposable_workspace() {
+    let temp = TempDir::new().unwrap();
+    let physical = temp.path().join("physical");
+    let alias = temp.path().join("alias");
+    std::fs::create_dir(&physical).unwrap();
+    std::os::unix::fs::symlink(&physical, &alias).unwrap();
+    let effects = physical.join("effects");
+    std::fs::write(&effects, b"").unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let store = ObjectiveStore::open(&path).unwrap();
+    for (id, root) in [("first", &physical), ("second", &alias)] {
+        let mut input = objective(id, id);
+        input.leaves.truncate(1);
+        input.leaves[0].workspace_root = root.display().to_string();
+        input.leaves[0].authority = "execute_with_approval".into();
+        store.create_authenticated_objective(input, 1).unwrap();
+        store
+            .apply_control(
+                id,
+                ControlAction::Approve { revision: 1 },
+                &format!("approve-{id}"),
+                "operator:primary",
+                2,
+            )
+            .unwrap();
+    }
+    let barrier = Arc::new(Barrier::new(2));
+    let workers: Vec<_> = (0..2)
+        .map(|i| {
+            let store = store.clone();
+            let barrier = barrier.clone();
+            thread::spawn(move || {
+                use std::io::Write;
+                barrier.wait();
+                let claims = store
+                    .claim_runnable(&format!("writer-{i}"), 3, 1000, 1)
+                    .unwrap();
+                for claim in &claims {
+                    let mut file = std::fs::OpenOptions::new()
+                        .append(true)
+                        .open(std::path::Path::new(&claim.workspace_root).join("effects"))
+                        .unwrap();
+                    writeln!(file, "authorized-effect").unwrap();
+                }
+                claims.len()
+            })
+        })
+        .collect();
+    assert_eq!(
+        workers
+            .into_iter()
+            .map(|w| w.join().unwrap())
+            .sum::<usize>(),
+        1
+    );
+    drop(store);
+    let reopened = ObjectiveStore::open(path).unwrap();
+    assert!(reopened
+        .claim_runnable("after-restart", 4, 1000, 1)
+        .unwrap()
+        .is_empty());
+    assert_eq!(
+        std::fs::read_to_string(effects).unwrap(),
+        "authorized-effect\n"
+    );
+}

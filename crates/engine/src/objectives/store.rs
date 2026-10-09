@@ -17,6 +17,7 @@ use tokio::sync::watch;
 
 mod admissions;
 mod authority;
+mod critic_correction;
 mod explicit_runtime;
 mod recovery;
 pub use recovery::RecoveryMaterial;
@@ -886,7 +887,7 @@ impl ObjectiveStore {
                AND EXISTS (
                    SELECT 1 FROM leaves l WHERE l.objective_id = objectives.id
                      AND l.stage NOT IN ('complete', 'cancelled', 'failed')
-                     AND l.attempt >= ?2
+                     AND (l.attempt + l.attempt_offset) >= ?2
                      AND (COALESCE(l.context_bound, 0) != 1 OR l.execution_run_id IS NULL)
                      AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?1)
                )",
@@ -901,7 +902,7 @@ impl ObjectiveStore {
                  WHERE o.state IN ('approved', 'running')
                    AND NOT EXISTS (SELECT 1 FROM retained_snapshot_operator_abandonments a WHERE a.leaf_id=l.id)
                    AND l.stage NOT IN ('complete', 'cancelled', 'failed')
-                   AND l.attempt >= ?1 AND l.context_bound = 1
+                   AND (l.attempt + l.attempt_offset) >= ?1 AND l.context_bound = 1
                    AND l.execution_run_id IS NOT NULL)",
                 [MAX_LEAF_ATTEMPTS],
                 |row| row.get(0),
@@ -1005,8 +1006,8 @@ impl ObjectiveStore {
                         (SELECT 1 FROM schedules s WHERE s.objective_id = o.id)
                         OR EXISTS (SELECT 1 FROM schedules s JOIN schedule_wakes w ON w.schedule_id = s.id
                                    WHERE s.objective_id = o.id))
-                   AND ((?15 = 0 AND l.attempt < ?10)
-                     OR (?15 = 1 AND l.attempt >= ?10 AND l.context_bound = 1
+                   AND ((?15 = 0 AND (l.attempt + l.attempt_offset) < ?10)
+                     OR (?15 = 1 AND (l.attempt + l.attempt_offset) >= ?10 AND l.context_bound = 1
                          AND l.execution_run_id IS NOT NULL))
                    AND l.stage IN (?3, ?4, ?5, ?6)
                    AND (l.lease_owner IS NULL OR l.lease_expires_ms <= ?7)
@@ -1133,6 +1134,22 @@ impl ObjectiveStore {
                     }
                     (physical, identity)
                 };
+                // Fresh mutation must not inherit the operator's dirty work.
+                // Retained attempts already have captured authority and may own
+                // their edits; read-only leaves never gain mutation authority.
+                if attempt == 0 && !fresh_read_only && physical_root.is_dir() {
+                    if let Err(error) =
+                        arda_core::workspace_policy::ensure_clean_for_fresh_mutation(&physical_root)
+                    {
+                        tracing::warn!(
+                            %leaf_id,
+                            workspace = %physical_root.display(),
+                            error = %error,
+                            "fresh mutation admission blocked; considering other leaves"
+                        );
+                        continue;
+                    }
+                }
                 let mut overlaps = false;
                 for root in &occupied_roots {
                     if workspace_roots_overlap(&physical_root, root, &topology)? {
@@ -1153,8 +1170,8 @@ impl ObjectiveStore {
                      attempt = attempt + 1,
                      updated_at_ms = ?3
                  WHERE id = ?4
-                   AND ((?10 = 0 AND attempt < ?9)
-                     OR (?10 = 1 AND attempt >= ?9 AND context_bound = 1
+                   AND ((?10 = 0 AND (attempt + attempt_offset) < ?9)
+                     OR (?10 = 1 AND (attempt + attempt_offset) >= ?9 AND context_bound = 1
                          AND execution_run_id IS NOT NULL))
                    AND (lease_owner IS NULL OR lease_expires_ms <= ?3)
                    AND NOT EXISTS (
@@ -1462,7 +1479,8 @@ impl ObjectiveStore {
             bail!("objective already closed with a different receipt");
         }
         let incomplete: i64 = transaction.query_row(
-            "SELECT COUNT(*) FROM leaves WHERE objective_id = ?1 AND stage != ?2",
+            "SELECT COUNT(*) FROM leaves WHERE objective_id = ?1 AND stage != ?2
+             AND NOT EXISTS (SELECT 1 FROM critic_corrections c WHERE c.parent_leaf_id=leaves.id)",
             params![objective_id, LeafStage::Complete.as_str()],
             |row| row.get(0),
         )?;
@@ -1493,7 +1511,8 @@ impl ObjectiveStore {
     ) -> Result<bool> {
         let connection = self.connection()?;
         let incomplete: i64 = connection.query_row(
-            "SELECT COUNT(*) FROM leaves WHERE objective_id = ?1 AND stage != ?2",
+            "SELECT COUNT(*) FROM leaves WHERE objective_id = ?1 AND stage != ?2
+             AND NOT EXISTS (SELECT 1 FROM critic_corrections c WHERE c.parent_leaf_id=leaves.id)",
             params![objective_id, LeafStage::Complete.as_str()],
             |row| row.get(0),
         )?;
@@ -1643,6 +1662,24 @@ impl ObjectiveStore {
     }
 }
 
+fn validate_project_authority(project: &super::ProjectAuthority) -> Result<()> {
+    if project.project_id.trim().is_empty() || project.contract_digest.trim().is_empty() {
+        bail!("project authority fields must not be empty");
+    }
+    // Historical bindings contain only the canonical contract ID/digest.
+    // Read-only file inspection may legitimately have no executable checks.
+    // Neither case grants execution permission; canonical admission still owns it.
+    let legacy_binding = project.authority.is_empty() && project.checks.is_empty();
+    if !legacy_binding
+        && (project.authority.trim().is_empty()
+            || (project.checks.is_empty() && project.authority != "read_only")
+            || project.checks.iter().any(|check| check.trim().is_empty()))
+    {
+        bail!("project authority metadata must include authority and checks together unless read_only");
+    }
+    Ok(())
+}
+
 fn validate_objective(objective: &NewObjective) -> Result<()> {
     for (name, value) in [
         ("objective id", objective.id.as_str()),
@@ -1660,20 +1697,7 @@ fn validate_objective(objective: &NewObjective) -> Result<()> {
     }
     let mut projects = HashSet::new();
     for project in &objective.projects {
-        if project.project_id.trim().is_empty() || project.contract_digest.trim().is_empty() {
-            bail!("project authority fields must not be empty");
-        }
-        // Original admissions bind canonical contracts by ID/digest alone.
-        // Do not invent metadata on replay or treat its absence as permission.
-        // If supplied, the additional metadata must form a complete pair.
-        let legacy_binding = project.authority.is_empty() && project.checks.is_empty();
-        if !legacy_binding
-            && (project.authority.trim().is_empty()
-                || project.checks.is_empty()
-                || project.checks.iter().any(|check| check.trim().is_empty()))
-        {
-            bail!("project authority metadata must include authority and checks together");
-        }
+        validate_project_authority(project)?;
         if !projects.insert(project.project_id.as_str()) {
             bail!("duplicate project authority {}", project.project_id);
         }

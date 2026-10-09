@@ -25,9 +25,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 #[cfg(test)]
-mod recovery_tests;
-#[cfg(test)]
 mod abandonment_tests;
+#[cfg(test)]
+mod recovery_tests;
 #[cfg(test)]
 mod unfinished_tests;
 use std::net::SocketAddr;
@@ -98,6 +98,11 @@ enum Command {
         objective_id: String,
         priority: String,
         reason: String,
+    },
+    CorrectCritic {
+        task_id: String,
+        objective_id: String,
+        rejected_digest: String,
     },
     ReviseObjective {
         task_id: String,
@@ -326,11 +331,46 @@ async fn ingest_authenticated_message(
     }
     preflight_canonical_control(&state, &command)?;
     let session_id = session_id(&incoming.event);
+    if matches!(&command, Command::CorrectCritic { .. }) {
+        let store = objective_store(&state)?;
+        store
+            .bind_gateway_event(&message_id, &payload_digest)
+            .map_err(objective_store_error)?;
+        if store
+            .has_critic_correction(&message_id)
+            .map_err(objective_store_error)?
+        {
+            // Reuse the domain admission to validate exact owner, payload and
+            // receipt lineage before acknowledging an already committed event.
+            let (_, evidence_refs) =
+                apply_command(&state, &incoming, &command, &payload_digest).await?;
+            return Ok(Json(GatewayOperatorResponse {
+                schema_version: "arda.gateway-operator-response.v1".into(),
+                summary: "Previously admitted critic correction acknowledged; no new work admitted. Current objective approval and execution state are preserved.".into(),
+                evidence_refs,
+                session_id,
+                run_id: None,
+            }));
+        }
+    }
     if let Command::AuthorizeAbandonment(manifest) = &command {
-        let store=objective_store(&state)?;
-        store.bind_gateway_event(&message_id,&payload_digest).map_err(objective_store_error)?;
-        if store.has_abandonment_authorization(&message_id).map_err(objective_store_error)? {
-            store.authorize_abandonment(&message_id,&payload_digest,&incoming.operator.operator_id,manifest,Utc::now().timestamp_millis()).map_err(objective_store_error)?;
+        let store = objective_store(&state)?;
+        store
+            .bind_gateway_event(&message_id, &payload_digest)
+            .map_err(objective_store_error)?;
+        if store
+            .has_abandonment_authorization(&message_id)
+            .map_err(objective_store_error)?
+        {
+            store
+                .authorize_abandonment(
+                    &message_id,
+                    &payload_digest,
+                    &incoming.operator.operator_id,
+                    manifest,
+                    Utc::now().timestamp_millis(),
+                )
+                .map_err(objective_store_error)?;
             return Ok(Json(GatewayOperatorResponse {
                 schema_version:"arda.gateway-operator-response.v1".into(),
                 summary:"Abandonment authorization recorded only; this command does not abandon attempts or release reservations.".into(),
@@ -651,6 +691,11 @@ fn preflight_canonical_control(state: &HarnessState, command: &Command) -> Resul
             objective_id,
             ..
         }
+        | Command::CorrectCritic {
+            task_id,
+            objective_id,
+            ..
+        }
         | Command::ReviseObjective {
             task_id,
             objective_id,
@@ -699,7 +744,15 @@ async fn apply_command(
     let envelope = mutation_envelope(message_id, &incoming.event.timestamp);
     match command {
         Command::AuthorizeAbandonment(manifest) => {
-            objective_store(state)?.authorize_abandonment(message_id,_payload_digest,&incoming.operator.operator_id,manifest,Utc::now().timestamp_millis()).map_err(objective_store_error)?;
+            objective_store(state)?
+                .authorize_abandonment(
+                    message_id,
+                    _payload_digest,
+                    &incoming.operator.operator_id,
+                    manifest,
+                    Utc::now().timestamp_millis(),
+                )
+                .map_err(objective_store_error)?;
             Ok(("Abandonment authorization recorded only; this command does not abandon attempts or release reservations.".into(),vec![format!("arda://abandonment-authorizations/{message_id}")]))
         }
         Command::RecoverRetained { .. } => Err(ApiError::forbidden(
@@ -1031,6 +1084,26 @@ async fn apply_command(
                 format!("Reprioritized {task_id} to {priority}: {reason}"),
                 vec![format!("arda://objectives/{objective_id}/leaves/{task_id}")],
             ))
+        }
+        Command::CorrectCritic {
+            task_id,
+            objective_id,
+            rejected_digest,
+        } => {
+            let child = objective_store(state)?
+                .admit_critic_correction(
+                    &state.workbench_root,
+                    &incoming.operator.operator_id,
+                    message_id,
+                    _payload_digest,
+                    objective_id,
+                    task_id,
+                    rejected_digest,
+                    Utc::now().timestamp_millis(),
+                )
+                .map_err(objective_store_error)?;
+            Ok((format!("Recorded critic correction {child}; fresh objective approval is required. Rejected evidence and completed siblings are preserved."),
+                vec![format!("arda://objectives/{objective_id}/leaves/{child}")]))
         }
         Command::ReviseObjective {
             task_id,
@@ -1393,13 +1466,21 @@ fn create_operator_objective(
         projects.push(ProjectAuthority {
             project_id: project_id.clone(),
             contract_digest: project_digest,
-            authority: if attached.contract.permissions.authority == arda_core::project_contract::AuthorityMode::ReadOnly
-                || !attached.contract.permissions.filesystem.write {
+            authority: if attached.contract.permissions.authority
+                == arda_core::project_contract::AuthorityMode::ReadOnly
+                || !attached.contract.permissions.filesystem.write
+            {
                 "read_only"
             } else {
                 "operator_approved_workbench"
-            }.into(),
-            checks: attached.contract.checks.iter().map(|c| c.id.clone()).collect(),
+            }
+            .into(),
+            checks: attached
+                .contract
+                .checks
+                .iter()
+                .map(|c| c.id.clone())
+                .collect(),
         });
         leaves.push(NewLeaf {
             id: format!("{objective_id}-project-{}", index + 1),
@@ -1675,6 +1756,12 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
                 reason: reason.to_owned(),
             })
         }
+        "correct-critic" => {
+            let (task_id, rest) = take_arg(args, "task_id")?;
+            let (objective_id, rest) = take_arg(rest, "objective_id")?;
+            let rejected_digest = only_arg(rest, "rejected_digest")?;
+            Ok(Command::CorrectCritic { task_id, objective_id, rejected_digest })
+        }
         "revise-objective" => {
             let (task_id, rest) = take_arg(args, "task_id")?;
             let (objective_id, revision) = take_arg(rest, "objective_id")?;
@@ -1847,6 +1934,7 @@ fn command_operation(command: &Command) -> BridgeOperation {
         Command::PauseTask { .. }
         | Command::ResumeTask { .. }
         | Command::ReprioritizeTask { .. }
+        | Command::CorrectCritic { .. }
         | Command::ReviseObjective { .. }
         | Command::ApproveObjective { .. }
         | Command::DeleteRecoveryContext { .. }
@@ -1870,6 +1958,7 @@ fn command_run_id(command: &Command) -> Option<&str> {
         | Command::PauseTask { .. }
         | Command::ResumeTask { .. }
         | Command::ReprioritizeTask { .. }
+        | Command::CorrectCritic { .. }
         | Command::ReviseObjective { .. }
         | Command::ApproveObjective { .. }
         | Command::CancelTask { .. }
@@ -1902,6 +1991,7 @@ fn command_task_id(command: &Command) -> Option<&str> {
         Command::PauseTask { task_id, .. }
         | Command::ResumeTask { task_id, .. }
         | Command::ReprioritizeTask { task_id, .. }
+        | Command::CorrectCritic { task_id, .. }
         | Command::ReviseObjective { task_id, .. }
         | Command::ApproveObjective { task_id, .. }
         | Command::CancelTask { task_id, .. } => Some(task_id),
@@ -1914,6 +2004,7 @@ fn command_objective_id(command: &Command) -> Option<&str> {
         Command::PauseTask { objective_id, .. }
         | Command::ResumeTask { objective_id, .. }
         | Command::ReprioritizeTask { objective_id, .. }
+        | Command::CorrectCritic { objective_id, .. }
         | Command::ReviseObjective { objective_id, .. }
         | Command::ApproveObjective { objective_id, .. }
         | Command::CancelTask { objective_id, .. }
@@ -1930,6 +2021,7 @@ fn is_resident_objective_mutation(command: &Command) -> bool {
             | Command::PauseTask { .. }
             | Command::ResumeTask { .. }
             | Command::ReprioritizeTask { .. }
+            | Command::CorrectCritic { .. }
             | Command::ReviseObjective { .. }
             | Command::ApproveObjective { .. }
             | Command::CancelTask { .. }

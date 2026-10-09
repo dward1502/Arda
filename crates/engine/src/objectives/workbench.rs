@@ -42,6 +42,8 @@ use futures::future::BoxFuture;
 use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
+pub(crate) mod receipt_validation;
+use receipt_validation::project_receipts;
 mod recovery_authorization;
 mod retained_authorization;
 pub use recovery_authorization::RecoveryAuthorization;
@@ -201,37 +203,7 @@ where
             {
                 bail!("resident context does not match durable Vaire authority");
             }
-            // Canonical admission retains this replay binding. It is not part of
-            // the strict Workbench mutation envelope sent over HTTP.
-            let mut dispatch_envelope = execution.approval_envelope.clone();
-            if let Some(object) = dispatch_envelope.as_object_mut() {
-                object.remove("research_brief_id");
-            }
-            let item = ExplicitWorkbenchWorkItem {
-                read_only: claim.authority == "read_only",
-                objective_id: claim.objective_id.clone(),
-                leaf_id: claim.leaf_id.clone(),
-                run_id: run_id.clone(),
-                objective: execution.objective.clone(),
-                execution_prompt: execution.execution_prompt.clone(),
-                verification_prompt: execution.verification_prompt.clone(),
-                review_prompt: execution.review_prompt.clone(),
-                project_id: project_id.to_owned(),
-                project_contract_digest: project_contract_digest.to_owned(),
-                workspace_root: PathBuf::from(&claim.workspace_root),
-                approval_envelope: dispatch_envelope,
-                objective_plan_receipt: execution.objective_plan_receipt.clone(),
-                dependency_receipts: claim
-                    .dependency_receipts
-                    .iter()
-                    .map(|receipt| ExplicitReceiptReference {
-                        stage: receipt.stage.as_str().to_owned(),
-                        digest: receipt.digest.clone(),
-                        path: receipt.run_path.clone(),
-                    })
-                    .collect(),
-                context_assembly: Some(context_assembly.clone()),
-            };
+            let item = work_item(&claim, &context_assembly)?;
             let outcome = if reconciliation_only {
                 let evidence = if matches!(mode, ClaimExecutionMode::RetryInspection) {
                     adapter.inspect_retry_explicit(&item, &store).await?
@@ -285,6 +257,59 @@ where
             Ok(Some(LeafExecutionResult { receipts }))
         })
     }
+}
+
+pub(crate) fn work_item(
+    claim: &ClaimedLeaf,
+    context_assembly: &ContextAssembly,
+) -> Result<ExplicitWorkbenchWorkItem> {
+    let execution = claim
+        .execution
+        .as_ref()
+        .context("resident execution missing")?;
+    let project_id = claim
+        .project_id
+        .as_deref()
+        .context("resident project missing")?;
+    let project_contract_digest = claim
+        .project_contract_digest
+        .as_deref()
+        .context("resident contract missing")?;
+    let run_id = claim
+        .execution_run_id
+        .as_ref()
+        .context("resident run missing")?;
+    // Canonical admission retains this replay binding. It is not part of
+    // the strict Workbench mutation envelope sent over HTTP.
+    let mut dispatch_envelope = execution.approval_envelope.clone();
+    if let Some(object) = dispatch_envelope.as_object_mut() {
+        object.remove("research_brief_id");
+    }
+    Ok(ExplicitWorkbenchWorkItem {
+        read_only: claim.authority == "read_only",
+        objective_id: claim.objective_id.clone(),
+        leaf_id: claim.leaf_id.clone(),
+        run_id: run_id.clone(),
+        objective: execution.objective.clone(),
+        execution_prompt: execution.execution_prompt.clone(),
+        verification_prompt: execution.verification_prompt.clone(),
+        review_prompt: execution.review_prompt.clone(),
+        project_id: project_id.to_owned(),
+        project_contract_digest: project_contract_digest.to_owned(),
+        workspace_root: PathBuf::from(&claim.workspace_root),
+        approval_envelope: dispatch_envelope,
+        objective_plan_receipt: execution.objective_plan_receipt.clone(),
+        dependency_receipts: claim
+            .dependency_receipts
+            .iter()
+            .map(|receipt| ExplicitReceiptReference {
+                stage: receipt.stage.as_str().to_owned(),
+                digest: receipt.digest.clone(),
+                path: receipt.run_path.clone(),
+            })
+            .collect(),
+        context_assembly: Some(context_assembly.clone()),
+    })
 }
 
 fn assemble_resident_context(
@@ -587,163 +612,12 @@ fn prepare_resident_context_outcome(
     })
 }
 
-fn project_receipts(
-    root: &Path,
-    run_id: &str,
-    project_contract_digest: &str,
-    item: &ExplicitWorkbenchWorkItem,
-    outcome: &ExplicitExecutionOutcome,
-) -> Result<Vec<StageReceipt>> {
-    let expected_stages = [
-        ("execute", ReceiptStage::Execute),
-        ("verify", ReceiptStage::Verify),
-        ("review", ReceiptStage::Review),
-        ("close", ReceiptStage::Close),
-    ];
-    if outcome.receipts.len() != expected_stages.len() {
-        bail!(
-            "explicit Workbench run `{run_id}` returned {} receipts instead of four",
-            outcome.receipts.len()
-        );
-    }
-    let canonical_root = root.canonicalize().context("canonicalize Arda root")?;
-    let memory = MnemosyneService::new(root.join("data/vaire"))?
-        .with_contract_memory_root(root.join("core/state/memory"));
-    let mut predecessor = None;
-    let mut projected = Vec::with_capacity(expected_stages.len());
-    for (reference, (expected_name, stage)) in outcome.receipts.iter().zip(expected_stages) {
-        if reference.stage != expected_name {
-            bail!(
-                "explicit Workbench run `{run_id}` returned `{}` receipt where `{expected_name}` was required",
-                reference.stage
-            );
-        }
-        let supplied_path = PathBuf::from(&reference.path);
-        let path = if supplied_path.is_absolute() {
-            supplied_path
-        } else {
-            root.join(supplied_path)
-        };
-        let canonical_path = path.canonicalize().with_context(|| {
-            format!(
-                "resolve explicit Workbench {expected_name} receipt `{}`",
-                path.display()
-            )
-        })?;
-        if !canonical_path.starts_with(&canonical_root) {
-            bail!("explicit Workbench receipt path escaped Arda root");
-        }
-        let receipt: HermesExecutionReceipt =
-            serde_json::from_slice(&std::fs::read(&canonical_path).with_context(|| {
-                format!(
-                    "read explicit Workbench receipt `{}`",
-                    canonical_path.display()
-                )
-            })?)
-            .with_context(|| {
-                format!(
-                    "decode explicit Workbench receipt `{}`",
-                    canonical_path.display()
-                )
-            })?;
-        if !receipt.valid_route_evidence()
-            || receipt.run_id != run_id
-            || receipt.node_id != expected_name
-            || receipt.receipt_digest != reference.digest
-            || receipt.project_contract_digest != project_contract_digest
-            || receipt.status != HermesReceiptStatus::Succeeded
-            || !receipt.has_valid_digest()?
-        {
-            bail!("explicit Workbench {expected_name} receipt failed canonical validation");
-        }
-        match predecessor.as_deref() {
-            Some(expected_parent) if receipt.parent_receipts.as_slice() != [expected_parent] => {
-                bail!(
-                    "explicit Workbench {expected_name} receipt did not bind the canonical predecessor"
-                );
-            }
-            None if receipt.parent_receipts.len() != 1 => {
-                bail!(
-                    "explicit Workbench execute receipt did not bind exactly one approval receipt"
-                );
-            }
-            _ => {}
-        }
-        let context = item
-            .stage_context(root, expected_name, receipt.parent_receipts.clone())?
-            .context("resident stage context missing")?;
-        let expected_context_ref = context.use_receipt.receipt_ref();
-        // Historical evidence requires its original durable binding, not renewed
-        // execution permission. Do not recreate missing receipts during recovery.
-        if memory
-            .context_use_receipt(&context.use_receipt.receipt_id)?
-            .as_ref()
-            != Some(&context.use_receipt)
-        {
-            bail!("explicit Workbench {expected_name} durable stage context is missing or conflicts; reconciliation required");
-        }
-        if receipt.context_capsule_id.as_deref() != Some(context.capsule.capsule_id.as_str())
-            || receipt.context_capsule_digest.as_deref()
-                != Some(context.capsule.capsule_digest.as_str())
-            || receipt.context_use_receipt_ref.as_deref() != Some(expected_context_ref.as_str())
-        {
-            bail!(
-                "explicit Workbench {expected_name} receipt was not bound to the resident Vairë context-use receipt"
-            );
-        }
-        let provider = receipt
-            .usage
-            .provider
-            .filter(|value| !value.trim().is_empty())
-            .ok_or_else(|| {
-                anyhow!("explicit Workbench {expected_name} receipt omitted provider")
-            })?;
-        let model = receipt
-            .usage
-            .model
-            .filter(|value| !value.trim().is_empty())
-            .ok_or_else(|| anyhow!("explicit Workbench {expected_name} receipt omitted model"))?;
-        let recorded_at_ms = i64::try_from(receipt.recorded_at_unix_ms)
-            .context("explicit Workbench receipt timestamp exceeds ObjectiveStore bounds")?;
-        let run_path = canonical_path
-            .strip_prefix(&canonical_root)
-            .context("project explicit Workbench receipt path")?
-            .to_string_lossy()
-            .to_string();
-        let digest = receipt.receipt_digest;
-        projected.push(StageReceipt {
-            contract: "arda.hermes_execution_receipt.v4".into(),
-            stage,
-            digest: digest.clone(),
-            predecessor_digest: predecessor,
-            run_path,
-            provider,
-            model,
-            started_at_ms: recorded_at_ms,
-            completed_at_ms: recorded_at_ms,
-            verdict: match stage {
-                ReceiptStage::Review => "approved",
-                ReceiptStage::Close => "closed",
-                _ => "succeeded",
-            }
-            .into(),
-            context_outcome_receipt_id: None,
-            context_outcome_receipt_digest: None,
-            binding_digest: None,
-        });
-        predecessor = Some(digest);
-    }
-    if outcome.root_receipt_digest.as_deref() != predecessor.as_deref() {
-        bail!("explicit Workbench run `{run_id}` root receipt did not match close receipt");
-    }
-    Ok(projected)
-}
-
 /// P0.6 independent challenge/review: uses Core composition policy to
 /// decide whether review is required, produces structured findings with
 /// accept|revise|escalate disposition, and routes rejection back to the
 /// affected node. Deterministic verification is kept separate from
 /// semantic review.
+#[cfg(test)]
 fn independent_critic_review(
     _run_id: &str,
     execute_digest: &str,
@@ -873,7 +747,7 @@ mod tests {
                 status: HermesReceiptStatus::Succeeded,
                 summary: if stage == "review" {
                     let criticism = independent_critic_review(
-                        &run_id,
+                        run_id,
                         &execute_digest,
                         &verify_digest,
                         &project_digest,
@@ -923,8 +797,23 @@ mod tests {
             .path()
             .join("data/runs/dependency/execution-receipts/close.json");
         std::fs::create_dir_all(dependency_path.parent().unwrap()).unwrap();
-        std::fs::copy(&references.last().unwrap().path, &dependency_path).unwrap();
-        let dependency_digest = references.last().unwrap().digest.clone();
+        let mut dependency_digest = "approval-dependency".to_owned();
+        for reference in &references {
+            let mut receipt: HermesExecutionReceipt =
+                serde_json::from_slice(&std::fs::read(&reference.path).unwrap()).unwrap();
+            receipt.run_id = "dependency".into();
+            receipt.parent_receipts = vec![dependency_digest];
+            receipt.receipt_digest = receipt.computed_digest().unwrap();
+            dependency_digest = receipt.receipt_digest.clone();
+            std::fs::write(
+                dependency_path
+                    .parent()
+                    .unwrap()
+                    .join(format!("{}.json", reference.stage)),
+                serde_json::to_vec_pretty(&receipt).unwrap(),
+            )
+            .unwrap();
+        }
         let recorded = Arc::new(Mutex::new(None));
         let executor = WorkbenchLeafExecution::with_adapter(
             root.path(),

@@ -143,6 +143,23 @@ fn apply_locked(connection: &Connection) -> Result<()> {
                 created_at_ms INTEGER NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS critic_corrections (
+                event_id TEXT PRIMARY KEY,
+                payload_digest TEXT NOT NULL,
+                operator_id TEXT NOT NULL,
+                objective_id TEXT NOT NULL REFERENCES objectives(id),
+                parent_leaf_id TEXT NOT NULL UNIQUE REFERENCES leaves(id),
+                child_leaf_id TEXT NOT NULL UNIQUE REFERENCES leaves(id),
+                record_json TEXT NOT NULL
+            );
+            CREATE TRIGGER IF NOT EXISTS critic_corrections_no_update
+            BEFORE UPDATE ON critic_corrections BEGIN SELECT RAISE(ABORT, 'immutable critic correction'); END;
+            CREATE TRIGGER IF NOT EXISTS critic_corrections_no_delete
+            BEFORE DELETE ON critic_corrections BEGIN SELECT RAISE(ABORT, 'immutable critic correction'); END;
+            CREATE TRIGGER IF NOT EXISTS critic_corrections_no_replace
+            BEFORE INSERT ON critic_corrections WHEN EXISTS(SELECT 1 FROM critic_corrections WHERE event_id=NEW.event_id OR parent_leaf_id=NEW.parent_leaf_id OR child_leaf_id=NEW.child_leaf_id)
+            BEGIN SELECT RAISE(ABORT, 'immutable critic correction'); END;
+
             CREATE TABLE IF NOT EXISTS schedules (
                 id TEXT PRIMARY KEY,
                 objective_id TEXT NOT NULL REFERENCES objectives(id) ON DELETE CASCADE,
@@ -247,6 +264,17 @@ fn apply_locked(connection: &Connection) -> Result<()> {
             .iter()
             .any(|column| column == "context_bound")
     };
+    let has_attempt_offset = {
+        let mut statement = connection.prepare("PRAGMA table_info(leaves)")?;
+        let columns = statement.query_map([], |row| row.get::<_, String>(1))?;
+        columns
+            .collect::<rusqlite::Result<Vec<_>>>()?
+            .iter()
+            .any(|column| column == "attempt_offset")
+    };
+    if !has_attempt_offset {
+        connection.execute("ALTER TABLE leaves ADD COLUMN attempt_offset INTEGER NOT NULL DEFAULT 0 CHECK(attempt_offset >= 0)", [])?;
+    }
     if !has_context_bound {
         // NULL means historical/unknown, never proof of no previous dispatch.
         connection.execute(

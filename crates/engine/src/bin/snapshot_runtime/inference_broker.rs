@@ -120,86 +120,9 @@ impl Drop for Broker {
     }
 }
 
-struct Policy {
-    model: String,
-    provider: String,
-    routing: Value,
-}
-impl Policy {
-    fn from_profile(profile: &Value) -> Result<Self> {
-        let custom = profile["custom_providers"]
-            .as_array()
-            .context("provider array missing")?;
-        if custom.len() != 1 || custom[0]["base_url"] != "http://127.0.0.1:7171/v1" {
-            bail!("broker requires exact local endpoint");
-        }
-        let model = profile["model"]["default"]
-            .as_str()
-            .context("model missing")?
-            .to_owned();
-        let routing = custom[0]["extra_body"]["routing"].clone();
-        let provider = routing["force_provider_id"]
-            .as_str()
-            .context("provider missing")?
-            .to_owned();
-        if !provider.starts_with("edge_")
-            || model.is_empty()
-            || routing
-                != json!({
-                    "local_only":true, "inference_origin":"local", "origin_preference":"local",
-                    "force_provider_id":provider, "force_model_id":model,
-                    "allow_forced_provider_fallback":false, "tool_use_required":true
-                })
-        {
-            bail!("broker routing is not pinned local inference");
-        }
-        Ok(Self {
-            model,
-            provider,
-            routing,
-        })
-    }
-    fn request(&self, bytes: &[u8]) -> Result<Value> {
-        let mut body: Value = serde_json::from_slice(bytes)?;
-        let fields = body.as_object().context("inference object required")?;
-        let allowed = [
-            "model",
-            "messages",
-            "tools",
-            "tool_choice",
-            "temperature",
-            "top_p",
-            "max_tokens",
-            "max_completion_tokens",
-            "stream",
-            "stream_options",
-            "stop",
-            "seed",
-            "frequency_penalty",
-            "presence_penalty",
-            "parallel_tool_calls",
-            "response_format",
-            "reasoning_effort",
-            "routing",
-        ];
-        if fields.keys().any(|key| !allowed.contains(&key.as_str())) {
-            bail!("unapproved request fields");
-        }
-        if body["model"] != self.model {
-            bail!("unapproved request model");
-        }
-        if body.get("routing").is_some() && body["routing"] != self.routing {
-            bail!("unapproved request routing");
-        }
-        // The trusted broker supplies routing even for SDK auxiliary requests.
-        // Explicit conflicting selectors remain forbidden, never a fallback.
-        body["routing"] = self.routing.clone();
-        if !body["messages"].is_array() {
-            bail!("messages array required");
-        }
-        Ok(body)
-    }
-}
+#[path = "inference_policy.rs"]
+mod policy;
+use policy::Policy;
 #[path = "inference_attestation.rs"]
 mod attestation;
 

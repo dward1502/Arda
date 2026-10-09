@@ -417,6 +417,26 @@ Exit evidence: reviewed ownership table, proven restore/rollback and preserved
 identity/history. Do not remove tracked state or migrate live databases merely
 because they look generated.
 
+October 8 R09 in progress: [state lifecycle ownership](../operations/r09-state-lifecycle.md)
+classifies shipped inputs, private state, evidence, caches and fixtures and assigns
+backup/export/retention/migration boundaries to existing owners. The first copy-only
+regressions reproduced a hash/archive race and failure to reinstate the last
+root displaced during restore. Both are repaired in the existing beta-operations
+path; 22 Python tests pass, including SQLite integrity/history and opaque marker
+byte preservation, source-change refusal, and install/upgrade/rollback fixtures.
+Read-only readiness accepts the normal private `/run/user/<uid>/arda` path only
+for the runtime role, current HOME and a current-user-owned mode-0700 parent.
+Independent review caught reset cross-device and aliased-root regressions; the
+exception is now readiness-only, with reset refusal before mutation and config/data/
+cache/operation-state alias regressions. Mutation commands retain the original
+external-root refusal. Isolated HOME and other external roots remain refused. Live readiness correctly reports missing endpoint configuration;
+with the explicitly supplied, HTTP-200/`ok=true` loopback Manwe endpoint it reports
+12 passing checks, including installed native libraries. This is installation
+preflight, not native-window, current-artifact or runnable authority-restore
+acceptance. No live state migration, authority rewrite, service restart or mesh
+activation occurred. Raw bounded results: `target/qualification/r09-20261008/`.
+R09 remains open; R10/R11 have not advanced past this dependency.
+
 ### R10 Connect evaluation to daily usefulness
 
 - [ ] **Priority P3; owners: Aule, economics, Rumil and existing daily-loop owner.**

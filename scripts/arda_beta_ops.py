@@ -133,7 +133,9 @@ def is_relative_to(path: Path, parent: Path) -> bool:
         return False
 
 
-def validate_state_path(path: Path, layout: Layout) -> None:
+def validate_state_path(
+    path: Path, layout: Layout, *, allow_external_runtime: bool = False
+) -> None:
     resolved = path.resolve()
     forbidden = (Path("/"), layout.home, layout.root)
     if resolved in forbidden:
@@ -143,12 +145,28 @@ def validate_state_path(path: Path, layout: Layout) -> None:
     if is_relative_to(resolved, layout.root):
         raise BetaOpsError(f"state root is inside the source repository: {resolved}")
     if not is_relative_to(resolved, layout.home):
+        # XDG_RUNTIME_DIR is normally outside HOME. Only the current user's
+        # standard private runtime child is eligible, never an arbitrary XDG root.
+        runtime_parent = Path("/run/user") / str(os.getuid())
+        if (
+            allow_external_runtime
+            and path == layout.runtime
+            and resolved == runtime_parent / "arda"
+            and layout.home == Path.home().resolve()
+            and not runtime_parent.is_symlink()
+        ):
+            info = runtime_parent.stat()
+            if info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700:
+                return
         raise BetaOpsError(f"state root must remain under the selected HOME: {resolved}")
 
 
-def validate_layout(layout: Layout) -> None:
+def validate_layout(layout: Layout, *, read_only: bool = False) -> None:
     for kind in RESET_KINDS:
-        validate_state_path(getattr(layout, kind), layout)
+        validate_state_path(
+            getattr(layout, kind), layout,
+            allow_external_runtime=read_only and kind == "runtime",
+        )
     validate_state_path(layout.operation_state, layout)
     validate_state_path(layout.install_lib, layout)
     validate_state_path(layout.install_bin, layout)
@@ -366,6 +384,19 @@ def iter_regular_files(root: Path) -> Iterable[Path]:
             yield path
 
 
+def state_inventory(layout: Layout) -> dict[str, tuple[int, int, int, int, int]]:
+    """Detect ordinary writes/replacements; not a multi-writer snapshot lock."""
+    result = {}
+    for kind in STATE_KINDS:
+        root = getattr(layout, kind)
+        for path in iter_regular_files(root):
+            info = path.stat()
+            result[f"{kind}/{path.relative_to(root).as_posix()}"] = (
+                info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+            )
+    return result
+
+
 def backup(layout: Layout, output: Path, include_secrets: bool = False) -> dict[str, Any]:
     validate_layout(layout)
     output = output.expanduser().resolve()
@@ -379,6 +410,7 @@ def backup(layout: Layout, output: Path, include_secrets: bool = False) -> dict[
     with tempfile.TemporaryDirectory(prefix="arda-backup-") as raw:
         manifest_path = Path(raw) / ARCHIVE_MANIFEST
         candidates: list[tuple[str, Path, Path]] = []
+        before = state_inventory(layout)
         for kind in STATE_KINDS:
             state_root = getattr(layout, kind)
             for path in iter_regular_files(state_root):
@@ -387,14 +419,23 @@ def backup(layout: Layout, output: Path, include_secrets: bool = False) -> dict[
                 if not include_secrets and secret_named(relative):
                     excluded.append(archive_name)
                     continue
-                candidates.append((archive_name, path, relative))
+                expected_hash = hash_file(path)
+                staged = Path(raw) / archive_name
+                staged.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(path, staged)
+                os.chmod(staged, stat.S_IRUSR | stat.S_IWUSR)
+                if hash_file(staged) != expected_hash:
+                    raise BetaOpsError("state changed during backup; quiesce writers and retry")
+                candidates.append((archive_name, staged, relative))
                 files.append(
                     {
                         "path": archive_name,
-                        "sha256": hash_file(path),
-                        "size": path.stat().st_size,
+                        "sha256": expected_hash,
+                        "size": staged.stat().st_size,
                     }
                 )
+        if state_inventory(layout) != before:
+            raise BetaOpsError("state changed during backup; quiesce writers and retry")
 
         manifest = {
             "contract": CONTRACT,
@@ -406,7 +447,9 @@ def backup(layout: Layout, output: Path, include_secrets: bool = False) -> dict[
             "files": files,
         }
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        temporary = output.with_name(output.name + ".tmp")
+        fd, temporary_name = tempfile.mkstemp(prefix=output.name + ".", dir=output.parent)
+        os.close(fd)
+        temporary = Path(temporary_name)
         try:
             with tarfile.open(temporary, "w:gz", format=tarfile.PAX_FORMAT) as archive:
                 archive.add(manifest_path, arcname=ARCHIVE_MANIFEST, recursive=False)
@@ -529,8 +572,10 @@ def restore(layout: Layout, archive_path: Path, force: bool = False) -> dict[str
                 else:
                     target.rmdir()
             target.parent.mkdir(parents=True, exist_ok=True)
-            os.replace(source, target)
+            # Record displacement before the fallible install so rollback also
+            # restores the root whose installation failed.
             installed.append((target, previous))
+            os.replace(source, target)
     except Exception:
         for target, previous in reversed(installed):
             if target.exists():
@@ -675,7 +720,7 @@ def launcher_dependency_status(launcher: Path) -> tuple[bool, str]:
 
 
 def readiness(layout: Layout) -> dict[str, Any]:
-    validate_layout(layout)
+    validate_layout(layout, read_only=True)
     checks: list[dict[str, Any]] = []
 
     def add(check_id: str, passed: bool, severity: str, evidence: str, recovery: str) -> None:

@@ -93,6 +93,126 @@ class PrivateBetaOpsTests(unittest.TestCase):
         self.assertEqual((self.layout.data / "runs.jsonl").read_text(), '{"run":"one"}\n')
         self.assertFalse((self.layout.config / "arda.env").exists())
 
+    def test_backup_refuses_source_mutation_before_publication(self):
+        self.seed_state()
+        archive = self.base / "backup.tar.gz"
+        archive.write_bytes(b"prior archive")
+        original_hash = beta_ops.hash_file
+        changed = False
+
+        def mutate_after_hash(path):
+            nonlocal changed
+            result = original_hash(path)
+            if Path(path).name == "runs.jsonl" and not changed:
+                changed = True
+                (self.layout.data / "runs.jsonl").write_text('{"run":"two"}\n')
+            return result
+
+        with mock.patch.object(beta_ops, "hash_file", side_effect=mutate_after_hash):
+            with self.assertRaisesRegex(beta_ops.BetaOpsError, "state changed"):
+                beta_ops.backup(self.layout, archive)
+        self.assertEqual(archive.read_bytes(), b"prior archive")
+
+    def test_restore_install_failure_puts_displaced_state_back(self):
+        self.seed_state()
+        archive = self.base / "backup.tar.gz"
+        beta_ops.backup(self.layout, archive)
+        settings = self.layout.config / "settings.toml"
+        settings.write_text("mode = 'newer'\n")
+        original_replace = os.replace
+
+        def fail_data_install(source, target):
+            if Path(source).name == "data" and "restore-staging" in Path(source).parts:
+                raise OSError("injected install failure")
+            return original_replace(source, target)
+
+        with mock.patch.object(beta_ops.os, "replace", side_effect=fail_data_install):
+            with self.assertRaisesRegex(OSError, "injected"):
+                beta_ops.restore(self.layout, archive, force=True)
+        self.assertEqual(settings.read_text(), "mode = 'newer'\n")
+        self.assertEqual((self.layout.data / "runs.jsonl").read_text(), '{"run":"one"}\n')
+
+    def test_offline_sqlite_history_and_authority_bytes_survive_copy_restore(self):
+        import sqlite3
+        from contextlib import closing
+
+        self.seed_state()
+        database = self.layout.data / "objectives.sqlite3"
+        with closing(sqlite3.connect(database)) as connection, connection:
+            connection.execute("CREATE TABLE history (identity TEXT, outcome TEXT)")
+            connection.execute("INSERT INTO history VALUES ('retained-id', 'accepted')")
+        # This is an opaque synthetic marker, not permission to bind a new inode.
+        marker = database.with_suffix(".sqlite3.authority.json")
+        marker.write_text('{"identity":"retained-id","inode":123}\n')
+        before = {p.name: p.read_bytes() for p in (database, marker)}
+        archive = self.base / "offline.tar.gz"
+        beta_ops.backup(self.layout, archive)
+        self.layout.data.rename(self.home / "original-data")
+        self.layout.config.rename(self.home / "original-config")
+        beta_ops.restore(self.layout, archive)
+        for name, content in before.items():
+            self.assertEqual((self.layout.data / name).read_bytes(), content)
+        with closing(sqlite3.connect(f"file:{database}?mode=ro", uri=True)) as connection:
+            self.assertEqual(connection.execute("PRAGMA integrity_check").fetchone(), ("ok",))
+            self.assertEqual(connection.execute("SELECT * FROM history").fetchall(),
+                             [("retained-id", "accepted")])
+
+    def test_backup_detects_new_file_during_staging(self):
+        self.seed_state()
+        original_copy = beta_ops.shutil.copyfile
+
+        def add_file(source, destination):
+            result = original_copy(source, destination)
+            (self.layout.data / "new-event.json").write_text("{}\n")
+            return result
+
+        archive = self.base / "backup.tar.gz"
+        with mock.patch.object(beta_ops.shutil, "copyfile", side_effect=add_file):
+            with self.assertRaisesRegex(beta_ops.BetaOpsError, "state changed"):
+                beta_ops.backup(self.layout, archive)
+        self.assertFalse(archive.exists())
+
+    def test_standard_private_xdg_runtime_is_allowed_only_for_current_home(self):
+        from dataclasses import replace
+        from types import SimpleNamespace
+
+        parent = Path("/run/user") / str(os.getuid())
+        runtime = parent / "arda"
+        layout = replace(self.layout, runtime=runtime)
+        original_stat = Path.stat
+
+        def runtime_stat(path, *args, **kwargs):
+            if path == parent:
+                return SimpleNamespace(st_uid=os.getuid(), st_mode=stat.S_IFDIR | 0o700)
+            return original_stat(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "home", return_value=self.home), \
+                mock.patch.object(Path, "stat", runtime_stat):
+            beta_ops.validate_state_path(runtime, layout, allow_external_runtime=True)
+            for role in ("config", "data", "cache", "launcher_data", "operation_state"):
+                with self.subTest(role=role), self.assertRaises(beta_ops.BetaOpsError):
+                    beta_ops.validate_layout(replace(layout, **{role: runtime}), read_only=True)
+            self.seed_state()
+            with self.assertRaises(beta_ops.BetaOpsError):
+                beta_ops.reset(layout, self.base / "refused-reset.tar.gz")
+            self.assertTrue(self.layout.config.exists())
+            self.assertTrue(self.layout.data.exists())
+            self.assertFalse((self.base / "refused-reset.tar.gz").exists())
+            with self.assertRaises(beta_ops.BetaOpsError):
+                beta_ops.validate_state_path(parent, replace(layout, runtime=parent), allow_external_runtime=True)
+            with self.assertRaises(beta_ops.BetaOpsError):
+                beta_ops.validate_state_path(runtime, replace(layout, home=self.home / "isolated"), allow_external_runtime=True)
+
+        def insecure_stat(path, *args, **kwargs):
+            if path == parent:
+                return SimpleNamespace(st_uid=os.getuid(), st_mode=stat.S_IFDIR | 0o755)
+            return original_stat(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "home", return_value=self.home), \
+                mock.patch.object(Path, "stat", insecure_stat):
+            with self.assertRaises(beta_ops.BetaOpsError):
+                beta_ops.validate_state_path(runtime, layout, allow_external_runtime=True)
+
     def test_restore_rejects_path_traversal(self):
         archive = self.base / "malicious.tar.gz"
         manifest = {

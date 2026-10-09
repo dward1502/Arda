@@ -23,7 +23,7 @@ The commands below never write to or delete the source repository. Mutable state
 | Installed launcher | `~/.local/lib/arda/arda-launcher` | selected by `--home` |
 | Launcher command | `~/.local/bin/arda-launcher` | selected by `--home` |
 
-`arda_beta_ops.py` refuses a mutable state or install root that is the source root, contains it, is inside it, is outside the selected home, or resolves to `/` or the home directory itself.
+`arda_beta_ops.py` refuses a mutable state or install root that is the source root, contains it, is inside it, is outside the selected home, or resolves to `/` or the home directory itself. For read-only readiness only, the sole external-home exception is the current user's `/run/user/<uid>/arda` runtime child, with a current-user-owned mode-0700 parent and the current HOME selected. An isolated `--home` cannot use that exception.
 
 ## 1. Build and verify the launcher
 
@@ -191,7 +191,15 @@ The command does not probe model quality or claim a provider request succeeded. 
 
 ## 4. Back up private-beta state
 
-The default archive includes regular files under config and persistent data. It refuses symlinks, writes the archive with mode `0600`, records SHA-256 hashes, and omits secret-named files such as `.env`, `arda.env`, credentials, tokens, passwords, and private keys.
+The default archive includes regular files under config and persistent data. It refuses symlinks, stages verified copies before archiving, detects ordinary file/inventory changes during staging, creates the temporary and final archive with mode `0600`, records SHA-256 hashes, and omits secret-named files such as `.env`, `arda.env`, credentials, tokens, passwords, and private keys.
+
+Stop all writers or use an already-quiescent copy before backup/restore. Stability
+checks are not a cross-store snapshot protocol, and a successful XDG archive does
+not cover repository-backed development state. Archives are private byte-preserving
+backups, not redacted public exports. A restored database and authority sidecar do
+not preserve filesystem identity or authorize a new database inode; use the owning
+Engine/keeper recovery procedure rather than rewriting markers. See
+[state lifecycle ownership](../operations/r09-state-lifecycle.md).
 
 ```bash
 python3 scripts/arda_beta_ops.py backup \
@@ -300,12 +308,13 @@ Recovery order:
 
 This workflow proves install mechanics, truthful readiness reporting, state
 backup/restore, quarantine reset, managed uninstall, and redacted diagnostics.
-The local U4 lifecycle receipt at
+The historical local U4 lifecycle receipt at
 `../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json`
-also proves default native startup, upgrade/rollback, terminal-run preservation,
-post-uninstall state preservation, and unchanged source identity for the current
-unsigned local candidate. It deliberately does not claim the final signed
-artifact gate. This workflow does not by itself prove:
+records native startup, upgrade/rollback, terminal-run preservation,
+post-uninstall state preservation, and unchanged source identity for its August
+unsigned artifact. It is not current-source or current-artifact qualification.
+It deliberately does not claim the final signed artifact gate.
+This workflow does not by itself prove:
 
 - sustained native HUD objective-to-review click-through;
 - live HUD event streaming;

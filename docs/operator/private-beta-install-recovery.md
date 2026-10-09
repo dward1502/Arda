@@ -144,6 +144,8 @@ installation commands exercised in the qualification account are:
 
 ```bash
 uv sync --project "$HERMES_SOURCE" --python 3.14 --frozen --no-dev --extra messaging
+# Run in the same account/HERMES_HOME that will own the gateway.
+"$HERMES_SOURCE/.venv/bin/hermes" config set gateway.systemd_watchdog_seconds 60
 "$HERMES_SOURCE/.venv/bin/hermes" gateway install --no-start-now --no-start-on-login
 ```
 
@@ -166,12 +168,20 @@ account's gateway and inspect real notifications:
 ARDA_HUD_NATIVE_SOURCE="$HUD_ARTIFACT" scripts/install_arda_user_units.sh
 systemctl --user restart hermes-gateway.service
 systemctl --user show hermes-gateway.service \
-  -p ActiveState -p SubState -p NRestarts \
+  -p ActiveState -p SubState -p NRestarts -p MainPID -p InvocationID \
   -p WatchdogUSec -p WatchdogTimestampMonotonic
 ```
 
-Observe the timestamp advancing across the watchdog cadence; a static timestamp
-or active process is not sustained-health evidence. Keep clean-account network
+Observe for at least 120 seconds with the 60-second watchdog: require advancing
+`WatchdogTimestampMonotonic`, unchanged `InvocationID`/`MainPID`, and no increase
+in `NRestarts`. An initial timestamp or active process is not sustained-health
+evidence. The drop-in sets the supervisor deadline only; Hermes' notifier also
+requires positive `gateway.systemd_watchdog_seconds` in its effective config.
+Without that opt-in the qualified revision defaults to zero and repeatedly times
+out. Its config CLI may warn that the key is unrecognized despite saving it;
+verify the actual gateway loader and advancing live notifications, not that
+warning or command success alone. The installer does not configure this opt-in.
+Keep clean-account network
 isolation: a different UID alone still shares the operator's loopback endpoints.
 This setup does not provision Arda's root runtime, authenticate a provider, or
 close native HUD/restore acceptance.

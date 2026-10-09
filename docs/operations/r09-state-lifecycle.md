@@ -54,7 +54,14 @@ Diagnostic export is a distinct existing command with best-effort pattern
 redaction; review its output before sharing. Retention defaults to preservation:
 no new scheduled deletion, external log truncation or tracked-state removal.
 
-## Runnable restore: bounded owner design
+## Runnable restore: separate capability design
+
+This section was added during qualification (`0b16556c`), not by the original
+R09 contract (`852d00f6`). It specifies a stronger future capability: authorizing
+a copied database to execute and retiring its predecessor. It is not an additional
+R09 exit gate. R09 credits offline copy restoration, original-authority recovery
+and state-preserving artifact rollback separately; none is runnable-copy recovery.
+Keep the following requirements intact if this separate capability is implemented.
 
 Original-identity reinstatement and backup-copy authorization are different gates.
 The installed qualification rejected an extracted database plus its copied marker

@@ -582,7 +582,7 @@ preserved its device/inode, marker hash and entire SQL history. Full managed
 root/keeper restart passed health and retained the terminal release
 (`original-reinstatement.json`). This is original-identity recovery, not runnable
 backup-copy authorization. The reviewed transfer design and adversarial acceptance
-are retained in [R09 state lifecycle](../operations/r09-state-lifecycle.md#runnable-restore-bounded-owner-design);
+are retained in [R09 state lifecycle](../operations/r09-state-lifecycle.md#runnable-restore-separate-capability-design);
 no transfer implementation or marker rewrite is claimed.
 
 The same reviewed tree built and installed native launcher SHA-256
@@ -651,11 +651,61 @@ All 28 beta-operations tests pass. Export from `3f5cb041` was exercised outside 
 repository working directory; its exported installer installed the exact launcher
 into a fresh isolated HOME, verified the artifact hash and uninstalled it. This
 closes neither native runtime acceptance of a complete package nor a full runtime
-distribution; the source change awaits independent review. The account Manwe uses governed defaults, not the
+distribution. The exporter is independently reviewed and committed as `e7460b7e`;
+its exact committed inputs were exported successfully. The account Manwe uses governed defaults, not the
 profile's edge_core provider. Temporary launcher/compositor/root/keeper units are
-stopped with `MainPID=0`; the previously running gateway was restored. Public release
-inputs, runnable copy restore and complete native acceptance remain open; R10/R11
-remain dependency-gated.
+stopped with `MainPID=0`; the previously running gateway was restored.
+
+The original R09 wording was independently checked against `852d00f6` and the
+unchanged referenced launcher acceptance. New-inode transfer/retirement is a
+stronger separate capability added during qualification, not an original R09 gate.
+Its design remains retained without weakening authority or claiming runnable-copy
+restore. Offline archive restoration and original-authority reinstatement remain
+separate accepted evidence boundaries.
+
+Populated installed artifact rollback now passes in the qualification account:
+upgrade from the current reviewed launcher to the retained prior readiness build,
+then rollback to SHA-256
+`93460da66cdf4857776d7deb1e225fd852e4b88aef9b6b699d92a46b75004395`.
+Complete SQL history (one objective, one retained release) and 13 retained files'
+bytes/device/inode matched before and after. The manifest records in-place state
+preservation and zero restored state files. Evidence:
+`/var/home/arda-qualification/evidence/populated-rollback-e7460b7e/result.json`.
+This does not claim backup-copy authorization or that the XDG archive includes
+source-backed runtime state.
+
+R09 remains open for the original post-restart desktop observation, not for a
+new restore-authority architecture. The real native HUD and static session units
+are now installed through `install_arda_user_units.sh` in the qualification
+account. HUD SHA-256:
+`25cf9a1bdd235c90608553f0b15848ef7d1348e9d2a0e866eb6570e29b8659fe`.
+The committed HUD inputs at `e7460b7e` built with pnpm 10.8.1 and the existing
+Tauri no-bundle entrypoint; this is not a self-contained runtime distribution.
+
+Retained account-local evidence under
+`/var/home/arda-qualification/evidence/native-hud-e7460b7e/`:
+
+- `installation.json`: installed artifact hash and loaded static HUD/session units.
+- `watchdog-acceptance.json`: six observations across 125 seconds, advancing
+  genuine watchdog timestamps, unchanged invocation/PID and zero restarts.
+  Missing `gateway.systemd_watchdog_seconds` was the cause of repeated 60-second
+  gateway deaths; setting it to 60 through Hermes' config CLI fixed sustained
+  liveness without altering the notifier or weakening the supervisor deadline.
+- `native-hud-acceptance.json`: actual installed launcher invoked native HUD only
+  after healthy root/gateway; session target active; real gateway outage removed
+  OPEN HUD; recovery and launcher reconnect retained backend/HUD identities;
+  closing/reopening HUD did not stop the independently owned backends.
+
+These are headless Wayland native lifecycle observations, not physical-display
+or reboot acceptance. The launcher segfaulted in Mesa with the default headless
+DMABUF path; the repeat passed with `WEBKIT_DISABLE_DMABUF_RENDERER=1` and software
+rendering. That is a qualification-environment workaround, not a graphics-driver
+repair or evidence of the normal physical desktop path. Root/keeper remain the
+explicit temporary qualification composition, not installed packaged services.
+The final original gate is a supported-profile restart and actual desktop launch
+with visible native HUD, using the intended persistent service composition.
+Do not reboot the active operator workstation or replace its services merely to
+produce this receipt. R10/R11 remain dependency-gated.
 
 ### R10 Connect evaluation to daily usefulness
 

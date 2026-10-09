@@ -181,7 +181,7 @@ Exit evidence: reproducible commands, CI results and explicit coverage/skip
 matrix. Root workspace success must not imply separate native-app success.
 
 Implementation and coverage are recorded in
-[source validation](../operations/source-validation.md). The GTK prerequisite
+[source validation](https://github.com/dward1502/Arda/blob/ee6d0d1833824b3a163ba96c6711d0a76bc222c4/docs/operations/source-validation.md). The GTK prerequisite
 was resolved on October 6 using a reusable Ubuntu 24.04 build image with GTK 3,
 WebKitGTK 4.1 and protoc. The full root workspace, including launcher, passes
 all-target/all-feature compilation; the earlier launcher exclusion is no longer
@@ -500,14 +500,18 @@ environment root, without silently falling back from a selected incomplete relea
 Its subprocess regression failed before the repair; 41 launcher native tests passed
 in the isolated build-source export.
 The environment-root repair is committed as `1b83ea38`; its native release build
-succeeded. Desktop persistence is now implemented in the pending follow-up: the
+succeeded. Desktop persistence is committed as `4ea15541`: the
 existing install manifest records the absolute release root, and native discovery
 reads it after explicit/environment overrides. A relocated native test executable
 selects the separate release with unset and empty `ARDA_ROOT`, rejects malformed
 records without selecting a decoy ancestor registry, and preserves legacy discovery
 when the manifest is absent. Both Python producer and native consumer regressions
-failed before repair; 26 Python and 42 native tests pass. Independent review,
-release rebuild and installed qualification are still pending.
+failed before repair; 26 Python and 42 native tests passed at that checkpoint.
+The source repair is retained; complete native lifecycle and runnable
+authority-preserving restore qualification remain open. Gateway watchdog
+integration and backup-failure refusal are committed as `f580a4bb`; incomplete
+rollback now preserves persistent recovery backups in `6c20c367` (five isolated
+installer tests and independent exact-tree review). These do not close R09.
 A separate qualification account also shares host loopback: launcher health and root
 Harness both use port 7171, already owned by the original runtime. Do not count that
 runtime's health as clean-account acceptance or start competing fixed-port services.

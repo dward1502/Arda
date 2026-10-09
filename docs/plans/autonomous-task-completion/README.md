@@ -6,11 +6,11 @@ soterion:
   role: "program_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-09-15"
+  reviewed: "2026-10-06"
   tags: ["task-loop", "scheduler", "verification", "continuation"]
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-09-15
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-10-06
 
 # Autonomous Task Completion — Gate 1 Acceptance
 
@@ -36,15 +36,18 @@ read-only. Legacy queue/schedule JSONL is not an intake or recovery fallback.
 
 ## Session index
 
-Each milestone has a dedicated execution plan below. Plans are session-friendly — start a new session, read the plan, execute, and mark checkboxes.
+The consolidated acceptance requirements below remain authoritative. Supporting
+session plans provide execution detail, not independent acceptance checkboxes.
+Status reconciled on 2026-10-08; historical run success does not establish all
+requirements in a milestone.
 
-| Milestone | Plan file | Status |
-|-----------|-----------|--------|
-| M1 | `M1_HERMES_OBJECTIVE_CONTROL.md` | ✅ Complete |
-| M2 | `M2_SCHEDULING_AND_RESTART.md` | ⬜ Not started |
-| M3 | `M3_LIVE_CRITIC_REVISION.md` | ⬜ Not started |
-| M4 | `M4_REAL_MULTI_PROJECT.md` | ⬜ Not started |
-| M5 | `M5_VAIRE_CONTINUITY.md` | ⬜ Not started |
+| Milestone | Execution detail | Current evidence boundary |
+|-----------|------------------|---------------------------|
+| M1 | [Consolidated M1 requirements](#m1--hermes-objective-control) | September 22 four-node run succeeded; M1.1–M1.5 acceptance remains unchecked. The formerly listed standalone M1 file is absent. |
+| M2 | [Scheduling and restart](M2_SCHEDULING_AND_RESTART.md) | Implementation/fixture evidence exists; genuine scenario acceptance remains open. |
+| M3 | [Critic revision](M3_LIVE_CRITIC_REVISION.md) | Current resident rejection → authenticated correction → fresh independent acceptance qualified October 6, including inherited retry cap and restart/replay preservation. |
+| M4 | [Real multi-project execution](M4_REAL_MULTI_PROJECT.md) | Closed for the admitted bounded source review, with concurrency, checks, isolation, joined close, restart preservation and current resident M3 prerequisite qualified. |
+| M5 | [Vaire continuity](M5_VAIRE_CONTINUITY.md) | CLI continuity and the October 7 operator verdict are retained; combined-lineage correction/privacy and intervention accounting remain open. |
 
 ## Evidence already available
 
@@ -69,7 +72,7 @@ IDs in canonical/private evidence, not public plan prose.
 
 ### M1 — Hermes objective control
 
-**Current status (2026-09-22):** Run `m1-gate1-execute-20260922` completed successfully — all 4 nodes succeeded.
+**Retained run evidence (2026-09-22; not full M1 acceptance):** Run `m1-gate1-execute-20260922` completed successfully — all 4 nodes succeeded.
 - Run `m1-gate1-acceptance-20260922`: plan node `m1-plan` succeeded (seq 4)
 - Run `m1-gate1-execute-20260922`: full 4-node graph executed to completion:
   - m1-plan → succeeded (seq 4)
@@ -115,13 +118,13 @@ execution is not made replay-safe by a verification-stage restart proof.
 
 ### M3 — Live critic revision
 
-- [ ] M3.1 — Bind materially independent implementer/verifier/critic identities and
+- [x] M3.1 — Bind materially independent implementer/verifier/critic identities and
   admitted provider/model provenance to this resident scenario.
-- [ ] M3.2 — Demonstrate a real critic rejection with named defects, rejected artifact
+- [x] M3.2 — Demonstrate a real critic rejection with named defects, rejected artifact
   identity and parent receipt, followed by a durable corrected revision and fresh
   verification/independent acceptance. Preserve the historical accepted chain where
   applicable; revalidate the changed resident boundary, not unrelated accepted work.
-- [ ] M3.3 — Verify synthetic, workerless, stale, cross-run and provenance-free review
+- [x] M3.3 — Verify synthetic, workerless, stale, cross-run and provenance-free review
   receipts cannot close the objective. A critic that only approves is insufficient.
 
 Exit gate: rejection → named defect → durable revision → corrected artifact →
@@ -129,16 +132,16 @@ independent acceptance is traceable under the current authority and attempt budg
 
 ### M4 — Real multi-project execution
 
-- [ ] M4.1 — Use two operator-reviewed real project contracts from the fabric owner,
+- [x] M4.1 — Use two operator-reviewed real project contracts from the fabric owner,
   not `target/arda-real-projects/...` proof roots. Bind exact roots, authority,
   acceptance/check commands, artifacts, budgets and provider constraints to leaves.
-- [ ] M4.2 — Run safe independent leaves with measured overlapping execution intervals
+- [x] M4.2 — Run safe independent leaves with measured overlapping execution intervals
   (start/end evidence, not receipt timestamps merely occurring within one second).
   Each project produces a useful human-visible result and passes its declared checks.
-- [ ] M4.3 — Preserve dirty operator work and prove physical-root aliases cannot
+- [x] M4.3 — Preserve dirty operator work and prove physical-root aliases cannot
   double-mutate. Use separately authorized disposable isolation fixtures; never
   force writes into read-only real projects to manufacture the test.
-- [ ] M4.4 — Join only validated predecessor receipts after both project contracts pass;
+- [x] M4.4 — Join only validated predecessor receipts after both project contracts pass;
   prove one receipt-backed root close and no completed-sibling replay after restart.
 
 Exit gate: one useful result spans two real projects with overlap, isolated authority,
@@ -146,23 +149,43 @@ per-project checks and one joined close. Single-host concurrency is acceptable;
 remote-device execution has separate ownership in the provider/personal plans.
 The removed M4 draft/payload is historical, not a valid approved intake request.
 
-Current retained acceptance is blocked, not completed: the reviewed daemon is
-installed, but the one authorized extra project-1 Verify start has no durable
-outcome at the post-expiry 2026-09-17 23:11 UTC observation. The unchanged recovery
-window expired at 23:10:13.065 UTC; no additional start is authorized. The observer
-has finished without establishing Verify success or termination. Project-2's bounded source assessment
-has original approval, but Paused/no-Resume controls still prevent its dispatch
-without scoped continuation or an explicit changed control decision. Project-2
-and join remain unstarted; neither overlap nor joined acceptance is established.
-The [cutover C3.2 record](../../archive/2026-09-01-arda-objective-runtime-cutover.md) owns
-installed identities, diagnostics, remaining safety gates and live observations.
-Its S1-S8 matrix orders continuation by operator interruption boundaries: lost
-response waiter, duplicate/reconnected caller, shutdown/control changes, actual
-HTTP disconnect, publication/cleanup replay, process loss, reviewed deployment,
-then live paired acceptance. The isolated waiter-drop defect is reproduced but
-not repaired. Local supervision qualification can proceed; it does not renew
-the expired grant or authorize project-2 dispatch. Do not treat a passing
-defect-characterization test as a positive recovery regression.
+Current installed evidence (October 6): objective
+`operator-objective-c98d83591ddab744` completed both bounded read-only project
+reviews and the joined Execute/Verify/Review/Close chain; Review approved the
+combined result. Project execution overlapped by 113,887 ms. Both complete report
+chains were consumed by the join. Original project receipts and workspace hashes
+remained unchanged. The failed join was discarded only under the operator's
+explicit development-reset instruction; the admitted project work was not replayed.
+
+Installed restart non-replay and disposable dirty/physical-alias isolation now
+pass. The shared Git cleanliness guard is installed in resident admission;
+blocked dirty writers do not starve eligible readers. All 24 retained run/outcome
+files, three memory outcomes and both project workspaces survive restart unchanged.
+The exact declared package checks pass as operator qualification; worker-native
+check execution and staging acceptance are not claimed.
+
+**M4 is closed for this admitted bounded scope.** Current resident M3 correction
+is now implemented and live-qualified on an authorized disposable helper:
+actual semantic rejection → immutable authenticated correction → fresh approval
+and execution → compilation verification → independent acceptance → terminal
+close. The original M4 project results were not replayed. M3 used four inherited
+attempts out of five and survived root restart and exact-event replay without
+new execution or duplicate memory. Evidence:
+`target/qualification/m3-critic-20261006/manifest.json`.
+
+The M3/M4 checkmarks record these current resident qualifications. Gate 1 still
+requires the genuine combined messaging outcome and the remaining M1/M2/M5
+obligations; a disposable fixture does not supply that scenario or the operator's
+whole-system reduced-burden verdict. The October 7 bounded M5 CLI verdict is
+retained below; remaining combined-lineage obligations do not reopen it.
+The [M4 owner](M4_REAL_MULTI_PROJECT.md) records scope and validation;
+`target/qualification/m4-closeout-20261006/manifest.json` indexes the new evidence.
+Mesh-llm remains off; routing is profile-selected, not model-specific code.
+
+The September retained-recovery incident is historical after the authorized
+October development reset. Its expired grant is not the current execution blocker.
+See the [cutover C3.2 record](../../archive/2026-09-01-arda-objective-runtime-cutover.md)
+for that incident; it does not replace today's evidence or remaining acceptance gates.
 
 ### M5 — Vaire continuity and operator acceptance
 

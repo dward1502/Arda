@@ -48,7 +48,20 @@ schedule authority and RunStore evidence; Manwë owns routing; Vairë owns memor
 Oromë communicates; Aulë observes/executes its bounded adapter role; Rúmil/HADES
 audits. Projections, timers and UI never become competing authority.
 
+## October 5 reliability continuation
+
+The operator-requested [reliability task list](CRATE_RELIABILITY_AND_ACCEPTANCE.md)
+orders findings from the [crate assessment](../audits/2026-10-05-crate-assessment.md).
+R01-R08 retain their bounded results. Continue R09 lifecycle/restore acceptance,
+then R10/R11; R04/R06 and the combined M1-M5 outcome retain their separate open
+requirements. Do not replay accepted M3/M4 or the October 7 M5 operator verdict.
+The list orders repairs without replacing product acceptance.
+
 ## Next-step sequence
+
+This retained product sequence describes the integration order, not the current
+work cursor. Its earlier intake checkpoint is historical; follow the reliability
+continuation above and preserve subsequent accepted milestones.
 
 This sequence applies the operator's 2026-09-16
 [product clarification](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md#persistent-responsibility-across-daily-life).
@@ -70,16 +83,16 @@ verification. Preserve the full product boundary while proving the shared loop.
    exercises the Python bridge through real HTTP/storage; transport delivery is
    a fixture. Verification: operator-message suite 26 passed/2 intentionally
    ignored, Python bridge 32 passed, Oromë bridge 6 passed, daemon build and
-   `--once --no-ui` smoke passed. Changes remain uncommitted. Independent re-review
+   `--once --no-ui` smoke passed. The bridge/intake source is retained in `4cefe02e`. Independent re-review
    found no blocking issue after repairing a cached-response cross-conversation
    collision, including legacy entries. The release daemon and source-matching
    bridge are now installed with rollback; daemon/gateway restarted, keeper
    unchanged and gateway reconnected. Live contracts are unchanged; the selected
    provider-route project remains read-only.
-   [Installed checkpoint](../../target/qualification/c31-admission-installed.json)
+   Operator-local installed checkpoint `target/qualification/c31-admission-installed.json`
    records exact identities and scheduler readiness. Installed-plugin fixture
    tests pass; that earlier checkpoint alone was not genuine delivery.
-   [Installed CLI intake/control acceptance](../../target/qualification/c31-cli-acceptance.json)
+   Operator-local CLI acceptance `target/qualification/c31-cli-acceptance.json`
    now closes C3.1: the retained operator request admitted the existing provider-route
    inspection, pause/resume worked, and exact replays left authority tables unchanged.
    Separate local authentication and persisted human-turn provenance avoid fabricated
@@ -113,11 +126,11 @@ verification. Preserve the full product boundary while proving the shared loop.
    deliverable. Adopt external components through G5 only for a demonstrated gap,
    inspecting existing aipkg/adapter support first.
 
-**Immediate continuation:** carry the admitted useful outcome through the existing
-execution-approval boundary, then verification. C3.1 intake/control is closed; do not restart a broad architecture
-audit, replace Hermes, create another backlog or claim automation repaired because
-documentation/context cleanup passed. This planning update grants no new execution,
-deployment, external-action or data-access authority.
+**Immediate continuation:** finish the reliability owner's R09 native lifecycle
+and authority-preserving restore requirements, then R10/R11. Preserve C3.1 and
+bounded M3/M4/M5 acceptance; combined M1/M2 and R04/R06 obligations remain open.
+Do not reopen accepted work, replace Hermes, create another backlog or treat
+documentation cleanup as runtime acceptance. Existing execution authority applies.
 
 ## Product gates
 
@@ -129,7 +142,7 @@ deployment, external-action or data-access authority.
   closes with verified artifacts and scoped Vairë receipts, and receives explicit
   operator reduced-burden acceptance.
 
-Dependency: [runtime cutover](2026-09-01-arda-objective-runtime-cutover.md) safety and
+Dependency: [runtime cutover](../archive/2026-09-01-arda-objective-runtime-cutover.md) safety and
 qualification; minimal approved projects/providers may be implemented ahead of
 Gates 2/3. Local fixture success cannot replace the genuine scenario.
 

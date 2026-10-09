@@ -22,7 +22,7 @@ local capacity when it meets requirements; stronger/paid capacity needs a justif
 role and authorized budget, not merely a configured name.
 
 Partial integration. [Historical provider repair](../audits/2026-09-07-objective-cutover-revalidation.md#provider-repair-and-independent-review-follow-up)
-records local/subscription routing. The [cutover](2026-09-01-arda-objective-runtime-cutover.md#retained-evidence)
+records local/subscription routing. The [cutover](../archive/2026-09-01-arda-objective-runtime-cutover.md#retained-evidence)
 adds bounded installed Hermes execution; neither proves the full selection/fallback
 matrix below. Old provider counts, the retired queue-executor route, port 5110
 claims and billing/health snapshots are not current runtime truth. Inspect only
@@ -51,9 +51,10 @@ admission-to-placement-to-receipt bindings before the canonical budget matrix.
 The [admission/receipt verification](../operations/provider-authority-verification-2026-10-07.md)
 passed 31 adapter tests, seven broker/profile tests and one explicit retained-runtime
 admission test. P2/P3 remain open: actual routes are checked in flight but canonical
-receipts retain wrapper identity; unknown billing does not establish a spending cap.
-Next bind verified upstream route evidence into the existing typed receipt owner,
-then qualify cumulative budget/fallback authority without rewriting old receipts.
+receipt qualification was incomplete at that checkpoint; unknown billing does not
+establish a spending cap. The [upstream route receipt implementation](../operations/provider-route-receipts-2026-10-07.md)
+is committed as `e4af8cbb`. Next qualify that contract on installed retained-worker
+execution and cumulative budget/fallback authority, without rewriting old receipts.
 
 ## Work checklist
 

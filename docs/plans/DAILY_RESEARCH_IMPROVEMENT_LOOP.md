@@ -23,16 +23,16 @@ This is not a daily digest or continual feature-generation mandate.
 
 Partial. The existing [nightly hygiene work](../operations/RUMIL_NIGHTLY_HYGIENE.md)
 records a script-only Hermes 03:17 job, finding lifecycle, material-change/weekly
-reminder reporting, read-only budgets and no repair executor. Pre-existing dirty
-Engine next-action integration offers fresh complete findings for review; it is
-not evidence the installed daemon consumes them. Preserve that work. This docs
-pass did not inspect/change scheduler configuration or deploy the Engine changes.
+reminder reporting, read-only budgets and no repair executor. Engine next-action
+integration is committed in `4cefe02e` and offers fresh complete findings for
+review. Source retention is not evidence the installed daemon consumes them;
+installed review-to-remedy and useful-cycle acceptance remain to be qualified.
 
 The September 15 user-manager inspection found the legacy autopilot and external-
 source-lane timers inactive. September 7 “active autopilot” claims are historical;
 do not reinstall old Warden/JSONL-writing units just to activate this plan. Full
 research-to-accepted-change and seven-cycle acceptance remain open. The
-[cutover](2026-09-01-arda-objective-runtime-cutover.md#c2--finish-retiring-competing-writers)
+[cutover](../archive/2026-09-01-arda-objective-runtime-cutover.md#c2--finish-retiring-competing-writers)
 owns remaining competing-writer retirement, not this plan.
 
 ## Canonical cycle

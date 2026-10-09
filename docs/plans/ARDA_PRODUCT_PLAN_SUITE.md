@@ -35,8 +35,9 @@ current state. Qualified installed evidence is narrower than current-source depl
 | Owner file | Owns | Current boundary / next gate |
 |---|---|---|
 | `ARDA_PRODUCT_PLAN_SUITE.md` | Navigation and dispositions only | No duplicate tasks |
+| [Reliability continuation](CRATE_RELIABILITY_AND_ACCEPTANCE.md) | Ordered remediation from the October 5 crate assessment | R01-R08 retain their scoped results; finish R09 lifecycle, then R10/R11, while preserving open R04/R06 obligations |
 | [Whole-system program](ARDA_WHOLE_SYSTEM_COMPLETION_PROGRAM.md) | Product Gates 1–6, external assimilation, broad personal usefulness | G1 open; G6 not reducible to autonomous work |
-|| [Runtime cutover](2026-09-01-arda-objective-runtime-cutover.md) | Retained runtime safety, producer retirement, deployment qualification | **Retired 2026-09-22**: C1–C3 gates passed, archived to docs/archive/ |
+| [Runtime cutover](../archive/2026-09-01-arda-objective-runtime-cutover.md) | Retained runtime safety, producer retirement, deployment qualification | Archived evidence; do not infer full acceptance from relocation. Bounded M4 acceptance is retained; remaining combined restart and restore obligations belong to M2 and R09. |
 | [Autonomous acceptance](autonomous-task-completion/README.md) | M1–M5 in one genuine operator scenario | Hermes → schedule/restart → critic revision → real projects → Vairë/operator verdict |
 | [Provider convergence](PROVIDER_WORKER_CONVERGENCE.md) | Policy-bound worker routing and actual receipts | Minimal routes support G1; full G2 matrix remains |
 | [Project fabric](CONNECTED_PROJECT_FABRIC.md) | Real bounded project contracts and relationships | Reviewed contracts support M4; broader approved scope stays distinct |
@@ -44,12 +45,13 @@ current state. Qualified installed evidence is narrower than current-source depl
 | [Personal experience](PERSONAL_SYSTEM_EXPERIENCE.md) | General media lifecycle/native acceptance and device-role reconciliation | Phone-image flow retained; media families, pin/pending/replay/privacy/performance open |
 | [HUD visual pass](arda-hud-visual-pass/README.md) | Residual styling/shell/native consistency | WS1–WS4 and native gates; no media or Mirromere duplication |
 
-Start with directly observed cutover defects and bounded failure-matrix review.
+Continue the reliability owner's R09 lifecycle and restore requirements; do not
+restart completed runtime diagnosis or accepted M3/M4/M5 qualification.
 Dependency-ready read-only media/research/personal work proceeds alongside repairs.
 Use approved real contracts and admitted routes for the genuine M1–M5 outcome,
 then qualify daily useful change. Do not wait for every provider or every discovered
 project before the first bounded real outcome. Preserve working services and
-operator-owned dirty work; this docs pass authorized no runtime change.
+operator-owned dirty work. Acceptance remains bounded by each owning plan.
 
 ## Checklist and gate convention
 
@@ -68,8 +70,9 @@ operator-owned dirty work; this docs pass authorized no runtime change.
 
 ## Consolidations and retained history
 
-The entry inventory contained 16 files (15 Markdown and one JSON). It now has
-nine active Markdown files listed above. Every former file is retained as a
+The September 15 entry inventory contained 16 files (15 Markdown and one JSON).
+Its consolidation produced nine active Markdown files at that time; this is not
+a current file count. Every former file is retained as a
 [historical snapshot](../archive/2026-09-15-plan-reconciliation/README.md).
 
 - The five `autonomous-task-completion/01-...` through `05-...` files are merged

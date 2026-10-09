@@ -66,6 +66,37 @@ class UserUnitInstallTests(unittest.TestCase):
         self.assertEqual(session.read_text(), previous_session)
         self.assertEqual(installed_hud.read_text(), 'previous HUD\n')
 
+    def test_failed_rollback_retains_recovery_backup(self):
+        import shutil
+        self.dest.parent.mkdir()
+        self.dest.write_text('previous watchdog\n')
+        bindir = self.home / 'bin'
+        bindir.mkdir()
+        wrapper = bindir / 'install'
+        wrapper.write_text(
+            '#!/bin/bash\n'
+            'if [[ "$2" == */arda-user-unit-install.*/arda-watchdog.conf ]]; then\n'
+            '  exit 1\nfi\n'
+            f'exec {shutil.which("install")} "$@"\n'
+        )
+        wrapper.chmod(0o700)
+        systemctl = bindir / 'systemctl'
+        systemctl.write_text('#!/bin/sh\nexit 1\n')
+        systemctl.chmod(0o700)
+        self.env.update(ARDA_SKIP_SYSTEMD_RELOAD='false',
+                        PATH=str(bindir) + ':' + os.environ['PATH'],
+                        TMPDIR=str(self.home))
+        for key in ('DISPLAY', 'WAYLAND_DISPLAY', 'DBUS_SESSION_BUS_ADDRESS',
+                    'XDG_SESSION_TYPE', 'XDG_RUNTIME_DIR'):
+            self.env.pop(key, None)
+        result = self.install()
+        self.assertNotEqual(result.returncode, 0)
+        backups = list(self.units.glob('arda-user-unit-install.*/arda-watchdog.conf'))
+        self.assertEqual(len(backups), 1, result.stderr)
+        self.assertEqual(backups[0].read_text(), 'previous watchdog\n')
+        self.assertIn(str(backups[0].parent), result.stderr)
+        self.assertIn('rollback incomplete', result.stderr)
+
     def test_failed_reload_restores_previous_watchdog(self):
         self.dest.parent.mkdir()
         self.dest.write_text('previous watchdog\n')

@@ -82,23 +82,26 @@ cleanup_backup() {
 }
 
 rollback() {
-  restore_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target" "$SESSION_HAD_PREVIOUS" 0644 || true
-  restore_path "$HUD_UNIT_DEST" "$BACKUP_DIR/arda-hud.service" "$HUD_UNIT_HAD_PREVIOUS" 0644 || true
-  restore_path "$MIRROMERE_UNIT_DEST" "$BACKUP_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_HAD_PREVIOUS" 0644 || true
-  restore_path "$GATEWAY_WATCHDOG_DEST" "$BACKUP_DIR/arda-watchdog.conf" "$GATEWAY_WATCHDOG_HAD_PREVIOUS" 0644 || true
+  local failed=0
+  restore_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target" "$SESSION_HAD_PREVIOUS" 0644 || failed=1
+  restore_path "$HUD_UNIT_DEST" "$BACKUP_DIR/arda-hud.service" "$HUD_UNIT_HAD_PREVIOUS" 0644 || failed=1
+  restore_path "$MIRROMERE_UNIT_DEST" "$BACKUP_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_HAD_PREVIOUS" 0644 || failed=1
+  restore_path "$GATEWAY_WATCHDOG_DEST" "$BACKUP_DIR/arda-watchdog.conf" "$GATEWAY_WATCHDOG_HAD_PREVIOUS" 0644 || failed=1
   if [[ "$HUD_BINARY_CHANGED" == "true" ]]; then
-    restore_path "$HUD_INSTALL_PATH" "$BACKUP_DIR/arda_hud" "$HUD_BINARY_HAD_PREVIOUS" 0755 || true
+    restore_path "$HUD_INSTALL_PATH" "$BACKUP_DIR/arda_hud" "$HUD_BINARY_HAD_PREVIOUS" 0755 || failed=1
   fi
   if [[ "$SKIP_RELOAD" != "true" ]]; then
-    systemctl_user daemon-reload >/dev/null 2>&1 || true
+    systemctl_user daemon-reload >/dev/null 2>&1 || failed=1
   fi
+  return "$failed"
 }
 
 on_exit() {
   local status=$?
   trap - EXIT
-  if [[ "$TRANSACTION_ACTIVE" == "true" ]]; then
-    rollback
+  if [[ "$TRANSACTION_ACTIVE" == "true" ]] && ! rollback; then
+    printf 'rollback incomplete; recovery backups retained at: %s\n' "$BACKUP_DIR" >&2
+    exit 1
   fi
   cleanup_backup
   exit "$status"
@@ -116,7 +119,8 @@ if [[ -z "$HUD_SOURCE" && ! -x "$HUD_INSTALL_PATH" ]]; then
 fi
 
 mkdir -p "$USER_UNIT_DIR" "$(dirname "$HUD_INSTALL_PATH")" "$(dirname "$GATEWAY_WATCHDOG_DEST")"
-BACKUP_DIR="$(mktemp -d "${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/arda-user-unit-install.XXXXXX")"
+# Recovery data must survive logout/reboot and temporary-directory cleanup.
+BACKUP_DIR="$(mktemp -d "$USER_UNIT_DIR/arda-user-unit-install.XXXXXX")"
 trap on_exit EXIT
 if backup_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target"; then
   SESSION_HAD_PREVIOUS=true

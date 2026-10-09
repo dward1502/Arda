@@ -1,18 +1,18 @@
-use crate::lifecycle::is_allowlisted_health_url;
 use crate::lifecycle::types::{
     Diagnostic, Freshness, HealthState, ObservationMetadata, ObservationSourceKind, Observed,
 };
 use chrono::{DateTime, Utc};
 use serde_json::Value;
+use std::borrow::Cow;
 use std::io::Read;
 use std::time::Duration;
 
 const HEALTH_TIMEOUT: Duration = Duration::from_secs(5);
 const MAX_HEALTH_BODY_BYTES: usize = 16 * 1024;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HealthProbeSpec {
-    pub url: &'static str,
+    pub url: Cow<'static, str>,
     expected_field: &'static str,
     expected_bool: bool,
 }
@@ -24,7 +24,7 @@ impl HealthProbeSpec {
         expected_bool: bool,
     ) -> Self {
         Self {
-            url,
+            url: Cow::Borrowed(url),
             expected_field,
             expected_bool,
         }
@@ -59,8 +59,10 @@ pub trait HealthClient {
     ) -> Result<HealthResponse, HealthProbeError>;
 }
 
-#[derive(Debug, Default, Clone, Copy)]
-pub struct ReqwestHealthClient;
+#[derive(Debug, Default, Clone)]
+pub struct ReqwestHealthClient {
+    pub(super) allowed_url: Option<String>,
+}
 
 impl HealthClient for ReqwestHealthClient {
     fn get(
@@ -69,10 +71,12 @@ impl HealthClient for ReqwestHealthClient {
         timeout: Duration,
         max_body_bytes: usize,
     ) -> Result<HealthResponse, HealthProbeError> {
-        if !is_allowlisted_health_url(url) {
+        if self.allowed_url.as_deref() != Some(url) {
             return Err(HealthProbeError::Transport);
         }
         let client = reqwest::blocking::Client::builder()
+            .no_proxy()
+            .redirect(reqwest::redirect::Policy::none())
             .connect_timeout(timeout)
             .timeout(timeout)
             .build()
@@ -108,7 +112,7 @@ pub fn observe_health<H: HealthClient>(
     probe: &HealthProbeSpec,
     observed_at: DateTime<Utc>,
 ) -> HealthObservationResult {
-    match client.get(probe.url, HEALTH_TIMEOUT, MAX_HEALTH_BODY_BYTES) {
+    match client.get(probe.url.as_ref(), HEALTH_TIMEOUT, MAX_HEALTH_BODY_BYTES) {
         Ok(response) => observe_response(probe, response, observed_at),
         Err(error) => unavailable_health(probe, error, observed_at),
     }
@@ -308,8 +312,66 @@ mod tests {
     }
 
     #[test]
+    fn production_client_probes_selected_port_without_following_redirects() {
+        use std::io::{Read, Write};
+        use std::net::TcpListener;
+        use std::time::Instant;
+        let decoy = TcpListener::bind("127.0.0.1:0").unwrap();
+        decoy.set_nonblocking(true).unwrap();
+        for (status, extra, body) in [
+            (200, String::new(), r#"{"ok":true}"#),
+            (
+                302,
+                format!(
+                    "Location: http://{}/healthz\r\n",
+                    decoy.local_addr().unwrap()
+                ),
+                "",
+            ),
+        ] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let url = format!("http://{}/healthz", listener.local_addr().unwrap());
+            listener.set_nonblocking(true).unwrap();
+            let server = std::thread::spawn(move || {
+                let deadline = Instant::now() + Duration::from_secs(3);
+                let mut stream = loop {
+                    match listener.accept() {
+                        Ok((stream, _)) => break stream,
+                        Err(error)
+                            if error.kind() == std::io::ErrorKind::WouldBlock
+                                && Instant::now() < deadline =>
+                        {
+                            std::thread::sleep(Duration::from_millis(5))
+                        }
+                        Err(error) => panic!("probe did not arrive: {error}"),
+                    }
+                };
+                stream
+                    .set_read_timeout(Some(Duration::from_secs(2)))
+                    .unwrap();
+                let mut request = [0; 4096];
+                let size = stream.read(&mut request).unwrap();
+                assert!(
+                    String::from_utf8_lossy(&request[..size]).starts_with("GET /healthz HTTP/1.1")
+                );
+                write!(stream, "HTTP/1.1 {status} Test\r\n{extra}Content-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).unwrap();
+            });
+            let client = ReqwestHealthClient {
+                allowed_url: Some(url.clone()),
+            };
+            let result = client.get(&url, Duration::from_secs(2), 1024);
+            server.join().unwrap();
+            assert_eq!(result.unwrap().status, status);
+            assert_eq!(
+                decoy.accept().unwrap_err().kind(),
+                std::io::ErrorKind::WouldBlock
+            );
+        }
+    }
+
+    #[test]
     fn production_client_rejects_non_allowlisted_urls_before_network_io() {
-        let error = ReqwestHealthClient
+        let error = ReqwestHealthClient::default()
             .get("http://127.0.0.1:9/health", Duration::from_secs(1), 128)
             .expect_err("non-allowlisted URL");
         assert_eq!(error, HealthProbeError::Transport);

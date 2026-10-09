@@ -18,6 +18,7 @@ pub mod learning;
 pub mod learning_adapter;
 pub mod ledger;
 pub mod llm;
+pub mod local_runtime_endpoint;
 pub mod loop_alerts;
 pub mod loop_economy;
 pub mod loop_engine;

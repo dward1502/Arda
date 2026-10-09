@@ -13,7 +13,7 @@ use types::{
     HealthState, ObservationMetadata, ObservationSourceKind, Observed, RecoveryActionId,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ComponentSpec {
     pub component_id: &'static str,
     pub class: ComponentClass,
@@ -23,7 +23,7 @@ pub struct ComponentSpec {
     pub recovery_action: RecoveryActionId,
 }
 
-const REQUIRED_COMPONENTS: [ComponentSpec; 2] = [
+static REQUIRED_COMPONENTS: [ComponentSpec; 2] = [
     ComponentSpec {
         component_id: "arda-runtime",
         class: ComponentClass::Required,
@@ -54,13 +54,6 @@ pub(super) fn is_allowlisted_unit(unit: &str) -> bool {
     REQUIRED_COMPONENTS.iter().any(|spec| spec.unit == unit)
 }
 
-pub(super) fn is_allowlisted_health_url(url: &str) -> bool {
-    REQUIRED_COMPONENTS
-        .iter()
-        .filter_map(|spec| spec.health_probe)
-        .any(|probe| probe.url == url)
-}
-
 pub fn observe_component<S: SystemdQuery, H: HealthClient>(
     spec: &ComponentSpec,
     systemd: &S,
@@ -87,13 +80,55 @@ pub fn observe_component<S: SystemdQuery, H: HealthClient>(
     }
 }
 
-pub fn observe_required_components(observed_at: DateTime<Utc>) -> Vec<ComponentObservation> {
-    let systemd = SystemctlQuery;
-    let health = ReqwestHealthClient;
+fn observe_selected_components<S: SystemdQuery, H: HealthClient>(
+    endpoint: Result<arda_core::local_runtime_endpoint::LocalRuntimeEndpoint, String>,
+    systemd: &S,
+    health: &H,
+    observed_at: DateTime<Utc>,
+) -> Vec<ComponentObservation> {
     required_component_specs()
         .iter()
-        .map(|spec| observe_component(spec, &systemd, &health, observed_at))
+        .map(|template| {
+            let mut spec = template.clone();
+            if spec.component_id == "arda-runtime" {
+                match &endpoint {
+                    Ok(endpoint) => {
+                        if let Some(probe) = spec.health_probe.as_mut() {
+                            probe.url = std::borrow::Cow::Owned(endpoint.health_url.clone());
+                        }
+                    }
+                    Err(_) => {
+                        spec.health_probe = None;
+                        let mut observation =
+                            observe_component(&spec, systemd, health, observed_at);
+                        observation.diagnostic = Diagnostic::new(
+                            "runtime-config-invalid",
+                            "Selected release has no valid local runtime endpoint",
+                        )
+                        .ok();
+                        return observation;
+                    }
+                }
+            }
+            observe_component(&spec, systemd, health, observed_at)
+        })
         .collect()
+}
+
+pub fn observe_required_components(observed_at: DateTime<Utc>) -> Vec<ComponentObservation> {
+    let endpoint = std::fs::read_to_string(crate::resolve_root(None).join("services.toml"))
+        .map_err(|error| error.to_string())
+        .and_then(|text| {
+            arda_core::local_runtime_endpoint::LocalRuntimeEndpoint::from_services_toml(&text)
+                .map_err(|error| error.to_string())
+        });
+    let health = ReqwestHealthClient {
+        allowed_url: endpoint
+            .as_ref()
+            .ok()
+            .map(|endpoint| endpoint.health_url.clone()),
+    };
+    observe_selected_components(endpoint, &SystemctlQuery, &health, observed_at)
 }
 
 fn watchdog_health(
@@ -254,6 +289,48 @@ mod tests {
                     .to_string(),
             )
         }
+    }
+
+    #[test]
+    fn selected_endpoint_never_uses_healthy_old_endpoint() {
+        struct Recording(std::cell::RefCell<Vec<String>>);
+        impl HealthClient for Recording {
+            fn get(
+                &self,
+                url: &str,
+                _: Duration,
+                _: usize,
+            ) -> Result<HealthResponse, HealthProbeError> {
+                self.0.borrow_mut().push(url.to_owned());
+                if url == "http://127.0.0.1:7171/healthz" {
+                    Ok(HealthResponse::new(200, br#"{"ok":true}"#.to_vec()))
+                } else {
+                    Err(HealthProbeError::Transport)
+                }
+            }
+        }
+        let health = Recording(Default::default());
+        let endpoint = arda_core::local_runtime_endpoint::LocalRuntimeEndpoint {
+            base_url: "http://127.0.0.1:17171".into(),
+            health_url: "http://127.0.0.1:17171/healthz".into(),
+        };
+        let components = super::observe_selected_components(
+            Ok(endpoint),
+            &ActiveSystemd,
+            &health,
+            observed_at(),
+        );
+        assert_eq!(*health.0.borrow(), vec!["http://127.0.0.1:17171/healthz"]);
+        assert_ne!(reduce_aggregate_state(&components), AggregateState::Healthy);
+        health.0.borrow_mut().clear();
+        let components = super::observe_selected_components(
+            Err("invalid explicit configuration".into()),
+            &ActiveSystemd,
+            &health,
+            observed_at(),
+        );
+        assert!(health.0.borrow().is_empty());
+        assert_ne!(reduce_aggregate_state(&components), AggregateState::Healthy);
     }
 
     struct UnhealthyHealth;

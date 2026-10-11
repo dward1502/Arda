@@ -1,0 +1,6 @@
+{
+  "served_sha256": "9f36ab8f70ce878872cf86a0e278336f3090302a52154d8f0313196706e3bb4f",
+  "served_plus_one_newline_sha256": "59a64ebb4df6d1489d09a91267cf3ceb106162d4a893c4f84833cfb8c897ff63",
+  "difference": "exactly one terminal newline; no other content difference",
+  "initial_batch": "p4-mimo9b-batch.json"
+}

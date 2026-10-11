@@ -1,0 +1,23 @@
+{
+  "command": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "-p",
+    "MemoryMax=8G",
+    "-p",
+    "MemorySwapMax=0",
+    "-p",
+    "RuntimeMaxSec=180",
+    "-p",
+    "RestrictAddressFamilies=AF_UNIX",
+    "/var/home/mythos/.hermes/cache/scratch/inference-voice-venv/bin/python",
+    "-I",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/local-whisper-reviewed-probe.py"
+  ],
+  "stdout": "{\"audio\": \"speech\", \"vad\": false, \"text\": \"Please research local inference and review the code changes.\", \"seconds\": 5.289879938995, \"audio_seconds\": 3.657375, \"word_errors\": 0, \"wer\": 0.0, \"false_activation\": null}\n{\"audio\": \"speech\", \"vad\": true, \"text\": \"Please research local inference and review the code changes.\", \"seconds\": 5.06462395604467, \"audio_seconds\": 3.657375, \"word_errors\": 0, \"wer\": 0.0, \"false_activation\": null}\n{\"audio\": \"silence\", \"vad\": false, \"text\": \"Thank you.\", \"seconds\": 5.137578865978867, \"audio_seconds\": 3.0, \"word_errors\": 2, \"wer\": null, \"false_activation\": true}\n{\"audio\": \"silence\", \"vad\": true, \"text\": \"\", \"seconds\": 0.012000882998108864, \"audio_seconds\": 3.0, \"word_errors\": 0, \"wer\": null, \"false_activation\": false}\n",
+  "stderr": "Running as unit: run-p3336923-i3344349.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 18.505s\nCPU time consumed: 1min 4.548s\nMemory peak: 1.5G (swap: 0B)\n",
+  "exit_code": 0
+}

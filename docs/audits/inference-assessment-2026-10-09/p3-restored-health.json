@@ -1,0 +1,14 @@
+{
+  "core": {
+    "status": "ok"
+  },
+  "warden": {
+    "status": "ok"
+  },
+  "bonsai": {
+    "status": "ok"
+  },
+  "nanbeige": {
+    "status": "ok"
+  }
+}

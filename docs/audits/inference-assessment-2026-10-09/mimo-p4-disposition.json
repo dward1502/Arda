@@ -1,0 +1,30 @@
+{
+  "decision": "restrict: assessment-only; no production promotion",
+  "reason": "Successful simple native streamed read/grounding, but default recovery exceeds bounded task envelope and reversed-argument native parser regression remains.",
+  "local_failure_controls": [
+    {
+      "file": "mimo-broken-stream-local-result.json",
+      "sha256": "28008a22fdd29f4f90600c1efae7355fd34a0e59a9ff0e9fac9eddd38674e4e5",
+      "timeout": true,
+      "exit_code": null,
+      "duration_ms": null,
+      "tool_calls": 0,
+      "tool_results": 0,
+      "final": ""
+    },
+    {
+      "file": "mimo-broken-stream-no-recovery-result.json",
+      "sha256": "4546262c349c9a282b99092825582225b7076c74bb8280095d14b8427d5751f9",
+      "timeout": false,
+      "exit_code": 1,
+      "duration_ms": 8299,
+      "tool_calls": 0,
+      "tool_results": 0,
+      "final": "custom returned a server error on all 3 attempts \u2014 it looks temporarily unavailable. Wait a minute and send /retry, or switch models with /model. To avoid this in future, add a backup provider with `hermes fallback add`.\n\nProvider said: HTTP 502: Agent error: manwe \u2014 Agent error: manwe \u2014 no provider available for request (priority=normal, strict=false); rejected_providers=[{\"details\":null,\"pacing_state\":\"available\",\"provider_id\":\"edge_core\",\"reason\":\"provider_unhealthy\",\"tier\":\"local\"},{\"details\":null,\"pacing_state\":\"available\",\"provider_id\""
+    }
+  ],
+  "root_cause_evidence": "Two timed stack dumps show Hermes auto_recover_after_exhaustion -> interruptible_backoff_sleep. Setting only isolated agent.auto_recovery_cycles=0 produces exit 1 with explicit provider failure and no tool execution. This is a restricted configuration qualification, not a default-runtime fix.",
+  "next_gate": "Review default recovery/budget interaction separately; compare retained candidate outcomes and allocation, do not retry known reversed parser failure.",
+  "production_changes": false,
+  "review": "deleg_7005c185 accepted restricted failure comparison and assessment-only disposition; default recovery remains unqualified"
+}

@@ -1,0 +1,332 @@
+{
+  "utc": "2026-10-11T04:35:19.065644+00:00",
+  "scope": "direct CPU specialist smoke, not routed or placement qualification",
+  "model_sha256": "e0406663965846ae22a403456eb826ccce5f450840491f71952f18a7cb78e7d5",
+  "binary_sha256": "6b8a4e71a274fd7b8048b2b0b84d065262f313f7f1b985934fe403247b2b2c6e",
+  "cases": [
+    {
+      "name": "extract",
+      "prompt": "Return only JSON with keys service and state. Record: service=backup; state=failed. No other facts are available.",
+      "expected": {
+        "service": "backup",
+        "state": "failed"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"service\": \"backup\",\n  \"state\": \"failed\"\n}"
+            }
+          }
+        ],
+        "created": 1791693324,
+        "model": "granite-specialist",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 20,
+          "prompt_tokens": 40,
+          "total_tokens": 60,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-9RjR1vyHwgJUyyX3VBMOpWUi5fnYl5oK",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 40,
+          "prompt_ms": 1456.447,
+          "prompt_per_token_ms": 36.411175,
+          "prompt_per_second": 27.46409584420168,
+          "predicted_n": 20,
+          "predicted_ms": 1385.428,
+          "predicted_per_token_ms": 72.91726315789474,
+          "predicted_per_second": 13.714173526159422
+        }
+      },
+      "passed": true,
+      "elapsed_s": 2.8462230730074225
+    },
+    {
+      "name": "classify",
+      "prompt": "Reply exactly ATTENTION or HEALTHY. Backup job failed; the web service is healthy. Does the backup job require attention?",
+      "expected": "ATTENTION",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "ATTENTION"
+            }
+          }
+        ],
+        "created": 1791693325,
+        "model": "granite-specialist",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 40,
+          "total_tokens": 43,
+          "prompt_tokens_details": {
+            "cached_tokens": 8
+          }
+        },
+        "id": "chatcmpl-pUw5U1gF1Wsp75y1IOpq7fhC9buvqmq1",
+        "timings": {
+          "cache_n": 8,
+          "prompt_n": 32,
+          "prompt_ms": 1091.815,
+          "prompt_per_token_ms": 34.11921875,
+          "prompt_per_second": 29.308994655688004,
+          "predicted_n": 3,
+          "predicted_ms": 145.797,
+          "predicted_per_token_ms": 72.8985,
+          "predicted_per_second": 13.717703382099769
+        }
+      },
+      "passed": true,
+      "elapsed_s": 1.2439099059993168
+    },
+    {
+      "name": "source-summary",
+      "prompt": "Use only these sources. [A] January: port 7000. [B] February correction: port 7001 replaces 7000. Reply exactly 7001 [B].",
+      "expected": "7001 [B]",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "7001"
+            }
+          }
+        ],
+        "created": 1791693327,
+        "model": "granite-specialist",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 53,
+          "total_tokens": 56,
+          "prompt_tokens_details": {
+            "cached_tokens": 8
+          }
+        },
+        "id": "chatcmpl-dK8YozXqjEExuIDWN8U5Tpl9JGGFLYkL",
+        "timings": {
+          "cache_n": 8,
+          "prompt_n": 45,
+          "prompt_ms": 1654.657,
+          "prompt_per_token_ms": 36.770155555555554,
+          "prompt_per_second": 27.195968711340175,
+          "predicted_n": 3,
+          "predicted_ms": 146.341,
+          "predicted_per_token_ms": 73.1705,
+          "predicted_per_second": 13.666709944581491
+        }
+      },
+      "passed": false,
+      "elapsed_s": 1.8073190989962313
+    },
+    {
+      "name": "abstain",
+      "prompt": "The supplied record gives service name backup but no execution time. Return exactly UNKNOWN for its execution time.",
+      "expected": "UNKNOWN",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "UNKNOWN"
+            }
+          }
+        ],
+        "created": 1791693328,
+        "model": "granite-specialist",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 2,
+          "prompt_tokens": 35,
+          "total_tokens": 37,
+          "prompt_tokens_details": {
+            "cached_tokens": 8
+          }
+        },
+        "id": "chatcmpl-PgA9UbDoFCjYqfP2MN4PCIhBwe8nkrMV",
+        "timings": {
+          "cache_n": 8,
+          "prompt_n": 27,
+          "prompt_ms": 1042.857,
+          "prompt_per_token_ms": 38.62433333333333,
+          "prompt_per_second": 25.890414505536235,
+          "predicted_n": 2,
+          "predicted_ms": 72.753,
+          "predicted_per_token_ms": 72.753,
+          "predicted_per_second": 13.74513765755364
+        }
+      },
+      "passed": true,
+      "elapsed_s": 1.121635299990885
+    }
+  ],
+  "baseline": {
+    "8097": {
+      "status": "ok"
+    },
+    "8098": {
+      "status": "ok"
+    }
+  },
+  "launch": [
+    "systemd-run",
+    "--user",
+    "--unit=inference-assessment-granite-role",
+    "--property=RuntimeMaxSec=240",
+    "--property=MemoryMax=8G",
+    "--property=MemorySwapMax=0",
+    "--property=CPUQuota=400%",
+    "--setenv=CUDA_VISIBLE_DEVICES=",
+    "--setenv=LD_LIBRARY_PATH=/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430:/var/home/annunimas-server/inference-assessment/b11430-cuda/cudart-llama-b11430-bin-ubuntu-cuda-12.8-x64",
+    "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server",
+    "-m",
+    "/var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part",
+    "--alias",
+    "granite-specialist",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18129",
+    "-c",
+    "4096",
+    "-np",
+    "1",
+    "-ngl",
+    "0",
+    "-t",
+    "4",
+    "--jinja"
+  ],
+  "start": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Running as unit: inference-assessment-granite-role.service; invocation ID: 1227a0ba02a34a7781d86943bd45dfe2\n"
+  },
+  "health": {
+    "status": "ok"
+  },
+  "props": {
+    "default_generation_settings": {
+      "params": {
+        "seed": 4294967295,
+        "temperature": 1.0,
+        "dynatemp_range": 0.0,
+        "dynatemp_exponent": 1.0,
+        "top_k": 40,
+        "top_p": 0.949999988079071,
+        "min_p": 0.05000000074505806,
+        "top_n_sigma": -1.0,
+        "xtc_probability": 0.0,
+        "xtc_threshold": 0.10000000149011612,
+        "typical_p": 1.0,
+        "repeat_last_n": 64,
+        "repeat_penalty": 1.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "dry_multiplier": 0.0,
+        "dry_base": 1.75,
+        "dry_allowed_length": 2,
+        "dry_penalty_last_n": 64,
+        "mirostat": 0,
+        "mirostat_tau": 5.0,
+        "mirostat_eta": 0.10000000149011612,
+        "adaptive_target": -1.0,
+        "adaptive_decay": 0.8999999761581421,
+        "max_tokens": -1,
+        "n_predict": -1,
+        "n_keep": 0,
+        "n_discard": 0,
+        "ignore_eos": false,
+        "stream": false,
+        "n_probs": 0,
+        "min_keep": 0,
+        "chat_format": "Content-only",
+        "reasoning_format": "none",
+        "reasoning_in_content": false,
+        "generation_prompt": "",
+        "samplers": [
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "top_p",
+          "min_p",
+          "xtc",
+          "temperature"
+        ],
+        "speculative.types": "none",
+        "timings_per_token": false,
+        "post_sampling_probs": false,
+        "backend_sampling": false,
+        "lora": []
+      },
+      "n_ctx": 4096
+    },
+    "total_slots": 1,
+    "model_alias": "granite-specialist",
+    "model_ftype": "Q4_K - Medium",
+    "model_path": "/var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part",
+    "modalities": {
+      "vision": false,
+      "video": false,
+      "audio": false
+    },
+    "media_marker": "<__media_HffrqxBABYCAzHtr4AC89O2QPpRyRDnh__>",
+    "endpoint_slots": true,
+    "endpoint_props": false,
+    "endpoint_metrics": false,
+    "ui": true,
+    "ui_settings": {},
+    "chat_template": "{%- macro tool_to_json(tool) -%}\n    {%- set ns_tool = namespace(first=true) -%}\n    {{- '{' -}}\n    {%- for k, v in tool.items() -%}\n        {%- if k != 'defer_loading' and k != 'strict' -%}\n            {%- if not ns_tool.first -%}{{- ', ' -}}{%- endif -%}\n            {%- set ns_tool.first = false -%}\n            {{- '\"' ~ k ~ '\": ' ~ (v | tojson(ensure_ascii=False)) -}}\n        {%- endif -%}\n    {%- endfor -%}\n    {{- '}' -}}\n{%- endmacro -%}\n{%- set enable_thinking = enable_thinking if enable_thinking is defined else True %}\n{%- set low_effort = low_effort if low_effort is defined else False %}\n{%- if reasoning_effort is defined and reasoning_effort is not none %}\n    {%- set low_effort = reasoning_effort == \"low\" %}\n{%- endif %}\n{%- set truncate_history_thinking = truncate_history_thinking if truncate_history_thinking is defined else True %}\n\n{%- set ns = namespace(last_user_idx = -1) %}\n{%- set loop_messages = messages %}\n{%- for m in loop_messages %}\n  {%- if m[\"role\"] == \"user\" %}\n    {%- set ns.last_user_idx = loop.index0 %}\n  {%- endif %}\n{%- endfor %}\n\n{%- if messages[0][\"role\"] == \"system\" %}\n    {%- set system_message = messages[0][\"content\"] %}\n    {%- set loop_messages = messages[1:] %}\n{%- else %}\n    {%- set system_message = \"\" %}\n    {%- set loop_messages = messages %}\n{%- endif %}\n{%- if not tools is defined %}\n    {%- set tools = [] %}\n{%- endif %}\n{# Recompute last_user_idx relative to loop_messages after handling system #}\n{%- set ns = namespace(last_user_idx = -1) %}\n{%- for m in loop_messages %}\n  {%- if m[\"role\"] == \"user\" %}\n    {%- set ns.last_user_idx = loop.index0 %}\n  {%- endif %}\n{%- endfor %}\n{%- if system_message is defined %}\n    {{- \"<|im_start|>system\\n\" + system_message }}\n{%- else %}\n    {%- if tools is iterable and tools | length > 0 %}\n        {{- \"<|im_start|>system\\n\" }}\n    {%- endif %}\n{%- endif %}\n{%- if tools is iterable and tools | length > 0 %}\n    {%- if system_message is defined and system_message | length > 0 %}\n        {{- \"\\n\\n\" }}\n    {%- endif %}\n    {{- \"# Tools\\n\\nYou have access to the following functions:\\n\\n\" }}\n    {{- \"<tools>\" }}\n    {%- for tool in tools %}\n        {%- if tool.function is defined %}\n            {%- set tool = tool.function %}\n        {%- endif %}\n        {%- if tool.defer_loading is not defined or not tool.defer_loading %}\n            {{- '\\n' ~ tool_to_json(tool) }}\n        {%- endif %}\n    {%- endfor %}\n    {{- \"\\n</tools>\" }}\n\n    {{- '\\n\\nIf you choose to call a function ONLY reply in the following format with NO suffix:\\n\\n<tool_call>\\n<function=example_function_name>\\n<parameter=example_parameter_1>\\nvalue_1\\n</parameter>\\n<parameter=example_parameter_2>\\nThis is the value for the second parameter\\nthat can span\\nmultiple lines\\n</parameter>\\n</function>\\n</tool_call>\\n\\n<IMPORTANT>\\nReminder:\\n- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags\\n- Required parameters MUST be specified\\n- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after\\n- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls\\n</IMPORTANT>' }}\n{%- endif %}\n\n\n{%- if system_message is defined %}\n    {{- '<|im_end|>\\n' }}\n{%- else %}\n    {%- if tools is iterable and tools | length > 0 %}\n        {{- '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n\n{%- for message in loop_messages %}\n    {%- if message.role == \"assistant\" %}\n        {# Add reasoning content in to content field for unified processing below. #}\n        {%- if message.reasoning_content is defined and message.reasoning_content is string and message.reasoning_content | trim | length > 0 %}\n            {%- set content = \"<think>\\n\" ~ message.reasoning_content ~ \"\\n</think>\\n\" ~ (message.content | default('', true)) %}\n        {%- else %}\n            {%- set content = message.content | default('', true) %}\n            {%- if content is string -%}\n                {# Allow downstream logic to to take care of broken thought, only handle coherent reasoning here. #}\n                {%- if '<think>' not in content and '</think>' not in content -%}\n                    {%- set content = \"<think></think>\" ~ content -%}\n                {%- endif -%}\n            {%- else -%}\n                {%- set content = content -%}\n            {%- endif -%}\n        {%- endif %}\n        {%- if message.tool_calls is defined and message.tool_calls is iterable and message.tool_calls | length > 0 %}\n            {# Assistant message has tool calls. #}\n            {{- '<|im_start|>assistant\\n' }}\n                {%- set include_content = not (truncate_history_thinking and loop.index0 < ns.last_user_idx) %}\n                {%- if content is string and content | trim | length > 0 %}\n                    {%- if include_content %}\n                        {{- (content | trim) ~ '\\n' -}}\n                    {%- else %}\n                        {%- set c = (content | string) %}\n                        {%- if '</think>' in c %}\n                            {# Keep only content after the last closing think. Also generation prompt causes this. #}\n                            {%- set c = c.split('</think>')[-1] %}\n                        {%- elif '<think>' in c %}\n                            {# If <think> was opened but never closed, drop the trailing think segment #}\n                            {%- set c = c.split('<think>')[0] %}\n                        {%- endif %}\n                        {%- set c = \"<think></think>\" ~ c | trim %}\n                        {%- if c | length > 0 %}\n                            {{- c ~ '\\n' -}}\n                        {%- endif %}\n                    {%- endif %}\n                {%- else %}\n                    {{- \"<think></think>\" -}}\n                {%- endif %}\n                {%- for tool_call in message.tool_calls %}\n                    {%- if tool_call.function is defined %}\n                        {%- set tool_call = tool_call.function %}\n                    {%- endif %}\n                    {{- '<tool_call>\\n<function=' ~ tool_call.name ~ '>\\n' -}}\n                        {%- if tool_call.arguments is defined %}\n                            {%- for args_name, args_value in tool_call.arguments|items %}\n                                {{- '<parameter=' ~ args_name ~ '>\\n' -}}\n                                    {%- set args_value = args_value | tojson | safe if args_value is mapping or (args_value is sequence and args_value is not string) else args_value | string %}\n                                {{- args_value ~ '\\n</parameter>\\n' -}}\n                            {%- endfor %}\n                        {%- endif %}\n                    {{- '</function>\\n</tool_call>\\n' -}}\n                {%- endfor %}\n                {{- '<|im_end|>\\n' }}\n        {%- else %}\n            {# Assistant message doesn't have tool calls. #}\n            {%- if not (truncate_history_thinking and loop.index0 < ns.last_user_idx) %}\n                {{- '<|im_start|>assistant\\n' ~ (content | default('', true) | string | trim) ~ '<|im_end|>\\n' }}\n            {%- else %}\n                {%- set c = (content | default('', true) | string) %}\n                {%- if '<think>' in c and '</think>' in c %}\n                    {%- set c = \"<think></think>\" ~ c.split('</think>')[-1] %}\n                {%- endif %}\n                {%- set c = c | trim %}\n                {%- if c | length > 0 %}\n                    {{- '<|im_start|>assistant\\n' ~ c ~ '<|im_end|>\\n' }}\n                {%- else %}\n                    {{- '<|im_start|>assistant\\n<|im_end|>\\n' }}\n                {%- endif %}\n            {%- endif %}\n        {%- endif %}\n    {%- elif message.role == \"user\" or message.role == \"system\" %}\n        {{- '<|im_start|>' + message.role + '\\n' }}\n        {%- set content = message.content | string %}\n        {%- if message.role == \"user\" and loop.index0 == ns.last_user_idx and low_effort %}\n            {{- content + '\\n\\n{reasoning effort: low}' }}\n        {%- else %}\n            {{- content }}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.previtem and loop.previtem.role != \"tool\" %}\n            {{- '<|im_start|>user\\n' }}\n        {%- endif %}\n        {{- '<tool_response>\\n' }}\n        {{- message.content }}\n        {{- '\\n</tool_response>\\n' }}\n        {%- if not loop.last and loop.nextitem.role != \"tool\" %}\n            {{- '<|im_end|>\\n' }}\n        {%- elif loop.last %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- else %}\n        {{- '<|im_start|>' + message.role + '\\n' + message.content + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endfor %}\n\n{%- if add_generation_prompt %}\n    {%- if enable_thinking %}\n        {{- '<|im_start|>assistant\\n<think>\\n' }}\n    {%- else %}\n        {{- '<|im_start|>assistant\\n<think></think>' }}\n    {%- endif %}\n{%- endif %}",
+    "chat_template_caps": {
+      "supports_object_arguments": true,
+      "supports_parallel_tool_calls": true,
+      "supports_preserve_reasoning": true,
+      "supports_reasoning_effort": true,
+      "supports_string_content": true,
+      "supports_system_role": true,
+      "supports_tool_calls": true,
+      "supports_tools": true,
+      "supports_typed_content": false
+    },
+    "bos_token": "<s>",
+    "eos_token": "<|im_end|>",
+    "build_info": "b11430-8345f3339",
+    "is_sleeping": false,
+    "cors_proxy_enabled": false
+  },
+  "resources": "MemoryPeak=2031292416\nCPUUsageNSec=30968912000\n",
+  "stop_exit": 0,
+  "state_after": "inactive",
+  "log": "Oct 10 21:35:19 bluefin systemd[2130]: Started inference-assessment-granite-role.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server -m /var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part --alias granite-specialist --host 127.0.0.1 --port 18129 -c 4096 -np 1 -ngl 0 -t 4 --jinja.\nOct 10 21:35:19 bluefin llama-server[20732]: 0.00.107.730 E ggml_cuda_init: failed to initialize CUDA: no CUDA-capable device is detected\nOct 10 21:35:19 bluefin llama-server[20732]: 0.00.114.975 I srv  llama_server: initializing ...\nOct 10 21:35:19 bluefin llama-server[20732]: 0.00.114.988 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\nOct 10 21:35:19 bluefin llama-server[20732]: 0.00.115.390 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)\nOct 10 21:35:19 bluefin llama-server[20732]: 0.00.118.376 I srv    load_model: loading model '/var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part'\nOct 10 21:35:21 bluefin llama-server[20732]: 0.02.290.241 I cmn          init: llama threadpool init, n_threads = 4\nOct 10 21:35:21 bluefin llama-server[20732]: 0.02.590.621 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 4096, kv_unified = 'false'\nOct 10 21:35:21 bluefin llama-server[20732]: 0.02.595.184 W srv          init: chat template supports preserving reasoning, it is enabled by default (may use more tokens, disable via --no-reasoning-preserve)\nOct 10 21:35:21 bluefin llama-server[20732]: 0.02.595.226 I srv  llama_server: model loaded\nOct 10 21:35:21 bluefin llama-server[20732]: 0.02.595.230 I srv  llama_server: listening on http://127.0.0.1:18129\nOct 10 21:35:21 bluefin llama-server[20732]: 0.02.735.280 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 10 21:35:21 bluefin llama-server[20732]: 0.02.735.384 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 10 21:35:24 bluefin llama-server[20732]: 0.05.577.298 I slot print_timing: id  0 | task 0 | prompt eval time =    1456.45 ms /    40 tokens (   36.41 ms per token,    27.46 tokens per second)\nOct 10 21:35:24 bluefin llama-server[20732]: 0.05.577.302 I slot print_timing: id  0 | task 0 |        eval time =    1385.43 ms /    20 tokens (   72.92 ms per token,    13.71 tokens per second)\nOct 10 21:35:24 bluefin llama-server[20732]: 0.05.577.303 I slot print_timing: id  0 | task 0 |       total time =    2841.88 ms /    60 tokens\nOct 10 21:35:24 bluefin llama-server[20732]: 0.05.577.308 I slot print_timing: id  0 | task 0 |    graphs reused =         19\nOct 10 21:35:24 bluefin llama-server[20732]: 0.05.577.345 I slot      release: id  0 | task 0 | stop processing: n_tokens = 59, truncated = 0\nOct 10 21:35:24 bluefin llama-server[20732]: 0.05.580.883 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.200 (> 0.100 thold), f_keep = 0.136\nOct 10 21:35:24 bluefin llama-server[20732]: 0.05.583.812 I slot launch_slot_: id  0 | task 21 | processing task, is_child = 0\nOct 10 21:35:25 bluefin llama-server[20732]: 0.06.821.451 I slot print_timing: id  0 | task 21 | prompt eval time =    1091.82 ms /    32 tokens (   34.12 ms per token,    29.31 tokens per second)\nOct 10 21:35:25 bluefin llama-server[20732]: 0.06.821.456 I slot print_timing: id  0 | task 21 |        eval time =     145.80 ms /     3 tokens (   72.90 ms per token,    13.72 tokens per second)\nOct 10 21:35:25 bluefin llama-server[20732]: 0.06.821.456 I slot print_timing: id  0 | task 21 |       total time =    1237.61 ms /    35 tokens\nOct 10 21:35:25 bluefin llama-server[20732]: 0.06.821.458 I slot print_timing: id  0 | task 21 |    graphs reused =         20\nOct 10 21:35:25 bluefin llama-server[20732]: 0.06.821.479 I slot      release: id  0 | task 21 | stop processing: n_tokens = 42, truncated = 0\nOct 10 21:35:25 bluefin llama-server[20732]: 0.06.826.715 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.151 (> 0.100 thold), f_keep = 0.190\nOct 10 21:35:25 bluefin llama-server[20732]: 0.06.828.919 I slot launch_slot_: id  0 | task 25 | processing task, is_child = 0\nOct 10 21:35:27 bluefin llama-server[20732]: 0.08.629.942 I slot print_timing: id  0 | task 25 | prompt eval time =    1654.66 ms /    45 tokens (   36.77 ms per token,    27.20 tokens per second)\nOct 10 21:35:27 bluefin llama-server[20732]: 0.08.629.947 I slot print_timing: id  0 | task 25 |        eval time =     146.34 ms /     3 tokens (   73.17 ms per token,    13.67 tokens per second)\nOct 10 21:35:27 bluefin llama-server[20732]: 0.08.629.948 I slot print_timing: id  0 | task 25 |       total time =    1801.00 ms /    48 tokens\nOct 10 21:35:27 bluefin llama-server[20732]: 0.08.629.949 I slot print_timing: id  0 | task 25 |    graphs reused =         21\nOct 10 21:35:27 bluefin llama-server[20732]: 0.08.629.972 I slot      release: id  0 | task 25 | stop processing: n_tokens = 55, truncated = 0\nOct 10 21:35:27 bluefin llama-server[20732]: 0.08.633.382 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.229 (> 0.100 thold), f_keep = 0.145\nOct 10 21:35:27 bluefin llama-server[20732]: 0.08.636.275 I slot launch_slot_: id  0 | task 29 | processing task, is_child = 0\nOct 10 21:35:28 bluefin llama-server[20732]: 0.09.751.912 I slot print_timing: id  0 | task 29 | prompt eval time =    1042.86 ms /    27 tokens (   38.62 ms per token,    25.89 tokens per second)\nOct 10 21:35:28 bluefin llama-server[20732]: 0.09.751.916 I slot print_timing: id  0 | task 29 |        eval time =      72.75 ms /     2 tokens (   72.75 ms per token,    13.75 tokens per second)\nOct 10 21:35:28 bluefin llama-server[20732]: 0.09.751.917 I slot print_timing: id  0 | task 29 |       total time =    1115.61 ms /    29 tokens\nOct 10 21:35:28 bluefin llama-server[20732]: 0.09.751.918 I slot print_timing: id  0 | task 29 |    graphs reused =         21\nOct 10 21:35:28 bluefin llama-server[20732]: 0.09.751.940 I slot      release: id  0 | task 29 | stop processing: n_tokens = 36, truncated = 0\nOct 10 21:35:28 bluefin llama-server[20732]: 0.09.784.206 I srv    operator(): operator(): cleaning up before exit...\nOct 10 21:35:28 bluefin systemd[2130]: Stopping inference-assessment-granite-role.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server -m /var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part --alias granite-specialist --host 127.0.0.1 --port 18129 -c 4096 -np 1 -ngl 0 -t 4 --jinja...\nOct 10 21:35:29 bluefin systemd[2130]: Stopped inference-assessment-granite-role.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server -m /var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part --alias granite-specialist --host 127.0.0.1 --port 18129 -c 4096 -np 1 -ngl 0 -t 4 --jinja.\nOct 10 21:35:29 bluefin systemd[2130]: inference-assessment-granite-role.service: Consumed 31.281s CPU time, 1.8G memory peak.\n",
+  "post_health": {
+    "8097": {
+      "status": "ok"
+    },
+    "8098": {
+      "status": "ok"
+    }
+  },
+  "passed": false
+}

@@ -1,0 +1,12 @@
+{
+  "legacy_cgroup": {
+    "rc": 0,
+    "stdout": "Unit llama-server.service (/user.slice/user-1000.slice/user@1000.service/app.slice/llama-server.service):\n\u251c\u250018473 /usr/bin/sh /usr/bin/distrobox-enter lothlorien -- /var/home/mythos/sta\u2026\n\u251c\u250018534 /usr/bin/conmon --api-version 1 -c e7c6608e97054ef02636dbcdfc801bf65d54\u2026\n\u2514\u250018716 podman logs --since 2026-10-06T05:44:31.000000000+00:00 -f lothlorien\n",
+    "stderr": ""
+  },
+  "lmstudio_loaded": {
+    "rc": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  }
+}

@@ -1,0 +1,770 @@
+{
+  "observed_at": "2026-10-11T04:29:54.347815+00:00",
+  "data": {
+    "data": [
+      {
+        "created": 0,
+        "id": "auto",
+        "object": "model",
+        "owned_by": "manwe"
+      },
+      {
+        "created": 0,
+        "id": "edge_beelink_light/Ternary-Bonsai-8B-Q2_0",
+        "object": "model",
+        "owned_by": "edge_beelink_light"
+      },
+      {
+        "created": 0,
+        "id": "edge_carnice/Carnice-9b-Q6_K",
+        "object": "model",
+        "owned_by": "edge_carnice"
+      },
+      {
+        "created": 0,
+        "id": "edge_core/Qwen3.5-9B-Q4_K_M",
+        "object": "model",
+        "owned_by": "edge_core"
+      },
+      {
+        "created": 0,
+        "id": "edge_backbone_long/bonsai-27b-q1_0",
+        "object": "model",
+        "owned_by": "edge_backbone_long"
+      },
+      {
+        "created": 0,
+        "id": "edge_backbone_coder/nanbeige4.2-3b-q4_k_m",
+        "object": "model",
+        "owned_by": "edge_backbone_coder"
+      },
+      {
+        "created": 0,
+        "id": "edge_laptop/qwen3.5-4b",
+        "object": "model",
+        "owned_by": "edge_laptop"
+      },
+      {
+        "created": 0,
+        "id": "edge_guardhouse/Qwen3.5-4B-Q4_K_M.gguf",
+        "object": "model",
+        "owned_by": "edge_guardhouse"
+      },
+      {
+        "created": 0,
+        "id": "local_fallback/LFM2.5-8B-A1B-Q4_K_M",
+        "object": "model",
+        "owned_by": "local_fallback"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/auto",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/qwen/qwen3-coder:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/google/gemma-4-26b-a4b-it:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/google/gemma-4-31b-it:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/poolside/laguna-m.1:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/poolside/laguna-xs-2.1:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/tencent/hy3:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/cohere/north-mini-code:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/meta-llama/llama-3.2-3b-instruct:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/meta-llama/llama-3.3-70b-instruct:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nousresearch/hermes-3-llama-3.1-405b:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/openai/gpt-oss-120b:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/openai/gpt-oss-20b:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nvidia/nemotron-3.5-content-safety:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/nvidia/nemotron-nano-9b-v2:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+        "object": "model",
+        "owned_by": "openrouter"
+      },
+      {
+        "created": 0,
+        "id": "openai/default",
+        "object": "model",
+        "owned_by": "openai"
+      },
+      {
+        "created": 0,
+        "id": "litellm_gateway/litellm-router",
+        "object": "model",
+        "owned_by": "litellm_gateway"
+      },
+      {
+        "created": 0,
+        "id": "litellm_gateway/claude-sonnet-4-6",
+        "object": "model",
+        "owned_by": "litellm_gateway"
+      },
+      {
+        "created": 0,
+        "id": "litellm_gateway/claude-opus-4-6",
+        "object": "model",
+        "owned_by": "litellm_gateway"
+      },
+      {
+        "created": 0,
+        "id": "litellm_gateway/claude-haiku-4-5",
+        "object": "model",
+        "owned_by": "litellm_gateway"
+      },
+      {
+        "created": 0,
+        "id": "google/gemini-2.5-flash",
+        "object": "model",
+        "owned_by": "google"
+      },
+      {
+        "created": 0,
+        "id": "google/gemini-3.1-flash-lite",
+        "object": "model",
+        "owned_by": "google"
+      },
+      {
+        "created": 0,
+        "id": "google/gemini-3.5-flash",
+        "object": "model",
+        "owned_by": "google"
+      },
+      {
+        "created": 0,
+        "id": "google/gemini-3.5-flash-lite",
+        "object": "model",
+        "owned_by": "google"
+      },
+      {
+        "created": 0,
+        "id": "google/gemini-3.6-flash",
+        "object": "model",
+        "owned_by": "google"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-small-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-small-2603",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-medium-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-medium-2508",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-medium-2505",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-medium",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/codestral-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/codestral-2508",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/devstral-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/devstral-medium-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/devstral-2512",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/labs-leanstral-1-5",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/labs-leanstral-1-5-1",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/magistral-small-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/ministral-14b-2512",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/ministral-14b-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/ministral-8b-2512",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/ministral-8b-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-code-agent-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-large-2512",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-large-latest",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-medium-2604",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-medium-3",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "mistral/mistral-medium-3-5",
+        "object": "model",
+        "owned_by": "mistral"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-5.1",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-5",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-5-turbo",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-4.7",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-4.6",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-4.5",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-4.5-air",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "zai/glm-5.2",
+        "object": "model",
+        "owned_by": "zai"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/openai/gpt-oss-120b",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/openai/gpt-oss-20b",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/meta/llama-3.3-70b-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/qwen/qwen3.5-397b-a17b",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/bigcode/starcoder2-15b",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/deepseek-ai/deepseek-coder-6.7b-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/qwen/qwen3-next-80b-a3b-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/qwen/qwen3.5-122b-a10b",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/minimaxai/minimax-m2.7",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/minimaxai/minimax-m3",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/moonshotai/kimi-k2.6",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/z-ai/glm-5.2",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/01-ai/yi-large",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/abacusai/dracarys-llama-3.1-70b-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/adept/fuyu-8b",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/ai21labs/jamba-1.5-large-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/aisingapore/sea-lion-7b-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/baai/bge-m3",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/bytedance/seed-oss-36b-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/databricks/dbrx-instruct",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/deepseek-ai/deepseek-v4-flash",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "nvidia/deepseek-ai/deepseek-v4-pro",
+        "object": "model",
+        "owned_by": "nvidia"
+      },
+      {
+        "created": 0,
+        "id": "minimax/MiniMax-M2.7",
+        "object": "model",
+        "owned_by": "minimax"
+      },
+      {
+        "created": 0,
+        "id": "kimi/kimi-k2.6",
+        "object": "model",
+        "owned_by": "kimi"
+      },
+      {
+        "created": 0,
+        "id": "anthropic/claude-sonnet-4-6",
+        "object": "model",
+        "owned_by": "anthropic"
+      },
+      {
+        "created": 0,
+        "id": "anthropic/claude-opus-4-6",
+        "object": "model",
+        "owned_by": "anthropic"
+      },
+      {
+        "created": 0,
+        "id": "anthropic/claude-haiku-4-5",
+        "object": "model",
+        "owned_by": "anthropic"
+      },
+      {
+        "created": 0,
+        "id": "openai_sub/gpt-6-astra",
+        "object": "model",
+        "owned_by": "openai_sub"
+      },
+      {
+        "created": 0,
+        "id": "hermes_nous_proxy/auto",
+        "object": "model",
+        "owned_by": "hermes_nous_proxy"
+      },
+      {
+        "created": 0,
+        "id": "cerebras/gpt-oss-120b",
+        "object": "model",
+        "owned_by": "cerebras"
+      },
+      {
+        "created": 0,
+        "id": "cerebras/zai-glm-4.7",
+        "object": "model",
+        "owned_by": "cerebras"
+      },
+      {
+        "created": 0,
+        "id": "cerebras/gemma-4-31b",
+        "object": "model",
+        "owned_by": "cerebras"
+      },
+      {
+        "created": 0,
+        "id": "groq/llama-3.3-70b-versatile",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/qwen/qwen3-32b",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/openai/gpt-oss-120b",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/compound",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/openai/gpt-oss-20b",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/llama-3.1-8b-instant",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/meta-llama/llama-4-scout-17b-16e-instruct",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/compound-mini",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/openai/gpt-oss-safeguard-20b",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/qwen/qwen3.6-27b",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/allam-2-7b",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/canopylabs/orpheus-arabic-saudi",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/canopylabs/orpheus-v1-english",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/meta-llama/llama-prompt-guard-2-22m",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/meta-llama/llama-prompt-guard-2-86m",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/whisper-large-v3",
+        "object": "model",
+        "owned_by": "groq"
+      },
+      {
+        "created": 0,
+        "id": "groq/whisper-large-v3-turbo",
+        "object": "model",
+        "owned_by": "groq"
+      }
+    ],
+    "object": "list"
+  }
+}

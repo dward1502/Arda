@@ -1,0 +1,229 @@
+{
+  "bonsai": {
+    "health": {
+      "status": "ok"
+    },
+    "models": {
+      "models": [
+        {
+          "name": "bonsai-27b-q1_0",
+          "model": "bonsai-27b-q1_0",
+          "modified_at": "",
+          "size": "",
+          "digest": "",
+          "type": "model",
+          "description": "",
+          "tags": [
+            ""
+          ],
+          "capabilities": [
+            "completion"
+          ],
+          "parameters": "",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "",
+            "families": [
+              ""
+            ],
+            "parameter_size": "",
+            "quantization_level": ""
+          }
+        }
+      ],
+      "object": "list",
+      "data": [
+        {
+          "id": "bonsai-27b-q1_0",
+          "aliases": [
+            "bonsai-27b-q1_0"
+          ],
+          "tags": [],
+          "object": "model",
+          "created": 1791608883,
+          "owned_by": "llamacpp",
+          "meta": {
+            "vocab_type": 2,
+            "n_vocab": 248320,
+            "n_ctx": 100096,
+            "n_ctx_train": 262144,
+            "n_embd": 5120,
+            "n_params": 26895998464,
+            "size": 3792459776
+          }
+        }
+      ]
+    }
+  },
+  "nanbeige": {
+    "health": {
+      "status": "ok"
+    },
+    "models": {
+      "models": [
+        {
+          "name": "nanbeige4.2-3b-q4_k_m",
+          "model": "nanbeige4.2-3b-q4_k_m",
+          "modified_at": "",
+          "size": "",
+          "digest": "",
+          "type": "model",
+          "description": "",
+          "tags": [
+            ""
+          ],
+          "capabilities": [
+            "completion"
+          ],
+          "parameters": "",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "",
+            "families": [
+              ""
+            ],
+            "parameter_size": "",
+            "quantization_level": ""
+          }
+        }
+      ],
+      "object": "list",
+      "data": [
+        {
+          "id": "nanbeige4.2-3b-q4_k_m",
+          "aliases": [
+            "nanbeige4.2-3b-q4_k_m"
+          ],
+          "tags": [],
+          "object": "model",
+          "created": 1791608883,
+          "owned_by": "llamacpp",
+          "meta": {
+            "vocab_type": 1,
+            "n_vocab": 166144,
+            "n_ctx": 32768,
+            "n_ctx_train": 262144,
+            "n_embd": 3072,
+            "n_params": 4169800704,
+            "size": 2570840064,
+            "ftype": "Q4_K - Medium"
+          }
+        }
+      ]
+    }
+  },
+  "core": {
+    "url": "http://100.78.138.113:9337",
+    "health": {
+      "status": "ok"
+    },
+    "models": {
+      "models": [
+        {
+          "name": "Qwen3.5-9B-Q4_K_M",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "modified_at": "",
+          "size": "",
+          "digest": "",
+          "type": "model",
+          "description": "",
+          "tags": [
+            ""
+          ],
+          "capabilities": [
+            "completion"
+          ],
+          "parameters": "",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "",
+            "families": [
+              ""
+            ],
+            "parameter_size": "",
+            "quantization_level": ""
+          }
+        }
+      ],
+      "object": "list",
+      "data": [
+        {
+          "id": "Qwen3.5-9B-Q4_K_M",
+          "aliases": [
+            "Qwen3.5-9B-Q4_K_M"
+          ],
+          "tags": [],
+          "object": "model",
+          "created": 1791608897,
+          "owned_by": "llamacpp",
+          "meta": {
+            "vocab_type": 2,
+            "n_vocab": 248320,
+            "n_ctx_train": 262144,
+            "n_embd": 4096,
+            "n_params": 8953803264,
+            "size": 5669554176
+          }
+        }
+      ]
+    }
+  },
+  "warden": {
+    "url": "http://100.110.85.37:1234",
+    "health": {
+      "status": "ok"
+    },
+    "models": {
+      "models": [
+        {
+          "name": "Qwen3.5-4B-Q4_K_M.gguf",
+          "model": "Qwen3.5-4B-Q4_K_M.gguf",
+          "modified_at": "",
+          "size": "",
+          "digest": "",
+          "type": "model",
+          "description": "",
+          "tags": [
+            ""
+          ],
+          "capabilities": [
+            "completion"
+          ],
+          "parameters": "",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "",
+            "families": [
+              ""
+            ],
+            "parameter_size": "",
+            "quantization_level": ""
+          }
+        }
+      ],
+      "object": "list",
+      "data": [
+        {
+          "id": "Qwen3.5-4B-Q4_K_M.gguf",
+          "aliases": [],
+          "tags": [],
+          "object": "model",
+          "created": 1791608897,
+          "owned_by": "llamacpp",
+          "meta": {
+            "vocab_type": 2,
+            "n_vocab": 248320,
+            "n_ctx_train": 262144,
+            "n_embd": 2560,
+            "n_params": 4205751296,
+            "size": 2729969664
+          }
+        }
+      ]
+    }
+  }
+}

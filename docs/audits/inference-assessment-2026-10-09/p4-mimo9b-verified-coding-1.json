@@ -1,0 +1,2151 @@
+{
+  "scope": "isolated release candidate, not deployed router; includes isolated Hermes CLI",
+  "binary_sha256": "fce5727e2bf66d3f821e904c2f98ee75cba936b3ebed1708b35965bc5f58b774",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k",
+  "port": 39589,
+  "steps": [
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "24a5c2e5b25c1664",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "mimo9b-q4km",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 16384,
+            "execution_lane": "interactive",
+            "latency_ms": 13368,
+            "model_id": "mimo9b-q4km",
+            "provider_id": "edge_core",
+            "route_class": "interactive",
+            "route_id": "24a5c2e5b25c1664"
+          },
+          "choices": [
+            {
+              "finish_reason": "tool_calls",
+              "index": 0,
+              "message": {
+                "content": "",
+                "role": "assistant",
+                "tool_calls": [
+                  {
+                    "function": {
+                      "arguments": "{\"offset\":17,\"path\":\"Cargo.toml\"}",
+                      "name": "read_file"
+                    },
+                    "id": "qBvYT0SXpNE4fpVqNRJdKZPybjxNgila",
+                    "type": "function"
+                  }
+                ]
+              }
+            }
+          ],
+          "created": 1791623002,
+          "id": "chatcmpl-ajweryGNfTPptGBcM1NJ5cVn6lTltJic",
+          "model": "mimo9b-q4km",
+          "object": "chat.completion",
+          "system_fingerprint": "b11430-8345f3339",
+          "timings": {
+            "cache_n": 0,
+            "predicted_ms": 4594.13,
+            "predicted_n": 30,
+            "predicted_per_second": 6.312403001221123,
+            "predicted_per_token_ms": 158.41827586206898,
+            "prompt_ms": 8744.721,
+            "prompt_n": 132,
+            "prompt_per_second": 15.094821206988764,
+            "prompt_per_token_ms": 66.24788636363635
+          },
+          "usage": {
+            "completion_tokens": 30,
+            "prompt_tokens": 132,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 162
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"offset\":17,\"path\":\"Cargo.toml\"}",
+                  "name": "read_file"
+                },
+                "id": "qBvYT0SXpNE4fpVqNRJdKZPybjxNgila",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "qBvYT0SXpNE4fpVqNRJdKZPybjxNgila",
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\","
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "f290ec77423bafe7",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "mimo9b-q4km",
+          "x-manwe-route-class": "tool_oriented",
+          "x-manwe-execution-lane": "execution"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 32000,
+            "execution_lane": "execution",
+            "latency_ms": 2780,
+            "model_id": "mimo9b-q4km",
+            "provider_id": "edge_core",
+            "route_class": "tool_oriented",
+            "route_id": "f290ec77423bafe7"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "The Cargo.toml workspace members list includes `crates/spine/memory/arda-vaire`, `crates/spine/executors/arda-varda`, `crates/spine/executors/arda-workbench-executor`, and the `outposts/` packages.",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791623005,
+          "id": "chatcmpl-6HoYhz7A9wL7c2gIfgluw7ksFSeEdtRJ",
+          "model": "mimo9b-q4km",
+          "object": "chat.completion",
+          "system_fingerprint": "b11430-8345f3339",
+          "timings": {
+            "cache_n": 161,
+            "predicted_ms": 2185.093,
+            "predicted_n": 58,
+            "predicted_per_second": 26.085846231716456,
+            "predicted_per_token_ms": 38.3349649122807,
+            "prompt_ms": 576.912,
+            "prompt_n": 87,
+            "prompt_per_second": 150.80289541559196,
+            "prompt_per_token_ms": 6.631172413793104
+          },
+          "usage": {
+            "completion_tokens": 58,
+            "prompt_tokens": 248,
+            "prompt_tokens_details": {
+              "cached_tokens": 161
+            },
+            "total_tokens": 306
+          }
+        }
+      }
+    }
+  ],
+  "health": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "alerts": [],
+      "bootstrap_state_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/absent-bootstrap.json",
+      "budget_pressure": {
+        "cooldown_total": 0,
+        "critical_total": 0,
+        "exhausted_total": 0,
+        "highest_level": "ok",
+        "providers": [
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "anthropic",
+            "provider_name": "Anthropic Claude"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "cerebras",
+            "provider_name": "Cerebras Cloud"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_core",
+            "provider_name": "Annunimas Core (3080 Workstation)"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "google",
+            "provider_name": "Google AI Studio"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "groq",
+            "provider_name": "Groq"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": null,
+            "provider_id": "local_fallback",
+            "provider_name": "Local Llama.cpp Fallback"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "mistral",
+            "provider_name": "Mistral API"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "nvidia",
+            "provider_name": "NVIDIA API Catalog"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "zai",
+            "provider_name": "Z.AI / GLM"
+          }
+        ],
+        "providers_total": 9,
+        "warning_total": 0
+      },
+      "capability_summary": {
+        "models_with_failed_streaming_receipts": 0,
+        "models_with_failed_structured_output_receipts": 0,
+        "models_with_failed_tool_receipts": 0,
+        "providers_with_no_capability_evidence": 9,
+        "receipt_model_count": 0,
+        "recent_capability_failures": 0
+      },
+      "catalog_generation": 2,
+      "config_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/providers.toml",
+      "config_source": "provider_file",
+      "ok": true,
+      "provider_state_counts": {
+        "missing_api_key": 7,
+        "ready": 2
+      },
+      "providers_blocked": 7,
+      "providers_enabled": 9,
+      "providers_healthy": 2,
+      "providers_ready": 2,
+      "providers_total": 9,
+      "recent_event_sample_complete": true,
+      "recent_event_sample_limit": 48,
+      "recent_route_failures": 0,
+      "recent_route_successes": 0,
+      "route_guardrails": {
+        "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+        "low_context_tool_model_total": 1,
+        "tool_execution_min_context_window": 64000,
+        "tool_incompatible_model_total": 0,
+        "visible_reasoning_model_total": 0
+      },
+      "service": "manwe"
+    }
+  },
+  "cases": [
+    {
+      "kind": "coding",
+      "repetition": 1,
+      "command": [
+        "/var/home/mythos/.hermes/installs/93d02a9d25b9a6b1/environments/cc6a35ab872f408d8744bd78c6cd77ab/venv/bin/python",
+        "-m",
+        "hermes_cli.main",
+        "chat",
+        "--safe-mode",
+        "--provider",
+        "custom:assessment",
+        "-m",
+        "edge_core/mimo9b-q4km",
+        "-t",
+        "file",
+        "--max-turns",
+        "10",
+        "--run-budget",
+        "60",
+        "--oneshot",
+        "--format",
+        "stream-json",
+        "--in",
+        "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1",
+        "-q",
+        "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools."
+      ],
+      "exit_code": 0,
+      "stdout": "{\"type\": \"system\", \"subtype\": \"init\", \"model\": \"edge_core/mimo9b-q4km\", \"session_id\": \"20261010_020326_54a7dd\", \"timestamp\": 1791623006309}\n{\"type\": \"text\", \"text\": \"I'll start by reading the spec and the implementation file.\", \"timestamp\": 1791623023631}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/spec.txt\"}, \"timestamp\": 1791623023640}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"1|total(values) must sum numeric entries, ignore None and booleans, and preserve zero and negative numbers. Empty input returns zero. Change calc.py only.\\\", \\\"total_lines\\\": 1, \\\"file_size\\\": 153, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"not_found\\\": false}\", \"duration_ms\": 264, \"is_error\": false, \"timestamp\": 1791623023906}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}, \"timestamp\": 1791623026556}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"1|def total(values):\\\\n2|    return sum(value for value in values if value)\\\", \\\"total_lines\\\": 2, \\\"file_size\\\": 70, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"not_found\\\": false}\", \"duration_ms\": 1, \"is_error\": false, \"timestamp\": 1791623026559}\n{\"type\": \"text\", \"text\": \"\\n\\nThe spec: total(values) must sum numeric entries, ignore None and booleans, preserve zero and negative numbers. Empty input returns zero.\\n\\nCurrent: `sum(value for value in values if value)` \u2014 truthiness filter drops 0, False, and empty strings. Fix: filter out None and bools explicitly.\\n\\nNew: `def total(values): return sum(v for v in values if v is not None and not isinstance(v, bool))`\\n\\nNote: `not isinstance(v, bool)` excludes bools (which are ints). Zero and negatives preserved. Empty input: sum of empty generator = 0. Good.\\n\\nLet me write the file.\", \"timestamp\": 1791623036124}\n{\"type\": \"tool_use\", \"name\": \"write_file\", \"input\": {\"content\": \"def total(values):\\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\\n\", \"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}, \"timestamp\": 1791623036128}\n{\"type\": \"tool_result\", \"name\": \"write_file\", \"output\": \"{\\\"bytes_written\\\": 114, \\\"dirs_created\\\": true, \\\"verified\\\": true, \\\"lint\\\": {\\\"status\\\": \\\"ok\\\", \\\"output\\\": \\\"\\\"}, \\\"resolved_path\\\": \\\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\\\", \\\"files_modified\\\": [\\\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\\\"]}\", \"duration_ms\": 80, \"is_error\": false, \"timestamp\": 1791623036209}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}, \"timestamp\": 1791623039830}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"1|def total(values):\\\\n2|    return sum(value for value in values if value is not None and not isinstance(value, bool))\\\", \\\"total_lines\\\": 2, \\\"file_size\\\": 114, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"not_found\\\": false}\", \"duration_ms\": 1, \"is_error\": false, \"timestamp\": 1791623039832}\n{\"type\": \"text\", \"text\": \"\\n\\nFixed `calc.py` (only file changed):\\n\\n```python\\ndef total(values):\\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\\n```\\n\\nWhat changed and why: the old filter `if value` used truthiness, which silently dropped `0`, `False`, and `\\\"\\\"` in addition to `None`. The new filter is explicit: `value is not None` keeps real numbers, and `not isinstance(value, bool)` excludes booleans (which are ints, so `sum` would otherwise happily add them). Zero and negative numbers survive, and an empty input yields `sum` of an empty generator, which is `0`.\\n\\nI can't run tests here \u2014 the available tools are file-only, with no shell or interpreter access, so I verified the file content by reading it back but could not execute it.\", \"timestamp\": 1791623048055}\n{\"type\": \"result\", \"session_id\": \"20261010_020326_54a7dd\", \"exit_code\": 0, \"text\": \"Fixed `calc.py` (only file changed):\\n\\n```python\\ndef total(values):\\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\\n```\\n\\nWhat changed and why: the old filter `if value` used truthiness, which silently dropped `0`, `False`, and `\\\"\\\"` in addition to `None`. The new filter is explicit: `value is not None` keeps real numbers, and `not isinstance(value, bool)` excludes booleans (which are ints, so `sum` would otherwise happily add them). Zero and negative numbers survive, and an empty input yields `sum` of an empty generator, which is `0`.\\n\\nI can't run tests here \u2014 the available tools are file-only, with no shell or interpreter access, so I verified the file content by reading it back but could not execute it.\", \"tokens\": {\"input\": 0, \"output\": 0, \"total\": 0, \"cache_read\": 0, \"cache_write\": 0}, \"duration_ms\": 41760, \"timestamp\": 1791623048070}\n",
+      "stderr": "\nsession_id: 20261010_020326_54a7dd\n",
+      "final": "Fixed `calc.py` (only file changed):\n\n```python\ndef total(values):\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\n```\n\nWhat changed and why: the old filter `if value` used truthiness, which silently dropped `0`, `False`, and `\"\"` in addition to `None`. The new filter is explicit: `value is not None` keeps real numbers, and `not isinstance(value, bool)` excludes booleans (which are ints, so `sum` would otherwise happily add them). Zero and negative numbers survive, and an empty input yields `sum` of an empty generator, which is `0`.\n\nI can't run tests here \u2014 the available tools are file-only, with no shell or interpreter access, so I verified the file content by reading it back but could not execute it.",
+      "reads": [
+        "spec.txt",
+        "calc.py",
+        "calc.py"
+      ],
+      "code": "def total(values):\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\n",
+      "parent_tests_passed": 4,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "candidate_stopped": true,
+  "upstream_captures": [
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "local_only": true,
+        "max_tokens": 256,
+        "messages": [
+          {
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents.",
+            "role": "user"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "stream": false,
+        "temperature": 0,
+        "tool_choice": "auto",
+        "tools": [
+          {
+            "function": {
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "offset": {
+                    "type": "integer"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"offset\":17,\"path\":\"Cargo.toml\"}"
+                  },
+                  "id": "qBvYT0SXpNE4fpVqNRJdKZPybjxNgila"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791623002,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 30,
+          "prompt_tokens": 132,
+          "total_tokens": 162,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-ajweryGNfTPptGBcM1NJ5cVn6lTltJic",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 132,
+          "prompt_ms": 8744.721,
+          "prompt_per_token_ms": 66.24788636363635,
+          "prompt_per_second": 15.094821206988765,
+          "predicted_n": 30,
+          "predicted_ms": 4594.13,
+          "predicted_per_token_ms": 158.41827586206898,
+          "predicted_per_second": 6.312403001221123
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "local_only": true,
+        "max_tokens": 256,
+        "messages": [
+          {
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents.",
+            "role": "user"
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"offset\":17,\"path\":\"Cargo.toml\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\",",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "stream": false,
+        "temperature": 0,
+        "tool_choice": "auto",
+        "tools": [
+          {
+            "function": {
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "offset": {
+                    "type": "integer"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "The Cargo.toml workspace members list includes `crates/spine/memory/arda-vaire`, `crates/spine/executors/arda-varda`, `crates/spine/executors/arda-workbench-executor`, and the `outposts/` packages."
+            }
+          }
+        ],
+        "created": 1791623005,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 58,
+          "prompt_tokens": 248,
+          "total_tokens": 306,
+          "prompt_tokens_details": {
+            "cached_tokens": 161
+          }
+        },
+        "id": "chatcmpl-6HoYhz7A9wL7c2gIfgluw7ksFSeEdtRJ",
+        "timings": {
+          "cache_n": 161,
+          "prompt_n": 87,
+          "prompt_ms": 576.912,
+          "prompt_per_token_ms": 6.631172413793104,
+          "prompt_per_second": 150.80289541559196,
+          "predicted_n": 58,
+          "predicted_ms": 2185.093,
+          "predicted_per_token_ms": 38.3349649122807,
+          "predicted_per_second": 26.085846231716456
+        }
+      }
+    },
+    {
+      "path": "/v1/models",
+      "request": null,
+      "status": 200,
+      "response": {
+        "models": [
+          {
+            "name": "mimo9b-q4km",
+            "model": "mimo9b-q4km",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "mimo9b-q4km",
+            "aliases": [
+              "mimo9b-q4km"
+            ],
+            "tags": [],
+            "object": "model",
+            "architecture": {
+              "input_modalities": [
+                "text"
+              ],
+              "output_modalities": [
+                "text"
+              ]
+            },
+            "created": 1791623004,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 2,
+              "n_vocab": 248320,
+              "n_ctx": 73728,
+              "n_ctx_train": 262144,
+              "n_embd": 4096,
+              "n_params": 8953803264,
+              "size": 5618141184,
+              "ftype": "Q4_K - Medium"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "e8077e38b3f6d7e410b792b8ed26894533f49d4522fc23c75db285994b67befa",
+            "content_chars": 8824,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools.",
+            "role": "user"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "I'll start by reading the spec and the implementation file.",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/spec.txt\"}"
+                  },
+                  "id": "cpx9CCj1NniEYemhR0y5F4Z7tPYGmPo5"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791623023,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 60,
+          "prompt_tokens": 3460,
+          "total_tokens": 3520,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-PvW3RLyDn050z9dXd0EyJXbPAG8jWEoI",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 3460,
+          "prompt_ms": 13420.077,
+          "prompt_per_token_ms": 3.8786349710982657,
+          "prompt_per_second": 257.82266375967885,
+          "predicted_n": 60,
+          "predicted_ms": 2408.251,
+          "predicted_per_token_ms": 40.81781355932204,
+          "predicted_per_second": 24.499107443534747
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "e8077e38b3f6d7e410b792b8ed26894533f49d4522fc23c75db285994b67befa",
+            "content_chars": 8824,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools.",
+            "role": "user"
+          },
+          {
+            "content": "I'll start by reading the spec and the implementation file.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/spec.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|total(values) must sum numeric entries, ignore None and booleans, and preserve zero and negative numbers. Empty input returns zero. Change calc.py only.\", \"total_lines\": 1, \"file_size\": 153, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}"
+                  },
+                  "id": "4dDVZu6utz3O4MUklM7vVshS2TNTISh1"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791623026,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 49,
+          "prompt_tokens": 3604,
+          "total_tokens": 3653,
+          "prompt_tokens_details": {
+            "cached_tokens": 3519
+          }
+        },
+        "id": "chatcmpl-RJixRXyhdUJeYpCfR20yUnPX3uAwqXRv",
+        "timings": {
+          "cache_n": 3519,
+          "prompt_n": 85,
+          "prompt_ms": 590.993,
+          "prompt_per_token_ms": 6.952858823529413,
+          "prompt_per_second": 143.8257305924097,
+          "predicted_n": 49,
+          "predicted_ms": 1934.775,
+          "predicted_per_token_ms": 40.307812500000004,
+          "predicted_per_second": 24.809086327867583
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "e8077e38b3f6d7e410b792b8ed26894533f49d4522fc23c75db285994b67befa",
+            "content_chars": 8824,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools.",
+            "role": "user"
+          },
+          {
+            "content": "I'll start by reading the spec and the implementation file.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/spec.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|total(values) must sum numeric entries, ignore None and booleans, and preserve zero and negative numbers. Empty input returns zero. Change calc.py only.\", \"total_lines\": 1, \"file_size\": 153, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000002",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|def total(values):\\n2|    return sum(value for value in values if value)\", \"total_lines\": 2, \"file_size\": 70, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000002"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The spec: total(values) must sum numeric entries, ignore None and booleans, preserve zero and negative numbers. Empty input returns zero.\n\nCurrent: `sum(value for value in values if value)` \u2014 truthiness filter drops 0, False, and empty strings. Fix: filter out None and bools explicitly.\n\nNew: `def total(values): return sum(v for v in values if v is not None and not isinstance(v, bool))`\n\nNote: `not isinstance(v, bool)` excludes bools (which are ints). Zero and negatives preserved. Empty input: sum of empty generator = 0. Good.\n\nLet me write the file.",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "write_file",
+                    "arguments": "{\"content\":\"def total(values):\\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\\n\",\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}"
+                  },
+                  "id": "hWo4KNXiZ8lGaCY0rZa938WuhvdMgFio"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791623036,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 219,
+          "prompt_tokens": 3723,
+          "total_tokens": 3942,
+          "prompt_tokens_details": {
+            "cached_tokens": 3652
+          }
+        },
+        "id": "chatcmpl-6BISeK4ThIxSq8uqL3IHfboMDxYhbdLG",
+        "timings": {
+          "cache_n": 3652,
+          "prompt_n": 71,
+          "prompt_ms": 582.537,
+          "prompt_per_token_ms": 8.20474647887324,
+          "prompt_per_second": 121.88067024068856,
+          "predicted_n": 219,
+          "predicted_ms": 8862.998,
+          "predicted_per_token_ms": 40.655954128440364,
+          "predicted_per_second": 24.596643257732882
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "e8077e38b3f6d7e410b792b8ed26894533f49d4522fc23c75db285994b67befa",
+            "content_chars": 8824,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools.",
+            "role": "user"
+          },
+          {
+            "content": "I'll start by reading the spec and the implementation file.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/spec.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|total(values) must sum numeric entries, ignore None and booleans, and preserve zero and negative numbers. Empty input returns zero. Change calc.py only.\", \"total_lines\": 1, \"file_size\": 153, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000002",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|def total(values):\\n2|    return sum(value for value in values if value)\", \"total_lines\": 2, \"file_size\": 70, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000002"
+          },
+          {
+            "content": "The spec: total(values) must sum numeric entries, ignore None and booleans, preserve zero and negative numbers. Empty input returns zero.\n\nCurrent: `sum(value for value in values if value)` \u2014 truthiness filter drops 0, False, and empty strings. Fix: filter out None and bools explicitly.\n\nNew: `def total(values): return sum(v for v in values if v is not None and not isinstance(v, bool))`\n\nNote: `not isinstance(v, bool)` excludes bools (which are ints). Zero and negatives preserved. Empty input: sum of empty generator = 0. Good.\n\nLet me write the file.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"content\":\"def total(values):\\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\\n\",\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}",
+                  "name": "write_file"
+                },
+                "id": "tc0000003",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"bytes_written\": 114, \"dirs_created\": true, \"verified\": true, \"lint\": {\"status\": \"ok\", \"output\": \"\"}, \"resolved_path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\", \"files_modified\": [\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"]}",
+            "role": "tool",
+            "tool_call_id": "tc0000003"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}"
+                  },
+                  "id": "cLDlXimjQZfZs7UvjAR7FQhBsgQPn3rW"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791623039,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 49,
+          "prompt_tokens": 4058,
+          "total_tokens": 4107,
+          "prompt_tokens_details": {
+            "cached_tokens": 3719
+          }
+        },
+        "id": "chatcmpl-3xUdC7jRWrhRTE8plT6pCYhVFFjcK5Ag",
+        "timings": {
+          "cache_n": 3719,
+          "prompt_n": 339,
+          "prompt_ms": 1542.756,
+          "prompt_per_token_ms": 4.550902654867257,
+          "prompt_per_second": 219.73662717889283,
+          "predicted_n": 49,
+          "predicted_ms": 1955.108,
+          "predicted_per_token_ms": 40.73141666666667,
+          "predicted_per_second": 24.551073393387988
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "e8077e38b3f6d7e410b792b8ed26894533f49d4522fc23c75db285994b67befa",
+            "content_chars": 8824,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools.",
+            "role": "user"
+          },
+          {
+            "content": "I'll start by reading the spec and the implementation file.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/spec.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|total(values) must sum numeric entries, ignore None and booleans, and preserve zero and negative numbers. Empty input returns zero. Change calc.py only.\", \"total_lines\": 1, \"file_size\": 153, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000002",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|def total(values):\\n2|    return sum(value for value in values if value)\", \"total_lines\": 2, \"file_size\": 70, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000002"
+          },
+          {
+            "content": "The spec: total(values) must sum numeric entries, ignore None and booleans, preserve zero and negative numbers. Empty input returns zero.\n\nCurrent: `sum(value for value in values if value)` \u2014 truthiness filter drops 0, False, and empty strings. Fix: filter out None and bools explicitly.\n\nNew: `def total(values): return sum(v for v in values if v is not None and not isinstance(v, bool))`\n\nNote: `not isinstance(v, bool)` excludes bools (which are ints). Zero and negatives preserved. Empty input: sum of empty generator = 0. Good.\n\nLet me write the file.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"content\":\"def total(values):\\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\\n\",\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}",
+                  "name": "write_file"
+                },
+                "id": "tc0000003",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"bytes_written\": 114, \"dirs_created\": true, \"verified\": true, \"lint\": {\"status\": \"ok\", \"output\": \"\"}, \"resolved_path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\", \"files_modified\": [\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"]}",
+            "role": "tool",
+            "tool_call_id": "tc0000003"
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1/calc.py\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000004",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|def total(values):\\n2|    return sum(value for value in values if value is not None and not isinstance(value, bool))\", \"total_lines\": 2, \"file_size\": 114, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000004"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Fixed `calc.py` (only file changed):\n\n```python\ndef total(values):\n    return sum(value for value in values if value is not None and not isinstance(value, bool))\n```\n\nWhat changed and why: the old filter `if value` used truthiness, which silently dropped `0`, `False`, and `\"\"` in addition to `None`. The new filter is explicit: `value is not None` keeps real numbers, and `not isinstance(value, bool)` excludes booleans (which are ints, so `sum` would otherwise happily add them). Zero and negative numbers survive, and an empty input yields `sum` of an empty generator, which is `0`.\n\nI can't run tests here \u2014 the available tools are file-only, with no shell or interpreter access, so I verified the file content by reading it back but could not execute it."
+            }
+          }
+        ],
+        "created": 1791623048,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 184,
+          "prompt_tokens": 4188,
+          "total_tokens": 4372,
+          "prompt_tokens_details": {
+            "cached_tokens": 4106
+          }
+        },
+        "id": "chatcmpl-AFhfHDAqxxLDX6g7egDoJiLGTwRfM2t8",
+        "timings": {
+          "cache_n": 4106,
+          "prompt_n": 82,
+          "prompt_ms": 585.793,
+          "prompt_per_token_ms": 7.143817073170732,
+          "prompt_per_second": 139.98118789401718,
+          "predicted_n": 184,
+          "predicted_ms": 7513.892,
+          "predicted_per_token_ms": 41.05951912568306,
+          "predicted_per_second": 24.354888252319835
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "3f1eef0616ddd2c13d45a3f8cef4ed648dadfdacdba7fbedceebf5a04d549998",
+            "content_chars": 942,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-3re5962k/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools.",
+            "role": "user"
+          }
+        ],
+        "model": "mimo9b-q4km",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "none",
+        "response_format": {
+          "json_schema": {
+            "name": "session_title",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title"
+              ],
+              "type": "object"
+            },
+            "strict": true
+          },
+          "type": "json_schema"
+        },
+        "temperature": 0
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"title\": \"Fix calc.py to satisfy spec.txt\"}"
+            }
+          }
+        ],
+        "created": 1791623051,
+        "model": "mimo9b-q4km",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 15,
+          "prompt_tokens": 327,
+          "total_tokens": 342,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-Kh3xOPS7iLJ9u4JSFCk4zwYXtX7J5mik",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 327,
+          "prompt_ms": 1952.146,
+          "prompt_per_token_ms": 5.969865443425077,
+          "prompt_per_second": 167.5079630314536,
+          "predicted_n": 15,
+          "predicted_ms": 579.281,
+          "predicted_per_token_ms": 41.37721428571428,
+          "predicted_per_second": 24.16789088542521
+        }
+      },
+      "error": "[Errno 32] Broken pipe"
+    }
+  ]
+}

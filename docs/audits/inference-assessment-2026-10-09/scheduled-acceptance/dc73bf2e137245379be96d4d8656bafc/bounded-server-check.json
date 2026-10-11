@@ -1,0 +1,90 @@
+{
+  "unit": "arda-assessment-check-7116765680.service",
+  "started_at": "2026-10-11T18:19:48.211169+00:00",
+  "desktop_before": "MainPID=0\nActiveState=inactive",
+  "scope": "One-shot manually invoked capped deterministic Server job; not an installed schedule or model qualification.",
+  "exit_code": 0,
+  "stderr": "Running as unit: arda-assessment-check-7116765680.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 499ms\nCPU time consumed: 115ms\nMemory peak: 13.3M (swap: 0B)\n",
+  "report": {
+    "properties": {
+      "TimeoutStartUSec": "25s",
+      "TimeoutStopUSec": "5s",
+      "MemoryPeak": "14028800",
+      "CPUUsageNSec": "97906000",
+      "CPUQuotaPerSecUSec": "250ms",
+      "MemoryMax": "134217728",
+      "MemorySwapMax": "0",
+      "TasksMax": "16"
+    },
+    "checks": [
+      {
+        "service": "prometheus",
+        "url": "http://100.103.125.88:9090/-/ready",
+        "observed_at": "2026-10-11T18:19:48.852104+00:00",
+        "http_status": 200,
+        "bytes_read": 28,
+        "status": "endpoint_responding"
+      },
+      {
+        "service": "grafana",
+        "url": "http://100.103.125.88:3000/api/health",
+        "observed_at": "2026-10-11T18:19:48.971105+00:00",
+        "http_status": 200,
+        "bytes_read": 71,
+        "status": "endpoint_responding"
+      },
+      {
+        "service": "minio",
+        "url": "http://100.103.125.88:9000/minio/health/ready",
+        "observed_at": "2026-10-11T18:19:48.980539+00:00",
+        "http_status": 200,
+        "bytes_read": 0,
+        "status": "endpoint_responding"
+      },
+      {
+        "service": "server_nanbeige",
+        "url": "http://127.0.0.1:8098/health",
+        "observed_at": "2026-10-11T18:19:48.992770+00:00",
+        "http_status": 200,
+        "bytes_read": 15,
+        "status": "endpoint_responding"
+      },
+      {
+        "service": "server_bonsai",
+        "url": "http://127.0.0.1:8097/health",
+        "observed_at": "2026-10-11T18:19:48.993514+00:00",
+        "http_status": 200,
+        "bytes_read": 15,
+        "status": "endpoint_responding"
+      }
+    ],
+    "scope": "Endpoint self-reports only; not application workload, backups, model quality or sustained health. No remediation."
+  },
+  "post_run_read": {
+    "exit_code": 0,
+    "stdout": "TimeoutStartUSec=1min 30s\nRuntimeMaxUSec=infinity\nResult=success\nExecMainStatus=0\nMemoryPeak=[not set]\nCPUUsageNSec=[not set]\nCPUQuotaPerSecUSec=infinity\nMemoryMax=infinity\nMemorySwapMax=infinity\nTasksMax=821243\nActiveState=inactive\n",
+    "stderr": ""
+  },
+  "unit_properties": {
+    "TimeoutStartUSec": "25s",
+    "TimeoutStopUSec": "5s",
+    "MemoryPeak": "14028800",
+    "CPUUsageNSec": "97906000",
+    "CPUQuotaPerSecUSec": "250ms",
+    "MemoryMax": "134217728",
+    "MemorySwapMax": "0",
+    "TasksMax": "16"
+  },
+  "bounds_verified": true,
+  "cleanup": {
+    "stop_exit": 5,
+    "stop_stdout": "",
+    "stop_stderr": "Failed to stop arda-assessment-check-7116765680.service: Unit arda-assessment-check-7116765680.service not loaded.\n",
+    "read_exit": 0,
+    "state": "MainPID=0\nActiveState=inactive",
+    "read_stderr": ""
+  },
+  "desktop_after": "MainPID=0\nActiveState=inactive",
+  "endpoints_verified": true,
+  "passed": true
+}

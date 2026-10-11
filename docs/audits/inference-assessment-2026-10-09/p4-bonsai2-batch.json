@@ -1,0 +1,17 @@
+{
+  "scope": "authorized single GPU Bonsai2 test; original 60-second task budget",
+  "cases": [],
+  "error": "[Errno 104] Connection reset by peer",
+  "restore": "",
+  "health_after": {
+    "8097": {
+      "status": "ok"
+    },
+    "8098": {
+      "status": "ok"
+    }
+  },
+  "core_health_after": {
+    "status": "ok"
+  }
+}

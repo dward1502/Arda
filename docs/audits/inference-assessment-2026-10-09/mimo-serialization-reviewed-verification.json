@@ -1,0 +1,58 @@
+{
+  "reviewer": "deleg_044db332/task-0",
+  "scope": "offline native response JSON serialization, not HTTP/SSE or generated model",
+  "verdict": "pass",
+  "result_sha256": "7993f41f52b3bc74ff8eae16ffb272d6abedca0d67b515c83b5b461bde99bd0d",
+  "reasoning_nested_review": "326/390 prefixes, per-step state and hashes independently verified",
+  "followup": "verifier now rejects corrupted packet/nonstream model metadata and reversed reasoning",
+  "verification": {
+    "passed": true,
+    "negative_controls": 7,
+    "result_sha256": "7993f41f52b3bc74ff8eae16ffb272d6abedca0d67b515c83b5b461bde99bd0d",
+    "summary": [
+      {
+        "reversed": false,
+        "chunk_bytes": 1,
+        "serialized_arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+        "finish_reasons": [
+          "tool_calls"
+        ]
+      },
+      {
+        "reversed": false,
+        "chunk_bytes": 7,
+        "serialized_arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+        "finish_reasons": [
+          "tool_calls"
+        ]
+      },
+      {
+        "reversed": false,
+        "chunk_bytes": 194,
+        "serialized_arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+        "finish_reasons": [
+          "tool_calls"
+        ]
+      },
+      {
+        "reversed": true,
+        "chunk_bytes": 1,
+        "serialized_arguments": "{",
+        "finish_reasons": []
+      },
+      {
+        "reversed": true,
+        "chunk_bytes": 7,
+        "serialized_arguments": "{",
+        "finish_reasons": []
+      },
+      {
+        "reversed": true,
+        "chunk_bytes": 194,
+        "serialized_arguments": "",
+        "finish_reasons": []
+      }
+    ]
+  },
+  "verifier_sha256": "00fbb8439cfe42aaf2e0591a7824c13b3880db805980b8fa8c0f2f40957f2af7"
+}

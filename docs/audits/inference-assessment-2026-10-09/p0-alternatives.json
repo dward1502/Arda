@@ -1,0 +1,313 @@
+{
+  "prism-ml/Ternary-Bonsai-2-27B-gguf": {
+    "url": "https://huggingface.co/api/models/prism-ml/Ternary-Bonsai-2-27B-gguf?blobs=true",
+    "sha": "b072e1d3b35a0a630cece372c2127528e0994386",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "rfilename": ".gitattributes",
+        "blobId": "4969a793cce09cef78ad84ca3d082af70acd8914",
+        "size": 93
+      },
+      {
+        "rfilename": "KNOWN_ISSUES.md",
+        "blobId": "a5041738949cef0eb9f987232b77b4b7bdb6d80d",
+        "size": 17109
+      },
+      {
+        "rfilename": "LICENSE",
+        "blobId": "66a27ec5ff940d3a9652d2948746ebac4c9d0188",
+        "size": 10174
+      },
+      {
+        "rfilename": "NOTICE.txt",
+        "blobId": "275696b5038dd830e97ab15134cac6146322baf9",
+        "size": 411
+      },
+      {
+        "rfilename": "README.md",
+        "blobId": "ae9d1d4095812ed678bd653d1bf093b9e758e89b",
+        "size": 23273
+      },
+      {
+        "rfilename": "Ternary-Bonsai-2-27B-F16.gguf",
+        "blobId": "6ed901f6df9dcae2058958b3aec54f3620a10b5d",
+        "size": 53808408928,
+        "lfs": {
+          "sha256": "f6f3b2c9b41956c34b379ec7c301dc936bc38d79b3c24c83388dd7d76000c180",
+          "size": 53808408928,
+          "pointerSize": 136
+        }
+      },
+      {
+        "rfilename": "Ternary-Bonsai-2-27B-PQ2_0.gguf",
+        "blobId": "8d0823f96b78839696c57d6ee544160444f956f7",
+        "size": 7206168928,
+        "lfs": {
+          "sha256": "3907dc1658db1f78a9826bf8d5bcb8dc65db0d466388937af57f2294fae62ec1",
+          "size": 7206168928,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "Ternary-Bonsai-2-27B-PTQ1_0.gguf",
+        "blobId": "8c9da0522bd62bdda9347ed1855ea024d7e11765",
+        "size": 5946648928,
+        "lfs": {
+          "sha256": "53107f530aa52eb00912263ab1ee29bd199261c87cd7b4ad4ca1318c1fe33ee3",
+          "size": 5946648928,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "Ternary-Bonsai-2-27B-mmproj-BF16.gguf",
+        "blobId": "fe3f1d0119708de49e8d3166013238229535fa97",
+        "size": 931145856,
+        "lfs": {
+          "sha256": "e287342d92332fa3577ed1d42e921dac9370c08da58ba9337fa450f6cc76cfd7",
+          "size": 931145856,
+          "pointerSize": 134
+        }
+      },
+      {
+        "rfilename": "Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf",
+        "blobId": "19ca9905c6e3ddcd06960506f4d1bf19613ce169",
+        "size": 629246976,
+        "lfs": {
+          "sha256": "6807ede61d570bb86ba34b756a0fa109edc33668604de867c6ea6d8f1d631903",
+          "size": 629246976,
+          "pointerSize": 134
+        }
+      },
+      {
+        "rfilename": "assets/bonsai-logo.svg",
+        "blobId": "6e2df3a48b38d3eb980db8772cfd942f8b97a328",
+        "size": 515
+      }
+    ]
+  },
+  "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B": {
+    "url": "https://huggingface.co/api/models/XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B?blobs=true",
+    "sha": "2367e865d009c13ac81713a2878291d33ab28177",
+    "license": "mit",
+    "files": [
+      {
+        "rfilename": ".gitattributes",
+        "blobId": "52373fe24473b1aa44333d318f578ae6bf04b49b",
+        "size": 1570
+      },
+      {
+        "rfilename": "README.md",
+        "blobId": "e2986a02eb0c1e2f0865fc1a3b5447294be17a7f",
+        "size": 3030
+      },
+      {
+        "rfilename": "chat_template.jinja",
+        "blobId": "c6a37693fc7d9b48122182931a59f436e21b577a",
+        "size": 3916
+      },
+      {
+        "rfilename": "config.json",
+        "blobId": "007c2eb8c73b9295f22491b1e4ab29d8b10f6e05",
+        "size": 2784
+      },
+      {
+        "rfilename": "generation_config.json",
+        "blobId": "06320848d7db69b8e66414a7ffad26b5be193fcd",
+        "size": 126
+      },
+      {
+        "rfilename": "merges.txt",
+        "blobId": "a494e019ca1502219fd0128658b979e5f05ae8e8",
+        "size": 3353259
+      },
+      {
+        "rfilename": "model-00001-of-00004.safetensors",
+        "blobId": "78131aafc080c70b9eb6daff721c0fce6c002279",
+        "size": 5276436216,
+        "lfs": {
+          "sha256": "aab052180118aee34abc3029b54eaa49096aac606b97d703866b420dceb703c3",
+          "size": 5276436216,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "model-00002-of-00004.safetensors",
+        "blobId": "a30df71ad0381f471cb5be4db4f89f5a6dc93fe3",
+        "size": 5033171280,
+        "lfs": {
+          "sha256": "7a0486565f06d25ac4628e9dba470dc3f604353471d240d5a0bf7128f64df396",
+          "size": 5033171280,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "model-00003-of-00004.safetensors",
+        "blobId": "861dc258b72a10105d1e4537025dfe9394c61650",
+        "size": 5234499504,
+        "lfs": {
+          "sha256": "6c73207563d1879bfd6c143a028cc70be68edff56280458c71a43df4240300f4",
+          "size": 5234499504,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "model-00004-of-00004.safetensors",
+        "blobId": "b93af6ccef6c2d7e97c691040006cc5f4f0d4342",
+        "size": 3275613848,
+        "lfs": {
+          "sha256": "1379a7cf8c0b8555a39ab65a47e830e0eb45e776b46045734da3afd73c09eea2",
+          "size": 3275613848,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "model.safetensors.index.json",
+        "blobId": "be2a44ec6dc7004e51e648b5e2cf8c32cee42c79",
+        "size": 69217
+      },
+      {
+        "rfilename": "preprocessor_config.json",
+        "blobId": "8ed39680d90d989c35a3e308338a24875bafbc42",
+        "size": 443
+      },
+      {
+        "rfilename": "processor_config.json",
+        "blobId": "33818c7f9e991ad735fd240209f4fa73e6c28c50",
+        "size": 1191
+      },
+      {
+        "rfilename": "tokenizer.json",
+        "blobId": "5520bfd2dd834ce386c1312c410fa71af56db5ad",
+        "size": 19989325,
+        "lfs": {
+          "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+          "size": 19989325,
+          "pointerSize": 133
+        }
+      },
+      {
+        "rfilename": "tokenizer_config.json",
+        "blobId": "1d134cd298be1e3be25db393d93a1cefe80e3214",
+        "size": 1165
+      },
+      {
+        "rfilename": "video_preprocessor_config.json",
+        "blobId": "3ba673a5ad7d4d13f54155ecd38b2a94a6dac8fe",
+        "size": 385
+      },
+      {
+        "rfilename": "vocab.json",
+        "blobId": "0aa0ce0658d60ac4a5d609f4eadb0e8e43514176",
+        "size": 6722759
+      }
+    ]
+  },
+  "prithivMLmods/MiMo-V2.6-Distill-Qwen-9B-GGUF": {
+    "url": "https://huggingface.co/api/models/prithivMLmods/MiMo-V2.6-Distill-Qwen-9B-GGUF?blobs=true",
+    "sha": "2ed8dfba210e13c96c959580c4368fab1d8f0ba0",
+    "license": "other",
+    "files": [
+      {
+        "rfilename": ".gitattributes",
+        "blobId": "790eb2f4eff95ea56044ed2a3ea9a65fe9a80a3c",
+        "size": 2186
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.BF16.gguf",
+        "blobId": "2c0ee4405451f2bf4e4b750b98be0bd4a285e54d",
+        "size": 17920693440,
+        "lfs": {
+          "sha256": "af64b6abdf3c4eeb396e2d7a5fc2194fdc6272b263a7ad8b6cc1e5e06299f74c",
+          "size": 17920693440,
+          "pointerSize": 136
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.Q3_K_L.gguf",
+        "blobId": "a92c5cbf9153495a3357ba91b194a759c98bc584",
+        "size": 4925510848,
+        "lfs": {
+          "sha256": "1c9c0bdeeb58ff77a4fc6931c0292f5525d74da78180c01e97c89b3f5d2d782b",
+          "size": 4925510848,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.Q3_K_M.gguf",
+        "blobId": "4d8e218a46ddd85115b09ffcd6fdb45556462401",
+        "size": 4623520960,
+        "lfs": {
+          "sha256": "36c3b2fa6ca6b2d1bd052004a3eb74299f49af0235f37d1a9d0c61c0ffc804d5",
+          "size": 4623520960,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.Q4_K_M.gguf",
+        "blobId": "92021bb1069a193c0559d9931104aa90bf9647a5",
+        "size": 5629105344,
+        "lfs": {
+          "sha256": "6d5019649ae3d5f094d4e6ec798d6725c0f2524c737e5cea893a6ffd7ac25c1e",
+          "size": 5629105344,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.Q4_K_S.gguf",
+        "blobId": "5ad88c7b59a929950e5c84c97aad1a9e9d7766b4",
+        "size": 5351625920,
+        "lfs": {
+          "sha256": "1d2acdcce9401db2acd179a3c50e1a5ea1d5c1c13d8e9860015246c431e6e0e7",
+          "size": 5351625920,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.Q5_K_M.gguf",
+        "blobId": "d00a074d56cf8ee4cbac082f97efdf921fef5393",
+        "size": 6467966144,
+        "lfs": {
+          "sha256": "ee4a1a53de34801b2772334dc90ff777e86b4b15769e68f60a259d94263410e3",
+          "size": 6467966144,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.Q5_K_S.gguf",
+        "blobId": "826069b7afc5e00f8a69463fb10e3026e764fc7c",
+        "size": 6305305792,
+        "lfs": {
+          "sha256": "a3455fd7057cd8af48a03ccc00af1a84e1e97cab61ad00e77e5535894bdc13ba",
+          "size": 6305305792,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.Q6_K.gguf",
+        "blobId": "e7c863c2acfa7e9cd93d856cfeb9d749cebe4a00",
+        "size": 7359255744,
+        "lfs": {
+          "sha256": "4bac682e6c2bb6e0de2e3fa248d0f4714b17c0343ccc4451ba3234d36d874e31",
+          "size": 7359255744,
+          "pointerSize": 135
+        }
+      },
+      {
+        "rfilename": "MiMo-V2.6-Distill-Qwen-9B.mmproj-bf16.gguf",
+        "blobId": "349971e43a3122105aff809440962d3fa35def40",
+        "size": 921704992,
+        "lfs": {
+          "sha256": "197656f5ea308d2e9e008c5c1cb239b0297d7d1c7b4c0769cee3b46c2b891714",
+          "size": 921704992,
+          "pointerSize": 134
+        }
+      },
+      {
+        "rfilename": "README.md",
+        "blobId": "2ea9c77f46d1a5ff97a16d06806b23a5e82de664",
+        "size": 3823
+      }
+    ]
+  }
+}

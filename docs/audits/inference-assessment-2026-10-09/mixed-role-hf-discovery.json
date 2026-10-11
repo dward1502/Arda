@@ -1,0 +1,453 @@
+{
+  "schema_version": 1,
+  "retrieved_at_utc": "2026-10-11T04:32:22.097471+00:00",
+  "scope": "Read-only live HF metadata/cards/configs and official runtime/license documentation. Eight distinct model families; per-role discovery, not replacement or promotion. No weights downloaded, installs, builds, inference, service changes or coding delegation.",
+  "specification": "docs/plans/INFERENCE_ASSESSMENT.md, current specification lines12-56 and handoff/candidate boundaries lines58-163 read before discovery",
+  "fleet_from_user": {
+    "Core": "RTX3080 10GB,32GB RAM",
+    "Server": "two RTX2080Super8GB,128GB RAM",
+    "Beelink": "HX PRO370,890M,~29GB shared RAM; reliable home services take precedence"
+  },
+  "interpretation": [
+    "All throughput/quality claims in cards are publisher claims; no candidate outperforms incumbents until identical task contracts are tested.",
+    "HF created/modified dates are repository metadata, not release dates or quality evidence. Granite4.2 card explicitly states release2026-08-25.",
+    "Advertised artifact SHA256 values are HF LFS metadata, not locally verified digests. Sizes are download weights only, excluding runtime, KV cache, activations and concurrency.",
+    "No runtime revision or adapter has been qualified by this discovery. New role endpoints must be admitted through existing Manwe/Hermes contracts without lowering continuation floors for roles which still own continuation.",
+    "Essential services, storage/backups and recovery inventory precede Beelink inference. Use on-demand bounded CPU experiments first; shared RAM is not dedicated GPU VRAM. Do not infer working ROCm/Vulkan acceleration."
+  ],
+  "candidates": [
+    {
+      "family": "Granite4.2",
+      "model": "ibm-granite/granite-4.2-3b",
+      "revision": "e459acceac81e5fe67c07d9cfc72329a332e7eb1",
+      "license_card": "apache-2.0",
+      "gated": false,
+      "repo_created_at": "2026-08-07T16:26:43.000Z",
+      "repo_last_modified": "2026-09-02T21:57:50.000Z",
+      "roles": [
+        "bounded extraction",
+        "classification",
+        "document summarization"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/ibm-granite/granite-4.2-3b?blobs=true",
+        "card": "https://huggingface.co/ibm-granite/granite-4.2-3b/blob/e459acceac81e5fe67c07d9cfc72329a332e7eb1/README.md",
+        "config": "https://huggingface.co/ibm-granite/granite-4.2-3b/blob/e459acceac81e5fe67c07d9cfc72329a332e7eb1/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 7319517120,
+        "files": [
+          {
+            "name": "model-00001-of-00002.safetensors",
+            "bytes": 5358533712,
+            "advertised_sha256": "db39eb2776b5404dbfd0696cf7fe5ec671f0dad0e0918c62c5aea9e2eb5825d7"
+          },
+          {
+            "name": "model-00002-of-00002.safetensors",
+            "bytes": 1960983408,
+            "advertised_sha256": "8fba6ea17551d5d129eac519dbd70237139221c7fd0b89623ef54d9711062505"
+          }
+        ]
+      },
+      "assessment": "High-priority inexpensive independent-family text candidate; newest release is not evidence of superiority.",
+      "runtime_prerequisites": "Publisher GGUF; llama.cpp Granite support/template must be pinned and exercised. Card: Transformers, vLLM and SGLang >=0.5.18. Start 4K/8K bounded inputs and non-thinking vs thinking comparison.",
+      "fleet_fit_hypothesis": "Q4 weights 2.24GB: plausible one 8GB GPU or Core 10GB, leaving space to measure KV/cache. Beelink CPU on-demand plausible; no AMD GPU support claim.",
+      "uncertainties": "Card claims 512K extension but config native maximum is 131072; never advertise extension without validation. Card contains training TODOs and 3B agentic benchmark NAs. No observed extraction accuracy.",
+      "qualification": "discovery only; no local inference tested",
+      "quant_artifact": {
+        "repo": "ibm-granite/granite-4.2-3b-GGUF",
+        "revision": "c40945d71cd90f249a56985e8155551a9188dc30",
+        "publisher_status": "official model publisher",
+        "license_card": "apache-2.0",
+        "source": "https://huggingface.co/ibm-granite/granite-4.2-3b-GGUF/tree/c40945d71cd90f249a56985e8155551a9188dc30",
+        "files": [
+          {
+            "name": "granite-4.2-3b-Q4_K_M.gguf",
+            "bytes": 2244011552,
+            "advertised_sha256": "e0406663965846ae22a403456eb826ccce5f450840491f71952f18a7cb78e7d5"
+          }
+        ]
+      }
+    },
+    {
+      "family": "Gemma4",
+      "model": "google/gemma-4-E4B-it",
+      "revision": "ee0ef6023621cff504d758262d4e04895a5af4a2",
+      "license_card": "apache-2.0",
+      "gated": false,
+      "repo_created_at": "2026-03-02T19:57:40.000Z",
+      "repo_last_modified": "2026-07-20T16:42:03.000Z",
+      "roles": [
+        "source-bounded research synthesis",
+        "image/question answering",
+        "short-audio understanding"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/google/gemma-4-E4B-it?blobs=true",
+        "card": "https://huggingface.co/google/gemma-4-E4B-it/blob/ee0ef6023621cff504d758262d4e04895a5af4a2/README.md",
+        "config": "https://huggingface.co/google/gemma-4-E4B-it/blob/ee0ef6023621cff504d758262d4e04895a5af4a2/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 15992595884,
+        "files": [
+          {
+            "name": "model.safetensors",
+            "bytes": 15992595884,
+            "advertised_sha256": "cfbd3d2f1cd71bd471c37fe2bf8546d5028d41e5736f64e1ca6c6b8893125503"
+          }
+        ]
+      },
+      "assessment": "Promising research/vision specialist, not universal replacement.",
+      "runtime_prerequisites": "Transformers Gemma4ForConditionalGeneration; community GGUF and separate projector. Pin actual llama.cpp build, template, projector modality support; BF16 projector is not native on Turing, select F16.",
+      "fleet_fit_hypothesis": "E4B means 4.5B effective / 8B total, NOT 4GB weights. Q4 plus F16 projector roughly 6GB; Core plausible at short context, 8GB GPU tight. Beelink fits RAM only provisionally; preserve home-service headroom.",
+      "uncertainties": "Native weights ~16GB exceed single fleet GPUs. Audio max 30s per card; text output only, not TTS. Full 128K context fit unmeasured. Do not carry Gemma3 license restrictions forward: this card and Google license page say Apache-2.0.",
+      "qualification": "discovery only; no local inference tested",
+      "quant_artifact": {
+        "repo": "unsloth/gemma-4-E4B-it-GGUF",
+        "revision": "bfc15c382204943c3a8fff0c750b94ae2364d7a3",
+        "publisher_status": "third-party quantizer",
+        "license_card": "apache-2.0",
+        "source": "https://huggingface.co/unsloth/gemma-4-E4B-it-GGUF/tree/bfc15c382204943c3a8fff0c750b94ae2364d7a3",
+        "files": [
+          {
+            "name": "gemma-4-E4B-it-Q4_K_M.gguf",
+            "bytes": 4977171584,
+            "advertised_sha256": "85a896a047553e842f25297ee5b031d64ff30147d9c4af17b1e4b394cd1fab87"
+          },
+          {
+            "name": "mmproj-F16.gguf",
+            "bytes": 990372672,
+            "advertised_sha256": "ddf46c21d7078e95338cfc22306b19b276a29a5ad089023449dd54d4b6170a51"
+          }
+        ]
+      }
+    },
+    {
+      "family": "Phi4-mini",
+      "model": "microsoft/Phi-4-mini-instruct",
+      "revision": "cfbefacb99257ffa30c83adab238a50856ac3083",
+      "license_card": "mit",
+      "gated": false,
+      "repo_created_at": "2025-02-19T01:00:58.000Z",
+      "repo_last_modified": "2025-12-10T20:24:40.000Z",
+      "roles": [
+        "bounded code review control",
+        "structured extraction control"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/microsoft/Phi-4-mini-instruct?blobs=true",
+        "card": "https://huggingface.co/microsoft/Phi-4-mini-instruct/blob/cfbefacb99257ffa30c83adab238a50856ac3083/README.md",
+        "config": "https://huggingface.co/microsoft/Phi-4-mini-instruct/blob/cfbefacb99257ffa30c83adab238a50856ac3083/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 7672066216,
+        "files": [
+          {
+            "name": "model-00001-of-00002.safetensors",
+            "bytes": 4903637712,
+            "advertised_sha256": "bc703090b63eda16f639fa4de7ac54635c23105ab1da2f6ec4d3403151d38ee6"
+          },
+          {
+            "name": "model-00002-of-00002.safetensors",
+            "bytes": 2768428504,
+            "advertised_sha256": "7ff79b9d2d31076bac2663393451f6530f4fc8ca49b09002116c92c373dba983"
+          }
+        ]
+      },
+      "assessment": "Older independent-family low-cost control: retained because age does not establish inferiority.",
+      "runtime_prerequisites": "Transformers >=4.49.0; card vLLM >=0.7.3. Community GGUF; validate structured output and Phi template, not general agent continuity.",
+      "fleet_fit_hypothesis": "Q4 ~2.49GB plausible on one fleet GPU or CPU on demand. Full BF16 ~7.67GB has little space on 8GB; Turing requires appropriate FP16/quant kernels.",
+      "uncertainties": "General model, not proven review specialist. Keep same diff fixtures, absence cases and budget as new models; no internet/repository tools needed.",
+      "qualification": "discovery only; no local inference tested",
+      "quant_artifact": {
+        "repo": "unsloth/Phi-4-mini-instruct-GGUF",
+        "revision": "78eb92a46fc37e6b524df991ed9aca9bc6aa7b80",
+        "publisher_status": "third-party quantizer",
+        "license_card": "mit",
+        "source": "https://huggingface.co/unsloth/Phi-4-mini-instruct-GGUF/tree/78eb92a46fc37e6b524df991ed9aca9bc6aa7b80",
+        "files": [
+          {
+            "name": "Phi-4-mini-instruct-Q4_K_M.gguf",
+            "bytes": 2491874272,
+            "advertised_sha256": "88c00229914083cd112853aab84ed51b87bdf6b9ce42f532d8c85c7c63b1730a"
+          }
+        ]
+      }
+    },
+    {
+      "family": "SmolVLM2",
+      "model": "HuggingFaceTB/SmolVLM2-2.2B-Instruct",
+      "revision": "482adb537c021c86670beed01cd58990d01e72e4",
+      "license_card": "apache-2.0",
+      "gated": false,
+      "repo_created_at": "2025-02-08T19:18:45.000Z",
+      "repo_last_modified": "2025-04-08T07:25:13.000Z",
+      "roles": [
+        "screenshot triage",
+        "short video summarization"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/HuggingFaceTB/SmolVLM2-2.2B-Instruct?blobs=true",
+        "card": "https://huggingface.co/HuggingFaceTB/SmolVLM2-2.2B-Instruct/blob/482adb537c021c86670beed01cd58990d01e72e4/README.md",
+        "config": "https://huggingface.co/HuggingFaceTB/SmolVLM2-2.2B-Instruct/blob/482adb537c021c86670beed01cd58990d01e72e4/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 8987224056,
+        "files": [
+          {
+            "name": "model-00001-of-00002.safetensors",
+            "bytes": 4959390584,
+            "advertised_sha256": "7c88a90e78f567460b2369a0369cc4dafbfda5607c9cb090b30fa4437b0282f2"
+          },
+          {
+            "name": "model-00002-of-00002.safetensors",
+            "bytes": 4027833472,
+            "advertised_sha256": "cf3d0958a8240f71054a6812038f2a6bfbe2e5124573a3b363f6b120c9a52657"
+          }
+        ]
+      },
+      "assessment": "Small vision control with runtime-maintainer GGUF; useful versus heavier Gemma4.",
+      "runtime_prerequisites": "Official Transformers card plus ggml-org GGUF, paired Q8 projector; llama.cpp multimodal docs explicitly list this model, PR13050. Pin build before trial.",
+      "fleet_fit_hypothesis": "Q4 plus Q8 projector ~1.71GB; likely easiest vision residency experiment. Card 5.2GB video-memory claim is vendor-reported, not measured fleet fit.",
+      "uncertainties": "Older 2025 model deliberately retained. Screenshot tiny text and video frame sampling can lose facts. Separate OCR accuracy from visual summary quality; GGUF multimodal route not proven in Manwe.",
+      "qualification": "discovery only; no local inference tested",
+      "quant_artifact": {
+        "repo": "ggml-org/SmolVLM2-2.2B-Instruct-GGUF",
+        "revision": "1bc3c9f74ceafd4c8d4411cc9cf188bba3798f91",
+        "publisher_status": "runtime maintainer",
+        "license_card": "apache-2.0",
+        "source": "https://huggingface.co/ggml-org/SmolVLM2-2.2B-Instruct-GGUF/tree/1bc3c9f74ceafd4c8d4411cc9cf188bba3798f91",
+        "files": [
+          {
+            "name": "SmolVLM2-2.2B-Instruct-Q4_K_M.gguf",
+            "bytes": 1112602656,
+            "advertised_sha256": "0cf76814555b8665149075b74ab6b5c1d428ea1d3d01c1918c12012e8d7c9f58"
+          },
+          {
+            "name": "mmproj-SmolVLM2-2.2B-Instruct-Q8_0.gguf",
+            "bytes": 592523200,
+            "advertised_sha256": "ae07ea1facd07dd3230c4483b63e8cda96c6944ad2481f33d531f79e892dd024"
+          }
+        ]
+      }
+    },
+    {
+      "family": "Voxtral-Realtime",
+      "model": "mistralai/Voxtral-Mini-4B-Realtime-2602",
+      "revision": "2769294da9567371363522aac9bbcfdd19447add",
+      "license_card": "apache-2.0",
+      "gated": false,
+      "repo_created_at": "2026-01-21T17:22:02.000Z",
+      "repo_last_modified": "2026-03-11T15:04:02.000Z",
+      "roles": [
+        "streaming speech transcription"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/mistralai/Voxtral-Mini-4B-Realtime-2602?blobs=true",
+        "card": "https://huggingface.co/mistralai/Voxtral-Mini-4B-Realtime-2602/blob/2769294da9567371363522aac9bbcfdd19447add/README.md",
+        "config": "https://huggingface.co/mistralai/Voxtral-Mini-4B-Realtime-2602/blob/2769294da9567371363522aac9bbcfdd19447add/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 8859446848,
+        "files": [
+          {
+            "name": "model.safetensors",
+            "bytes": 8859446848,
+            "advertised_sha256": "e745e4902df6a4c48f29f2f8dc1f6d0fb4cc73c7156bc45923451a5bcdfcd1d6"
+          }
+        ]
+      },
+      "assessment": "Streaming voice alternative, lower priority than smaller ASR due runtime/VRAM risk.",
+      "runtime_prerequisites": "Official vLLM Realtime API/websockets or Transformers >=5.2.0. Runtime adapter not ordinary text chat. No quant artifact audited for this family.",
+      "fleet_fit_hypothesis": "One native weight set ~8.86GB; card recommends single GPU >=16GB. Neither 8GB server GPU meets that alone, and Core 10GB is not qualified. Two 8GB GPUs are NOT automatically a supported 16GB device.",
+      "uncertainties": "480ms is configured transcription delay/vendor claim, not end-to-end fleet latency. Quant/CPU feasibility unresolved. BF16 on Turing unsupported; cannot blindly copy card. Not speech generation.",
+      "qualification": "discovery only; no local inference tested"
+    },
+    {
+      "family": "Qwen3-ASR",
+      "model": "Qwen/Qwen3-ASR-0.6B",
+      "revision": "5eb144179a02acc5e5ba31e748d22b0cf3e303b0",
+      "license_card": "apache-2.0",
+      "gated": false,
+      "repo_created_at": "2026-01-28T03:15:39.000Z",
+      "repo_last_modified": "2026-01-30T03:00:21.000Z",
+      "roles": [
+        "voice dictation",
+        "language identification"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/Qwen/Qwen3-ASR-0.6B?blobs=true",
+        "card": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B/blob/5eb144179a02acc5e5ba31e748d22b0cf3e303b0/README.md",
+        "config": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B/blob/5eb144179a02acc5e5ba31e748d22b0cf3e303b0/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 1876091704,
+        "files": [
+          {
+            "name": "model.safetensors",
+            "bytes": 1876091704,
+            "advertised_sha256": "79d6cbd4c98c7bbffe9db2edac07f56cd6637d0d5944b27f6c2b8353840323ea"
+          }
+        ]
+      },
+      "assessment": "Top voice candidate by small artifact footprint and dedicated task contract.",
+      "runtime_prerequisites": "qwen-asr Transformers backend for offline chunks; vLLM backend required for streaming according to card. Optional forced aligner is a separate model, not included. Pin package/source before trial.",
+      "fleet_fit_hypothesis": "Native model.safetensors ~1.88GB; plausible on Core or one server GPU, subject encoder/workspace. Test FP16 compatibility on Turing rather than card BF16 default. Beelink CPU latency and iGPU support unverified.",
+      "uncertainties": "Model name 0.6B is not a 1.2GB artifact promise. Batch throughput claims do not predict interactive latency. Must test genuine operator speech, silence, proper names, and command confirmation.",
+      "qualification": "discovery only; no local inference tested"
+    },
+    {
+      "family": "DeepSeek-OCR2",
+      "model": "deepseek-ai/DeepSeek-OCR-2",
+      "revision": "aaa02f3811945a91062062994c5c4a3f4c0af2b0",
+      "license_card": "apache-2.0",
+      "gated": false,
+      "repo_created_at": "2026-01-27T02:56:54.000Z",
+      "repo_last_modified": "2026-02-03T00:33:19.000Z",
+      "roles": [
+        "document OCR",
+        "layout-to-markdown extraction"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/deepseek-ai/DeepSeek-OCR-2?blobs=true",
+        "card": "https://huggingface.co/deepseek-ai/DeepSeek-OCR-2/blob/aaa02f3811945a91062062994c5c4a3f4c0af2b0/README.md",
+        "config": "https://huggingface.co/deepseek-ai/DeepSeek-OCR-2/blob/aaa02f3811945a91062062994c5c4a3f4c0af2b0/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 6778573880,
+        "files": [
+          {
+            "name": "model-00001-of-000001.safetensors",
+            "bytes": 6778573880,
+            "advertised_sha256": "d8ff67a424ba6f4dd077885eb9d6a05d2537e76fe5491f0e2a9b712f8c8870fa"
+          }
+        ]
+      },
+      "assessment": "Focused scanned-document OCR candidate, conditional on runtime review.",
+      "runtime_prerequisites": "Card pins Python3.12.9/CUDA11.8, torch2.6.0, transformers4.46.3, flash-attn2.7.3 and trust_remote_code=True. Review pinned custom code before any later execution.",
+      "fleet_fit_hypothesis": "Native weights ~6.78GB; Core Ampere is the plausible first GPU, short single-page image only. Dynamic crops increase activation memory. Standard FA2/BF16 recipe unsuitable for 2080 Turing; no verified Beelink path.",
+      "uncertainties": "Reading order/table cells and fabricated missing text need scoring. No compatible GGUF/projector validated. Cold import remote-code review and dependency isolation are prerequisites, not permission to install.",
+      "qualification": "discovery only; no local inference tested"
+    },
+    {
+      "family": "Devstral2",
+      "model": "mistralai/Devstral-Small-2-24B-Instruct-2512",
+      "revision": "55c5b41e98c2dbd21b0c8afffc540dcfc9eb5128",
+      "license_card": "apache-2.0",
+      "gated": false,
+      "repo_created_at": "2025-11-28T11:27:11.000Z",
+      "repo_last_modified": "2026-07-15T12:20:36.000Z",
+      "roles": [
+        "bounded code review",
+        "patch explanation"
+      ],
+      "sources": {
+        "api": "https://huggingface.co/api/models/mistralai/Devstral-Small-2-24B-Instruct-2512?blobs=true",
+        "card": "https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512/blob/55c5b41e98c2dbd21b0c8afffc540dcfc9eb5128/README.md",
+        "config": "https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512/blob/55c5b41e98c2dbd21b0c8afffc540dcfc9eb5128/config.json"
+      },
+      "native_artifact": {
+        "format": "safetensors model set (excludes duplicate consolidated layout)",
+        "total_bytes": 25793059408,
+        "files": [
+          {
+            "name": "model-00001-of-00006.safetensors",
+            "bytes": 4907440626,
+            "advertised_sha256": "380035da60c7cc474cb7358888a1c50c70679bb3fb7f70870c2400f93ac51d70"
+          },
+          {
+            "name": "model-00002-of-00006.safetensors",
+            "bytes": 4996664584,
+            "advertised_sha256": "2caed6d3fb5af9c97b8c70e1424a9e517454e01451332834fba4fdb4e7a18280"
+          },
+          {
+            "name": "model-00003-of-00006.safetensors",
+            "bytes": 4980946432,
+            "advertised_sha256": "e2bab376f49baa1da58c0a737f688cbfe185dc6a994fa2870d62b7c8b36e3360"
+          },
+          {
+            "name": "model-00004-of-00006.safetensors",
+            "bytes": 4980946416,
+            "advertised_sha256": "63c422f7a5c1460967068c0ceff65eb31f136f64872e281841313e8c669e7c50"
+          },
+          {
+            "name": "model-00005-of-00006.safetensors",
+            "bytes": 4996675032,
+            "advertised_sha256": "ec99fd6a7faf35b43e38e60f531e9ee5d67c4292773d71246038b9eb508e373a"
+          },
+          {
+            "name": "model-00006-of-00006.safetensors",
+            "bytes": 930386318,
+            "advertised_sha256": "8efdf4d1c2425a2a7956bf43ae343f44a825a90a87e341ff02f708da2923a0b1"
+          }
+        ]
+      },
+      "assessment": "Coding-first stretch candidate for review-only jobs on server; not agent replacement.",
+      "runtime_prerequisites": "Official card recommends vLLM, mistral_common>=1.8.6; FP8 official weights unsuitable as direct native fleet path. Card links llama.cpp PR17945 and Unsloth/Bartowski quants. Require merged architecture/softmax changes and correct template in pinned runtime.",
+      "fleet_fit_hypothesis": "Q4 ~14.33GB; cannot fit single 8/10GB GPU. Server128GB RAM partial offload plausible; dual8GB split leaves little workspace and requires authorization affecting both incumbents. Beelink memory capacity is not a reason for persistent residency.",
+      "uncertainties": "Unsloth YAML license other conflicts with its copied Apache-2.0 prose and official Apache-2.0 card; resolve before staging. Card256K vs config393216 is not qualified context. Long-context and offload latency may erase utility; factual review quality unmeasured.",
+      "qualification": "discovery only; no local inference tested",
+      "quant_artifact": {
+        "repo": "unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF",
+        "revision": "6e458b8add42681bfd023de5eab93637694aaf82",
+        "publisher_status": "third-party quantizer",
+        "license_card": "other",
+        "source": "https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF/tree/6e458b8add42681bfd023de5eab93637694aaf82",
+        "files": [
+          {
+            "name": "Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf",
+            "bytes": 14334446752,
+            "advertised_sha256": "d14ba9edee1bb4c4996a726deb81e49ae81800a3216f0774634238c380aee496"
+          }
+        ]
+      }
+    }
+  ],
+  "runtime_sources": [
+    "https://ai.google.dev/gemma/docs/gemma_4_license",
+    "https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/README.md",
+    "https://raw.githubusercontent.com/ggml-org/llama.cpp/master/docs/multimodal.md"
+  ],
+  "top3_role_tests": [
+    {
+      "rank": 1,
+      "candidate": "Granite4.2-3B Q4_K_M",
+      "contract": "Extract/classify/summarize supplied Arda incident and maintenance snippets into strict JSON; source IDs and verbatim evidence spans; missing facts must be null. Include a source-bounded research sub-suite with conflicting dates, distractors and unanswerable questions.",
+      "fixtures": "60 held-out snippets:20 extraction,20 classification,20 evidence-grounded summaries; compare existing Qwen3.5-4B control and Phi4-mini under identical input/output budgets. Start max4K input/512 output; no tools or external actions.",
+      "proposed_gate": "100% schema validity; zero invented IDs/actions/quotes; macroF1>=0.90 classification and exact-field accuracy>=0.95 extraction; summary claims manually checked against spans. Report abstention precision/recall separately. These are proposed acceptance thresholds, not observed results.",
+      "placement": "First isolated authorized slot on one server GPU; later Beelink CPU only after inventory. Exercise background classification alongside one unchanged interactive stream; record p50/p95 latency, peak RAM/VRAM, cancel latency and service health; do not promote until operator contention budget agreed."
+    },
+    {
+      "rank": 2,
+      "candidate": "Devstral-Small-2-24B Q4_K_M",
+      "contract": "Read-only review of supplied Rust/Python diff plus exact relevant context; findings with file/line/evidence and confidence. No repository navigation, edits or command execution.",
+      "fixtures": "20 reviewed fixtures:10 known bugs,5 clean,5 insufficient-context. Include prior Python truthiness factual failure, async cancellation and SQL authority boundaries. Same prompt/budget against existing MiMo and remote frontier control where authenticated access is verified.",
+      "proposed_gate": "At least90% finding precision,80% seeded-bug recall, zero invented files/lines, correct truthiness explanations; abstain on missing context. Review blinded; usefulness and latency scored separately.",
+      "placement": "Only after quant-license and llama.cpp PR17945/template prerequisites. Server RAM plus authorized single-GPU offload, short4K/8K context, no dual-service pause assumed. If offload misses agreed review latency budget, retain as infeasible configuration rather than reject quality."
+    },
+    {
+      "rank": 3,
+      "candidate": "Qwen3-ASR-0.6B",
+      "contract": "Genuine operator dictation into Hermes draft text; NEVER execute recognized commands without confirmation.",
+      "fixtures": "30 consented utterances including Arda names, paths, punctuation, corrections, quiet/noisy speech; additionally10 silence/non-speech clips. Compare existing Whisper-large-v3-turbo baseline.",
+      "proposed_gate": "WER no worse than existing baseline, >=95% exact key names/paths, zero silence-induced actionable command text; report p50/p95 end-of-speech latency and real-time factor. Confirm microphone/VAD and actual listening workflow, not synthetic-only acceptance.",
+      "placement": "Offline short chunks via official Transformers backend before streaming adapter. Core or one server GPU only when authorized; test CPU feasibility separately before Beelink residency. Voxtral fallback requires separate memory/runtime preflight."
+    }
+  ],
+  "next_vision_test": "After top3 prerequisites, compare paired Gemma4-E4B and SmolVLM2 screenshot/table fixtures; DeepSeek-OCR2 only after custom-code/CUDA preflight. No computer-control authority implied.",
+  "tts_scope": "No new TTS family qualified in this capped eight-family pass; retain Kokoro control. ASR and audio understanding are not TTS.",
+  "unresolved": [
+    "No fleet live resource inventory performed by this subtask.",
+    "No empirical runtime, model quality, concurrent fit or authenticated hosted inference measured.",
+    "Devstral quant-license mismatch unresolved.",
+    "Voxtral native recommendation exceeds each fleet GPU; GPU pooling not established.",
+    "Beelink AMD runtime/kernel support and home-service headroom unresolved."
+  ]
+}

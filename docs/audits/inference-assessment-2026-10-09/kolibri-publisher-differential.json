@@ -1,0 +1,42 @@
+{
+  "reference": "https://raw.githubusercontent.com/Aleph-Alpha/aleph-alpha-inference/049a6a7bd2405b27d6d280d256bd3d585191c7ae/aleph_alpha_inference/kolibri1.py",
+  "cases": [
+    {
+      "case": "tiny",
+      "norm": "absent",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.49e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.887 I main: using seed 42, stdev 0.100000\nSTAGE ffn_moe_logits-0 13\nSTAGE ffn_moe_logits-1 13\nSTAGE ffn_moe_logits_biased-0 13\nSTAGE ffn_moe_logits_biased-1 13\nSTAGE ffn_moe_topk-0 13\nSTAGE ffn_moe_topk-1 13\nSTAGE ffn_moe_weights-0 13\nSTAGE ffn_moe_weights-1 13\nSTAGE ffn_moe_weights_norm-0 0\nSTAGE ffn_moe_weights_norm-1 0\nORACLE_CHECKS=582912 PUBLISHER_MISMATCHES=0\n"
+    },
+    {
+      "case": "tiny",
+      "norm": "false",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.49e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.004.069 I main: using seed 42, stdev 0.100000\nSTAGE ffn_moe_logits-0 13\nSTAGE ffn_moe_logits-1 13\nSTAGE ffn_moe_logits_biased-0 13\nSTAGE ffn_moe_logits_biased-1 13\nSTAGE ffn_moe_topk-0 13\nSTAGE ffn_moe_topk-1 13\nSTAGE ffn_moe_weights-0 13\nSTAGE ffn_moe_weights-1 13\nSTAGE ffn_moe_weights_norm-0 0\nSTAGE ffn_moe_weights_norm-1 0\nORACLE_CHECKS=582912 PUBLISHER_MISMATCHES=0\n"
+    },
+    {
+      "case": "tiny",
+      "norm": "true",
+      "exit_code": -6,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|",
+      "stderr": "0.00.002.558 I main: using seed 42, stdev 0.100000\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/llama.cpp-8798b654ee06d27eae8d01e43db5a0055cb678a3/tests/kolibri-oracle.h:37: GGML_ASSERT(t->ne[0]==1 && t->ne[1]==6) failed\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(+0x19e45)[0x7f672bf23e45]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(ggml_print_backtrace+0x1df)[0x7f672bf2421f]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(ggml_abort+0x126)[0x7f672bf243b6]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x41175a]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(ggml_backend_sched_graph_compute_async+0x307)[0x7f672bf42817]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libllama.so.0(_ZN13llama_context13graph_computeEP11ggml_cgraphb+0xa1)[0x7f672b8037c1]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libllama.so.0(_ZN13llama_context14process_ubatchERK12llama_ubatch14llm_graph_typeP22llama_memory_context_iR11ggml_status+0x106)[0x7f672b807126]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libllama.so.0(_ZN13llama_context6decodeERK15llama_batch_ext+0x3df)[0x7f672b80f87f]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x412821]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x418a33]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x40d708]\n/lib64/libc.so.6(+0x2a58e)[0x7f672af6058e]\n/lib64/libc.so.6(__libc_start_main+0x89)[0x7f672af60649]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x40dbf5]\n"
+    },
+    {
+      "case": "tiny",
+      "norm": "true",
+      "note": "accept both native gathered-weight layouts",
+      "exit_code": -6,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|",
+      "stderr": "0.00.001.444 I main: using seed 42, stdev 0.100000\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/llama.cpp-8798b654ee06d27eae8d01e43db5a0055cb678a3/tests/kolibri-oracle.h:38: GGML_ASSERT(t->ne[0]==6 && t->ne[2]==1) failed\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(+0x19e45)[0x7f00c20dfe45]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(ggml_print_backtrace+0x1df)[0x7f00c20e021f]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(ggml_abort+0x126)[0x7f00c20e03b6]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x41176f]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libggml-base.so.0(ggml_backend_sched_graph_compute_async+0x307)[0x7f00c20fe817]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libllama.so.0(_ZN13llama_context13graph_computeEP11ggml_cgraphb+0xa1)[0x7f00c1a037c1]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libllama.so.0(_ZN13llama_context14process_ubatchERK12llama_ubatch14llm_graph_typeP22llama_memory_context_iR11ggml_status+0x106)[0x7f00c1a07126]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/libllama.so.0(_ZN13llama_context6decodeERK15llama_batch_ext+0x3df)[0x7f00c1a0f87f]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x4127a1]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x4189b3]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x40d708]\n/lib64/libc.so.6(+0x2a58e)[0x7f00c113358e]\n/lib64/libc.so.6(__libc_start_main+0x89)[0x7f00c1133649]\n/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs[0x40dbf5]\n"
+    },
+    {
+      "case": "tiny",
+      "norm": "true",
+      "note": "both valid native weight layouts accepted",
+      "exit_code": 9,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.49e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.325 I main: using seed 42, stdev 0.100000\nSTAGE ffn_moe_logits-0 13\nSTAGE ffn_moe_logits-1 13\nSTAGE ffn_moe_logits_biased-0 13\nSTAGE ffn_moe_logits_biased-1 13\nSTAGE ffn_moe_topk-0 13\nSTAGE ffn_moe_topk-1 13\nSTAGE ffn_moe_weights-0 13\nSTAGE ffn_moe_weights-0 (reshaped) 13\nSTAGE ffn_moe_weights-1 13\nSTAGE ffn_moe_weights-1 (reshaped) 13\nSTAGE ffn_moe_weights_norm-0 13\nSTAGE ffn_moe_weights_norm-0 (reshaped) 13\nSTAGE ffn_moe_weights_norm-1 13\nSTAGE ffn_moe_weights_norm-1 (reshaped) 13\nORACLE_CHECKS=609408 PUBLISHER_MISMATCHES=17664\n"
+    }
+  ]
+}

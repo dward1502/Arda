@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/mimo-parser-incremental-probe",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-served-template.jinja"
+  ],
+  "hash_scope": "current artifacts after independent exact replay; does not retroactively attest build provenance",
+  "sha256": {
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/mimo-parser-incremental-probe": "66aee5c481f60008b826dc8d7916248ce9d9eb7340fa87b390a2b3f9a93f2db2",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-parser-incremental-probe.cpp": "4a4ed4e2473b7755e7d0a7f69cfdc1a4aa08fef5bc9eff458766e39111d27867",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-served-template.jinja": "9f36ab8f70ce878872cf86a0e278336f3090302a52154d8f0313196706e3bb4f",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-parser-incremental-result.json": "21e7ff5eac3b0ec1bed92a437119dcde8f54eb500e8eee2c22a88aea3cae4cdb",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-incremental-verify.py": "1e7f714a98f6eed0b7490342d103fd578a68b004117f4dbeb9eeb880acdf9900",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml-base.so.0.26.0": "7f5c669e39adb79f6b9bb46f35b299633292f227f3581241f3a36a383e5483db",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml-base.so.0": "7f5c669e39adb79f6b9bb46f35b299633292f227f3581241f3a36a383e5483db",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml-base.so": "7f5c669e39adb79f6b9bb46f35b299633292f227f3581241f3a36a383e5483db",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml-cpu.so.0.26.0": "acfb4aae683a71506d2bb34035dc9588f94e0c66a8eca1c24713ddaaaff07b8f",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml-cpu.so.0": "acfb4aae683a71506d2bb34035dc9588f94e0c66a8eca1c24713ddaaaff07b8f",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml-cpu.so": "acfb4aae683a71506d2bb34035dc9588f94e0c66a8eca1c24713ddaaaff07b8f",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml.so.0.26.0": "b69a9ad306bbc63b4939c7a4de805550a7d4a8d96a900d52fd84109ff427fde4",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml.so.0": "b69a9ad306bbc63b4939c7a4de805550a7d4a8d96a900d52fd84109ff427fde4",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libggml.so": "b69a9ad306bbc63b4939c7a4de805550a7d4a8d96a900d52fd84109ff427fde4",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libllama.so.0.6.0": "7b10dd84b6c7eddf1ee2f86f95db6e3c07c966f385ff2ec4a859874e04359eed",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libllama.so.0": "7b10dd84b6c7eddf1ee2f86f95db6e3c07c966f385ff2ec4a859874e04359eed",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libllama.so": "7b10dd84b6c7eddf1ee2f86f95db6e3c07c966f385ff2ec4a859874e04359eed",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libllama-common.so.0.6.0": "42b45af1567c7350155a3ce40c46ef718f2beab2dcb1da402a922e555d9dc183",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libllama-common.so.0": "42b45af1567c7350155a3ce40c46ef718f2beab2dcb1da402a922e555d9dc183",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libllama-common.so": "42b45af1567c7350155a3ce40c46ef718f2beab2dcb1da402a922e555d9dc183"
+  },
+  "verifier": {
+    "pass": true,
+    "negative_controls": 5,
+    "result_sha256": "21e7ff5eac3b0ec1bed92a437119dcde8f54eb500e8eee2c22a88aea3cae4cdb"
+  },
+  "independent_review": "deleg_3cf08bab/task-0 exact native replay and narrow NONE-mode claims passed",
+  "boundaries": [
+    "not HTTP transmission",
+    "not AUTO mode",
+    "not arbitrary schemas or chunk schedules",
+    "IDs assigned but name/ID delta serialization not reconstructed"
+  ]
+}

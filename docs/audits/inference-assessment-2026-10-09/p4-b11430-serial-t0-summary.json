@@ -1,0 +1,61 @@
+{
+  "mechanical_passes": 6,
+  "total": 6,
+  "factual_acceptance": "not qualified: recovery2 adds unsupported numeric ticket ID 1",
+  "cases": [
+    {
+      "case": "research",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "strict_recovery": null,
+      "incomplete_captures": 0,
+      "candidate_stopped": true,
+      "evidence": "p4-b11430-serial-t0-research-1.json"
+    },
+    {
+      "case": "research",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "strict_recovery": null,
+      "incomplete_captures": 0,
+      "candidate_stopped": true,
+      "evidence": "p4-b11430-serial-t0-research-2.json"
+    },
+    {
+      "case": "recovery",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "strict_recovery": true,
+      "incomplete_captures": 0,
+      "candidate_stopped": true,
+      "evidence": "p4-b11430-serial-t0-recovery-1.json"
+    },
+    {
+      "case": "recovery",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "strict_recovery": true,
+      "incomplete_captures": 0,
+      "candidate_stopped": true,
+      "evidence": "p4-b11430-serial-t0-recovery-2.json"
+    },
+    {
+      "case": "coding",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "strict_recovery": null,
+      "incomplete_captures": 0,
+      "candidate_stopped": true,
+      "evidence": "p4-b11430-serial-t0-coding-1.json"
+    },
+    {
+      "case": "coding",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "strict_recovery": null,
+      "incomplete_captures": 0,
+      "candidate_stopped": true,
+      "evidence": "p4-b11430-serial-t0-coding-2.json"
+    }
+  ]
+}

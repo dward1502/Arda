@@ -1,0 +1,127 @@
+{
+  "status": 200,
+  "body": {
+    "attempts": [
+      {
+        "error": "probe skipped because provider `local_fallback` reached its minute quota",
+        "latency_ms": 0,
+        "marker_found": false,
+        "ok": false,
+        "outcome_class": "probe_throttled",
+        "route": {
+          "model_id": "Qwen3.5-9B-Q4_K_M",
+          "provider_id": "local_fallback"
+        },
+        "status": 429,
+        "throttle": {
+          "cooldown_until_utc": null,
+          "last_failure_class": null,
+          "message": "probe skipped because provider `local_fallback` reached its minute quota",
+          "model_id": "Qwen3.5-9B-Q4_K_M",
+          "provider_id": "local_fallback",
+          "reason": "minute_quota_exhausted",
+          "remaining_seconds": 60
+        }
+      },
+      {
+        "error": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+        "latency_ms": 0,
+        "marker_found": false,
+        "ok": false,
+        "outcome_class": "probe_throttled",
+        "route": {
+          "model_id": "Qwen3.5-9B-Q4_K_M",
+          "provider_id": "openai_sub"
+        },
+        "status": 429,
+        "throttle": {
+          "cooldown_until_utc": null,
+          "last_failure_class": "provider_server_error",
+          "message": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+          "model_id": "Qwen3.5-9B-Q4_K_M",
+          "provider_id": "openai_sub",
+          "reason": "provider_failure_memory",
+          "remaining_seconds": 900
+        }
+      },
+      {
+        "content": "READY",
+        "latency_ms": 133,
+        "marker_found": true,
+        "ok": true,
+        "outcome_class": "success",
+        "route": {
+          "context_window_target": 1024,
+          "execution_lane": "interactive",
+          "latency_ms": 128,
+          "model_id": "Qwen3.5-9B-Q4_K_M",
+          "provider_id": "edge_core",
+          "route_class": "health_probe",
+          "route_id": "3f4df3ebd87aaa00"
+        },
+        "status": 200
+      }
+    ],
+    "content": "READY",
+    "latency_ms": 133,
+    "marker": "READY",
+    "marker_found": true,
+    "ok": true,
+    "outcome_class": "success",
+    "response": {
+      "_manwe_route": {
+        "context_window_target": 1024,
+        "execution_lane": "interactive",
+        "latency_ms": 128,
+        "model_id": "Qwen3.5-9B-Q4_K_M",
+        "provider_id": "edge_core",
+        "route_class": "health_probe",
+        "route_id": "3f4df3ebd87aaa00"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "READY",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1791610692,
+      "id": "chatcmpl-mZhZbLp5VzPjE1quDJmQQseKS8FNKLun",
+      "model": "Qwen3.5-9B-Q4_K_M",
+      "object": "chat.completion",
+      "system_fingerprint": "b8668-b2f6a68ae",
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 11.984,
+        "predicted_n": 2,
+        "predicted_per_second": 166.88918558077435,
+        "predicted_per_token_ms": 5.992,
+        "prompt_ms": 48.192,
+        "prompt_n": 42,
+        "prompt_per_second": 871.5139442231076,
+        "prompt_per_token_ms": 1.1474285714285717
+      },
+      "usage": {
+        "completion_tokens": 2,
+        "prompt_tokens": 42,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 44
+      }
+    },
+    "route": {
+      "context_window_target": 1024,
+      "execution_lane": "interactive",
+      "latency_ms": 128,
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "provider_id": "edge_core",
+      "route_class": "health_probe",
+      "route_id": "3f4df3ebd87aaa00"
+    },
+    "status": 200
+  }
+}

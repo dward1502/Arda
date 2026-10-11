@@ -49,7 +49,34 @@ pub(super) async fn response_to_codex_outcome(
     response: reqwest::Response,
 ) -> CodexResponsesOutcome {
     let status = response.status().as_u16();
-    let text = response.text().await.unwrap_or_default();
+    let text = match response.text().await {
+        Ok(text) => text,
+        Err(error) => {
+            // A deadline or broken response body is not malformed model output.
+            // Do not include reqwest's URL-bearing error in operator evidence.
+            let (status, kind, message) = if error.is_timeout() {
+                (
+                    504,
+                    "codex_responses_transport_timeout",
+                    "Responses body read timed out",
+                )
+            } else {
+                (
+                    502,
+                    "codex_responses_transport_error",
+                    "Responses body read failed",
+                )
+            };
+            return CodexResponsesOutcome {
+                status,
+                error: Some(message.to_owned()),
+                response: serde_json::json!({
+                    "error": {"message": message, "type": kind},
+                    "_charon_driver": "codex_responses",
+                }),
+            };
+        }
+    };
     let parsed: JsonValue = parse_codex_response_text(&text);
     if (200..300).contains(&status) {
         if parsed.get("error").is_some() {
@@ -93,7 +120,13 @@ pub(super) fn codex_responses_timeout(default_timeout: Duration) -> Duration {
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
         .map(Duration::from_secs)
-        .unwrap_or(default_timeout)
+        // Responses uses upstream SSE, buffered here through terminal completion.
+        // The generic chat deadline is too short for multi-step tool reports.
+        .unwrap_or_else(|| default_codex_responses_timeout(default_timeout))
+}
+
+fn default_codex_responses_timeout(default_timeout: Duration) -> Duration {
+    default_timeout.max(Duration::from_secs(120))
 }
 
 fn chat_body_to_responses_body(model_id: &str, body: &JsonValue) -> Result<JsonValue> {
@@ -137,10 +170,55 @@ mod framing_regressions {
         assert_eq!(calls[1]["id"], body["messages"][2]["tool_call_id"]);
     }
     #[test]
+    fn responses_default_deadline_preserves_larger_budgets() {
+        assert_eq!(
+            default_codex_responses_timeout(Duration::from_secs(35)),
+            Duration::from_secs(120)
+        );
+        assert_eq!(
+            default_codex_responses_timeout(Duration::from_secs(240)),
+            Duration::from_secs(240)
+        );
+    }
+
+    #[tokio::test]
+    async fn body_read_timeout_is_not_a_parser_failure() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut request = [0u8; 4096];
+            socket.read(&mut request).await.unwrap();
+            socket.write_all(b"HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nContent-Length: 1000\r\n\r\n").await.unwrap();
+            tokio::time::sleep(Duration::from_secs(2)).await;
+        });
+        let response = reqwest::Client::new()
+            .get(format!("http://{address}"))
+            .timeout(Duration::from_millis(150))
+            .send()
+            .await
+            .unwrap();
+        let outcome = response_to_codex_outcome(response).await;
+        server.abort();
+        assert_eq!(outcome.status, 504);
+        assert_eq!(
+            outcome.response["error"]["type"],
+            "codex_responses_transport_timeout"
+        );
+        assert!(!outcome
+            .error
+            .unwrap()
+            .contains("Unrecognized Responses payload"));
+    }
+
+    #[test]
     fn responses_incomplete_stream_fails_closed() {
         let event = serde_json::json!({"type":"response.incomplete", "response":{
             "status":"incomplete", "output":[{"type":"function_call", "call_id":"partial", "name":"read", "arguments":"{"}]}});
-        assert!(parse_codex_response_text(&format!("data: {event}\n\n")).get("error").is_some());
+        assert!(parse_codex_response_text(&format!("data: {event}\n\n"))
+            .get("error")
+            .is_some());
     }
     #[test]
     fn terminal_snapshot_with_crlf_preserves_output() {
@@ -150,10 +228,16 @@ mod framing_regressions {
         let parsed = parse_codex_response_text(&format!("data: {event}\r\n\r\n"));
         assert_eq!(parsed["output"][0]["content"][0]["text"], "review result");
         assert!(parse_codex_response_text("garbage").get("error").is_some());
-        assert_eq!(responses_body_to_chat_completion(&parsed)["choices"][0]["message"]["content"], "review result");
+        assert_eq!(
+            responses_body_to_chat_completion(&parsed)["choices"][0]["message"]["content"],
+            "review result"
+        );
         let delta = serde_json::json!({"type":"response.output_text.delta", "delta":"review"});
         let partial = parse_codex_response_text(&format!("data: {delta}\n\ndata: {event}\n\n"));
-        assert_eq!(responses_body_to_chat_completion(&partial)["choices"][0]["message"]["content"], "review result");
+        assert_eq!(
+            responses_body_to_chat_completion(&partial)["choices"][0]["message"]["content"],
+            "review result"
+        );
     }
 }
 

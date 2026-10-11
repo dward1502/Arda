@@ -1,0 +1,72 @@
+{
+  "read_only": true,
+  "scope": "HTTP endpoint self-reports from Beelink loopback; no end-to-end workload, backup or network exposure acceptance",
+  "probes": [
+    {
+      "application": "grafana",
+      "source": "beelink loopback http://127.0.0.1:3000/api/health",
+      "observed_at": 1791706934.7208445,
+      "command": "curl --noproxy \"*\" --max-time 4 --max-filesize 16384 --silent --show-error -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://127.0.0.1:3000/api/health",
+      "result": {
+        "output": "{\n  \"database\": \"ok\",\n  \"version\": \"13.0.1\",\n  \"commit\": \"a100054f21\"\n}\nHTTP_STATUS=200",
+        "exit_code": 0,
+        "error": null
+      }
+    },
+    {
+      "application": "prometheus",
+      "source": "beelink loopback http://127.0.0.1:9090/-/ready",
+      "observed_at": 1791706935.02423,
+      "command": "curl --noproxy \"*\" --max-time 4 --max-filesize 16384 --silent --show-error -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://127.0.0.1:9090/-/ready",
+      "result": {
+        "output": "Prometheus Server is Ready.\n\nHTTP_STATUS=200",
+        "exit_code": 0,
+        "error": null
+      }
+    },
+    {
+      "application": "minio",
+      "source": "beelink loopback http://127.0.0.1:9000/minio/health/ready",
+      "observed_at": 1791706935.2651248,
+      "command": "curl --noproxy \"*\" --max-time 4 --max-filesize 16384 --silent --show-error -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://127.0.0.1:9000/minio/health/ready",
+      "result": {
+        "output": "HTTP_STATUS=200",
+        "exit_code": 0,
+        "error": null
+      }
+    },
+    {
+      "application": "openwebui",
+      "source": "beelink loopback http://127.0.0.1:8080/health",
+      "observed_at": 1791706935.6505806,
+      "command": "curl --noproxy \"*\" --max-time 4 --max-filesize 16384 --silent --show-error -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://127.0.0.1:8080/health",
+      "result": {
+        "output": "{\"status\":true}\nHTTP_STATUS=200",
+        "exit_code": 0,
+        "error": null
+      }
+    },
+    {
+      "application": "clickhouse",
+      "source": "beelink loopback http://127.0.0.1:8123/ping",
+      "observed_at": 1791706935.891964,
+      "command": "curl --noproxy \"*\" --max-time 4 --max-filesize 16384 --silent --show-error -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://127.0.0.1:8123/ping",
+      "result": {
+        "output": "Ok.\n\nHTTP_STATUS=200",
+        "exit_code": 0,
+        "error": null
+      }
+    },
+    {
+      "application": "langfuse",
+      "source": "beelink loopback http://127.0.0.1:3001/api/public/health",
+      "observed_at": 1791706936.2763717,
+      "command": "curl --noproxy \"*\" --max-time 4 --max-filesize 16384 --silent --show-error -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://127.0.0.1:3001/api/public/health",
+      "result": {
+        "output": "{\"status\":\"OK\",\"version\":\"3.186.0\"}\nHTTP_STATUS=200",
+        "exit_code": 0,
+        "error": null
+      }
+    }
+  ]
+}

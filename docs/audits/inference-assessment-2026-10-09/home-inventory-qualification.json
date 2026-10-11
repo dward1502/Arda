@@ -1,0 +1,45 @@
+{
+  "read_only": true,
+  "installed_policy_changed": false,
+  "selected_container_count": 11,
+  "checks": [
+    {
+      "check": "no_actions",
+      "passed": true
+    },
+    {
+      "check": "system_fresh",
+      "passed": true
+    },
+    {
+      "check": "sshd.service_independent_show",
+      "passed": true
+    },
+    {
+      "check": "user_fresh",
+      "passed": true
+    },
+    {
+      "check": "llama-server-light.service_independent_show",
+      "passed": true
+    },
+    {
+      "check": "node_exporter.service_independent_show",
+      "passed": true
+    },
+    {
+      "check": "podman_user_fresh",
+      "passed": true
+    },
+    {
+      "check": "all_container_states_equal_independent_read",
+      "passed": true
+    }
+  ],
+  "negative_controls": [
+    "minio-init is an exited initializer, not a required running daemon",
+    "user node_exporter.service is inactive; node-exporter container runs"
+  ],
+  "passed": true,
+  "limitations": "Snapshot liveness only; no application, backup or sustained-contention acceptance."
+}

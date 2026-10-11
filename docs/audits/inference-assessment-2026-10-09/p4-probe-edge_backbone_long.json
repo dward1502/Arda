@@ -1,0 +1,127 @@
+{
+  "status": 200,
+  "body": {
+    "attempts": [
+      {
+        "error": "probe skipped because provider `local_fallback` reached its minute quota",
+        "latency_ms": 0,
+        "marker_found": false,
+        "ok": false,
+        "outcome_class": "probe_throttled",
+        "route": {
+          "model_id": "bonsai-27b-q1_0",
+          "provider_id": "local_fallback"
+        },
+        "status": 429,
+        "throttle": {
+          "cooldown_until_utc": null,
+          "last_failure_class": null,
+          "message": "probe skipped because provider `local_fallback` reached its minute quota",
+          "model_id": "bonsai-27b-q1_0",
+          "provider_id": "local_fallback",
+          "reason": "minute_quota_exhausted",
+          "remaining_seconds": 60
+        }
+      },
+      {
+        "error": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+        "latency_ms": 0,
+        "marker_found": false,
+        "ok": false,
+        "outcome_class": "probe_throttled",
+        "route": {
+          "model_id": "bonsai-27b-q1_0",
+          "provider_id": "openai_sub"
+        },
+        "status": 429,
+        "throttle": {
+          "cooldown_until_utc": null,
+          "last_failure_class": "provider_server_error",
+          "message": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+          "model_id": "bonsai-27b-q1_0",
+          "provider_id": "openai_sub",
+          "reason": "provider_failure_memory",
+          "remaining_seconds": 900
+        }
+      },
+      {
+        "content": "READY",
+        "latency_ms": 395,
+        "marker_found": true,
+        "ok": true,
+        "outcome_class": "success",
+        "route": {
+          "context_window_target": 1024,
+          "execution_lane": "interactive",
+          "latency_ms": 392,
+          "model_id": "bonsai-27b-q1_0",
+          "provider_id": "edge_backbone_long",
+          "route_class": "health_probe",
+          "route_id": "10bf5c0ecaeb1b31"
+        },
+        "status": 200
+      }
+    ],
+    "content": "READY",
+    "latency_ms": 395,
+    "marker": "READY",
+    "marker_found": true,
+    "ok": true,
+    "outcome_class": "success",
+    "response": {
+      "_manwe_route": {
+        "context_window_target": 1024,
+        "execution_lane": "interactive",
+        "latency_ms": 392,
+        "model_id": "bonsai-27b-q1_0",
+        "provider_id": "edge_backbone_long",
+        "route_class": "health_probe",
+        "route_id": "10bf5c0ecaeb1b31"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "READY",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1791610693,
+      "id": "chatcmpl-YUOFRM7AiLpXsf38DKZLoZuf8wJI4U2Q",
+      "model": "bonsai-27b-q1_0",
+      "object": "chat.completion",
+      "system_fingerprint": "b1-9fcaed7",
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 28.226,
+        "predicted_n": 2,
+        "predicted_per_second": 70.85665698292355,
+        "predicted_per_token_ms": 14.113,
+        "prompt_ms": 330.208,
+        "prompt_n": 42,
+        "prompt_per_second": 127.19255741835448,
+        "prompt_per_token_ms": 7.862095238095239
+      },
+      "usage": {
+        "completion_tokens": 2,
+        "prompt_tokens": 42,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 44
+      }
+    },
+    "route": {
+      "context_window_target": 1024,
+      "execution_lane": "interactive",
+      "latency_ms": 392,
+      "model_id": "bonsai-27b-q1_0",
+      "provider_id": "edge_backbone_long",
+      "route_class": "health_probe",
+      "route_id": "10bf5c0ecaeb1b31"
+    },
+    "status": 200
+  }
+}

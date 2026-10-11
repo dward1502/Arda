@@ -1,0 +1,120 @@
+{
+  "scope": "retained pre-upstream admission evidence; no coding task ran",
+  "events": [
+    {
+      "source": "state/state.jsonl",
+      "event": {
+        "event": "route_failed_policy",
+        "payload": {
+          "agent_id": "openai_shim",
+          "policy": {
+            "cost_tier": "balanced",
+            "latency_sla_ms": null,
+            "origin_preference": "auto",
+            "privacy_tier": "public",
+            "quality_tier": "high",
+            "require_local": true,
+            "spread_score_band": 0.03,
+            "spread_top_cap": 3
+          },
+          "priority": "normal",
+          "reason": "privacy_requires_local_but_no_local_provider_available",
+          "task_type": "code"
+        },
+        "ts": "2026-10-10T08:28:48.707886145+00:00"
+      }
+    },
+    {
+      "source": "state/governance_events.jsonl",
+      "event": {
+        "event": "route_failed_policy",
+        "payload": {
+          "agent_id": "openai_shim",
+          "failure_class": "policy_requires_local_no_local_available",
+          "policy": {
+            "cost_tier": "balanced",
+            "latency_sla_ms": null,
+            "origin_preference": "auto",
+            "privacy_tier": "public",
+            "quality_tier": "high",
+            "require_local": true,
+            "spread_score_band": 0.03,
+            "spread_top_cap": 3
+          },
+          "priority": "normal",
+          "reason": "privacy_requires_local_but_no_local_provider_available",
+          "task_type": "code",
+          "verdict": "blocked"
+        },
+        "ts": "2026-10-10T08:28:48.707891035+00:00"
+      }
+    },
+    {
+      "source": "state/governance_events.jsonl",
+      "event": {
+        "event": "route_failed",
+        "payload": {
+          "agent_id": "openai_shim",
+          "failure_class": "route_unavailable",
+          "forced_model_id": null,
+          "forced_provider_id": "edge_core",
+          "policy": {
+            "cost_tier": "balanced",
+            "latency_sla_ms": null,
+            "origin_preference": "auto",
+            "privacy_tier": "public",
+            "quality_tier": "high",
+            "require_local": true,
+            "spread_score_band": 0.03,
+            "spread_top_cap": 3
+          },
+          "priority": "normal",
+          "strict": false,
+          "task_type": "code",
+          "unavailable": [
+            {
+              "provider_id": "edge_core",
+              "reason": "filtered"
+            },
+            {
+              "provider_id": "mistral",
+              "reason": "missing_api_key"
+            },
+            {
+              "provider_id": "zai",
+              "reason": "missing_api_key"
+            },
+            {
+              "provider_id": "anthropic",
+              "reason": "missing_api_key"
+            },
+            {
+              "provider_id": "nvidia",
+              "reason": "missing_api_key"
+            },
+            {
+              "provider_id": "cerebras",
+              "reason": "missing_api_key"
+            },
+            {
+              "provider_id": "groq",
+              "reason": "missing_api_key"
+            },
+            {
+              "provider_id": "google",
+              "reason": "missing_api_key"
+            },
+            {
+              "provider_id": "local_fallback",
+              "reason": "filtered"
+            }
+          ],
+          "verdict": "failed_no_route"
+        },
+        "ts": "2026-10-10T08:28:48.707919096+00:00"
+      }
+    }
+  ],
+  "context_advertised": 32768,
+  "tool_code_floor": 64000
+}

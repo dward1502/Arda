@@ -1,0 +1,120 @@
+{
+  "completed": true,
+  "scope": "synthetic speech/VAD regression only; no human corpus, microphone or Hermes acceptance",
+  "utc": "2026-10-10T10:03:56.819780+00:00",
+  "probe_sha256": "68d1ff258dff31b250a2d399c9c1e23a01ac6ee9b258f341c959399423527e1f",
+  "model_manifest": {
+    "repo": "mobiuslabsgmbh/faster-whisper-large-v3-turbo",
+    "revision": "0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf",
+    "files": [
+      {
+        "name": "config.json",
+        "sha256": "b0253ea6c0d3bea6b1e19e91a02acfd3b53f4467362efcb5a3e6b16c9b3a9b7e",
+        "advertised": null,
+        "bytes": 2263
+      },
+      {
+        "name": "model.bin",
+        "sha256": "e76620f83d5f5b69efd3d87e3dc180c1bd21df9fbebacfd4335e5e1efcc018da",
+        "advertised": "e76620f83d5f5b69efd3d87e3dc180c1bd21df9fbebacfd4335e5e1efcc018da",
+        "bytes": 1617884929
+      },
+      {
+        "name": "preprocessor_config.json",
+        "sha256": "7ccc62c6f2765af1f3b46c00c9b5894426835a05021c8b9c01eecb6dfb542711",
+        "advertised": null,
+        "bytes": 340
+      },
+      {
+        "name": "tokenizer.json",
+        "sha256": "297b13372ac43916285644fb9687add3cc62ee2a1adb60da3dc25cc94c1871fd",
+        "advertised": null,
+        "bytes": 2710337
+      },
+      {
+        "name": "vocabulary.json",
+        "sha256": "c69260f2ab26d659b7c398f9a2b2b48ed0df16c3b47d7326782fd9cba71690c1",
+        "advertised": null,
+        "bytes": 1068114
+      }
+    ]
+  },
+  "audio_directory": "/var/home/mythos/.hermes/cache/scratch/whisper-reviewed-p_mp5p1n",
+  "audio_sha256": {
+    "speech": "5ae8d04ffbcfbe85b30c8f8bb621bb26d9c7bca6745748a63f35a46696ecabd1",
+    "silence": "d303811b8c84619667cd0501342f84ec6cbe69f7aa3856dcf52fabda374c92b8"
+  },
+  "espeak_version": "eSpeak NG text-to-speech: 1.51.1  Data at: /usr/share/espeak-ng-data",
+  "versions": {
+    "flatbuffers": "25.12.19",
+    "h11": "0.16.0",
+    "packaging": "26.3",
+    "truststore": "0.10.4",
+    "filelock": "4.1.0",
+    "httpx2": "2.13.1",
+    "fsspec": "2026.9.0",
+    "protobuf": "7.36.2",
+    "PyYAML": "6.0.3",
+    "tqdm": "4.70.1",
+    "typing_extensions": "4.16.0",
+    "idna": "3.20",
+    "faster-whisper": "1.2.1",
+    "huggingface_hub": "2.2.0",
+    "click": "8.5.0",
+    "httpcore2": "2.13.1",
+    "tokenizers": "0.23.3",
+    "hf-xet": "1.7.0",
+    "anyio": "4.15.1",
+    "ctranslate2": "4.8.2",
+    "numpy": "2.5.3",
+    "onnxruntime": "1.31.0",
+    "av": "16.0.1"
+  },
+  "load_seconds": 1.8784935250296257,
+  "compute_type": "int8_float32",
+  "normalization": "lowercase ASCII alphanumeric words; Levenshtein word error rate",
+  "cases": [
+    {
+      "audio": "speech",
+      "vad": false,
+      "text": "Please research local inference and review the code changes.",
+      "seconds": 5.289879938995,
+      "audio_seconds": 3.657375,
+      "word_errors": 0,
+      "wer": 0.0,
+      "false_activation": null
+    },
+    {
+      "audio": "speech",
+      "vad": true,
+      "text": "Please research local inference and review the code changes.",
+      "seconds": 5.06462395604467,
+      "audio_seconds": 3.657375,
+      "word_errors": 0,
+      "wer": 0.0,
+      "false_activation": null
+    },
+    {
+      "audio": "silence",
+      "vad": false,
+      "text": "Thank you.",
+      "seconds": 5.137578865978867,
+      "audio_seconds": 3.0,
+      "word_errors": 2,
+      "wer": null,
+      "false_activation": true
+    },
+    {
+      "audio": "silence",
+      "vad": true,
+      "text": "",
+      "seconds": 0.012000882998108864,
+      "audio_seconds": 3.0,
+      "word_errors": 0,
+      "wer": null,
+      "false_activation": false
+    }
+  ],
+  "synthetic_vad_gate": true,
+  "process_peak_rss_kib": 1686624
+}

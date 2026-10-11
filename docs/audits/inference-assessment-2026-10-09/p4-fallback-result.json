@@ -1,0 +1,148 @@
+{
+  "binary": "/var/home/mythos/Eregion/Arda/target/release/manwe",
+  "sha256": "288c6c95fb11139ad9409e7ba761203e8319a7079fd93b3562af6e7d801bb641",
+  "scope": "synthetic isolated installed-binary admission; not model quality or production outage",
+  "cases": [
+    {
+      "name": "failover",
+      "context": 73728,
+      "tools": true,
+      "status": 502,
+      "body": "{\"error\":{\"message\":\"Agent error: manwe \u2014 proxy routing exhausted fallback providers after 1 attempt(s): [edge_core:fixture HTTP 503 provider_server_error (provider edge_core HTTP 503: {\\\"raw\\\":\\\"<!DOCTYPE HTML>\\\\n<html lang=\\\\\\\"en\\\\\\\">\\\\n <head>\\\\n <meta charset=\\\\\\\"utf-8\\\\\\\">\\\\n <style type=\\\\\\\"text/css\\\\\\\">\\\\n :root {\\\\n color-scheme: light dark;\\\\n }\\\\n\u2026)]\",\"type\":\"manwe_error\"}}",
+      "upstream_requests": [
+        {
+          "allow_forced_provider_fallback": true,
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "upstream_paths": [
+        "/primary/v1/chat/completions"
+      ],
+      "passed": false,
+      "router_log": "\u001b[2m2026-10-11T01:28:28.627446Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-tjrar4wk/failover/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-tjrar4wk/failover/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T01:28:28.627723Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:39179\n\u001b[2m2026-10-11T01:28:28.627832Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:39179\n\u001b[2m2026-10-11T01:28:28.685077Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "remote-excluded",
+      "context": 73728,
+      "tools": true,
+      "status": 502,
+      "body": "{\"error\":{\"message\":\"Agent error: manwe \u2014 proxy routing exhausted fallback providers after 1 attempt(s): [edge_core:fixture HTTP 503 provider_server_error (provider edge_core HTTP 503: {\\\"raw\\\":\\\"<!DOCTYPE HTML>\\\\n<html lang=\\\\\\\"en\\\\\\\">\\\\n <head>\\\\n <meta charset=\\\\\\\"utf-8\\\\\\\">\\\\n <style type=\\\\\\\"text/css\\\\\\\">\\\\n :root {\\\\n color-scheme: light dark;\\\\n }\\\\n\u2026)]\",\"type\":\"manwe_error\"}}",
+      "upstream_requests": [
+        {
+          "allow_forced_provider_fallback": true,
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "upstream_paths": [
+        "/primary/v1/chat/completions"
+      ],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T01:28:28.692139Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-tjrar4wk/remote-excluded/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-tjrar4wk/remote-excluded/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T01:28:28.692360Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:59211\n\u001b[2m2026-10-11T01:28:28.692462Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:59211\n\u001b[2m2026-10-11T01:28:28.845549Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    }
+  ],
+  "passed": false
+}

@@ -1,0 +1,88 @@
+{
+  "request": {
+    "stream": false,
+    "max_tokens": 128,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Call read_file for Cargo.toml, offset 17. Do not answer without the tool."
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "read_file",
+          "description": "Read a file (this test records calls only).",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "offset": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "path",
+              "offset"
+            ]
+          }
+        }
+      }
+    ],
+    "tool_choice": "auto",
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "temperature": 0,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "response": {
+    "choices": [
+      {
+        "finish_reason": "tool_calls",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "type": "function",
+              "function": {
+                "name": "read_file",
+                "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}"
+              },
+              "id": "95ig271cnCiro9luhN5LQ7gl95DskqxH"
+            }
+          ]
+        }
+      }
+    ],
+    "created": 1791610730,
+    "model": "Qwen3.5-9B-Q4_K_M",
+    "system_fingerprint": "b8668-b2f6a68ae",
+    "object": "chat.completion",
+    "usage": {
+      "completion_tokens": 40,
+      "prompt_tokens": 306,
+      "total_tokens": 346,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "id": "chatcmpl-gF461xEGlC9lH0p62rbwN1LjdXWGYn34",
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 306,
+      "prompt_ms": 140.442,
+      "prompt_per_token_ms": 0.4589607843137255,
+      "prompt_per_second": 2178.8353911223135,
+      "predicted_n": 40,
+      "predicted_ms": 421.359,
+      "predicted_per_token_ms": 10.533975,
+      "predicted_per_second": 94.9309258850529
+    }
+  }
+}

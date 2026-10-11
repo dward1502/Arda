@@ -1292,13 +1292,74 @@ impl CharonService {
                     continue;
                 }
             };
-            let latency_ms = start.elapsed().as_millis() as u64;
-            let status = response.status();
-            let status_u16 = status.as_u16();
+            let mut status = response.status();
             let response_headers = response.headers().clone();
-            let text = response.text().await.unwrap_or_default();
-            let mut parsed = serde_json::from_str::<serde_json::Value>(&text)
-                .unwrap_or_else(|_| serde_json::json!({"raw": text}));
+            // A successful HTTP envelope is not a successful completion. Preserve
+            // body-read and JSON failures as retryable upstream errors, never 200 raw.
+            let body = response.text().await;
+            let mut parsed = match body {
+                Ok(text) => match serde_json::from_str::<serde_json::Value>(&text) {
+                    Ok(value) => value,
+                    Err(_) if status.is_success() => {
+                        status = reqwest::StatusCode::BAD_GATEWAY;
+                        serde_json::json!({"error":{"type":"invalid_upstream_response","message":"upstream returned malformed JSON"}})
+                    }
+                    Err(_) => serde_json::json!({"raw": text}),
+                },
+                Err(error) if status.is_success() && error.is_timeout() => {
+                    // Receiving headers does not turn a request deadline into
+                    // evidence of endpoint failure. Match the send-time policy.
+                    let latency_ms = start.elapsed().as_millis() as u64;
+                    let _ = self
+                        .apply_provider_rate_limit_hints(&provider.id, &response_headers)
+                        .await;
+                    let _ = self.release_provider_reservation(&provider.id).await;
+                    let message = "upstream response body deadline exceeded".to_string();
+                    push_proxy_attempt(
+                        &mut attempts,
+                        &decision,
+                        &provider.id,
+                        None,
+                        "request_timeout",
+                        message.clone(),
+                    );
+                    let _ = self.record_tool_fit_observation(
+                        &decision,
+                        &routed_req,
+                        &attempt_body,
+                        ToolFitOutcome {
+                            ok: false,
+                            latency_ms: Some(latency_ms),
+                            status_code: None,
+                            outcome_class: "request_timeout".into(),
+                            error: Some(message),
+                        },
+                    );
+                    excluded.push(provider.id.clone());
+                    routed_req.options["exclude_provider_ids"] = serde_json::json!(excluded);
+                    if forced_provider_id.as_deref() == Some(provider.id.as_str()) {
+                        break;
+                    }
+                    continue;
+                }
+                Err(_) => {
+                    // Preserve authoritative non-success headers (auth/quota/etc.)
+                    // even when their diagnostic body is unavailable.
+                    if status.is_success() {
+                        status = reqwest::StatusCode::BAD_GATEWAY;
+                    }
+                    serde_json::json!({"error":{"type":"upstream_body_failure","message":"upstream response body could not be read"}})
+                }
+            };
+            let latency_ms = start.elapsed().as_millis() as u64;
+            if status.is_success() {
+                normalize_openai_response(&mut parsed);
+                if !valid_chat_completion_envelope(&parsed) {
+                    status = reqwest::StatusCode::BAD_GATEWAY;
+                    parsed = serde_json::json!({"error":{"type":"invalid_upstream_response","message":"upstream returned an invalid chat completion envelope"}});
+                }
+            }
+            let status_u16 = status.as_u16();
 
             let _ = self
                 .apply_provider_rate_limit_hints(&provider.id, &response_headers)
@@ -1310,7 +1371,6 @@ impl CharonService {
                     &decision.route_class,
                     latency_ms,
                 );
-                normalize_openai_response(&mut parsed);
                 attach_manwe_route_metadata(&mut parsed, &decision, &provider.id, latency_ms);
                 let semantic_outcome = classify_semantic_outcome(&parsed, &attempt_body);
                 let _ = self.record_tool_fit_observation(
@@ -1568,6 +1628,74 @@ fn apply_workstation_generation_defaults(provider_id: &str, body: &mut JsonValue
         .unwrap_or(2048)
         .min(2048);
     obj.insert("max_tokens".into(), serde_json::json!(limit));
+}
+
+// Validate the normalized non-stream chat shape, not answer quality. Null
+// content is legitimate for tool-only, refusal and filtered completions.
+fn valid_chat_completion_envelope(value: &serde_json::Value) -> bool {
+    if value.get("error").is_some_and(|error| !error.is_null()) {
+        return false;
+    }
+    value
+        .get("choices")
+        .and_then(serde_json::Value::as_array)
+        .is_some_and(|choices| {
+            !choices.is_empty()
+                && choices.iter().all(|choice| {
+                    let Some(message) =
+                        choice.get("message").and_then(serde_json::Value::as_object)
+                    else {
+                        return false;
+                    };
+                    if message.get("role").and_then(serde_json::Value::as_str) != Some("assistant")
+                    {
+                        return false;
+                    }
+                    let content = message.get("content");
+                    if content.is_some_and(|v| !v.is_null() && !v.is_string()) {
+                        return false;
+                    }
+                    let refusal = message.get("refusal");
+                    if refusal.is_some_and(|v| !v.is_null() && !v.is_string()) {
+                        return false;
+                    }
+                    let tools = message.get("tool_calls");
+                    if tools.is_some_and(|v| !v.is_null() && !v.is_array()) {
+                        return false;
+                    }
+                    let has_tools =
+                        tools
+                            .and_then(serde_json::Value::as_array)
+                            .is_some_and(|calls| {
+                                !calls.is_empty()
+                                    && calls.iter().all(|call| {
+                                        call.get("type").and_then(serde_json::Value::as_str)
+                                            == Some("function")
+                                            && call
+                                                .pointer("/function/name")
+                                                .and_then(serde_json::Value::as_str)
+                                                .is_some_and(|s| !s.trim().is_empty())
+                                            && call
+                                                .pointer("/function/arguments")
+                                                .is_some_and(serde_json::Value::is_string)
+                                    })
+                            });
+                    if tools
+                        .and_then(serde_json::Value::as_array)
+                        .is_some_and(|calls| !calls.is_empty())
+                        && !has_tools
+                    {
+                        return false;
+                    }
+                    content.is_some_and(serde_json::Value::is_string)
+                        || has_tools
+                        || refusal.is_some_and(serde_json::Value::is_string)
+                        || choice
+                            .get("finish_reason")
+                            .and_then(serde_json::Value::as_str)
+                            == Some("content_filter")
+                })
+        })
 }
 
 pub(crate) fn proxy_timeout_for_provider(provider_id: &str, execution_lane: &str) -> StdDuration {

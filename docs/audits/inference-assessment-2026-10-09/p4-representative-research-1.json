@@ -1,0 +1,1427 @@
+{
+  "scope": "isolated release candidate, not deployed router; includes isolated Hermes CLI",
+  "binary_sha256": "fce5727e2bf66d3f821e904c2f98ee75cba936b3ebed1708b35965bc5f58b774",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq",
+  "port": 57191,
+  "steps": [
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "a6e0c539864cb6ce",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 16384,
+            "execution_lane": "interactive",
+            "latency_ms": 622,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "interactive",
+            "route_id": "a6e0c539864cb6ce"
+          },
+          "choices": [
+            {
+              "finish_reason": "tool_calls",
+              "index": 0,
+              "message": {
+                "content": "",
+                "role": "assistant",
+                "tool_calls": [
+                  {
+                    "function": {
+                      "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                      "name": "read_file"
+                    },
+                    "id": "LwhgaTrgTPtXsCMT9nj2SWpfB92vjIoA",
+                    "type": "function"
+                  }
+                ]
+              }
+            }
+          ],
+          "created": 1791615014,
+          "id": "chatcmpl-RyZY4bCROi2ZKQMRtnV6vZkRGHfUDeYW",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b8668-b2f6a68ae",
+          "timings": {
+            "cache_n": 314,
+            "predicted_ms": 415.742,
+            "predicted_n": 40,
+            "predicted_per_second": 96.21351703700851,
+            "predicted_per_token_ms": 10.39355,
+            "prompt_ms": 25.557,
+            "prompt_n": 4,
+            "prompt_per_second": 156.51289274954024,
+            "prompt_per_token_ms": 6.38925
+          },
+          "usage": {
+            "completion_tokens": 40,
+            "prompt_tokens": 318,
+            "prompt_tokens_details": {
+              "cached_tokens": 314
+            },
+            "total_tokens": 358
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                  "name": "read_file"
+                },
+                "id": "LwhgaTrgTPtXsCMT9nj2SWpfB92vjIoA",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "LwhgaTrgTPtXsCMT9nj2SWpfB92vjIoA",
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\","
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "eb138cfd89a1b02f",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "tool_oriented",
+          "x-manwe-execution-lane": "execution"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 32000,
+            "execution_lane": "execution",
+            "latency_ms": 733,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "tool_oriented",
+            "route_id": "eb138cfd89a1b02f"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "The content at line 17 of Cargo.toml lists several workspace members, including crates for Arda Vaire, Arda Varda, and Arda Workbench executors, as well as outposts for Arda Outpost Protocol, Arda Outpost Scout, and Arda Relic Bridge.",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791615014,
+          "id": "chatcmpl-4eLotksTk2h8qKGHFRs9bUNfo7MVXHk0",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b8668-b2f6a68ae",
+          "timings": {
+            "cache_n": 357,
+            "predicted_ms": 658.619,
+            "predicted_n": 63,
+            "predicted_per_second": 95.6546956586433,
+            "predicted_per_token_ms": 10.45426984126984,
+            "prompt_ms": 55.36,
+            "prompt_n": 96,
+            "prompt_per_second": 1734.1040462427743,
+            "prompt_per_token_ms": 0.5766666666666667
+          },
+          "usage": {
+            "completion_tokens": 63,
+            "prompt_tokens": 453,
+            "prompt_tokens_details": {
+              "cached_tokens": 357
+            },
+            "total_tokens": 516
+          }
+        }
+      }
+    }
+  ],
+  "health": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "alerts": [],
+      "bootstrap_state_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/absent-bootstrap.json",
+      "budget_pressure": {
+        "cooldown_total": 0,
+        "critical_total": 0,
+        "exhausted_total": 0,
+        "highest_level": "ok",
+        "providers": [
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "anthropic",
+            "provider_name": "Anthropic Claude"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "cerebras",
+            "provider_name": "Cerebras Cloud"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_core",
+            "provider_name": "Annunimas Core (3080 Workstation)"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "google",
+            "provider_name": "Google AI Studio"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "groq",
+            "provider_name": "Groq"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": null,
+            "provider_id": "local_fallback",
+            "provider_name": "Local Llama.cpp Fallback"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "mistral",
+            "provider_name": "Mistral API"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "nvidia",
+            "provider_name": "NVIDIA API Catalog"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "zai",
+            "provider_name": "Z.AI / GLM"
+          }
+        ],
+        "providers_total": 9,
+        "warning_total": 0
+      },
+      "capability_summary": {
+        "models_with_failed_streaming_receipts": 0,
+        "models_with_failed_structured_output_receipts": 0,
+        "models_with_failed_tool_receipts": 0,
+        "providers_with_no_capability_evidence": 9,
+        "receipt_model_count": 0,
+        "recent_capability_failures": 0
+      },
+      "catalog_generation": 2,
+      "config_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/providers.toml",
+      "config_source": "provider_file",
+      "ok": true,
+      "provider_state_counts": {
+        "missing_api_key": 7,
+        "ready": 2
+      },
+      "providers_blocked": 7,
+      "providers_enabled": 9,
+      "providers_healthy": 2,
+      "providers_ready": 2,
+      "providers_total": 9,
+      "recent_event_sample_complete": true,
+      "recent_event_sample_limit": 48,
+      "recent_route_failures": 0,
+      "recent_route_successes": 0,
+      "route_guardrails": {
+        "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+        "low_context_tool_model_total": 1,
+        "tool_execution_min_context_window": 64000,
+        "tool_incompatible_model_total": 0,
+        "visible_reasoning_model_total": 0
+      },
+      "service": "manwe"
+    }
+  },
+  "cases": [
+    {
+      "kind": "research",
+      "repetition": 1,
+      "command": [
+        "/var/home/mythos/.hermes/installs/93d02a9d25b9a6b1/environments/cc6a35ab872f408d8744bd78c6cd77ab/venv/bin/python",
+        "-m",
+        "hermes_cli.main",
+        "chat",
+        "--safe-mode",
+        "--provider",
+        "custom:assessment",
+        "-m",
+        "edge_core/Qwen3.5-9B-Q4_K_M",
+        "-t",
+        "file",
+        "--max-turns",
+        "10",
+        "--run-budget",
+        "60",
+        "--oneshot",
+        "--format",
+        "stream-json",
+        "--in",
+        "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1",
+        "-q",
+        "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1. Read old.txt and current.txt. Resolve their conflict using the dates and supersession statement. Report current owner and port with file citations, explain which source is obsolete, and state whether energy consumption is known. Do not invent measurements. Do not change any file."
+      ],
+      "exit_code": 0,
+      "stdout": "{\"type\": \"system\", \"subtype\": \"init\", \"model\": \"edge_core/Qwen3.5-9B-Q4_K_M\", \"session_id\": \"20261009_235015_9d0fdd\", \"timestamp\": 1791615015546}\n{\"type\": \"text\", \"text\": \"I need to read both files to understand their contents and resolve the conflict based on the dates and supersession statement.\", \"timestamp\": 1791615019081}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1/old.txt\"}, \"timestamp\": 1791615019089}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"1|Dated 2026-01-01. Owner: fox. Port: 40111. Superseded by current.txt.\\\", \\\"total_lines\\\": 1, \\\"file_size\\\": 70, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"not_found\\\": false}\", \"duration_ms\": 263, \"is_error\": false, \"timestamp\": 1791615019353}\n{\"type\": \"text\", \"text\": \"\\n\\nNow I need to read the current.txt file to see its contents.\", \"timestamp\": 1791615020252}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1/current.txt\"}, \"timestamp\": 1791615020256}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"1|Dated 2026-02-01. Owner: lynx. Port: 48231. Current approved configuration. Energy use has not been measured.\\\", \\\"total_lines\\\": 1, \\\"file_size\\\": 110, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"not_found\\\": false}\", \"duration_ms\": 1, \"is_error\": false, \"timestamp\": 1791615020259}\n{\"type\": \"text\", \"text\": \"\\n\\n---\\n\\n**Conflict Resolution**\\n\\n| Attribute | old.txt (2026-01-01) | current.txt (2026-02-01) |\\n|-----------|---------------------|-------------------------|\\n| Owner | fox | lynx |\\n| Port | 40111 | 48231 |\\n| Status | \\\"Superseded by current.txt\\\" | \\\"Current approved configuration\\\" |\\n\\n**Current Owner and Port**: lynx:48231 (from current.txt)\\n\\n**Obsolete Source**: old.txt is obsolete because:\\n1. Its own text states \\\"Superseded by current.txt\\\"\\n2. It is dated 2026-01-01, which precedes current.txt's 2026-02-01\\n\\n**Energy Consumption**: Not known. current.txt explicitly states \\\"Energy use has not been measured.\\\" No measurement is reported in either file.\\n\\n**Files Modified**: None (per request)\", \"timestamp\": 1791615025026}\n{\"type\": \"result\", \"session_id\": \"20261009_235015_9d0fdd\", \"exit_code\": 0, \"text\": \"---\\n\\n**Conflict Resolution**\\n\\n| Attribute | old.txt (2026-01-01) | current.txt (2026-02-01) |\\n|-----------|---------------------|-------------------------|\\n| Owner | fox | lynx |\\n| Port | 40111 | 48231 |\\n| Status | \\\"Superseded by current.txt\\\" | \\\"Current approved configuration\\\" |\\n\\n**Current Owner and Port**: lynx:48231 (from current.txt)\\n\\n**Obsolete Source**: old.txt is obsolete because:\\n1. Its own text states \\\"Superseded by current.txt\\\"\\n2. It is dated 2026-01-01, which precedes current.txt's 2026-02-01\\n\\n**Energy Consumption**: Not known. current.txt explicitly states \\\"Energy use has not been measured.\\\" No measurement is reported in either file.\\n\\n**Files Modified**: None (per request)\", \"tokens\": {\"input\": 0, \"output\": 0, \"total\": 0, \"cache_read\": 0, \"cache_write\": 0}, \"duration_ms\": 9493, \"timestamp\": 1791615025040}\n",
+      "stderr": "\nsession_id: 20261009_235015_9d0fdd\n",
+      "final": "---\n\n**Conflict Resolution**\n\n| Attribute | old.txt (2026-01-01) | current.txt (2026-02-01) |\n|-----------|---------------------|-------------------------|\n| Owner | fox | lynx |\n| Port | 40111 | 48231 |\n| Status | \"Superseded by current.txt\" | \"Current approved configuration\" |\n\n**Current Owner and Port**: lynx:48231 (from current.txt)\n\n**Obsolete Source**: old.txt is obsolete because:\n1. Its own text states \"Superseded by current.txt\"\n2. It is dated 2026-01-01, which precedes current.txt's 2026-02-01\n\n**Energy Consumption**: Not known. current.txt explicitly states \"Energy use has not been measured.\" No measurement is reported in either file.\n\n**Files Modified**: None (per request)",
+      "reads": [
+        "old.txt",
+        "current.txt"
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "candidate_stopped": true,
+  "upstream_captures": [
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 256,
+        "messages": [
+          {
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents.",
+            "role": "user"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "stream": false,
+        "temperature": 0,
+        "tool_choice": "auto",
+        "tools": [
+          {
+            "function": {
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "offset": {
+                    "type": "integer"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}"
+                  },
+                  "id": "LwhgaTrgTPtXsCMT9nj2SWpfB92vjIoA"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791615014,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b8668-b2f6a68ae",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 40,
+          "prompt_tokens": 318,
+          "total_tokens": 358,
+          "prompt_tokens_details": {
+            "cached_tokens": 314
+          }
+        },
+        "id": "chatcmpl-RyZY4bCROi2ZKQMRtnV6vZkRGHfUDeYW",
+        "timings": {
+          "cache_n": 314,
+          "prompt_n": 4,
+          "prompt_ms": 25.557,
+          "prompt_per_token_ms": 6.38925,
+          "prompt_per_second": 156.51289274954024,
+          "predicted_n": 40,
+          "predicted_ms": 415.742,
+          "predicted_per_token_ms": 10.393550000000001,
+          "predicted_per_second": 96.21351703700853
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 256,
+        "messages": [
+          {
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents.",
+            "role": "user"
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\",",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "stream": false,
+        "temperature": 0,
+        "tool_choice": "auto",
+        "tools": [
+          {
+            "function": {
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "offset": {
+                    "type": "integer"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "The content at line 17 of Cargo.toml lists several workspace members, including crates for Arda Vaire, Arda Varda, and Arda Workbench executors, as well as outposts for Arda Outpost Protocol, Arda Outpost Scout, and Arda Relic Bridge."
+            }
+          }
+        ],
+        "created": 1791615014,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b8668-b2f6a68ae",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 63,
+          "prompt_tokens": 453,
+          "total_tokens": 516,
+          "prompt_tokens_details": {
+            "cached_tokens": 357
+          }
+        },
+        "id": "chatcmpl-4eLotksTk2h8qKGHFRs9bUNfo7MVXHk0",
+        "timings": {
+          "cache_n": 357,
+          "prompt_n": 96,
+          "prompt_ms": 55.36,
+          "prompt_per_token_ms": 0.5766666666666667,
+          "prompt_per_second": 1734.1040462427745,
+          "predicted_n": 63,
+          "predicted_ms": 658.619,
+          "predicted_per_token_ms": 10.454269841269841,
+          "predicted_per_second": 95.6546956586433
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "9747485971d5ae9a2cc1046da43f74860f285df3aa132189b7be2a2ff9e68bb4",
+            "content_chars": 9660,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1. Read old.txt and current.txt. Resolve their conflict using the dates and supersession statement. Report current owner and port with file citations, explain which source is obsolete, and state whether energy consumption is known. Do not invent measurements. Do not change any file.",
+            "role": "user"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "I need to read both files to understand their contents and resolve the conflict based on the dates and supersession statement.\n",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1/old.txt\"}"
+                  },
+                  "id": "d5brNvGCq0PDFzSUnXmcXAkpTAAqnjCF"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791615019,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b8668-b2f6a68ae",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 77,
+          "prompt_tokens": 3813,
+          "total_tokens": 3890,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-XiS0zO7YRLoHhLoAnIXLLtm97kx6TtZe",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 3813,
+          "prompt_ms": 1232.29,
+          "prompt_per_token_ms": 0.323181222134802,
+          "prompt_per_second": 3094.239180712332,
+          "predicted_n": 77,
+          "predicted_ms": 850.197,
+          "predicted_per_token_ms": 11.041519480519481,
+          "predicted_per_second": 90.5672450032169
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "9747485971d5ae9a2cc1046da43f74860f285df3aa132189b7be2a2ff9e68bb4",
+            "content_chars": 9660,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1. Read old.txt and current.txt. Resolve their conflict using the dates and supersession statement. Report current owner and port with file citations, explain which source is obsolete, and state whether energy consumption is known. Do not invent measurements. Do not change any file.",
+            "role": "user"
+          },
+          {
+            "content": "I need to read both files to understand their contents and resolve the conflict based on the dates and supersession statement.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1/old.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|Dated 2026-01-01. Owner: fox. Port: 40111. Superseded by current.txt.\", \"total_lines\": 1, \"file_size\": 70, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "Now I need to read the current.txt file to see its contents.\n",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1/current.txt\"}"
+                  },
+                  "id": "EdYRQnkff8Hc1u83mYNf16FeuMVFrmMK"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791615020,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b8668-b2f6a68ae",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 67,
+          "prompt_tokens": 3984,
+          "total_tokens": 4051,
+          "prompt_tokens_details": {
+            "cached_tokens": 3809
+          }
+        },
+        "id": "chatcmpl-nFGAaKcFgqRwUGW7Ijx3vGSdnw5wfHUc",
+        "timings": {
+          "cache_n": 3809,
+          "prompt_n": 175,
+          "prompt_ms": 87.209,
+          "prompt_per_token_ms": 0.49833714285714287,
+          "prompt_per_second": 2006.6736231352268,
+          "predicted_n": 67,
+          "predicted_ms": 723.043,
+          "predicted_per_token_ms": 10.791686567164179,
+          "predicted_per_second": 92.66392178611783
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "9747485971d5ae9a2cc1046da43f74860f285df3aa132189b7be2a2ff9e68bb4",
+            "content_chars": 9660,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1. Read old.txt and current.txt. Resolve their conflict using the dates and supersession statement. Report current owner and port with file citations, explain which source is obsolete, and state whether energy consumption is known. Do not invent measurements. Do not change any file.",
+            "role": "user"
+          },
+          {
+            "content": "I need to read both files to understand their contents and resolve the conflict based on the dates and supersession statement.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1/old.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|Dated 2026-01-01. Owner: fox. Port: 40111. Superseded by current.txt.\", \"total_lines\": 1, \"file_size\": 70, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          },
+          {
+            "content": "Now I need to read the current.txt file to see its contents.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1/current.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000002",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|Dated 2026-02-01. Owner: lynx. Port: 48231. Current approved configuration. Energy use has not been measured.\", \"total_lines\": 1, \"file_size\": 110, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000002"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "---\n\n**Conflict Resolution**\n\n| Attribute | old.txt (2026-01-01) | current.txt (2026-02-01) |\n|-----------|---------------------|-------------------------|\n| Owner | fox | lynx |\n| Port | 40111 | 48231 |\n| Status | \"Superseded by current.txt\" | \"Current approved configuration\" |\n\n**Current Owner and Port**: lynx:48231 (from current.txt)\n\n**Obsolete Source**: old.txt is obsolete because:\n1. Its own text states \"Superseded by current.txt\"\n2. It is dated 2026-01-01, which precedes current.txt's 2026-02-01\n\n**Energy Consumption**: Not known. current.txt explicitly states \"Energy use has not been measured.\" No measurement is reported in either file.\n\n**Files Modified**: None (per request)",
+              "reasoning_content": "I now have both files. Let me resolve the conflict:\n\n**old.txt**: Dated 2026-01-01, Owner: fox, Port: 40111\n- Explicitly states \"Superseded by current.txt\"\n\n**current.txt**: Dated 2026-02-01, Owner: lynx, Port: 48231\n- States \"Current approved configuration\"\n- Notes: \"Energy use has not been measured\"\n\nThe current.txt file is newer (2026-02-01 vs 2026-01-01) and explicitly superseded old.txt. old.txt itself states it's superseded by current.txt.\n\nCurrent owner: lynx, Port: 48231\nObsolete source: old.txt (superseded by current.txt)\nEnergy consumption: Not known (explicitly stated \"Energy use has not been measured\")\n"
+            }
+          }
+        ],
+        "created": 1791615025,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b8668-b2f6a68ae",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 424,
+          "prompt_tokens": 4151,
+          "total_tokens": 4575,
+          "prompt_tokens_details": {
+            "cached_tokens": 3980
+          }
+        },
+        "id": "chatcmpl-gfHJ1JO8crWrlywAPXF01TIYxIoNKE3x",
+        "timings": {
+          "cache_n": 3980,
+          "prompt_n": 171,
+          "prompt_ms": 87.916,
+          "prompt_per_token_ms": 0.5141286549707602,
+          "prompt_per_second": 1945.0384457891626,
+          "predicted_n": 424,
+          "predicted_ms": 4588.716,
+          "predicted_per_token_ms": 10.822443396226415,
+          "predicted_per_second": 92.4005756730205
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "content_sha256": "3f1eef0616ddd2c13d45a3f8cef4ed648dadfdacdba7fbedceebf5a04d549998",
+            "content_chars": 942,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-jiccyydq/research-1. Read old.txt and current.txt. Resolve their conflict using the dates and supersession statement. Report current owner and port with file citations, explain which source is obsolete, and state whether energy consumption is known. Do not invent measurements. Do not change any file.",
+            "role": "user"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "reasoning_effort": "none",
+        "response_format": {
+          "json_schema": {
+            "name": "session_title",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title"
+              ],
+              "type": "object"
+            },
+            "strict": true
+          },
+          "type": "json_schema"
+        }
+      }
+    }
+  ]
+}

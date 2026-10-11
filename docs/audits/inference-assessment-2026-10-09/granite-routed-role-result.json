@@ -1,0 +1,900 @@
+{
+  "scope": "isolated candidate router, direct specialist comparison, not production promotion",
+  "binary_sha256": "80db42059539b754aae19477e7958c43d975a3c8b7803fdc53f8018946ba510d",
+  "cases": [
+    {
+      "provider": "edge_granite_specialist",
+      "case": "extract-missing",
+      "request": {
+        "model": "edge_granite_specialist/granite-specialist",
+        "allow_forced_provider_fallback": false,
+        "local_only": true,
+        "workload_role": "background",
+        "context_window_target": 4096,
+        "max_tokens": 128,
+        "temperature": 0,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "messages": [
+          {
+            "role": "user",
+            "content": "Return only a JSON object with exactly keys service, state, duration_seconds. Use null for missing information. Record: service=nightly-backup; state=failed. Duration is not recorded."
+          }
+        ]
+      },
+      "expected": {
+        "service": "nightly-backup",
+        "state": "failed",
+        "duration_seconds": null
+      },
+      "admission": {
+        "status": 200,
+        "body": {
+          "dry_run": true,
+          "ok": true,
+          "request": {
+            "allow_forced_provider_fallback": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "local_only": true,
+            "max_tokens": 128,
+            "messages": [
+              {
+                "content": "Return only a JSON object with exactly keys service, state, duration_seconds. Use null for missing information. Record: service=nightly-backup; state=failed. Duration is not recorded.",
+                "role": "user"
+              }
+            ],
+            "model": "granite-specialist",
+            "stream": false,
+            "temperature": 0
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "94fea8b3ca1c9bd7",
+          "x-manwe-provider-id": "edge_granite_specialist",
+          "x-manwe-model-id": "granite-specialist",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 4096,
+            "execution_lane": "background",
+            "latency_ms": 4163,
+            "model_id": "granite-specialist",
+            "provider_id": "edge_granite_specialist",
+            "route_class": "background_maintenance",
+            "route_id": "e2dee84e91984801"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "{\n  \"service\": \"nightly-backup\",\n  \"state\": \"failed\",\n  \"duration_seconds\": null\n}",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791693662,
+          "id": "chatcmpl-jrlW9mwUakdXLm1n66pJ7Nn0qHGhKAxb",
+          "model": "granite-specialist",
+          "object": "chat.completion",
+          "system_fingerprint": "b11430-8345f3339",
+          "timings": {
+            "cache_n": 0,
+            "predicted_ms": 2221.759,
+            "predicted_n": 31,
+            "predicted_per_second": 13.502814661716236,
+            "predicted_per_token_ms": 74.05863333333333,
+            "prompt_ms": 1935.864,
+            "prompt_n": 55,
+            "prompt_per_second": 28.41108672923305,
+            "prompt_per_token_ms": 35.19752727272727
+          },
+          "usage": {
+            "completion_tokens": 31,
+            "prompt_tokens": 55,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 86
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "e2dee84e91984801",
+          "x-manwe-provider-id": "edge_granite_specialist",
+          "x-manwe-model-id": "granite-specialist",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "elapsed_s": 4.218471369007602,
+      "passed": true
+    },
+    {
+      "provider": "edge_granite_specialist",
+      "case": "classify-distractor",
+      "request": {
+        "model": "edge_granite_specialist/granite-specialist",
+        "allow_forced_provider_fallback": false,
+        "local_only": true,
+        "workload_role": "background",
+        "context_window_target": 4096,
+        "max_tokens": 128,
+        "temperature": 0,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "messages": [
+          {
+            "role": "user",
+            "content": "Return exactly HEALTHY or ATTENTION for the BACKUP job only. Web service is down. Backup completed successfully and verification passed."
+          }
+        ]
+      },
+      "expected": "HEALTHY",
+      "admission": {
+        "status": 200,
+        "body": {
+          "dry_run": true,
+          "ok": true,
+          "request": {
+            "allow_forced_provider_fallback": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "local_only": true,
+            "max_tokens": 128,
+            "messages": [
+              {
+                "content": "Return exactly HEALTHY or ATTENTION for the BACKUP job only. Web service is down. Backup completed successfully and verification passed.",
+                "role": "user"
+              }
+            ],
+            "model": "granite-specialist",
+            "stream": false,
+            "temperature": 0
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "f48b58093167c02a",
+          "x-manwe-provider-id": "edge_granite_specialist",
+          "x-manwe-model-id": "granite-specialist",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 4096,
+            "execution_lane": "background",
+            "latency_ms": 1315,
+            "model_id": "granite-specialist",
+            "provider_id": "edge_granite_specialist",
+            "route_class": "background_maintenance",
+            "route_id": "f68b055e680b6dfd"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "HEALTHY",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791693663,
+          "id": "chatcmpl-4oxd5UNMf9UP2LhCfuloVJBHJTU9WloI",
+          "model": "granite-specialist",
+          "object": "chat.completion",
+          "system_fingerprint": "b11430-8345f3339",
+          "timings": {
+            "cache_n": 9,
+            "predicted_ms": 217.276,
+            "predicted_n": 4,
+            "predicted_per_second": 13.807323404333658,
+            "predicted_per_token_ms": 72.42533333333334,
+            "prompt_ms": 1086.778,
+            "prompt_n": 32,
+            "prompt_per_second": 29.444836019867903,
+            "prompt_per_token_ms": 33.9618125
+          },
+          "usage": {
+            "completion_tokens": 4,
+            "prompt_tokens": 41,
+            "prompt_tokens_details": {
+              "cached_tokens": 9
+            },
+            "total_tokens": 45
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "f68b055e680b6dfd",
+          "x-manwe-provider-id": "edge_granite_specialist",
+          "x-manwe-model-id": "granite-specialist",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "elapsed_s": 1.3687796799931675,
+      "passed": true
+    },
+    {
+      "provider": "edge_nanbeige_control",
+      "case": "extract-missing",
+      "request": {
+        "model": "edge_nanbeige_control/nanbeige4.2-3b-q4_k_m",
+        "allow_forced_provider_fallback": false,
+        "local_only": true,
+        "workload_role": "background",
+        "context_window_target": 4096,
+        "max_tokens": 128,
+        "temperature": 0,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "messages": [
+          {
+            "role": "user",
+            "content": "Return only a JSON object with exactly keys service, state, duration_seconds. Use null for missing information. Record: service=nightly-backup; state=failed. Duration is not recorded."
+          }
+        ]
+      },
+      "expected": {
+        "service": "nightly-backup",
+        "state": "failed",
+        "duration_seconds": null
+      },
+      "admission": {
+        "status": 200,
+        "body": {
+          "dry_run": true,
+          "ok": true,
+          "request": {
+            "allow_forced_provider_fallback": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "local_only": true,
+            "max_tokens": 128,
+            "messages": [
+              {
+                "content": "Return only a JSON object with exactly keys service, state, duration_seconds. Use null for missing information. Record: service=nightly-backup; state=failed. Duration is not recorded.",
+                "role": "user"
+              }
+            ],
+            "model": "nanbeige4.2-3b-q4_k_m",
+            "stream": false,
+            "temperature": 0
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "3f0c20200c127b56",
+          "x-manwe-provider-id": "edge_nanbeige_control",
+          "x-manwe-model-id": "nanbeige4.2-3b-q4_k_m",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 4096,
+            "execution_lane": "background",
+            "latency_ms": 459,
+            "model_id": "nanbeige4.2-3b-q4_k_m",
+            "provider_id": "edge_nanbeige_control",
+            "route_class": "background_maintenance",
+            "route_id": "2a09f66e54c3b1f9"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "{\n  \"service\": \"nightly-backup\",\n  \"state\": \"failed\",\n  \"duration_seconds\": null\n}",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791693664,
+          "id": "chatcmpl-jlrWvJsmbOr4rLXeasgd9tmuGHaQ1tt1",
+          "model": "nanbeige4.2-3b-q4_k_m",
+          "object": "chat.completion",
+          "system_fingerprint": "b10151-c6640a1c0",
+          "timings": {
+            "cache_n": 78,
+            "predicted_ms": 387.144,
+            "predicted_n": 31,
+            "predicted_per_second": 80.07356435848159,
+            "predicted_per_token_ms": 12.488516129032256,
+            "prompt_ms": 16.025,
+            "prompt_n": 1,
+            "prompt_per_second": 62.402496099844,
+            "prompt_per_token_ms": 16.025
+          },
+          "usage": {
+            "completion_tokens": 31,
+            "prompt_tokens": 79,
+            "prompt_tokens_details": {
+              "cached_tokens": 78
+            },
+            "total_tokens": 110
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "2a09f66e54c3b1f9",
+          "x-manwe-provider-id": "edge_nanbeige_control",
+          "x-manwe-model-id": "nanbeige4.2-3b-q4_k_m",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "elapsed_s": 0.5132756010279991,
+      "passed": true
+    },
+    {
+      "provider": "edge_nanbeige_control",
+      "case": "classify-distractor",
+      "request": {
+        "model": "edge_nanbeige_control/nanbeige4.2-3b-q4_k_m",
+        "allow_forced_provider_fallback": false,
+        "local_only": true,
+        "workload_role": "background",
+        "context_window_target": 4096,
+        "max_tokens": 128,
+        "temperature": 0,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "messages": [
+          {
+            "role": "user",
+            "content": "Return exactly HEALTHY or ATTENTION for the BACKUP job only. Web service is down. Backup completed successfully and verification passed."
+          }
+        ]
+      },
+      "expected": "HEALTHY",
+      "admission": {
+        "status": 200,
+        "body": {
+          "dry_run": true,
+          "ok": true,
+          "request": {
+            "allow_forced_provider_fallback": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "local_only": true,
+            "max_tokens": 128,
+            "messages": [
+              {
+                "content": "Return exactly HEALTHY or ATTENTION for the BACKUP job only. Web service is down. Backup completed successfully and verification passed.",
+                "role": "user"
+              }
+            ],
+            "model": "nanbeige4.2-3b-q4_k_m",
+            "stream": false,
+            "temperature": 0
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "6e1391bc2dee8cd2",
+          "x-manwe-provider-id": "edge_nanbeige_control",
+          "x-manwe-model-id": "nanbeige4.2-3b-q4_k_m",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 4096,
+            "execution_lane": "background",
+            "latency_ms": 89,
+            "model_id": "nanbeige4.2-3b-q4_k_m",
+            "provider_id": "edge_nanbeige_control",
+            "route_class": "background_maintenance",
+            "route_id": "6398a5d4c3f87f10"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "HEALTHY",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791693664,
+          "id": "chatcmpl-RBbXsOJbctEtLAQ8Sd58NWM2GW6B6SO5",
+          "model": "nanbeige4.2-3b-q4_k_m",
+          "object": "chat.completion",
+          "system_fingerprint": "b10151-c6640a1c0",
+          "timings": {
+            "cache_n": 65,
+            "predicted_ms": 37.234,
+            "predicted_n": 4,
+            "predicted_per_second": 107.42869420422194,
+            "predicted_per_token_ms": 9.3085,
+            "prompt_ms": 12.718,
+            "prompt_n": 1,
+            "prompt_per_second": 78.62871520679352,
+            "prompt_per_token_ms": 12.718
+          },
+          "usage": {
+            "completion_tokens": 4,
+            "prompt_tokens": 66,
+            "prompt_tokens_details": {
+              "cached_tokens": 65
+            },
+            "total_tokens": 70
+          }
+        },
+        "headers": {
+          "x-manwe-route-id": "6398a5d4c3f87f10",
+          "x-manwe-provider-id": "edge_nanbeige_control",
+          "x-manwe-model-id": "nanbeige4.2-3b-q4_k_m",
+          "x-manwe-route-class": "background_maintenance",
+          "x-manwe-execution-lane": "background"
+        }
+      },
+      "elapsed_s": 0.1431165419635363,
+      "passed": true
+    }
+  ],
+  "root": "/var/home/mythos/.hermes/cache/scratch/granite-routed-l8wyjb1_",
+  "remote_model_hash": "e0406663965846ae22a403456eb826ccce5f450840491f71952f18a7cb78e7d5  /var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part",
+  "launch": {
+    "command": "systemd-run --user --unit=inference-assessment-granite-routed -p RuntimeMaxSec=300 -p MemoryMax=8G -p MemorySwapMax=0 -p CPUQuota=400% --setenv=CUDA_VISIBLE_DEVICES= --setenv=LD_LIBRARY_PATH=/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430:/var/home/annunimas-server/inference-assessment/b11430-cuda/cudart-llama-b11430-bin-ubuntu-cuda-12.8-x64 /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server -m /var/home/annunimas-server/inference-assessment/granite42/granite-4.2-3b-Q4_K_M.gguf.part --alias granite-specialist --host 127.0.0.1 --port 18129 -c 4096 -np 1 -ngl 0 -t 4 --jinja",
+    "exit": 0,
+    "stderr": "Running as unit: inference-assessment-granite-routed.service; invocation ID: 340466e5c18d4152a2db2b7652ab7093\n"
+  },
+  "candidate_health": {
+    "status": 200,
+    "body": {
+      "status": "ok"
+    },
+    "headers": {}
+  },
+  "router_health": {
+    "status": 200,
+    "body": {
+      "alerts": [],
+      "bootstrap_state_path": "/var/home/mythos/.hermes/cache/scratch/granite-routed-l8wyjb1_/absent",
+      "budget_pressure": {
+        "cooldown_total": 0,
+        "critical_total": 0,
+        "exhausted_total": 0,
+        "highest_level": "ok",
+        "providers": [
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "anthropic",
+            "provider_name": "Anthropic Claude"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "cerebras",
+            "provider_name": "Cerebras Cloud"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_granite_specialist",
+            "provider_name": "Bounded role test"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_nanbeige_control",
+            "provider_name": "Bounded role test"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "google",
+            "provider_name": "Google AI Studio"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "groq",
+            "provider_name": "Groq"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": null,
+            "provider_id": "local_fallback",
+            "provider_name": "Local Llama.cpp Fallback"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "mistral",
+            "provider_name": "Mistral API"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "nvidia",
+            "provider_name": "NVIDIA API Catalog"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "zai",
+            "provider_name": "Z.AI / GLM"
+          }
+        ],
+        "providers_total": 10,
+        "warning_total": 0
+      },
+      "capability_summary": {
+        "models_with_failed_streaming_receipts": 0,
+        "models_with_failed_structured_output_receipts": 0,
+        "models_with_failed_tool_receipts": 0,
+        "providers_with_no_capability_evidence": 10,
+        "receipt_model_count": 0,
+        "recent_capability_failures": 0
+      },
+      "catalog_generation": 2,
+      "config_path": "/var/home/mythos/.hermes/cache/scratch/granite-routed-l8wyjb1_/providers.toml",
+      "config_source": "provider_file",
+      "ok": true,
+      "provider_state_counts": {
+        "missing_api_key": 7,
+        "ready": 3
+      },
+      "providers_blocked": 7,
+      "providers_enabled": 10,
+      "providers_healthy": 3,
+      "providers_ready": 3,
+      "providers_total": 10,
+      "recent_event_sample_complete": true,
+      "recent_event_sample_limit": 48,
+      "recent_route_failures": 0,
+      "recent_route_successes": 0,
+      "route_guardrails": {
+        "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+        "low_context_tool_model_total": 3,
+        "tool_execution_min_context_window": 64000,
+        "tool_incompatible_model_total": 2,
+        "visible_reasoning_model_total": 0
+      },
+      "service": "manwe"
+    },
+    "headers": {}
+  },
+  "cleanup_errors": [],
+  "stop_exit": 0,
+  "state_after": "inactive",
+  "incumbent_health": {
+    "8097": {
+      "status": 200,
+      "body": {
+        "status": "ok"
+      },
+      "headers": {}
+    },
+    "8098": {
+      "status": 200,
+      "body": {
+        "status": "ok"
+      },
+      "headers": {}
+    }
+  },
+  "captures": [
+    {
+      "path": "/granite/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 128,
+        "messages": [
+          {
+            "content": "Return only a JSON object with exactly keys service, state, duration_seconds. Use null for missing information. Record: service=nightly-backup; state=failed. Duration is not recorded.",
+            "role": "user"
+          }
+        ],
+        "model": "granite-specialist",
+        "stream": false,
+        "temperature": 0
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"service\": \"nightly-backup\",\n  \"state\": \"failed\",\n  \"duration_seconds\": null\n}"
+              }
+            }
+          ],
+          "created": 1791693662,
+          "model": "granite-specialist",
+          "system_fingerprint": "b11430-8345f3339",
+          "object": "chat.completion",
+          "usage": {
+            "completion_tokens": 31,
+            "prompt_tokens": 55,
+            "total_tokens": 86,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          },
+          "id": "chatcmpl-jrlW9mwUakdXLm1n66pJ7Nn0qHGhKAxb",
+          "timings": {
+            "cache_n": 0,
+            "prompt_n": 55,
+            "prompt_ms": 1935.864,
+            "prompt_per_token_ms": 35.19752727272727,
+            "prompt_per_second": 28.41108672923305,
+            "predicted_n": 31,
+            "predicted_ms": 2221.759,
+            "predicted_per_token_ms": 74.05863333333333,
+            "predicted_per_second": 13.502814661716235
+          }
+        },
+        "headers": {}
+      }
+    },
+    {
+      "path": "/granite/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 128,
+        "messages": [
+          {
+            "content": "Return exactly HEALTHY or ATTENTION for the BACKUP job only. Web service is down. Backup completed successfully and verification passed.",
+            "role": "user"
+          }
+        ],
+        "model": "granite-specialist",
+        "stream": false,
+        "temperature": 0
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "HEALTHY"
+              }
+            }
+          ],
+          "created": 1791693663,
+          "model": "granite-specialist",
+          "system_fingerprint": "b11430-8345f3339",
+          "object": "chat.completion",
+          "usage": {
+            "completion_tokens": 4,
+            "prompt_tokens": 41,
+            "total_tokens": 45,
+            "prompt_tokens_details": {
+              "cached_tokens": 9
+            }
+          },
+          "id": "chatcmpl-4oxd5UNMf9UP2LhCfuloVJBHJTU9WloI",
+          "timings": {
+            "cache_n": 9,
+            "prompt_n": 32,
+            "prompt_ms": 1086.778,
+            "prompt_per_token_ms": 33.9618125,
+            "prompt_per_second": 29.444836019867903,
+            "predicted_n": 4,
+            "predicted_ms": 217.276,
+            "predicted_per_token_ms": 72.42533333333334,
+            "predicted_per_second": 13.807323404333658
+          }
+        },
+        "headers": {}
+      }
+    },
+    {
+      "path": "/control/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 128,
+        "messages": [
+          {
+            "content": "Return only a JSON object with exactly keys service, state, duration_seconds. Use null for missing information. Record: service=nightly-backup; state=failed. Duration is not recorded.",
+            "role": "user"
+          }
+        ],
+        "model": "nanbeige4.2-3b-q4_k_m",
+        "stream": false,
+        "temperature": 0
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"service\": \"nightly-backup\",\n  \"state\": \"failed\",\n  \"duration_seconds\": null\n}"
+              }
+            }
+          ],
+          "created": 1791693664,
+          "model": "nanbeige4.2-3b-q4_k_m",
+          "system_fingerprint": "b10151-c6640a1c0",
+          "object": "chat.completion",
+          "usage": {
+            "completion_tokens": 31,
+            "prompt_tokens": 79,
+            "total_tokens": 110,
+            "prompt_tokens_details": {
+              "cached_tokens": 78
+            }
+          },
+          "id": "chatcmpl-jlrWvJsmbOr4rLXeasgd9tmuGHaQ1tt1",
+          "timings": {
+            "cache_n": 78,
+            "prompt_n": 1,
+            "prompt_ms": 16.025,
+            "prompt_per_token_ms": 16.025,
+            "prompt_per_second": 62.402496099844,
+            "predicted_n": 31,
+            "predicted_ms": 387.144,
+            "predicted_per_token_ms": 12.488516129032257,
+            "predicted_per_second": 80.07356435848159
+          }
+        },
+        "headers": {}
+      }
+    },
+    {
+      "path": "/control/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 128,
+        "messages": [
+          {
+            "content": "Return exactly HEALTHY or ATTENTION for the BACKUP job only. Web service is down. Backup completed successfully and verification passed.",
+            "role": "user"
+          }
+        ],
+        "model": "nanbeige4.2-3b-q4_k_m",
+        "stream": false,
+        "temperature": 0
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "HEALTHY"
+              }
+            }
+          ],
+          "created": 1791693664,
+          "model": "nanbeige4.2-3b-q4_k_m",
+          "system_fingerprint": "b10151-c6640a1c0",
+          "object": "chat.completion",
+          "usage": {
+            "completion_tokens": 4,
+            "prompt_tokens": 66,
+            "total_tokens": 70,
+            "prompt_tokens_details": {
+              "cached_tokens": 65
+            }
+          },
+          "id": "chatcmpl-RBbXsOJbctEtLAQ8Sd58NWM2GW6B6SO5",
+          "timings": {
+            "cache_n": 65,
+            "prompt_n": 1,
+            "prompt_ms": 12.718,
+            "prompt_per_token_ms": 12.718,
+            "prompt_per_second": 78.62871520679352,
+            "predicted_n": 4,
+            "predicted_ms": 37.234,
+            "predicted_per_token_ms": 9.3085,
+            "predicted_per_second": 107.42869420422194
+          }
+        },
+        "headers": {}
+      }
+    }
+  ],
+  "capture_consistency": true,
+  "passed": true
+}

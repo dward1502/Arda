@@ -1,0 +1,282 @@
+{
+  "scope": "Bonsai2 direct synthetic smoke; not Hermes/full task qualification",
+  "responses": [
+    {
+      "request": {
+        "model": "bonsai2-ptq1",
+        "temperature": 0,
+        "max_tokens": 768,
+        "reasoning_effort": "medium",
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "lookup",
+              "description": "Read a synthetic record by its key.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key"
+                ]
+              }
+            }
+          }
+        ],
+        "parallel_tool_calls": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call lookup with key ALPHA. Then report only its status and retry time from the returned record."
+          }
+        ]
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to call the lookup function with key \"ALPHA\" and then report only its status and retry time from the returned record.\n",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "lookup",
+                    "arguments": "{\"key\":\"ALPHA\"}"
+                  },
+                  "id": "Mabvly0X1AaVmpE7DEjosOe6UsBvZdWS"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791620641,
+        "model": "bonsai2-ptq1",
+        "system_fingerprint": "b10770-6684606ac",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 58,
+          "prompt_tokens": 287,
+          "total_tokens": 345,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-rvJ18dl5wbYnWW6Vz7hWcJFMT1kwIcYG",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 287,
+          "prompt_ms": 27023.1,
+          "prompt_per_token_ms": 94.15714285714286,
+          "prompt_per_second": 10.620543164921864,
+          "predicted_n": 58,
+          "predicted_ms": 16460.773,
+          "predicted_per_token_ms": 288.7854912280702,
+          "predicted_per_second": 3.4627778415995407
+        }
+      },
+      "seconds": 43.49734810797963
+    },
+    {
+      "request": {
+        "model": "bonsai2-ptq1",
+        "temperature": 0,
+        "max_tokens": 768,
+        "reasoning_effort": "medium",
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "lookup",
+              "description": "Read a synthetic record by its key.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key"
+                ]
+              }
+            }
+          }
+        ],
+        "parallel_tool_calls": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call lookup with key ALPHA. Then report only its status and retry time from the returned record."
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "reasoning_content": "The user wants me to call the lookup function with key \"ALPHA\" and then report only its status and retry time from the returned record.\n",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "lookup",
+                  "arguments": "{\"key\":\"ALPHA\"}"
+                },
+                "id": "Mabvly0X1AaVmpE7DEjosOe6UsBvZdWS"
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "Mabvly0X1AaVmpE7DEjosOe6UsBvZdWS",
+            "content": "Status: paused. Retry: 09:40 UTC."
+          }
+        ]
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Status: paused. Retry: 09:40 UTC.",
+              "reasoning_content": "The lookup returned: Status: paused. Retry: 09:40 UTC.\n\nThe user asked me to report only its status and retry time.\n"
+            }
+          }
+        ],
+        "created": 1791620652,
+        "model": "bonsai2-ptq1",
+        "system_fingerprint": "b10770-6684606ac",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 50,
+          "prompt_tokens": 374,
+          "total_tokens": 424,
+          "prompt_tokens_details": {
+            "cached_tokens": 344
+          }
+        },
+        "id": "chatcmpl-AzDWeiEA6dC25RdvG0adosKsIx1j6yqd",
+        "timings": {
+          "cache_n": 344,
+          "prompt_n": 30,
+          "prompt_ms": 3401.529,
+          "prompt_per_token_ms": 113.3843,
+          "prompt_per_second": 8.819563202312843,
+          "predicted_n": 50,
+          "predicted_ms": 8079.86,
+          "predicted_per_token_ms": 164.8951020408163,
+          "predicted_per_second": 6.064461512947007
+        }
+      },
+      "seconds": 11.493526397971436
+    }
+  ],
+  "before": "active\nactive\n",
+  "start": "",
+  "health": {
+    "status": "ok"
+  },
+  "template_sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+  "props": {
+    "default_generation_settings": {
+      "params": {
+        "seed": 4294967295,
+        "temperature": 1.0,
+        "dynatemp_range": 0.0,
+        "dynatemp_exponent": 1.0,
+        "top_k": 20,
+        "top_p": 0.949999988079071,
+        "min_p": 0.05000000074505806,
+        "top_n_sigma": -1.0,
+        "xtc_probability": 0.0,
+        "xtc_threshold": 0.10000000149011612,
+        "typical_p": 1.0,
+        "repeat_last_n": 64,
+        "repeat_penalty": 1.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "dry_multiplier": 0.0,
+        "dry_base": 1.75,
+        "dry_allowed_length": 2,
+        "dry_penalty_last_n": 64,
+        "mirostat": 0,
+        "mirostat_tau": 5.0,
+        "mirostat_eta": 0.10000000149011612,
+        "adaptive_target": -1.0,
+        "adaptive_decay": 0.8999999761581421,
+        "max_tokens": -1,
+        "n_predict": -1,
+        "n_keep": 0,
+        "n_discard": 0,
+        "ignore_eos": false,
+        "stream": false,
+        "n_probs": 0,
+        "min_keep": 0,
+        "chat_format": "Content-only",
+        "reasoning_format": "none",
+        "reasoning_in_content": false,
+        "generation_prompt": "",
+        "samplers": [
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "top_p",
+          "min_p",
+          "xtc",
+          "temperature"
+        ],
+        "speculative.types": "none",
+        "timings_per_token": false,
+        "post_sampling_probs": false,
+        "backend_sampling": false,
+        "lora": []
+      },
+      "n_ctx": 8192
+    },
+    "total_slots": 1,
+    "model_alias": "bonsai2-ptq1",
+    "model_ftype": "PTQ1_0 - 1.75 bpw ternary (group 128)",
+    "model_path": "/var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/Ternary-Bonsai-2-27B-PTQ1_0.gguf",
+    "modalities": {
+      "vision": false,
+      "video": false,
+      "audio": false
+    },
+    "media_marker": "<__media_hICtfX3DaQAAxAk0ovNrc2XSDE0OlItQ__>",
+    "endpoint_slots": true,
+    "endpoint_props": false,
+    "endpoint_metrics": false,
+    "ui": true,
+    "ui_settings": {},
+    "chat_template": "{%- set image_count = namespace(value=0) %}\n{%- set video_count = namespace(value=0) %}\n{%- macro render_content(content, do_vision_count, is_system_content=false) %}\n    {%- if content is string %}\n        {{- content }}\n    {%- elif content is iterable and content is not mapping %}\n        {%- for item in content %}\n            {%- if 'image' in item or 'image_url' in item or item.type == 'image' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain images.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set image_count.value = image_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Picture ' ~ image_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|image_pad|><|vision_end|>' }}\n            {%- elif 'video' in item or item.type == 'video' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain videos.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set video_count.value = video_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Video ' ~ video_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|video_pad|><|vision_end|>' }}\n            {%- elif 'text' in item %}\n                {{- item.text }}\n            {%- else %}\n                {{- raise_exception('Unexpected item type in content.') }}\n            {%- endif %}\n        {%- endfor %}\n    {%- elif content is none or content is undefined %}\n        {{- '' }}\n    {%- else %}\n        {{- raise_exception('Unexpected content type.') }}\n    {%- endif %}\n{%- endmacro %}\n{%- if not messages %}\n    {{- raise_exception('No messages provided.') }}\n{%- endif %}\n{%- set reasoning_instructions = '' %}\n{%- if enable_thinking is undefined or enable_thinking is true %}\n    {%- set resolved_reasoning_effort = reasoning_effort|default('xhigh') %}\n    {%- if resolved_reasoning_effort not in ('xhigh', 'medium', 'low') %}\n        {{- raise_exception('Unexpected reasoning effort ' ~ reasoning_effort ~ '. Supported types are xhigh (default), medium, and low.') }}\n    {%- endif %}\n    {%- if resolved_reasoning_effort == 'xhigh' %}\n        {%- set reasoning_instructions = 'Reasoning effort is set to xhigh. Please think carefully through the task, validate key assumptions, consider plausible alternatives, and prioritize correctness, consistency, and clarity in the final answer.' %}\n    {%- elif resolved_reasoning_effort == 'low' %}\n        {%- set reasoning_instructions = 'Reasoning effort is set to low. Keep your thinking brief and focused, moving directly to the conclusion without unnecessary elaboration.' %}\n    {%- endif %}\n{%- endif %}\n{%- if tools and tools is iterable and tools is not mapping %}\n    {{- '<|im_start|>system\\n' }}\n    {%- if reasoning_instructions %}\n        {{- reasoning_instructions + '\\n\\n' }}\n    {%- endif %}\n    {{- \"# Tools\\n\\nYou have access to the following functions:\\n\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\" }}\n    {{- '\\n\\nIf you choose to call a function ONLY reply in the following format with NO suffix:\\n\\n<tool_call>\\n<function=example_function_name>\\n<parameter=example_parameter_1>\\nvalue_1\\n</parameter>\\n<parameter=example_parameter_2>\\nThis is the value for the second parameter\\nthat can span\\nmultiple lines\\n</parameter>\\n</function>\\n</tool_call>\\n\\n<IMPORTANT>\\nReminder:\\n- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags\\n- Required parameters MUST be specified\\n- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after\\n- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls\\n</IMPORTANT>' }}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {%- if content %}\n            {{- '\\n\\n' + content }}\n        {%- endif %}\n    {%- endif %}\n    {{- '<|im_end|>\\n' }}\n{%- else %}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {%- if content %}\n            {{- '<|im_start|>system\\n' + (reasoning_instructions + '\\n\\n' if reasoning_instructions else '')  + content + '<|im_end|>\\n' }}\n        {%- elif reasoning_instructions %}\n            {{- '<|im_start|>system\\n' + reasoning_instructions + '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- elif reasoning_instructions %}\n        {{- '<|im_start|>system\\n' + reasoning_instructions + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- if ns.multi_step_tool and message.role == \"user\" %}\n        {%- set content = render_content(message.content, false)|trim %}\n        {%- if not(content.startswith('<tool_response>') and content.endswith('</tool_response>')) %}\n            {%- set ns.multi_step_tool = false %}\n            {%- set ns.last_query_index = index %}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if ns.multi_step_tool %}\n    {{- raise_exception('No user query found in messages.') }}\n{%- endif %}\n{%- for message in messages %}\n    {%- set content = render_content(message.content, true)|trim %}\n    {%- if message.role == \"system\" %}\n        {%- if not loop.first %}\n            {{- raise_exception('System message must be at the beginning.') }}\n        {%- endif %}\n    {%- elif message.role == \"user\" %}\n        {{- '<|im_start|>' + message.role + '\\n' + content + '<|im_end|>' + '\\n' }}\n    {%- elif message.role == \"assistant\" %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is string %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- endif %}\n        {%- set reasoning_content = reasoning_content|trim %}\n        {%- if preserve_thinking is undefined or preserve_thinking is true or loop.index0 > ns.last_query_index %}\n            {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content + '\\n</think>\\n\\n' + content }}\n        {%- else %}\n            {{- '<|im_start|>' + message.role + '\\n' + content }}\n        {%- endif %}\n        {%- if message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if tool_call.function is defined %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {%- if loop.first %}\n                    {%- if content|trim %}\n                        {{- '\\n\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- else %}\n                        {{- '<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- endif %}\n                {%- else %}\n                    {{- '\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                {%- endif %}\n                {%- if tool_call.arguments is defined and tool_call.arguments != '' %}\n                    {%- for args_name, args_value in tool_call.arguments|items %}\n                        {{- '<parameter=' + args_name + '>\\n' }}\n                        {%- set args_value = args_value | string if args_value is string else args_value | tojson | safe %}\n                        {{- args_value }}\n                        {{- '\\n</parameter>\\n' }}\n                    {%- endfor %}\n                {%- endif %}\n                {{- '</function>\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.previtem and loop.previtem.role != \"tool\" %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- content }}\n        {{- '\\n</tool_response>' }}\n        {%- if not loop.last and loop.nextitem.role != \"tool\" %}\n            {{- '<|im_end|>\\n' }}\n        {%- elif loop.last %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- else %}\n        {{- raise_exception('Unexpected message role.') }}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\\n\\n</think>\\n\\n' }}\n    {%- else %}\n        {{- '<think>\\n' }}\n    {%- endif %}\n{%- endif %}",
+    "chat_template_caps": {
+      "supports_object_arguments": true,
+      "supports_parallel_tool_calls": true,
+      "supports_preserve_reasoning": true,
+      "supports_reasoning_effort": true,
+      "supports_string_content": true,
+      "supports_system_role": true,
+      "supports_tool_calls": true,
+      "supports_tools": true,
+      "supports_typed_content": false
+    },
+    "bos_token": "<|endoftext|>",
+    "eos_token": "<|im_end|>",
+    "build_info": "b10770-6684606ac",
+    "is_sleeping": false,
+    "cors_proxy_enabled": false
+  },
+  "gpu": "pid, process_name, used_gpu_memory [MiB]\n14152, /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/llama-server, 4020 MiB\n13464, /var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server, 4102 MiB\nactive\n",
+  "mechanical_pass": true,
+  "log": "Oct 10 01:22:09 bluefin systemd[2130]: Started inference-bonsai2.service - [systemd-run] /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/llama-server --model /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/Ternary-Bonsai-2-27B-PTQ1_0.gguf --alias bonsai2-ptq1 --host 127.0.0.1 --port 18100 --ctx-size 8192 --parallel 1 --n-gpu-layers 40 --split-mode none --fit off --batch-size 256 --ubatch-size 128 --cache-type-k f16 --cache-type-v f16 --jinja --reasoning auto --reasoning-effort medium --reasoning-budget 256.\nOct 10 01:22:09 bluefin llama-server[14152]: 0.00.144.735 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\nOct 10 01:22:09 bluefin llama-server[14152]: 0.00.145.181 W srv  llama_server: -----------------\nOct 10 01:22:09 bluefin llama-server[14152]: 0.00.145.184 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set\nOct 10 01:22:09 bluefin llama-server[14152]: 0.00.145.184 W srv  llama_server: this can be a security risk (cross-origin attacks)\nOct 10 01:22:09 bluefin llama-server[14152]: 0.00.145.185 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655\nOct 10 01:22:09 bluefin llama-server[14152]: 0.00.145.185 W srv  llama_server: -----------------\nOct 10 01:22:09 bluefin llama-server[14152]: 0.00.146.568 I srv    load_model: loading model '/var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/Ternary-Bonsai-2-27B-PTQ1_0.gguf'\nOct 10 01:22:11 bluefin llama-server[14152]: 0.02.628.666 W resolve_fused_ops: layer 0 is assigned to device CPU but fused Gated Delta Net (autoregressive) is assigned to device CUDA0 (usually due to missing support)\nOct 10 01:22:11 bluefin llama-server[14152]: 0.02.628.675 W resolve_fused_ops: fused Gated Delta Net (autoregressive) not supported, set to disabled\nOct 10 01:22:11 bluefin llama-server[14152]: 0.02.630.352 W resolve_fused_ops: layer 0 is assigned to device CPU but fused Gated Delta Net (chunked) is assigned to device CUDA0 (usually due to missing support)\nOct 10 01:22:11 bluefin llama-server[14152]: 0.02.630.355 W resolve_fused_ops: fused Gated Delta Net (chunked) not supported, set to disabled\nOct 10 01:22:12 bluefin llama-server[14152]: 0.02.659.484 I cmn          init: llama threadpool init, n_threads = 16\nOct 10 01:23:17 bluefin llama-server[14152]: 1.07.707.616 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 8192, kv_unified = 'false'\nOct 10 01:23:17 bluefin llama-server[14152]: 1.07.713.068 I srv          init: chat template supports preserving reasoning, consider enabling it via --reasoning-preserve\nOct 10 01:23:17 bluefin llama-server[14152]: 1.07.713.106 I srv  llama_server: model loaded\nOct 10 01:23:17 bluefin llama-server[14152]: 1.07.713.110 I srv  llama_server: listening on http://127.0.0.1:18100\nOct 10 01:23:17 bluefin llama-server[14152]: 1.08.199.474 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 10 01:23:17 bluefin llama-server[14152]: 1.08.199.758 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 10 01:23:40 bluefin llama-server[14152]: 1.30.767.089 I slot print_timing: id  0 | task 0 | prompt processing, n_tokens =    155, progress = 0.54, t =  22.57 s / 6.87 tokens per second\nOct 10 01:23:41 bluefin llama-server[14152]: 1.31.852.741 I slot print_timing: id  0 | task 0 | prompt processing, n_tokens =    258, progress = 0.90, t =  23.65 s / 10.91 tokens per second\nOct 10 01:23:43 bluefin llama-server[14152]: 1.34.473.685 I slot print_timing: id  0 | task 0 | prompt processing, n_tokens =    283, progress = 0.99, t =  26.27 s / 10.77 tokens per second\nOct 10 01:24:01 bluefin llama-server[14152]: 1.51.683.666 I slot print_timing: id  0 | task 0 | prompt eval time =   27023.10 ms /   287 tokens (   94.16 ms per token,    10.62 tokens per second)\nOct 10 01:24:01 bluefin llama-server[14152]: 1.51.683.669 I slot print_timing: id  0 | task 0 |        eval time =   16460.77 ms /    58 tokens (  288.79 ms per token,     3.46 tokens per second)\nOct 10 01:24:01 bluefin llama-server[14152]: 1.51.683.670 I slot print_timing: id  0 | task 0 |       total time =   43483.87 ms /   345 tokens\nOct 10 01:24:01 bluefin llama-server[14152]: 1.51.683.675 I slot print_timing: id  0 | task 0 |    graphs reused =         57\nOct 10 01:24:01 bluefin llama-server[14152]: 1.51.683.738 I slot      release: id  0 | task 0 | stop processing: n_tokens = 344, truncated = 0\nOct 10 01:24:01 bluefin llama-server[14152]: 1.51.700.530 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.920 (> 0.100 thold), f_keep = 1.000\nOct 10 01:24:01 bluefin llama-server[14152]: 1.51.700.747 I slot launch_slot_: id  0 | task 62 | processing task, is_child = 0\nOct 10 01:24:12 bluefin llama-server[14152]: 2.03.182.159 I slot print_timing: id  0 | task 62 | prompt eval time =    3401.53 ms /    30 tokens (  113.38 ms per token,     8.82 tokens per second)\nOct 10 01:24:12 bluefin llama-server[14152]: 2.03.182.164 I slot print_timing: id  0 | task 62 |        eval time =    8079.86 ms /    50 tokens (  164.90 ms per token,     6.06 tokens per second)\nOct 10 01:24:12 bluefin llama-server[14152]: 2.03.182.164 I slot print_timing: id  0 | task 62 |       total time =   11481.39 ms /    80 tokens\nOct 10 01:24:12 bluefin llama-server[14152]: 2.03.182.165 I slot print_timing: id  0 | task 62 |    graphs reused =        105\nOct 10 01:24:12 bluefin llama-server[14152]: 2.03.182.215 I slot      release: id  0 | task 62 | stop processing: n_tokens = 423, truncated = 0\n",
+  "restored": "{\"status\":\"ok\"}{\"status\":\"ok\"}"
+}

@@ -1,0 +1,386 @@
+{
+  "utc": "2026-10-10T05:20:16.321718+00:00",
+  "scope": "same model, GPU0, context 4096, sequential smoke; not promotion",
+  "fixtures": [
+    [
+      "coding",
+      "Diagnose this Rust error. Reply only A or B. Error: future cannot be sent between threads safely, MutexGuard used across await. A: stale Cargo.lock. B: std::sync::MutexGuard alive across await.",
+      "B"
+    ],
+    [
+      "research",
+      "Use only the following synthetic sources. [A] January: service runs on port 7000. [B] February correction: port 7001 replaces 7000. What is the corrected port? Reply exactly 7001 [B].",
+      "7001 [B]"
+    ],
+    [
+      "abstention",
+      "The complete supplied repository has only Cargo.toml and src/main.rs. What function is in src/router.rs? Reply exactly CANNOT_VERIFY if absent.",
+      "CANNOT_VERIFY"
+    ]
+  ],
+  "runs": [
+    {
+      "runtime": "b11430",
+      "binary": "/var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server",
+      "binary_sha256": "6b8a4e71a274fd7b8048b2b0b84d065262f313f7f1b985934fe403247b2b2c6e",
+      "checks": [
+        {
+          "case": "coding",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "B"
+                }
+              }
+            ],
+            "created": 1791609630,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 2,
+              "prompt_tokens": 59,
+              "total_tokens": 61,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            },
+            "id": "chatcmpl-5XIJTn6qCFFlezD2gykiaiKhzkHsqMPH",
+            "timings": {
+              "cache_n": 0,
+              "prompt_n": 59,
+              "prompt_ms": 7960.514,
+              "prompt_per_token_ms": 134.92396610169493,
+              "prompt_per_second": 7.411581714447082,
+              "predicted_n": 2,
+              "predicted_ms": 678.054,
+              "predicted_per_token_ms": 678.054,
+              "predicted_per_second": 1.4748087910402417
+            }
+          },
+          "elapsed_seconds": 8.643785011001455,
+          "passed": true
+        },
+        {
+          "case": "research",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "7001 [B]"
+                }
+              }
+            ],
+            "created": 1791609644,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 8,
+              "prompt_tokens": 69,
+              "total_tokens": 77,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            },
+            "id": "chatcmpl-46lxf7v9fqAlHtU7RJF4xTlNiCNjRqsI",
+            "timings": {
+              "cache_n": 0,
+              "prompt_n": 69,
+              "prompt_ms": 9330.275,
+              "prompt_per_token_ms": 135.2213768115942,
+              "prompt_per_second": 7.395280417779754,
+              "predicted_n": 8,
+              "predicted_ms": 4741.679,
+              "predicted_per_token_ms": 677.3827142857143,
+              "predicted_per_second": 1.476270325342563
+            }
+          },
+          "elapsed_seconds": 14.241122635001375,
+          "passed": true
+        },
+        {
+          "case": "abstention",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "CANNOT_VERIFY"
+                }
+              }
+            ],
+            "created": 1791609653,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 4,
+              "prompt_tokens": 42,
+              "total_tokens": 46,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            },
+            "id": "chatcmpl-xfXfxzU8O6B9BVqVWkOAWx5A82UZPV8C",
+            "timings": {
+              "cache_n": 0,
+              "prompt_n": 42,
+              "prompt_ms": 6734.14,
+              "prompt_per_token_ms": 160.33666666666667,
+              "prompt_per_second": 6.236876572212635,
+              "predicted_n": 4,
+              "predicted_ms": 2034.974,
+              "predicted_per_token_ms": 678.3246666666666,
+              "predicted_per_second": 1.4742203094486712
+            }
+          },
+          "elapsed_seconds": 8.93824349699571,
+          "passed": true
+        }
+      ],
+      "argv": [
+        "/var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server",
+        "--model",
+        "/var/home/annunimas-server/inference-assessment/models/Underdog-Saluki-27B-1.0-IQ2-mix.gguf",
+        "--alias",
+        "control",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18099",
+        "--ctx-size",
+        "4096",
+        "--parallel",
+        "1",
+        "--n-gpu-layers",
+        "40",
+        "--flash-attn",
+        "on",
+        "--cache-type-k",
+        "q4_0",
+        "--cache-type-v",
+        "q4_0",
+        "--jinja",
+        "--chat-template-kwargs",
+        "{\"enable_thinking\":false}"
+      ],
+      "health": {
+        "status": "ok"
+      },
+      "models": {
+        "models": [
+          {
+            "name": "control",
+            "model": "control",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "control",
+            "aliases": [
+              "control"
+            ],
+            "tags": [],
+            "object": "model",
+            "architecture": {
+              "input_modalities": [
+                "text"
+              ],
+              "output_modalities": [
+                "text"
+              ]
+            },
+            "created": 1791609621,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 2,
+              "n_vocab": 248320,
+              "n_ctx": 4096,
+              "n_ctx_train": 262144,
+              "n_embd": 5120,
+              "n_params": 26895998464,
+              "size": 7887374336,
+              "ftype": "IQ2_XS - 2.3125 bpw"
+            }
+          }
+        ]
+      },
+      "props": {
+        "default_generation_settings": {
+          "params": {
+            "seed": 4294967295,
+            "temperature": 1.0,
+            "dynatemp_range": 0.0,
+            "dynatemp_exponent": 1.0,
+            "top_k": 20,
+            "top_p": 0.949999988079071,
+            "min_p": 0.0,
+            "top_n_sigma": -1.0,
+            "xtc_probability": 0.0,
+            "xtc_threshold": 0.10000000149011612,
+            "typical_p": 1.0,
+            "repeat_last_n": 64,
+            "repeat_penalty": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "dry_multiplier": 0.0,
+            "dry_base": 1.75,
+            "dry_allowed_length": 2,
+            "dry_penalty_last_n": 64,
+            "mirostat": 0,
+            "mirostat_tau": 5.0,
+            "mirostat_eta": 0.10000000149011612,
+            "adaptive_target": -1.0,
+            "adaptive_decay": 0.8999999761581421,
+            "max_tokens": -1,
+            "n_predict": -1,
+            "n_keep": 0,
+            "n_discard": 0,
+            "ignore_eos": false,
+            "stream": false,
+            "n_probs": 0,
+            "min_keep": 0,
+            "chat_format": "Content-only",
+            "reasoning_format": "none",
+            "reasoning_in_content": false,
+            "generation_prompt": "",
+            "samplers": [
+              "penalties",
+              "dry",
+              "top_n_sigma",
+              "top_k",
+              "typ_p",
+              "top_p",
+              "min_p",
+              "xtc",
+              "temperature"
+            ],
+            "speculative.types": "none",
+            "timings_per_token": false,
+            "post_sampling_probs": false,
+            "backend_sampling": false,
+            "lora": []
+          },
+          "n_ctx": 4096
+        },
+        "total_slots": 1,
+        "model_alias": "control",
+        "model_ftype": "IQ2_XS - 2.3125 bpw",
+        "model_path": "/var/home/annunimas-server/inference-assessment/models/Underdog-Saluki-27B-1.0-IQ2-mix.gguf",
+        "modalities": {
+          "vision": false,
+          "video": false,
+          "audio": false
+        },
+        "media_marker": "<__media_RyG1M34re4MklSTSzM2uaUtqYpCNIibO__>",
+        "endpoint_slots": true,
+        "endpoint_props": false,
+        "endpoint_metrics": false,
+        "ui": true,
+        "ui_settings": {},
+        "chat_template": "{%- set image_count = namespace(value=0) %}\n{%- set video_count = namespace(value=0) %}\n{%- macro render_content(content, do_vision_count, is_system_content=false) %}\n    {%- if content is string %}\n        {{- content }}\n    {%- elif content is iterable and content is not mapping %}\n        {%- for item in content %}\n            {%- if 'image' in item or 'image_url' in item or item.type == 'image' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain images.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set image_count.value = image_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Picture ' ~ image_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|image_pad|><|vision_end|>' }}\n            {%- elif 'video' in item or item.type == 'video' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain videos.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set video_count.value = video_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Video ' ~ video_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|video_pad|><|vision_end|>' }}\n            {%- elif 'text' in item %}\n                {{- item.text }}\n            {%- else %}\n                {{- raise_exception('Unexpected item type in content.') }}\n            {%- endif %}\n        {%- endfor %}\n    {%- elif content is none or content is undefined %}\n        {{- '' }}\n    {%- else %}\n        {{- raise_exception('Unexpected content type.') }}\n    {%- endif %}\n{%- endmacro %}\n{%- if not messages %}\n    {{- raise_exception('No messages provided.') }}\n{%- endif %}\n{%- set reasoning_instructions = '' %}\n{%- if enable_thinking is undefined or enable_thinking is true %}\n    {%- set resolved_reasoning_effort = reasoning_effort|default('xhigh') %}\n    {%- if resolved_reasoning_effort not in ('xhigh', 'medium', 'low') %}\n        {{- raise_exception('Unexpected reasoning effort ' ~ reasoning_effort ~ '. Supported types are xhigh (default), medium, and low.') }}\n    {%- endif %}\n    {%- if resolved_reasoning_effort == 'xhigh' %}\n        {%- set reasoning_instructions = 'Reasoning effort is set to xhigh. Please think carefully through the task, validate key assumptions, consider plausible alternatives, and prioritize correctness, consistency, and clarity in the final answer.' %}\n    {%- elif resolved_reasoning_effort == 'low' %}\n        {%- set reasoning_instructions = 'Reasoning effort is set to low. Keep your thinking brief and focused, moving directly to the conclusion without unnecessary elaboration.' %}\n    {%- endif %}\n{%- endif %}\n{%- if tools and tools is iterable and tools is not mapping %}\n    {{- '<|im_start|>system\\n' }}\n    {%- if reasoning_instructions %}\n        {{- reasoning_instructions + '\\n\\n' }}\n    {%- endif %}\n    {{- \"# Tools\\n\\nYou have access to the following functions:\\n\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\" }}\n    {{- '\\n\\nIf you choose to call a function ONLY reply in the following format with NO suffix:\\n\\n<tool_call>\\n<function=example_function_name>\\n<parameter=example_parameter_1>\\nvalue_1\\n</parameter>\\n<parameter=example_parameter_2>\\nThis is the value for the second parameter\\nthat can span\\nmultiple lines\\n</parameter>\\n</function>\\n</tool_call>\\n\\n<IMPORTANT>\\nReminder:\\n- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags\\n- Required parameters MUST be specified\\n- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after\\n- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls\\n</IMPORTANT>' }}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {%- if content %}\n            {{- '\\n\\n' + content }}\n        {%- endif %}\n    {%- endif %}\n    {{- '<|im_end|>\\n' }}\n{%- else %}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {%- if content %}\n            {{- '<|im_start|>system\\n' + (reasoning_instructions + '\\n\\n' if reasoning_instructions else '')  + content + '<|im_end|>\\n' }}\n        {%- elif reasoning_instructions %}\n            {{- '<|im_start|>system\\n' + reasoning_instructions + '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- elif reasoning_instructions %}\n        {{- '<|im_start|>system\\n' + reasoning_instructions + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- if ns.multi_step_tool and message.role == \"user\" %}\n        {%- set content = render_content(message.content, false)|trim %}\n        {%- if not(content.startswith('<tool_response>') and content.endswith('</tool_response>')) %}\n            {%- set ns.multi_step_tool = false %}\n            {%- set ns.last_query_index = index %}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if ns.multi_step_tool %}\n    {{- raise_exception('No user query found in messages.') }}\n{%- endif %}\n{%- for message in messages %}\n    {%- set content = render_content(message.content, true)|trim %}\n    {%- if message.role == \"system\" %}\n        {%- if not loop.first %}\n            {{- raise_exception('System message must be at the beginning.') }}\n        {%- endif %}\n    {%- elif message.role == \"user\" %}\n        {{- '<|im_start|>' + message.role + '\\n' + content + '<|im_end|>' + '\\n' }}\n    {%- elif message.role == \"assistant\" %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is string %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- endif %}\n        {%- set reasoning_content = reasoning_content|trim %}\n        {%- if preserve_thinking is undefined or preserve_thinking is true or loop.index0 > ns.last_query_index %}\n            {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content + '\\n</think>\\n\\n' + content }}\n        {%- else %}\n            {{- '<|im_start|>' + message.role + '\\n' + content }}\n        {%- endif %}\n        {%- if message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if tool_call.function is defined %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {%- if loop.first %}\n                    {%- if content|trim %}\n                        {{- '\\n\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- else %}\n                        {{- '<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- endif %}\n                {%- else %}\n                    {{- '\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                {%- endif %}\n                {%- if tool_call.arguments is defined and tool_call.arguments != '' %}\n                    {%- for args_name, args_value in tool_call.arguments|items %}\n                        {{- '<parameter=' + args_name + '>\\n' }}\n                        {%- set args_value = args_value | string if args_value is string else args_value | tojson | safe %}\n                        {{- args_value }}\n                        {{- '\\n</parameter>\\n' }}\n                    {%- endfor %}\n                {%- endif %}\n                {{- '</function>\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.previtem and loop.previtem.role != \"tool\" %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- content }}\n        {{- '\\n</tool_response>' }}\n        {%- if not loop.last and loop.nextitem.role != \"tool\" %}\n            {{- '<|im_end|>\\n' }}\n        {%- elif loop.last %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- else %}\n        {{- raise_exception('Unexpected message role.') }}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\\n\\n</think>\\n\\n' }}\n    {%- else %}\n        {{- '<think>\\n' }}\n    {%- endif %}\n{%- endif %}",
+        "chat_template_caps": {
+          "supports_object_arguments": true,
+          "supports_parallel_tool_calls": true,
+          "supports_preserve_reasoning": true,
+          "supports_reasoning_effort": true,
+          "supports_string_content": true,
+          "supports_system_role": true,
+          "supports_tool_calls": true,
+          "supports_tools": true,
+          "supports_typed_content": true
+        },
+        "bos_token": "<|endoftext|>",
+        "eos_token": "<|im_end|>",
+        "build_info": "b11430-8345f3339",
+        "is_sleeping": false,
+        "cors_proxy_enabled": false
+      },
+      "gpu": "index, uuid, memory.used [MiB], memory.total [MiB]\n0, GPU-2e68916d-af48-61ca-e7ff-190eb17bba0a, 5 MiB, 8192 MiB\n1, GPU-f015dfe1-155e-102b-1737-b8ca281769f8, 4271 MiB, 8192 MiB\n",
+      "tools": [
+        {
+          "name": "single_native_tool",
+          "category": "tools",
+          "passed": false,
+          "elapsed_seconds": 30.03020016499795,
+          "error": "ApiError: timed out"
+        },
+        {
+          "name": "multi_tool_selection",
+          "category": "tools",
+          "passed": false,
+          "elapsed_seconds": 30.030456777996733,
+          "error": "ApiError: timed out"
+        },
+        {
+          "name": "tool_argument_escaping_and_types",
+          "category": "tools",
+          "passed": false,
+          "elapsed_seconds": 30.008851268001308,
+          "error": "ApiError: timed out"
+        },
+        {
+          "name": "tool_result_continuation",
+          "category": "tools",
+          "passed": false,
+          "elapsed_seconds": 30.030633670998213,
+          "error": "ApiError: timed out"
+        }
+      ],
+      "stream": {
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 15,
+          "prompt_ms": 4333.372,
+          "prompt_per_token_ms": 288.8914666666667,
+          "prompt_per_second": 3.4615075742401067,
+          "predicted_n": 2,
+          "predicted_ms": 682.636,
+          "predicted_per_token_ms": 682.636,
+          "predicted_per_second": 1.4649095564839827
+        },
+        "finish_reason": "stop",
+        "elapsed_seconds": 6.800283910000871,
+        "ttft_seconds": 6.117580707003071,
+        "content": "READY"
+      },
+      "tool_raw": [],
+      "journal": "Oct 09 22:06:38 bluefin llama-server[8870]: 0.00.018.201 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)\nOct 09 22:06:38 bluefin llama-server[8870]: 0.00.022.415 I srv    load_model: loading model '/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf'\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.134.999 I cmn          init: llama threadpool init, n_threads = 16\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.390.072 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 4096, kv_unified = 'false'\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.395.275 W srv          init: chat template supports preserving reasoning, it is enabled by default (may use more tokens, disable via --no-reasoning-preserve)\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.395.318 I srv  llama_server: model loaded\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.395.322 I srv  llama_server: listening on http://127.0.0.1:18099\nOct 09 22:06:41 bluefin llama-server[8870]: 0.03.047.159 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 09 22:06:41 bluefin llama-server[8870]: 0.03.047.259 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.975 I slot print_timing: id  0 | task 0 | prompt eval time =    1767.79 ms /    87 tokens (   20.32 ms per token,    49.21 tokens per second)\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.979 I slot print_timing: id  0 | task 0 |        eval time =      78.89 ms /     2 tokens (   78.89 ms per token,    12.68 tokens per second)\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.980 I slot print_timing: id  0 | task 0 |       total time =    1846.68 ms /    89 tokens\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.985 I slot print_timing: id  0 | task 0 |    graphs reused =          1\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.894.029 I slot      release: id  0 | task 0 | stop processing: n_tokens = 88, truncated = 0\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.896.795 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.260 (> 0.100 thold), f_keep = 0.284\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.899.652 I slot launch_slot_: id  0 | task 3 | processing task, is_child = 0\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.042 I slot print_timing: id  0 | task 3 | prompt eval time =    1433.94 ms /    71 tokens (   20.20 ms per token,    49.51 tokens per second)\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.046 I slot print_timing: id  0 | task 3 |        eval time =     538.42 ms /     8 tokens (   76.92 ms per token,    13.00 tokens per second)\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.047 I slot print_timing: id  0 | task 3 |       total time =    1972.36 ms /    79 tokens\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.048 I slot print_timing: id  0 | task 3 |    graphs reused =          7\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.075 I slot      release: id  0 | task 3 | stop processing: n_tokens = 103, truncated = 0\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.874.782 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.333 (> 0.100 thold), f_keep = 0.243\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.877.816 I slot launch_slot_: id  0 | task 12 | processing task, is_child = 0\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.600 I slot print_timing: id  0 | task 12 | prompt eval time =    1007.61 ms /    50 tokens (   20.15 ms per token,    49.62 tokens per second)\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.605 I slot print_timing: id  0 | task 12 |        eval time =     306.14 ms /     5 tokens (   76.54 ms per token,    13.07 tokens per second)\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.605 I slot print_timing: id  0 | task 12 |       total time =    1313.76 ms /    55 tokens\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.606 I slot print_timing: id  0 | task 12 |    graphs reused =         10\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.633 I slot      release: id  0 | task 12 | stop processing: n_tokens = 79, truncated = 0\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.197.853 I srv    operator(): operator(): cleaning up before exit...\nOct 09 22:06:46 bluefin systemd[2130]: Stopping inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\"...\nOct 09 22:06:46 bluefin systemd[2130]: Stopped inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:06:46 bluefin systemd[2130]: inference-assessment-smoke.service: Consumed 1min 25.835s CPU time, 1.7G memory peak.\nOct 09 22:20:16 bluefin systemd[2130]: Started inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/inference-assessment/models/Underdog-Saluki-27B-1.0-IQ2-mix.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 40 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:20:16 bluefin llama-server[9326]: 0.00.008.930 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.\nOct 09 22:20:16 bluefin llama-server[9326]: 0.00.009.413 I srv  llama_server: initializing ...\nOct 09 22:20:16 bluefin llama-server[9326]: 0.00.009.427 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\nOct 09 22:20:16 bluefin llama-server[9326]: 0.00.009.838 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)\nOct 09 22:20:16 bluefin llama-server[9326]: 0.00.012.991 I srv    load_model: loading model '/var/home/annunimas-server/inference-assessment/models/Underdog-Saluki-27B-1.0-IQ2-mix.gguf'\nOct 09 22:20:18 bluefin llama-server[9326]: 0.01.969.643 I cmn          init: llama threadpool init, n_threads = 16\nOct 09 22:20:21 bluefin llama-server[9326]: 0.04.625.220 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 4096, kv_unified = 'false'\nOct 09 22:20:21 bluefin llama-server[9326]: 0.04.630.452 W srv          init: chat template supports preserving reasoning, it is enabled by default (may use more tokens, disable via --no-reasoning-preserve)\nOct 09 22:20:21 bluefin llama-server[9326]: 0.04.630.495 I srv  llama_server: model loaded\nOct 09 22:20:21 bluefin llama-server[9326]: 0.04.630.505 I srv  llama_server: listening on http://127.0.0.1:18099\nOct 09 22:20:21 bluefin llama-server[9326]: 0.05.084.718 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 09 22:20:21 bluefin llama-server[9326]: 0.05.084.846 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 09 22:20:27 bluefin llama-server[9326]: 0.10.472.062 I slot print_timing: id  0 | task 0 | prompt processing, n_tokens =     55, progress = 0.93, t =   5.39 s / 10.21 tokens per second\nOct 09 22:20:30 bluefin llama-server[9326]: 0.13.723.456 I slot print_timing: id  0 | task 0 | prompt eval time =    7960.51 ms /    59 tokens (  134.92 ms per token,     7.41 tokens per second)\nOct 09 22:20:30 bluefin llama-server[9326]: 0.13.723.460 I slot print_timing: id  0 | task 0 |        eval time =     678.05 ms /     2 tokens (  678.05 ms per token,     1.47 tokens per second)\nOct 09 22:20:30 bluefin llama-server[9326]: 0.13.723.461 I slot print_timing: id  0 | task 0 |       total time =    8638.57 ms /    61 tokens\nOct 09 22:20:30 bluefin llama-server[9326]: 0.13.723.465 I slot print_timing: id  0 | task 0 |    graphs reused =          1\nOct 09 22:20:30 bluefin llama-server[9326]: 0.13.723.505 I slot      release: id  0 | task 0 | stop processing: n_tokens = 60, truncated = 0\nOct 09 22:20:30 bluefin llama-server[9326]: 0.13.726.172 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38430498948\nOct 09 22:20:30 bluefin llama-server[9326]: 0.13.892.685 I slot launch_slot_: id  0 | task 4 | processing task, is_child = 0\nOct 09 22:20:37 bluefin llama-server[9326]: 0.20.651.572 I slot print_timing: id  0 | task 4 | prompt processing, n_tokens =     65, progress = 0.94, t =   6.76 s / 9.62 tokens per second\nOct 09 22:20:44 bluefin llama-server[9326]: 0.27.964.677 I slot print_timing: id  0 | task 4 | prompt eval time =    9330.27 ms /    69 tokens (  135.22 ms per token,     7.40 tokens per second)\nOct 09 22:20:44 bluefin llama-server[9326]: 0.27.964.682 I slot print_timing: id  0 | task 4 |        eval time =    4741.68 ms /     8 tokens (  677.38 ms per token,     1.48 tokens per second)\nOct 09 22:20:44 bluefin llama-server[9326]: 0.27.964.682 I slot print_timing: id  0 | task 4 |       total time =   14071.95 ms /    77 tokens\nOct 09 22:20:44 bluefin llama-server[9326]: 0.27.964.683 I slot print_timing: id  0 | task 4 |    graphs reused =          7\nOct 09 22:20:44 bluefin llama-server[9326]: 0.27.964.707 I slot      release: id  0 | task 4 | stop processing: n_tokens = 76, truncated = 0\nOct 09 22:20:44 bluefin llama-server[9326]: 0.27.967.201 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38444740149\nOct 09 22:20:44 bluefin llama-server[9326]: 0.28.133.800 I slot launch_slot_: id  0 | task 14 | processing task, is_child = 0\nOct 09 22:20:49 bluefin llama-server[9326]: 0.32.292.632 I slot print_timing: id  0 | task 14 | prompt processing, n_tokens =     38, progress = 0.90, t =   4.16 s / 9.14 tokens per second\nOct 09 22:20:53 bluefin llama-server[9326]: 0.36.902.950 I slot print_timing: id  0 | task 14 | prompt eval time =    6734.14 ms /    42 tokens (  160.34 ms per token,     6.24 tokens per second)\nOct 09 22:20:53 bluefin llama-server[9326]: 0.36.902.955 I slot print_timing: id  0 | task 14 |        eval time =    2034.97 ms /     4 tokens (  678.32 ms per token,     1.47 tokens per second)\nOct 09 22:20:53 bluefin llama-server[9326]: 0.36.902.956 I slot print_timing: id  0 | task 14 |       total time =    8769.11 ms /    46 tokens\nOct 09 22:20:53 bluefin llama-server[9326]: 0.36.902.957 I slot print_timing: id  0 | task 14 |    graphs reused =          9\nOct 09 22:20:53 bluefin llama-server[9326]: 0.36.902.979 I slot      release: id  0 | task 14 | stop processing: n_tokens = 45, truncated = 0\nOct 09 22:20:53 bluefin llama-server[9326]: 0.36.938.922 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38453678422\nOct 09 22:20:53 bluefin llama-server[9326]: 0.37.105.806 I slot launch_slot_: id  0 | task 20 | processing task, is_child = 0\nOct 09 22:21:16 bluefin llama-server[9326]: 0.59.900.455 I slot print_timing: id  0 | task 20 | prompt processing, n_tokens =    273, progress = 0.89, t =  22.79 s / 11.98 tokens per second\nOct 09 22:21:19 bluefin llama-server[9326]: 1.03.078.637 I slot print_timing: id  0 | task 20 | prompt processing, n_tokens =    303, progress = 0.99, t =  25.97 s / 11.67 tokens per second\nOct 09 22:21:24 bluefin llama-server[9326]: 1.07.941.589 W srv          stop: cancel task, id_task = 20\nOct 09 22:21:25 bluefin llama-server[9326]: 1.08.389.767 I slot      release: id  0 | task 20 | stop processing: n_tokens = 311, truncated = 0\nOct 09 22:21:25 bluefin llama-server[9326]: 1.08.389.782 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38485165212\nOct 09 22:21:25 bluefin llama-server[9326]: 1.08.641.428 I slot launch_slot_: id  0 | task 26 | processing task, is_child = 0\nOct 09 22:21:54 bluefin llama-server[9326]: 1.37.973.412 W srv          stop: cancel task, id_task = 26\nOct 09 22:21:55 bluefin llama-server[9326]: 1.38.878.279 I slot      release: id  0 | task 26 | stop processing: n_tokens = 379, truncated = 0\nOct 09 22:21:55 bluefin llama-server[9326]: 1.38.878.300 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38515653724\nOct 09 22:21:55 bluefin llama-server[9326]: 1.38.967.087 I slot launch_slot_: id  0 | task 31 | processing task, is_child = 0\nOct 09 22:22:18 bluefin llama-server[9326]: 2.01.952.444 I slot print_timing: id  0 | task 31 | prompt processing, n_tokens =    285, progress = 0.88, t =  22.99 s / 12.40 tokens per second\nOct 09 22:22:23 bluefin llama-server[9326]: 2.06.267.075 I slot print_timing: id  0 | task 31 | prompt processing, n_tokens =    321, progress = 0.99, t =  27.30 s / 11.76 tokens per second\nOct 09 22:22:24 bluefin llama-server[9326]: 2.08.003.174 W srv          stop: cancel task, id_task = 31\nOct 09 22:22:25 bluefin llama-server[9326]: 2.08.868.278 I slot      release: id  0 | task 31 | stop processing: n_tokens = 325, truncated = 0\nOct 09 22:22:25 bluefin llama-server[9326]: 2.08.868.301 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.106 (> 0.100 thold), f_keep = 0.098\nOct 09 22:22:25 bluefin llama-server[9326]: 2.09.126.652 I slot launch_slot_: id  0 | task 36 | processing task, is_child = 0\nOct 09 22:22:48 bluefin llama-server[9326]: 2.32.113.955 I slot print_timing: id  0 | task 36 | prompt processing, n_tokens =    271, progress = 0.90, t =  22.99 s / 11.79 tokens per second\nOct 09 22:22:52 bluefin llama-server[9326]: 2.35.282.324 I slot print_timing: id  0 | task 36 | prompt processing, n_tokens =    297, progress = 0.99, t =  26.16 s / 11.36 tokens per second\nOct 09 22:22:54 bluefin llama-server[9326]: 2.38.012.004 W srv          stop: cancel task, id_task = 36\nOct 09 22:22:55 bluefin llama-server[9326]: 2.38.565.734 I slot      release: id  0 | task 36 | stop processing: n_tokens = 302, truncated = 0\nOct 09 22:22:55 bluefin llama-server[9326]: 2.38.565.758 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38575341179\nOct 09 22:22:55 bluefin llama-server[9326]: 2.38.817.692 I slot launch_slot_: id  0 | task 41 | processing task, is_child = 0\nOct 09 22:23:00 bluefin llama-server[9326]: 2.43.833.745 I slot print_timing: id  0 | task 41 | prompt eval time =    4333.37 ms /    15 tokens (  288.89 ms per token,     3.46 tokens per second)\nOct 09 22:23:00 bluefin llama-server[9326]: 2.43.833.748 I slot print_timing: id  0 | task 41 |        eval time =     682.64 ms /     2 tokens (  682.64 ms per token,     1.46 tokens per second)\nOct 09 22:23:00 bluefin llama-server[9326]: 2.43.833.749 I slot print_timing: id  0 | task 41 |       total time =    5016.01 ms /    17 tokens\nOct 09 22:23:00 bluefin llama-server[9326]: 2.43.833.750 I slot print_timing: id  0 | task 41 |    graphs reused =         12\nOct 09 22:23:00 bluefin llama-server[9326]: 2.43.833.773 I slot      release: id  0 | task 41 | stop processing: n_tokens = 16, truncated = 0\nOct 09 22:23:00 bluefin llama-server[9326]: 2.43.840.370 I srv    operator(): operator(): cleaning up before exit...\nOct 09 22:23:00 bluefin systemd[2130]: Stopping inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/inference-assessment/models/Underdog-Saluki-27B-1.0-IQ2-mix.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 40 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\"...\nOct 09 22:23:01 bluefin systemd[2130]: Stopped inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/inference-assessment/models/Underdog-Saluki-27B-1.0-IQ2-mix.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 40 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:23:01 bluefin systemd[2130]: inference-assessment-smoke.service: Consumed 39min 50.996s CPU time, 3.2G memory peak.\n"
+    }
+  ],
+  "restore_start_exit": 0,
+  "restore_state": "active\n"
+}

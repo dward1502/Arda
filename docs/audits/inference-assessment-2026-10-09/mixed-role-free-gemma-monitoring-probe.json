@@ -1,0 +1,18 @@
+{
+  "request": {
+    "model": "openrouter/google/gemma-4-26b-a4b-it:free",
+    "allow_forced_provider_fallback": false,
+    "stream": false,
+    "temperature": 0,
+    "max_tokens": 64,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Synthetic service-monitoring test. A backup job failed but the web service is healthy. State which job needs attention in one sentence. Do not suggest commands."
+      }
+    ]
+  },
+  "status": 502,
+  "error": "{\"error\":{\"message\":\"Agent error: manwe \u2014 proxy routing exhausted fallback providers after 1 attempt(s): [openrouter:google/gemma-4-26b-a4b-it:free HTTP 429 rate_or_retry_error (provider openrouter HTTP 429: {\\\"error\\\":{\\\"code\\\":429,\\\"message\\\":\\\"Provider returned error\\\",\\\"metadata\\\":{\\\"is_byok\\\":false,\\\"limit_source\\\":\\\"upstream_provider_shared_pool\\\",\\\"provider_error_co\u2026)]\",\"type\":\"manwe_error\"}}",
+  "elapsed_s": 0.288
+}

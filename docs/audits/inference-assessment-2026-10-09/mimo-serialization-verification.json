@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "negative_controls": 4,
+  "result_sha256": "7993f41f52b3bc74ff8eae16ffb272d6abedca0d67b515c83b5b461bde99bd0d",
+  "summary": [
+    {
+      "reversed": false,
+      "chunk_bytes": 1,
+      "serialized_arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+      "finish_reasons": [
+        "tool_calls"
+      ]
+    },
+    {
+      "reversed": false,
+      "chunk_bytes": 7,
+      "serialized_arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+      "finish_reasons": [
+        "tool_calls"
+      ]
+    },
+    {
+      "reversed": false,
+      "chunk_bytes": 194,
+      "serialized_arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+      "finish_reasons": [
+        "tool_calls"
+      ]
+    },
+    {
+      "reversed": true,
+      "chunk_bytes": 1,
+      "serialized_arguments": "{",
+      "finish_reasons": []
+    },
+    {
+      "reversed": true,
+      "chunk_bytes": 7,
+      "serialized_arguments": "{",
+      "finish_reasons": []
+    },
+    {
+      "reversed": true,
+      "chunk_bytes": 194,
+      "serialized_arguments": "",
+      "finish_reasons": []
+    }
+  ]
+}

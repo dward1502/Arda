@@ -1,0 +1,461 @@
+{
+  "utc": "2026-10-10T05:06:17.269213+00:00",
+  "scope": "same model, GPU0, context 4096, sequential smoke; not promotion",
+  "fixtures": [
+    [
+      "coding",
+      "Diagnose this Rust error. Reply only A or B. Error: future cannot be sent between threads safely, MutexGuard used across await. A: stale Cargo.lock. B: std::sync::MutexGuard alive across await.",
+      "B"
+    ],
+    [
+      "research",
+      "Use only the following synthetic sources. [A] January: service runs on port 7000. [B] February correction: port 7001 replaces 7000. What is the corrected port? Reply exactly 7001 [B].",
+      "7001 [B]"
+    ],
+    [
+      "abstention",
+      "The complete supplied repository has only Cargo.toml and src/main.rs. What function is in src/router.rs? Reply exactly CANNOT_VERIFY if absent.",
+      "CANNOT_VERIFY"
+    ]
+  ],
+  "runs": [
+    {
+      "runtime": "old",
+      "binary": "/var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server",
+      "binary_sha256": "6f58e13bbc591a57eaca8c34df6dfb25fda98b6dcd1adbd4ac44a8696973c6af",
+      "checks": [
+        {
+          "case": "coding",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "B\n</think>\n\nB"
+                }
+              }
+            ],
+            "created": 1791608779,
+            "model": "control",
+            "system_fingerprint": "b10151-c6640a1c0",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 7,
+              "prompt_tokens": 87,
+              "total_tokens": 94,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            },
+            "id": "chatcmpl-8ZDWTomDhivf7UOaLgueON2o6njsON0s",
+            "timings": {
+              "cache_n": 0,
+              "prompt_n": 87,
+              "prompt_ms": 65.945,
+              "prompt_per_token_ms": 0.7579885057471264,
+              "prompt_per_second": 1319.2812191978167,
+              "predicted_n": 7,
+              "predicted_ms": 85.91,
+              "predicted_per_token_ms": 12.272857142857143,
+              "predicted_per_second": 81.48061925270632
+            }
+          },
+          "elapsed_seconds": 0.18521046500245575,
+          "passed": false
+        },
+        {
+          "case": "research",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "7001 [B]"
+                }
+              }
+            ],
+            "created": 1791608780,
+            "model": "control",
+            "system_fingerprint": "b10151-c6640a1c0",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 8,
+              "prompt_tokens": 96,
+              "total_tokens": 104,
+              "prompt_tokens_details": {
+                "cached_tokens": 25
+              }
+            },
+            "id": "chatcmpl-Q98d3twedwlJ7l0fax6ncsCMKLiRt46t",
+            "timings": {
+              "cache_n": 25,
+              "prompt_n": 71,
+              "prompt_ms": 44.789,
+              "prompt_per_token_ms": 0.630830985915493,
+              "prompt_per_second": 1585.2106544017504,
+              "predicted_n": 8,
+              "predicted_ms": 90.392,
+              "predicted_per_token_ms": 11.299,
+              "predicted_per_second": 88.50340738118418
+            }
+          },
+          "elapsed_seconds": 0.17320573200413492,
+          "passed": true
+        },
+        {
+          "case": "abstention",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "CANNOT_VERIFY"
+                }
+              }
+            ],
+            "created": 1791608780,
+            "model": "control",
+            "system_fingerprint": "b10151-c6640a1c0",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 5,
+              "prompt_tokens": 75,
+              "total_tokens": 80,
+              "prompt_tokens_details": {
+                "cached_tokens": 25
+              }
+            },
+            "id": "chatcmpl-JudfaqQ8wRrziHtddO4e6Fdm7z0f5IRX",
+            "timings": {
+              "cache_n": 25,
+              "prompt_n": 50,
+              "prompt_ms": 39.964,
+              "prompt_per_token_ms": 0.79928,
+              "prompt_per_second": 1251.126013412071,
+              "predicted_n": 5,
+              "predicted_ms": 53.328,
+              "predicted_per_token_ms": 10.665600000000001,
+              "predicted_per_second": 93.75937593759376
+            }
+          },
+          "elapsed_seconds": 0.13141535199974896,
+          "passed": true
+        }
+      ],
+      "argv": [
+        "/var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server",
+        "--model",
+        "/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf",
+        "--alias",
+        "control",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18099",
+        "--ctx-size",
+        "4096",
+        "--parallel",
+        "1",
+        "--n-gpu-layers",
+        "999",
+        "--flash-attn",
+        "on",
+        "--cache-type-k",
+        "q4_0",
+        "--cache-type-v",
+        "q4_0",
+        "--jinja",
+        "--chat-template-kwargs",
+        "{\"enable_thinking\":false}"
+      ],
+      "health": {
+        "status": "ok"
+      },
+      "models": {
+        "models": [
+          {
+            "name": "control",
+            "model": "control",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "control",
+            "aliases": [
+              "control"
+            ],
+            "tags": [],
+            "object": "model",
+            "created": 1791608779,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 1,
+              "n_vocab": 166144,
+              "n_ctx": 4096,
+              "n_ctx_train": 262144,
+              "n_embd": 3072,
+              "n_params": 4169800704,
+              "size": 2570840064,
+              "ftype": "Q4_K - Medium"
+            }
+          }
+        ]
+      },
+      "gpu": "index, uuid, memory.used [MiB], memory.total [MiB]\n0, GPU-2e68916d-af48-61ca-e7ff-190eb17bba0a, 2617 MiB, 8192 MiB\n1, GPU-f015dfe1-155e-102b-1737-b8ca281769f8, 4271 MiB, 8192 MiB\n",
+      "journal": "Oct 09 22:06:17 bluefin systemd[2130]: Started inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.069.694 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.070.211 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.363 W srv  llama_server: -----------------\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: this can be a security risk (cross-origin attacks)\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: -----------------\nOct 09 22:06:18 bluefin llama-server[8819]: 0.00.180.749 I srv    load_model: loading model '/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf'\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.438.790 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 4096, kv_unified = 'false'\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.458.001 I srv          init: chat template supports preserving reasoning, consider enabling it via --reasoning-preserve\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.458.034 I srv  llama_server: model loaded\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.458.038 I srv  llama_server: listening on http://127.0.0.1:18099\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.024.518 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.024.628 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.506 I slot print_timing: id  0 | task 0 | prompt eval time =      65.94 ms /    87 tokens (    0.76 ms per token,  1319.28 tokens per second)\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.514 I slot print_timing: id  0 | task 0 |        eval time =      85.91 ms /     7 tokens (   12.27 ms per token,    81.48 tokens per second)\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.515 I slot print_timing: id  0 | task 0 |       total time =     151.85 ms /    94 tokens\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.519 I slot print_timing: id  0 | task 0 |    graphs reused =          6\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.561 I slot      release: id  0 | task 0 | stop processing: n_tokens = 93, truncated = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.209.281 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, sim_best = 0.260 (> 0.100 thold), f_keep = 0.269\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.214.489 I slot launch_slot_: id  0 | task 8 | processing task, is_child = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.688 I slot print_timing: id  0 | task 8 | prompt eval time =      44.79 ms /    71 tokens (    0.63 ms per token,  1585.21 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.695 I slot print_timing: id  0 | task 8 |        eval time =      90.39 ms /     8 tokens (   11.30 ms per token,    88.50 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.696 I slot print_timing: id  0 | task 8 |       total time =     135.18 ms /    79 tokens\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.697 I slot print_timing: id  0 | task 8 |    graphs reused =         12\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.723 I slot      release: id  0 | task 8 | stop processing: n_tokens = 103, truncated = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.382.309 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, sim_best = 0.333 (> 0.100 thold), f_keep = 0.243\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.387.988 I slot launch_slot_: id  0 | task 17 | processing task, is_child = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.299 I slot print_timing: id  0 | task 17 | prompt eval time =      39.96 ms /    50 tokens (    0.80 ms per token,  1251.13 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.308 I slot print_timing: id  0 | task 17 |        eval time =      53.33 ms /     5 tokens (   10.67 ms per token,    93.76 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.309 I slot print_timing: id  0 | task 17 |       total time =      93.29 ms /    55 tokens\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.309 I slot print_timing: id  0 | task 17 |    graphs reused =         15\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.335 I slot      release: id  0 | task 17 | stop processing: n_tokens = 79, truncated = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.491.134 I srv    operator(): operator(): cleaning up before exit...\nOct 09 22:06:20 bluefin systemd[2130]: Stopping inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\"...\nOct 09 22:06:20 bluefin systemd[2130]: Stopped inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:06:20 bluefin systemd[2130]: inference-assessment-smoke.service: Consumed 2.186s CPU time, 294.4M memory peak.\n"
+    },
+    {
+      "runtime": "b11430",
+      "binary": "/var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server",
+      "binary_sha256": "6b8a4e71a274fd7b8048b2b0b84d065262f313f7f1b985934fe403247b2b2c6e",
+      "checks": [
+        {
+          "case": "coding",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "B"
+                }
+              }
+            ],
+            "created": 1791608803,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 2,
+              "prompt_tokens": 87,
+              "total_tokens": 89,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            },
+            "id": "chatcmpl-JgLyQnmVVx1pKWCUOj8PzlXMJT4nBuen",
+            "timings": {
+              "cache_n": 0,
+              "prompt_n": 87,
+              "prompt_ms": 1767.789,
+              "prompt_per_token_ms": 20.319413793103447,
+              "prompt_per_second": 49.214018188822315,
+              "predicted_n": 2,
+              "predicted_ms": 78.889,
+              "predicted_per_token_ms": 78.889,
+              "predicted_per_second": 12.676038484452839
+            }
+          },
+          "elapsed_seconds": 1.8515720150026027,
+          "passed": true
+        },
+        {
+          "case": "research",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "7001 [B]"
+                }
+              }
+            ],
+            "created": 1791608805,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 8,
+              "prompt_tokens": 96,
+              "total_tokens": 104,
+              "prompt_tokens_details": {
+                "cached_tokens": 25
+              }
+            },
+            "id": "chatcmpl-Qh5gCrxEBrFgnN2aKSlSQeT1vMN6TaFU",
+            "timings": {
+              "cache_n": 25,
+              "prompt_n": 71,
+              "prompt_ms": 1433.937,
+              "prompt_per_token_ms": 20.196295774647886,
+              "prompt_per_second": 49.51403025376987,
+              "predicted_n": 8,
+              "predicted_ms": 538.421,
+              "predicted_per_token_ms": 76.91728571428573,
+              "predicted_per_second": 13.000978787974464
+            }
+          },
+          "elapsed_seconds": 1.9780740599962883,
+          "passed": true
+        },
+        {
+          "case": "abstention",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "CANNOT_VERIFY"
+                }
+              }
+            ],
+            "created": 1791608806,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 5,
+              "prompt_tokens": 75,
+              "total_tokens": 80,
+              "prompt_tokens_details": {
+                "cached_tokens": 25
+              }
+            },
+            "id": "chatcmpl-a60fTzSN4i66n7MMjuCnO2LBoa5XPTLb",
+            "timings": {
+              "cache_n": 25,
+              "prompt_n": 50,
+              "prompt_ms": 1007.614,
+              "prompt_per_token_ms": 20.15228,
+              "prompt_per_second": 49.62217674625402,
+              "predicted_n": 5,
+              "predicted_ms": 306.141,
+              "predicted_per_token_ms": 76.53525,
+              "predicted_per_second": 13.065874874649262
+            }
+          },
+          "elapsed_seconds": 1.319533288005914,
+          "passed": true
+        }
+      ],
+      "argv": [
+        "/var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server",
+        "--model",
+        "/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf",
+        "--alias",
+        "control",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18099",
+        "--ctx-size",
+        "4096",
+        "--parallel",
+        "1",
+        "--n-gpu-layers",
+        "999",
+        "--flash-attn",
+        "on",
+        "--cache-type-k",
+        "q4_0",
+        "--cache-type-v",
+        "q4_0",
+        "--jinja",
+        "--chat-template-kwargs",
+        "{\"enable_thinking\":false}"
+      ],
+      "health": {
+        "status": "ok"
+      },
+      "models": {
+        "models": [
+          {
+            "name": "control",
+            "model": "control",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "control",
+            "aliases": [
+              "control"
+            ],
+            "tags": [],
+            "object": "model",
+            "architecture": {
+              "input_modalities": [
+                "text"
+              ],
+              "output_modalities": [
+                "text"
+              ]
+            },
+            "created": 1791608801,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 1,
+              "n_vocab": 166144,
+              "n_ctx": 4096,
+              "n_ctx_train": 262144,
+              "n_embd": 3072,
+              "n_params": 4169800704,
+              "size": 2570840064,
+              "ftype": "Q4_K - Medium"
+            }
+          }
+        ]
+      },
+      "gpu": "index, uuid, memory.used [MiB], memory.total [MiB]\n0, GPU-2e68916d-af48-61ca-e7ff-190eb17bba0a, 5 MiB, 8192 MiB\n1, GPU-f015dfe1-155e-102b-1737-b8ca281769f8, 4271 MiB, 8192 MiB\n",
+      "journal": "Oct 09 22:06:17 bluefin systemd[2130]: Started inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.069.694 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.070.211 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.363 W srv  llama_server: -----------------\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: this can be a security risk (cross-origin attacks)\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655\nOct 09 22:06:17 bluefin llama-server[8819]: 0.00.179.368 W srv  llama_server: -----------------\nOct 09 22:06:18 bluefin llama-server[8819]: 0.00.180.749 I srv    load_model: loading model '/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf'\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.438.790 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 4096, kv_unified = 'false'\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.458.001 I srv          init: chat template supports preserving reasoning, consider enabling it via --reasoning-preserve\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.458.034 I srv  llama_server: model loaded\nOct 09 22:06:19 bluefin llama-server[8819]: 0.01.458.038 I srv  llama_server: listening on http://127.0.0.1:18099\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.024.518 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.024.628 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.506 I slot print_timing: id  0 | task 0 | prompt eval time =      65.94 ms /    87 tokens (    0.76 ms per token,  1319.28 tokens per second)\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.514 I slot print_timing: id  0 | task 0 |        eval time =      85.91 ms /     7 tokens (   12.27 ms per token,    81.48 tokens per second)\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.515 I slot print_timing: id  0 | task 0 |       total time =     151.85 ms /    94 tokens\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.519 I slot print_timing: id  0 | task 0 |    graphs reused =          6\nOct 09 22:06:19 bluefin llama-server[8819]: 0.02.176.561 I slot      release: id  0 | task 0 | stop processing: n_tokens = 93, truncated = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.209.281 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, sim_best = 0.260 (> 0.100 thold), f_keep = 0.269\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.214.489 I slot launch_slot_: id  0 | task 8 | processing task, is_child = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.688 I slot print_timing: id  0 | task 8 | prompt eval time =      44.79 ms /    71 tokens (    0.63 ms per token,  1585.21 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.695 I slot print_timing: id  0 | task 8 |        eval time =      90.39 ms /     8 tokens (   11.30 ms per token,    88.50 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.696 I slot print_timing: id  0 | task 8 |       total time =     135.18 ms /    79 tokens\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.697 I slot print_timing: id  0 | task 8 |    graphs reused =         12\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.349.723 I slot      release: id  0 | task 8 | stop processing: n_tokens = 103, truncated = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.382.309 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, sim_best = 0.333 (> 0.100 thold), f_keep = 0.243\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.387.988 I slot launch_slot_: id  0 | task 17 | processing task, is_child = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.299 I slot print_timing: id  0 | task 17 | prompt eval time =      39.96 ms /    50 tokens (    0.80 ms per token,  1251.13 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.308 I slot print_timing: id  0 | task 17 |        eval time =      53.33 ms /     5 tokens (   10.67 ms per token,    93.76 tokens per second)\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.309 I slot print_timing: id  0 | task 17 |       total time =      93.29 ms /    55 tokens\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.309 I slot print_timing: id  0 | task 17 |    graphs reused =         15\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.481.335 I slot      release: id  0 | task 17 | stop processing: n_tokens = 79, truncated = 0\nOct 09 22:06:20 bluefin llama-server[8819]: 0.02.491.134 I srv    operator(): operator(): cleaning up before exit...\nOct 09 22:06:20 bluefin systemd[2130]: Stopping inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\"...\nOct 09 22:06:20 bluefin systemd[2130]: Stopped inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:06:20 bluefin systemd[2130]: inference-assessment-smoke.service: Consumed 2.186s CPU time, 294.4M memory peak.\nOct 09 22:06:38 bluefin systemd[2130]: Started inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:06:38 bluefin llama-server[8870]: 0.00.016.582 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.\nOct 09 22:06:38 bluefin llama-server[8870]: 0.00.017.397 I srv  llama_server: initializing ...\nOct 09 22:06:38 bluefin llama-server[8870]: 0.00.017.419 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\nOct 09 22:06:38 bluefin llama-server[8870]: 0.00.018.201 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)\nOct 09 22:06:38 bluefin llama-server[8870]: 0.00.022.415 I srv    load_model: loading model '/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf'\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.134.999 I cmn          init: llama threadpool init, n_threads = 16\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.390.072 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 4096, kv_unified = 'false'\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.395.275 W srv          init: chat template supports preserving reasoning, it is enabled by default (may use more tokens, disable via --no-reasoning-preserve)\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.395.318 I srv  llama_server: model loaded\nOct 09 22:06:40 bluefin llama-server[8870]: 0.02.395.322 I srv  llama_server: listening on http://127.0.0.1:18099\nOct 09 22:06:41 bluefin llama-server[8870]: 0.03.047.159 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 09 22:06:41 bluefin llama-server[8870]: 0.03.047.259 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.975 I slot print_timing: id  0 | task 0 | prompt eval time =    1767.79 ms /    87 tokens (   20.32 ms per token,    49.21 tokens per second)\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.979 I slot print_timing: id  0 | task 0 |        eval time =      78.89 ms /     2 tokens (   78.89 ms per token,    12.68 tokens per second)\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.980 I slot print_timing: id  0 | task 0 |       total time =    1846.68 ms /    89 tokens\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.893.985 I slot print_timing: id  0 | task 0 |    graphs reused =          1\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.894.029 I slot      release: id  0 | task 0 | stop processing: n_tokens = 88, truncated = 0\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.896.795 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.260 (> 0.100 thold), f_keep = 0.284\nOct 09 22:06:43 bluefin llama-server[8870]: 0.04.899.652 I slot launch_slot_: id  0 | task 3 | processing task, is_child = 0\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.042 I slot print_timing: id  0 | task 3 | prompt eval time =    1433.94 ms /    71 tokens (   20.20 ms per token,    49.51 tokens per second)\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.046 I slot print_timing: id  0 | task 3 |        eval time =     538.42 ms /     8 tokens (   76.92 ms per token,    13.00 tokens per second)\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.047 I slot print_timing: id  0 | task 3 |       total time =    1972.36 ms /    79 tokens\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.048 I slot print_timing: id  0 | task 3 |    graphs reused =          7\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.872.075 I slot      release: id  0 | task 3 | stop processing: n_tokens = 103, truncated = 0\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.874.782 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.333 (> 0.100 thold), f_keep = 0.243\nOct 09 22:06:45 bluefin llama-server[8870]: 0.06.877.816 I slot launch_slot_: id  0 | task 12 | processing task, is_child = 0\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.600 I slot print_timing: id  0 | task 12 | prompt eval time =    1007.61 ms /    50 tokens (   20.15 ms per token,    49.62 tokens per second)\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.605 I slot print_timing: id  0 | task 12 |        eval time =     306.14 ms /     5 tokens (   76.54 ms per token,    13.07 tokens per second)\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.605 I slot print_timing: id  0 | task 12 |       total time =    1313.76 ms /    55 tokens\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.606 I slot print_timing: id  0 | task 12 |    graphs reused =         10\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.191.633 I slot      release: id  0 | task 12 | stop processing: n_tokens = 79, truncated = 0\nOct 09 22:06:46 bluefin llama-server[8870]: 0.08.197.853 I srv    operator(): operator(): cleaning up before exit...\nOct 09 22:06:46 bluefin systemd[2130]: Stopping inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\"...\nOct 09 22:06:46 bluefin systemd[2130]: Stopped inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:06:46 bluefin systemd[2130]: inference-assessment-smoke.service: Consumed 1min 25.835s CPU time, 1.7G memory peak.\n"
+    }
+  ],
+  "restore_start_exit": 0,
+  "restore_state": "active\n"
+}

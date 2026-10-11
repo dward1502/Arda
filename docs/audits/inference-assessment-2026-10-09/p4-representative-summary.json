@@ -1,0 +1,74 @@
+{
+  "scope": "six synthetic isolated file-tool cases; 60-second budget each; separate initial batch interrupted by tool timeout",
+  "passed": 1,
+  "total": 6,
+  "cases": [
+    {
+      "kind": "research",
+      "repeat": 1,
+      "passed": true,
+      "error": null,
+      "reads": [
+        "old.txt",
+        "current.txt"
+      ],
+      "final": "---\n\n**Conflict Resolution**\n\n| Attribute | old.txt (2026-01-01) | current.txt (2026-02-01) |\n|-----------|---------------------|-------------------------|\n| Owner | fox | lynx |\n| Port | 40111 | 48231 |\n| Status | \"Superseded by current.txt\" | \"Current approved configuration\" |\n\n**Current Owner and Port**: lynx:48231 (from current.txt)\n\n**Obsolete Source**: old.txt is obsolete because:\n1. Its own text states \"Superseded by current.txt\"\n2. It is dated 2026-01-01, which precedes current.txt's 2026-02-01\n\n**Energy Consumption**: Not known. current.txt explicitly states \"Energy use has not been measured.\" No measurement is reported in either file.\n\n**Files Modified**: None (per request)",
+      "candidate_stopped": true
+    },
+    {
+      "kind": "research",
+      "repeat": 2,
+      "passed": false,
+      "error": "Sources not both read",
+      "reads": [
+        "old.txt"
+      ],
+      "final": "Now let me read current.txt:",
+      "candidate_stopped": true
+    },
+    {
+      "kind": "recovery",
+      "repeat": 1,
+      "passed": false,
+      "error": "Missing recovery reads",
+      "reads": [
+        "missing.txt"
+      ],
+      "final": "missing.txt doesn't exist. As instructed, I now read index.txt to locate its replacement.",
+      "candidate_stopped": true
+    },
+    {
+      "kind": "recovery",
+      "repeat": 2,
+      "passed": false,
+      "error": "Missing recovery reads",
+      "reads": [
+        "missing.txt"
+      ],
+      "final": "The file missing.txt is absent. According to the user's instructions, I should now read index.txt to locate the replacement, then read that file. The similar_files suggestion confirms index.txt exists.",
+      "candidate_stopped": true
+    },
+    {
+      "kind": "coding",
+      "repeat": 1,
+      "passed": false,
+      "error": "Coding inputs not read",
+      "reads": [
+        "spec.txt"
+      ],
+      "final": "The specification is concise. Now let me read the current calc.py implementation.",
+      "candidate_stopped": true
+    },
+    {
+      "kind": "coding",
+      "repeat": 2,
+      "passed": false,
+      "error": "Coding inputs not read",
+      "reads": [
+        "spec.txt"
+      ],
+      "final": "Now let me read calc.py to understand the current implementation.",
+      "candidate_stopped": true
+    }
+  ]
+}

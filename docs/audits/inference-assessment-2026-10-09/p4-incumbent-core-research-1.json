@@ -1,0 +1,322 @@
+{
+  "scope": "isolated installed Manwe binary with live incumbent Core; isolated Hermes CLI, not production router state",
+  "binary_sha256": "288c6c95fb11139ad9409e7ba761203e8319a7079fd93b3562af6e7d801bb641",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-0q6lgp6s",
+  "port": 56609,
+  "steps": [
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "3618a58f6be35687",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 16384,
+            "execution_lane": "interactive",
+            "latency_ms": 2729,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "interactive",
+            "route_id": "3618a58f6be35687"
+          },
+          "choices": [
+            {
+              "finish_reason": "length",
+              "index": 0,
+              "message": {
+                "content": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Action: Call `read_file` for `Cargo.toml`.\n    *   Parameter: `offset 17`.\n    *   Task: Summarize the returned content in one sentence.\n    *   Constraint: Do not invent file contents.\n\n2.  **Evaluate Capabilities:**\n    *   I am an AI language model.\n    *   I do not have direct access to the user's local file system.\n    *   I cannot execute arbitrary functions like `read_file` on files that are not provided in the context.\n    *   I do not have access to a `Cargo.toml` file unless it was uploaded or pasted into the conversation.\n    *   Therefore, I cannot fulfill the request to \"Call read_file\" as if I were a tool with filesystem access.\n\n3.  **Determine the Response:**\n    *   I need to inform the user that I cannot access their local files.\n    *   I need to explain that I don't have a `read_file` function available in this context.\n    *   I must adhere to the constraint \"Do not invent file contents.\"",
+                "reasoning_content": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Action: Call `read_file` for `Cargo.toml`.\n    *   Parameter: `offset 17`.\n    *   Task: Summarize the returned content in one sentence.\n    *   Constraint: Do not invent file contents.\n\n2.  **Evaluate Capabilities:**\n    *   I am an AI language model.\n    *   I do not have direct access to the user's local file system.\n    *   I cannot execute arbitrary functions like `read_file` on files that are not provided in the context.\n    *   I do not have access to a `Cargo.toml` file unless it was uploaded or pasted into the conversation.\n    *   Therefore, I cannot fulfill the request to \"Call read_file\" as if I were a tool with filesystem access.\n\n3.  **Determine the Response:**\n    *   I need to inform the user that I cannot access their local files.\n    *   I need to explain that I don't have a `read_file` function available in this context.\n    *   I must adhere to the constraint \"Do not invent file contents.\"",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791682383,
+          "id": "chatcmpl-RuTgj7LTYZBr76i8gJixS7kdFdRYKWps",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b8668-b2f6a68ae",
+          "timings": {
+            "cache_n": 0,
+            "predicted_ms": 2641.346,
+            "predicted_n": 256,
+            "predicted_per_second": 96.92028231060982,
+            "predicted_per_token_ms": 10.3177578125,
+            "prompt_ms": 38.305,
+            "prompt_n": 38,
+            "prompt_per_second": 992.0375930035244,
+            "prompt_per_token_ms": 1.0080263157894738
+          },
+          "usage": {
+            "completion_tokens": 256,
+            "prompt_tokens": 38,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 294
+          }
+        }
+      }
+    }
+  ],
+  "health": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "alerts": [],
+      "bootstrap_state_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-0q6lgp6s/absent-bootstrap.json",
+      "budget_pressure": {
+        "cooldown_total": 0,
+        "critical_total": 0,
+        "exhausted_total": 0,
+        "highest_level": "ok",
+        "providers": [
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "anthropic",
+            "provider_name": "Anthropic Claude"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "cerebras",
+            "provider_name": "Cerebras Cloud"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_core",
+            "provider_name": "Annunimas Core (3080 Workstation)"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "google",
+            "provider_name": "Google AI Studio"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "groq",
+            "provider_name": "Groq"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": null,
+            "provider_id": "local_fallback",
+            "provider_name": "Local Llama.cpp Fallback"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "mistral",
+            "provider_name": "Mistral API"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "nvidia",
+            "provider_name": "NVIDIA API Catalog"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "zai",
+            "provider_name": "Z.AI / GLM"
+          }
+        ],
+        "providers_total": 9,
+        "warning_total": 0
+      },
+      "capability_summary": {
+        "models_with_failed_streaming_receipts": 0,
+        "models_with_failed_structured_output_receipts": 0,
+        "models_with_failed_tool_receipts": 0,
+        "providers_with_no_capability_evidence": 9,
+        "receipt_model_count": 0,
+        "recent_capability_failures": 0
+      },
+      "catalog_generation": 2,
+      "config_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-0q6lgp6s/providers.toml",
+      "config_source": "provider_file",
+      "ok": true,
+      "provider_state_counts": {
+        "missing_api_key": 7,
+        "ready": 2
+      },
+      "providers_blocked": 7,
+      "providers_enabled": 9,
+      "providers_healthy": 2,
+      "providers_ready": 2,
+      "providers_total": 9,
+      "recent_event_sample_complete": true,
+      "recent_event_sample_limit": 48,
+      "recent_route_failures": 0,
+      "recent_route_successes": 0,
+      "route_guardrails": {
+        "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+        "low_context_tool_model_total": 1,
+        "tool_execution_min_context_window": 64000,
+        "tool_incompatible_model_total": 0,
+        "visible_reasoning_model_total": 0
+      },
+      "service": "manwe"
+    }
+  },
+  "passed": false,
+  "error": "Expected one tool call, got {'content': 'Thinking Process:\\n\\n1.  **Analyze the Request:**\\n    *   Action: Call `read_file` for `Cargo.toml`.\\n    *   Parameter: `offset 17`.\\n    *   Task: Summarize the returned content in one sentence.\\n    *   Constraint: Do not invent file contents.\\n\\n2.  **Evaluate Capabilities:**\\n    *   I am an AI language model.\\n    *   I do not have direct access to the user\\'s local file system.\\n    *   I cannot execute arbitrary functions like `read_file` on files that are not provided in the context.\\n    *   I do not have access to a `Cargo.toml` file unless it was uploaded or pasted into the conversation.\\n    *   Therefore, I cannot fulfill the request to \"Call read_file\" as if I were a tool with filesystem access.\\n\\n3.  **Determine the Response:**\\n    *   I need to inform the user that I cannot access their local files.\\n    *   I need to explain that I don\\'t have a `read_file` function available in this context.\\n    *   I must adhere to the constraint \"Do not invent file contents.\"', 'reasoning_content': 'Thinking Process:\\n\\n1.  **Analyze the Request:**\\n    *   Action: Call `read_file` for `Cargo.toml`.\\n    *   Parameter: `offset 17`.\\n    *   Task: Summarize the returned content in one sentence.\\n    *   Constraint: Do not invent file contents.\\n\\n2.  **Evaluate Capabilities:**\\n    *   I am an AI language model.\\n    *   I do not have direct access to the user\\'s local file system.\\n    *   I cannot execute arbitrary functions like `read_file` on files that are not provided in the context.\\n    *   I do not have access to a `Cargo.toml` file unless it was uploaded or pasted into the conversation.\\n    *   Therefore, I cannot fulfill the request to \"Call read_file\" as if I were a tool with filesystem access.\\n\\n3.  **Determine the Response:**\\n    *   I need to inform the user that I cannot access their local files.\\n    *   I need to explain that I don\\'t have a `read_file` function available in this context.\\n    *   I must adhere to the constraint \"Do not invent file contents.\"', 'role': 'assistant'}",
+  "candidate_stopped": true,
+  "upstream_captures": [
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "local_only": true,
+        "max_tokens": 256,
+        "messages": [
+          {
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents.",
+            "role": "user"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "stream": false,
+        "temperature": 0
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "length",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Action: Call `read_file` for `Cargo.toml`.\n    *   Parameter: `offset 17`.\n    *   Task: Summarize the returned content in one sentence.\n    *   Constraint: Do not invent file contents.\n\n2.  **Evaluate Capabilities:**\n    *   I am an AI language model.\n    *   I do not have direct access to the user's local file system.\n    *   I cannot execute arbitrary functions like `read_file` on files that are not provided in the context.\n    *   I do not have access to a `Cargo.toml` file unless it was uploaded or pasted into the conversation.\n    *   Therefore, I cannot fulfill the request to \"Call read_file\" as if I were a tool with filesystem access.\n\n3.  **Determine the Response:**\n    *   I need to inform the user that I cannot access their local files.\n    *   I need to explain that I don't have a `read_file` function available in this context.\n    *   I must adhere to the constraint \"Do not invent file contents.\""
+            }
+          }
+        ],
+        "created": 1791682383,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b8668-b2f6a68ae",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 256,
+          "prompt_tokens": 38,
+          "total_tokens": 294,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-RuTgj7LTYZBr76i8gJixS7kdFdRYKWps",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 38,
+          "prompt_ms": 38.305,
+          "prompt_per_token_ms": 1.0080263157894738,
+          "prompt_per_second": 992.0375930035243,
+          "predicted_n": 256,
+          "predicted_ms": 2641.346,
+          "predicted_per_token_ms": 10.3177578125,
+          "predicted_per_second": 96.92028231060982
+        }
+      }
+    }
+  ]
+}

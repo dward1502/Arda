@@ -1,0 +1,23 @@
+{
+  "command": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "-p",
+    "MemoryMax=10G",
+    "-p",
+    "MemorySwapMax=0",
+    "-p",
+    "RuntimeMaxSec=240",
+    "-p",
+    "RestrictAddressFamilies=AF_UNIX",
+    "/var/home/mythos/.hermes/cache/scratch/inference-retrieval-venv/bin/python",
+    "-I",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/retrieval-cpu-probe.py"
+  ],
+  "stdout": "reranked 1\nreranked 2\nreranked 3\nreranked 4\nreranked 5\nreranked 6\nreranked 7\nreranked 8\nreranked 9\nreranked 10\nreranked 11\nreranked 12\nreranked 13\nreranked 14\nreranked 15\nreranked 16\nreranked 17\nreranked 18\nreranked 19\nreranked 20\nreranked 21\nreranked 22\nreranked 23\nreranked 24\n{\"bm25\": {\"hit1\": 0.7083333333333334, \"recall3\": 0.9583333333333334, \"mrr3\": 0.8263888888888888, \"ndcg3\": 0.860610365327387}, \"reranked\": {\"hit1\": 0.9583333333333334, \"recall3\": 0.9583333333333334, \"mrr3\": 0.9583333333333334, \"ndcg3\": 0.9583333333333334}, \"embedding\": {\"hit1\": 0.9583333333333334, \"recall3\": 0.9791666666666666, \"mrr3\": 0.9791666666666666, \"ndcg3\": 0.9685032060973714}}\n",
+  "stderr": "Running as unit: run-p3339247-i3301155.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 1min 38.671s\nCPU time consumed: 5min 46.543s\nMemory peak: 3G (swap: 0B)\n",
+  "exit_code": 0
+}

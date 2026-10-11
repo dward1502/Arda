@@ -1,0 +1,59 @@
+{
+  "scope": "fresh offline CPU control on retained synthetic fixtures; not operator acceptance",
+  "model_manifest": {
+    "repo": "mobiuslabsgmbh/faster-whisper-large-v3-turbo",
+    "revision": "0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf",
+    "files": [
+      {
+        "name": "config.json",
+        "sha256": "b0253ea6c0d3bea6b1e19e91a02acfd3b53f4467362efcb5a3e6b16c9b3a9b7e",
+        "advertised": null,
+        "bytes": 2263
+      },
+      {
+        "name": "model.bin",
+        "sha256": "e76620f83d5f5b69efd3d87e3dc180c1bd21df9fbebacfd4335e5e1efcc018da",
+        "advertised": "e76620f83d5f5b69efd3d87e3dc180c1bd21df9fbebacfd4335e5e1efcc018da",
+        "bytes": 1617884929
+      },
+      {
+        "name": "preprocessor_config.json",
+        "sha256": "7ccc62c6f2765af1f3b46c00c9b5894426835a05021c8b9c01eecb6dfb542711",
+        "advertised": null,
+        "bytes": 340
+      },
+      {
+        "name": "tokenizer.json",
+        "sha256": "297b13372ac43916285644fb9687add3cc62ee2a1adb60da3dc25cc94c1871fd",
+        "advertised": null,
+        "bytes": 2710337
+      },
+      {
+        "name": "vocabulary.json",
+        "sha256": "c69260f2ab26d659b7c398f9a2b2b48ed0df16c3b47d7326782fd9cba71690c1",
+        "advertised": null,
+        "bytes": 1068114
+      }
+    ]
+  },
+  "load_seconds": 2.774166295013856,
+  "cases": [
+    {
+      "audio": "speech",
+      "audio_sha256": "5ae8d04ffbcfbe85b30c8f8bb621bb26d9c7bca6745748a63f35a46696ecabd1",
+      "text": "Please research local inference and review the code changes.",
+      "audio_seconds": 3.657375,
+      "elapsed_s": 5.9269605609588325,
+      "vad": true
+    },
+    {
+      "audio": "silence",
+      "audio_sha256": "d303811b8c84619667cd0501342f84ec6cbe69f7aa3856dcf52fabda374c92b8",
+      "text": "",
+      "audio_seconds": 3.0,
+      "elapsed_s": 0.013758059998508543,
+      "vad": true
+    }
+  ],
+  "peak_rss_kib": 1685732
+}

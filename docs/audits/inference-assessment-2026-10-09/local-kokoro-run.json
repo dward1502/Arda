@@ -1,0 +1,23 @@
+{
+  "command": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "-p",
+    "MemoryMax=8G",
+    "-p",
+    "MemorySwapMax=0",
+    "-p",
+    "RuntimeMaxSec=180",
+    "-p",
+    "RestrictAddressFamilies=AF_UNIX",
+    "/var/home/mythos/.hermes/cache/scratch/inference-kokoro-venv/bin/python",
+    "-I",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/local-kokoro-probe.py"
+  ],
+  "stdout": "WARNING: Defaulting repo_id to hexgrad/Kokoro-82M. Pass repo_id='hexgrad/Kokoro-82M' to suppress this warning.\nWARNING: Defaulting repo_id to hexgrad/Kokoro-82M. Pass repo_id='hexgrad/Kokoro-82M' to suppress this warning.\n{\"scope\": \"single synthetic CPU synthesis; not listening quality or Hermes acceptance\", \"completed\": true, \"probe_sha256\": \"5f0b0fdb370a1a6c6534b098fde79d7029c272acab50c4921e64409b117587ca\", \"text\": \"Please research local inference, and review the code changes.\", \"phonemes\": [\"pl\\u02c8iz \\u0279\\u02c8is\\u02cc\\u025c\\u0279\\u02a7 l\\u02c8Ok\\u0259l \\u02c8\\u026anf\\u0259\\u0279\\u0259ns, \\u00e6nd \\u0279\\u0259vj\\u02c8u \\u00f0\\u0259 k\\u02c8Od \\u02a7\\u02c8An\\u02a4\\u1d7bz.\"], \"fallback_enabled\": true, \"load_seconds\": 1.4640950280008838, \"synthesis_seconds\": 1.2360561660025269, \"audio_seconds\": 4.05, \"peak_amplitude\": 0.4840392768383026, \"clipped_samples\": 0, \"wav_sha256\": \"7be31808e5dca8a4fb520d0e239eca5fe52fa2441760cec8561d33172a31cdce\", \"process_peak_rss_kib\": 1256608}\n",
+  "stderr": "Running as unit: run-p3342314-i3324358.service\n/var/home/mythos/.hermes/cache/scratch/inference-kokoro-venv/lib64/python3.12/site-packages/torch/nn/modules/rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.2 and num_layers=1\n  warnings.warn(\n/var/home/mythos/.hermes/cache/scratch/inference-kokoro-venv/lib64/python3.12/site-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.\n  WeightNorm.apply(module, name, dim)\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 11.859s\nCPU time consumed: 16.169s\nMemory peak: 1.6G (swap: 0B)\n",
+  "exit_code": 0
+}

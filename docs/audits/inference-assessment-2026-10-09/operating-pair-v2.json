@@ -1,0 +1,419 @@
+{
+  "scope": "Matched synthetic interpretation plus endpoint-only Server job; client intervals do not prove overlapping upstream compute. Not scheduled, no promotion. Semantic/authority review required.",
+  "desktop_before": "MainPID=0\nActiveState=inactive",
+  "sequential_remote": {
+    "started_ns": 445593812623448,
+    "request": {
+      "model": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "allow_forced_provider_fallback": false,
+      "workload_role": "interactive",
+      "context_window_target": 4096,
+      "max_tokens": 1024,
+      "stream": false,
+      "reasoning": {
+        "exclude": true
+      },
+      "messages": [
+        {
+          "role": "user",
+          "content": "Assess this synthetic monitoring packet, observation only. Return bare JSON with keys current_cpu_pressure (boolean or null), active_swapping (boolean or null), backups_recoverable (boolean or null), endpoint_responding (boolean), evidence (object mapping those four keys to source-ID arrays), limitation (string). No actions or recommendations.\nS1: vmstat first row is since-boot average: CPU idle 2%, swap-in 200 KiB/s.\nS2: second row is a one-second sample: CPU idle 98%, swap-in 0, swap-out 0. Occupied swap 200000 KiB; total swap capacity not provided.\nS3: one GET /health returned HTTP 200. No workload test.\nS4: backup utility is installed. No successful backup or restore evidence supplied.\nUse S2 for current sampled CPU/swap activity. Unknown recovery must be null. Explain that the sample does not establish sustained health.\nCitation rule v2: cite the source establishing an unknown/null judgment too; backups_recoverable must cite S4. Return only the six requested keys. No recommendations."
+        }
+      ]
+    },
+    "passed": true,
+    "body": {
+      "_manwe_route": {
+        "context_window_target": 4096,
+        "execution_lane": "interactive",
+        "latency_ms": 284,
+        "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+        "provider_id": "openrouter",
+        "route_class": "interactive",
+        "route_id": "fa7c03a083430ff6"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "logprobs": null,
+          "message": {
+            "content": "{\n  \"current_cpu_pressure\": false,\n  \"active_swapping\": false,\n  \"backups_recoverable\": null,\n  \"endpoint_responding\": true,\n  \"evidence\": {\n    \"current_cpu_pressure\": [\"S2\"],\n    \"active_swapping\": [\"S2\"],\n    \"backups_recoverable\": [\"S4\"],\n    \"endpoint_responding\": [\"S3\"]\n  },\n  \"limitation\": \"The one-second sample does not establish sustained CPU or swap behavior; long-term trends unknown.\"\n}",
+            "refusal": null,
+            "role": "assistant"
+          },
+          "native_finish_reason": "stop"
+        }
+      ],
+      "created": 1791710992,
+      "id": "gen-1791710992-KblvCranv4pItlV1PXw2",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "object": "chat.completion",
+      "provider": "Nvidia",
+      "service_tier": null,
+      "system_fingerprint": null,
+      "usage": {
+        "completion_tokens": 790,
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "reasoning_tokens": 673
+        },
+        "cost": 0,
+        "cost_details": {
+          "upstream_inference_completions_cost": 0,
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0
+        },
+        "is_byok": false,
+        "prompt_tokens": 256,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "video_tokens": 0
+        },
+        "total_tokens": 1046
+      }
+    },
+    "headers": {
+      "x-manwe-route-id": "fa7c03a083430ff6",
+      "x-manwe-provider-id": "openrouter",
+      "x-manwe-model-id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "x-manwe-route-class": "interactive",
+      "x-manwe-execution-lane": "interactive"
+    },
+    "status": 200,
+    "final_content": "{\n  \"current_cpu_pressure\": false,\n  \"active_swapping\": false,\n  \"backups_recoverable\": null,\n  \"endpoint_responding\": true,\n  \"evidence\": {\n    \"current_cpu_pressure\": [\"S2\"],\n    \"active_swapping\": [\"S2\"],\n    \"backups_recoverable\": [\"S4\"],\n    \"endpoint_responding\": [\"S3\"]\n  },\n  \"limitation\": \"The one-second sample does not establish sustained CPU or swap behavior; long-term trends unknown.\"\n}",
+    "reasoning_absent": true,
+    "parsed": {
+      "current_cpu_pressure": false,
+      "active_swapping": false,
+      "backups_recoverable": null,
+      "endpoint_responding": true,
+      "evidence": {
+        "current_cpu_pressure": [
+          "S2"
+        ],
+        "active_swapping": [
+          "S2"
+        ],
+        "backups_recoverable": [
+          "S4"
+        ],
+        "endpoint_responding": [
+          "S3"
+        ]
+      },
+      "limitation": "The one-second sample does not establish sustained CPU or swap behavior; long-term trends unknown."
+    },
+    "contract_pass": true,
+    "identity_pass": true,
+    "ended_ns": 445599024192980
+  },
+  "sequential_background": {
+    "started_ns": 445599024396563,
+    "ended_ns": 445600018834871,
+    "exit_code": 0,
+    "stderr": "",
+    "evidence": {
+      "unit": "arda-assessment-check-27d7ad430c.service",
+      "started_at": "2026-10-11T09:29:58.019892+00:00",
+      "desktop_before": "MainPID=0\nActiveState=inactive",
+      "scope": "One-shot manually invoked capped deterministic Server job; not an installed schedule or model qualification.",
+      "exit_code": 0,
+      "stderr": "Running as unit: arda-assessment-check-27d7ad430c.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 443ms\nCPU time consumed: 119ms\nMemory peak: 12.7M (swap: 0B)\n",
+      "report": {
+        "properties": {
+          "TimeoutStartUSec": "25s",
+          "TimeoutStopUSec": "5s",
+          "MemoryPeak": "13406208",
+          "CPUUsageNSec": "101911000",
+          "CPUQuotaPerSecUSec": "250ms",
+          "MemoryMax": "134217728",
+          "MemorySwapMax": "0",
+          "TasksMax": "16"
+        },
+        "checks": [
+          {
+            "service": "prometheus",
+            "url": "http://100.103.125.88:9090/-/ready",
+            "observed_at": "2026-10-11T09:29:58.507418+00:00",
+            "http_status": 200,
+            "bytes_read": 28,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "grafana",
+            "url": "http://100.103.125.88:3000/api/health",
+            "observed_at": "2026-10-11T09:29:58.547996+00:00",
+            "http_status": 200,
+            "bytes_read": 71,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "minio",
+            "url": "http://100.103.125.88:9000/minio/health/ready",
+            "observed_at": "2026-10-11T09:29:58.558740+00:00",
+            "http_status": 200,
+            "bytes_read": 0,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "server_nanbeige",
+            "url": "http://127.0.0.1:8098/health",
+            "observed_at": "2026-10-11T09:29:58.571015+00:00",
+            "http_status": 200,
+            "bytes_read": 15,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "server_bonsai",
+            "url": "http://127.0.0.1:8097/health",
+            "observed_at": "2026-10-11T09:29:58.571707+00:00",
+            "http_status": 200,
+            "bytes_read": 15,
+            "status": "endpoint_responding"
+          }
+        ],
+        "scope": "Endpoint self-reports only; not application workload, backups, model quality or sustained health. No remediation."
+      },
+      "post_run_read": {
+        "exit_code": 0,
+        "stdout": "TimeoutStartUSec=1min 30s\nRuntimeMaxUSec=infinity\nResult=success\nExecMainStatus=0\nMemoryPeak=[not set]\nCPUUsageNSec=[not set]\nCPUQuotaPerSecUSec=infinity\nMemoryMax=infinity\nMemorySwapMax=infinity\nTasksMax=821243\nActiveState=inactive\n",
+        "stderr": ""
+      },
+      "unit_properties": {
+        "TimeoutStartUSec": "25s",
+        "TimeoutStopUSec": "5s",
+        "MemoryPeak": "13406208",
+        "CPUUsageNSec": "101911000",
+        "CPUQuotaPerSecUSec": "250ms",
+        "MemoryMax": "134217728",
+        "MemorySwapMax": "0",
+        "TasksMax": "16"
+      },
+      "bounds_verified": true,
+      "cleanup": {
+        "stop_exit": 5,
+        "stop_stdout": "",
+        "stop_stderr": "Failed to stop arda-assessment-check-27d7ad430c.service: Unit arda-assessment-check-27d7ad430c.service not loaded.\n",
+        "read_exit": 0,
+        "state": "MainPID=0\nActiveState=inactive",
+        "read_stderr": ""
+      },
+      "desktop_after": "MainPID=0\nActiveState=inactive",
+      "endpoints_verified": true,
+      "passed": true
+    },
+    "passed": true
+  },
+  "concurrent_remote": {
+    "started_ns": 445600020459824,
+    "request": {
+      "model": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "allow_forced_provider_fallback": false,
+      "workload_role": "interactive",
+      "context_window_target": 4096,
+      "max_tokens": 1024,
+      "stream": false,
+      "reasoning": {
+        "exclude": true
+      },
+      "messages": [
+        {
+          "role": "user",
+          "content": "Assess this synthetic monitoring packet, observation only. Return bare JSON with keys current_cpu_pressure (boolean or null), active_swapping (boolean or null), backups_recoverable (boolean or null), endpoint_responding (boolean), evidence (object mapping those four keys to source-ID arrays), limitation (string). No actions or recommendations.\nS1: vmstat first row is since-boot average: CPU idle 2%, swap-in 200 KiB/s.\nS2: second row is a one-second sample: CPU idle 98%, swap-in 0, swap-out 0. Occupied swap 200000 KiB; total swap capacity not provided.\nS3: one GET /health returned HTTP 200. No workload test.\nS4: backup utility is installed. No successful backup or restore evidence supplied.\nUse S2 for current sampled CPU/swap activity. Unknown recovery must be null. Explain that the sample does not establish sustained health.\nCitation rule v2: cite the source establishing an unknown/null judgment too; backups_recoverable must cite S4. Return only the six requested keys. No recommendations."
+        }
+      ]
+    },
+    "passed": true,
+    "body": {
+      "_manwe_route": {
+        "context_window_target": 4096,
+        "execution_lane": "interactive",
+        "latency_ms": 181,
+        "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+        "provider_id": "openrouter",
+        "route_class": "interactive",
+        "route_id": "f07fbf5860b6230a"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "logprobs": null,
+          "message": {
+            "content": "{\n  \"current_cpu_pressure\": false,\n  \"active_swapping\": false,\n  \"backups_recoverable\": null,\n  \"endpoint_responding\": true,\n  \"evidence\": {\n    \"current_cpu_pressure\": [\"S2\"],\n    \"active_swapping\": [\"S2\"],\n    \"backups_recoverable\": [\"S4\"],\n    \"endpoint_responding\": [\"S3\"]\n  },\n  \"limitation\": \"The one-second vmstat sample and single health check do not establish sustained system health or backup recoverability.\"\n}",
+            "refusal": null,
+            "role": "assistant"
+          },
+          "native_finish_reason": "stop"
+        }
+      ],
+      "created": 1791710999,
+      "id": "gen-1791710999-Z4TYDrap1fP987zgndIT",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "object": "chat.completion",
+      "provider": "Nvidia",
+      "service_tier": null,
+      "system_fingerprint": null,
+      "usage": {
+        "completion_tokens": 871,
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "reasoning_tokens": 751
+        },
+        "cost": 0,
+        "cost_details": {
+          "upstream_inference_completions_cost": 0,
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0
+        },
+        "is_byok": false,
+        "prompt_tokens": 256,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "video_tokens": 0
+        },
+        "total_tokens": 1127
+      }
+    },
+    "headers": {
+      "x-manwe-route-id": "f07fbf5860b6230a",
+      "x-manwe-provider-id": "openrouter",
+      "x-manwe-model-id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "x-manwe-route-class": "interactive",
+      "x-manwe-execution-lane": "interactive"
+    },
+    "status": 200,
+    "final_content": "{\n  \"current_cpu_pressure\": false,\n  \"active_swapping\": false,\n  \"backups_recoverable\": null,\n  \"endpoint_responding\": true,\n  \"evidence\": {\n    \"current_cpu_pressure\": [\"S2\"],\n    \"active_swapping\": [\"S2\"],\n    \"backups_recoverable\": [\"S4\"],\n    \"endpoint_responding\": [\"S3\"]\n  },\n  \"limitation\": \"The one-second vmstat sample and single health check do not establish sustained system health or backup recoverability.\"\n}",
+    "reasoning_absent": true,
+    "parsed": {
+      "current_cpu_pressure": false,
+      "active_swapping": false,
+      "backups_recoverable": null,
+      "endpoint_responding": true,
+      "evidence": {
+        "current_cpu_pressure": [
+          "S2"
+        ],
+        "active_swapping": [
+          "S2"
+        ],
+        "backups_recoverable": [
+          "S4"
+        ],
+        "endpoint_responding": [
+          "S3"
+        ]
+      },
+      "limitation": "The one-second vmstat sample and single health check do not establish sustained system health or backup recoverability."
+    },
+    "contract_pass": true,
+    "identity_pass": true,
+    "ended_ns": 445608529954536
+  },
+  "concurrent_background": {
+    "started_ns": 445600020821809,
+    "ended_ns": 445600967049379,
+    "exit_code": 0,
+    "stderr": "",
+    "evidence": {
+      "unit": "arda-assessment-check-9a6cee67f9.service",
+      "started_at": "2026-10-11T09:29:59.018854+00:00",
+      "desktop_before": "MainPID=0\nActiveState=inactive",
+      "scope": "One-shot manually invoked capped deterministic Server job; not an installed schedule or model qualification.",
+      "exit_code": 0,
+      "stderr": "Running as unit: arda-assessment-check-9a6cee67f9.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 367ms\nCPU time consumed: 105ms\nMemory peak: 12.8M (swap: 0B)\n",
+      "report": {
+        "properties": {
+          "TimeoutStartUSec": "25s",
+          "TimeoutStopUSec": "5s",
+          "MemoryPeak": "13500416",
+          "CPUUsageNSec": "92386000",
+          "CPUQuotaPerSecUSec": "250ms",
+          "MemoryMax": "134217728",
+          "MemorySwapMax": "0",
+          "TasksMax": "16"
+        },
+        "checks": [
+          {
+            "service": "prometheus",
+            "url": "http://100.103.125.88:9090/-/ready",
+            "observed_at": "2026-10-11T09:29:59.402634+00:00",
+            "http_status": 200,
+            "bytes_read": 28,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "grafana",
+            "url": "http://100.103.125.88:3000/api/health",
+            "observed_at": "2026-10-11T09:29:59.465230+00:00",
+            "http_status": 200,
+            "bytes_read": 71,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "minio",
+            "url": "http://100.103.125.88:9000/minio/health/ready",
+            "observed_at": "2026-10-11T09:29:59.475231+00:00",
+            "http_status": 200,
+            "bytes_read": 0,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "server_nanbeige",
+            "url": "http://127.0.0.1:8098/health",
+            "observed_at": "2026-10-11T09:29:59.485855+00:00",
+            "http_status": 200,
+            "bytes_read": 15,
+            "status": "endpoint_responding"
+          },
+          {
+            "service": "server_bonsai",
+            "url": "http://127.0.0.1:8097/health",
+            "observed_at": "2026-10-11T09:29:59.486615+00:00",
+            "http_status": 200,
+            "bytes_read": 15,
+            "status": "endpoint_responding"
+          }
+        ],
+        "scope": "Endpoint self-reports only; not application workload, backups, model quality or sustained health. No remediation."
+      },
+      "post_run_read": {
+        "exit_code": 0,
+        "stdout": "TimeoutStartUSec=1min 30s\nRuntimeMaxUSec=infinity\nResult=success\nExecMainStatus=0\nMemoryPeak=[not set]\nCPUUsageNSec=[not set]\nCPUQuotaPerSecUSec=infinity\nMemoryMax=infinity\nMemorySwapMax=infinity\nTasksMax=821243\nActiveState=inactive\n",
+        "stderr": ""
+      },
+      "unit_properties": {
+        "TimeoutStartUSec": "25s",
+        "TimeoutStopUSec": "5s",
+        "MemoryPeak": "13500416",
+        "CPUUsageNSec": "92386000",
+        "CPUQuotaPerSecUSec": "250ms",
+        "MemoryMax": "134217728",
+        "MemorySwapMax": "0",
+        "TasksMax": "16"
+      },
+      "bounds_verified": true,
+      "cleanup": {
+        "stop_exit": 5,
+        "stop_stdout": "",
+        "stop_stderr": "Failed to stop arda-assessment-check-9a6cee67f9.service: Unit arda-assessment-check-9a6cee67f9.service not loaded.\n",
+        "read_exit": 0,
+        "state": "MainPID=0\nActiveState=inactive",
+        "read_stderr": ""
+      },
+      "desktop_after": "MainPID=0\nActiveState=inactive",
+      "endpoints_verified": true,
+      "passed": true
+    },
+    "passed": true
+  },
+  "client_overlap_ns": 946227570,
+  "desktop_after": "MainPID=0\nActiveState=inactive",
+  "mechanical_pass": true
+}

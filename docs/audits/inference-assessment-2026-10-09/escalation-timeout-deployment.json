@@ -1,0 +1,238 @@
+{
+  "source_commit": "dc3f3a672f70f78eb57ad8b22907e0af7448b13b",
+  "expected_sha256": "464348830f1a9614230624d736abc77fede8ed750b105d65e62ab38a27a49dcb",
+  "old_pid": 71886,
+  "parent_pid": 2711031,
+  "passed": true,
+  "previous-running": {
+    "path": "/var/home/mythos/.local/state/arda/manwe-releases/dc3f3a67/timeout-repair/previous-running",
+    "sha256": "46acd5c1a510042cbf2fa22c949d9408b676fe929a9ba09d8d920d8c0953e276"
+  },
+  "previous-on-disk": {
+    "path": "/var/home/mythos/.local/state/arda/manwe-releases/dc3f3a67/timeout-repair/previous-on-disk",
+    "sha256": "46acd5c1a510042cbf2fa22c949d9408b676fe929a9ba09d8d920d8c0953e276"
+  },
+  "reviewed-release": {
+    "path": "/var/home/mythos/.local/state/arda/manwe-releases/dc3f3a67/timeout-repair/reviewed-release",
+    "sha256": "464348830f1a9614230624d736abc77fede8ed750b105d65e62ab38a27a49dcb"
+  },
+  "desktop_before": "MainPID=0\nActiveState=inactive",
+  "new_pid": 86591,
+  "running_sha256": "464348830f1a9614230624d736abc77fede8ed750b105d65e62ab38a27a49dcb",
+  "parent_unchanged": true,
+  "probe": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "attempts": [
+        {
+          "content": "ROUTE_READY",
+          "latency_ms": 1722,
+          "marker_found": true,
+          "ok": true,
+          "outcome_class": "success",
+          "route": {
+            "context_window_target": 1024,
+            "execution_lane": "interactive",
+            "latency_ms": 1715,
+            "model_id": "gpt-6-astra",
+            "provider_id": "openai_sub",
+            "route_class": "health_probe",
+            "route_id": "8d8ad687565ba9a4"
+          },
+          "status": 200
+        }
+      ],
+      "content": "ROUTE_READY",
+      "latency_ms": 1722,
+      "marker": "ROUTE_READY",
+      "marker_found": true,
+      "ok": true,
+      "outcome_class": "success",
+      "response": {
+        "_charon_driver": "codex_responses",
+        "_manwe_route": {
+          "context_window_target": 1024,
+          "execution_lane": "interactive",
+          "latency_ms": 1715,
+          "model_id": "gpt-6-astra",
+          "provider_id": "openai_sub",
+          "route_class": "health_probe",
+          "route_id": "8d8ad687565ba9a4"
+        },
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "ROUTE_READY",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1791743143,
+        "id": "resp_064b9cc6104367b8016acbd4a5d4ac819982b1b2d3556bf282",
+        "model": null,
+        "object": "chat.completion",
+        "usage": {
+          "attribution": {
+            "items": {
+              "msg_064b9cc6104367b8016acbd4a5d5708199988450fde75c9609": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "content": [
+                  {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0,
+                    "input_tokens": 17,
+                    "output_tokens": 0
+                  }
+                ],
+                "input_tokens": 17,
+                "output_tokens": 0
+              },
+              "msg_064b9cc6104367b8016acbd4a6fee88199a6902d92a1eb306e": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "content": [
+                  {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0,
+                    "input_tokens": 2,
+                    "output_tokens": 7
+                  }
+                ],
+                "input_tokens": 2,
+                "output_tokens": 7
+              }
+            },
+            "request_fields": {
+              "instructions": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "input_tokens": 18,
+                "output_tokens": 0
+              }
+            }
+          },
+          "input_tokens": 37,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 7,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 44
+        }
+      },
+      "route": {
+        "context_window_target": 1024,
+        "execution_lane": "interactive",
+        "latency_ms": 1715,
+        "model_id": "gpt-6-astra",
+        "provider_id": "openai_sub",
+        "route_class": "health_probe",
+        "route_id": "8d8ad687565ba9a4"
+      },
+      "status": 200
+    }
+  },
+  "ordinary_forced": {
+    "status": 200,
+    "headers": {
+      "x-manwe-route-id": "bff8a915dfeed155",
+      "x-manwe-provider-id": "openai_sub",
+      "x-manwe-model-id": "gpt-6-astra",
+      "x-manwe-route-class": "interactive",
+      "x-manwe-execution-lane": "interactive"
+    },
+    "body": {
+      "_charon_driver": "codex_responses",
+      "_manwe_route": {
+        "context_window_target": 4096,
+        "execution_lane": "interactive",
+        "latency_ms": 1411,
+        "model_id": "gpt-6-astra",
+        "provider_id": "openai_sub",
+        "route_class": "interactive",
+        "route_id": "bff8a915dfeed155"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "ROUTE_READY",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1791743144,
+      "id": "resp_01e65e23a6681ae3016acbd4a7847087d0b8b4a660cb9ef260",
+      "model": null,
+      "object": "chat.completion",
+      "usage": {
+        "attribution": {
+          "items": {
+            "msg_01e65e23a6681ae3016acbd4a78b7887d0814cdac4ec8530cd": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0,
+              "content": [
+                {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 11,
+                  "output_tokens": 0
+                }
+              ],
+              "input_tokens": 11,
+              "output_tokens": 0
+            },
+            "msg_01e65e23a6681ae3016acbd4a8719087d0af7fd164b4cc58dd": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0,
+              "content": [
+                {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 2,
+                  "output_tokens": 7
+                }
+              ],
+              "input_tokens": 2,
+              "output_tokens": 7
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0,
+              "input_tokens": 10,
+              "output_tokens": 0
+            }
+          }
+        },
+        "input_tokens": 23,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 7,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 30
+      }
+    }
+  },
+  "provider_readback": {
+    "id": "openai_sub",
+    "enabled": true,
+    "healthy": true,
+    "last_error": null,
+    "in_cooldown": false
+  },
+  "desktop_after": "MainPID=0\nActiveState=inactive"
+}

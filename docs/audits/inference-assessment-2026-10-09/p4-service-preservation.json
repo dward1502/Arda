@@ -1,0 +1,596 @@
+{
+  "scope": "read-only executable/model/template file hashes and selected nonsecret arguments; unit source locations/hashes and environment variable names only; values and full ExecStart withheld; not a complete portable rollback package",
+  "nodes": [
+    {
+      "node": "Core",
+      "ssh_exit": 0,
+      "data": {
+        "observed_at": "2026-10-11T01:39:04.091065+00:00",
+        "processes": [
+          {
+            "pid": 3066405,
+            "executable": "/var/home/mythos/.local/bin/llama-server-cuda",
+            "executable_sha256": "9c5a315d6815fcbe4e028cb6d7b8e5b62f5dc8cd7ea7358344102ef3d268944c",
+            "selected_arguments": [
+              "--model",
+              "/var/home/mythos/models/qwen3.5-9b/Qwen3.5-9B-Q4_K_M.gguf",
+              "--host",
+              "0.0.0.0",
+              "--port",
+              "9337",
+              "--ctx-size",
+              "73728",
+              "-ngl",
+              "999",
+              "--no-mmap",
+              "--flash-attn",
+              "on",
+              "--parallel",
+              "1",
+              "--cache-type-k",
+              "q4_0",
+              "--cache-type-v",
+              "q4_0",
+              "--batch-size",
+              "1024",
+              "--ubatch-size",
+              "256",
+              "--reasoning-format",
+              "deepseek",
+              "-a",
+              "Qwen3.5-9B-Q4_K_M"
+            ],
+            "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/mesh-llm.service\n",
+            "files": [
+              {
+                "path": "/var/home/mythos/models/qwen3.5-9b/Qwen3.5-9B-Q4_K_M.gguf",
+                "bytes": 5680522464,
+                "sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8"
+              }
+            ],
+            "service_units": [
+              {
+                "properties": {
+                  "MainPID": "0",
+                  "Id": "user@1000.service",
+                  "ActiveState": "inactive",
+                  "FragmentPath": "",
+                  "DropInPaths": ""
+                },
+                "exit": 0,
+                "source_files": []
+              },
+              {
+                "properties": {
+                  "MainPID": "3066405",
+                  "Id": "mesh-llm.service",
+                  "ActiveState": "active",
+                  "FragmentPath": "/var/home/mythos/.config/systemd/user/mesh-llm.service",
+                  "DropInPaths": "/var/home/mythos/.config/systemd/user/mesh-llm.service.d/20-cuda-runtime.conf /run/user/1000/systemd/user/mesh-llm.service.d/90-development-off.conf"
+                },
+                "exit": 0,
+                "source_files": [
+                  {
+                    "path": "/var/home/mythos/.config/systemd/user/mesh-llm.service",
+                    "sha256": "92d475bbec1f7c9340ccc0ca929d5dc299bd1b06ff671fdc16534e793708fa7a"
+                  },
+                  {
+                    "path": "/var/home/mythos/.config/systemd/user/mesh-llm.service.d/20-cuda-runtime.conf",
+                    "sha256": "65a7c2c9a7ffd1c20ba7b2d641033525d745707455cb38e5011a15bff6e90b12"
+                  },
+                  {
+                    "path": "/run/user/1000/systemd/user/mesh-llm.service.d/90-development-off.conf",
+                    "sha256": "aff7c157f398d15eb2c92074e739603a4f154bca17c6df3febf1bda6b19a9204"
+                  }
+                ]
+              }
+            ],
+            "environment_names": [
+              "BUN_INSTALL",
+              "DBUS_SESSION_BUS_ADDRESS",
+              "DEBUGINFOD_IMA_CERT_PATH",
+              "DEBUGINFOD_URLS",
+              "DESKTOP_SESSION",
+              "DISPLAY",
+              "GDMSESSION",
+              "GDM_LANG",
+              "GNOME_SETUP_DISPLAY",
+              "GNOME_SHELL_SLOWDOWN_FACTOR",
+              "HISTCONTROL",
+              "HISTSIZE",
+              "HOME",
+              "HOMEBREW_CELLAR",
+              "HOMEBREW_PREFIX",
+              "HOMEBREW_REPOSITORY",
+              "HOSTNAME",
+              "INFOPATH",
+              "INVOCATION_ID",
+              "JOURNAL_STREAM",
+              "LANG",
+              "LD_LIBRARY_PATH",
+              "LESSOPEN",
+              "LOGNAME",
+              "MAIL",
+              "MANAGERPID",
+              "MEMORY_PRESSURE_WATCH",
+              "MEMORY_PRESSURE_WRITE",
+              "PATH",
+              "PKG_CONFIG_PATH",
+              "PWD",
+              "QT_IM_MODULE",
+              "QT_IM_MODULES",
+              "SHELL",
+              "SHLVL",
+              "SSH_AUTH_SOCK",
+              "SYSTEMD_EXEC_PID",
+              "USER",
+              "USERNAME",
+              "UWELCOME_SHOWN",
+              "WAYLAND_DISPLAY",
+              "XAUTHORITY",
+              "XDG_CURRENT_DESKTOP",
+              "XDG_DATA_DIRS",
+              "XDG_MENU_PREFIX",
+              "XDG_RUNTIME_DIR",
+              "XDG_SESSION_CLASS",
+              "XDG_SESSION_DESKTOP",
+              "XDG_SESSION_EXTRA_DEVICE_ACCESS",
+              "XDG_SESSION_TYPE",
+              "XMODIFIERS"
+            ]
+          }
+        ]
+      },
+      "stderr": "",
+      "parse_error": null
+    },
+    {
+      "node": "Server",
+      "ssh_exit": 0,
+      "data": {
+        "observed_at": "2026-10-11T01:39:04.573926+00:00",
+        "processes": [
+          {
+            "pid": 13464,
+            "executable": "/var/home/annunimas-server/llama.cpp-nanbeige/build-cuda/bin/llama-server",
+            "executable_sha256": "6f58e13bbc591a57eaca8c34df6dfb25fda98b6dcd1adbd4ac44a8696973c6af",
+            "selected_arguments": [
+              "--model",
+              "/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf",
+              "--alias",
+              "nanbeige4.2-3b-q4_k_m",
+              "--host",
+              "0.0.0.0",
+              "--port",
+              "8098",
+              "--ctx-size",
+              "32768",
+              "--parallel",
+              "1",
+              "--n-gpu-layers",
+              "999",
+              "--flash-attn",
+              "on",
+              "--cache-type-k",
+              "q4_0",
+              "--cache-type-v",
+              "q4_0",
+              "--jinja"
+            ],
+            "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/llama-server-nanbeige.service\n",
+            "files": [
+              {
+                "path": "/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf",
+                "bytes": 2574807968,
+                "sha256": "2b641415bb2eb08839cde0030ba3dad401d56a7b3c6745dc5b59e549316b192c"
+              }
+            ],
+            "service_units": [
+              {
+                "properties": {
+                  "MainPID": "0",
+                  "Id": "user@1000.service",
+                  "ActiveState": "inactive",
+                  "FragmentPath": "",
+                  "DropInPaths": ""
+                },
+                "exit": 0,
+                "source_files": []
+              },
+              {
+                "properties": {
+                  "MainPID": "13464",
+                  "Id": "llama-server-nanbeige.service",
+                  "ActiveState": "active",
+                  "FragmentPath": "/var/home/annunimas-server/.config/systemd/user/llama-server-nanbeige.service",
+                  "DropInPaths": ""
+                },
+                "exit": 0,
+                "source_files": [
+                  {
+                    "path": "/var/home/annunimas-server/.config/systemd/user/llama-server-nanbeige.service",
+                    "sha256": "caf1feac3f515cae36d4edb7a1b6793983594a6e82d22bb4fa7e24c2bbf270af"
+                  }
+                ]
+              }
+            ],
+            "environment_names": [
+              "CUDA_VISIBLE_DEVICES",
+              "DBUS_SESSION_BUS_ADDRESS",
+              "DEBUGINFOD_IMA_CERT_PATH",
+              "DEBUGINFOD_URLS",
+              "DESKTOP_SESSION",
+              "DISPLAY",
+              "GDMSESSION",
+              "GDM_LANG",
+              "GNOME_SETUP_DISPLAY",
+              "GNOME_SHELL_SLOWDOWN_FACTOR",
+              "GPG_TTY",
+              "HISTCONTROL",
+              "HISTSIZE",
+              "HOME",
+              "HOSTNAME",
+              "INVOCATION_ID",
+              "JOURNAL_STREAM",
+              "LANG",
+              "LD_LIBRARY_PATH",
+              "LESSOPEN",
+              "LOGNAME",
+              "MAIL",
+              "MANAGERPID",
+              "MEMORY_PRESSURE_WATCH",
+              "MEMORY_PRESSURE_WRITE",
+              "PATH",
+              "PWD",
+              "QT_IM_MODULE",
+              "QT_IM_MODULES",
+              "SHELL",
+              "SHLVL",
+              "SSH_AUTH_SOCK",
+              "SYSTEMD_EXEC_PID",
+              "USER",
+              "USERNAME",
+              "WAYLAND_DISPLAY",
+              "XAUTHORITY",
+              "XDG_CURRENT_DESKTOP",
+              "XDG_DATA_DIRS",
+              "XDG_MENU_PREFIX",
+              "XDG_RUNTIME_DIR",
+              "XDG_SESSION_CLASS",
+              "XDG_SESSION_DESKTOP",
+              "XDG_SESSION_TYPE",
+              "XMODIFIERS"
+            ]
+          },
+          {
+            "pid": 19686,
+            "executable": "/var/home/annunimas-server/llama.cpp-prism/build-cuda/bin/llama-server",
+            "executable_sha256": "01f3805d99aecc705a6d06a3c64504ad4af9fe73aa33f7c277b793a75a38acbe",
+            "selected_arguments": [
+              "--model",
+              "/var/home/annunimas-server/models/Bonsai-27B-Q1_0/Bonsai-27B-Q1_0.gguf",
+              "--alias",
+              "bonsai-27b-q1_0",
+              "--host",
+              "0.0.0.0",
+              "--port",
+              "8097",
+              "--ctx-size",
+              "100000",
+              "--parallel",
+              "1",
+              "--n-gpu-layers",
+              "999",
+              "--flash-attn",
+              "on",
+              "--cache-type-k",
+              "q4_0",
+              "--cache-type-v",
+              "q4_0",
+              "--jinja"
+            ],
+            "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/llama-server-bonsai-q1.service\n",
+            "files": [
+              {
+                "path": "/var/home/annunimas-server/models/Bonsai-27B-Q1_0/Bonsai-27B-Q1_0.gguf",
+                "bytes": 3803452480,
+                "sha256": "17ef842e47450caeb8eaa3ebfbbab5d2f2278b62b79be107985fb69a2f819aa0"
+              }
+            ],
+            "service_units": [
+              {
+                "properties": {
+                  "MainPID": "0",
+                  "Id": "user@1000.service",
+                  "ActiveState": "inactive",
+                  "FragmentPath": "",
+                  "DropInPaths": ""
+                },
+                "exit": 0,
+                "source_files": []
+              },
+              {
+                "properties": {
+                  "MainPID": "19686",
+                  "Id": "llama-server-bonsai-q1.service",
+                  "ActiveState": "active",
+                  "FragmentPath": "/var/home/annunimas-server/.config/systemd/user/llama-server-bonsai-q1.service",
+                  "DropInPaths": ""
+                },
+                "exit": 0,
+                "source_files": [
+                  {
+                    "path": "/var/home/annunimas-server/.config/systemd/user/llama-server-bonsai-q1.service",
+                    "sha256": "d438167924d76e24f3cf37f53f94c8dbba0a2bb1df97b617db9af5d7a6f21a80"
+                  }
+                ]
+              }
+            ],
+            "environment_names": [
+              "CUDA_VISIBLE_DEVICES",
+              "DBUS_SESSION_BUS_ADDRESS",
+              "DEBUGINFOD_IMA_CERT_PATH",
+              "DEBUGINFOD_URLS",
+              "DESKTOP_SESSION",
+              "DISPLAY",
+              "GDMSESSION",
+              "GDM_LANG",
+              "GNOME_SETUP_DISPLAY",
+              "GNOME_SHELL_SLOWDOWN_FACTOR",
+              "GPG_TTY",
+              "HISTCONTROL",
+              "HISTSIZE",
+              "HOME",
+              "HOSTNAME",
+              "INVOCATION_ID",
+              "JOURNAL_STREAM",
+              "LANG",
+              "LD_LIBRARY_PATH",
+              "LESSOPEN",
+              "LOGNAME",
+              "MAIL",
+              "MANAGERPID",
+              "MEMORY_PRESSURE_WATCH",
+              "MEMORY_PRESSURE_WRITE",
+              "PATH",
+              "PWD",
+              "QT_IM_MODULE",
+              "QT_IM_MODULES",
+              "SHELL",
+              "SHLVL",
+              "SSH_AUTH_SOCK",
+              "SYSTEMD_EXEC_PID",
+              "USER",
+              "USERNAME",
+              "WAYLAND_DISPLAY",
+              "XAUTHORITY",
+              "XDG_CURRENT_DESKTOP",
+              "XDG_DATA_DIRS",
+              "XDG_MENU_PREFIX",
+              "XDG_RUNTIME_DIR",
+              "XDG_SESSION_CLASS",
+              "XDG_SESSION_DESKTOP",
+              "XDG_SESSION_TYPE",
+              "XMODIFIERS"
+            ]
+          }
+        ]
+      },
+      "stderr": "",
+      "parse_error": null
+    },
+    {
+      "node": "Beelink",
+      "ssh_exit": 0,
+      "data": {
+        "observed_at": "2026-10-11T01:39:02.528786+00:00",
+        "processes": [
+          {
+            "pid": 4077208,
+            "executable": "/var/home/citadel/llama.cpp-prism/build-prism/bin/llama-server",
+            "executable_sha256": "d64d2d1ca4e0d4d99f1d87c184fd6d10a1f10ca3c5568222ea350083c57874fb",
+            "selected_arguments": [
+              "--model",
+              "/home/citadel/models/Ternary-Bonsai-8B-Q2_0.gguf",
+              "--host",
+              "0.0.0.0",
+              "--port",
+              "9337",
+              "--ctx-size",
+              "32768",
+              "-ngl",
+              "999",
+              "--no-mmap",
+              "--flash-attn",
+              "on",
+              "-a",
+              "Ternary-Bonsai-8B-Q2_0"
+            ],
+            "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/llama-server-light.service\n",
+            "files": [
+              {
+                "path": "/home/citadel/models/Ternary-Bonsai-8B-Q2_0.gguf",
+                "bytes": 2182184672,
+                "sha256": "3c8d70470a5d97e5a2b9410ddd899cb740116591462626c60cb2fead6448f60b"
+              }
+            ],
+            "service_units": [
+              {
+                "properties": {
+                  "Id": "user@1000.service",
+                  "ActiveState": "inactive",
+                  "FragmentPath": "",
+                  "DropInPaths": "",
+                  "MainPID": "0"
+                },
+                "exit": 0,
+                "source_files": []
+              },
+              {
+                "properties": {
+                  "Id": "llama-server-light.service",
+                  "ActiveState": "active",
+                  "FragmentPath": "/home/citadel/.config/systemd/user/llama-server-light.service",
+                  "DropInPaths": "/usr/lib/systemd/user/service.d/10-timeout-abort.conf",
+                  "MainPID": "4077208"
+                },
+                "exit": 0,
+                "source_files": [
+                  {
+                    "path": "/home/citadel/.config/systemd/user/llama-server-light.service",
+                    "sha256": "168aa018a1fb565f65377c1044a6d2a175084c5e649dffd3d87120e571702f53"
+                  },
+                  {
+                    "path": "/usr/lib/systemd/user/service.d/10-timeout-abort.conf",
+                    "sha256": "65ada61f9dc2af8c0cf87c3c71fe0eea50a664c07d451cb478238aed64f1cf41"
+                  }
+                ]
+              }
+            ],
+            "environment_names": [
+              "DBUS_SESSION_BUS_ADDRESS",
+              "DEBUGINFOD_IMA_CERT_PATH",
+              "DEBUGINFOD_URLS",
+              "DESKTOP_SESSION",
+              "DISPLAY",
+              "EDITOR",
+              "GDMSESSION",
+              "GDM_LANG",
+              "GNOME_SETUP_DISPLAY",
+              "GNOME_SHELL_SLOWDOWN_FACTOR",
+              "GPG_TTY",
+              "GUESTFISH_INIT",
+              "GUESTFISH_OUTPUT",
+              "GUESTFISH_PS1",
+              "GUESTFISH_RESTORE",
+              "HISTCONTROL",
+              "HISTSIZE",
+              "HOME",
+              "HOSTNAME",
+              "INVOCATION_ID",
+              "JOURNAL_STREAM",
+              "LANG",
+              "LD_LIBRARY_PATH",
+              "LESSOPEN",
+              "LOGNAME",
+              "MAIL",
+              "MANAGERPID",
+              "MANAGERPIDFDID",
+              "MEMORY_PRESSURE_WATCH",
+              "MEMORY_PRESSURE_WRITE",
+              "PATH",
+              "PWD",
+              "QT_IM_MODULE",
+              "QT_IM_MODULES",
+              "SHELL",
+              "SHLVL",
+              "SSH_ASKPASS",
+              "SSH_AUTH_SOCK",
+              "STARSHIP_SESSION_KEY",
+              "STARSHIP_SHELL",
+              "SYSTEMD_EXEC_PID",
+              "USER",
+              "USERNAME",
+              "WAYLAND_DISPLAY",
+              "XAUTHORITY",
+              "XDG_CURRENT_DESKTOP",
+              "XDG_DATA_DIRS",
+              "XDG_MENU_PREFIX",
+              "XDG_RUNTIME_DIR",
+              "XDG_SESSION_CLASS",
+              "XDG_SESSION_DESKTOP",
+              "XDG_SESSION_TYPE",
+              "XMODIFIERS"
+            ]
+          }
+        ]
+      },
+      "stderr": "",
+      "parse_error": null
+    },
+    {
+      "node": "Warden",
+      "ssh_exit": 0,
+      "data": {
+        "observed_at": "2026-10-11T01:39:03.223340+00:00",
+        "processes": [
+          {
+            "pid": 1060,
+            "executable": "/home/numenor/llama.cpp/build/bin/llama-server",
+            "executable_sha256": "cbf9008011ed90992286a2e9e7851ec1609443e4ace958c03b2b09abd34cb5de",
+            "selected_arguments": [
+              "-m",
+              "/home/numenor/models/Qwen3.5-4B-Q4_K_M.gguf",
+              "--host",
+              "0.0.0.0",
+              "--port",
+              "1234",
+              "-c",
+              "4096",
+              "--no-warmup"
+            ],
+            "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/llama-server.service\n",
+            "files": [
+              {
+                "path": "/home/numenor/models/Qwen3.5-4B-Q4_K_M.gguf",
+                "bytes": 2740937888,
+                "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4"
+              }
+            ],
+            "service_units": [
+              {
+                "properties": {
+                  "MainPID": "0",
+                  "Id": "user@1000.service",
+                  "ActiveState": "inactive",
+                  "FragmentPath": "",
+                  "DropInPaths": ""
+                },
+                "exit": 0,
+                "source_files": []
+              },
+              {
+                "properties": {
+                  "MainPID": "1060",
+                  "Id": "llama-server.service",
+                  "ActiveState": "active",
+                  "FragmentPath": "/home/numenor/.config/systemd/user/llama-server.service",
+                  "DropInPaths": "/home/numenor/.config/systemd/user/llama-server.service.d/10-metrics.conf"
+                },
+                "exit": 0,
+                "source_files": [
+                  {
+                    "path": "/home/numenor/.config/systemd/user/llama-server.service",
+                    "sha256": "9a1a94d0522b8d19d7e32988b9fd340ff12efb4ea9e4af4bcd4581ed4d365ec5"
+                  },
+                  {
+                    "path": "/home/numenor/.config/systemd/user/llama-server.service.d/10-metrics.conf",
+                    "sha256": "a475cf7f3186a39d66b1003aaee881dbbc33d2f266f308e3eead98ce6ccf49c5"
+                  }
+                ]
+              }
+            ],
+            "environment_names": [
+              "DBUS_SESSION_BUS_ADDRESS",
+              "GPG_AGENT_INFO",
+              "HOME",
+              "INVOCATION_ID",
+              "LANG",
+              "LANGUAGE",
+              "LOGNAME",
+              "MANAGERPID",
+              "PATH",
+              "SHELL",
+              "SSH_AUTH_SOCK",
+              "SYSTEMD_EXEC_PID",
+              "USER",
+              "XDG_RUNTIME_DIR"
+            ]
+          }
+        ]
+      },
+      "stderr": "",
+      "parse_error": null
+    }
+  ]
+}

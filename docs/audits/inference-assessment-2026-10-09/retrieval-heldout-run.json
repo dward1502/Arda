@@ -1,0 +1,23 @@
+{
+  "command": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "-p",
+    "MemoryMax=10G",
+    "-p",
+    "MemorySwapMax=0",
+    "-p",
+    "RuntimeMaxSec=240",
+    "-p",
+    "RestrictAddressFamilies=AF_UNIX",
+    "/var/home/mythos/.hermes/cache/scratch/inference-retrieval-venv/bin/python",
+    "-I",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/retrieval-heldout-probe.py"
+  ],
+  "stdout": "reranked 1\nreranked 2\nreranked 3\nreranked 4\nreranked 5\nreranked 6\nreranked 7\nreranked 8\nreranked 9\nreranked 10\nreranked 11\nreranked 12\n{\"calibration\": {\"bm25\": {\"ranking_supported_only\": {\"hit1\": 1.0, \"recall3\": 1.0, \"mrr3\": 1.0, \"ndcg3\": 1.0}, \"availability\": {\"balanced_accuracy\": 0.875, \"true_supported\": 3, \"false_supported\": 0, \"true_unsupported\": 2, \"false_unsupported\": 1}}, \"reranked\": {\"ranking_supported_only\": {\"hit1\": 1.0, \"recall3\": 1.0, \"mrr3\": 1.0, \"ndcg3\": 1.0}, \"availability\": {\"balanced_accuracy\": 1.0, \"true_supported\": 4, \"false_supported\": 0, \"true_unsupported\": 2, \"false_unsupported\": 0}}, \"embedding\": {\"ranking_supported_only\": {\"hit1\": 1.0, \"recall3\": 1.0, \"mrr3\": 1.0, \"ndcg3\": 1.0}, \"availability\": {\"balanced_accuracy\": 0.75, \"true_supported\": 4, \"false_supported\": 1, \"true_unsupported\": 1, \"false_unsupported\": 0}}}, \"heldout\": {\"bm25\": {\"ranking_supported_only\": {\"hit1\": 1.0, \"recall3\": 1.0, \"mrr3\": 1.0, \"ndcg3\": 1.0}, \"availability\": {\"balanced_accuracy\": 0.875, \"true_supported\": 3, \"false_supported\": 0, \"true_unsupported\": 2, \"false_unsupported\": 1}}, \"reranked\": {\"ranking_supported_only\": {\"hit1\": 1.0, \"recall3\": 1.0, \"mrr3\": 1.0, \"ndcg3\": 1.0}, \"availability\": {\"balanced_accuracy\": 0.75, \"true_supported\": 4, \"false_supported\": 1, \"true_unsupported\": 1, \"false_unsupported\": 0}}, \"embedding\": {\"ranking_supported_only\": {\"hit1\": 0.75, \"recall3\": 1.0, \"mrr3\": 0.8333333333333334, \"ndcg3\": 0.875}, \"availability\": {\"balanced_accuracy\": 0.625, \"true_supported\": 3, \"false_supported\": 1, \"true_unsupported\": 1, \"false_unsupported\": 1}}}}\n",
+  "stderr": "Running as unit: run-p3354395-i3355872.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 58.567s\nCPU time consumed: 3min 23.435s\nMemory peak: 3.1G (swap: 0B)\n",
+  "exit_code": 0
+}

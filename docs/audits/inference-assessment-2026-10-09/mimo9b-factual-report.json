@@ -1,0 +1,51 @@
+{
+  "scope": "bounded fixture qualification, not deployment acceptance",
+  "qualified": false,
+  "mechanical_passes": 6,
+  "factual_passes": 5,
+  "expected_cases": 6,
+  "rows": [
+    {
+      "case": "coding-1",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Code and readback agree; correct for numeric/None/bool fixture, not a general numeric-type filter. Explanation and no-test claim supported."
+    },
+    {
+      "case": "coding-2",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": false,
+      "reason": "Mechanically correct code, but negative numbers are truthy; falsely attributes acceptance to falsiness."
+    },
+    {
+      "case": "recovery-1",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Actual missing result precedes index and linked records read; final consumes successful results and gives correct facts without mutation."
+    },
+    {
+      "case": "recovery-2",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Actual missing result precedes index and linked records read; final consumes successful results and gives correct facts without mutation."
+    },
+    {
+      "case": "research-1",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Successful source reads support current owner/port, supersession, citations and unmeasured energy; no mutation."
+    },
+    {
+      "case": "research-2",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Successful source reads support current owner/port, supersession, citations and unmeasured energy; no mutation."
+    }
+  ]
+}

@@ -1,0 +1,417 @@
+{
+  "scope": "isolated debug candidate, not deployed router or Hermes harness",
+  "binary_sha256": "4980c101a6a254612bb855dd5751d5f332786023c1226d550c24d8044c12a1bb",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f",
+  "port": 33531,
+  "steps": [
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "fa49ba8fffac3735",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 16384,
+            "execution_lane": "interactive",
+            "latency_ms": 471,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "interactive",
+            "route_id": "fa49ba8fffac3735"
+          },
+          "choices": [
+            {
+              "finish_reason": "tool_calls",
+              "index": 0,
+              "message": {
+                "content": "",
+                "role": "assistant",
+                "tool_calls": [
+                  {
+                    "function": {
+                      "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                      "name": "read_file"
+                    },
+                    "id": "Ov1GNzy4GzSUdEwIK4ElRGTrF0FdxvTN",
+                    "type": "function"
+                  }
+                ]
+              }
+            }
+          ],
+          "created": 1791611316,
+          "id": "chatcmpl-aOCHLQTA9efG9Ozsin5kUipcto9vFm3l",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b8668-b2f6a68ae",
+          "timings": {
+            "cache_n": 314,
+            "predicted_ms": 416.76,
+            "predicted_n": 40,
+            "predicted_per_second": 95.97850081581726,
+            "predicted_per_token_ms": 10.419,
+            "prompt_ms": 36.937,
+            "prompt_n": 4,
+            "prompt_per_second": 108.29249803719848,
+            "prompt_per_token_ms": 9.23425
+          },
+          "usage": {
+            "completion_tokens": 40,
+            "prompt_tokens": 318,
+            "prompt_tokens_details": {
+              "cached_tokens": 314
+            },
+            "total_tokens": 358
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                  "name": "read_file"
+                },
+                "id": "Ov1GNzy4GzSUdEwIK4ElRGTrF0FdxvTN",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "Ov1GNzy4GzSUdEwIK4ElRGTrF0FdxvTN",
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\","
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "3fd6d80be5640d07",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "tool_oriented",
+          "x-manwe-execution-lane": "execution"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 32000,
+            "execution_lane": "execution",
+            "latency_ms": 737,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "tool_oriented",
+            "route_id": "3fd6d80be5640d07"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "The content at line 17 of Cargo.toml lists several workspace members, including crates for Arda Vaire, Arda Varda, and Arda Workbench executors, as well as outposts for Arda Outpost Protocol, Arda Outpost Scout, and Arda Relic Bridge.",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791611317,
+          "id": "chatcmpl-dJPSxAU3qLlskX9ipEVOazqkCe268l3G",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b8668-b2f6a68ae",
+          "timings": {
+            "cache_n": 357,
+            "predicted_ms": 660.055,
+            "predicted_n": 63,
+            "predicted_per_second": 95.44659157191448,
+            "predicted_per_token_ms": 10.477063492063492,
+            "prompt_ms": 57.22,
+            "prompt_n": 96,
+            "prompt_per_second": 1677.7350576721424,
+            "prompt_per_token_ms": 0.5960416666666667
+          },
+          "usage": {
+            "completion_tokens": 63,
+            "prompt_tokens": 453,
+            "prompt_tokens_details": {
+              "cached_tokens": 357
+            },
+            "total_tokens": 516
+          }
+        }
+      }
+    }
+  ],
+  "health": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "alerts": [],
+      "bootstrap_state_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/absent-bootstrap.json",
+      "budget_pressure": {
+        "cooldown_total": 0,
+        "critical_total": 0,
+        "exhausted_total": 0,
+        "highest_level": "ok",
+        "providers": [
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "anthropic",
+            "provider_name": "Anthropic Claude"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "cerebras",
+            "provider_name": "Cerebras Cloud"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_core",
+            "provider_name": "Annunimas Core (3080 Workstation)"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "google",
+            "provider_name": "Google AI Studio"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "groq",
+            "provider_name": "Groq"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": null,
+            "provider_id": "local_fallback",
+            "provider_name": "Local Llama.cpp Fallback"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "mistral",
+            "provider_name": "Mistral API"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "nvidia",
+            "provider_name": "NVIDIA API Catalog"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "zai",
+            "provider_name": "Z.AI / GLM"
+          }
+        ],
+        "providers_total": 9,
+        "warning_total": 0
+      },
+      "capability_summary": {
+        "models_with_failed_streaming_receipts": 0,
+        "models_with_failed_structured_output_receipts": 0,
+        "models_with_failed_tool_receipts": 0,
+        "providers_with_no_capability_evidence": 9,
+        "receipt_model_count": 0,
+        "recent_capability_failures": 0
+      },
+      "catalog_generation": 2,
+      "config_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/providers.toml",
+      "config_source": "provider_file",
+      "ok": true,
+      "provider_state_counts": {
+        "missing_api_key": 7,
+        "ready": 2
+      },
+      "providers_blocked": 7,
+      "providers_enabled": 9,
+      "providers_healthy": 2,
+      "providers_ready": 2,
+      "providers_total": 9,
+      "recent_event_sample_complete": true,
+      "recent_event_sample_limit": 48,
+      "recent_route_failures": 0,
+      "recent_route_successes": 0,
+      "route_guardrails": {
+        "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+        "low_context_tool_model_total": 1,
+        "tool_execution_min_context_window": 64000,
+        "tool_incompatible_model_total": 0,
+        "visible_reasoning_model_total": 0
+      },
+      "service": "manwe"
+    }
+  },
+  "hermes": {
+    "command": [
+      "/var/home/mythos/.local/bin/hermes",
+      "chat",
+      "--safe-mode",
+      "--provider",
+      "custom",
+      "-m",
+      "edge_core/Qwen3.5-9B-Q4_K_M",
+      "-t",
+      "file",
+      "--max-turns",
+      "4",
+      "--run-budget",
+      "120",
+      "--oneshot",
+      "--format",
+      "stream-json",
+      "--in",
+      "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f",
+      "-q",
+      "Use read_file to read /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/fixture.txt. Do not modify anything. Reply with only the service owner and approved port from that file."
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "hermes: preparing dependencies for this data root (the checkout's updates belong to /var/home/mythos/.hermes)...\nPreparing the isolated Hermes runtime\u2026\n  \u2192 Installing Python dependencies\u2026\n  \u2713 Installing Python dependencies\n  \u2192 Installing Python dependencies\u2026\n  \u2717 Installing Python dependencies failed; last 80 lines of output:\n                return self._get_build_requires(config_settings, requirements=[])\n                       ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/build_meta.py\",\n            line 301, in _get_build_requires\n                self.run_setup()\n                ~~~~~~~~~~~~~~^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/build_meta.py\",\n            line 317, in run_setup\n                exec(code, locals())  # noqa: S102 # exec is intentional here\n                ~~~~^^^^^^^^^^^^^^^^\n              File \"<string>\", line 4, in <module>\n                    sys.path.pop(0)\n                    ^^^^^^^^^^^^^^^\n                sys.path = [] + sys.path\n                ^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/__init__.py\",\n            line 117, in setup\n                return distutils.core.setup(**attrs)  # type: ignore[return-value]\n                       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/_distutils/core.py\",\n            line 130, in setup\n                _setup_distribution = dist = klass(attrs)\n                                             ~~~~~^^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/dist.py\",\n            line 321, in __init__\n                _Distribution.__init__(self, dist_attrs)\n                ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/_distutils/dist.py\",\n            line 338, in __init__\n                self.finalize_options()\n                ~~~~~~~~~~~~~~~~~~~~~^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/dist.py\",\n            line 790, in finalize_options\n                ep(self)\n                ~~^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/setuptools/dist.py\",\n            line 810, in _finalize_setup_keywords\n                ep.load()(self, ep.name, value)\n                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/cffi/setuptools_ext.py\",\n            line 231, in cffi_modules\n                add_cffi_module(dist, cffi_module)\n                ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/cffi/setuptools_ext.py\",\n            line 50, in add_cffi_module\n                execfile(build_file_name, mod_vars)\n                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n              File\n            \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-h9vxe9_f/hermes/cache/uv/builds-v0/.tmpHxMcH1/lib/python3.14/site-packages/cffi/setuptools_ext.py\",\n            line 26, in execfile\n                exec(code, glob, glob)\n                ~~~~^^^^^^^^^^^^^^^^^^\n              File \"olm_build.py\", line 35, in <module>\n                subprocess.run(\n                ~~~~~~~~~~~~~~^\n                    [\"cmake\", \".\", \"-Bbuild\", \"-DBUILD_SHARED_LIBS=NO\"],\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                    cwd=\"libolm\", check=True,\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n                )\n                ^\n              File\n            \"/var/home/mythos/.hermes/tools/python-3.14.7+20260901-linux-x64/lib/python3.14/subprocess.py\",\n            line 578, in run\n                raise CalledProcessError(retcode, process.args,\n                                         output=stdout, stderr=stderr)\n            subprocess.CalledProcessError: Command '['cmake', '.', '-Bbuild',\n            '-DBUILD_SHARED_LIBS=NO']' returned non-zero exit status 1.\n      hint: `python-olm` (v3.2.16) was included because `hermes-agent[matrix]` (v0.0.0) depends on `mautrix[encryption]` (v0.21.1) which depends on `python-olm`\n      hint: Build failures usually indicate a problem with the package or the build environment\nhermes: source-update completion failed: venv: uv sync exited 1: tools/python-3.14.7+20260901-linux-x64/lib/python3.14/subprocess.py\",\n      line 578, in run\n          raise CalledProcessError(retcode, process.args,\n                                   output=stdout, stderr=stderr)\n      subprocess.CalledProcessError: Command '['cmake', '.', '-Bbuild',\n      '-DBUILD_SHARED_LIBS=NO']' returned non-zero exit status 1.\n\n\nhint: `python-olm` (v3.2.16) was included because `hermes-agent[matrix]` (v0.0.0) depends on `mautrix[encryption]` (v0.21.1) which depends on `python-olm`\nhint: Build failures usually indicate a problem with the package or the build environment \u2014 retry, or run `hermes pm doctor`; running with the previous dependencies \u2014 run `hermes update` to finish it\nhermes: no dependency environment is committed for this install; run `hermes pm repair`\n"
+  },
+  "passed": false,
+  "error": "Hermes CLI failed; inspect retained stdout/stderr",
+  "candidate_stopped": true
+}

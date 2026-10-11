@@ -1,0 +1,51 @@
+{
+  "scope": "bounded fixture qualification, not deployment acceptance",
+  "qualified": false,
+  "mechanical_passes": 6,
+  "factual_passes": 4,
+  "expected_cases": 6,
+  "rows": [
+    {
+      "case": "coding-1",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": false,
+      "reason": "False explanation: old filter drops booleans and boolean exclusion checked first."
+    },
+    {
+      "case": "coding-2",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": false,
+      "reason": "False explanation: old truthiness filter dropped negatives."
+    },
+    {
+      "case": "recovery-1",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Exact missing-source causal chain and final record facts verified."
+    },
+    {
+      "case": "recovery-2",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Exact missing-source causal chain and final record facts verified."
+    },
+    {
+      "case": "research-1",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Current facts, supersession and uncertainty grounded in both sources."
+    },
+    {
+      "case": "research-2",
+      "mechanical_pass": true,
+      "review_bound": true,
+      "factual_pass": true,
+      "reason": "Current facts, supersession and uncertainty grounded in both sources."
+    }
+  ]
+}

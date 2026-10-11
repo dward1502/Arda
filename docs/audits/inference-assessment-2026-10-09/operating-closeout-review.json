@@ -1,0 +1,34 @@
+{
+  "delegation_id": "deleg_595129fd",
+  "verdict": "No blocking finding in matrix reproducibility fix; terminal observation scheduler-correlated",
+  "review_method": "Independent read-only source, retained assertion, binary digest and scheduler database/output verification; not another matrix execution",
+  "matrix_evidence": "operating-envelope-matrix-hermetic-green.json",
+  "matrix_cases_passed": 31,
+  "binary_sha256": "4bedd9f7f86f04cfe090f37c7bcae05cdf0af3f261a808a445a406032e13f4f2",
+  "soak": {
+    "evidence": "operating-soak.jsonl",
+    "completed_at": "2026-10-11T19:47:07.802543+00:00",
+    "elapsed_seconds": 1800.009462186019,
+    "samples": 60,
+    "all_sampled_desktop_states_inactive": true,
+    "terminal_record_is_resource_sample": false
+  },
+  "scheduler": {
+    "job_id": "d0e3913bbf03",
+    "verification": "Read-only executions.db, jobs.json and saved outputs; receipts exactly match outputs within distinct builtin/completed executions",
+    "delivery": "local saved output only",
+    "start_delay_note": "Actual starts approximately 48 seconds after scheduled instants",
+    "correlation": [
+      ["19:20Z", "19562d3ecef948bba2085d5da39fc9c4", "09dfa156dff84d278f0b3e7dddb261fe"],
+      ["19:25Z", "c34ba94795f2493c9478c01101d243f4", "a730859a39ad493c8cd84a73cd5ae5a2"],
+      ["19:30Z", "04c3f2f69bc148b1b9fbda4ed6ef52ef", "9eafc7ea893f47378ca55eba946a076a"],
+      ["19:35Z", "2a3ad3e2860f4293b051f4c87bdb6025", "68b1257d916d4ef3a974db04634f868d"],
+      ["19:40Z", "dd92febefa854f089678cb042ec6f17e", "24bd8f41f3c24c9f8208b25ecbd1d1f5"],
+      ["19:45Z", "16ac03ac15ed4a719a34aea9be508889", "4cbd20f2811f4eefad5634cfbcc6d4f4"]
+    ]
+  },
+  "accepted_scope": "Completed resource/desktop-state observation containing recurring deterministic endpoint checks alongside separately retained interactive-work evidence",
+  "not_established": ["continuous interactive load", "gaming latency acceptance", "voice", "general model quality", "application workload health", "backup recovery", "long-term availability", "native streaming", "every provider dialect"],
+  "privacy_review": "deleg_5f9f2968 found no concrete credentials in scoped scan; operational metadata is private, not privacy-neutral public material",
+  "historical_reproduction": "Older probes depend on external environments, excluded benchmark/voice code and scratch artifacts; not turnkey reproduction"
+}

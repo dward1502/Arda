@@ -1,0 +1,411 @@
+{
+  "binary": "/proc/86591/exe",
+  "sha256": "464348830f1a9614230624d736abc77fede8ed750b105d65e62ab38a27a49dcb",
+  "scope": "synthetic isolated installed-binary admission; not model quality or production outage",
+  "cases": [
+    {
+      "name": "failover",
+      "context": 73728,
+      "tools": true,
+      "status": 200,
+      "body": "{\"_manwe_route\":{\"context_window_target\":32000,\"execution_lane\":\"execution\",\"latency_ms\":0,\"model_id\":\"backup_model\",\"provider_id\":\"edge_backup_local\",\"route_class\":\"tool_oriented\",\"route_id\":\"cbef85d1bf887526\"},\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"fixture accepted\",\"role\":\"assistant\"}}],\"id\":\"fixture\",\"model\":\"fixture\",\"object\":\"chat.completion\"}",
+      "headers": {
+        "x-manwe-route-id": "cbef85d1bf887526",
+        "x-manwe-provider-id": "edge_backup_local",
+        "x-manwe-model-id": "backup_model",
+        "x-manwe-route-class": "tool_oriented",
+        "x-manwe-execution-lane": "execution"
+      },
+      "upstream_requests": [
+        {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        },
+        {
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "backup_model",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "upstream_paths": [
+        "/primary/v1/chat/completions",
+        "/backup/v1/chat/completions"
+      ],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T19:18:15.004687Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/failover/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/failover/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T19:18:15.004981Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:41599\n\u001b[2m2026-10-11T19:18:15.005103Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:41599\n\u001b[2m2026-10-11T19:18:15.066031Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n\u001b[2m2026-10-11T19:18:15.120539Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "remote-excluded",
+      "context": 73728,
+      "tools": true,
+      "status": 502,
+      "body": "{\"error\":{\"message\":\"Agent error: manwe \u2014 proxy routing exhausted fallback providers after 1 attempt(s): [edge_core:fixture HTTP 503 provider_server_error (provider edge_core HTTP 503: {\\\"raw\\\":\\\"<!DOCTYPE HTML>\\\\n<html lang=\\\\\\\"en\\\\\\\">\\\\n <head>\\\\n <meta charset=\\\\\\\"utf-8\\\\\\\">\\\\n <style type=\\\\\\\"text/css\\\\\\\">\\\\n :root {\\\\n color-scheme: light dark;\\\\n }\\\\n\u2026)]\",\"type\":\"manwe_error\"}}",
+      "upstream_requests": [
+        {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "upstream_paths": [
+        "/primary/v1/chat/completions"
+      ],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T19:18:15.128539Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/remote-excluded/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/remote-excluded/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T19:18:15.128809Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:41455\n\u001b[2m2026-10-11T19:18:15.128944Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:41455\n\u001b[2m2026-10-11T19:18:15.283179Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n\u001b[2m2026-10-11T19:18:15.336983Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "quota-failover",
+      "context": 73728,
+      "tools": true,
+      "status": 200,
+      "body": "{\"_manwe_route\":{\"context_window_target\":32000,\"execution_lane\":\"execution\",\"latency_ms\":0,\"model_id\":\"backup_model\",\"provider_id\":\"edge_backup_local\",\"route_class\":\"tool_oriented\",\"route_id\":\"8d53528775a0ecaf\"},\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"fixture accepted\",\"role\":\"assistant\"}}],\"id\":\"fixture\",\"model\":\"fixture\",\"object\":\"chat.completion\"}",
+      "headers": {
+        "x-manwe-route-id": "8d53528775a0ecaf",
+        "x-manwe-provider-id": "edge_backup_local",
+        "x-manwe-model-id": "backup_model",
+        "x-manwe-route-class": "tool_oriented",
+        "x-manwe-execution-lane": "execution"
+      },
+      "upstream_requests": [
+        {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        },
+        {
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "backup_model",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "upstream_paths": [
+        "/primary/v1/chat/completions",
+        "/backup/v1/chat/completions"
+      ],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T19:18:15.342656Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/quota-failover/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/quota-failover/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T19:18:15.342912Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:47237\n\u001b[2m2026-10-11T19:18:15.343027Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:47237\n\u001b[2m2026-10-11T19:18:15.497330Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n\u001b[2m2026-10-11T19:18:15.550242Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "malformed-failover",
+      "context": 73728,
+      "tools": true,
+      "status": 200,
+      "body": "{\"_manwe_route\":{\"context_window_target\":32000,\"execution_lane\":\"execution\",\"latency_ms\":0,\"model_id\":\"fixture\",\"provider_id\":\"edge_core\",\"route_class\":\"tool_oriented\",\"route_id\":\"00463a7a3985887a\"},\"raw\":\"{invalid\"}",
+      "headers": {
+        "x-manwe-route-id": "00463a7a3985887a",
+        "x-manwe-provider-id": "edge_core",
+        "x-manwe-model-id": "fixture",
+        "x-manwe-route-class": "tool_oriented",
+        "x-manwe-execution-lane": "execution"
+      },
+      "upstream_requests": [
+        {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "local_only": true,
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "upstream_paths": [
+        "/primary/v1/chat/completions"
+      ],
+      "passed": false,
+      "router_log": "\u001b[2m2026-10-11T19:18:15.559910Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/malformed-failover/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-o53pgpzz/malformed-failover/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T19:18:15.560197Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:56595\n\u001b[2m2026-10-11T19:18:15.560305Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:56595\n\u001b[2m2026-10-11T19:18:15.713479Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    }
+  ],
+  "passed": false
+}

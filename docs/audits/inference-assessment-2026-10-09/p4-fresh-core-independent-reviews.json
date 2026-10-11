@@ -1,0 +1,38 @@
+{
+  "research-1": {
+    "sha256": "c7c2cf4bd2f7805d8be9e77f171fded52f4784d61e2aea39c66ee106a05c3c7d",
+    "reviewer": "independent-factual-review-subagent",
+    "verdict": "fail",
+    "reason": "Only old.txt read; current source, current facts, citations and unknown-energy conclusion not delivered. Continuation retained all four schemas and linked assistant/tool result; upstream HTTP 200 returned stop, empty content, no native tool_calls, and proposed second read only in reasoning_content. Incomplete task, not a factual pass; binary 80db42059539b754aae19477e7958c43d975a3c8b7803fdc53f8018946ba510d."
+  },
+  "research-2": {
+    "sha256": "8e3174e1b8bacabfe6cbf1f6a6a7a14dbf1241c064704fa390fee33a24a6fba7",
+    "reviewer": "independent-factual-review-subagent",
+    "verdict": "fail",
+    "reason": "Only old.txt read; current source, current facts, citations and unknown-energy conclusion not delivered. Continuation retained all four schemas and linked assistant/tool result; upstream HTTP 200 returned stop, empty content, no native tool_calls, and proposed second read only in reasoning_content. Incomplete task, not a factual pass; binary 80db42059539b754aae19477e7958c43d975a3c8b7803fdc53f8018946ba510d."
+  },
+  "coding-1": {
+    "sha256": "1ec47e8aefa55da207d53b2dffa848e9731076efa56116d2803d6b20ae8f34bd",
+    "reviewer": "independent-factual-review-subagent",
+    "verdict": "fail",
+    "reason": "Only spec.txt read; calc.py not read or repaired; parent arithmetic tests not reached. Continuation retained all four schemas and linked assistant/tool result; upstream HTTP 200 returned stop, empty content, no native tool_calls, and proposed second read only in reasoning_content. Incomplete task, not a factual pass; binary 80db42059539b754aae19477e7958c43d975a3c8b7803fdc53f8018946ba510d."
+  },
+  "coding-2": {
+    "sha256": "e4995020d00aae07d50aaf179d2dd52b660a68d2ea7044ee89a20148d74df323",
+    "reviewer": "independent-factual-review-subagent",
+    "verdict": "fail",
+    "reason": "Only spec.txt read; calc.py not read or repaired; parent arithmetic tests not reached. Continuation retained all four schemas and linked assistant/tool result; upstream HTTP 200 returned stop, empty content, no native tool_calls, and proposed second read only in reasoning_content. Incomplete task, not a factual pass; binary 80db42059539b754aae19477e7958c43d975a3c8b7803fdc53f8018946ba510d."
+  },
+  "recovery-1": {
+    "sha256": "db72d28ef9b83cdf3d0e68ff53b3238bbb50e1fa0bab7a1daa6fb48d97d6e35e",
+    "reviewer": "independent-factual-review-subagent",
+    "verdict": "fail",
+    "reason": "Only missing.txt attempted; genuine not_found result consumed, but index.txt and records.txt never read and ticket facts not delivered. Continuation retained all four schemas and linked assistant/tool result; upstream HTTP 200 returned stop, empty content, no native tool_calls, and proposed second read only in reasoning_content. Incomplete task, not a factual pass; binary 80db42059539b754aae19477e7958c43d975a3c8b7803fdc53f8018946ba510d."
+  },
+  "recovery-2": {
+    "sha256": "8f3d61b733b7e5ff869d7c5afd12c2df1ec28ca271b2a45e563b0ececbaa5ff0",
+    "reviewer": "independent-factual-review-subagent",
+    "verdict": "fail",
+    "reason": "Only missing.txt attempted; genuine not_found result consumed, but index.txt and records.txt never read and ticket facts not delivered. Continuation retained all four schemas and linked assistant/tool result; upstream HTTP 200 returned stop, empty content, no native tool_calls, and proposed second read only in reasoning_content. Incomplete task, not a factual pass; binary 80db42059539b754aae19477e7958c43d975a3c8b7803fdc53f8018946ba510d."
+  }
+}

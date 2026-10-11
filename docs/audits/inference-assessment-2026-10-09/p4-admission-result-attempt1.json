@@ -1,0 +1,175 @@
+{
+  "binary": "/var/home/mythos/Eregion/Arda/target/release/manwe",
+  "sha256": "288c6c95fb11139ad9409e7ba761203e8319a7079fd93b3562af6e7d801bb641",
+  "scope": "synthetic isolated installed-binary admission; not model quality or production outage",
+  "cases": [
+    {
+      "name": "eligible",
+      "context": 73728,
+      "tools": true,
+      "status": 200,
+      "body": "{\"_manwe_route\":{\"context_window_target\":32000,\"execution_lane\":\"execution\",\"latency_ms\":0,\"model_id\":\"fixture\",\"provider_id\":\"edge_core\",\"route_class\":\"tool_oriented\",\"route_id\":\"b9d00b6afc1ab1b5\"},\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"fixture accepted\",\"role\":\"assistant\"}}],\"id\":\"fixture\",\"model\":\"fixture\",\"object\":\"chat.completion\"}",
+      "headers": {
+        "x-manwe-route-id": "b9d00b6afc1ab1b5",
+        "x-manwe-provider-id": "edge_core",
+        "x-manwe-model-id": "fixture",
+        "x-manwe-route-class": "tool_oriented",
+        "x-manwe-execution-lane": "execution"
+      },
+      "upstream_requests": [
+        {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "passed": false,
+      "router_log": "\u001b[2m2026-10-11T01:24:53.889002Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/eligible/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/eligible/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T01:24:53.889239Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:42349\n\u001b[2m2026-10-11T01:24:53.889348Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:42349\n\u001b[2m2026-10-11T01:24:53.946956Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "undersized-warden",
+      "context": 4096,
+      "tools": true,
+      "status": 502,
+      "body": "{\"error\":{\"message\":\"Agent error: manwe \u2014 Agent error: manwe \u2014 no provider available for request (priority=normal, strict=false); rejected_providers=[{\\\"details\\\":{\\\"model_rejections\\\":[{\\\"missing_capabilities\\\":[\\\"context_window:required=72192,available=4096\\\"],\\\"model_id\\\":\\\"fixture\\\"}],\\\"requested_task_type\\\":\\\"code\\\"},\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"edge_core\\\",\\\"reason\\\":\\\"no_compatible_model\\\",\\\"tier\\\":\\\"local\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"mistral\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"mixed\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"zai\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"paid_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"anthropic\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"paid_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"nvidia\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"mixed\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"cerebras\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"groq\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"google\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":{\\\"model_rejections\\\":[{\\\"missing_capabilities\\\":[\\\"model_role:forced_model_mismatch\\\",\\\"context_window:required=72192,available=16384\\\"],\\\"model_id\\\":\\\"Qwen3-8B-Q4_K_M\\\"}],\\\"requested_task_type\\\":\\\"code\\\"},\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"local_fallback\\\",\\\"reason\\\":\\\"no_compatible_model\\\",\\\"tier\\\":\\\"local\\\"}]\",\"type\":\"manwe_error\"}}",
+      "upstream_requests": [],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T01:24:53.955237Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/undersized-warden/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/undersized-warden/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T01:24:53.955450Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:58051\n\u001b[2m2026-10-11T01:24:53.955546Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:58051\n\u001b[2m2026-10-11T01:24:54.108644Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "undersized-nanbeige",
+      "context": 32768,
+      "tools": true,
+      "status": 502,
+      "body": "{\"error\":{\"message\":\"Agent error: manwe \u2014 Agent error: manwe \u2014 no provider available for request (priority=normal, strict=false); rejected_providers=[{\\\"details\\\":{\\\"model_rejections\\\":[{\\\"missing_capabilities\\\":[\\\"context_window:required=72192,available=32768\\\"],\\\"model_id\\\":\\\"fixture\\\"}],\\\"requested_task_type\\\":\\\"code\\\"},\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"edge_core\\\",\\\"reason\\\":\\\"no_compatible_model\\\",\\\"tier\\\":\\\"local\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"mistral\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"mixed\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"zai\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"paid_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"anthropic\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"paid_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"nvidia\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"mixed\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"cerebras\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"groq\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"google\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":{\\\"model_rejections\\\":[{\\\"missing_capabilities\\\":[\\\"model_role:forced_model_mismatch\\\",\\\"context_window:required=72192,available=16384\\\"],\\\"model_id\\\":\\\"Qwen3-8B-Q4_K_M\\\"}],\\\"requested_task_type\\\":\\\"code\\\"},\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"local_fallback\\\",\\\"reason\\\":\\\"no_compatible_model\\\",\\\"tier\\\":\\\"local\\\"}]\",\"type\":\"manwe_error\"}}",
+      "upstream_requests": [],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T01:24:54.112684Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/undersized-nanbeige/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/undersized-nanbeige/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T01:24:54.112894Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:43199\n\u001b[2m2026-10-11T01:24:54.112993Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:43199\n\u001b[2m2026-10-11T01:24:54.265777Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "tools-disabled",
+      "context": 100096,
+      "tools": false,
+      "status": 502,
+      "body": "{\"error\":{\"message\":\"Agent error: manwe \u2014 Agent error: manwe \u2014 no provider available for request (priority=normal, strict=false); rejected_providers=[{\\\"details\\\":{\\\"model_rejections\\\":[{\\\"missing_capabilities\\\":[\\\"tools:required_but_unsupported\\\"],\\\"model_id\\\":\\\"fixture\\\"}],\\\"requested_task_type\\\":\\\"code\\\"},\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"edge_core\\\",\\\"reason\\\":\\\"no_compatible_model\\\",\\\"tier\\\":\\\"local\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"mistral\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"mixed\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"zai\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"paid_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"anthropic\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"paid_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"nvidia\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"mixed\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"cerebras\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"groq\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":null,\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"google\\\",\\\"reason\\\":\\\"missing_api_key\\\",\\\"tier\\\":\\\"free_cloud\\\"},{\\\"details\\\":{\\\"model_rejections\\\":[{\\\"missing_capabilities\\\":[\\\"model_role:forced_model_mismatch\\\",\\\"context_window:required=72192,available=16384\\\"],\\\"model_id\\\":\\\"Qwen3-8B-Q4_K_M\\\"}],\\\"requested_task_type\\\":\\\"code\\\"},\\\"pacing_state\\\":\\\"available\\\",\\\"provider_id\\\":\\\"local_fallback\\\",\\\"reason\\\":\\\"no_compatible_model\\\",\\\"tier\\\":\\\"local\\\"}]\",\"type\":\"manwe_error\"}}",
+      "upstream_requests": [],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T01:24:54.269876Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/tools-disabled/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/tools-disabled/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T01:24:54.270078Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:59447\n\u001b[2m2026-10-11T01:24:54.270172Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:59447\n\u001b[2m2026-10-11T01:24:54.422978Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    },
+    {
+      "name": "unavailable",
+      "context": 73728,
+      "tools": true,
+      "status": 502,
+      "body": "{\"error\":{\"message\":\"Agent error: manwe \u2014 proxy routing exhausted fallback providers after 1 attempt(s): [edge_core:fixture HTTP 503 provider_server_error (provider edge_core HTTP 503: {\\\"raw\\\":\\\"<!DOCTYPE HTML>\\\\n<html lang=\\\\\\\"en\\\\\\\">\\\\n <head>\\\\n <meta charset=\\\\\\\"utf-8\\\\\\\">\\\\n <style type=\\\\\\\"text/css\\\\\\\">\\\\n :root {\\\\n color-scheme: light dark;\\\\n }\\\\n\u2026)]\",\"type\":\"manwe_error\"}}",
+      "upstream_requests": [
+        {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "max_tokens": 16,
+          "messages": [
+            {
+              "content": "Read the local record.",
+              "role": "user"
+            },
+            {
+              "content": null,
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\":\"fixture.txt\"}",
+                    "name": "read_file"
+                  },
+                  "id": "tc0000001",
+                  "type": "function"
+                }
+              ]
+            },
+            {
+              "content": "synthetic record",
+              "role": "tool",
+              "tool_call_id": "tc0000001"
+            }
+          ],
+          "model": "fixture",
+          "stream": false,
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "function": {
+                "description": "read local fixture",
+                "name": "read_file",
+                "parameters": {
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              },
+              "type": "function"
+            }
+          ]
+        }
+      ],
+      "passed": true,
+      "router_log": "\u001b[2m2026-10-11T01:24:54.427006Z\u001b[0m \u001b[33m WARN\u001b[0m \u001b[2mmanwe::adaptive::service\u001b[0m\u001b[2m:\u001b[0m MANWE realm policy config load failed; using safe non-blocking default \u001b[3merror\u001b[0m\u001b[2m=\u001b[0mfailed to read realm policy from /var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/unavailable/config/governance/realm_policies.toml: No such file or directory (os error 2) \u001b[3mpath\u001b[0m\u001b[2m=\u001b[0m/var/home/mythos/.hermes/cache/scratch/p4-admission-esy9r7rd/unavailable/config/governance/realm_policies.toml\n\u001b[2m2026-10-11T01:24:54.427213Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m starting MANWE HTTP server \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:52981\n\u001b[2m2026-10-11T01:24:54.427308Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::transport::http\u001b[0m\u001b[2m:\u001b[0m MANWE HTTP server listening \u001b[3maddr\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:52981\n\u001b[2m2026-10-11T01:24:54.580631Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mmanwe::adaptive::service::route_selection\u001b[0m\u001b[2m:\u001b[0m MANWE Echo Gate evaluated request \u001b[3mrho\u001b[0m\u001b[2m=\u001b[0m0.76 \u001b[3mgamma\u001b[0m\u001b[2m=\u001b[0m0.86 \u001b[3mdelta\u001b[0m\u001b[2m=\u001b[0m0.1 \u001b[3maction\u001b[0m\u001b[2m=\u001b[0mProceed \u001b[3mtrigger_reason\u001b[0m\u001b[2m=\u001b[0mtriad_clear \u001b[3magent_id\u001b[0m\u001b[2m=\u001b[0mopenai_shim \u001b[3mtask_type\u001b[0m\u001b[2m=\u001b[0mcode\n"
+    }
+  ],
+  "passed": false
+}

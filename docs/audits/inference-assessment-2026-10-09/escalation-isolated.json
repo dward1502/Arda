@@ -1,0 +1,28 @@
+{
+  "scope": "isolated debug artifact text-only subscription transport probe; not production or role qualification",
+  "binary": "/var/home/mythos/.hermes/cache/scratch/escalation-isolated-pragsf_1/manwe",
+  "sha256": "7beec36b2363aeafe2fe67a73666fce13d138703077f59d68988739204c3036b",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/escalation-isolated-pragsf_1",
+  "port": 57083,
+  "credential_override_present": false,
+  "passed": false,
+  "request": {
+    "model": "openai_sub/gpt-6-astra",
+    "allow_forced_provider_fallback": false,
+    "workload_role": "interactive",
+    "context_window_target": 4096,
+    "max_tokens": 64,
+    "stream": false,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Reply with exactly ROUTE_READY."
+      }
+    ]
+  },
+  "status": 502,
+  "error": "{\"error\":{\"message\":\"Agent error: manwe \u2014 proxy routing exhausted fallback providers after 1 attempt(s): [openai_sub:gpt-6-astra transport auth_error (Agent error: manwe \u2014 codex_responses found no usable OpenAI Codex credential; refresh Hermes auth)]\",\"type\":\"manwe_error\"}}",
+  "candidate_stopped": true,
+  "listener_absent": true,
+  "desktop_state": "MainPID=0\nActiveState=inactive"
+}

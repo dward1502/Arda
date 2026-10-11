@@ -1,0 +1,92 @@
+[
+  {
+    "path": "convert_hf_to_gguf_update.py",
+    "identical": true,
+    "patched_sha256": "10809209d3c55747b683011d2058186aa0dff61d41cc097d7f613fc9934a384e",
+    "fork_sha256": "10809209d3c55747b683011d2058186aa0dff61d41cc097d7f613fc9934a384e"
+  },
+  {
+    "path": "conversion/kolibri.py",
+    "identical": true,
+    "patched_sha256": "dd05118e1a05923b89656b7b6bcbbf007b9f58f8eb80e83317546f09a0e413a4",
+    "fork_sha256": "dd05118e1a05923b89656b7b6bcbbf007b9f58f8eb80e83317546f09a0e413a4"
+  },
+  {
+    "path": "conversion/__init__.py",
+    "identical": false,
+    "patched_sha256": "d7e6ff9139a58c1a0c7d65baba9abc24a99eb30f966bece525fbba6cb71a2ec1",
+    "fork_sha256": "d9f6be30cc0d99690e0a326839a0ff70f89106214c198cce75cb467c02ff2e05"
+  },
+  {
+    "path": "conversion/base.py",
+    "identical": true,
+    "patched_sha256": "3be6e1207891a747567f8c9b92d8e3ded83d9cc20c6f4af171a864eda24b2519",
+    "fork_sha256": "3be6e1207891a747567f8c9b92d8e3ded83d9cc20c6f4af171a864eda24b2519"
+  },
+  {
+    "path": "src/llama-graph.cpp",
+    "identical": false,
+    "patched_sha256": "11b0a89cf7e267291b0e4a6c9e9707c9adea92072d0dcb1fa0a556b9d17f631f",
+    "fork_sha256": "c74397ed9e03b7a89f294a5364eb2a5df69e27b8c13d8becbf103d05166ddb04"
+  },
+  {
+    "path": "src/llama-hparams.h",
+    "identical": true,
+    "patched_sha256": "4ef2928b00ae2dea0e3cc637d72d707c7118edef39b5c5736a23f1562ef56bad",
+    "fork_sha256": "4ef2928b00ae2dea0e3cc637d72d707c7118edef39b5c5736a23f1562ef56bad"
+  },
+  {
+    "path": "src/llama-vocab.cpp",
+    "identical": true,
+    "patched_sha256": "837bd59e8aa5a1e4098837ce603013f7e78042a3ea5d9bfec5740c40c1dbe4ab",
+    "fork_sha256": "837bd59e8aa5a1e4098837ce603013f7e78042a3ea5d9bfec5740c40c1dbe4ab"
+  },
+  {
+    "path": "src/llama-arch.h",
+    "identical": false,
+    "patched_sha256": "b0ce844b128403cc7329d411a880b6c7bc51db5f07829b7c87399c8b80716e70",
+    "fork_sha256": "0fa0e356473d7181f3d248337e16b691bbc43f52bf1f40fcff9fb2ce3b811b47"
+  },
+  {
+    "path": "src/llama-model.cpp",
+    "identical": false,
+    "patched_sha256": "5cb6005aaa40df35a3498943b4562cad17b051ec047eaa6ab0fea11d80cf313d",
+    "fork_sha256": "cb8d49aa26d52fcb48c8e05acd7cb34e27034d5338263862cf614c507e790d6c"
+  },
+  {
+    "path": "src/llama-arch.cpp",
+    "identical": false,
+    "patched_sha256": "78641c9030b278ed530162b7caf2f792859211207e4eb81067268b798ec3b0fc",
+    "fork_sha256": "8d7e5de91acb7436e99c0f977a31b36015a2553362fe723b44e2fae3d8625fdd"
+  },
+  {
+    "path": "src/models/kolibri1.cpp",
+    "identical": true,
+    "patched_sha256": "70565cac4f05dfadc29e9303c1d277c92228cbfbea1182ef169d4ff198fff2c1",
+    "fork_sha256": "70565cac4f05dfadc29e9303c1d277c92228cbfbea1182ef169d4ff198fff2c1"
+  },
+  {
+    "path": "src/models/models.h",
+    "identical": false,
+    "patched_sha256": "d6b57eee62598257133c82a9c43ccd4f2afe982f278e0fa4313f2823dd1b6307",
+    "fork_sha256": "ebfed0004bc1b1d696fa8bc5af67b7a2d4bf677bd5f75319273cad861bd3a19a"
+  },
+  {
+    "path": "gguf-py/gguf/tensor_mapping.py",
+    "identical": true,
+    "patched_sha256": "032187595fb6c69afc9d734e3e0bae586045fde9441d811e188e791a0a1927ed",
+    "fork_sha256": "032187595fb6c69afc9d734e3e0bae586045fde9441d811e188e791a0a1927ed"
+  },
+  {
+    "path": "gguf-py/gguf/constants.py",
+    "identical": false,
+    "patched_sha256": "bff26a5df40135ed5f169f6fd02bbe61bddd6c847c78352fd30f76d1d9c13be0",
+    "fork_sha256": "1609ec303103b177730684e4366e2e9bd24f65e32f7afab6ae3abe8f904da661"
+  },
+  {
+    "path": "tests/test-llama-archs.cpp",
+    "identical": false,
+    "patched_sha256": "0b85697c411e250357e6cd4630d29f8b1c3d86f8fbb05b12bbc0951e02a5b65b",
+    "fork_sha256": "39e557fb6567b5da5aa2fa55c539551043b8f1910977c5ae5136ba5c6087e36a"
+  }
+]

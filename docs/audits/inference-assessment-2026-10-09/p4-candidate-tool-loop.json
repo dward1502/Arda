@@ -1,0 +1,389 @@
+{
+  "scope": "isolated debug candidate, not deployed router or Hermes harness",
+  "binary_sha256": "4980c101a6a254612bb855dd5751d5f332786023c1226d550c24d8044c12a1bb",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-vo4zhf99",
+  "port": 50085,
+  "steps": [
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "989f334beedc06b9",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 16384,
+            "execution_lane": "interactive",
+            "latency_ms": 685,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "interactive",
+            "route_id": "989f334beedc06b9"
+          },
+          "choices": [
+            {
+              "finish_reason": "tool_calls",
+              "index": 0,
+              "message": {
+                "content": "",
+                "role": "assistant",
+                "tool_calls": [
+                  {
+                    "function": {
+                      "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                      "name": "read_file"
+                    },
+                    "id": "K5ZumW3tq825V7KPiWbvc0QfSmKMI0MW",
+                    "type": "function"
+                  }
+                ]
+              }
+            }
+          ],
+          "created": 1791611207,
+          "id": "chatcmpl-2xjFpM8sxJewbFdwdB390oqEO5Pc8GjJ",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b8668-b2f6a68ae",
+          "timings": {
+            "cache_n": 0,
+            "predicted_ms": 415.711,
+            "predicted_n": 40,
+            "predicted_per_second": 96.22069177866354,
+            "predicted_per_token_ms": 10.392775,
+            "prompt_ms": 146.106,
+            "prompt_n": 318,
+            "prompt_per_second": 2176.501991704653,
+            "prompt_per_token_ms": 0.4594528301886792
+          },
+          "usage": {
+            "completion_tokens": 40,
+            "prompt_tokens": 318,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 358
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                  "name": "read_file"
+                },
+                "id": "K5ZumW3tq825V7KPiWbvc0QfSmKMI0MW",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "K5ZumW3tq825V7KPiWbvc0QfSmKMI0MW",
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\","
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "1efdf1948ad14833",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "tool_oriented",
+          "x-manwe-execution-lane": "execution"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 32000,
+            "execution_lane": "execution",
+            "latency_ms": 736,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "tool_oriented",
+            "route_id": "1efdf1948ad14833"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "The content at line 17 of Cargo.toml lists several workspace members, including crates for Arda Vaire, Arda Varda, and Arda Workbench executors, as well as outposts for Arda Outpost Protocol, Arda Outpost Scout, and Arda Relic Bridge.",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791611207,
+          "id": "chatcmpl-kcMziM2JbODWi6R8xYB4KvEz3EmWLT3m",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b8668-b2f6a68ae",
+          "timings": {
+            "cache_n": 357,
+            "predicted_ms": 658.636,
+            "predicted_n": 63,
+            "predicted_per_second": 95.65222672310657,
+            "predicted_per_token_ms": 10.454539682539682,
+            "prompt_ms": 57.295,
+            "prompt_n": 96,
+            "prompt_per_second": 1675.5388777380226,
+            "prompt_per_token_ms": 0.5968229166666666
+          },
+          "usage": {
+            "completion_tokens": 63,
+            "prompt_tokens": 453,
+            "prompt_tokens_details": {
+              "cached_tokens": 357
+            },
+            "total_tokens": 516
+          }
+        }
+      }
+    }
+  ],
+  "health": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "alerts": [],
+      "bootstrap_state_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-vo4zhf99/absent-bootstrap.json",
+      "budget_pressure": {
+        "cooldown_total": 0,
+        "critical_total": 0,
+        "exhausted_total": 0,
+        "highest_level": "ok",
+        "providers": [
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "anthropic",
+            "provider_name": "Anthropic Claude"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "cerebras",
+            "provider_name": "Cerebras Cloud"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_core",
+            "provider_name": "Annunimas Core (3080 Workstation)"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "google",
+            "provider_name": "Google AI Studio"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "groq",
+            "provider_name": "Groq"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": null,
+            "provider_id": "local_fallback",
+            "provider_name": "Local Llama.cpp Fallback"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "mistral",
+            "provider_name": "Mistral API"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "nvidia",
+            "provider_name": "NVIDIA API Catalog"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "zai",
+            "provider_name": "Z.AI / GLM"
+          }
+        ],
+        "providers_total": 9,
+        "warning_total": 0
+      },
+      "capability_summary": {
+        "models_with_failed_streaming_receipts": 0,
+        "models_with_failed_structured_output_receipts": 0,
+        "models_with_failed_tool_receipts": 0,
+        "providers_with_no_capability_evidence": 9,
+        "receipt_model_count": 0,
+        "recent_capability_failures": 0
+      },
+      "catalog_generation": 2,
+      "config_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-vo4zhf99/providers.toml",
+      "config_source": "provider_file",
+      "ok": true,
+      "provider_state_counts": {
+        "missing_api_key": 7,
+        "ready": 2
+      },
+      "providers_blocked": 7,
+      "providers_enabled": 9,
+      "providers_healthy": 2,
+      "providers_ready": 2,
+      "providers_total": 9,
+      "recent_event_sample_complete": true,
+      "recent_event_sample_limit": 48,
+      "recent_route_failures": 0,
+      "recent_route_successes": 0,
+      "route_guardrails": {
+        "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+        "low_context_tool_model_total": 1,
+        "tool_execution_min_context_window": 64000,
+        "tool_incompatible_model_total": 0,
+        "visible_reasoning_model_total": 0
+      },
+      "service": "manwe"
+    }
+  },
+  "passed": true,
+  "candidate_stopped": true
+}

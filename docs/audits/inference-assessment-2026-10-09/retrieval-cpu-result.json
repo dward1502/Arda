@@ -1,0 +1,1641 @@
+{
+  "completed": true,
+  "scope": "agent-authored development labels, frozen corpus; historical BM25 ranking, no contemporaneous baseline timing",
+  "fixture_sha256": "34c6bc7d16906b482f82076ef5f705286cd06b85990db47824389a3c1279e515",
+  "baseline_sha256": "552942068558dbccc405ead1793213c45ab3705205157676504bb10f030991af",
+  "probe_sha256": "1ee988f993ac1c015533d4960ca1338eef87e371b344d499a59dbb3fb61438aa",
+  "versions": {
+    "typing_extensions": "4.16.0",
+    "MarkupSafe": "3.0.3",
+    "filelock": "3.32.3",
+    "Jinja2": "3.1.6",
+    "fsspec": "2026.7.0",
+    "mpmath": "1.3.0",
+    "setuptools": "78.1.0",
+    "networkx": "3.6.1",
+    "sympy": "1.14.0",
+    "torch": "2.8.0+cpu",
+    "tokenizers": "0.21.4",
+    "hf-xet": "1.7.0",
+    "idna": "3.20",
+    "tqdm": "4.70.1",
+    "certifi": "2026.7.22",
+    "regex": "2026.9.29",
+    "safetensors": "0.8.0",
+    "PyYAML": "6.0.3",
+    "packaging": "26.3",
+    "charset-normalizer": "3.5.2",
+    "requests": "2.34.2",
+    "urllib3": "2.8.0",
+    "huggingface_hub": "0.36.2",
+    "numpy": "2.5.3",
+    "transformers": "4.51.3"
+  },
+  "models": {
+    "Qwen3-Reranker-0.6B-e61197ed": {
+      "manifest": {
+        "repo": "Qwen/Qwen3-Reranker-0.6B",
+        "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+        "files": [
+          {
+            "name": "README.md",
+            "sha256": "5bba8c734f6dd3ae48317b4139317e45a7fce48fc55e15670b23a0dd15492ab6",
+            "advertised": null,
+            "bytes": 14742
+          },
+          {
+            "name": "config.json",
+            "sha256": "d479c427a9ca5295218063d4f9aca4f297ab4ac27487cca7af42c84643d51ef0",
+            "advertised": null,
+            "bytes": 727
+          },
+          {
+            "name": "merges.txt",
+            "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+            "advertised": null,
+            "bytes": 1671853
+          },
+          {
+            "name": "model.safetensors",
+            "sha256": "27cd75a405b9c1b46b59abfd88aaa209e6fed2a1972cde9b70e7659537c5e65b",
+            "advertised": "27cd75a405b9c1b46b59abfd88aaa209e6fed2a1972cde9b70e7659537c5e65b",
+            "bytes": 1191588280
+          },
+          {
+            "name": "tokenizer.json",
+            "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+            "advertised": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+            "bytes": 11422654
+          },
+          {
+            "name": "tokenizer_config.json",
+            "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+            "advertised": null,
+            "bytes": 9706
+          },
+          {
+            "name": "vocab.json",
+            "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+            "advertised": null,
+            "bytes": 2776833
+          }
+        ]
+      },
+      "load_seconds": 1.436281637987122
+    },
+    "Qwen3-Embedding-0.6B-97b0c614": {
+      "manifest": {
+        "repo": "Qwen/Qwen3-Embedding-0.6B",
+        "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+        "files": [
+          {
+            "name": "README.md",
+            "sha256": "c34d9b7e5a267ad3fdd13227a253686bc90844ff4744a2a6a86c7c905e3d06f3",
+            "advertised": null,
+            "bytes": 17237
+          },
+          {
+            "name": "config.json",
+            "sha256": "b5bf1f51fc45be473a54718cef92448d90a1be001bf9b9a44b8c7f10a19feaa9",
+            "advertised": null,
+            "bytes": 727
+          },
+          {
+            "name": "merges.txt",
+            "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+            "advertised": null,
+            "bytes": 1671853
+          },
+          {
+            "name": "model.safetensors",
+            "sha256": "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd",
+            "advertised": "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd",
+            "bytes": 1191586416
+          },
+          {
+            "name": "tokenizer.json",
+            "sha256": "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a",
+            "advertised": "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a",
+            "bytes": 11423705
+          },
+          {
+            "name": "tokenizer_config.json",
+            "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+            "advertised": null,
+            "bytes": 9706
+          },
+          {
+            "name": "vocab.json",
+            "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+            "advertised": null,
+            "bytes": 2776833
+          }
+        ]
+      },
+      "load_seconds": 0.6541832280345261
+    }
+  },
+  "cases": [
+    {
+      "query": "What should be refactored before changing behavior?",
+      "expected": [
+        "rules"
+      ],
+      "bm25": [
+        "rules",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "reranked": [
+        "rules",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "rules",
+          "no": 13.136768341064453,
+          "yes": 19.28640365600586,
+          "score": 0.9978703260421753,
+          "tokens": 306,
+          "seconds": 1.4091976579511538
+        },
+        {
+          "id": "m5-consumption",
+          "no": 15.510168075561523,
+          "yes": 13.058910369873047,
+          "score": 0.07934661954641342,
+          "tokens": 297,
+          "seconds": 1.387639778025914
+        },
+        {
+          "id": "m5-scope",
+          "no": 12.533162117004395,
+          "yes": 3.1829235553741455,
+          "score": 8.693709969520569e-05,
+          "tokens": 200,
+          "seconds": 0.9458523280336522
+        }
+      ],
+      "embedding_seconds": 0.16127528197830543,
+      "embedding": [
+        "rules",
+        "m5-consumption",
+        "r10"
+      ],
+      "embedding_scores": {
+        "rules": 0.5169157981872559,
+        "m5-scope": 0.26901453733444214,
+        "m5-consumption": 0.38488057255744934,
+        "m5-boundaries": 0.30822205543518066,
+        "r01": 0.27798235416412354,
+        "r03": 0.2711336016654968,
+        "r05": 0.2757623791694641,
+        "r06": 0.24993965029716492,
+        "r09": 0.3089689016342163,
+        "r10": 0.3825424909591675,
+        "r11": 0.30759215354919434,
+        "assessment": 0.2676253318786621
+      }
+    },
+    {
+      "query": "Which principles favor composition and small stable contracts?",
+      "expected": [
+        "rules"
+      ],
+      "bm25": [
+        "rules",
+        "r05",
+        "r09"
+      ],
+      "reranked": [
+        "rules",
+        "r05",
+        "r09"
+      ],
+      "pair_scores": [
+        {
+          "id": "rules",
+          "no": 13.489019393920898,
+          "yes": 19.355724334716797,
+          "score": 0.9971758127212524,
+          "tokens": 305,
+          "seconds": 1.4173205050174147
+        },
+        {
+          "id": "r05",
+          "no": 13.136504173278809,
+          "yes": 7.025320529937744,
+          "score": 0.0022130156867206097,
+          "tokens": 254,
+          "seconds": 1.2083100769668818
+        },
+        {
+          "id": "r09",
+          "no": 12.879237174987793,
+          "yes": 6.414427280426025,
+          "score": 0.0015548659721389413,
+          "tokens": 216,
+          "seconds": 1.0372687330236658
+        }
+      ],
+      "embedding_seconds": 0.16300376696744934,
+      "embedding": [
+        "rules",
+        "m5-boundaries",
+        "m5-consumption"
+      ],
+      "embedding_scores": {
+        "rules": 0.5152218341827393,
+        "m5-scope": 0.2802860140800476,
+        "m5-consumption": 0.32821953296661377,
+        "m5-boundaries": 0.36593979597091675,
+        "r01": 0.27533435821533203,
+        "r03": 0.28140881657600403,
+        "r05": 0.30722513794898987,
+        "r06": 0.30474457144737244,
+        "r09": 0.3107966184616089,
+        "r10": 0.26983916759490967,
+        "r11": 0.28801587224006653,
+        "assessment": 0.27921420335769653
+      }
+    },
+    {
+      "query": "Did the accepted CLI continuation require switching to Discord?",
+      "expected": [
+        "m5-scope"
+      ],
+      "bm25": [
+        "m5-scope",
+        "r10",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "m5-scope",
+        "m5-boundaries",
+        "r10"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-scope",
+          "no": 11.964506149291992,
+          "yes": 20.15359115600586,
+          "score": 0.999722421169281,
+          "tokens": 200,
+          "seconds": 0.9847534679574892
+        },
+        {
+          "id": "r10",
+          "no": 12.123709678649902,
+          "yes": 6.020928382873535,
+          "score": 0.002231647027656436,
+          "tokens": 230,
+          "seconds": 1.087839531013742
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 14.522783279418945,
+          "yes": 10.631258964538574,
+          "score": 0.02000580169260502,
+          "tokens": 258,
+          "seconds": 1.2204180200351402
+        }
+      ],
+      "embedding_seconds": 0.16295957600232214,
+      "embedding": [
+        "m5-scope",
+        "m5-boundaries",
+        "r11"
+      ],
+      "embedding_scores": {
+        "rules": 0.2818440794944763,
+        "m5-scope": 0.6479276418685913,
+        "m5-consumption": 0.358720988035202,
+        "m5-boundaries": 0.44804075360298157,
+        "r01": 0.3443000912666321,
+        "r03": 0.36184534430503845,
+        "r05": 0.3698537349700928,
+        "r06": 0.2608811557292938,
+        "r09": 0.2714530825614929,
+        "r10": 0.28345978260040283,
+        "r11": 0.4055429697036743,
+        "assessment": 0.2267613708972931
+      }
+    },
+    {
+      "query": "How were fresh sessions authenticated without resuming an earlier conversation?",
+      "expected": [
+        "m5-scope"
+      ],
+      "bm25": [
+        "r01",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "reranked": [
+        "m5-scope",
+        "m5-consumption",
+        "r01"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 15.178277969360352,
+          "yes": 11.630256652832031,
+          "score": 0.02797633223235607,
+          "tokens": 225,
+          "seconds": 1.0727790649980307
+        },
+        {
+          "id": "m5-consumption",
+          "no": 15.505167007446289,
+          "yes": 17.877416610717773,
+          "score": 0.9146865606307983,
+          "tokens": 299,
+          "seconds": 1.4178880330291577
+        },
+        {
+          "id": "m5-scope",
+          "no": 14.954262733459473,
+          "yes": 19.724180221557617,
+          "score": 0.9915903210639954,
+          "tokens": 202,
+          "seconds": 0.9816313929622993
+        }
+      ],
+      "embedding_seconds": 0.1654998220037669,
+      "embedding": [
+        "m5-scope",
+        "m5-consumption",
+        "r01"
+      ],
+      "embedding_scores": {
+        "rules": 0.19921070337295532,
+        "m5-scope": 0.4920164942741394,
+        "m5-consumption": 0.47010019421577454,
+        "m5-boundaries": 0.3844648003578186,
+        "r01": 0.4104359447956085,
+        "r03": 0.2739560902118683,
+        "r05": 0.24829646944999695,
+        "r06": 0.35793885588645935,
+        "r09": 0.27241647243499756,
+        "r10": 0.22447055578231812,
+        "r11": 0.3266928195953369,
+        "assessment": 0.2931056022644043
+      }
+    },
+    {
+      "query": "What authorization regression tests were chosen for WGTT?",
+      "expected": [
+        "m5-consumption"
+      ],
+      "bm25": [
+        "m5-consumption",
+        "r05",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "m5-consumption",
+        "r05",
+        "m5-boundaries"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-consumption",
+          "no": 12.641885757446289,
+          "yes": 19.637012481689453,
+          "score": 0.99908447265625,
+          "tokens": 297,
+          "seconds": 1.4202911269967444
+        },
+        {
+          "id": "r05",
+          "no": 15.26526165008545,
+          "yes": 10.891867637634277,
+          "score": 0.012451383285224438,
+          "tokens": 255,
+          "seconds": 1.2075028449762613
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 13.716625213623047,
+          "yes": 8.494351387023926,
+          "score": 0.005366097670048475,
+          "tokens": 258,
+          "seconds": 1.240440088964533
+        }
+      ],
+      "embedding_seconds": 0.16521816898602992,
+      "embedding": [
+        "m5-consumption",
+        "r03",
+        "r06"
+      ],
+      "embedding_scores": {
+        "rules": 0.24125908315181732,
+        "m5-scope": 0.1992516815662384,
+        "m5-consumption": 0.634752094745636,
+        "m5-boundaries": 0.32597729563713074,
+        "r01": 0.2704022228717804,
+        "r03": 0.4139639139175415,
+        "r05": 0.38001540303230286,
+        "r06": 0.381412148475647,
+        "r09": 0.24543072283267975,
+        "r10": 0.3503625988960266,
+        "r11": 0.30035531520843506,
+        "assessment": 0.3463602066040039
+      }
+    },
+    {
+      "query": "Were staging checks established by the conversational plan?",
+      "expected": [
+        "m5-consumption"
+      ],
+      "bm25": [
+        "m5-boundaries",
+        "m5-consumption",
+        "r05"
+      ],
+      "reranked": [
+        "m5-consumption",
+        "m5-boundaries",
+        "r05"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-boundaries",
+          "no": 14.80246353149414,
+          "yes": 10.441181182861328,
+          "score": 0.012601194903254509,
+          "tokens": 258,
+          "seconds": 1.4383638779981993
+        },
+        {
+          "id": "m5-consumption",
+          "no": 14.453017234802246,
+          "yes": 18.949119567871094,
+          "score": 0.9889706373214722,
+          "tokens": 297,
+          "seconds": 1.5387899440247566
+        },
+        {
+          "id": "r05",
+          "no": 13.93140697479248,
+          "yes": 6.363245010375977,
+          "score": 0.0005163744208402932,
+          "tokens": 255,
+          "seconds": 1.194394876016304
+        }
+      ],
+      "embedding_seconds": 0.16637228504987434,
+      "embedding": [
+        "m5-boundaries",
+        "m5-consumption",
+        "r06"
+      ],
+      "embedding_scores": {
+        "rules": 0.22421354055404663,
+        "m5-scope": 0.30081096291542053,
+        "m5-consumption": 0.4370403587818146,
+        "m5-boundaries": 0.4394207000732422,
+        "r01": 0.2728651762008667,
+        "r03": 0.26167330145835876,
+        "r05": 0.2919267416000366,
+        "r06": 0.3130476772785187,
+        "r09": 0.282198429107666,
+        "r10": 0.2734421491622925,
+        "r11": 0.2871845066547394,
+        "assessment": 0.3060557246208191
+      }
+    },
+    {
+      "query": "Did CLI plans emit a new ContextUseReceipt?",
+      "expected": [
+        "m5-boundaries"
+      ],
+      "bm25": [
+        "m5-scope",
+        "m5-boundaries",
+        "m5-consumption"
+      ],
+      "reranked": [
+        "m5-boundaries",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-scope",
+          "no": 15.41330337524414,
+          "yes": 12.217920303344727,
+          "score": 0.039339836686849594,
+          "tokens": 200,
+          "seconds": 0.9547521460335702
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 12.391157150268555,
+          "yes": 19.808975219726562,
+          "score": 0.9993999004364014,
+          "tokens": 258,
+          "seconds": 1.2144086039625108
+        },
+        {
+          "id": "m5-consumption",
+          "no": 16.54799461364746,
+          "yes": 14.65827751159668,
+          "score": 0.13127672672271729,
+          "tokens": 297,
+          "seconds": 1.394541937042959
+        }
+      ],
+      "embedding_seconds": 0.1661552820005454,
+      "embedding": [
+        "m5-boundaries",
+        "m5-scope",
+        "m5-consumption"
+      ],
+      "embedding_scores": {
+        "rules": 0.21504853665828705,
+        "m5-scope": 0.4194927215576172,
+        "m5-consumption": 0.38143759965896606,
+        "m5-boundaries": 0.5693966150283813,
+        "r01": 0.27982568740844727,
+        "r03": 0.25439414381980896,
+        "r05": 0.36862438917160034,
+        "r06": 0.3714597225189209,
+        "r09": 0.24008667469024658,
+        "r10": 0.26862338185310364,
+        "r11": 0.28904372453689575,
+        "assessment": 0.3055551052093506
+      }
+    },
+    {
+      "query": "Can local continuity evidence close the combined M1 M2 obligations?",
+      "expected": [
+        "m5-boundaries"
+      ],
+      "bm25": [
+        "m5-scope",
+        "r01",
+        "r05"
+      ],
+      "reranked": [
+        "r01",
+        "m5-scope",
+        "r05"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-scope",
+          "no": 14.592794418334961,
+          "yes": 9.740483283996582,
+          "score": 0.007749778218567371,
+          "tokens": 203,
+          "seconds": 0.9850647429702803
+        },
+        {
+          "id": "r01",
+          "no": 15.09206485748291,
+          "yes": 11.038383483886719,
+          "score": 0.01706218346953392,
+          "tokens": 226,
+          "seconds": 1.0662855710252188
+        },
+        {
+          "id": "r05",
+          "no": 13.024665832519531,
+          "yes": 4.427892684936523,
+          "score": 0.00018466672918293625,
+          "tokens": 258,
+          "seconds": 1.1972055759979412
+        }
+      ],
+      "embedding_seconds": 0.17422806803369895,
+      "embedding": [
+        "m5-boundaries",
+        "m5-scope",
+        "r01"
+      ],
+      "embedding_scores": {
+        "rules": 0.26380014419555664,
+        "m5-scope": 0.4383885860443115,
+        "m5-consumption": 0.3382423222064972,
+        "m5-boundaries": 0.5020816326141357,
+        "r01": 0.36405131220817566,
+        "r03": 0.2912571430206299,
+        "r05": 0.3087778091430664,
+        "r06": 0.349889874458313,
+        "r09": 0.32660412788391113,
+        "r10": 0.3165954053401947,
+        "r11": 0.2990175187587738,
+        "assessment": 0.2998318672180176
+      }
+    },
+    {
+      "query": "Was mesh-llm kept off during fresh authority recovery?",
+      "expected": [
+        "r01"
+      ],
+      "bm25": [
+        "r01",
+        "m5-boundaries",
+        "r03"
+      ],
+      "reranked": [
+        "r01",
+        "m5-boundaries",
+        "r03"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 10.711128234863281,
+          "yes": 20.220352172851562,
+          "score": 0.9999258518218994,
+          "tokens": 225,
+          "seconds": 1.0630371439619921
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 13.87155818939209,
+          "yes": 8.283515930175781,
+          "score": 0.0037283943966031075,
+          "tokens": 260,
+          "seconds": 1.2063846890232526
+        },
+        {
+          "id": "r03",
+          "no": 12.945465087890625,
+          "yes": 4.901978492736816,
+          "score": 0.000321084022289142,
+          "tokens": 341,
+          "seconds": 1.5826955559896305
+        }
+      ],
+      "embedding_seconds": 0.16149590502027422,
+      "embedding": [
+        "r01",
+        "m5-consumption",
+        "m5-boundaries"
+      ],
+      "embedding_scores": {
+        "rules": 0.22940632700920105,
+        "m5-scope": 0.3864266276359558,
+        "m5-consumption": 0.4714910089969635,
+        "m5-boundaries": 0.3953247368335724,
+        "r01": 0.5984684824943542,
+        "r03": 0.34899941086769104,
+        "r05": 0.3301568925380707,
+        "r06": 0.27193889021873474,
+        "r09": 0.36983102560043335,
+        "r10": 0.24578246474266052,
+        "r11": 0.2861001491546631,
+        "assessment": 0.31660401821136475
+      }
+    },
+    {
+      "query": "Where was rollback state preserved when the operator chose fresh authority?",
+      "expected": [
+        "r01"
+      ],
+      "bm25": [
+        "r01",
+        "rules",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "r01",
+        "m5-boundaries",
+        "rules"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 11.708056449890137,
+          "yes": 20.012666702270508,
+          "score": 0.9997527003288269,
+          "tokens": 225,
+          "seconds": 1.0910717090009712
+        },
+        {
+          "id": "rules",
+          "no": 13.405256271362305,
+          "yes": 3.5682404041290283,
+          "score": 5.3433665016200393e-05,
+          "tokens": 308,
+          "seconds": 1.4276292729773559
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 14.984935760498047,
+          "yes": 11.362813949584961,
+          "score": 0.026030227541923523,
+          "tokens": 260,
+          "seconds": 1.1976370529737324
+        }
+      ],
+      "embedding_seconds": 0.1609573169844225,
+      "embedding": [
+        "r01",
+        "m5-boundaries",
+        "r09"
+      ],
+      "embedding_scores": {
+        "rules": 0.19238093495368958,
+        "m5-scope": 0.3597627580165863,
+        "m5-consumption": 0.3653119206428528,
+        "m5-boundaries": 0.4366147220134735,
+        "r01": 0.5470673441886902,
+        "r03": 0.295843243598938,
+        "r05": 0.2897287607192993,
+        "r06": 0.32233089208602905,
+        "r09": 0.4124414324760437,
+        "r10": 0.1976146697998047,
+        "r11": 0.22153893113136292,
+        "assessment": 0.23224139213562012
+      }
+    },
+    {
+      "query": "Were required status checks enforced by R03?",
+      "expected": [
+        "r03"
+      ],
+      "bm25": [
+        "r03",
+        "m5-scope",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "r03",
+        "m5-boundaries",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r03",
+          "no": 13.77612590789795,
+          "yes": 19.533580780029297,
+          "score": 0.9968507885932922,
+          "tokens": 339,
+          "seconds": 1.5629241009592079
+        },
+        {
+          "id": "m5-scope",
+          "no": 13.369621276855469,
+          "yes": 4.420222282409668,
+          "score": 0.00012979831080883741,
+          "tokens": 200,
+          "seconds": 0.9393385039875284
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 14.03863525390625,
+          "yes": 8.977814674377441,
+          "score": 0.00630040792748332,
+          "tokens": 258,
+          "seconds": 1.200946950004436
+        }
+      ],
+      "embedding_seconds": 0.163502965006046,
+      "embedding": [
+        "r03",
+        "m5-consumption",
+        "r05"
+      ],
+      "embedding_scores": {
+        "rules": 0.21036672592163086,
+        "m5-scope": 0.2109813541173935,
+        "m5-consumption": 0.39450836181640625,
+        "m5-boundaries": 0.31436437368392944,
+        "r01": 0.26962852478027344,
+        "r03": 0.41791146993637085,
+        "r05": 0.3666965663433075,
+        "r06": 0.3350156545639038,
+        "r09": 0.2575857937335968,
+        "r10": 0.3436774015426636,
+        "r11": 0.3074539303779602,
+        "assessment": 0.31449365615844727
+      }
+    },
+    {
+      "query": "Which native workspaces and frontend jobs passed source validation?",
+      "expected": [
+        "r03"
+      ],
+      "bm25": [
+        "r11",
+        "r03",
+        "r05"
+      ],
+      "reranked": [
+        "r03",
+        "r05",
+        "r11"
+      ],
+      "pair_scores": [
+        {
+          "id": "r11",
+          "no": 14.128456115722656,
+          "yes": 11.127720832824707,
+          "score": 0.04739266633987427,
+          "tokens": 194,
+          "seconds": 0.919856512977276
+        },
+        {
+          "id": "r03",
+          "no": 14.332566261291504,
+          "yes": 19.84021759033203,
+          "score": 0.9959607720375061,
+          "tokens": 340,
+          "seconds": 1.552702904038597
+        },
+        {
+          "id": "r05",
+          "no": 15.223054885864258,
+          "yes": 12.436456680297852,
+          "score": 0.05805269628763199,
+          "tokens": 256,
+          "seconds": 1.1788457820075564
+        }
+      ],
+      "embedding_seconds": 0.17714610998518765,
+      "embedding": [
+        "r03",
+        "r05",
+        "m5-consumption"
+      ],
+      "embedding_scores": {
+        "rules": 0.29676055908203125,
+        "m5-scope": 0.2857199013233185,
+        "m5-consumption": 0.4487786293029785,
+        "m5-boundaries": 0.348248153924942,
+        "r01": 0.2433873414993286,
+        "r03": 0.5565594434738159,
+        "r05": 0.4489539861679077,
+        "r06": 0.27451270818710327,
+        "r09": 0.3142438530921936,
+        "r10": 0.2980688214302063,
+        "r11": 0.31480830907821655,
+        "assessment": 0.28700047731399536
+      }
+    },
+    {
+      "query": "Which crate owns explicit HTTP reconciliation Close and admission contracts?",
+      "expected": [
+        "r05"
+      ],
+      "bm25": [
+        "r05",
+        "r03",
+        "m5-scope"
+      ],
+      "reranked": [
+        "r05",
+        "r03",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r05",
+          "no": 13.098509788513184,
+          "yes": 19.50749969482422,
+          "score": 0.99835604429245,
+          "tokens": 256,
+          "seconds": 1.1864159510005265
+        },
+        {
+          "id": "r03",
+          "no": 12.84830379486084,
+          "yes": 4.747661113739014,
+          "score": 0.00030325198895297945,
+          "tokens": 340,
+          "seconds": 1.561863305978477
+        },
+        {
+          "id": "m5-scope",
+          "no": 12.733624458312988,
+          "yes": 4.425711631774902,
+          "score": 0.00024649733677506447,
+          "tokens": 201,
+          "seconds": 0.9742831870098598
+        }
+      ],
+      "embedding_seconds": 0.1701096699689515,
+      "embedding": [
+        "r05",
+        "r11",
+        "r06"
+      ],
+      "embedding_scores": {
+        "rules": 0.2603362500667572,
+        "m5-scope": 0.3946692943572998,
+        "m5-consumption": 0.3521256446838379,
+        "m5-boundaries": 0.3665642738342285,
+        "r01": 0.3731168806552887,
+        "r03": 0.3328842520713806,
+        "r05": 0.49119240045547485,
+        "r06": 0.3973812758922577,
+        "r09": 0.2594555616378784,
+        "r10": 0.28485655784606934,
+        "r11": 0.43862321972846985,
+        "assessment": 0.3201792538166046
+      }
+    },
+    {
+      "query": "Does the Workbench executor depend on OpenTelemetry or Manwe?",
+      "expected": [
+        "r05"
+      ],
+      "bm25": [
+        "r05",
+        "assessment",
+        "rules"
+      ],
+      "reranked": [
+        "r05",
+        "assessment",
+        "rules"
+      ],
+      "pair_scores": [
+        {
+          "id": "r05",
+          "no": 12.4091215133667,
+          "yes": 20.098852157592773,
+          "score": 0.9995427131652832,
+          "tokens": 259,
+          "seconds": 1.2186316149891354
+        },
+        {
+          "id": "assessment",
+          "no": 15.848727226257324,
+          "yes": 15.345365524291992,
+          "score": 0.37675100564956665,
+          "tokens": 142,
+          "seconds": 0.7156264230143279
+        },
+        {
+          "id": "rules",
+          "no": 13.596426963806152,
+          "yes": 7.42850923538208,
+          "score": 0.0020912126637995243,
+          "tokens": 310,
+          "seconds": 1.417613638972398
+        }
+      ],
+      "embedding_seconds": 0.17141905799508095,
+      "embedding": [
+        "r05",
+        "m5-boundaries",
+        "r10"
+      ],
+      "embedding_scores": {
+        "rules": 0.2133668065071106,
+        "m5-scope": 0.2719936966896057,
+        "m5-consumption": 0.3511098325252533,
+        "m5-boundaries": 0.3805614709854126,
+        "r01": 0.3032286465167999,
+        "r03": 0.34248125553131104,
+        "r05": 0.573348879814148,
+        "r06": 0.2740800976753235,
+        "r09": 0.2594805359840393,
+        "r10": 0.37081024050712585,
+        "r11": 0.32641032338142395,
+        "assessment": 0.3545471429824829
+      }
+    },
+    {
+      "query": "Does unknown billing prove a spending cap?",
+      "expected": [
+        "r06"
+      ],
+      "bm25": [
+        "r06",
+        "r01",
+        "m5-consumption"
+      ],
+      "reranked": [
+        "r06",
+        "m5-consumption",
+        "r01"
+      ],
+      "pair_scores": [
+        {
+          "id": "r06",
+          "no": 12.637862205505371,
+          "yes": 18.61146354675293,
+          "score": 0.9974613189697266,
+          "tokens": 219,
+          "seconds": 1.0478177049662918
+        },
+        {
+          "id": "r01",
+          "no": 14.23028564453125,
+          "yes": 3.8582193851470947,
+          "score": 3.129357355646789e-05,
+          "tokens": 221,
+          "seconds": 1.0402239359682426
+        },
+        {
+          "id": "m5-consumption",
+          "no": 14.173585891723633,
+          "yes": 3.8933017253875732,
+          "score": 3.4301610867260024e-05,
+          "tokens": 295,
+          "seconds": 1.3572714509791695
+        }
+      ],
+      "embedding_seconds": 0.16110806894721463,
+      "embedding": [
+        "r06",
+        "m5-consumption",
+        "m5-boundaries"
+      ],
+      "embedding_scores": {
+        "rules": 0.2265719771385193,
+        "m5-scope": 0.15585103631019592,
+        "m5-consumption": 0.29901808500289917,
+        "m5-boundaries": 0.2909831404685974,
+        "r01": 0.18280023336410522,
+        "r03": 0.1511795073747635,
+        "r05": 0.1947096288204193,
+        "r06": 0.4601026773452759,
+        "r09": 0.16561558842658997,
+        "r10": 0.24604900181293488,
+        "r11": 0.2653937339782715,
+        "assessment": 0.2847815155982971
+      }
+    },
+    {
+      "query": "Are typed durable route receipts sufficient to close canonical G2?",
+      "expected": [
+        "r06"
+      ],
+      "bm25": [
+        "r06",
+        "m5-boundaries",
+        "m5-scope"
+      ],
+      "reranked": [
+        "r06",
+        "m5-boundaries",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r06",
+          "no": 13.30675220489502,
+          "yes": 19.95879364013672,
+          "score": 0.9987102746963501,
+          "tokens": 223,
+          "seconds": 1.0487236290355213
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 15.474023818969727,
+          "yes": 12.7055025100708,
+          "score": 0.05904911458492279,
+          "tokens": 260,
+          "seconds": 1.1861837269971147
+        },
+        {
+          "id": "m5-scope",
+          "no": 12.789693832397461,
+          "yes": 4.807592868804932,
+          "score": 0.00034140454954467714,
+          "tokens": 202,
+          "seconds": 0.9560142839909531
+        }
+      ],
+      "embedding_seconds": 0.17364976002136245,
+      "embedding": [
+        "r06",
+        "m5-consumption",
+        "m5-boundaries"
+      ],
+      "embedding_scores": {
+        "rules": 0.24342966079711914,
+        "m5-scope": 0.27453118562698364,
+        "m5-consumption": 0.4015578627586365,
+        "m5-boundaries": 0.3867143392562866,
+        "r01": 0.24817737936973572,
+        "r03": 0.24059544503688812,
+        "r05": 0.27614060044288635,
+        "r06": 0.6056548953056335,
+        "r09": 0.3048064112663269,
+        "r10": 0.30628669261932373,
+        "r11": 0.2922620475292206,
+        "assessment": 0.2969227135181427
+      }
+    },
+    {
+      "query": "How should backup restore and identity history be qualified?",
+      "expected": [
+        "r09"
+      ],
+      "bm25": [
+        "r09",
+        "assessment",
+        "r11"
+      ],
+      "reranked": [
+        "r09",
+        "assessment",
+        "r11"
+      ],
+      "pair_scores": [
+        {
+          "id": "r09",
+          "no": 12.103915214538574,
+          "yes": 19.59914779663086,
+          "score": 0.9994445443153381,
+          "tokens": 217,
+          "seconds": 1.0117991869919933
+        },
+        {
+          "id": "assessment",
+          "no": 14.882579803466797,
+          "yes": 11.436311721801758,
+          "score": 0.03088034689426422,
+          "tokens": 138,
+          "seconds": 0.6779948809999041
+        },
+        {
+          "id": "r11",
+          "no": 13.570192337036133,
+          "yes": 9.288649559020996,
+          "score": 0.013632898218929768,
+          "tokens": 193,
+          "seconds": 0.9078425199841149
+        }
+      ],
+      "embedding_seconds": 0.16562570503447205,
+      "embedding": [
+        "r09",
+        "r01",
+        "m5-consumption"
+      ],
+      "embedding_scores": {
+        "rules": 0.20445871353149414,
+        "m5-scope": 0.3672563433647156,
+        "m5-consumption": 0.3745144009590149,
+        "m5-boundaries": 0.34341493248939514,
+        "r01": 0.4867720305919647,
+        "r03": 0.23112475872039795,
+        "r05": 0.21709610521793365,
+        "r06": 0.2772119641304016,
+        "r09": 0.5872601270675659,
+        "r10": 0.2606564164161682,
+        "r11": 0.24203510582447052,
+        "assessment": 0.2869187295436859
+      }
+    },
+    {
+      "query": "May generated-looking live databases simply be migrated or removed?",
+      "expected": [
+        "r09"
+      ],
+      "bm25": [
+        "r09",
+        "r06",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "r09",
+        "m5-boundaries",
+        "r06"
+      ],
+      "pair_scores": [
+        {
+          "id": "r09",
+          "no": 12.615464210510254,
+          "yes": 19.075149536132812,
+          "score": 0.9984371066093445,
+          "tokens": 218,
+          "seconds": 1.0190485019702464
+        },
+        {
+          "id": "r06",
+          "no": 11.958047866821289,
+          "yes": 4.486026763916016,
+          "score": 0.0005684542702510953,
+          "tokens": 222,
+          "seconds": 1.0457777859992348
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 12.914408683776855,
+          "yes": 7.293503284454346,
+          "score": 0.003608294064179063,
+          "tokens": 259,
+          "seconds": 1.1962551419856027
+        }
+      ],
+      "embedding_seconds": 0.16824955202173442,
+      "embedding": [
+        "r09",
+        "m5-consumption",
+        "r01"
+      ],
+      "embedding_scores": {
+        "rules": 0.24180665612220764,
+        "m5-scope": 0.26435133814811707,
+        "m5-consumption": 0.3278924822807312,
+        "m5-boundaries": 0.30334728956222534,
+        "r01": 0.3234969675540924,
+        "r03": 0.21877610683441162,
+        "r05": 0.26373112201690674,
+        "r06": 0.25123631954193115,
+        "r09": 0.40819063782691956,
+        "r10": 0.2441026121377945,
+        "r11": 0.22398322820663452,
+        "assessment": 0.26312923431396484
+      }
+    },
+    {
+      "query": "What measures demonstrate reduced operator burden rather than telemetry volume?",
+      "expected": [
+        "r10"
+      ],
+      "bm25": [
+        "r01",
+        "r10",
+        "m5-scope"
+      ],
+      "reranked": [
+        "r10",
+        "r01",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 14.739862442016602,
+          "yes": 10.376362800598145,
+          "score": 0.012573636136949062,
+          "tokens": 224,
+          "seconds": 1.0483490629703738
+        },
+        {
+          "id": "r10",
+          "no": 13.2448091506958,
+          "yes": 18.019329071044922,
+          "score": 0.9916285276412964,
+          "tokens": 231,
+          "seconds": 1.0848752289894037
+        },
+        {
+          "id": "m5-scope",
+          "no": 13.371617317199707,
+          "yes": 5.48579740524292,
+          "score": 0.00037589683779515326,
+          "tokens": 201,
+          "seconds": 0.9461633320315741
+        }
+      ],
+      "embedding_seconds": 0.16756990196881816,
+      "embedding": [
+        "r10",
+        "m5-consumption",
+        "r11"
+      ],
+      "embedding_scores": {
+        "rules": 0.26973196864128113,
+        "m5-scope": 0.3045594096183777,
+        "m5-consumption": 0.37708014249801636,
+        "m5-boundaries": 0.3494480550289154,
+        "r01": 0.3525383174419403,
+        "r03": 0.2206672579050064,
+        "r05": 0.3214290738105774,
+        "r06": 0.31178396940231323,
+        "r09": 0.2525007426738739,
+        "r10": 0.5549213886260986,
+        "r11": 0.3640628159046173,
+        "assessment": 0.34579434990882874
+      }
+    },
+    {
+      "query": "How should cost energy per accepted result distinguish estimates?",
+      "expected": [
+        "r10"
+      ],
+      "bm25": [
+        "rules",
+        "r10",
+        "m5-consumption"
+      ],
+      "reranked": [
+        "r10",
+        "m5-consumption",
+        "rules"
+      ],
+      "pair_scores": [
+        {
+          "id": "rules",
+          "no": 13.952878952026367,
+          "yes": 4.34548282623291,
+          "score": 6.722513353452086e-05,
+          "tokens": 306,
+          "seconds": 1.3869385079597123
+        },
+        {
+          "id": "r10",
+          "no": 12.038151741027832,
+          "yes": 18.9800968170166,
+          "score": 0.9990345239639282,
+          "tokens": 230,
+          "seconds": 1.0925754199852236
+        },
+        {
+          "id": "m5-consumption",
+          "no": 14.03380012512207,
+          "yes": 7.58563232421875,
+          "score": 0.0015809173928573728,
+          "tokens": 297,
+          "seconds": 1.3674977980554104
+        }
+      ],
+      "embedding_seconds": 0.17346029699547216,
+      "embedding": [
+        "r10",
+        "assessment",
+        "r06"
+      ],
+      "embedding_scores": {
+        "rules": 0.2486598640680313,
+        "m5-scope": 0.16740773618221283,
+        "m5-consumption": 0.3212170898914337,
+        "m5-boundaries": 0.2646634876728058,
+        "r01": 0.17588956654071808,
+        "r03": 0.271318256855011,
+        "r05": 0.2960984408855438,
+        "r06": 0.3398786187171936,
+        "r09": 0.20116223394870758,
+        "r10": 0.44815585017204285,
+        "r11": 0.24475808441638947,
+        "assessment": 0.38928091526031494
+      }
+    },
+    {
+      "query": "What should outpost offline displays report after disconnect?",
+      "expected": [
+        "r11"
+      ],
+      "bm25": [
+        "r11",
+        "m5-consumption"
+      ],
+      "reranked": [
+        "r11",
+        "m5-consumption"
+      ],
+      "pair_scores": [
+        {
+          "id": "r11",
+          "no": 11.459184646606445,
+          "yes": 18.595287322998047,
+          "score": 0.9992048144340515,
+          "tokens": 192,
+          "seconds": 0.9068760260124691
+        },
+        {
+          "id": "m5-consumption",
+          "no": 12.725668907165527,
+          "yes": 4.176647663116455,
+          "score": 0.00019369719666428864,
+          "tokens": 296,
+          "seconds": 1.3363237489829771
+        }
+      ],
+      "embedding_seconds": 0.16995873698033392,
+      "embedding": [
+        "r11",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "embedding_scores": {
+        "rules": 0.15865090489387512,
+        "m5-scope": 0.3941684365272522,
+        "m5-consumption": 0.3948279619216919,
+        "m5-boundaries": 0.31806302070617676,
+        "r01": 0.3246249854564667,
+        "r03": 0.2680245041847229,
+        "r05": 0.24564360082149506,
+        "r06": 0.25321465730667114,
+        "r09": 0.27686142921447754,
+        "r10": 0.32793688774108887,
+        "r11": 0.6256481409072876,
+        "assessment": 0.24510297179222107
+      }
+    },
+    {
+      "query": "Which adapter compatibility and cancellation checks are required?",
+      "expected": [
+        "r11"
+      ],
+      "bm25": [
+        "r11",
+        "r05",
+        "r06"
+      ],
+      "reranked": [
+        "r11",
+        "r06",
+        "r05"
+      ],
+      "pair_scores": [
+        {
+          "id": "r11",
+          "no": 12.638988494873047,
+          "yes": 19.250333786010742,
+          "score": 0.9986567497253418,
+          "tokens": 192,
+          "seconds": 0.9005752159864642
+        },
+        {
+          "id": "r05",
+          "no": 13.892393112182617,
+          "yes": 8.071465492248535,
+          "score": 0.002956089098006487,
+          "tokens": 254,
+          "seconds": 1.1729715170222335
+        },
+        {
+          "id": "r06",
+          "no": 14.924571990966797,
+          "yes": 11.249098777770996,
+          "score": 0.02471129409968853,
+          "tokens": 220,
+          "seconds": 1.020462642016355
+        }
+      ],
+      "embedding_seconds": 0.16482444299617782,
+      "embedding": [
+        "r11",
+        "r06",
+        "m5-consumption"
+      ],
+      "embedding_scores": {
+        "rules": 0.23596814274787903,
+        "m5-scope": 0.24280250072479248,
+        "m5-consumption": 0.3430538773536682,
+        "m5-boundaries": 0.23739323019981384,
+        "r01": 0.2145163118839264,
+        "r03": 0.30554765462875366,
+        "r05": 0.27466797828674316,
+        "r06": 0.366807222366333,
+        "r09": 0.20452472567558289,
+        "r10": 0.31845396757125854,
+        "r11": 0.559231162071228,
+        "assessment": 0.261272668838501
+      }
+    },
+    {
+      "query": "Does retrieval evaluation already expose Hit Recall and MRR?",
+      "expected": [
+        "assessment"
+      ],
+      "bm25": [
+        "assessment",
+        "r01",
+        "r10"
+      ],
+      "reranked": [
+        "assessment",
+        "r10",
+        "r01"
+      ],
+      "pair_scores": [
+        {
+          "id": "assessment",
+          "no": 10.203516006469727,
+          "yes": 19.479999542236328,
+          "score": 0.9999064207077026,
+          "tokens": 139,
+          "seconds": 0.6962959049851634
+        },
+        {
+          "id": "r01",
+          "no": 13.165778160095215,
+          "yes": 5.6118669509887695,
+          "score": 0.000523781927768141,
+          "tokens": 224,
+          "seconds": 1.0360442260280252
+        },
+        {
+          "id": "r10",
+          "no": 13.397717475891113,
+          "yes": 7.919081211090088,
+          "score": 0.004157661460340023,
+          "tokens": 231,
+          "seconds": 1.0824131129775196
+        }
+      ],
+      "embedding_seconds": 0.1673479500459507,
+      "embedding": [
+        "assessment",
+        "m5-consumption",
+        "r10"
+      ],
+      "embedding_scores": {
+        "rules": 0.2115197777748108,
+        "m5-scope": 0.26806142926216125,
+        "m5-consumption": 0.3571128249168396,
+        "m5-boundaries": 0.2828352451324463,
+        "r01": 0.2666943669319153,
+        "r03": 0.21969106793403625,
+        "r05": 0.27881938219070435,
+        "r06": 0.2444273829460144,
+        "r09": 0.22435428202152252,
+        "r10": 0.31849509477615356,
+        "r11": 0.21003738045692444,
+        "assessment": 0.7406099438667297
+      }
+    },
+    {
+      "query": "Which source evidence distinguishes executor source qualification from installed validation?",
+      "expected": [
+        "r05",
+        "r03"
+      ],
+      "bm25": [
+        "r05",
+        "r03",
+        "r10"
+      ],
+      "reranked": [
+        "r05",
+        "r03",
+        "r10"
+      ],
+      "pair_scores": [
+        {
+          "id": "r05",
+          "no": 15.700907707214355,
+          "yes": 17.706958770751953,
+          "score": 0.8814309239387512,
+          "tokens": 257,
+          "seconds": 1.2020559760276228
+        },
+        {
+          "id": "r03",
+          "no": 15.76247787475586,
+          "yes": 12.481409072875977,
+          "score": 0.03622638061642647,
+          "tokens": 341,
+          "seconds": 1.5719447609735653
+        },
+        {
+          "id": "r10",
+          "no": 13.82164478302002,
+          "yes": 8.509759902954102,
+          "score": 0.004908409435302019,
+          "tokens": 232,
+          "seconds": 1.0915118139819242
+        }
+      ],
+      "embedding_seconds": 0.16182674997253343,
+      "embedding": [
+        "r05",
+        "m5-boundaries",
+        "r06"
+      ],
+      "embedding_scores": {
+        "rules": 0.17489281296730042,
+        "m5-scope": 0.19693121314048767,
+        "m5-consumption": 0.34942397475242615,
+        "m5-boundaries": 0.3794369101524353,
+        "r01": 0.28173232078552246,
+        "r03": 0.3379688262939453,
+        "r05": 0.46587181091308594,
+        "r06": 0.3612744212150574,
+        "r09": 0.35268664360046387,
+        "r10": 0.28101933002471924,
+        "r11": 0.26601436734199524,
+        "assessment": 0.30761420726776123
+      }
+    }
+  ],
+  "document_encoding_seconds": 6.388272831973154,
+  "metrics": {
+    "bm25": {
+      "hit1": 0.7083333333333334,
+      "recall3": 0.9583333333333334,
+      "mrr3": 0.8263888888888888,
+      "ndcg3": 0.860610365327387
+    },
+    "reranked": {
+      "hit1": 0.9583333333333334,
+      "recall3": 0.9583333333333334,
+      "mrr3": 0.9583333333333334,
+      "ndcg3": 0.9583333333333334
+    },
+    "embedding": {
+      "hit1": 0.9583333333333334,
+      "recall3": 0.9791666666666666,
+      "mrr3": 0.9791666666666666,
+      "ndcg3": 0.9685032060973714
+    }
+  },
+  "peak_rss_kib": 4446944
+}

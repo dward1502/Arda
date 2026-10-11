@@ -1,0 +1,180 @@
+bluefin
+               total        used        free      shared  buff/cache   available
+Mem:     29000458240 10542833664   802410496    12283904 18117971968 18457624576
+Swap:     8589930496  1714421760  6875508736
+Filesystem     Type        1B-blocks         Used    Available Use% Mounted on
+composefs      overlay      33615872     33615872            0 100% /
+/dev/nvme0n1p3 btrfs    997426462720 170420748288 826344472576  18% /etc
+devtmpfs       devtmpfs  14374674432            0  14374674432   0% /dev
+tmpfs          tmpfs     14500229120       180224  14500048896   1% /dev/shm
+efivarfs       efivarfs       131072        43801        82151  35% /sys/firmware/efi/efivars
+tmpfs          tmpfs      5800091648      2433024   5797658624   1% /run
+tmpfs          tmpfs         1048576            0      1048576   0% /run/credentials/systemd-journald.service
+/dev/nvme0n1p3 btrfs    997426462720 170420748288 826344472576  18% /var
+tmpfs          tmpfs     14500229120       397312  14499831808   1% /tmp
+/dev/nvme0n1p3 btrfs    997426462720 170420748288 826344472576  18% /var/home
+/dev/nvme0n1p2 ext4       2040373248    261541888   1654681600  14% /boot
+/dev/nvme0n1p1 vfat        627900416     13148160    614752256   3% /boot/efi
+tmpfs          tmpfs         1048576            0      1048576   0% /run/credentials/systemd-resolved.service
+tmpfs          tmpfs      2900045824       868352   2899177472   1% /run/user/1000
+{
+   "blockdevices": [
+      {
+         "name": "zram0",
+         "type": "disk",
+         "size": "8G",
+         "fstype": "swap",
+         "mountpoints": [
+             "[SWAP]"
+         ]
+      },{
+         "name": "nvme0n1",
+         "type": "disk",
+         "size": "931.5G",
+         "fstype": null,
+         "mountpoints": [],
+         "children": [
+            {
+               "name": "nvme0n1p1",
+               "type": "part",
+               "size": "600M",
+               "fstype": "vfat",
+               "mountpoints": [
+                   "/boot/efi"
+               ]
+            },{
+               "name": "nvme0n1p2",
+               "type": "part",
+               "size": "2G",
+               "fstype": "ext4",
+               "mountpoints": [
+                   "/boot"
+               ]
+            },{
+               "name": "nvme0n1p3",
+               "type": "part",
+               "size": "928.9G",
+               "fstype": "btrfs",
+               "mountpoints": [
+                   "/usr/bin/swtpm", "/var/home", "/var", "/sysroot/ostree/deploy/default/var", "/sysroot", "/etc"
+               ]
+            }
+         ]
+      }
+   ]
+}
+  UNIT                                                     LOAD   ACTIVE SUB     DESCRIPTION
+  at-spi-dbus-bus.service                                  loaded active running Accessibility services bus
+  dbus-:1.2-org.freedesktop.portal.IBus@2.service          loaded active running dbus-:1.2-org.freedesktop.portal.IBus@2.service
+  dbus-:1.2-org.freedesktop.secrets@0.service              loaded active running dbus-:1.2-org.freedesktop.secrets@0.service
+  dbus-:1.2-org.gnome.Identity@0.service                   loaded active running dbus-:1.2-org.gnome.Identity@0.service
+  dbus-:1.2-org.gnome.OnlineAccounts@1.service             loaded active running dbus-:1.2-org.gnome.OnlineAccounts@1.service
+  dbus-:1.2-org.gnome.Ptyxis@1.service                     loaded active running dbus-:1.2-org.gnome.Ptyxis@1.service
+  dbus-:1.2-org.gnome.ScreenSaver@1.service                loaded active running dbus-:1.2-org.gnome.ScreenSaver@1.service
+  dbus-:1.2-org.gnome.Shell.CalendarServer@1.service       loaded active running dbus-:1.2-org.gnome.Shell.CalendarServer@1.service
+  dbus-:1.2-org.gnome.Shell.Extensions.GSConnect@2.service loaded active running dbus-:1.2-org.gnome.Shell.Extensions.GSConnect@2.service
+  dbus-:1.31-org.a11y.atspi.Registry@0.service             loaded active running dbus-:1.31-org.a11y.atspi.Registry@0.service
+  dbus-broker.service                                      loaded active running D-Bus User Message Bus
+  dconf.service                                            loaded active running User preferences database
+  evolution-addressbook-factory.service                    loaded active running Evolution address book service
+  evolution-alarm-notify.service                           loaded active running Event and Task Reminders
+  evolution-calendar-factory.service                       loaded active running Evolution calendar service
+  evolution-source-registry.service                        loaded active running Evolution source registry
+  flatpak-session-helper.service                           loaded active running flatpak session helper
+  gnome-session-manager@gnome.service                      loaded active running GNOME Session Manager (session: gnome)
+  gnome-session-monitor.service                            loaded active running Monitor Session leader for GNOME Session
+  gvfs-afc-volume-monitor.service                          loaded active running Virtual filesystem service - Apple File Conduit monitor
+  gvfs-daemon.service                                      loaded active running Virtual filesystem service
+  gvfs-goa-volume-monitor.service                          loaded active running Virtual filesystem service - GNOME Online Accounts monitor
+  gvfs-gphoto2-volume-monitor.service                      loaded active running Virtual filesystem service - digital camera monitor
+  gvfs-metadata.service                                    loaded active running Virtual filesystem metadata service
+  gvfs-mtp-volume-monitor.service                          loaded active running Virtual filesystem service - Media Transfer Protocol monitor
+  gvfs-udisks2-volume-monitor.service                      loaded active running Virtual filesystem service - disk device monitor
+  llama-server-light.service                               loaded active running Llama Server Light - Ternary Bonsai 8B (Prism fork + Vulkan)
+  localsearch-3.service                                    loaded active running LocalSearch indexer
+  mpris-proxy.service                                      loaded active running Bluetooth mpris proxy
+  org.freedesktop.IBus.session.GNOME.service               loaded active running IBus Daemon for GNOME
+  org.gnome.SettingsDaemon.A11ySettings.service            loaded active running GNOME accessibility service
+  org.gnome.SettingsDaemon.Color.service                   loaded active running GNOME color management service
+  org.gnome.SettingsDaemon.Datetime.service                loaded active running GNOME date & time service
+  org.gnome.SettingsDaemon.Housekeeping.service            loaded active running GNOME maintenance of expirable data service
+  org.gnome.SettingsDaemon.Keyboard.service                loaded active running GNOME keyboard configuration service
+  org.gnome.SettingsDaemon.MediaKeys.service               loaded active running GNOME keyboard shortcuts service
+  org.gnome.SettingsDaemon.Power.service                   loaded active running GNOME power management service
+  org.gnome.SettingsDaemon.PrintNotifications.service      loaded active running GNOME printer notifications service
+  org.gnome.SettingsDaemon.Rfkill.service                  loaded active running GNOME RFKill support service
+  org.gnome.SettingsDaemon.ScreensaverProxy.service        loaded active running GNOME FreeDesktop screensaver service
+  org.gnome.SettingsDaemon.Sharing.service                 loaded active running GNOME file sharing service
+  org.gnome.SettingsDaemon.Smartcard.service               loaded active running GNOME smartcard service
+  org.gnome.SettingsDaemon.Sound.service                   loaded active running GNOME sound sample caching service
+  org.gnome.SettingsDaemon.UsbProtection.service           loaded active running GNOME USB protection service
+  org.gnome.SettingsDaemon.Wwan.service                    loaded active running GNOME WWan support service
+  org.gnome.SettingsDaemon.XSettings.service               loaded active running GNOME XSettings service
+  org.gnome.Shell@wayland.service                          loaded active running GNOME Shell on Wayland
+  pipewire-pulse.service                                   loaded active running PipeWire PulseAudio
+  pipewire.service                                         loaded active running PipeWire Multimedia Service
+  uresourced.service                                       loaded active running User resource assignment daemon
+  wireplumber.service                                      loaded active running Multimedia Service Session Manager
+  xdg-desktop-portal-gnome.service                         loaded active running Portal service (GNOME implementation)
+  xdg-desktop-portal-gtk.service                           loaded active running Portal service (GTK/GNOME implementation)
+  xdg-desktop-portal.service                               loaded active running Portal service
+  xdg-document-portal.service                              loaded active running flatpak document portal service
+  xdg-permission-store.service                             loaded active running sandboxed app permission store
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+56 loaded units listed.
+  UNIT                                LOAD   ACTIVE SUB     DESCRIPTION
+  accounts-daemon.service             loaded active running Accounts Service
+  auditd.service                      loaded active running Security Audit Logging Service
+  avahi-daemon.service                loaded active running Avahi mDNS/DNS-SD Stack
+  bluetooth.service                   loaded active running Bluetooth service
+  bolt.service                        loaded active running Thunderbolt system service
+  chronyd.service                     loaded active running NTP client/server
+  colord.service                      loaded active running Manage, Install and Generate Color Profiles
+  containerd.service                  loaded active running containerd container runtime
+  cups.service                        loaded active running CUPS Scheduler
+  dbus-broker.service                 loaded active running D-Bus System Message Bus
+  docker.service                      loaded active running Docker Application Container Engine
+  firewalld.service                   loaded active running firewalld - dynamic firewall daemon
+  gdm.service                         loaded active running GNOME Display Manager
+  gnome-remote-desktop.service        loaded active running GNOME Remote Desktop
+  gssproxy.service                    loaded active running GSSAPI Proxy Daemon
+  input-remapper.service              loaded active running Service to inject keycodes without the GUI application
+  low-memory-monitor.service          loaded active running Low Memory Monitor
+  ModemManager.service                loaded active running Modem Manager
+  NetworkManager.service              loaded active running Network Manager
+  ostree-finalize-staged-hold.service loaded active running Hold /boot Open for OSTree Finalize Staged Deployment
+  pcscd.service                       loaded active running PC/SC Smart Card Daemon
+  polkit.service                      loaded active running Authorization Manager
+  rtkit-daemon.service                loaded active running RealtimeKit Scheduling Policy Service
+  smartd.service                      loaded active running Self Monitoring and Reporting Technology (SMART) Daemon
+  sshd.service                        loaded active running OpenSSH server daemon
+  sssd-kcm.service                    loaded active running SSSD Kerberos Cache Manager
+  switcheroo-control.service          loaded active running Switcheroo Control Proxy service
+  systemd-homed.service               loaded active running Home Area Manager
+  systemd-journald.service            loaded active running Journal Service
+  systemd-logind.service              loaded active running User Login Management
+  systemd-machined.service            loaded active running Virtual Machine and Container Registration Service
+  systemd-nsresourced.service         loaded active running Namespace Resource Manager
+  systemd-oomd.service                loaded active running Userspace Out-Of-Memory (OOM) Killer
+  systemd-resolved.service            loaded active running Network Name Resolution
+  systemd-udevd.service               loaded active running Rule-based Manager for Device Events and Files
+  systemd-userdbd.service             loaded active running User Database Manager
+  tailscaled.service                  loaded active running Tailscale node agent
+  tuned-ppd.service                   loaded active running PPD-to-TuneD API Translation Daemon
+  tuned.service                       loaded active running Dynamic System Tuning Daemon
+  udisks2.service                     loaded active running Disk Manager
+  upower.service                      loaded active running Daemon for power management
+  uresourced.service                  loaded active running User resource assignment daemon
+  user@1000.service                   loaded active running User Manager for UID 1000
+  wpa_supplicant.service              loaded active running WPA supplicant
+  zfs-zed.service                     loaded active running ZFS Event Daemon (zed)
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+45 loaded units listed.

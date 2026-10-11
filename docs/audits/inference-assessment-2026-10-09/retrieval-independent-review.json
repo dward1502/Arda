@@ -1,0 +1,17 @@
+{
+  "artifact_sha256": "c8e7dba1a96a53ba7c8416df07cb56bde7a789edf5d7e5d103b9851ded9133ab",
+  "review": "deleg_998c68c5",
+  "verdict": "frozen development ranking metrics verified; not production acceptance",
+  "scope": [
+    "24 cases, three methods, four metrics recomputed",
+    "71 reranker scores and token counts checked",
+    "manifest files and fixture/baseline/script hashes checked"
+  ],
+  "limits": [
+    "No unanswerable controls or calibrated abstention",
+    "Frozen excerpts are not current repository truth: eight locations drifted, two contents changed",
+    "Historical indexed Book paths absent; original index not independently reconstructable",
+    "No retained embedding vectors for cosine recomputation",
+    "No contemporaneous BM25 latency comparison or isolated per-model memory peak"
+  ]
+}

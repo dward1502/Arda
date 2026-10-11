@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "reversed": false,
+      "outcomes": [
+        {
+          "partial": false,
+          "calls": [
+            {
+              "name": "lookup",
+              "arguments": "{\"path\":\"alpha.txt\",\"offset\":17}"
+            }
+          ],
+          "pass": true
+        },
+        {
+          "partial": true,
+          "calls": [
+            {
+              "name": "lookup",
+              "arguments": "{\"path\":\"alpha.txt\",\"offset\":17}"
+            }
+          ],
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "reversed": true,
+      "outcomes": [
+        {
+          "partial": false,
+          "error": "The model produced output that does not match the expected peg-native format",
+          "pass": false
+        },
+        {
+          "partial": true,
+          "error": "The model produced output that does not match the expected peg-native format",
+          "pass": false
+        }
+      ],
+      "pass": false
+    }
+  ],
+  "stderr": "common_chat_peg_parse: unparsed peg-native output: <tool_call><function=lookup><parameter=offset>17</parameter><parameter=path>alpha.txt</parameter></function></tool_call>\ncommon_chat_peg_parse: unparsed peg-native output: <tool_call><function=lookup><parameter=offset>17</parameter><parameter=path>alpha.txt</parameter></function></tool_call>\n",
+  "exit_code": 1,
+  "scope": "native lenient wrapper with empty generation prefix; full synthetic text tested as final and partial, not HTTP or incremental stream"
+}

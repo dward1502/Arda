@@ -1,0 +1,18 @@
+{
+  "source_commit": "8798b654ee06d27eae8d01e43db5a0055cb678a3",
+  "archive_sha256": "a7aa01f0918ef757936b4d84a21a21dcd72599521514f3efe9cc84fbeb318e96",
+  "test_modification": "Kolibri expert count 2 -> 384; active experts 2 -> 6; no production source changes",
+  "command": [
+    "/var/home/mythos/.hermes/cache/scratch/kolibri-native/build/bin/test-llama-archs",
+    "-a",
+    "kolibri1",
+    "-b",
+    "CPU",
+    "-s",
+    "42"
+  ],
+  "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.19e-07)|\nSummary: all 1 test(s) passed\n",
+  "stderr": "0.00.001.372 I main: using seed 42, stdev 0.100000\n",
+  "exit_code": 0,
+  "scope": "synthetic tiny architecture CPU self-consistency, save/load roundtrip and mixed batching; not independent reference numerics, real weights or Turing hybrid execution"
+}

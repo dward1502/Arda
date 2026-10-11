@@ -1,0 +1,9 @@
+{
+  "fixture_sha256": "62c7408709569daa6ccabc2e18f20a68a77c756bf33431830743827b48404712",
+  "policy": "BM25 k1=1.2 b=0.75 Unicode lowercase word tokens, top3 deterministic id ties. Per method choose threshold on calibration only to maximize balanced answerability accuracy; ties prefer larger threshold. Score >= threshold predicts evidence available. Freeze threshold before computing heldout metrics. This is retrieval evidence-availability classification, not calibrated correctness or generated-answer abstention.",
+  "thresholds": {
+    "bm25": 22.716952212132583,
+    "reranked": 0.9969269633293152,
+    "embedding": 0.5705103874206543
+  }
+}

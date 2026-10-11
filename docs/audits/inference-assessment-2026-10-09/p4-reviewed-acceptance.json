@@ -1,0 +1,95 @@
+{
+  "scope": "manual factual review plus offline procedural replay; not fresh inference",
+  "mechanical_passes": 6,
+  "reviewed_factual_passes": 5,
+  "total": 6,
+  "capture_count": 46,
+  "qualified": false,
+  "coding_domain": "only four retained vectors: int/float, None, bool; broader numeric/input domain unqualified",
+  "rows": [
+    {
+      "case": "research",
+      "repeat": 1,
+      "evidence": "p4-b11430-serial-t0-research-1.json",
+      "mechanical_pass": true,
+      "reviewed_factual_pass": true,
+      "factual_failure": null,
+      "primary_upstream_complete": true,
+      "primary_delivery_errors": [],
+      "auxiliary_delivery_errors": [
+        "[Errno 32] Broken pipe"
+      ],
+      "capture_count": 6
+    },
+    {
+      "case": "research",
+      "repeat": 2,
+      "evidence": "p4-b11430-serial-t0-research-2.json",
+      "mechanical_pass": true,
+      "reviewed_factual_pass": true,
+      "factual_failure": null,
+      "primary_upstream_complete": true,
+      "primary_delivery_errors": [],
+      "auxiliary_delivery_errors": [
+        "[Errno 32] Broken pipe"
+      ],
+      "capture_count": 7
+    },
+    {
+      "case": "recovery",
+      "repeat": 1,
+      "evidence": "p4-b11430-serial-t0-recovery-1.json",
+      "mechanical_pass": true,
+      "reviewed_factual_pass": true,
+      "factual_failure": null,
+      "primary_upstream_complete": true,
+      "primary_delivery_errors": [],
+      "auxiliary_delivery_errors": [
+        "[Errno 32] Broken pipe"
+      ],
+      "capture_count": 7
+    },
+    {
+      "case": "recovery",
+      "repeat": 2,
+      "evidence": "p4-b11430-serial-t0-recovery-2.json",
+      "mechanical_pass": true,
+      "reviewed_factual_pass": false,
+      "factual_failure": "unsupported numeric ticket ID 1",
+      "primary_upstream_complete": true,
+      "primary_delivery_errors": [],
+      "auxiliary_delivery_errors": [
+        "[Errno 32] Broken pipe"
+      ],
+      "capture_count": 8
+    },
+    {
+      "case": "coding",
+      "repeat": 1,
+      "evidence": "p4-b11430-serial-t0-coding-1.json",
+      "mechanical_pass": true,
+      "reviewed_factual_pass": true,
+      "factual_failure": null,
+      "primary_upstream_complete": true,
+      "primary_delivery_errors": [],
+      "auxiliary_delivery_errors": [
+        "[Errno 32] Broken pipe"
+      ],
+      "capture_count": 9
+    },
+    {
+      "case": "coding",
+      "repeat": 2,
+      "evidence": "p4-b11430-serial-t0-coding-2.json",
+      "mechanical_pass": true,
+      "reviewed_factual_pass": true,
+      "factual_failure": null,
+      "primary_upstream_complete": true,
+      "primary_delivery_errors": [],
+      "auxiliary_delivery_errors": [
+        "[Errno 32] Broken pipe"
+      ],
+      "capture_count": 9
+    }
+  ]
+}

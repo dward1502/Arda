@@ -1,0 +1,88 @@
+{
+  "status": "proposal_not_applied",
+  "evidence_basis": "INFERENCE_ASSESSMENT.md retained candidate outcomes and October 9 fleet snapshot; Server model identities subsequently read back. This is not a fresh whole-fleet availability census.",
+  "decision": "Preserve incumbent production allocation. No candidate has established a sufficient workload-specific replacement case for P5 promotion.",
+  "roles": [
+    {
+      "job": "Restricted incumbent preservation; general research/coding/recovery not qualified",
+      "node": "Core",
+      "model": "Qwen3.5-9B Q4_K_M",
+      "runtime": "retain installed baseline, historically identified b8668/b2f6a68ae; reverify executable hash before any change",
+      "context": "retain configured 73728; do not claim all-context workload qualification",
+      "concurrency": "do not increase installed slot count; proposed one in-flight interactive task until measured concurrency qualification",
+      "fallback": "Proposed eligibility policy; synthetic installed-binary automatic nonstream failover and ID-classified locality verified; production enforcement remains unqualified. Only an existing healthy route meeting the same context, tool and authority contract; otherwise explicit unavailable result. No silent Warden fallback for long tool histories.",
+      "headroom": "Audit recorded 8117 MiB total GPU use on a 10GB-class GPU. Peak KV/graph and concurrent-load headroom remain unmeasured.",
+      "rollback": "No change proposed. Future promotion must retain actual executable hash, unit/drop-ins, model/template hashes and exact launch arguments first.",
+      "qualification": "Fresh-candidate six-case Core batch: 0/6 mechanical and factual passes; native single-read/result only. Preserve baseline, not general-agent endorsement."
+    },
+    {
+      "job": "Bonsai review/research without tools; Nanbeige bounded coding where admission permits",
+      "node": "Server",
+      "model": "retain Bonsai27B Q1 on 8097 and Nanbeige4.2-3B Q4 on 8098",
+      "runtime": "retain each installed incumbent executable and launch configuration; do not equate stock and Prism builds",
+      "context": "Historical Bonsai: 100000 context, one slot, tools=false. Historical Nanbeige: 32768 context, one slot; insufficient for retained long code-continuation floor. Read back current actual values before allocation changes.",
+      "concurrency": "independent GPU lanes; proposed one task per lane pending simultaneous-load qualification",
+      "fallback": "Proposed eligibility policy; synthetic installed-binary automatic nonstream failover and ID-classified locality verified; production enforcement remains unqualified. Not interchangeable tool-worker fallbacks. Long tool continuations may have no eligible Server fallback. Use surviving lane only when actual context, tool and authority contract qualify; otherwise explicit unavailable.",
+      "headroom": "Two 8GB GPUs with PHB topology, not a transparent 16GB pool. Simultaneous workload peak and thermal acceptance remain open.",
+      "rollback": "Keep both incumbent units/configurations. Any later authorized experiment pauses at most one lane, uses timed restoration, then verifies incumbent service, model identity, health and candidate/timer inactivity."
+    },
+    {
+      "job": "background extraction and candidate CPU specialists",
+      "node": "Beelink",
+      "model": "retain Ternary-Bonsai8B Q2; retrieval/voice candidates remain assessment-only",
+      "runtime": "retain incumbent Prism; no HIP/Vulkan swap inferred from CPU specialist tests",
+      "context": "retain deployed context; no enlarged context proposal without live read-back",
+      "concurrency": "no added concurrent specialist residency; sequential bounded experiments only",
+      "fallback": "Proposed eligibility policy; synthetic installed-binary automatic nonstream failover and ID-classified locality verified; production enforcement remains unqualified. Existing qualified general route or explicit unavailable; do not represent heldout ranking gains as generated-answer abstention qualification.",
+      "headroom": "Shared-memory limits are not additive RAM. Local specialist receipts do not establish Beelink co-residency headroom.",
+      "rollback": "No installation or service change proposed; preserve incumbent model and service."
+    },
+    {
+      "job": "scout and short local inference",
+      "node": "Warden",
+      "model": "retain Qwen3.5-4B CPU, scout and SearXNG",
+      "runtime": "retain installed CPU baseline",
+      "context": "snapshot actual service 4096; reject advertised 262144 as usable runtime capacity",
+      "concurrency": "retain installed limits; do not add long coding work",
+      "fallback": "Proposed eligibility policy; synthetic installed-binary automatic nonstream failover and ID-classified locality verified; production enforcement remains unqualified. Only a qualified reachable existing route; otherwise explicit unavailable without relaxing context admission.",
+      "headroom": "Pi resources reserved for scout/control; sustained concurrent inference not qualified.",
+      "rollback": "No service changes proposed."
+    },
+    {
+      "job": "optional voice/vision and offline assistance",
+      "node": "Laptop and CITADEL",
+      "model": "no required capacity allocated",
+      "runtime": "Laptop had no responding endpoint in snapshot; CITADEL boot issue unresolved",
+      "context": "not qualified",
+      "concurrency": "zero required fleet capacity",
+      "fallback": "Do not route required work to unavailable nodes. Voice/vision stay unqualified until genuine input and integration acceptance.",
+      "headroom": "not established",
+      "rollback": "No startup, download, storage repair or deployment authorized by this proposal."
+    }
+  ],
+  "candidate_dispositions": {
+    "MiMo9B": "Assessment-only. Simple native streamed tool/grounding succeeds; coding explanation defect, reversed-argument parser regression and default recovery budget gap remain. Restricted zero-recovery synthetic control is not a production fix.",
+    "Qwen3-Coder30B": "Park measured eight-layer offload configuration for task-budget latency; quality not rejected.",
+    "Bonsai2": "Park tested configurations: full-offload graph OOM and partial-offload continuation admission failure; quality untested.",
+    "Saluki": "Retain factual limitation; dual-GPU evidence does not justify replacing two independent incumbent lanes.",
+    "Kolibri": "Prerequisite-blocked on remaining numerical/runtime and hybrid qualification; no weight staging implied.",
+    "Clef": "Adapter and semantic/calibration blocked; not an authority source.",
+    "retrieval": "Ranking evidence retained; generated-answer abstention and live integration unqualified.",
+    "voice": "Synthetic local ASR/TTS evidence retained; genuine speech, listening and Hermes integration open.",
+    "vision": "Artifact/license/projector and actual routed image qualification incomplete."
+  },
+  "cost_energy": "No retained calibrated power, joules-per-task or cost-per-success comparison establishes a winner. Avoid new model residency and cross-node sharding pending useful-workload measurements; this is an operational-complexity preference, not an energy-efficiency claim.",
+  "p4_remaining": [
+    "Review this proposed allocation against the complete retained scoring contract.",
+    "Read back exact incumbent context/slot counts, binary/model/template hashes and config consumers before applying any changes.",
+    "Verify eligible fallback and unavailable-node behavior through existing Manwe routes without stopping production nodes.",
+    "Qualify representative routed research/coding, real voice and vision for all selected roles.",
+    "Measure simultaneous-worker throughput, peak memory and sustained thermal/resource behavior before concurrency expansion.",
+    "Keep default Hermes recovery/run-budget behavior as a separate unresolved gate; do not repeat known parser failure to seek a pass."
+  ],
+  "p5": "not authorized by this proposal; no candidate promotion recommended",
+  "review": "Conservative preservation only. p4-fresh-core-independent-factual-report.json binds six failed cases; automatic fixture pair accepted by deleg_da3880e8. P4/P5 remain open.",
+  "rollback_qualification": "Preservation policy sufficient for this no-op proposal, not deployment-ready per-node rollback packages. Before a change retain exact artifact locations, effective units/environment/arguments and executable/model/template identities plus restoration checks.",
+  "admission_warning": "Preserving services does not endorse stale provider metadata: Warden working provider configuration advertises 262144 while historical runtime was 4096. Installed admission must be verified.",
+  "preservation_evidence": "p4-service-preservation.json: current executable/model hashes, selected args, unit source hashes/paths and environment names for five processes on four nodes; secret values withheld, not portable full rollback packages."
+}

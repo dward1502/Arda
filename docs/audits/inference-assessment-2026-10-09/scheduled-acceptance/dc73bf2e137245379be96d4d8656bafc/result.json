@@ -1,0 +1,270 @@
+{
+  "started_at": "2026-10-11T18:19:48.208271+00:00",
+  "passed": true,
+  "scope": "Timer-triggered endpoint observation; no remediation or workload-health claim.",
+  "collector": {
+    "unit": "arda-assessment-check-7116765680.service",
+    "started_at": "2026-10-11T18:19:48.211169+00:00",
+    "desktop_before": "MainPID=0\nActiveState=inactive",
+    "scope": "One-shot manually invoked capped deterministic Server job; not an installed schedule or model qualification.",
+    "exit_code": 0,
+    "stderr": "Running as unit: arda-assessment-check-7116765680.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 499ms\nCPU time consumed: 115ms\nMemory peak: 13.3M (swap: 0B)\n",
+    "report": {
+      "properties": {
+        "TimeoutStartUSec": "25s",
+        "TimeoutStopUSec": "5s",
+        "MemoryPeak": "14028800",
+        "CPUUsageNSec": "97906000",
+        "CPUQuotaPerSecUSec": "250ms",
+        "MemoryMax": "134217728",
+        "MemorySwapMax": "0",
+        "TasksMax": "16"
+      },
+      "checks": [
+        {
+          "service": "prometheus",
+          "url": "http://100.103.125.88:9090/-/ready",
+          "observed_at": "2026-10-11T18:19:48.852104+00:00",
+          "http_status": 200,
+          "bytes_read": 28,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "grafana",
+          "url": "http://100.103.125.88:3000/api/health",
+          "observed_at": "2026-10-11T18:19:48.971105+00:00",
+          "http_status": 200,
+          "bytes_read": 71,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "minio",
+          "url": "http://100.103.125.88:9000/minio/health/ready",
+          "observed_at": "2026-10-11T18:19:48.980539+00:00",
+          "http_status": 200,
+          "bytes_read": 0,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "server_nanbeige",
+          "url": "http://127.0.0.1:8098/health",
+          "observed_at": "2026-10-11T18:19:48.992770+00:00",
+          "http_status": 200,
+          "bytes_read": 15,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "server_bonsai",
+          "url": "http://127.0.0.1:8097/health",
+          "observed_at": "2026-10-11T18:19:48.993514+00:00",
+          "http_status": 200,
+          "bytes_read": 15,
+          "status": "endpoint_responding"
+        }
+      ],
+      "scope": "Endpoint self-reports only; not application workload, backups, model quality or sustained health. No remediation."
+    },
+    "post_run_read": {
+      "exit_code": 0,
+      "stdout": "TimeoutStartUSec=1min 30s\nRuntimeMaxUSec=infinity\nResult=success\nExecMainStatus=0\nMemoryPeak=[not set]\nCPUUsageNSec=[not set]\nCPUQuotaPerSecUSec=infinity\nMemoryMax=infinity\nMemorySwapMax=infinity\nTasksMax=821243\nActiveState=inactive\n",
+      "stderr": ""
+    },
+    "unit_properties": {
+      "TimeoutStartUSec": "25s",
+      "TimeoutStopUSec": "5s",
+      "MemoryPeak": "14028800",
+      "CPUUsageNSec": "97906000",
+      "CPUQuotaPerSecUSec": "250ms",
+      "MemoryMax": "134217728",
+      "MemorySwapMax": "0",
+      "TasksMax": "16"
+    },
+    "bounds_verified": true,
+    "cleanup": {
+      "stop_exit": 5,
+      "stop_stdout": "",
+      "stop_stderr": "Failed to stop arda-assessment-check-7116765680.service: Unit arda-assessment-check-7116765680.service not loaded.\n",
+      "read_exit": 0,
+      "state": "MainPID=0\nActiveState=inactive",
+      "read_stderr": ""
+    },
+    "desktop_after": "MainPID=0\nActiveState=inactive",
+    "endpoints_verified": true,
+    "passed": true
+  },
+  "packet": [
+    {
+      "source_id": "S1",
+      "service": "prometheus",
+      "observed_at": "2026-10-11T18:19:48.852104+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S2",
+      "service": "grafana",
+      "observed_at": "2026-10-11T18:19:48.971105+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S3",
+      "service": "minio",
+      "observed_at": "2026-10-11T18:19:48.980539+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S4",
+      "service": "server_nanbeige",
+      "observed_at": "2026-10-11T18:19:48.992770+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S5",
+      "service": "server_bonsai",
+      "observed_at": "2026-10-11T18:19:48.993514+00:00",
+      "http_status": 200
+    }
+  ],
+  "request": {
+    "model": "openai_sub/gpt-6-astra",
+    "allow_forced_provider_fallback": false,
+    "workload_role": "background",
+    "context_window_target": 4096,
+    "max_tokens": 1000,
+    "stream": false,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Interpret this real endpoint packet, observation only. Return bare JSON with endpoint_observations (array of service, http_status, source_id for every source), application_workload_health (null when not established), backup_recoverability (null when not established), limitation (string). Do not recommend actions or invent measurements. Packet: [{\"source_id\": \"S1\", \"service\": \"prometheus\", \"observed_at\": \"2026-10-11T18:19:48.852104+00:00\", \"http_status\": 200}, {\"source_id\": \"S2\", \"service\": \"grafana\", \"observed_at\": \"2026-10-11T18:19:48.971105+00:00\", \"http_status\": 200}, {\"source_id\": \"S3\", \"service\": \"minio\", \"observed_at\": \"2026-10-11T18:19:48.980539+00:00\", \"http_status\": 200}, {\"source_id\": \"S4\", \"service\": \"server_nanbeige\", \"observed_at\": \"2026-10-11T18:19:48.992770+00:00\", \"http_status\": 200}, {\"source_id\": \"S5\", \"service\": \"server_bonsai\", \"observed_at\": \"2026-10-11T18:19:48.993514+00:00\", \"http_status\": 200}]"
+      }
+    ]
+  },
+  "response": {
+    "_charon_driver": "codex_responses",
+    "_manwe_route": {
+      "context_window_target": 4096,
+      "execution_lane": "background",
+      "latency_ms": 5561,
+      "model_id": "gpt-6-astra",
+      "provider_id": "openai_sub",
+      "route_class": "background_maintenance",
+      "route_id": "d4ee61f8d806f7c3"
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "content": "{\n  \"endpoint_observations\": [\n    {\"service\": \"prometheus\", \"http_status\": 200, \"source_id\": \"S1\"},\n    {\"service\": \"grafana\", \"http_status\": 200, \"source_id\": \"S2\"},\n    {\"service\": \"minio\", \"http_status\": 200, \"source_id\": \"S3\"},\n    {\"service\": \"server_nanbeige\", \"http_status\": 200, \"source_id\": \"S4\"},\n    {\"service\": \"server_bonsai\", \"http_status\": 200, \"source_id\": \"S5\"}\n  ],\n  \"application_workload_health\": null,\n  \"backup_recoverability\": null,\n  \"limitation\": \"The packet records HTTP 200 responses from all five endpoints at their observation times. These responses alone do not establish application workload health or backup recoverability.\"\n}",
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1791742795,
+    "id": "resp_07186613dd2cea62016acbd345f724819ba16c1751d5b1f630",
+    "model": null,
+    "object": "chat.completion",
+    "usage": {
+      "attribution": {
+        "items": {
+          "msg_07186613dd2cea62016acbd345f8ac819b9ea24e4b300fe489": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0,
+            "content": [
+              {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "input_tokens": 313,
+                "output_tokens": 0
+              }
+            ],
+            "input_tokens": 313,
+            "output_tokens": 0
+          },
+          "msg_07186613dd2cea62016acbd3476ba4819bb121b35dd0b1f3ab": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0,
+            "content": [
+              {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "input_tokens": 2,
+                "output_tokens": 189
+              }
+            ],
+            "input_tokens": 2,
+            "output_tokens": 189
+          }
+        },
+        "request_fields": {
+          "instructions": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0,
+            "input_tokens": 10,
+            "output_tokens": 0
+          }
+        }
+      },
+      "input_tokens": 325,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 189,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 514
+    }
+  },
+  "headers": {
+    "x-manwe-route-id": "d4ee61f8d806f7c3",
+    "x-manwe-provider-id": "openai_sub",
+    "x-manwe-model-id": "gpt-6-astra",
+    "x-manwe-route-class": "background_maintenance",
+    "x-manwe-execution-lane": "background"
+  },
+  "remote_elapsed_s": 5.572231964964885,
+  "answer": {
+    "endpoint_observations": [
+      {
+        "service": "prometheus",
+        "http_status": 200,
+        "source_id": "S1"
+      },
+      {
+        "service": "grafana",
+        "http_status": 200,
+        "source_id": "S2"
+      },
+      {
+        "service": "minio",
+        "http_status": 200,
+        "source_id": "S3"
+      },
+      {
+        "service": "server_nanbeige",
+        "http_status": 200,
+        "source_id": "S4"
+      },
+      {
+        "service": "server_bonsai",
+        "http_status": 200,
+        "source_id": "S5"
+      }
+    ],
+    "application_workload_health": null,
+    "backup_recoverability": null,
+    "limitation": "The packet records HTTP 200 responses from all five endpoints at their observation times. These responses alone do not establish application workload health or backup recoverability."
+  },
+  "checks": {
+    "facts": true,
+    "unknown_workloads": true,
+    "unknown_backups": true,
+    "limitation": true,
+    "terminal": true,
+    "no_calls": true,
+    "provider": true,
+    "model": true
+  },
+  "finished_at": "2026-10-11T18:19:55.059613+00:00"
+}

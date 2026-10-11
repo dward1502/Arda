@@ -1,0 +1,14 @@
+{
+  "source": "https://huggingface.co/Cloudflare/clef/raw/0b331204bb13fbd2ca93a64df1956f5b55478ce5/joint_schema_model.py",
+  "sha256": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+  "checks": [
+    "reverse insertion tie winner",
+    "explicit null noul",
+    "instruction fallback",
+    "F truncation",
+    "F+1 truncation",
+    "F-1 rejection"
+  ],
+  "passed": true,
+  "scope": "actual extracted reference functions with byte-tokenizer spy; not C++ or real tokenizer parity"
+}

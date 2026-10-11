@@ -1,0 +1,38 @@
+{
+  "research-1": {
+    "sha256": "a3b71bf2be1b4debabeea720256abffda0e28d9bcc75d5b715718ce6bc94e3f7",
+    "verdict": "pass",
+    "reviewer": "deleg_a3affc61/sa-0-8c959859",
+    "reason": "Current facts, supersession and uncertainty grounded in both sources."
+  },
+  "research-2": {
+    "sha256": "da651794defda8413942b2ad821973abe02f485455c4601e231e3db015cc3789",
+    "verdict": "pass",
+    "reviewer": "deleg_a3affc61/sa-0-8c959859",
+    "reason": "Current facts, supersession and uncertainty grounded in both sources."
+  },
+  "recovery-1": {
+    "sha256": "4edb5925dd3d93346b7fae8f03166173b584afc7e6067a45f603113b0354a477",
+    "verdict": "pass",
+    "reviewer": "deleg_a3affc61/sa-0-8c959859",
+    "reason": "Exact missing-source causal chain and final record facts verified."
+  },
+  "recovery-2": {
+    "sha256": "8a573d63ca5c6fcb08cd994819b25b04b94b789f805e74464bab7bc94f8cfa9b",
+    "verdict": "pass",
+    "reviewer": "deleg_a3affc61/sa-0-8c959859",
+    "reason": "Exact missing-source causal chain and final record facts verified."
+  },
+  "coding-1": {
+    "sha256": "8da1f9054db2259eda04e2c67f2faf765c1d4fa4480ab556ba891c62cbee1c04",
+    "verdict": "fail",
+    "reviewer": "deleg_a3affc61/sa-0-8c959859",
+    "reason": "False explanation: old filter drops booleans and boolean exclusion checked first."
+  },
+  "coding-2": {
+    "sha256": "f639814bc98c4bc5230379c134ade81fa966277fcf720e2b3c92b3d8c613cdae",
+    "verdict": "fail",
+    "reviewer": "deleg_a3affc61/sa-0-8c959859",
+    "reason": "False explanation: old truthiness filter dropped negatives."
+  }
+}

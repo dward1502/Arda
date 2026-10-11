@@ -1,0 +1,85 @@
+{
+  "scope": "single authorized dual-GPU experiment, no promotion",
+  "mechanical_passes": 6,
+  "total": 6,
+  "qualified": false,
+  "reason": "Independent review: both coding explanations inaccurate; bounded mechanical outcomes pass.",
+  "restoration_verified": true,
+  "rows": [
+    {
+      "kind": "recovery",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "strict_recovery_pass": true,
+      "parent_tests": null,
+      "event_elapsed_seconds": 19.375,
+      "primary_delivery_errors": [],
+      "factual_review": "pass",
+      "explanation_concern": false
+    },
+    {
+      "kind": "recovery",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "strict_recovery_pass": true,
+      "parent_tests": null,
+      "event_elapsed_seconds": 17.05,
+      "primary_delivery_errors": [],
+      "factual_review": "pass",
+      "explanation_concern": false
+    },
+    {
+      "kind": "research",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "strict_recovery_pass": null,
+      "parent_tests": null,
+      "event_elapsed_seconds": 18.987,
+      "primary_delivery_errors": [],
+      "factual_review": "pass",
+      "explanation_concern": false
+    },
+    {
+      "kind": "research",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "strict_recovery_pass": null,
+      "parent_tests": null,
+      "event_elapsed_seconds": 23.855,
+      "primary_delivery_errors": [],
+      "factual_review": "pass",
+      "explanation_concern": false
+    },
+    {
+      "kind": "coding",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "strict_recovery_pass": null,
+      "parent_tests": 4,
+      "event_elapsed_seconds": 30.233,
+      "primary_delivery_errors": [],
+      "factual_review": "fail",
+      "explanation_concern": true
+    },
+    {
+      "kind": "coding",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "strict_recovery_pass": null,
+      "parent_tests": 4,
+      "event_elapsed_seconds": 31.714,
+      "primary_delivery_errors": [],
+      "factual_review": "fail",
+      "explanation_concern": true
+    }
+  ],
+  "factual_passes": 4,
+  "review_findings": {
+    "native_tool_calls": 16,
+    "primary_requests": 22,
+    "primary_delivery_errors": 0,
+    "auxiliary_broken_pipes": 6,
+    "coding1": "False claims that old filter drops booleans and new boolean exclusion is checked first",
+    "coding2": "False claim that old truthiness filter drops negative numbers"
+  }
+}

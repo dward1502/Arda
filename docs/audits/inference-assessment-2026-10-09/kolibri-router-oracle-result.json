@@ -1,0 +1,69 @@
+{
+  "scope": "instrumented native CPU router with injected deterministic logits; not independent full model, GPU or publisher normalization parity",
+  "tolerance": "absolute 1e-18 + relative 2e-5",
+  "cases": [
+    {
+      "case": "normal",
+      "norm": "absent",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.05e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.003.217 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=582912\n"
+    },
+    {
+      "case": "normal",
+      "norm": "false",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.05e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.352 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=582912\n"
+    },
+    {
+      "case": "normal",
+      "norm": "true",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.42e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.393 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=609408\n"
+    },
+    {
+      "case": "promote",
+      "norm": "absent",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (1.88e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.566 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=582912\n"
+    },
+    {
+      "case": "promote",
+      "norm": "false",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (1.88e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.561 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=582912\n"
+    },
+    {
+      "case": "promote",
+      "norm": "true",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.39e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.385 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=609408\n"
+    },
+    {
+      "case": "tiny",
+      "norm": "absent",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.49e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.324 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=582912\n"
+    },
+    {
+      "case": "tiny",
+      "norm": "false",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.49e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.746 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=582912\n"
+    },
+    {
+      "case": "tiny",
+      "norm": "true",
+      "exit_code": 0,
+      "stdout": "|     Model arch.|                            Device|Config|   NMSE vs. CPU|Roundtrip|    Mixed batch|\n|----------------|----------------------------------|------|---------------|---------|---------------|\n|        kolibri1|AMD Ryzen 5 5600X 6-Core Processor|   MoE|  \u001b[1;32mOK\u001b[0m (0.00e+00)|       \u001b[1;32mOK\u001b[0m|  \u001b[1;32mOK\u001b[0m (2.49e-07)|\nSummary: all 1 test(s) passed\n",
+      "stderr": "0.00.001.728 I main: using seed 42, stdev 0.100000\nORACLE_CHECKS=609408\n"
+    }
+  ]
+}

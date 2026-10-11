@@ -1,0 +1,167 @@
+{
+  "forced_research": {
+    "status": 200,
+    "route_headers": {
+      "x-manwe-route-id": "1c5a512189ece52d",
+      "x-manwe-provider-id": "edge_core",
+      "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+      "x-manwe-route-class": "context_heavy",
+      "x-manwe-execution-lane": "planning"
+    },
+    "response": {
+      "_manwe_route": {
+        "context_window_target": 64000,
+        "execution_lane": "planning",
+        "latency_ms": 610,
+        "model_id": "Qwen3.5-9B-Q4_K_M",
+        "provider_id": "edge_core",
+        "route_class": "context_heavy",
+        "route_id": "1c5a512189ece52d"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "The contradiction lies in the discrepancy between the actual system capacity and the advertised capacity: source [A] states the runtime context is 4096, while source [B] claims the inventory advertises 262144.",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1791610705,
+      "id": "chatcmpl-hScxeBLnOKQUN6CBp6zZXdvngjDi3jVD",
+      "model": "Qwen3.5-9B-Q4_K_M",
+      "object": "chat.completion",
+      "system_fingerprint": "b8668-b2f6a68ae",
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 521.294,
+        "predicted_n": 50,
+        "predicted_per_second": 95.91516495490067,
+        "predicted_per_token_ms": 10.42588,
+        "prompt_ms": 46.294,
+        "prompt_n": 63,
+        "prompt_per_second": 1360.867499027952,
+        "prompt_per_token_ms": 0.7348253968253968
+      },
+      "usage": {
+        "completion_tokens": 50,
+        "prompt_tokens": 63,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 113
+      }
+    }
+  },
+  "automatic_research": {
+    "status": 200,
+    "route_headers": {
+      "x-manwe-route-id": "1c72ea63bf4d8c37",
+      "x-manwe-provider-id": "edge_core",
+      "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+      "x-manwe-route-class": "context_heavy",
+      "x-manwe-execution-lane": "planning"
+    },
+    "response": {
+      "_manwe_route": {
+        "context_window_target": 64000,
+        "execution_lane": "planning",
+        "latency_ms": 776,
+        "model_id": "Qwen3.5-9B-Q4_K_M",
+        "provider_id": "edge_core",
+        "route_class": "context_heavy",
+        "route_id": "1c72ea63bf4d8c37"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "The contradiction lies in the discrepancy between the available runtime context and the advertised inventory. Source [A] states the runtime context is 4096, while source [B] indicates the inventory advertises 262144. It must be noted that the advertised value from [B] is not claimed to be deployed.",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1791610706,
+      "id": "chatcmpl-rMhnMqCwAnrNwfUQEb3podLPZSsmcpN7",
+      "model": "Qwen3.5-9B-Q4_K_M",
+      "object": "chat.completion",
+      "system_fingerprint": "b8668-b2f6a68ae",
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 720.615,
+        "predicted_n": 69,
+        "predicted_per_second": 95.75154555483856,
+        "predicted_per_token_ms": 10.443695652173911,
+        "prompt_ms": 43.545,
+        "prompt_n": 63,
+        "prompt_per_second": 1446.7791939373062,
+        "prompt_per_token_ms": 0.6911904761904762
+      },
+      "usage": {
+        "completion_tokens": 69,
+        "prompt_tokens": 63,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 132
+      }
+    }
+  },
+  "inert_tool_schema": {
+    "status": 200,
+    "route_headers": {
+      "x-manwe-route-id": "6a5bf5c79680e26c",
+      "x-manwe-provider-id": "edge_core",
+      "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+      "x-manwe-route-class": "tool_oriented",
+      "x-manwe-execution-lane": "execution"
+    },
+    "response": {
+      "_manwe_route": {
+        "context_window_target": 32000,
+        "execution_lane": "execution",
+        "latency_ms": 1421,
+        "model_id": "Qwen3.5-9B-Q4_K_M",
+        "provider_id": "edge_core",
+        "route_class": "tool_oriented",
+        "route_id": "6a5bf5c79680e26c"
+      },
+      "choices": [
+        {
+          "finish_reason": "length",
+          "index": 0,
+          "message": {
+            "content": "```python\nimport os\n\ndef read_file(file_path: str, offset: int) -> str:\n    \"\"\"\n    Reads the content of a file starting from a specific byte offset.\n    \n    Args:\n        file_path (str): Path to the file.\n        offset (int): The byte offset to start reading from.\n    \n    Returns:\n        str: The content of the file from the given offset.\n    \"\"\"\n    if not os.path.exists(file_path):\n        raise FileNotFoundError(f\"The file {file_path} does not exist.\")\n    \n    with open(file_path, 'r',",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1791610707,
+      "id": "chatcmpl-0HFYiZVtFEIW0NMo4S6vnlvWcxbmru3X",
+      "model": "Qwen3.5-9B-Q4_K_M",
+      "object": "chat.completion",
+      "system_fingerprint": "b8668-b2f6a68ae",
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 1343.095,
+        "predicted_n": 128,
+        "predicted_per_second": 95.30226826843968,
+        "predicted_per_token_ms": 10.4929296875,
+        "prompt_ms": 36.743,
+        "prompt_n": 32,
+        "prompt_per_second": 870.9141877364395,
+        "prompt_per_token_ms": 1.14821875
+      },
+      "usage": {
+        "completion_tokens": 128,
+        "prompt_tokens": 32,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "total_tokens": 160
+      }
+    }
+  }
+}

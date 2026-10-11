@@ -1,0 +1,88 @@
+{
+  "request": {
+    "model": "openrouter/cohere/north-mini-code:free",
+    "allow_forced_provider_fallback": false,
+    "workload_role": "interactive",
+    "context_window_target": 4096,
+    "max_tokens": 64,
+    "stream": false,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Reply with exactly ROUTE_READY."
+      }
+    ]
+  },
+  "status": 200,
+  "body": {
+    "_manwe_route": {
+      "context_window_target": 4096,
+      "execution_lane": "interactive",
+      "latency_ms": 203,
+      "model_id": "cohere/north-mini-code:free",
+      "provider_id": "openrouter",
+      "route_class": "interactive",
+      "route_id": "ae75eb40a557556f"
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "ROUTE_READY",
+          "reasoning": "The user asks: \"Reply with exactly ROUTE_READY.\"\n\nWe need to output exactly the string \"ROUTE_READY\" and nothing else, presumably no extra whitespace or newlines? Usually exactly \"ROUTE_READY\". The instruction says \"Reply with exactly ROUTE_READY.\" So output that string alone.",
+          "reasoning_details": [
+            {
+              "format": "unknown",
+              "index": 0,
+              "text": "The user asks: \"Reply with exactly ROUTE_READY.\"\n\nWe need to output exactly the string \"ROUTE_READY\" and nothing else, presumably no extra whitespace or newlines? Usually exactly \"ROUTE_READY\". The instruction says \"Reply with exactly ROUTE_READY.\" So output that string alone.",
+              "type": "reasoning.text"
+            }
+          ],
+          "refusal": null,
+          "role": "assistant"
+        },
+        "native_finish_reason": "complete"
+      }
+    ],
+    "created": 1791709726,
+    "id": "gen-1791709726-6APRSWsxtuDD1aC1ijSH",
+    "model": "cohere/north-mini-code:free",
+    "object": "chat.completion",
+    "provider": "Cohere",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "usage": {
+      "completion_tokens": 57,
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "image_tokens": 0,
+        "reasoning_tokens": 70
+      },
+      "cost": 0,
+      "cost_details": {
+        "upstream_inference_completions_cost": 0,
+        "upstream_inference_cost": 0,
+        "upstream_inference_prompt_cost": 0
+      },
+      "is_byok": false,
+      "prompt_tokens": 6,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cache_write_tokens": 0,
+        "cached_tokens": 0,
+        "video_tokens": 0
+      },
+      "total_tokens": 63
+    }
+  },
+  "headers": {
+    "x-manwe-route-id": "ae75eb40a557556f",
+    "x-manwe-provider-id": "openrouter",
+    "x-manwe-model-id": "cohere/north-mini-code:free",
+    "x-manwe-route-class": "interactive",
+    "x-manwe-execution-lane": "interactive"
+  },
+  "elapsed_s": 0.9841654730262235
+}

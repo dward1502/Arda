@@ -1,0 +1,18 @@
+{
+  "delegation_id": "deleg_b4ddf02b",
+  "verdict": "approved bounded generic non-stream candidate on code and retained HTTP evidence",
+  "scope": "Generic nonstream upstream envelope, body failure and timeout handling; not streaming or whole-plan acceptance",
+  "candidate_sha256": "4bedd9f7f86f04cfe090f37c7bcae05cdf0af3f261a808a445a406032e13f4f2",
+  "proxy_source_sha256": "dd53441729214081bec198b525081181155884db02f45f0a5b87a2f74625a0cd",
+  "reviewed_matrix_sha256": "17eecae42e974c412fd4af71768a6684a8388651c1ba8cd65d84203e1d61b453",
+  "reviewed_evidence_sha256": "34152cb6d3ddb3cb7103f1e6d7a273f00e245082cf673dfa3ecf12b402c30b36",
+  "reviewed_evidence": "operating-envelope-matrix-green.json",
+  "reviewed_cases": 30,
+  "reviewer_executed_normalization_tests": 8,
+  "parent_followup": {
+    "release_suite": "nonstream-release-tests.log; 320 pass and release build retained after review",
+    "expanded_evidence": "operating-envelope-matrix-followup-qualified.json; 31 pass including delayed success latency and post-header HTTP/1.1 truncated chunks; positive payload assertions strengthened",
+    "deployment": "nonstream-envelope-deployment.json",
+    "qualification_boundary": "Expanded followup evidence is parent-verified, not retroactively covered by this review"
+  }
+}

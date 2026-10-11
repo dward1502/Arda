@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://huggingface.co/ConwayResearch/Underdog-Saluki-27B-1.0",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 2,
+      "url": "https://huggingface.co/Aleph-Alpha/Kolibri-1",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 3,
+      "url": "https://huggingface.co/Hob-forge/Kolibri-1-GGUF",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 4,
+      "url": "https://huggingface.co/Cloudflare/clef",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 5,
+      "url": "https://huggingface.co/bartowski/Cloudflare_clef-GGUF",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 6,
+      "url": "https://huggingface.co/isichan-ai/Mitsuba_and_HiMitsuba-27B-GGUF",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 7,
+      "url": "https://huggingface.co/isichan-ai/Mitsuba-ComfyUI-27B-GGUF",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 8,
+      "url": "https://huggingface.co/isichan-ai/Mitsuba_and_HiMitsuba-27B-GGUF/commit/ceeec01a72aea6271cd1010136d25b020f016111",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 9,
+      "url": "https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 10,
+      "url": "https://huggingface.co/XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 11,
+      "url": "https://huggingface.co/prithivMLmods/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 12,
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/b11430",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 13,
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/836d571",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 14,
+      "url": "https://api.github.com/repos/PrismML-Eng/llama.cpp/commits/prism",
+      "title": "",
+      "accessed": "2026-10-09"
+    },
+    {
+      "id": 15,
+      "url": "https://huggingface.co/api/models/Cloudflare/clef-flash?blobs=true",
+      "title": "",
+      "accessed": "2026-10-09"
+    }
+  ]
+}

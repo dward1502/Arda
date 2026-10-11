@@ -1,0 +1,76 @@
+{
+  "source_commit": "dc3f3a672f70f78eb57ad8b22907e0af7448b13b",
+  "expected_sha256": "46acd5c1a510042cbf2fa22c949d9408b676fe929a9ba09d8d920d8c0953e276",
+  "old_pid": 2711047,
+  "parent_pid": 2711031,
+  "passed": false,
+  "previous-running": {
+    "path": "/var/home/mythos/.local/state/arda/manwe-releases/dc3f3a67/previous-running",
+    "sha256": "288c6c95fb11139ad9409e7ba761203e8319a7079fd93b3562af6e7d801bb641"
+  },
+  "previous-on-disk": {
+    "path": "/var/home/mythos/.local/state/arda/manwe-releases/dc3f3a67/previous-on-disk",
+    "sha256": "4a1e575839a30ee1dc00340fbd5ca11c71ed09b933e67534099615a7fca57ce1"
+  },
+  "reviewed-release": {
+    "path": "/var/home/mythos/.local/state/arda/manwe-releases/dc3f3a67/reviewed-release",
+    "sha256": "46acd5c1a510042cbf2fa22c949d9408b676fe929a9ba09d8d920d8c0953e276"
+  },
+  "desktop_before": "MainPID=0\nActiveState=inactive",
+  "new_pid": 4169281,
+  "running_sha256": "46acd5c1a510042cbf2fa22c949d9408b676fe929a9ba09d8d920d8c0953e276",
+  "parent_unchanged": true,
+  "probe": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "attempts": [
+        {
+          "error": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+          "latency_ms": 0,
+          "marker_found": false,
+          "ok": false,
+          "outcome_class": "probe_throttled",
+          "route": {
+            "model_id": null,
+            "provider_id": "openai_sub"
+          },
+          "status": 429,
+          "throttle": {
+            "cooldown_until_utc": null,
+            "last_failure_class": "provider_server_error",
+            "message": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+            "model_id": null,
+            "provider_id": "openai_sub",
+            "reason": "provider_failure_memory",
+            "remaining_seconds": 900
+          }
+        }
+      ],
+      "content": "",
+      "error": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+      "latency_ms": 0,
+      "marker": "ROUTE_READY",
+      "marker_found": false,
+      "ok": false,
+      "outcome_class": "probe_throttled",
+      "route": {
+        "model_id": null,
+        "provider_id": "openai_sub"
+      },
+      "status": 429,
+      "throttle": {
+        "cooldown_until_utc": null,
+        "last_failure_class": "provider_server_error",
+        "message": "probe skipped because provider `openai_sub` has unresolved provider_server_error failure memory",
+        "model_id": null,
+        "provider_id": "openai_sub",
+        "reason": "provider_failure_memory",
+        "remaining_seconds": 900
+      }
+    }
+  },
+  "error": "AssertionError: governed recovery probe failed",
+  "rollback_pid": 4169297,
+  "rollback_running_sha256": "288c6c95fb11139ad9409e7ba761203e8319a7079fd93b3562af6e7d801bb641"
+}

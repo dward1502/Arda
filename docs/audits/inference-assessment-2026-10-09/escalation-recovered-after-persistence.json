@@ -1,0 +1,115 @@
+{
+  "scope": "isolated debug artifact text-only subscription transport probe; not production or role qualification",
+  "binary": "/var/home/mythos/.hermes/cache/scratch/escalation-isolated-diwsru26/manwe",
+  "sha256": "7beec36b2363aeafe2fe67a73666fce13d138703077f59d68988739204c3036b",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/escalation-isolated-diwsru26",
+  "port": 38929,
+  "credential_override_present": false,
+  "passed": true,
+  "request": {
+    "model": "openai_sub/gpt-6-astra",
+    "allow_forced_provider_fallback": false,
+    "workload_role": "interactive",
+    "context_window_target": 4096,
+    "max_tokens": 64,
+    "stream": false,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Reply with exactly ROUTE_READY."
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "x-manwe-route-id": "caccb42972d946b5",
+      "x-manwe-provider-id": "openai_sub",
+      "x-manwe-model-id": "gpt-6-astra",
+      "x-manwe-route-class": "interactive",
+      "x-manwe-execution-lane": "interactive"
+    },
+    "body": {
+      "_charon_driver": "codex_responses",
+      "_manwe_route": {
+        "context_window_target": 4096,
+        "execution_lane": "interactive",
+        "latency_ms": 1483,
+        "model_id": "gpt-6-astra",
+        "provider_id": "openai_sub",
+        "route_class": "interactive",
+        "route_id": "caccb42972d946b5"
+      },
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "ROUTE_READY",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1791712447,
+      "id": "resp_0db243a58c92461c016acb5cbe96d8819b9c799d4b9f848dec",
+      "model": null,
+      "object": "chat.completion",
+      "usage": {
+        "attribution": {
+          "items": {
+            "msg_0db243a58c92461c016acb5cbe9790819bbd28eea81092e31e": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0,
+              "content": [
+                {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 11,
+                  "output_tokens": 0
+                }
+              ],
+              "input_tokens": 11,
+              "output_tokens": 0
+            },
+            "msg_0db243a58c92461c016acb5cbf8098819b8ea3ba858b959c1d": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0,
+              "content": [
+                {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 2,
+                  "output_tokens": 7
+                }
+              ],
+              "input_tokens": 2,
+              "output_tokens": 7
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0,
+              "input_tokens": 10,
+              "output_tokens": 0
+            }
+          }
+        },
+        "input_tokens": 23,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 7,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 30
+      }
+    }
+  },
+  "elapsed_s": 1.5790095929987729,
+  "candidate_stopped": true,
+  "listener_absent": true,
+  "desktop_state": "MainPID=0\nActiveState=inactive"
+}

@@ -1,0 +1,115 @@
+{
+  "expected": 6,
+  "collected": 6,
+  "results": [
+    {
+      "file": "p4-fresh-core-research-1.json",
+      "sha256": "c7c2cf4bd2f7805d8be9e77f171fded52f4784d61e2aea39c66ee106a05c3c7d",
+      "passed": false,
+      "setup_error": null,
+      "cases": [
+        {
+          "kind": "research",
+          "error": "Sources not both read",
+          "final": "Now let me read the current.txt file.",
+          "reads": [
+            "old.txt"
+          ],
+          "parent_tests_passed": null
+        }
+      ],
+      "stopped": true
+    },
+    {
+      "file": "p4-fresh-core-research-2.json",
+      "sha256": "8e3174e1b8bacabfe6cbf1f6a6a7a14dbf1241c064704fa390fee33a24a6fba7",
+      "passed": false,
+      "setup_error": null,
+      "cases": [
+        {
+          "kind": "research",
+          "error": "Sources not both read",
+          "final": "Now I need to read current.txt to see the superseding information.",
+          "reads": [
+            "old.txt"
+          ],
+          "parent_tests_passed": null
+        }
+      ],
+      "stopped": true
+    },
+    {
+      "file": "p4-fresh-core-coding-1.json",
+      "sha256": "1ec47e8aefa55da207d53b2dffa848e9731076efa56116d2803d6b20ae8f34bd",
+      "passed": false,
+      "setup_error": null,
+      "cases": [
+        {
+          "kind": "coding",
+          "error": "Coding inputs not read",
+          "final": "Now let me read calc.py to see the current implementation.",
+          "reads": [
+            "spec.txt"
+          ],
+          "parent_tests_passed": null
+        }
+      ],
+      "stopped": true
+    },
+    {
+      "file": "p4-fresh-core-coding-2.json",
+      "sha256": "e4995020d00aae07d50aaf179d2dd52b660a68d2ea7044ee89a20148d74df323",
+      "passed": false,
+      "setup_error": null,
+      "cases": [
+        {
+          "kind": "coding",
+          "error": "Coding inputs not read",
+          "final": "Now let me read calc.py to see the current implementation.",
+          "reads": [
+            "spec.txt"
+          ],
+          "parent_tests_passed": null
+        }
+      ],
+      "stopped": true
+    },
+    {
+      "file": "p4-fresh-core-recovery-1.json",
+      "sha256": "db72d28ef9b83cdf3d0e68ff53b3238bbb50e1fa0bab7a1daa6fb48d97d6e35e",
+      "passed": false,
+      "setup_error": null,
+      "cases": [
+        {
+          "kind": "recovery",
+          "error": "Missing recovery reads",
+          "final": "As expected, missing.txt is absent. The system suggests index.txt as a similar file. Following the instructions, I need to read index.txt to locate the replacement for missing.txt.",
+          "reads": [
+            "missing.txt"
+          ],
+          "parent_tests_passed": null
+        }
+      ],
+      "stopped": true
+    },
+    {
+      "file": "p4-fresh-core-recovery-2.json",
+      "sha256": "8f3d61b733b7e5ff869d7c5afd12c2df1ec28ca271b2a45e563b0ececbaa5ff0",
+      "passed": false,
+      "setup_error": null,
+      "cases": [
+        {
+          "kind": "recovery",
+          "error": "Missing recovery reads",
+          "final": "missing.txt doesn't exist. The similar_files shows index.txt is available. Now I need to read index.txt to find the replacement information.",
+          "reads": [
+            "missing.txt"
+          ],
+          "parent_tests_passed": null
+        }
+      ],
+      "stopped": true
+    }
+  ],
+  "passed": false
+}

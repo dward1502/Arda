@@ -1,0 +1,238 @@
+{
+  "scope": "Real endpoint self-reports only. No remediation, scheduling, private URLs or credentials in remote packet.",
+  "passed": true,
+  "collector_exit": 0,
+  "collector": {
+    "unit": "arda-assessment-check-d5dc0dd19a.service",
+    "started_at": "2026-10-11T09:34:55.271303+00:00",
+    "desktop_before": "MainPID=0\nActiveState=inactive",
+    "scope": "One-shot manually invoked capped deterministic Server job; not an installed schedule or model qualification.",
+    "exit_code": 0,
+    "stderr": "Running as unit: arda-assessment-check-d5dc0dd19a.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 420ms\nCPU time consumed: 117ms\nMemory peak: 13M (swap: 0B)\n",
+    "report": {
+      "properties": {
+        "TimeoutStartUSec": "25s",
+        "TimeoutStopUSec": "5s",
+        "MemoryPeak": "13725696",
+        "CPUUsageNSec": "98200000",
+        "CPUQuotaPerSecUSec": "250ms",
+        "MemoryMax": "134217728",
+        "MemorySwapMax": "0",
+        "TasksMax": "16"
+      },
+      "checks": [
+        {
+          "service": "prometheus",
+          "url": "http://100.103.125.88:9090/-/ready",
+          "observed_at": "2026-10-11T09:34:55.711636+00:00",
+          "http_status": 200,
+          "bytes_read": 28,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "grafana",
+          "url": "http://100.103.125.88:3000/api/health",
+          "observed_at": "2026-10-11T09:34:55.726703+00:00",
+          "http_status": 200,
+          "bytes_read": 71,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "minio",
+          "url": "http://100.103.125.88:9000/minio/health/ready",
+          "observed_at": "2026-10-11T09:34:55.739248+00:00",
+          "http_status": 200,
+          "bytes_read": 0,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "server_nanbeige",
+          "url": "http://127.0.0.1:8098/health",
+          "observed_at": "2026-10-11T09:34:55.748791+00:00",
+          "http_status": 200,
+          "bytes_read": 15,
+          "status": "endpoint_responding"
+        },
+        {
+          "service": "server_bonsai",
+          "url": "http://127.0.0.1:8097/health",
+          "observed_at": "2026-10-11T09:34:55.749369+00:00",
+          "http_status": 200,
+          "bytes_read": 15,
+          "status": "endpoint_responding"
+        }
+      ],
+      "scope": "Endpoint self-reports only; not application workload, backups, model quality or sustained health. No remediation."
+    },
+    "post_run_read": {
+      "exit_code": 0,
+      "stdout": "TimeoutStartUSec=1min 30s\nRuntimeMaxUSec=infinity\nResult=success\nExecMainStatus=0\nMemoryPeak=[not set]\nCPUUsageNSec=[not set]\nCPUQuotaPerSecUSec=infinity\nMemoryMax=infinity\nMemorySwapMax=infinity\nTasksMax=821243\nActiveState=inactive\n",
+      "stderr": ""
+    },
+    "unit_properties": {
+      "TimeoutStartUSec": "25s",
+      "TimeoutStopUSec": "5s",
+      "MemoryPeak": "13725696",
+      "CPUUsageNSec": "98200000",
+      "CPUQuotaPerSecUSec": "250ms",
+      "MemoryMax": "134217728",
+      "MemorySwapMax": "0",
+      "TasksMax": "16"
+    },
+    "bounds_verified": true,
+    "cleanup": {
+      "stop_exit": 5,
+      "stop_stdout": "",
+      "stop_stderr": "Failed to stop arda-assessment-check-d5dc0dd19a.service: Unit arda-assessment-check-d5dc0dd19a.service not loaded.\n",
+      "read_exit": 0,
+      "state": "MainPID=0\nActiveState=inactive",
+      "read_stderr": ""
+    },
+    "desktop_after": "MainPID=0\nActiveState=inactive",
+    "endpoints_verified": true,
+    "passed": true
+  },
+  "remote_packet": [
+    {
+      "source_id": "S1",
+      "service": "prometheus",
+      "observed_at": "2026-10-11T09:34:55.711636+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S2",
+      "service": "grafana",
+      "observed_at": "2026-10-11T09:34:55.726703+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S3",
+      "service": "minio",
+      "observed_at": "2026-10-11T09:34:55.739248+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S4",
+      "service": "server_nanbeige",
+      "observed_at": "2026-10-11T09:34:55.748791+00:00",
+      "http_status": 200
+    },
+    {
+      "source_id": "S5",
+      "service": "server_bonsai",
+      "observed_at": "2026-10-11T09:34:55.749369+00:00",
+      "http_status": 200
+    }
+  ],
+  "request": {
+    "model": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+    "allow_forced_provider_fallback": false,
+    "workload_role": "interactive",
+    "context_window_target": 4096,
+    "max_tokens": 1400,
+    "stream": false,
+    "reasoning": {
+      "exclude": true
+    },
+    "messages": [
+      {
+        "role": "user",
+        "content": "Interpret this real timestamped endpoint packet, observation only. Return bare JSON with exactly endpoint_observations (array with service, http_status, source_id for every source), application_workload_health (null), backup_recoverability (null), limitation (string). HTTP 200 establishes only a successful endpoint response at that timestamp, not sustained health, inference quality, workload correctness or recoverable backups. State those limitations; no recommendations, actions, or additional facts. Packet: [{\"source_id\": \"S1\", \"service\": \"prometheus\", \"observed_at\": \"2026-10-11T09:34:55.711636+00:00\", \"http_status\": 200}, {\"source_id\": \"S2\", \"service\": \"grafana\", \"observed_at\": \"2026-10-11T09:34:55.726703+00:00\", \"http_status\": 200}, {\"source_id\": \"S3\", \"service\": \"minio\", \"observed_at\": \"2026-10-11T09:34:55.739248+00:00\", \"http_status\": 200}, {\"source_id\": \"S4\", \"service\": \"server_nanbeige\", \"observed_at\": \"2026-10-11T09:34:55.748791+00:00\", \"http_status\": 200}, {\"source_id\": \"S5\", \"service\": \"server_bonsai\", \"observed_at\": \"2026-10-11T09:34:55.749369+00:00\", \"http_status\": 200}]"
+      }
+    ]
+  },
+  "body": {
+    "_manwe_route": {
+      "context_window_target": 4096,
+      "execution_lane": "interactive",
+      "latency_ms": 257,
+      "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "provider_id": "openrouter",
+      "route_class": "interactive",
+      "route_id": "67177108202184ee"
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"endpoint_observations\": [\n    {\"service\": \"prometheus\", \"http_status\": 200, \"source_id\": \"S1\"},\n    {\"service\": \"grafana\", \"http_status\": 200, \"source_id\": \"S2\"},\n    {\"service\": \"minio\", \"http_status\": 200, \"source_id\": \"S3\"},\n    {\"service\": \"server_nanbeige\", \"http_status\": 200, \"source_id\": \"S4\"},\n    {\"service\": \"server_bonsai\", \"http_status\": 200, \"source_id\": \"S5\"}\n  ],\n  \"application_workload_health\": null,\n  \"backup_recoverability\": null,\n  \"limitation\": \"HTTP 200 indicates only a successful endpoint response at that timestamp; it does not imply sustained health, inference quality, workload correctness, or recoverable backups.\"\n}",
+          "refusal": null,
+          "role": "assistant"
+        },
+        "native_finish_reason": "stop"
+      }
+    ],
+    "created": 1791711296,
+    "id": "gen-1791711296-sU3vgMg0n3eAxwrsy9Li",
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "object": "chat.completion",
+    "provider": "Nvidia",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "usage": {
+      "completion_tokens": 503,
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "image_tokens": 0,
+        "reasoning_tokens": 299
+      },
+      "cost": 0,
+      "cost_details": {
+        "upstream_inference_completions_cost": 0,
+        "upstream_inference_cost": 0,
+        "upstream_inference_prompt_cost": 0
+      },
+      "is_byok": false,
+      "prompt_tokens": 436,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cache_write_tokens": 0,
+        "cached_tokens": 0,
+        "video_tokens": 0
+      },
+      "total_tokens": 939
+    }
+  },
+  "headers": {
+    "x-manwe-route-id": "67177108202184ee",
+    "x-manwe-provider-id": "openrouter",
+    "x-manwe-model-id": "nvidia/nemotron-3-super-120b-a12b:free",
+    "x-manwe-route-class": "interactive",
+    "x-manwe-execution-lane": "interactive"
+  },
+  "remote_elapsed_s": 6.064320026023779,
+  "answer": {
+    "endpoint_observations": [
+      {
+        "service": "prometheus",
+        "http_status": 200,
+        "source_id": "S1"
+      },
+      {
+        "service": "grafana",
+        "http_status": 200,
+        "source_id": "S2"
+      },
+      {
+        "service": "minio",
+        "http_status": 200,
+        "source_id": "S3"
+      },
+      {
+        "service": "server_nanbeige",
+        "http_status": 200,
+        "source_id": "S4"
+      },
+      {
+        "service": "server_bonsai",
+        "http_status": 200,
+        "source_id": "S5"
+      }
+    ],
+    "application_workload_health": null,
+    "backup_recoverability": null,
+    "limitation": "HTTP 200 indicates only a successful endpoint response at that timestamp; it does not imply sustained health, inference quality, workload correctness, or recoverable backups."
+  }
+}

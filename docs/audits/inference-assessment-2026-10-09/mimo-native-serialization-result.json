@@ -1,0 +1,5084 @@
+[
+  {
+    "reversed": false,
+    "chunk_bytes": 1,
+    "consumed": 194,
+    "finalized": true,
+    "error": "",
+    "events": [
+      {
+        "bytes": 1,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "role": "assistant",
+                  "content": null
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 2,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 3,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 4,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 5,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 6,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 7,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 8,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "I"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 9,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "n"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 10,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "s"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 11,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "p"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 12,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 13,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "c"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 14,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "t"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 15,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " "
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 16,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "t"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 17,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "h"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 18,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 19,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " "
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 20,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "r"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 21,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 22,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "q"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 23,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "u"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 24,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 25,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "s"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 26,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "t"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 27,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 28,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "d"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 29,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " "
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 30,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "f"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 31,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "i"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 32,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "l"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 33,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 34,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "."
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 35,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 36,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 37,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 38,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 39,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 40,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 41,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 42,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 43,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 44,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 45,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 46,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 47,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 48,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 49,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 50,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 51,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 52,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 53,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 54,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 55,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 56,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 57,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 58,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 59,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 60,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 61,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 62,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 63,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 64,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 65,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 66,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 67,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 68,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 69,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 70,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "id": "BWmq02v6RZwpEybF3F4bg2AQkQ52tNyP",
+                      "type": "function",
+                      "function": {
+                        "name": "lookup",
+                        "arguments": "{"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 71,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 72,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 73,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 74,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 75,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 76,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 77,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 78,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 79,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 80,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 81,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 82,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 83,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 84,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 85,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 86,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\"path\":"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 87,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "{"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 88,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\""
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 89,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "n"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 90,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "a"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 91,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "m"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 92,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "e"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 93,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\""
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 94,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ":"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 95,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\""
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 96,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "a"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 97,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "l"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 98,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "p"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 99,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "h"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 100,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "a"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 101,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "."
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 102,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "t"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 103,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "x"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 104,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "t"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 105,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\""
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 106,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ","
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 107,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\""
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 108,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "f"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 109,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "l"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 110,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "a"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 111,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "g"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 112,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "s"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 113,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\""
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 114,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ":"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 115,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "["
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 116,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "t"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 117,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "r"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 118,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "u"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 119,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "e"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 120,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ","
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 121,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "f"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 122,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "a"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 123,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "l"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 124,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "s"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 125,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "e"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 126,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "]"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 127,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 128,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 129,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 130,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 131,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 132,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 133,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 134,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 135,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 136,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 137,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 138,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 139,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 140,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 141,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 142,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 143,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 144,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 145,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 146,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 147,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 148,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 149,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 150,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 151,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 152,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 153,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 154,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 155,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 156,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 157,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ",\"offset\":"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 158,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "1"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 159,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "7"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 160,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 161,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 162,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 163,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 164,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 165,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 166,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 167,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 168,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 169,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 170,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 171,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 172,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 173,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 174,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 175,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 176,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 177,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 178,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 179,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 180,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 181,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 182,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 183,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 184,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 185,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 186,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 187,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 188,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 189,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 190,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 191,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 192,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 193,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 194,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 194,
+        "final": true,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "delta": {}
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      }
+    ],
+    "state": {
+      "content": "",
+      "reasoning": "Inspect the requested file.",
+      "calls": [
+        {
+          "name": "lookup",
+          "arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+          "id": "BWmq02v6RZwpEybF3F4bg2AQkQ52tNyP"
+        }
+      ]
+    }
+  },
+  {
+    "reversed": false,
+    "chunk_bytes": 7,
+    "consumed": 194,
+    "finalized": true,
+    "error": "",
+    "events": [
+      {
+        "bytes": 7,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "role": "assistant",
+                  "content": null
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 14,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "Inspect"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 21,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " the re"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 28,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "quested"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 35,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " file."
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 42,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 49,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 56,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 63,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 70,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "id": "ZVt6OM8bUwS50o8SYkAPwlFrz3gNeQ5Z",
+                      "type": "function",
+                      "function": {
+                        "name": "lookup",
+                        "arguments": "{"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 77,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 84,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 91,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\"path\":{\"nam"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 98,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "e\":\"alp"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 105,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "ha.txt\""
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 112,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ",\"flags"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 119,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "\":[true"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 126,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ",false]"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 133,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 140,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 147,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 154,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 161,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": ",\"offset\":17"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 168,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 175,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 182,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "function": {
+                        "arguments": "}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 189,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 194,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 194,
+        "final": true,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "delta": {}
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      }
+    ],
+    "state": {
+      "content": "",
+      "reasoning": "Inspect the requested file.",
+      "calls": [
+        {
+          "name": "lookup",
+          "arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+          "id": "ZVt6OM8bUwS50o8SYkAPwlFrz3gNeQ5Z"
+        }
+      ]
+    }
+  },
+  {
+    "reversed": false,
+    "chunk_bytes": 194,
+    "consumed": 194,
+    "finalized": true,
+    "error": "",
+    "events": [
+      {
+        "bytes": 194,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "role": "assistant",
+                  "content": null
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          },
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "Inspect the requested file."
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          },
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "id": "44PhNqgfY4lCcDBiAWjP6XYPVImC62jT",
+                      "type": "function",
+                      "function": {
+                        "name": "lookup",
+                        "arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 194,
+        "final": true,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "delta": {}
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      }
+    ],
+    "state": {
+      "content": "",
+      "reasoning": "Inspect the requested file.",
+      "calls": [
+        {
+          "name": "lookup",
+          "arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}",
+          "id": "44PhNqgfY4lCcDBiAWjP6XYPVImC62jT"
+        }
+      ]
+    }
+  },
+  {
+    "reversed": false,
+    "mode": "nonstream",
+    "json": {
+      "choices": [
+        {
+          "finish_reason": "tool_calls",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "reasoning_content": "Inspect the requested file.",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "lookup",
+                  "arguments": "{\"path\":{\"name\":\"alpha.txt\",\"flags\":[true,false]},\"offset\":17}"
+                },
+                "id": "EXprZrBSk9uc07GNT6XqiMBFStrLTEn3"
+              }
+            ]
+          }
+        }
+      ],
+      "created": 1791671335,
+      "model": "offline-fixture",
+      "system_fingerprint": "b0-unknown",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "total_tokens": 0,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "fixture-completion"
+    },
+    "error": ""
+  },
+  {
+    "reversed": true,
+    "chunk_bytes": 1,
+    "consumed": 194,
+    "finalized": false,
+    "error": "The model produced output that does not match the expected peg-native format",
+    "events": [
+      {
+        "bytes": 1,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "role": "assistant",
+                  "content": null
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 2,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 3,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 4,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 5,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 6,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 7,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 8,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "I"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 9,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "n"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 10,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "s"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 11,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "p"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 12,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 13,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "c"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 14,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "t"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 15,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " "
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 16,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "t"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 17,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "h"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 18,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 19,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " "
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 20,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "r"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 21,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 22,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "q"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 23,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "u"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 24,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 25,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "s"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 26,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "t"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 27,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 28,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "d"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 29,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " "
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 30,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "f"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 31,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "i"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 32,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "l"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 33,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "e"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 34,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "."
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 35,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 36,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 37,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 38,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 39,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 40,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 41,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 42,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 43,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 44,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 45,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 46,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 47,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 48,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 49,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 50,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 51,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 52,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 53,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 54,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 55,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 56,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 57,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 58,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 59,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 60,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 61,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 62,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 63,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 64,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 65,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 66,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 67,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 68,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 69,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 70,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "id": "0IczatvmbGrTWkZm0pA9Aa68ZFHHrHdX",
+                      "type": "function",
+                      "function": {
+                        "name": "lookup",
+                        "arguments": "{"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 71,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 72,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 73,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 74,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 75,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 76,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 77,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 78,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 79,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 80,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 81,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 82,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 83,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 84,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 85,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 86,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 87,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 88,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 89,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 90,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 91,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 92,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 93,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 94,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 95,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 96,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 97,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 98,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 99,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 100,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 101,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 102,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 103,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 104,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 105,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 106,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 107,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 108,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 109,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 110,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 111,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 112,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 113,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 114,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 115,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 116,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 117,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 118,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 119,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 120,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 121,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 122,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 123,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 124,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 125,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 126,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 127,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 128,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 129,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 130,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 131,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 132,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 133,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 134,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 135,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 136,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 137,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 138,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 139,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 140,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 141,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 142,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 143,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 144,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 145,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 146,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 147,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 148,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 149,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 150,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 151,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 152,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 153,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 154,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 155,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 156,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 157,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 158,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 159,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 160,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 161,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 162,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 163,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 164,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 165,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 166,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 167,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 168,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 169,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 170,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 171,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 172,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 173,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 174,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 175,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 176,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 177,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 178,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 179,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 180,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 181,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 182,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 183,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 184,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 185,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 186,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 187,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 188,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 189,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 190,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 191,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 192,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 193,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 194,
+        "final": false,
+        "json": []
+      }
+    ],
+    "state": {
+      "content": "",
+      "reasoning": "Inspect the requested file.",
+      "calls": [
+        {
+          "name": "lookup",
+          "arguments": "{",
+          "id": "0IczatvmbGrTWkZm0pA9Aa68ZFHHrHdX"
+        }
+      ]
+    }
+  },
+  {
+    "reversed": true,
+    "chunk_bytes": 7,
+    "consumed": 194,
+    "finalized": false,
+    "error": "The model produced output that does not match the expected peg-native format",
+    "events": [
+      {
+        "bytes": 7,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "role": "assistant",
+                  "content": null
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 14,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "Inspect"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 21,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " the re"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 28,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": "quested"
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 35,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "reasoning_content": " file."
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 42,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 49,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 56,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 63,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 70,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "tool_calls": [
+                    {
+                      "index": 0,
+                      "id": "DpkWhe3y4u37KNKhqCBpdMUsMDtJ6EDk",
+                      "type": "function",
+                      "function": {
+                        "name": "lookup",
+                        "arguments": "{"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      },
+      {
+        "bytes": 77,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 84,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 91,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 98,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 105,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 112,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 119,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 126,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 133,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 140,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 147,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 154,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 161,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 168,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 175,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 182,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 189,
+        "final": false,
+        "json": []
+      },
+      {
+        "bytes": 194,
+        "final": false,
+        "json": []
+      }
+    ],
+    "state": {
+      "content": "",
+      "reasoning": "Inspect the requested file.",
+      "calls": [
+        {
+          "name": "lookup",
+          "arguments": "{",
+          "id": "DpkWhe3y4u37KNKhqCBpdMUsMDtJ6EDk"
+        }
+      ]
+    }
+  },
+  {
+    "reversed": true,
+    "chunk_bytes": 194,
+    "consumed": 194,
+    "finalized": false,
+    "error": "The model produced output that does not match the expected peg-native format",
+    "events": [
+      {
+        "bytes": 194,
+        "final": false,
+        "json": [
+          {
+            "choices": [
+              {
+                "finish_reason": null,
+                "index": 0,
+                "delta": {
+                  "role": "assistant",
+                  "content": null
+                }
+              }
+            ],
+            "created": 1791671335,
+            "id": "fixture-completion",
+            "model": "offline-fixture",
+            "system_fingerprint": "b0-unknown",
+            "object": "chat.completion.chunk"
+          }
+        ]
+      }
+    ],
+    "state": {
+      "content": "",
+      "reasoning": "",
+      "calls": []
+    }
+  },
+  {
+    "reversed": true,
+    "mode": "nonstream",
+    "error": "The model produced output that does not match the expected peg-native format"
+  }
+]

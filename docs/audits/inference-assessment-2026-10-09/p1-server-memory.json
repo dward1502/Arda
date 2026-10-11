@@ -1,0 +1,90 @@
+{
+  "gpu_scope": "whole-device; not process-attributed; GTT overlaps system RAM",
+  "gpu_devices": {
+    "GPU-2e68916d-af48-61ca-e7ff-190eb17bba0a": {
+      "observed_samples": 2,
+      "vram_used_bytes": {
+        "baseline": 6361710592,
+        "final": 6361710592,
+        "peak": 6361710592,
+        "missing_samples": 0
+      },
+      "vram_total_bytes": {
+        "baseline": 8589934592,
+        "final": 8589934592,
+        "peak": 8589934592,
+        "missing_samples": 0
+      },
+      "gtt_used_bytes": {
+        "baseline": null,
+        "final": null,
+        "peak": null,
+        "missing_samples": 2
+      },
+      "gtt_total_bytes": {
+        "baseline": null,
+        "final": null,
+        "peak": null,
+        "missing_samples": 2
+      }
+    },
+    "GPU-f015dfe1-155e-102b-1737-b8ca281769f8": {
+      "observed_samples": 2,
+      "vram_used_bytes": {
+        "baseline": 4478468096,
+        "final": 4478468096,
+        "peak": 4478468096,
+        "missing_samples": 0
+      },
+      "vram_total_bytes": {
+        "baseline": 8589934592,
+        "final": 8589934592,
+        "peak": 8589934592,
+        "missing_samples": 0
+      },
+      "gtt_used_bytes": {
+        "baseline": null,
+        "final": null,
+        "peak": null,
+        "missing_samples": 2
+      },
+      "gtt_total_bytes": {
+        "baseline": null,
+        "final": null,
+        "peak": null,
+        "missing_samples": 2
+      }
+    }
+  },
+  "sample_count": 2,
+  "ram_used_bytes": {
+    "baseline": 5481201664,
+    "peak": 5482131456,
+    "final": 5482131456,
+    "growth": 929792
+  },
+  "swap_used_bytes": {
+    "baseline": 0,
+    "peak": 0,
+    "final": 0,
+    "growth": 0
+  },
+  "process_rss_bytes": {
+    "baseline": null,
+    "peak": null,
+    "final": null,
+    "growth": null
+  },
+  "gpu_used_bytes": {
+    "baseline": null,
+    "peak": null,
+    "final": null,
+    "growth": null
+  },
+  "gpu_total_bytes": {
+    "baseline": null,
+    "peak": null,
+    "final": null,
+    "growth": null
+  }
+}

@@ -1,0 +1,39 @@
+Oct 10 01:25:00 bluefin systemd[2130]: Started inference-assessment-bonsai2-suite.service - [systemd-run] /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/llama-server --model /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/Ternary-Bonsai-2-27B-PTQ1_0.gguf --alias bonsai2-ptq1 --host 127.0.0.1 --port 18099 --ctx-size 32768 --parallel 1 --n-gpu-layers 999 --split-mode none --fit off --flash-attn on --cache-type-k f16 --cache-type-v f16 --batch-size 256 --ubatch-size 128 --jinja --reasoning auto --reasoning-effort medium --reasoning-budget 256.
+Oct 10 01:25:00 bluefin llama-server[14776]: 0.00.145.993 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+Oct 10 01:25:00 bluefin llama-server[14776]: 0.00.146.446 W srv  llama_server: -----------------
+Oct 10 01:25:00 bluefin llama-server[14776]: 0.00.146.449 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set
+Oct 10 01:25:00 bluefin llama-server[14776]: 0.00.146.449 W srv  llama_server: this can be a security risk (cross-origin attacks)
+Oct 10 01:25:00 bluefin llama-server[14776]: 0.00.146.449 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655
+Oct 10 01:25:00 bluefin llama-server[14776]: 0.00.146.449 W srv  llama_server: -----------------
+Oct 10 01:25:00 bluefin llama-server[14776]: 0.00.147.784 I srv    load_model: loading model '/var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/Ternary-Bonsai-2-27B-PTQ1_0.gguf'
+Oct 10 01:25:03 bluefin llama-server[14776]: 0.03.271.139 I cmn          init: llama threadpool init, n_threads = 16
+Oct 10 01:25:04 bluefin llama-server[14776]: /home/runner/work/llama.cpp/llama.cpp/ggml/src/ggml-cuda/ggml-cuda.cu:108: CUDA error
+Oct 10 01:25:04 bluefin llama-server[14776]: 0.04.658.316 E CUDA error: out of memory
+Oct 10 01:25:04 bluefin llama-server[14776]: 0.04.658.339 E   current device: 0, in function ggml_cuda_graph_evaluate_and_capture at /home/runner/work/llama.cpp/llama.cpp/ggml/src/ggml-cuda/ggml-cuda.cu:4909
+Oct 10 01:25:04 bluefin llama-server[14776]: 0.04.658.340 E   cudaGraphInstantiate(&graph->instance, graph->graph, __null, __null, 0)
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libggml-base.so.0(+0x1c8db)[0x7facd2d4a8db]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libggml-base.so.0(ggml_print_backtrace+0x21f)[0x7facd2d4ad5f]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libggml-base.so.0(ggml_abort+0x152)[0x7facd2d4af32]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libggml-cuda.so(+0x2bea16)[0x7facbf6bea16]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libggml-cuda.so(+0x2d7348)[0x7facbf6d7348]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libggml-cuda.so(+0x2d7582)[0x7facbf6d7582]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libggml-base.so.0(ggml_backend_sched_graph_compute_async+0x867)[0x7facd2d6a8a7]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama.so.0(_ZN13llama_context13graph_computeEP11ggml_cgraphb+0xa1)[0x7facd2efd3e1]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama.so.0(_ZN13llama_context14process_ubatchERK12llama_ubatch14llm_graph_typeP22llama_memory_context_iR11ggml_status+0x11b)[0x7facd2f00a2b]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama.so.0(_ZN13llama_context6decodeERK11llama_batch+0x4b7)[0x7facd2f06227]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama.so.0(llama_decode+0x10)[0x7facd2f07730]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama-common.so.0(_Z25common_context_can_seq_rmP13llama_context+0xba)[0x7facd360d84a]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama-server-impl.so(_ZN19server_context_impl10load_modelER13common_params+0xa4f)[0x7facd3f7c3ff]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama-server-impl.so(_Z12llama_serverR13common_paramsiPPc+0x421d)[0x7facd3ecdcbd]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/libllama-server-impl.so(_Z12llama_serveriPPc+0xdf)[0x7facd3ecf55f]
+Oct 10 01:25:04 bluefin llama-server[14872]: /lib64/libc.so.6(+0x2a58e)[0x7facd39ae58e]
+Oct 10 01:25:04 bluefin llama-server[14872]: /lib64/libc.so.6(__libc_start_main+0x89)[0x7facd39ae649]
+Oct 10 01:25:04 bluefin llama-server[14872]: /var/home/annunimas-server/.local/share/inference-assessment/bonsai2-b072e1d3/llama-prism-b10770-6684606/llama-server(+0x1295)[0x561a142a5295]
+Oct 10 01:25:07 bluefin systemd-coredump[14874]: Process 14776 (llama-server) of user 1000 dumped core.
+                                                 
+                                                 Stack trace of thread 14776:
+                                                 #0  0x00007facd3a1b80c n/a (n/a + 0x0)
+                                                 ELF object binary architecture: AMD x86-64
+Oct 10 01:25:07 bluefin systemd[2130]: inference-assessment-bonsai2-suite.service: Main process exited, code=dumped, status=6/ABRT
+Oct 10 01:25:07 bluefin systemd[2130]: inference-assessment-bonsai2-suite.service: Failed with result 'core-dump'.
+Oct 10 01:25:07 bluefin systemd[2130]: inference-assessment-bonsai2-suite.service: Consumed 5.734s CPU time, 397.9M memory peak.

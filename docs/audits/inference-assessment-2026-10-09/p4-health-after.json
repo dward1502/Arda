@@ -1,0 +1,136 @@
+{
+  "alerts": [],
+  "bootstrap_state_path": "/var/home/mythos/Eregion/Arda/core/state/fleet_bootstrap.json",
+  "budget_pressure": {
+    "cooldown_total": 0,
+    "critical_total": 0,
+    "exhausted_total": 0,
+    "highest_level": "ok",
+    "providers": [
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": null,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.016666666666666666,
+        "provider_id": "edge_backbone_coder",
+        "provider_name": "Annunimas Server Nanbeige4.2 3B Coding Lane"
+      },
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": null,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.05,
+        "provider_id": "edge_backbone_long",
+        "provider_name": "Annunimas Server Bonsai 27B Q1 Review Lane"
+      },
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": null,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.0,
+        "provider_id": "edge_beelink_light",
+        "provider_name": "Beelink Light Ternary Bonsai 8B Worker"
+      },
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": null,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.06666666666666667,
+        "provider_id": "edge_core",
+        "provider_name": "Annunimas Core (3080 Workstation)"
+      },
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": null,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.0,
+        "provider_id": "edge_guardhouse",
+        "provider_name": "Warden Pi5 Guardhouse"
+      },
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": 0.0,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.0,
+        "provider_id": "google",
+        "provider_name": "Google Gemini"
+      },
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": 0.0,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.0,
+        "provider_id": "openai_sub",
+        "provider_name": "OpenAI Codex (ChatGPT subscription via Hermes auth)"
+      },
+      {
+        "cooldown_until_utc": null,
+        "day_usage_ratio": 0.0,
+        "exhausted_day": false,
+        "exhausted_minute": false,
+        "in_cooldown": false,
+        "level": "ok",
+        "minute_usage_ratio": 0.0,
+        "provider_id": "openrouter",
+        "provider_name": "OpenRouter"
+      }
+    ],
+    "providers_total": 8,
+    "warning_total": 0
+  },
+  "capability_summary": {
+    "models_with_failed_streaming_receipts": 0,
+    "models_with_failed_structured_output_receipts": 0,
+    "models_with_failed_tool_receipts": 0,
+    "providers_with_no_capability_evidence": 0,
+    "receipt_model_count": 20,
+    "recent_capability_failures": 0
+  },
+  "catalog_generation": 3,
+  "config_path": "/var/home/mythos/Eregion/Arda/config/manwe.providers.toml",
+  "config_source": "provider_file",
+  "ok": true,
+  "provider_state_counts": {
+    "disabled": 14,
+    "ready": 4,
+    "unhealthy": 4
+  },
+  "providers_blocked": 18,
+  "providers_enabled": 8,
+  "providers_healthy": 4,
+  "providers_ready": 4,
+  "providers_total": 22,
+  "recent_event_sample_complete": true,
+  "recent_event_sample_limit": 48,
+  "recent_route_failures": 4,
+  "recent_route_successes": 6,
+  "route_guardrails": {
+    "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+    "low_context_tool_model_total": 14,
+    "tool_execution_min_context_window": 64000,
+    "tool_incompatible_model_total": 12,
+    "visible_reasoning_model_total": 16
+  },
+  "service": "manwe"
+}

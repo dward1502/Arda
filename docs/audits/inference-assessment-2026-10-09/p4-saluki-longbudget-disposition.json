@@ -1,0 +1,32 @@
+{
+  "expected_cases": 6,
+  "completed_mechanical_passes": 4,
+  "failed_timeout_cases": [
+    {
+      "case": "coding",
+      "repetition": 1,
+      "passed": false,
+      "error": "Command '['/var/home/mythos/.hermes/installs/93d02a9d25b9a6b1/environments/cc6a35ab872f408d8744bd78c6cd77ab/venv/bin/python', '-m', 'hermes_cli.main', 'chat', '--safe-mode', '--provider', 'custom:assessment', '-m', 'edge_core/saluki-27b-iq2', '-t', 'file', '--max-turns', '10', '--run-budget', '240', '--oneshot', '--format', 'stream-json', '--in', '/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-4vrrjerx/coding-1', '-q', 'Authorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-4vrrjerx/coding-1. Read spec.txt and calc.py. Fix calc.py to satisfy the specification, using file tools. Do not change other files. Explain your change and be honest that you cannot run tests with the available file-only tools.']' timed out after 260 seconds"
+    }
+  ],
+  "not_run": [
+    {
+      "case": "coding",
+      "repetition": 2
+    }
+  ],
+  "qualified": false,
+  "coding_capture_lost_reason": "outer 330-second timeout killed runner during cleanup before final JSON serialization; retained log establishes child 260-second timeout",
+  "restored_health": {
+    "8097": {
+      "status": "ok"
+    },
+    "8098": {
+      "status": "ok"
+    }
+  },
+  "core_health": {
+    "status": "ok"
+  },
+  "factual_review": "parent inspected four completed final answers; independent review not yet performed"
+}

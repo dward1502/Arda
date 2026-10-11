@@ -1,0 +1,41 @@
+{
+  "compile": [
+    "/usr/bin/c++",
+    "-std=c++17",
+    "-O2",
+    "-I/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/llama.cpp-8345f333951c661d166b00e6f9362e553768f292",
+    "-I/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/llama.cpp-8345f333951c661d166b00e6f9362e553768f292/common",
+    "-I/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/llama.cpp-8345f333951c661d166b00e6f9362e553768f292/include",
+    "-I/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/llama.cpp-8345f333951c661d166b00e6f9362e553768f292/ggml/include",
+    "-I/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/llama.cpp-8345f333951c661d166b00e6f9362e553768f292/vendor",
+    "-I/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/llama.cpp-8345f333951c661d166b00e6f9362e553768f292/tools/server",
+    "-I/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/llama.cpp-8345f333951c661d166b00e6f9362e553768f292/tools/mtmd",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-native-serialization-probe.cpp",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/tools/server/libserver-context.a",
+    "-L/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin",
+    "-Wl,-rpath,/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin",
+    "-lllama-common",
+    "-lmtmd",
+    "-lllama",
+    "-lggml",
+    "-lggml-base",
+    "-pthread",
+    "-o",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/mimo-native-serialization-probe"
+  ],
+  "argv": [
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/mimo-native-serialization-probe",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-served-template.jinja",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-parser-nested-result.json"
+  ],
+  "exit_code": 0,
+  "stderr": "common_chat_peg_parse: unparsed peg-native output: <tool_call><function=lookup><parameter=offset>17</parameter><parameter=path>{\"name\":\"alpha.txt\",\"flags\":[true,false]}</parameter></function></tool_call>\ncommon_chat_peg_parse: unparsed peg-native output: <tool_call><function=lookup><parameter=offset>17</parameter><parameter=path>{\"name\":\"alpha.txt\",\"flags\":[true,false]}</parameter></function></tool_call>\ncommon_chat_peg_parse: unparsed peg-native output: <tool_call><function=lookup><parameter=offset>17</parameter><parameter=path>{\"name\":\"alpha.txt\",\"flags\":[true,false]}</parameter></function></tool_call>\ncommon_chat_peg_parse: unparsed peg-native output: <tool_call><function=lookup><parameter=offset>17</parameter><parameter=path>{\"name\":\"alpha.txt\",\"flags\":[true,false]}</parameter></function></tool_call>\n",
+  "sha256": {
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-native-serialization-probe.cpp": "8f683c044cf385e5657f607fef8696e8a08c1ff956c50771d768acda91adf984",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/mimo-native-serialization-probe": "11df72e2c3b5cd8a763e271e6952d042e988403f1f9db5532c929de21a1787b3",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/mimo-served-template.jinja": "9f36ab8f70ce878872cf86a0e278336f3090302a52154d8f0313196706e3bb4f",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/tools/server/libserver-context.a": "cd0c1ac57a63a27b2c18f769895c654267cf6907c27105e8c125a267a4bdc3f7",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libllama-common.so": "42b45af1567c7350155a3ce40c46ef718f2beab2dcb1da402a922e555d9dc183",
+    "/var/home/mythos/.hermes/cache/scratch/inference-b11430-offline/build/bin/libmtmd.so": "915da277079aafc4d1103057525e83e977920b3dbd4c436200aaeecd003eebbd"
+  }
+}

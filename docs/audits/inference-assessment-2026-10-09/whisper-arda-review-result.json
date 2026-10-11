@@ -1,0 +1,65 @@
+{
+  "complete": true,
+  "scope": "synthetic Arda adapter CLI review-envelope test, not native editable UI or operator acceptance",
+  "config_sha256": "374fb33b4c8cf9426cceeace3fed45e49fc6152fe33941762f35b9ab6d2a459c",
+  "command_sha256": "7fb0303460039acb3bfb14b05f4d695e6c9a728c73fd65fef1affebe4b033f75",
+  "cases": [
+    {
+      "case": "speech",
+      "audio_sha256": "5ae8d04ffbcfbe85b30c8f8bb621bb26d9c7bca6745748a63f35a46696ecabd1",
+      "exit_code": 0,
+      "elapsed_s": 8.126436479040422,
+      "result": {
+        "audio_reference": "/var/home/mythos/.local/share/arda/voice-whisper/audio-inbox/synthetic-review-p2t6av_0/speech ' $(touch SHOULD_NOT_EXIST).wav",
+        "audio_retention": "ephemeral",
+        "editable": true,
+        "error_class": null,
+        "external_send_authorized": false,
+        "governed_action_authorized": false,
+        "review_state": "operator_review_required",
+        "schema_version": "arda.voice-capture.result.v1",
+        "status": "transcript_pending_review",
+        "transcript": "Please research local inference and review the code changes.",
+        "transcript_retention": "ephemeral"
+      }
+    },
+    {
+      "case": "silence",
+      "audio_sha256": "d303811b8c84619667cd0501342f84ec6cbe69f7aa3856dcf52fabda374c92b8",
+      "exit_code": 0,
+      "elapsed_s": 2.461696864978876,
+      "result": {
+        "audio_reference": "/var/home/mythos/.local/share/arda/voice-whisper/audio-inbox/synthetic-review-p2t6av_0/silence ' $(touch SHOULD_NOT_EXIST).wav",
+        "audio_retention": "preserve_until_recovered",
+        "editable": false,
+        "error_class": "backend_failed",
+        "external_send_authorized": false,
+        "governed_action_authorized": false,
+        "review_state": "recovery_required",
+        "schema_version": "arda.voice-capture.result.v1",
+        "status": "recoverable_inbox",
+        "transcript": null,
+        "transcript_retention": "ephemeral"
+      }
+    },
+    {
+      "case": "malformed",
+      "audio_sha256": "63969f8cf564dc24786de787bb57e4f9e5f8fd2f468d785a1b6f80326917d5f5",
+      "exit_code": 0,
+      "elapsed_s": 0.10829259298043326,
+      "result": {
+        "audio_reference": "/var/home/mythos/.local/share/arda/voice-whisper/audio-inbox/synthetic-review-p2t6av_0/malformed ' $(touch SHOULD_NOT_EXIST).wav",
+        "audio_retention": "preserve_until_recovered",
+        "editable": false,
+        "error_class": "backend_failed",
+        "external_send_authorized": false,
+        "governed_action_authorized": false,
+        "review_state": "recovery_required",
+        "schema_version": "arda.voice-capture.result.v1",
+        "status": "recoverable_inbox",
+        "transcript": null,
+        "transcript_retention": "ephemeral"
+      }
+    }
+  ]
+}

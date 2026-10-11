@@ -1,0 +1,5 @@
+{
+  "rc": 0,
+  "stdout": "{\"/var/home/annunimas-server/llama.cpp\": \"571d0d540df04f25298d0e159e520d9fc62ed121\", \"/var/home/annunimas-server/llama.cpp-prism\": \"9fcaed763ccda38ea81068ad9d7f991aaddca451\", \"/var/home/annunimas-server/llama.cpp-nanbeige\": \"c6640a1c0cf7b38df342b67021a3900b04d092e7\"}\n",
+  "stderr": ""
+}

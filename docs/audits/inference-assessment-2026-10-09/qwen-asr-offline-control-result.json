@@ -1,0 +1,82 @@
+{
+  "utc": "2026-10-11T05:05:20.680532+00:00",
+  "scope": "synthetic fixtures only, not operator acceptance",
+  "model_revision": "5eb144179a02acc5e5ba31e748d22b0cf3e303b0",
+  "model_files": [
+    {
+      "name": "chat_template.json",
+      "bytes": 1161,
+      "sha256": "75a8cfca24f00de72d796fbfed6858fc9614ef3dabd8696684cc3bc03a9c58ff"
+    },
+    {
+      "name": "config.json",
+      "bytes": 6193,
+      "sha256": "76d3ae4601ce939830b2517f4a6cadb86cc51316c3900af6b020b051c21a478c"
+    },
+    {
+      "name": "generation_config.json",
+      "bytes": 142,
+      "sha256": "1da527824d81e07118facff437e03f2e24a23311e3bdeb2368973fe77e5f275c"
+    },
+    {
+      "name": "merges.txt",
+      "bytes": 1671853,
+      "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+    },
+    {
+      "name": "model.safetensors",
+      "bytes": 1876091704,
+      "sha256": "79d6cbd4c98c7bbffe9db2edac07f56cd6637d0d5944b27f6c2b8353840323ea"
+    },
+    {
+      "name": "preprocessor_config.json",
+      "bytes": 330,
+      "sha256": "45e120a4eda2c20c5d7f2ea9354e63536bf35e27aa573fb7cdf78017b378770d"
+    },
+    {
+      "name": "tokenizer_config.json",
+      "bytes": 12487,
+      "sha256": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c"
+    },
+    {
+      "name": "vocab.json",
+      "bytes": 2776833,
+      "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    }
+  ],
+  "runtime_lock_sha256": "cab5773e95d407a61ab94993672f9707eac1aaa058497ee0340c7a8c7cff9bae",
+  "torch": "2.8.0+cpu",
+  "device": "cpu",
+  "dtype": "float32",
+  "attention": "eager",
+  "max_new_tokens": 128,
+  "threads": 4,
+  "cases": [
+    {
+      "audio": "speech",
+      "audio_sha256": "5ae8d04ffbcfbe85b30c8f8bb621bb26d9c7bca6745748a63f35a46696ecabd1",
+      "audio_seconds": 3.6573242630385487,
+      "elapsed_s": 14.589539401000366,
+      "results": [
+        {
+          "text": "Please research local inference and review the code changes.",
+          "language": "English"
+        }
+      ]
+    },
+    {
+      "audio": "silence",
+      "audio_sha256": "d303811b8c84619667cd0501342f84ec6cbe69f7aa3856dcf52fabda374c92b8",
+      "audio_seconds": 3.0,
+      "elapsed_s": 0.8256488260230981,
+      "results": [
+        {
+          "text": "",
+          "language": ""
+        }
+      ]
+    }
+  ],
+  "peak_rss_kib": 6137736,
+  "load_seconds": 1.7731749020167626
+}

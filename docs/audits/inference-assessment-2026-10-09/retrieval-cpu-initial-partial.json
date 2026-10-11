@@ -1,0 +1,929 @@
+{
+  "completed": false,
+  "scope": "agent-authored development labels, frozen corpus; historical BM25 ranking, no contemporaneous baseline timing",
+  "fixture_sha256": "34c6bc7d16906b482f82076ef5f705286cd06b85990db47824389a3c1279e515",
+  "baseline_sha256": "552942068558dbccc405ead1793213c45ab3705205157676504bb10f030991af",
+  "probe_sha256": "cdfb4d82bcfbe75c0f84ebb14a0cbabdb94311ca41ba375bd89d9ef2a70ac2e8",
+  "versions": {
+    "typing_extensions": "4.16.0",
+    "MarkupSafe": "3.0.3",
+    "filelock": "3.32.3",
+    "Jinja2": "3.1.6",
+    "fsspec": "2026.7.0",
+    "mpmath": "1.3.0",
+    "setuptools": "78.1.0",
+    "networkx": "3.6.1",
+    "sympy": "1.14.0",
+    "torch": "2.8.0+cpu",
+    "tokenizers": "0.21.4",
+    "hf-xet": "1.7.0",
+    "idna": "3.20",
+    "tqdm": "4.70.1",
+    "certifi": "2026.7.22",
+    "regex": "2026.9.29",
+    "safetensors": "0.8.0",
+    "PyYAML": "6.0.3",
+    "packaging": "26.3",
+    "charset-normalizer": "3.5.2",
+    "requests": "2.34.2",
+    "urllib3": "2.8.0",
+    "huggingface_hub": "0.36.2",
+    "numpy": "2.5.3",
+    "transformers": "4.51.3"
+  },
+  "models": {
+    "Qwen3-Reranker-0.6B-e61197ed": {
+      "manifest": {
+        "repo": "Qwen/Qwen3-Reranker-0.6B",
+        "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+        "files": [
+          {
+            "name": "README.md",
+            "sha256": "5bba8c734f6dd3ae48317b4139317e45a7fce48fc55e15670b23a0dd15492ab6",
+            "advertised": null,
+            "bytes": 14742
+          },
+          {
+            "name": "config.json",
+            "sha256": "d479c427a9ca5295218063d4f9aca4f297ab4ac27487cca7af42c84643d51ef0",
+            "advertised": null,
+            "bytes": 727
+          },
+          {
+            "name": "merges.txt",
+            "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+            "advertised": null,
+            "bytes": 1671853
+          },
+          {
+            "name": "model.safetensors",
+            "sha256": "27cd75a405b9c1b46b59abfd88aaa209e6fed2a1972cde9b70e7659537c5e65b",
+            "advertised": "27cd75a405b9c1b46b59abfd88aaa209e6fed2a1972cde9b70e7659537c5e65b",
+            "bytes": 1191588280
+          },
+          {
+            "name": "tokenizer.json",
+            "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+            "advertised": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+            "bytes": 11422654
+          },
+          {
+            "name": "tokenizer_config.json",
+            "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+            "advertised": null,
+            "bytes": 9706
+          },
+          {
+            "name": "vocab.json",
+            "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+            "advertised": null,
+            "bytes": 2776833
+          }
+        ]
+      },
+      "load_seconds": 3.478117703984026
+    }
+  },
+  "cases": [
+    {
+      "query": "What should be refactored before changing behavior?",
+      "expected": [
+        "rules"
+      ],
+      "bm25": [
+        "rules",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "reranked": [
+        "rules",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "rules",
+          "no": 13.136768341064453,
+          "yes": 19.28640365600586,
+          "score": 0.9978703260421753,
+          "tokens": 306,
+          "seconds": 1.4151351040345617
+        },
+        {
+          "id": "m5-consumption",
+          "no": 15.510168075561523,
+          "yes": 13.058910369873047,
+          "score": 0.07934661954641342,
+          "tokens": 297,
+          "seconds": 1.3507501669810154
+        },
+        {
+          "id": "m5-scope",
+          "no": 12.533162117004395,
+          "yes": 3.1829235553741455,
+          "score": 8.693709969520569e-05,
+          "tokens": 200,
+          "seconds": 0.9370020399801433
+        }
+      ]
+    },
+    {
+      "query": "Which principles favor composition and small stable contracts?",
+      "expected": [
+        "rules"
+      ],
+      "bm25": [
+        "rules",
+        "r05",
+        "r09"
+      ],
+      "reranked": [
+        "rules",
+        "r05",
+        "r09"
+      ],
+      "pair_scores": [
+        {
+          "id": "rules",
+          "no": 13.489019393920898,
+          "yes": 19.355724334716797,
+          "score": 0.9971758127212524,
+          "tokens": 305,
+          "seconds": 1.3977353630471043
+        },
+        {
+          "id": "r05",
+          "no": 13.136504173278809,
+          "yes": 7.025320529937744,
+          "score": 0.0022130156867206097,
+          "tokens": 254,
+          "seconds": 1.1763208159827627
+        },
+        {
+          "id": "r09",
+          "no": 12.879237174987793,
+          "yes": 6.414427280426025,
+          "score": 0.0015548659721389413,
+          "tokens": 216,
+          "seconds": 0.9925279389717616
+        }
+      ]
+    },
+    {
+      "query": "Did the accepted CLI continuation require switching to Discord?",
+      "expected": [
+        "m5-scope"
+      ],
+      "bm25": [
+        "m5-scope",
+        "r10",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "m5-scope",
+        "m5-boundaries",
+        "r10"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-scope",
+          "no": 11.964506149291992,
+          "yes": 20.15359115600586,
+          "score": 0.999722421169281,
+          "tokens": 200,
+          "seconds": 0.9289039740106091
+        },
+        {
+          "id": "r10",
+          "no": 12.123709678649902,
+          "yes": 6.020928382873535,
+          "score": 0.002231647027656436,
+          "tokens": 230,
+          "seconds": 1.079509811999742
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 14.522783279418945,
+          "yes": 10.631258964538574,
+          "score": 0.02000580169260502,
+          "tokens": 258,
+          "seconds": 1.1808715410297737
+        }
+      ]
+    },
+    {
+      "query": "How were fresh sessions authenticated without resuming an earlier conversation?",
+      "expected": [
+        "m5-scope"
+      ],
+      "bm25": [
+        "r01",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "reranked": [
+        "m5-scope",
+        "m5-consumption",
+        "r01"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 15.178277969360352,
+          "yes": 11.630256652832031,
+          "score": 0.02797633223235607,
+          "tokens": 225,
+          "seconds": 1.0556975890067406
+        },
+        {
+          "id": "m5-consumption",
+          "no": 15.505167007446289,
+          "yes": 17.877416610717773,
+          "score": 0.9146865606307983,
+          "tokens": 299,
+          "seconds": 1.3782644529710524
+        },
+        {
+          "id": "m5-scope",
+          "no": 14.954262733459473,
+          "yes": 19.724180221557617,
+          "score": 0.9915903210639954,
+          "tokens": 202,
+          "seconds": 0.9513330060290173
+        }
+      ]
+    },
+    {
+      "query": "What authorization regression tests were chosen for WGTT?",
+      "expected": [
+        "m5-consumption"
+      ],
+      "bm25": [
+        "m5-consumption",
+        "r05",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "m5-consumption",
+        "r05",
+        "m5-boundaries"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-consumption",
+          "no": 12.641885757446289,
+          "yes": 19.637012481689453,
+          "score": 0.99908447265625,
+          "tokens": 297,
+          "seconds": 1.3572660509962589
+        },
+        {
+          "id": "r05",
+          "no": 15.26526165008545,
+          "yes": 10.891867637634277,
+          "score": 0.012451383285224438,
+          "tokens": 255,
+          "seconds": 1.1801072599482723
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 13.716625213623047,
+          "yes": 8.494351387023926,
+          "score": 0.005366097670048475,
+          "tokens": 258,
+          "seconds": 1.1796168130240403
+        }
+      ]
+    },
+    {
+      "query": "Were staging checks established by the conversational plan?",
+      "expected": [
+        "m5-consumption"
+      ],
+      "bm25": [
+        "m5-boundaries",
+        "m5-consumption",
+        "r05"
+      ],
+      "reranked": [
+        "m5-consumption",
+        "m5-boundaries",
+        "r05"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-boundaries",
+          "no": 14.80246353149414,
+          "yes": 10.441181182861328,
+          "score": 0.012601194903254509,
+          "tokens": 258,
+          "seconds": 1.1838674950413406
+        },
+        {
+          "id": "m5-consumption",
+          "no": 14.453017234802246,
+          "yes": 18.949119567871094,
+          "score": 0.9889706373214722,
+          "tokens": 297,
+          "seconds": 1.3592533890041523
+        },
+        {
+          "id": "r05",
+          "no": 13.93140697479248,
+          "yes": 6.363245010375977,
+          "score": 0.0005163744208402932,
+          "tokens": 255,
+          "seconds": 1.1838383040158078
+        }
+      ]
+    },
+    {
+      "query": "Did CLI plans emit a new ContextUseReceipt?",
+      "expected": [
+        "m5-boundaries"
+      ],
+      "bm25": [
+        "m5-scope",
+        "m5-boundaries",
+        "m5-consumption"
+      ],
+      "reranked": [
+        "m5-boundaries",
+        "m5-consumption",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-scope",
+          "no": 15.41330337524414,
+          "yes": 12.217920303344727,
+          "score": 0.039339836686849594,
+          "tokens": 200,
+          "seconds": 0.9234767750022002
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 12.391157150268555,
+          "yes": 19.808975219726562,
+          "score": 0.9993999004364014,
+          "tokens": 258,
+          "seconds": 1.1879021219792776
+        },
+        {
+          "id": "m5-consumption",
+          "no": 16.54799461364746,
+          "yes": 14.65827751159668,
+          "score": 0.13127672672271729,
+          "tokens": 297,
+          "seconds": 1.37858928804053
+        }
+      ]
+    },
+    {
+      "query": "Can local continuity evidence close the combined M1 M2 obligations?",
+      "expected": [
+        "m5-boundaries"
+      ],
+      "bm25": [
+        "m5-scope",
+        "r01",
+        "r05"
+      ],
+      "reranked": [
+        "r01",
+        "m5-scope",
+        "r05"
+      ],
+      "pair_scores": [
+        {
+          "id": "m5-scope",
+          "no": 14.592794418334961,
+          "yes": 9.740483283996582,
+          "score": 0.007749778218567371,
+          "tokens": 203,
+          "seconds": 0.9698299530427903
+        },
+        {
+          "id": "r01",
+          "no": 15.09206485748291,
+          "yes": 11.038383483886719,
+          "score": 0.01706218346953392,
+          "tokens": 226,
+          "seconds": 1.0457571059814654
+        },
+        {
+          "id": "r05",
+          "no": 13.024665832519531,
+          "yes": 4.427892684936523,
+          "score": 0.00018466672918293625,
+          "tokens": 258,
+          "seconds": 1.17545176303247
+        }
+      ]
+    },
+    {
+      "query": "Was mesh-llm kept off during fresh authority recovery?",
+      "expected": [
+        "r01"
+      ],
+      "bm25": [
+        "r01",
+        "m5-boundaries",
+        "r03"
+      ],
+      "reranked": [
+        "r01",
+        "m5-boundaries",
+        "r03"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 10.711128234863281,
+          "yes": 20.220352172851562,
+          "score": 0.9999258518218994,
+          "tokens": 225,
+          "seconds": 1.064083838951774
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 13.87155818939209,
+          "yes": 8.283515930175781,
+          "score": 0.0037283943966031075,
+          "tokens": 260,
+          "seconds": 1.183380387024954
+        },
+        {
+          "id": "r03",
+          "no": 12.945465087890625,
+          "yes": 4.901978492736816,
+          "score": 0.000321084022289142,
+          "tokens": 341,
+          "seconds": 1.5659179539652541
+        }
+      ]
+    },
+    {
+      "query": "Where was rollback state preserved when the operator chose fresh authority?",
+      "expected": [
+        "r01"
+      ],
+      "bm25": [
+        "r01",
+        "rules",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "r01",
+        "m5-boundaries",
+        "rules"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 11.708056449890137,
+          "yes": 20.012666702270508,
+          "score": 0.9997527003288269,
+          "tokens": 225,
+          "seconds": 1.0565616019885056
+        },
+        {
+          "id": "rules",
+          "no": 13.405256271362305,
+          "yes": 3.5682404041290283,
+          "score": 5.3433665016200393e-05,
+          "tokens": 308,
+          "seconds": 1.4112327069742605
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 14.984935760498047,
+          "yes": 11.362813949584961,
+          "score": 0.026030227541923523,
+          "tokens": 260,
+          "seconds": 1.2001783690066077
+        }
+      ]
+    },
+    {
+      "query": "Were required status checks enforced by R03?",
+      "expected": [
+        "r03"
+      ],
+      "bm25": [
+        "r03",
+        "m5-scope",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "r03",
+        "m5-boundaries",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r03",
+          "no": 13.77612590789795,
+          "yes": 19.533580780029297,
+          "score": 0.9968507885932922,
+          "tokens": 339,
+          "seconds": 1.592802022001706
+        },
+        {
+          "id": "m5-scope",
+          "no": 13.369621276855469,
+          "yes": 4.420222282409668,
+          "score": 0.00012979831080883741,
+          "tokens": 200,
+          "seconds": 0.9427929930388927
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 14.03863525390625,
+          "yes": 8.977814674377441,
+          "score": 0.00630040792748332,
+          "tokens": 258,
+          "seconds": 1.2064794700127095
+        }
+      ]
+    },
+    {
+      "query": "Which native workspaces and frontend jobs passed source validation?",
+      "expected": [
+        "r03"
+      ],
+      "bm25": [
+        "r11",
+        "r03",
+        "r05"
+      ],
+      "reranked": [
+        "r03",
+        "r05",
+        "r11"
+      ],
+      "pair_scores": [
+        {
+          "id": "r11",
+          "no": 14.128456115722656,
+          "yes": 11.127720832824707,
+          "score": 0.04739266633987427,
+          "tokens": 194,
+          "seconds": 0.9348568589775823
+        },
+        {
+          "id": "r03",
+          "no": 14.332566261291504,
+          "yes": 19.84021759033203,
+          "score": 0.9959607720375061,
+          "tokens": 340,
+          "seconds": 1.580753467977047
+        },
+        {
+          "id": "r05",
+          "no": 15.223054885864258,
+          "yes": 12.436456680297852,
+          "score": 0.05805269628763199,
+          "tokens": 256,
+          "seconds": 1.2181021169526502
+        }
+      ]
+    },
+    {
+      "query": "Which crate owns explicit HTTP reconciliation Close and admission contracts?",
+      "expected": [
+        "r05"
+      ],
+      "bm25": [
+        "r05",
+        "r03",
+        "m5-scope"
+      ],
+      "reranked": [
+        "r05",
+        "r03",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r05",
+          "no": 13.098509788513184,
+          "yes": 19.50749969482422,
+          "score": 0.99835604429245,
+          "tokens": 256,
+          "seconds": 1.228012999985367
+        },
+        {
+          "id": "r03",
+          "no": 12.84830379486084,
+          "yes": 4.747661113739014,
+          "score": 0.00030325198895297945,
+          "tokens": 340,
+          "seconds": 1.6150506519479677
+        },
+        {
+          "id": "m5-scope",
+          "no": 12.733624458312988,
+          "yes": 4.425711631774902,
+          "score": 0.00024649733677506447,
+          "tokens": 201,
+          "seconds": 0.999072774022352
+        }
+      ]
+    },
+    {
+      "query": "Does the Workbench executor depend on OpenTelemetry or Manwe?",
+      "expected": [
+        "r05"
+      ],
+      "bm25": [
+        "r05",
+        "assessment",
+        "rules"
+      ],
+      "reranked": [
+        "r05",
+        "assessment",
+        "rules"
+      ],
+      "pair_scores": [
+        {
+          "id": "r05",
+          "no": 12.4091215133667,
+          "yes": 20.098852157592773,
+          "score": 0.9995427131652832,
+          "tokens": 259,
+          "seconds": 1.2264688769937493
+        },
+        {
+          "id": "assessment",
+          "no": 15.848727226257324,
+          "yes": 15.345365524291992,
+          "score": 0.37675100564956665,
+          "tokens": 142,
+          "seconds": 0.7265348299988545
+        },
+        {
+          "id": "rules",
+          "no": 13.596426963806152,
+          "yes": 7.42850923538208,
+          "score": 0.0020912126637995243,
+          "tokens": 310,
+          "seconds": 1.452368079975713
+        }
+      ]
+    },
+    {
+      "query": "Does unknown billing prove a spending cap?",
+      "expected": [
+        "r06"
+      ],
+      "bm25": [
+        "r06",
+        "r01",
+        "m5-consumption"
+      ],
+      "reranked": [
+        "r06",
+        "m5-consumption",
+        "r01"
+      ],
+      "pair_scores": [
+        {
+          "id": "r06",
+          "no": 12.637862205505371,
+          "yes": 18.61146354675293,
+          "score": 0.9974613189697266,
+          "tokens": 219,
+          "seconds": 1.0574517840286717
+        },
+        {
+          "id": "r01",
+          "no": 14.23028564453125,
+          "yes": 3.8582193851470947,
+          "score": 3.129357355646789e-05,
+          "tokens": 221,
+          "seconds": 1.051016081997659
+        },
+        {
+          "id": "m5-consumption",
+          "no": 14.173585891723633,
+          "yes": 3.8933017253875732,
+          "score": 3.4301610867260024e-05,
+          "tokens": 295,
+          "seconds": 1.3875459359842353
+        }
+      ]
+    },
+    {
+      "query": "Are typed durable route receipts sufficient to close canonical G2?",
+      "expected": [
+        "r06"
+      ],
+      "bm25": [
+        "r06",
+        "m5-boundaries",
+        "m5-scope"
+      ],
+      "reranked": [
+        "r06",
+        "m5-boundaries",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r06",
+          "no": 13.30675220489502,
+          "yes": 19.95879364013672,
+          "score": 0.9987102746963501,
+          "tokens": 223,
+          "seconds": 1.066268140973989
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 15.474023818969727,
+          "yes": 12.7055025100708,
+          "score": 0.05904911458492279,
+          "tokens": 260,
+          "seconds": 1.2029206080478616
+        },
+        {
+          "id": "m5-scope",
+          "no": 12.789693832397461,
+          "yes": 4.807592868804932,
+          "score": 0.00034140454954467714,
+          "tokens": 202,
+          "seconds": 0.9641348409932107
+        }
+      ]
+    },
+    {
+      "query": "How should backup restore and identity history be qualified?",
+      "expected": [
+        "r09"
+      ],
+      "bm25": [
+        "r09",
+        "assessment",
+        "r11"
+      ],
+      "reranked": [
+        "r09",
+        "assessment",
+        "r11"
+      ],
+      "pair_scores": [
+        {
+          "id": "r09",
+          "no": 12.103915214538574,
+          "yes": 19.59914779663086,
+          "score": 0.9994445443153381,
+          "tokens": 217,
+          "seconds": 1.020624024036806
+        },
+        {
+          "id": "assessment",
+          "no": 14.882579803466797,
+          "yes": 11.436311721801758,
+          "score": 0.03088034689426422,
+          "tokens": 138,
+          "seconds": 0.6956213049707003
+        },
+        {
+          "id": "r11",
+          "no": 13.570192337036133,
+          "yes": 9.288649559020996,
+          "score": 0.013632898218929768,
+          "tokens": 193,
+          "seconds": 0.9194378380198032
+        }
+      ]
+    },
+    {
+      "query": "May generated-looking live databases simply be migrated or removed?",
+      "expected": [
+        "r09"
+      ],
+      "bm25": [
+        "r09",
+        "r06",
+        "m5-boundaries"
+      ],
+      "reranked": [
+        "r09",
+        "m5-boundaries",
+        "r06"
+      ],
+      "pair_scores": [
+        {
+          "id": "r09",
+          "no": 12.615464210510254,
+          "yes": 19.075149536132812,
+          "score": 0.9984371066093445,
+          "tokens": 218,
+          "seconds": 1.0192609940422699
+        },
+        {
+          "id": "r06",
+          "no": 11.958047866821289,
+          "yes": 4.486026763916016,
+          "score": 0.0005684542702510953,
+          "tokens": 222,
+          "seconds": 1.0483492229832336
+        },
+        {
+          "id": "m5-boundaries",
+          "no": 12.914408683776855,
+          "yes": 7.293503284454346,
+          "score": 0.003608294064179063,
+          "tokens": 259,
+          "seconds": 1.222432489041239
+        }
+      ]
+    },
+    {
+      "query": "What measures demonstrate reduced operator burden rather than telemetry volume?",
+      "expected": [
+        "r10"
+      ],
+      "bm25": [
+        "r01",
+        "r10",
+        "m5-scope"
+      ],
+      "reranked": [
+        "r10",
+        "r01",
+        "m5-scope"
+      ],
+      "pair_scores": [
+        {
+          "id": "r01",
+          "no": 14.739862442016602,
+          "yes": 10.376362800598145,
+          "score": 0.012573636136949062,
+          "tokens": 224,
+          "seconds": 1.0523990609799512
+        },
+        {
+          "id": "r10",
+          "no": 13.2448091506958,
+          "yes": 18.019329071044922,
+          "score": 0.9916285276412964,
+          "tokens": 231,
+          "seconds": 1.1147164489957504
+        },
+        {
+          "id": "m5-scope",
+          "no": 13.371617317199707,
+          "yes": 5.48579740524292,
+          "score": 0.00037589683779515326,
+          "tokens": 201,
+          "seconds": 0.9711257909657434
+        }
+      ]
+    },
+    {
+      "query": "How should cost energy per accepted result distinguish estimates?",
+      "expected": [
+        "r10"
+      ],
+      "bm25": [
+        "rules",
+        "r10",
+        "m5-consumption"
+      ],
+      "reranked": [
+        "r10",
+        "m5-consumption",
+        "rules"
+      ],
+      "pair_scores": [
+        {
+          "id": "rules",
+          "no": 13.952878952026367,
+          "yes": 4.34548282623291,
+          "score": 6.722513353452086e-05,
+          "tokens": 306,
+          "seconds": 1.427625692973379
+        },
+        {
+          "id": "r10",
+          "no": 12.038151741027832,
+          "yes": 18.9800968170166,
+          "score": 0.9990345239639282,
+          "tokens": 230,
+          "seconds": 1.1121562619809993
+        },
+        {
+          "id": "m5-consumption",
+          "no": 14.03380012512207,
+          "yes": 7.58563232421875,
+          "score": 0.0015809173928573728,
+          "tokens": 297,
+          "seconds": 1.4153455370105803
+        }
+      ]
+    }
+  ]
+}

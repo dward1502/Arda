@@ -1,0 +1,1 @@
+{"passed": true, "cases": [{"mode": "live", "passed": true, "final": "Ticket DELTA: owner otter; status paused; retry 11:25 UTC.", "exit_code": 0, "timeout": null}, {"mode": "broken", "passed": true, "final": "", "exit_code": null, "timeout": true}], "error": null}

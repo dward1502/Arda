@@ -1,0 +1,1844 @@
+{
+  "scope": "isolated release candidate, not deployed router; includes isolated Hermes CLI",
+  "binary_sha256": "fce5727e2bf66d3f821e904c2f98ee75cba936b3ebed1708b35965bc5f58b774",
+  "state_root": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0",
+  "port": 58763,
+  "steps": [
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "cb50cf3cfde7a425",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 16384,
+            "execution_lane": "interactive",
+            "latency_ms": 846,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "interactive",
+            "route_id": "cb50cf3cfde7a425"
+          },
+          "choices": [
+            {
+              "finish_reason": "tool_calls",
+              "index": 0,
+              "message": {
+                "content": "",
+                "role": "assistant",
+                "tool_calls": [
+                  {
+                    "function": {
+                      "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                      "name": "read_file"
+                    },
+                    "id": "h6RiOz4bR3yFcObNlcNifQD0FcQ8Wijm",
+                    "type": "function"
+                  }
+                ]
+              }
+            }
+          ],
+          "created": 1791617082,
+          "id": "chatcmpl-TAqVbcgQOPaJSGc3fMcBtY9Vxraa7RCd",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b11430-8345f3339",
+          "timings": {
+            "cache_n": 314,
+            "predicted_ms": 593.958,
+            "predicted_n": 40,
+            "predicted_per_second": 65.66120836826846,
+            "predicted_per_token_ms": 15.229692307692307,
+            "prompt_ms": 95.146,
+            "prompt_n": 4,
+            "prompt_per_second": 42.040653311752465,
+            "prompt_per_token_ms": 23.7865
+          },
+          "usage": {
+            "completion_tokens": 40,
+            "prompt_tokens": 318,
+            "prompt_tokens_details": {
+              "cached_tokens": 314
+            },
+            "total_tokens": 358
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "auto",
+        "local_only": true,
+        "force_provider_id": "edge_core",
+        "allow_forced_provider_fallback": false,
+        "temperature": 0,
+        "max_tokens": 256,
+        "stream": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ]
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents."
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                  "name": "read_file"
+                },
+                "id": "h6RiOz4bR3yFcObNlcNifQD0FcQ8Wijm",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "h6RiOz4bR3yFcObNlcNifQD0FcQ8Wijm",
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\","
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "7271a49365fb8f62",
+          "x-manwe-provider-id": "edge_core",
+          "x-manwe-model-id": "Qwen3.5-9B-Q4_K_M",
+          "x-manwe-route-class": "tool_oriented",
+          "x-manwe-execution-lane": "execution"
+        },
+        "body": {
+          "_manwe_route": {
+            "context_window_target": 32000,
+            "execution_lane": "execution",
+            "latency_ms": 1110,
+            "model_id": "Qwen3.5-9B-Q4_K_M",
+            "provider_id": "edge_core",
+            "route_class": "tool_oriented",
+            "route_id": "7271a49365fb8f62"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "The content at line 17 of Cargo.toml lists several workspace members, including crates for Arda Vaire, Arda Varda, and Arda Workbench executors, as well as outposts for Arda Outpost Protocol, Arda Outpost Scout, and Arda Relic Bridge.",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791617083,
+          "id": "chatcmpl-zM5DRe1c1Z80zMcivro6A50NRbSOKs4g",
+          "model": "Qwen3.5-9B-Q4_K_M",
+          "object": "chat.completion",
+          "system_fingerprint": "b11430-8345f3339",
+          "timings": {
+            "cache_n": 357,
+            "predicted_ms": 954.191,
+            "predicted_n": 63,
+            "predicted_per_second": 64.97650889601768,
+            "predicted_per_token_ms": 15.390177419354838,
+            "prompt_ms": 143.185,
+            "prompt_n": 96,
+            "prompt_per_second": 670.4612913363829,
+            "prompt_per_token_ms": 1.4915104166666666
+          },
+          "usage": {
+            "completion_tokens": 63,
+            "prompt_tokens": 453,
+            "prompt_tokens_details": {
+              "cached_tokens": 357
+            },
+            "total_tokens": 516
+          }
+        }
+      }
+    }
+  ],
+  "health": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "alerts": [],
+      "bootstrap_state_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/absent-bootstrap.json",
+      "budget_pressure": {
+        "cooldown_total": 0,
+        "critical_total": 0,
+        "exhausted_total": 0,
+        "highest_level": "ok",
+        "providers": [
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "anthropic",
+            "provider_name": "Anthropic Claude"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "cerebras",
+            "provider_name": "Cerebras Cloud"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "edge_core",
+            "provider_name": "Annunimas Core (3080 Workstation)"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "google",
+            "provider_name": "Google AI Studio"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "groq",
+            "provider_name": "Groq"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": null,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": null,
+            "provider_id": "local_fallback",
+            "provider_name": "Local Llama.cpp Fallback"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "mistral",
+            "provider_name": "Mistral API"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "nvidia",
+            "provider_name": "NVIDIA API Catalog"
+          },
+          {
+            "cooldown_until_utc": null,
+            "day_usage_ratio": 0.0,
+            "exhausted_day": false,
+            "exhausted_minute": false,
+            "in_cooldown": false,
+            "level": "ok",
+            "minute_usage_ratio": 0.0,
+            "provider_id": "zai",
+            "provider_name": "Z.AI / GLM"
+          }
+        ],
+        "providers_total": 9,
+        "warning_total": 0
+      },
+      "capability_summary": {
+        "models_with_failed_streaming_receipts": 0,
+        "models_with_failed_structured_output_receipts": 0,
+        "models_with_failed_tool_receipts": 0,
+        "providers_with_no_capability_evidence": 9,
+        "receipt_model_count": 0,
+        "recent_capability_failures": 0
+      },
+      "catalog_generation": 2,
+      "config_path": "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/providers.toml",
+      "config_source": "provider_file",
+      "ok": true,
+      "provider_state_counts": {
+        "missing_api_key": 7,
+        "ready": 2
+      },
+      "providers_blocked": 7,
+      "providers_enabled": 9,
+      "providers_healthy": 2,
+      "providers_ready": 2,
+      "providers_total": 9,
+      "recent_event_sample_complete": true,
+      "recent_event_sample_limit": 48,
+      "recent_route_failures": 0,
+      "recent_route_successes": 0,
+      "route_guardrails": {
+        "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+        "low_context_tool_model_total": 1,
+        "tool_execution_min_context_window": 64000,
+        "tool_incompatible_model_total": 0,
+        "visible_reasoning_model_total": 0
+      },
+      "service": "manwe"
+    }
+  },
+  "cases": [
+    {
+      "kind": "recovery",
+      "repetition": 2,
+      "command": [
+        "/var/home/mythos/.hermes/installs/93d02a9d25b9a6b1/environments/cc6a35ab872f408d8744bd78c6cd77ab/venv/bin/python",
+        "-m",
+        "hermes_cli.main",
+        "chat",
+        "--safe-mode",
+        "--provider",
+        "custom:assessment",
+        "-m",
+        "edge_core/Qwen3.5-9B-Q4_K_M",
+        "-t",
+        "file",
+        "--max-turns",
+        "10",
+        "--run-budget",
+        "60",
+        "--oneshot",
+        "--format",
+        "stream-json",
+        "--in",
+        "/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2",
+        "-q",
+        "File-tool output uses LINE_NUM|CONTENT. The line-number prefix is presentation metadata, not part of the source and not an identifier, quantity, or fact. In answers, distinguish source facts from tool formatting. Before finalizing, check each asserted identifier, number and status against source content; omit unsupported additions.\nAuthorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2. First attempt to read missing.txt. If it is absent, read index.txt to locate its replacement, then read that file. Report ticket status, reason and retry time. Never create the missing file or alter any file."
+      ],
+      "exit_code": 0,
+      "stdout": "{\"type\": \"system\", \"subtype\": \"init\", \"model\": \"edge_core/Qwen3.5-9B-Q4_K_M\", \"session_id\": \"20261010_002443_91623a\", \"timestamp\": 1791617083966}\n{\"type\": \"text\", \"text\": \"The user wants me to read missing.txt first, and if it doesn't exist, read index.txt to find its replacement. I need to report ticket status, reason, and retry time without creating or altering any files.\", \"timestamp\": 1791617089956}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\"}, \"timestamp\": 1791617089964}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"\\\", \\\"total_lines\\\": 0, \\\"file_size\\\": 0, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"error\\\": \\\"File not found: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\\\", \\\"not_found\\\": true, \\\"similar_files\\\": [\\\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\\\"]}\", \"duration_ms\": 308, \"is_error\": true, \"timestamp\": 1791617090273}\n{\"type\": \"text\", \"text\": \"\\n\\nmissing.txt doesn't exist. The similar_files shows index.txt is available. I need to read index.txt to find the replacement.\", \"timestamp\": 1791617091883}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\"}, \"timestamp\": 1791617091887}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"1|The requested record moved to records.txt.\\\", \\\"total_lines\\\": 1, \\\"file_size\\\": 43, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"not_found\\\": false}\", \"duration_ms\": 1, \"is_error\": false, \"timestamp\": 1791617091890}\n{\"type\": \"text\", \"text\": \"\\n\\nFound the replacement. The ticket status is \\\"moved\\\", reason is \\\"The requested record moved to records.txt\\\", and I need to read records.txt to get the actual content. Let me read records.txt to complete the assessment.\", \"timestamp\": 1791617093774}\n{\"type\": \"tool_use\", \"name\": \"read_file\", \"input\": {\"path\": \"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/records.txt\"}, \"timestamp\": 1791617093778}\n{\"type\": \"tool_result\", \"name\": \"read_file\", \"output\": \"{\\\"content\\\": \\\"1|Ticket ALPHA: status paused; reason cooling; retry at 09:40 UTC.\\\", \\\"total_lines\\\": 1, \\\"file_size\\\": 65, \\\"truncated\\\": false, \\\"is_binary\\\": false, \\\"is_image\\\": false, \\\"not_found\\\": false}\", \"duration_ms\": 1, \"is_error\": false, \"timestamp\": 1791617093781}\n{\"type\": \"text\", \"text\": \"\\n\\n**Ticket Status:** paused  \\n**Reason:** cooling  \\n**Retry Time:** 09:40 UTC  \\n\\nmissing.txt was absent; index.txt indicated the record moved to records.txt, which contains the ticket details.\", \"timestamp\": 1791617095610}\n{\"type\": \"result\", \"session_id\": \"20261010_002443_91623a\", \"exit_code\": 0, \"text\": \"**Ticket Status:** paused  \\n**Reason:** cooling  \\n**Retry Time:** 09:40 UTC  \\n\\nmissing.txt was absent; index.txt indicated the record moved to records.txt, which contains the ticket details.\", \"tokens\": {\"input\": 0, \"output\": 0, \"total\": 0, \"cache_read\": 0, \"cache_write\": 0}, \"duration_ms\": 11657, \"timestamp\": 1791617095624}\n",
+      "stderr": "\nsession_id: 20261010_002443_91623a\n",
+      "final": "**Ticket Status:** paused  \n**Reason:** cooling  \n**Retry Time:** 09:40 UTC  \n\nmissing.txt was absent; index.txt indicated the record moved to records.txt, which contains the ticket details.",
+      "reads": [
+        "missing.txt",
+        "index.txt",
+        "records.txt"
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "candidate_stopped": true,
+  "upstream_captures": [
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 256,
+        "messages": [
+          {
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents.",
+            "role": "user"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "stream": false,
+        "temperature": 0,
+        "tool_choice": "auto",
+        "tools": [
+          {
+            "function": {
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "offset": {
+                    "type": "integer"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}"
+                  },
+                  "id": "h6RiOz4bR3yFcObNlcNifQD0FcQ8Wijm"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791617082,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 40,
+          "prompt_tokens": 318,
+          "total_tokens": 358,
+          "prompt_tokens_details": {
+            "cached_tokens": 314
+          }
+        },
+        "id": "chatcmpl-TAqVbcgQOPaJSGc3fMcBtY9Vxraa7RCd",
+        "timings": {
+          "cache_n": 314,
+          "prompt_n": 4,
+          "prompt_ms": 95.146,
+          "prompt_per_token_ms": 23.7865,
+          "prompt_per_second": 42.040653311752465,
+          "predicted_n": 40,
+          "predicted_ms": 593.958,
+          "predicted_per_token_ms": 15.229692307692307,
+          "predicted_per_second": 65.66120836826846
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "allow_forced_provider_fallback": false,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "local_only": true,
+        "max_tokens": 256,
+        "messages": [
+          {
+            "content": "Call read_file for Cargo.toml, offset 17. Then summarize the returned content in one sentence. Do not invent file contents.",
+            "role": "user"
+          },
+          {
+            "content": "",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "    \"crates/spine/memory/arda-vaire\",\n    \"crates/spine/executors/arda-varda\",\n    \"crates/spine/executors/arda-workbench-executor\",\n    \"outposts/arda-outpost-protocol\",\n    \"outposts/arda-outpost-scout\",\n    \"outposts/arda-relic-bridge\",",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "stream": false,
+        "temperature": 0,
+        "tool_choice": "auto",
+        "tools": [
+          {
+            "function": {
+              "description": "Read a UTF-8 file; offset is a one-based line number.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "offset": {
+                    "type": "integer"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "offset"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "The content at line 17 of Cargo.toml lists several workspace members, including crates for Arda Vaire, Arda Varda, and Arda Workbench executors, as well as outposts for Arda Outpost Protocol, Arda Outpost Scout, and Arda Relic Bridge."
+            }
+          }
+        ],
+        "created": 1791617083,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 63,
+          "prompt_tokens": 453,
+          "total_tokens": 516,
+          "prompt_tokens_details": {
+            "cached_tokens": 357
+          }
+        },
+        "id": "chatcmpl-zM5DRe1c1Z80zMcivro6A50NRbSOKs4g",
+        "timings": {
+          "cache_n": 357,
+          "prompt_n": 96,
+          "prompt_ms": 143.185,
+          "prompt_per_token_ms": 1.4915104166666666,
+          "prompt_per_second": 670.4612913363829,
+          "predicted_n": 63,
+          "predicted_ms": 954.191,
+          "predicted_per_token_ms": 15.390177419354838,
+          "predicted_per_second": 64.97650889601768
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "grounding_instruction_present": false,
+            "content_sha256": "7a985d02b6531e564462862ecdeb25b19b788f1f707c915f17c3794128877d5f",
+            "content_chars": 12691,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "File-tool output uses LINE_NUM|CONTENT. The line-number prefix is presentation metadata, not part of the source and not an identifier, quantity, or fact. In answers, distinguish source facts from tool formatting. Before finalizing, check each asserted identifier, number and status against source content; omit unsupported additions.\nAuthorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2. First attempt to read missing.txt. If it is absent, read index.txt to locate its replacement, then read that file. Report ticket status, reason and retry time. Never create the missing file or alter any file.",
+            "role": "user"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "The user wants me to read missing.txt first, and if it doesn't exist, read index.txt to find its replacement. I need to report ticket status, reason, and retry time without creating or altering any files.\n",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\"}"
+                  },
+                  "id": "i0C5zVWeLSzBHaBsv2Z3Q7p6x90w2hti"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791617089,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 101,
+          "prompt_tokens": 4589,
+          "total_tokens": 4690,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-9zP4QpNULaJklybRfuCDFNZqUZmzmtJ5",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 4589,
+          "prompt_ms": 2852.195,
+          "prompt_per_token_ms": 0.6215286554804968,
+          "prompt_per_second": 1608.936275394915,
+          "predicted_n": 101,
+          "predicted_ms": 1580.308,
+          "predicted_per_token_ms": 15.80308,
+          "predicted_per_second": 63.27880387873756
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "grounding_instruction_present": false,
+            "content_sha256": "7a985d02b6531e564462862ecdeb25b19b788f1f707c915f17c3794128877d5f",
+            "content_chars": 12691,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "File-tool output uses LINE_NUM|CONTENT. The line-number prefix is presentation metadata, not part of the source and not an identifier, quantity, or fact. In answers, distinguish source facts from tool formatting. Before finalizing, check each asserted identifier, number and status against source content; omit unsupported additions.\nAuthorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2. First attempt to read missing.txt. If it is absent, read index.txt to locate its replacement, then read that file. Report ticket status, reason and retry time. Never create the missing file or alter any file.",
+            "role": "user"
+          },
+          {
+            "content": "The user wants me to read missing.txt first, and if it doesn't exist, read index.txt to find its replacement. I need to report ticket status, reason, and retry time without creating or altering any files.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"\", \"total_lines\": 0, \"file_size\": 0, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"error\": \"File not found: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\", \"not_found\": true, \"similar_files\": [\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\"]}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "missing.txt doesn't exist. The similar_files shows index.txt is available. I need to read index.txt to find the replacement.\n\n",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\"}"
+                  },
+                  "id": "lTtrABCZMU5CjGUfwM0ZX27uINq46jWm"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791617091,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 80,
+          "prompt_tokens": 4823,
+          "total_tokens": 4903,
+          "prompt_tokens_details": {
+            "cached_tokens": 4585
+          }
+        },
+        "id": "chatcmpl-bhO4FtpVVMU2g34vSnRLUmpzQteT4UK5",
+        "timings": {
+          "cache_n": 4585,
+          "prompt_n": 238,
+          "prompt_ms": 256.392,
+          "prompt_per_token_ms": 1.0772773109243696,
+          "prompt_per_second": 928.2660925457892,
+          "predicted_n": 80,
+          "predicted_ms": 1253.915,
+          "predicted_per_token_ms": 15.872341772151898,
+          "predicted_per_second": 63.002675619958296
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "grounding_instruction_present": false,
+            "content_sha256": "7a985d02b6531e564462862ecdeb25b19b788f1f707c915f17c3794128877d5f",
+            "content_chars": 12691,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "File-tool output uses LINE_NUM|CONTENT. The line-number prefix is presentation metadata, not part of the source and not an identifier, quantity, or fact. In answers, distinguish source facts from tool formatting. Before finalizing, check each asserted identifier, number and status against source content; omit unsupported additions.\nAuthorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2. First attempt to read missing.txt. If it is absent, read index.txt to locate its replacement, then read that file. Report ticket status, reason and retry time. Never create the missing file or alter any file.",
+            "role": "user"
+          },
+          {
+            "content": "The user wants me to read missing.txt first, and if it doesn't exist, read index.txt to find its replacement. I need to report ticket status, reason, and retry time without creating or altering any files.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"\", \"total_lines\": 0, \"file_size\": 0, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"error\": \"File not found: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\", \"not_found\": true, \"similar_files\": [\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\"]}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          },
+          {
+            "content": "missing.txt doesn't exist. The similar_files shows index.txt is available. I need to read index.txt to find the replacement.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000002",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|The requested record moved to records.txt.\", \"total_lines\": 1, \"file_size\": 43, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000002"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "Found the replacement. The ticket status is \"moved\", reason is \"The requested record moved to records.txt\", and I need to read records.txt to get the actual content. Let me read records.txt to complete the assessment.\n\n",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/records.txt\"}"
+                  },
+                  "id": "w8YIrTa6yLUxGp49kNNhHhgGjQKi4vPM"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1791617093,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 100,
+          "prompt_tokens": 4973,
+          "total_tokens": 5073,
+          "prompt_tokens_details": {
+            "cached_tokens": 4819
+          }
+        },
+        "id": "chatcmpl-7BOo1y25hgQqGfDcaumIZLByuS9C8tLF",
+        "timings": {
+          "cache_n": 4819,
+          "prompt_n": 154,
+          "prompt_ms": 203.959,
+          "prompt_per_token_ms": 1.3244090909090909,
+          "prompt_per_second": 755.0537117754058,
+          "predicted_n": 100,
+          "predicted_ms": 1577.835,
+          "predicted_per_token_ms": 15.937727272727273,
+          "predicted_per_second": 62.74420329121866
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "grounding_instruction_present": false,
+            "content_sha256": "7a985d02b6531e564462862ecdeb25b19b788f1f707c915f17c3794128877d5f",
+            "content_chars": 12691,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "File-tool output uses LINE_NUM|CONTENT. The line-number prefix is presentation metadata, not part of the source and not an identifier, quantity, or fact. In answers, distinguish source facts from tool formatting. Before finalizing, check each asserted identifier, number and status against source content; omit unsupported additions.\nAuthorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2. First attempt to read missing.txt. If it is absent, read index.txt to locate its replacement, then read that file. Report ticket status, reason and retry time. Never create the missing file or alter any file.",
+            "role": "user"
+          },
+          {
+            "content": "The user wants me to read missing.txt first, and if it doesn't exist, read index.txt to find its replacement. I need to report ticket status, reason, and retry time without creating or altering any files.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000001",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"\", \"total_lines\": 0, \"file_size\": 0, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"error\": \"File not found: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/missing.txt\", \"not_found\": true, \"similar_files\": [\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\"]}",
+            "role": "tool",
+            "tool_call_id": "tc0000001"
+          },
+          {
+            "content": "missing.txt doesn't exist. The similar_files shows index.txt is available. I need to read index.txt to find the replacement.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/index.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000002",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|The requested record moved to records.txt.\", \"total_lines\": 1, \"file_size\": 43, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000002"
+          },
+          {
+            "content": "Found the replacement. The ticket status is \"moved\", reason is \"The requested record moved to records.txt\", and I need to read records.txt to get the actual content. Let me read records.txt to complete the assessment.",
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"path\":\"/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2/records.txt\"}",
+                  "name": "read_file"
+                },
+                "id": "tc0000003",
+                "type": "function"
+              }
+            ]
+          },
+          {
+            "content": "{\"content\": \"1|Ticket ALPHA: status paused; reason cooling; retry at 09:40 UTC.\", \"total_lines\": 1, \"file_size\": 65, \"truncated\": false, \"is_binary\": false, \"is_image\": false, \"not_found\": false}",
+            "role": "tool",
+            "tool_call_id": "tc0000003"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "medium",
+        "stream": false,
+        "stream_options": {
+          "include_usage": true
+        },
+        "temperature": 0,
+        "tools": [
+          {
+            "function": {
+              "description": "Targeted find-and-replace edits in files. Use this instead of sed/awk in terminal. Uses fuzzy matching (9 strategies) so minor whitespace/indentation differences won't break it. Returns a unified diff. Auto-runs syntax checks after editing. Finds a unique string and replaces it.",
+              "name": "patch",
+              "parameters": {
+                "properties": {
+                  "new_string": {
+                    "description": "Changed replacement text; it must differ from old_string. Pass empty string '' to delete the matched text.",
+                    "type": "string"
+                  },
+                  "old_string": {
+                    "description": "Exact text to find and replace. Must be unique in the file unless replace_all=true. Include surrounding context lines to ensure uniqueness.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "File path to edit.",
+                    "type": "string"
+                  },
+                  "replace_all": {
+                    "default": false,
+                    "description": "Replace all occurrences instead of requiring a unique match (default: false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "old_string",
+                  "new_string"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Read a text file with line numbers and pagination. Use this instead of cat/head/tail in terminal. Output format: 'LINE_NUM|CONTENT'. Suggests similar filenames if not found. Use offset and limit for large files. Reads exceeding ~100K characters are truncated on a line boundary and return a next_offset; continue with offset to read the rest. Documents auto-extract to readable text: .ipynb, Office (.docx/.xlsx/.pptx and legacy .doc/.ppt/.xls), PDF (text layer), OpenDocument, RTF, EPUB, SQLite (.db/.sqlite: schema, row counts, first rows). Cannot read images/binary \u2014 use vision_analyze for images.",
+              "name": "read_file",
+              "parameters": {
+                "properties": {
+                  "limit": {
+                    "default": 2000,
+                    "description": "Maximum number of lines to read (default: 2000, max: 2000). Reads are additionally capped at a ~100K-character budget with a next_offset continuation.",
+                    "maximum": 2000,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 1,
+                    "description": "Line number to start reading from (1-indexed, default: 1)",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "path": {
+                    "description": "Path to the file to read (absolute, relative, or ~/path)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Search file contents or find files by name. Use this instead of grep/rg/find/ls in terminal. Ripgrep-backed, faster than shell equivalents. On macOS, broad searches above the user home automatically skip TCC-protected folders (Desktop, Documents, Downloads, Library, Movies, Music, Pictures); target one directly when access is intentional.\n\nContent search (target='content'): Regex search inside files. Output modes: full matches with line numbers, file paths only, or match counts.\n\nFile search (target='files'): Find files by glob pattern (e.g., '*.py', '*config*'). Also use this instead of ls. Discovery order is the fast bounded default; exact global newest-first order is an explicit opt-in and may scan the full tree.",
+              "name": "search_files",
+              "parameters": {
+                "properties": {
+                  "context": {
+                    "default": 0,
+                    "description": "Number of context lines before and after each match (grep mode only)",
+                    "type": "integer"
+                  },
+                  "file_glob": {
+                    "description": "Filter files by pattern in grep mode (e.g., '*.py' to only search Python files)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of results to return (default: 50)",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Skip first N results for pagination (default: 0)",
+                    "type": "integer"
+                  },
+                  "order": {
+                    "default": "discovery",
+                    "description": "File-search order: 'discovery' is fast bounded traversal order; 'modified' is exact global newest-first and may scan the full tree; ignored for content",
+                    "enum": [
+                      "discovery",
+                      "modified"
+                    ],
+                    "type": "string"
+                  },
+                  "output_mode": {
+                    "default": "content",
+                    "description": "Output format for grep mode: 'content' shows matching lines with line numbers, 'files_only' lists file paths, 'count' shows match counts per file",
+                    "enum": [
+                      "content",
+                      "files_only",
+                      "count"
+                    ],
+                    "type": "string"
+                  },
+                  "path": {
+                    "default": ".",
+                    "description": "Directory or file to search in (default: current working directory)",
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "description": "Regex pattern for content search, or glob pattern (e.g., '*.py') for file search",
+                    "type": "string"
+                  },
+                  "target": {
+                    "default": "content",
+                    "description": "'content' searches inside file contents, 'files' searches for files by name",
+                    "enum": [
+                      "content",
+                      "files"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          },
+          {
+            "function": {
+              "description": "Write content to a file, completely replacing existing content. Use this instead of echo/cat heredoc in terminal. Creates parent directories automatically. OVERWRITES the entire file \u2014 use 'patch' for targeted edits. For an EXISTING file, call read_file first: write_file refuses (file untouched) when this task has no current full read/write of the file or the file changed on disk since; on refusal, read_file, merge, then retry. Auto-runs syntax checks on .py/.json/.yaml/.toml and other linted languages; only NEW errors introduced by this write are surfaced (pre-existing errors are filtered out). The result's verified:true means the on-disk content hash was confirmed \u2014 do NOT re-read the file to check the write landed.",
+              "name": "write_file",
+              "parameters": {
+                "properties": {
+                  "content": {
+                    "description": "Complete content to write to the file",
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "Path to the file to write (will be created if it doesn't exist, overwritten if it does)",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "type": "object"
+              }
+            },
+            "type": "function"
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "**Ticket Status:** paused  \n**Reason:** cooling  \n**Retry Time:** 09:40 UTC  \n\nmissing.txt was absent; index.txt indicated the record moved to records.txt, which contains the ticket details.",
+              "reasoning_content": "I have all the information needed. The ticket status, reason, and retry time are in records.txt.\n\n- Ticket: ALPHA\n- Status: paused\n- Reason: cooling\n- Retry time: 09:40 UTC\n"
+            }
+          }
+        ],
+        "created": 1791617095,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 96,
+          "prompt_tokens": 5154,
+          "total_tokens": 5250,
+          "prompt_tokens_details": {
+            "cached_tokens": 4969
+          }
+        },
+        "id": "chatcmpl-Cwfs3e3fl0fnfmrDEXtNDEDmm7Wlog2e",
+        "timings": {
+          "cache_n": 4969,
+          "prompt_n": 185,
+          "prompt_ms": 220.887,
+          "prompt_per_token_ms": 1.193983783783784,
+          "prompt_per_second": 837.5323129020721,
+          "predicted_n": 96,
+          "predicted_ms": 1503.621,
+          "predicted_per_token_ms": 15.827589473684212,
+          "predicted_per_second": 63.180814846294375
+        }
+      }
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        },
+        "max_tokens": 2048,
+        "messages": [
+          {
+            "content": "[private system prompt withheld]",
+            "role": "system",
+            "grounding_instruction_present": false,
+            "content_sha256": "3f1eef0616ddd2c13d45a3f8cef4ed648dadfdacdba7fbedceebf5a04d549998",
+            "content_chars": 942,
+            "manwe_trimmed": false
+          },
+          {
+            "content": "File-tool output uses LINE_NUM|CONTENT. The line-number prefix is presentation metadata, not part of the source and not an identifier, quantity, or fact. In answers, distinguish source facts from tool formatting. Before finalizing, check each asserted identifier, number and status against source content; omit unsupported additions.\nAuthorized synthetic assessment. Working directory: /var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2. First attempt to read missing.txt. If it is absent, read index.txt to locate its replacement, then read that file. Report ticket status, reason and retry time. Never create the missing file or alter any file.",
+            "role": "user"
+          }
+        ],
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "parallel_tool_calls": false,
+        "reasoning_effort": "none",
+        "response_format": {
+          "json_schema": {
+            "name": "session_title",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title"
+              ],
+              "type": "object"
+            },
+            "strict": true
+          },
+          "type": "json_schema"
+        },
+        "temperature": 0
+      },
+      "status": 200,
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "length",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Input: A user message describing a task involving file-tool output, line numbers, working directory, file reading logic (missing.txt -> index.txt), and reporting ticket status.\n    *   Task: Generate a title for the chat session based on the user's opening message.\n    *   Constraints:\n        *   JSON format: `{\"title\": \"...\"}`\n        *   Length: 3 to 7 words.\n        *   Case: Sentence case (capitalize first word and proper nouns).\n        *   Content: Name what the user wants DONE, not that they asked a question.\n        *   Technical terms: Keep exact (filenames, numbers, error codes).\n        *   Filler words: Drop (the, this, my, a, an).\n        *   No trailing punctuation, quotes, tool names, or 'Title:' prefix.\n        *   Language: Same as user (English).\n        *   Output: JSON only.\n\n2.  **Analyze the User Message:**\n    *   Core task: Handle file-tool output, distinguish metadata from source, read files based on logic (missing.txt -> index.txt), report ticket status.\n    *   Specifics: Working directory `/var/home/mythos/.hermes/cache/scratch/manwe-tool-candidate-m30yo6r0/recovery-2`, files `missing.txt`, `index.txt`.\n    *   Action: Read files, report status, reason, retry time.\n    *   Constraint: Never create or alter files.\n\n3.  **Drafting Titles:**\n    *   *Draft 1:* Read missing.txt then index.txt and report ticket status (8 words) - Too long.\n    *   *Draft 2:* Read missing.txt index.txt and report ticket status (7 words) - Good length.\n    *   *Draft 3:* Process missing.txt index.txt and report ticket status (7 words) - Good.\n    *   *Draft 4:* Handle missing.txt index.txt and report ticket status (7 words) - Good.\n    *   *Draft 5:* Read missing.txt index.txt report ticket status reason retry time (9 words) - Too long.\n    *   *Draft 6:* Read missing.txt index.txt report ticket status (6 words) - Good.\n    *   *Draft 7:* Process missing.txt index.txt report ticket status (6 words) - Good.\n    *   *Draft 8:* Read missing.txt index.txt report ticket status reason (7 words) - Good.\n\n    Let's focus on the core action: Reading files and reporting status.\n    The user wants to handle the file logic and report status.\n    \"Read missing.txt index.txt report ticket status\" (6 words).\n    \"Process missing.txt index.txt report ticket status\" (6 words).\n    \"Handle missing.txt index.txt report ticket status\" (6 words).\n\n    Let's check constraints:\n    - 3 to 7 words.\n    - Sentence case.\n    - No filler words (the, this, my, a, an).\n    - Keep technical terms (missing.txt, index.txt).\n\n    \"Read missing.txt index.txt report ticket status\"\n    Words: Read, missing.txt, index.txt, report, ticket, status. (6 words).\n    Wait, \"missing.txt\" and \"index.txt\" might count as one word each or two depending on tokenization. Usually, filenames with dots count as one word in this context.\n    Let's count:\n    1. Read\n    2. missing.txt\n    3. index.txt\n    4. report\n    5. ticket\n    6. status\n    Total: 6 words.\n\n    Alternative: \"Read missing.txt index.txt report ticket status reason\" (7 words).\n    Alternative: \"Handle missing.txt index.txt report ticket status\" (6 words).\n\n    The prompt says \"Name what the user wants DONE\".\n    The user wants to: Read files, report status.\n    \"Read missing.txt index.txt report ticket status\" seems accurate.\n\n    Let's refine for clarity and brevity.\n    \"Read missing.txt index.txt report ticket status\"\n    Is \"report ticket status\" clear? Yes.\n    Is \"missing.txt index.txt\" clear? Yes.\n\n    Let's try to include the directory context? No, too long.\n    Let's try to include the logic? \"Check missing.txt index.txt report ticket status\" (6 words).\n    \"Read missing.txt index.txt report ticket status\" is direct.\n\n    Check filler words: \"the\", \"this\", \"my\", \"a\", \"an\". None present.\n    Check case: Sentence case. \"Read\" capitalized. \"missing.txt\" lowercase. \"index.txt\" lowercase. \"report\" lowercase. \"ticket\" lowercase. \"status\" lowercase.\n    Wait, \"Sentence case (capitalize only the first word and proper nouns)\".\n    So \"Read missing.txt index.txt report ticket status\" fits.\n\n    Check word count again:\n    1. Read\n    2. missing.txt\n    3. index.txt\n    4. report\n    5. ticket\n    6. status\n    Total 6 words. Fits 3-7 range.\n\n    One more check: \"Never create the missing file or alter any file.\" This is a constraint for the task, not necessarily the title. The title should reflect the main action.\n    Main action: Read files and report status.\n\n    Let's consider \"Process missing.txt index.txt report ticket status\".\n    \"Process\" might be better than \"Read\" given the logic (read missing, then read index).\n    But \"Read\" is more specific to the instruction \"First attempt to read... then read...\".\n    Let's stick with \"Read\".\n\n    Wait, \"ticket status\" might be considered two words.\n    1. Read\n    2. missing.txt\n    3. index.txt\n    4. report\n    5. ticket\n    6. status\n    Yes, 6 words.\n\n    Is there a better way to phrase \"report ticket status\"?\n    \"Report ticket status reason retry time\" (5 words + filenames = 7 words).\n    \"Read missing.txt index.txt report ticket status reason\" (7 words).\n    1. Read\n    2. missing.txt\n    3. index.txt\n    4. report\n    5. ticket\n    6. status\n    7. reason\n    This is exactly 7 words.\n    Does it cover the \"retry time\"?\n    The user says \"Report ticket status, reason and retry time.\"\n    \"Report ticket status reason retry time\" is 5 words.\n    Plus filenames: \"Read missing.txt index.txt report ticket status reason retry time\" (9 words) - Too long.\n\n    Let's prioritize the main goal.\n    \"Read missing.txt index.txt report ticket status\" (6 words).\n    This covers the core request.\n\n    Wait, I need to make sure I don't use filler words.\n    \"Read missing.txt index.txt report ticket status\"\n    No \"the\", \"a\", etc.\n\n    Let's verify the word count rule again. \"3 to 7 words\".\n    Does \"missing.txt\" count as one word? Yes, typically in these constraints, filenames are treated as single tokens/words.\n    So: Read (1) missing.txt (2) index.txt (3) report (4) ticket (5) status (6).\n    This is safe.\n\n    Let's try to make it slightly more descriptive if possible without exceeding 7.\n    \"Read missing.txt index.txt report ticket status reason\" (7 words).\n    This adds \"reason\" which is part of the report requirement.\n    \"Read missing.txt index.txt report ticket status reason\"\n    1. Read\n    2. missing.txt\n    3. index.txt\n    4. report\n    5. ticket\n    6. status\n    7. reason\n    This is exactly 7 words. It captures the \"report ticket status, reason\" part well.\n    However, \"retry time\" is also requested.\n    Maybe \"Read missing.txt index.txt report ticket status\" is safer and cleaner.\n    Or \"Handle missing.txt index.txt report ticket status\" (6 words).\n    \"Handle\" implies the logic flow better than \"Read\".\n    But \"Read\" is explicitly mentioned twice.\n    Let's go with \"Read missing.txt index.txt report ticket status\". It's concise and accurate.\n    Actually, \"Process\" might be better because it involves logic (if absent, read index).\n    \"Process missing.txt index.txt report ticket status\" (6 words).\n    Let's check if \"Process\" is better. The user says \"First attempt to read... If it is absent, read...\". This is processing logic.\n    But \"Read\" is the primary verb.\n    Let's stick to \"Read\".\n\n    Wait, I should check if \"ticket\" is a proper noun. No.\n    So \"Read missing.txt index.txt report ticket status\".\n    First word capitalized. Rest lowercase.\n    No trailing punctuation.\n    JSON format.\n\n    One more check on \"3 to 7 words\".\n    If \"missing.txt\" counts as 1 word.\n    If \"missing.txt\" counts as 2"
+            }
+          }
+        ],
+        "created": 1791617128,
+        "model": "Qwen3.5-9B-Q4_K_M",
+        "system_fingerprint": "b11430-8345f3339",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 2048,
+          "prompt_tokens": 394,
+          "total_tokens": 2442,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-tmcJmnwfMne0VPg9mHgNlWXu1VSh414b",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 394,
+          "prompt_ms": 323.001,
+          "prompt_per_token_ms": 0.8197994923857868,
+          "prompt_per_second": 1219.8104649830807,
+          "predicted_n": 2048,
+          "predicted_ms": 31752.736,
+          "predicted_per_token_ms": 15.511839765510503,
+          "predicted_per_second": 64.46688562522613
+        }
+      },
+      "error": "[Errno 32] Broken pipe"
+    },
+    {
+      "path": "/v1/models",
+      "request": null,
+      "status": 200,
+      "response": {
+        "models": [
+          {
+            "name": "Qwen3.5-9B-Q4_K_M",
+            "model": "Qwen3.5-9B-Q4_K_M",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "Qwen3.5-9B-Q4_K_M",
+            "aliases": [
+              "Qwen3.5-9B-Q4_K_M"
+            ],
+            "tags": [],
+            "object": "model",
+            "architecture": {
+              "input_modalities": [
+                "text"
+              ],
+              "output_modalities": [
+                "text"
+              ]
+            },
+            "created": 1791617096,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 2,
+              "n_vocab": 248320,
+              "n_ctx": 73728,
+              "n_ctx_train": 262144,
+              "n_embd": 4096,
+              "n_params": 8953803264,
+              "size": 5669554176,
+              "ftype": "Q4_K - Medium"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "strict_recovery_passed": true
+}

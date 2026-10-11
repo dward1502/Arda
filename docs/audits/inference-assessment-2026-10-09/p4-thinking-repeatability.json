@@ -1,0 +1,30 @@
+{
+  "scope": "three fresh isolated Hermes sessions, one synthetic read-only fixture; not full profile qualification",
+  "runs": [
+    {
+      "run": 1,
+      "passed": true,
+      "calls": 1,
+      "final": "otter, 43219",
+      "duration_ms": 4678,
+      "stopped": true
+    },
+    {
+      "run": 2,
+      "passed": true,
+      "calls": 1,
+      "final": "The file contains: \"1|The service owner is the otter. The approved port is 43219.\"\n\nSo the service owner is \"the otter\" and the approved port is 43219.",
+      "duration_ms": 5344,
+      "stopped": true
+    },
+    {
+      "run": 3,
+      "passed": true,
+      "calls": 1,
+      "final": "otter, 43219",
+      "duration_ms": 4394,
+      "stopped": true
+    }
+  ],
+  "passed_count": 3
+}

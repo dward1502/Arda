@@ -1,0 +1,23 @@
+{
+  "command": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "-p",
+    "MemoryMax=10G",
+    "-p",
+    "MemorySwapMax=0",
+    "-p",
+    "RuntimeMaxSec=240",
+    "-p",
+    "RestrictAddressFamilies=AF_UNIX",
+    "/var/home/mythos/.hermes/cache/scratch/inference-retrieval-venv/bin/python",
+    "-I",
+    "/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/retrieval-cpu-probe.py"
+  ],
+  "stdout": "reranked 1\nreranked 2\nreranked 3\nreranked 4\nreranked 5\nreranked 6\nreranked 7\nreranked 8\nreranked 9\nreranked 10\nreranked 11\nreranked 12\nreranked 13\nreranked 14\nreranked 15\nreranked 16\nreranked 17\nreranked 18\nreranked 19\nreranked 20\n",
+  "stderr": "Running as unit: run-p3338434-i3320723.service\nTraceback (most recent call last):\n  File \"/var/home/mythos/Eregion/Arda/docs/audits/inference-assessment-2026-10-09/retrieval-cpu-probe.py\", line 42, in <module>\n    candidates=cases[q['query']]['ranked_document_ids'];assert len(candidates)==3 and len(set(candidates))==3\n                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nFinished with result: exit-code\nMain processes terminated with: code=exited, status=1/FAILURE\nService runtime: 1min 18.022s\nCPU time consumed: 4min 21.275s\nMemory peak: 3.3G (swap: 0B)\n",
+  "exit_code": 1
+}

@@ -1,0 +1,38 @@
+{
+  "coding-1": {
+    "sha256": "d76840869c134b0defcd6036ab3aea0dbd4caf7eeb94c68707d0d88695fc264e",
+    "reviewer": "independent sa-0-915f11bf / deleg_2bb47588",
+    "verdict": "pass",
+    "reason": "Code and readback agree; correct for numeric/None/bool fixture, not a general numeric-type filter. Explanation and no-test claim supported."
+  },
+  "coding-2": {
+    "sha256": "51b8770b3cef7c1dcf43eedf340a76abcce253703a25f2a522cc3efa891e2fe1",
+    "reviewer": "independent sa-0-915f11bf / deleg_2bb47588",
+    "verdict": "fail",
+    "reason": "Mechanically correct code, but negative numbers are truthy; falsely attributes acceptance to falsiness."
+  },
+  "research-1": {
+    "sha256": "565a13e605fc92734a9bc534812165eef6044fcd1e73ce6799b910dee0e16c67",
+    "reviewer": "independent sa-0-915f11bf / deleg_2bb47588",
+    "verdict": "pass",
+    "reason": "Successful source reads support current owner/port, supersession, citations and unmeasured energy; no mutation."
+  },
+  "research-2": {
+    "sha256": "851d0d9c75655c664eed81fe6c23e9e47d5582495ebb110c4a51fce10ecde1d2",
+    "reviewer": "independent sa-0-915f11bf / deleg_2bb47588",
+    "verdict": "pass",
+    "reason": "Successful source reads support current owner/port, supersession, citations and unmeasured energy; no mutation."
+  },
+  "recovery-1": {
+    "sha256": "a10a4496eab733ecd575dd630e5cb77e7e902fe491acce717789d915914a912c",
+    "reviewer": "independent sa-0-915f11bf / deleg_2bb47588",
+    "verdict": "pass",
+    "reason": "Actual missing result precedes index and linked records read; final consumes successful results and gives correct facts without mutation."
+  },
+  "recovery-2": {
+    "sha256": "9ac61336cc7e012a87abdca1b9a55aa9051784615e3b1979ec4c225b215cbc9b",
+    "reviewer": "independent sa-0-915f11bf / deleg_2bb47588",
+    "verdict": "pass",
+    "reason": "Actual missing result precedes index and linked records read; final consumes successful results and gives correct facts without mutation."
+  }
+}

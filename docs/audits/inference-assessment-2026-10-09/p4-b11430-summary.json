@@ -1,0 +1,78 @@
+{
+  "passed": 6,
+  "total": 6,
+  "cases": [
+    {
+      "case": "research",
+      "repeat": 1,
+      "passed": true,
+      "reads": [
+        "old.txt",
+        "current.txt"
+      ],
+      "evidence": "p4-b11430-fullctx-research-1.json"
+    },
+    {
+      "case": "research",
+      "repeat": 2,
+      "passed": true,
+      "reads": [
+        "old.txt",
+        "current.txt"
+      ],
+      "evidence": "p4-b11430-fullctx-research-2.json"
+    },
+    {
+      "case": "recovery",
+      "repeat": 1,
+      "passed": true,
+      "reads": [
+        "missing.txt",
+        "index.txt",
+        "records.txt"
+      ],
+      "evidence": "p4-b11430-fullctx-recovery-1.json"
+    },
+    {
+      "case": "recovery",
+      "repeat": 2,
+      "passed": true,
+      "reads": [
+        "missing.txt",
+        "index.txt",
+        "records.txt"
+      ],
+      "evidence": "p4-b11430-fullctx-recovery-2.json"
+    },
+    {
+      "case": "coding",
+      "repeat": 1,
+      "passed": true,
+      "reads": [
+        "spec.txt",
+        "calc.py"
+      ],
+      "evidence": "p4-b11430-fullctx-coding-1.json"
+    },
+    {
+      "case": "coding",
+      "repeat": 2,
+      "passed": true,
+      "reads": [
+        "spec.txt",
+        "calc.py",
+        "calc.py"
+      ],
+      "evidence": "p4-b11430-fullctx-coding-2.json"
+    }
+  ],
+  "runtime_sha256": "6b8a4e71a274fd7b8048b2b0b84d065262f313f7f1b985934fe403247b2b2c6e",
+  "weights_sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
+  "context": 73728,
+  "restored_health": {
+    "server8097": "ok",
+    "server8098": "ok",
+    "core9337": "ok"
+  },
+  "review": "pending"
+}

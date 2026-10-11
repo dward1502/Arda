@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "provider": "openai_sub",
+  "model": "gpt-6-astra",
+  "tool_call_id": "call_e2bb9bedb6394257a0ea6de4c34d618e",
+  "tool_result_consumed": true,
+  "routes": [
+    {
+      "context_window_target": 32000,
+      "execution_lane": "execution",
+      "latency_ms": 2533,
+      "model_id": "gpt-6-astra",
+      "provider_id": "openai_sub",
+      "route_class": "tool_oriented",
+      "route_id": "16a097f0eb842627"
+    },
+    {
+      "context_window_target": 32000,
+      "execution_lane": "execution",
+      "latency_ms": 2202,
+      "model_id": "gpt-6-astra",
+      "provider_id": "openai_sub",
+      "route_class": "tool_oriented",
+      "route_id": "3c462c1c79351514"
+    }
+  ]
+}

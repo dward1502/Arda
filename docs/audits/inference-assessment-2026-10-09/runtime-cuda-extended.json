@@ -1,0 +1,867 @@
+{
+  "utc": "2026-10-10T05:27:44.664352+00:00",
+  "scope": "same model, GPU0, context 4096, sequential smoke; not promotion",
+  "fixtures": [
+    [
+      "coding",
+      "Diagnose this Rust error. Reply only A or B. Error: future cannot be sent between threads safely, MutexGuard used across await. A: stale Cargo.lock. B: std::sync::MutexGuard alive across await.",
+      "B"
+    ],
+    [
+      "research",
+      "Use only the following synthetic sources. [A] January: service runs on port 7000. [B] February correction: port 7001 replaces 7000. What is the corrected port? Reply exactly 7001 [B].",
+      "7001 [B]"
+    ],
+    [
+      "abstention",
+      "The complete supplied repository has only Cargo.toml and src/main.rs. What function is in src/router.rs? Reply exactly CANNOT_VERIFY if absent.",
+      "CANNOT_VERIFY"
+    ]
+  ],
+  "runs": [
+    {
+      "runtime": "b11430",
+      "binary": "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server",
+      "binary_sha256": "6b8a4e71a274fd7b8048b2b0b84d065262f313f7f1b985934fe403247b2b2c6e",
+      "checks": [
+        {
+          "case": "coding",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "B\n</think>\n\nB"
+                }
+              }
+            ],
+            "created": 1791610079,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 7,
+              "prompt_tokens": 87,
+              "total_tokens": 94,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            },
+            "id": "chatcmpl-Kxi6vLuVJ2HNYLOoIabdZv2yCHTl770h",
+            "timings": {
+              "cache_n": 0,
+              "prompt_n": 87,
+              "prompt_ms": 7967.647,
+              "prompt_per_token_ms": 91.58214942528735,
+              "prompt_per_second": 10.919158441632769,
+              "predicted_n": 7,
+              "predicted_ms": 93.964,
+              "predicted_per_token_ms": 15.660666666666666,
+              "predicted_per_second": 63.854242050146865
+            }
+          },
+          "elapsed_seconds": 8.06637852100539,
+          "passed": false
+        },
+        {
+          "case": "research",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "7001 [B]"
+                }
+              }
+            ],
+            "created": 1791610079,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 8,
+              "prompt_tokens": 96,
+              "total_tokens": 104,
+              "prompt_tokens_details": {
+                "cached_tokens": 25
+              }
+            },
+            "id": "chatcmpl-rxG18ca6Y5wVmBYpoxLrTAQijDK5Ci1D",
+            "timings": {
+              "cache_n": 25,
+              "prompt_n": 71,
+              "prompt_ms": 51.706,
+              "prompt_per_token_ms": 0.7282535211267606,
+              "prompt_per_second": 1373.1481839631763,
+              "predicted_n": 8,
+              "predicted_ms": 96.115,
+              "predicted_per_token_ms": 13.730714285714285,
+              "predicted_per_second": 72.82942308692712
+            }
+          },
+          "elapsed_seconds": 0.15477034600189654,
+          "passed": true
+        },
+        {
+          "case": "abstention",
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "CANNOT_VERIFY"
+                }
+              }
+            ],
+            "created": 1791610079,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 5,
+              "prompt_tokens": 75,
+              "total_tokens": 80,
+              "prompt_tokens_details": {
+                "cached_tokens": 25
+              }
+            },
+            "id": "chatcmpl-UZ0creQqtJsGhxMHB3mZLLLs3bAhb0Cj",
+            "timings": {
+              "cache_n": 25,
+              "prompt_n": 50,
+              "prompt_ms": 40.074,
+              "prompt_per_token_ms": 0.80148,
+              "prompt_per_second": 1247.6917702250837,
+              "predicted_n": 5,
+              "predicted_ms": 54.093,
+              "predicted_per_token_ms": 13.52325,
+              "predicted_per_second": 73.94672138724049
+            }
+          },
+          "elapsed_seconds": 0.1011235719997785,
+          "passed": true
+        }
+      ],
+      "argv": [
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server",
+        "--model",
+        "/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf",
+        "--alias",
+        "control",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18099",
+        "--ctx-size",
+        "4096",
+        "--parallel",
+        "1",
+        "--n-gpu-layers",
+        "999",
+        "--flash-attn",
+        "on",
+        "--cache-type-k",
+        "q4_0",
+        "--cache-type-v",
+        "q4_0",
+        "--jinja",
+        "--chat-template-kwargs",
+        "{\"enable_thinking\":false}"
+      ],
+      "model_sha256": "2b641415bb2eb08839cde0030ba3dad401d56a7b3c6745dc5b59e549316b192c",
+      "model_bytes": 2574807968,
+      "devices": "Available devices:\n  CUDA0: NVIDIA GeForce RTX 2080 SUPER (7786 MiB, 7661 MiB free)\n",
+      "health": {
+        "status": "ok"
+      },
+      "models": {
+        "models": [
+          {
+            "name": "control",
+            "model": "control",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "control",
+            "aliases": [
+              "control"
+            ],
+            "tags": [],
+            "object": "model",
+            "architecture": {
+              "input_modalities": [
+                "text"
+              ],
+              "output_modalities": [
+                "text"
+              ]
+            },
+            "created": 1791610071,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 1,
+              "n_vocab": 166144,
+              "n_ctx": 4096,
+              "n_ctx_train": 262144,
+              "n_embd": 3072,
+              "n_params": 4169800704,
+              "size": 2570840064,
+              "ftype": "Q4_K - Medium"
+            }
+          }
+        ]
+      },
+      "props": {
+        "default_generation_settings": {
+          "params": {
+            "seed": 4294967295,
+            "temperature": 0.6000000238418579,
+            "dynatemp_range": 0.0,
+            "dynatemp_exponent": 1.0,
+            "top_k": 20,
+            "top_p": 0.949999988079071,
+            "min_p": 0.05000000074505806,
+            "top_n_sigma": -1.0,
+            "xtc_probability": 0.0,
+            "xtc_threshold": 0.10000000149011612,
+            "typical_p": 1.0,
+            "repeat_last_n": 64,
+            "repeat_penalty": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "dry_multiplier": 0.0,
+            "dry_base": 1.75,
+            "dry_allowed_length": 2,
+            "dry_penalty_last_n": 64,
+            "mirostat": 0,
+            "mirostat_tau": 5.0,
+            "mirostat_eta": 0.10000000149011612,
+            "adaptive_target": -1.0,
+            "adaptive_decay": 0.8999999761581421,
+            "max_tokens": -1,
+            "n_predict": -1,
+            "n_keep": 0,
+            "n_discard": 0,
+            "ignore_eos": false,
+            "stream": false,
+            "n_probs": 0,
+            "min_keep": 0,
+            "chat_format": "Content-only",
+            "reasoning_format": "none",
+            "reasoning_in_content": false,
+            "generation_prompt": "",
+            "samplers": [
+              "penalties",
+              "dry",
+              "top_n_sigma",
+              "top_k",
+              "typ_p",
+              "top_p",
+              "min_p",
+              "xtc",
+              "temperature"
+            ],
+            "speculative.types": "none",
+            "timings_per_token": false,
+            "post_sampling_probs": false,
+            "backend_sampling": false,
+            "lora": []
+          },
+          "n_ctx": 4096
+        },
+        "total_slots": 1,
+        "model_alias": "control",
+        "model_ftype": "Q4_K - Medium",
+        "model_path": "/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf",
+        "modalities": {
+          "vision": false,
+          "video": false,
+          "audio": false
+        },
+        "media_marker": "<__media_PVaBEBLRXhEGQdPF0DMvlPJmduo1cl1l__>",
+        "endpoint_slots": true,
+        "endpoint_props": false,
+        "endpoint_metrics": false,
+        "ui": true,
+        "ui_settings": {},
+        "chat_template": "\n\n{%- macro visible_text(content) -%}\n    {%- if content is string -%}\n        {{- content }}\n    {%- elif content is iterable and content is not mapping -%}\n        {%- for item in content -%}\n            {%- if item is mapping and item.type == 'text' -%}\n                {{- item.text }}\n            {%- elif item is string -%}\n                {{- item }}\n            {%- elif item is mapping and item.type in ['image', 'image_url', 'video', 'video_url', 'audio', 'audio_url', 'input_audio'] -%}\n                {%- set media_type = item.type | replace('_url', '') | replace('input_', '') -%}\n                {{- \"<reminder>You are unable to process this \" ~ media_type ~ \" because you don't have multi-modal input ability. Try different methods.</reminder>\" }}\n            {%- endif -%}\n        {%- endfor -%}\n    {%- else -%}\n        {{- content }}\n    {%- endif -%}\n{%- endmacro -%}\n\n\n{%- set tool_call_format = tool_call_format if tool_call_format is defined else 'xml' %}\n{%- if tools %}\n    {{- '<|im_start|>system\\n' }}    \n    {%- if messages|length > 0 and messages[0].get('role', '') == 'system' %}\n        {{- visible_text(messages[0].content) + '\\n\\n' }}\n    {%- else %} \n        {{- '\u4f60\u662f\u4e00\u4f4d\u5de5\u5177\u51fd\u6570\u8c03\u7528\u4e13\u5bb6\uff0c\u4f60\u4f1a\u5f97\u5230\u4e00\u4e2a\u95ee\u9898\u548c\u4e00\u7ec4\u53ef\u80fd\u7684\u5de5\u5177\u51fd\u6570\u3002\u6839\u636e\u95ee\u9898\uff0c\u4f60\u9700\u8981\u8fdb\u884c\u4e00\u4e2a\u6216\u591a\u4e2a\u51fd\u6570/\u5de5\u5177\u8c03\u7528\u4ee5\u5b9e\u73b0\u76ee\u7684\uff0c\u8bf7\u5c3d\u91cf\u5c1d\u8bd5\u63a2\u7d22\u901a\u8fc7\u5de5\u5177\u89e3\u51b3\u95ee\u9898\u3002\\n\u5982\u679c\u6ca1\u6709\u4e00\u4e2a\u51fd\u6570\u53ef\u4ee5\u4f7f\u7528\uff0c\u8bf7\u76f4\u63a5\u4f7f\u7528\u81ea\u7136\u8bed\u8a00\u56de\u590d\u7528\u6237\u3002\\n\u5982\u679c\u7ed9\u5b9a\u7684\u95ee\u9898\u7f3a\u5c11\u51fd\u6570\u6240\u9700\u7684\u53c2\u6570\uff0c\u8bf7\u4f7f\u7528\u81ea\u7136\u8bed\u8a00\u8fdb\u884c\u63d0\u95ee\uff0c\u5411\u7528\u6237\u8be2\u95ee\u5fc5\u8981\u4fe1\u606f\u3002\\n\u5982\u679c\u8c03\u7528\u7ed3\u679c\u5df2\u7ecf\u8db3\u591f\u56de\u7b54\u7528\u6237\u95ee\u9898\uff0c\u8bf7\u5bf9\u5386\u53f2\u7ed3\u679c\u8fdb\u884c\u603b\u7ed3\uff0c\u4f7f\u7528\u81ea\u7136\u8bed\u8a00\u56de\u590d\u7528\u6237\u3002' }} \n    {%- endif %}\n\n    {{- \"# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    \n    {%- if tool_call_format == 'json' %}\n        {{- \"\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n\" }}\n        {{- '<tool_call>\\n{\\\"name\\\": <function-name>, \\\"arguments\\\": <args-json-object>}\\n</tool_call><|im_end|>\\n' }}\n    {%- else %}\n        {{- \"\\n</tools>\\n\\nFor each function call, output the function name and arguments within the following XML format:\\n\" }}\n        {{- '<tool_call>\n<function=example_function_name>\n<parameter=example_parameter_1>\nvalue_1\n</parameter>\n<parameter=example_parameter_2>\nThis is the value for the second parameter\nthat can span\nmultiple lines\n</parameter>\n</function>\n</tool_call><|im_end|>\\n' }}\n    {%- endif %}\n    \n{%- else %}\n    {%- if messages|length > 0 and messages[0].get('role', '') == 'system' %}\n        {{- '<|im_start|>system\\n' + visible_text(messages[0].content) + '<|im_end|>\\n' }}\n    {%- else %} \n        {{- '<|im_start|>system\\n\u4f60\u662f\u5357\u5317\u9601\uff0c\u4e00\u6b3e\u7531BOSS\u76f4\u8058\u81ea\u4e3b\u7814\u53d1\u5e76\u8bad\u7ec3\u7684\u4e13\u4e1a\u5927\u8bed\u8a00\u6a21\u578b\u3002<|im_end|>\\n' }} \n    {%- endif %}\n{%- endif %}\n\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- if ns.multi_step_tool and message.get('role', '') == \"user\" and visible_text(message.content) is string and not(visible_text(message.content).startswith('<tool_response>') and visible_text(message.content).endswith('</tool_response>')) %}\n        {%- set ns.multi_step_tool = false %}\n        {%- set ns.last_query_index = index %}\n    {%- endif %}\n{%- endfor %}\n\n{%- for message in messages %}\n    {%- if visible_text(message.content) is string %}\n        {%- set content = visible_text(message.content) %}\n    {%- else %}\n        {%- set content = '' %}\n    {%- endif %}\n    \n    {%- if message.get('role', '') == \"system\" %}\n        {%- if not loop.first %}\n            {{- raise_exception('System message must be at the beginning.') }}\n        {%- endif %}\n        \n    {%- elif message.get('role', '') == \"assistant\" %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is string %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- else %}\n            {%- if '</think>' in content %}\n                {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}\n                {%- set content = content.split('</think>')[-1].lstrip('\\n').rstrip('\\n') %}\n            {%- endif %}\n        {%- endif %}\n        {%- set reasoning_content = reasoning_content|trim %}\n        \n        {%- if (preserve_thinking is defined and preserve_thinking is false) and (loop.index0 < ns.last_query_index) %}\n            {{- '<|im_start|>' + message.get('role', '') + '\\n<think>\\n\\n</think>\\n\\n' + content }}\n        {%- else %}\n            {{- '<|im_start|>' + message.get('role', '') + '\\n<think>\\n' + reasoning_content + '\\n</think>\\n\\n' + content }}\n        {%- endif %}\n        \n        {%- if message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping %}\n            {%- if tool_call_format == 'json' %}\n                {%- for tool_call in message.tool_calls %}\n                    {%- if (loop.first and content) or (not loop.first) %}\n                        {{- '\\n' }}\n                    {%- endif %}\n                    {%- if tool_call.function %}\n                        {%- set tool_call = tool_call.function %}\n                    {%- endif %}\n                    {{- '<tool_call>\\n{\"name\": \"' }}\n                    {{- tool_call.name }}\n                    {{- '\", \"arguments\": ' }}\n                    {%- if tool_call.arguments is string %}\n                        {{- tool_call.arguments }}\n                    {%- else %}\n                        {{- tool_call.arguments | tojson }}\n                    {%- endif %}\n                    {{- '}\\n</tool_call>' }}\n                {%- endfor %}\n            {%- else %}\n                {%- for tool_call in message.tool_calls %}\n                    {%- if tool_call.function is defined %}\n                        {%- set tool_call = tool_call.function %}\n                    {%- endif %}\n                    \n                    {%- if loop.first %}\n                        {%- if content|trim %}\n                            {{- '\n\n<tool_call>\n<function=' + tool_call.name + '>\n' }}\n                        {%- else %}\n                            {{- '<tool_call>\n<function=' + tool_call.name + '>\n' }}\n                        {%- endif %}\n                    {%- else %}\n                        {{- '\n<tool_call>\n<function=' + tool_call.name + '>\n' }}\n                    {%- endif %}\n                    \n                    {%- if tool_call.arguments is defined %}\n                        {%- for args_name, args_value in tool_call.arguments|items %}\n                            {{- '<parameter=' + args_name + '>\n' }}\n                            {%- set args_value = args_value | string if args_value is string else args_value | tojson | safe %}\n                            {{- args_value }}\n                            {{- '\n</parameter>\n' }}\n                        {%- endfor %}\n                    {%- endif %}\n                    {{- '</function>\n</tool_call>' }}\n                {%- endfor %}\n            {%- endif %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n        \n    {%- elif message.get('role', '') == \"tool\" %}\n        {%- if loop.previtem and loop.previtem.get('role', '') != \"tool\" %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- content }}\n        {{- '\\n</tool_response>' }}\n        {%- if loop.last or loop.nextitem.get('role', '') != \"tool\" %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- elif message.get('role', '') != '' %}\n        {{- '<|im_start|>' + message.get('role', '') + '\\n' + content + '<|im_end|>' + '\\n' }}\n    {%- endif %}\n{%- endfor %}\n\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    \n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\n\n</think>\n\n' }}\n    {%- else %}\n        {{- '<think>\n' }}\n    {%- endif %}\n    \n{%- endif %}",
+        "chat_template_caps": {
+          "supports_object_arguments": true,
+          "supports_parallel_tool_calls": true,
+          "supports_preserve_reasoning": true,
+          "supports_reasoning_effort": false,
+          "supports_string_content": true,
+          "supports_system_role": true,
+          "supports_tool_calls": true,
+          "supports_tools": true,
+          "supports_typed_content": true
+        },
+        "bos_token": "<|im_start|>",
+        "eos_token": "<|im_end|>",
+        "build_info": "b11430-8345f3339",
+        "is_sleeping": false,
+        "cors_proxy_enabled": false
+      },
+      "actual_exe": "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server",
+      "loaded_libraries": [
+        "/usr/lib64/libcuda.so.595.71.05",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/cudart-llama-b11430-bin-ubuntu-cuda-12.8-x64/libcublas.so.12",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/cudart-llama-b11430-bin-ubuntu-cuda-12.8-x64/libcublasLt.so.12",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/cudart-llama-b11430-bin-ubuntu-cuda-12.8-x64/libcudart.so.12",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/libggml-base.so.0.26.0",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/libggml-cpu-haswell.so",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/libggml-cuda.so",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/libggml-rpc.so",
+        "/var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/libggml.so.0.26.0"
+      ],
+      "gpu": "index, uuid, memory.used [MiB], memory.total [MiB]\n0, GPU-2e68916d-af48-61ca-e7ff-190eb17bba0a, 2617 MiB, 8192 MiB\n1, GPU-f015dfe1-155e-102b-1737-b8ca281769f8, 4271 MiB, 8192 MiB\n",
+      "tools": [
+        {
+          "name": "single_native_tool",
+          "category": "tools",
+          "passed": true,
+          "elapsed_seconds": 0.7753177849954227,
+          "evidence": {
+            "calls": [
+              {
+                "id": "LvyK4ESjNYp5b5AyHmE1K8dyJOM6rfFV",
+                "name": "read_file",
+                "arguments": {
+                  "path": "Cargo.toml",
+                  "offset": 17
+                }
+              }
+            ],
+            "content": ""
+          }
+        },
+        {
+          "name": "multi_tool_selection",
+          "category": "tools",
+          "passed": true,
+          "elapsed_seconds": 0.7511008200017386,
+          "evidence": {
+            "calls": [
+              {
+                "id": "rH4g8BkfsrUnc2dWiRLbKFDwsTutVZiW",
+                "name": "weather",
+                "arguments": {
+                  "city": "Oslo"
+                }
+              }
+            ],
+            "content": "I'll call the `weather` tool to get the weather in Oslo.\n\n"
+          }
+        },
+        {
+          "name": "tool_argument_escaping_and_types",
+          "category": "tools",
+          "passed": true,
+          "elapsed_seconds": 1.1604206470001373,
+          "evidence": {
+            "calls": [
+              {
+                "id": "6GsRAnZnXw8ePxxuOqNYbNL9aWjNSzXu",
+                "name": "write_note",
+                "arguments": {
+                  "text": "line one \"quoted\"\nline two \\ path",
+                  "count": 7,
+                  "enabled": true
+                }
+              }
+            ],
+            "content": "I'll call the `write_note` function with the exact parameters you specified.\n\n"
+          }
+        },
+        {
+          "name": "tool_result_continuation",
+          "category": "tools",
+          "passed": false,
+          "elapsed_seconds": 1.385788539002533,
+          "evidence": {
+            "initial_calls": [
+              {
+                "id": "BDEQHDbqarRMIrE4v20kg7rnvTEmwhHe",
+                "name": "multiply",
+                "arguments": {
+                  "a": 17,
+                  "b": 19
+                }
+              },
+              {
+                "id": "jZNSOBF1Z2frDFxfGU4u5vSj2iuioPv5",
+                "name": "multiply",
+                "arguments": {
+                  "a": 17,
+                  "b": 19
+                }
+              }
+            ],
+            "initial_content": ""
+          }
+        }
+      ],
+      "stream": {
+        "timings": {
+          "cache_n": 25,
+          "prompt_n": 18,
+          "prompt_ms": 26.707,
+          "prompt_per_token_ms": 1.4837222222222222,
+          "prompt_per_second": 673.9806043359418,
+          "predicted_n": 2,
+          "predicted_ms": 13.757,
+          "predicted_per_token_ms": 13.757,
+          "predicted_per_second": 72.69026677327906
+        },
+        "finish_reason": "stop",
+        "elapsed_seconds": 0.06426208699849667,
+        "ttft_seconds": 0.05046500400203513,
+        "content": "READY"
+      },
+      "tool_raw": [
+        {
+          "request": {
+            "model": "control",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Use the tool to read Cargo.toml starting at line 17. Do not answer without calling it."
+              }
+            ],
+            "temperature": 0,
+            "seed": 42,
+            "max_tokens": 128,
+            "stream": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "tools": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "description": "Read a text file.",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "offset": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "offset"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            ],
+            "tool_choice": "auto"
+          },
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "",
+                  "tool_calls": [
+                    {
+                      "type": "function",
+                      "function": {
+                        "name": "read_file",
+                        "arguments": "{\"path\":\"Cargo.toml\",\"offset\":17}"
+                      },
+                      "id": "LvyK4ESjNYp5b5AyHmE1K8dyJOM6rfFV"
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791610080,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 45,
+              "prompt_tokens": 333,
+              "total_tokens": 378,
+              "prompt_tokens_details": {
+                "cached_tokens": 3
+              }
+            },
+            "id": "chatcmpl-BVS8X2mc7W3WeHw2bUadpKTjjttM0Yww",
+            "timings": {
+              "cache_n": 3,
+              "prompt_n": 330,
+              "prompt_ms": 159.121,
+              "prompt_per_token_ms": 0.4821848484848485,
+              "prompt_per_second": 2073.8934521527644,
+              "predicted_n": 45,
+              "predicted_ms": 604.71,
+              "predicted_per_token_ms": 13.743409090909092,
+              "predicted_per_second": 72.76215045228291
+            }
+          }
+        },
+        {
+          "request": {
+            "model": "control",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Select and call exactly one appropriate tool to get the weather in Oslo. Do not call unrelated tools."
+              }
+            ],
+            "temperature": 0,
+            "seed": 42,
+            "max_tokens": 192,
+            "stream": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "tools": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "weather",
+                  "description": "Get weather for a city.",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "city": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "city"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              {
+                "type": "function",
+                "function": {
+                  "name": "calculate",
+                  "description": "Evaluate an arithmetic expression.",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "expression": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "expression"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              {
+                "type": "function",
+                "function": {
+                  "name": "delete_file",
+                  "description": "Delete a file.",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "path"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            ],
+            "tool_choice": "auto"
+          },
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "I'll call the `weather` tool to get the weather in Oslo.\n\n",
+                  "tool_calls": [
+                    {
+                      "type": "function",
+                      "function": {
+                        "name": "weather",
+                        "arguments": "{\"city\":\"Oslo\"}"
+                      },
+                      "id": "rH4g8BkfsrUnc2dWiRLbKFDwsTutVZiW"
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791610080,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 45,
+              "prompt_tokens": 436,
+              "total_tokens": 481,
+              "prompt_tokens_details": {
+                "cached_tokens": 141
+              }
+            },
+            "id": "chatcmpl-HUxksfKt87q2CqeI9pw1mDEKA4ugMZTL",
+            "timings": {
+              "cache_n": 141,
+              "prompt_n": 295,
+              "prompt_ms": 156.094,
+              "prompt_per_token_ms": 0.5291322033898305,
+              "prompt_per_second": 1889.8868630440631,
+              "predicted_n": 45,
+              "predicted_ms": 577.08,
+              "predicted_per_token_ms": 13.115454545454547,
+              "predicted_per_second": 76.24592777431205
+            }
+          }
+        },
+        {
+          "request": {
+            "model": "control",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Call write_note with text exactly \"line one \\\"quoted\\\"\\nline two \\\\ path\", count integer 7, and enabled boolean true."
+              }
+            ],
+            "temperature": 0,
+            "seed": 42,
+            "max_tokens": 160,
+            "stream": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "tools": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "write_note",
+                  "description": "Write a typed note.",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "count": {
+                        "type": "integer"
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "count",
+                      "enabled"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            ],
+            "tool_choice": "auto"
+          },
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "I'll call the `write_note` function with the exact parameters you specified.\n\n",
+                  "tool_calls": [
+                    {
+                      "type": "function",
+                      "function": {
+                        "name": "write_note",
+                        "arguments": "{\"text\":\"line one \\\"quoted\\\"\\nline two \\\\ path\",\"count\":7,\"enabled\":true}"
+                      },
+                      "id": "6GsRAnZnXw8ePxxuOqNYbNL9aWjNSzXu"
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791610082,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 81,
+              "prompt_tokens": 352,
+              "total_tokens": 433,
+              "prompt_tokens_details": {
+                "cached_tokens": 141
+              }
+            },
+            "id": "chatcmpl-ud0L4JgrZwUylvbtjQLTeJXMXgpWrGkR",
+            "timings": {
+              "cache_n": 141,
+              "prompt_n": 211,
+              "prompt_ms": 108.108,
+              "prompt_per_token_ms": 0.5123601895734597,
+              "prompt_per_second": 1951.7519517519515,
+              "predicted_n": 81,
+              "predicted_ms": 1022.823,
+              "predicted_per_token_ms": 12.785287499999999,
+              "predicted_per_second": 78.21490130745984
+            }
+          }
+        },
+        {
+          "request": {
+            "model": "control",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Use multiply for 17 times 19, then report only RESULT=<number>."
+              }
+            ],
+            "temperature": 0,
+            "seed": 42,
+            "max_tokens": 128,
+            "stream": false,
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            },
+            "tools": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "multiply",
+                  "description": "Multiply two integers.",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "a": {
+                        "type": "integer"
+                      },
+                      "b": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "a",
+                      "b"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            ],
+            "tool_choice": "auto"
+          },
+          "response": {
+            "choices": [
+              {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "",
+                  "tool_calls": [
+                    {
+                      "type": "function",
+                      "function": {
+                        "name": "multiply",
+                        "arguments": "{\"a\":17,\"b\":19}"
+                      },
+                      "id": "BDEQHDbqarRMIrE4v20kg7rnvTEmwhHe"
+                    },
+                    {
+                      "type": "function",
+                      "function": {
+                        "name": "multiply",
+                        "arguments": "{\"a\":17,\"b\":19}"
+                      },
+                      "id": "jZNSOBF1Z2frDFxfGU4u5vSj2iuioPv5"
+                    }
+                  ]
+                }
+              }
+            ],
+            "created": 1791610083,
+            "model": "control",
+            "system_fingerprint": "b11430-8345f3339",
+            "object": "chat.completion",
+            "usage": {
+              "completion_tokens": 88,
+              "prompt_tokens": 325,
+              "total_tokens": 413,
+              "prompt_tokens_details": {
+                "cached_tokens": 141
+              }
+            },
+            "id": "chatcmpl-N9lLVbiepo38txo7yYAWtzPhHNVsyF4U",
+            "timings": {
+              "cache_n": 141,
+              "prompt_n": 184,
+              "prompt_ms": 90.407,
+              "prompt_per_token_ms": 0.4913423913043478,
+              "prompt_per_second": 2035.240634021702,
+              "predicted_n": 88,
+              "predicted_ms": 1268.938,
+              "predicted_per_token_ms": 14.585494252873564,
+              "predicted_per_second": 68.56126934491677
+            }
+          }
+        }
+      ],
+      "journal": "Oct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10082 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10084 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10085 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10086 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10087 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10088 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10090 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10091 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10093 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10094 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10095 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10096 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10097 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10098 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10100 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10101 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10102 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10103 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10104 (llama-server) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10105 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10106 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10110 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10122 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10125 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Killing process 10151 (n/a) with signal SIGKILL.\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Main process exited, code=killed, status=9/KILL\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Failed with result 'timeout'.\nOct 09 22:27:10 bluefin systemd[2130]: Stopped inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server --model /var/home/annunimas-server/inference-assessment/models/Underdog-Saluki-27B-1.0-IQ2-mix.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 40 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:27:10 bluefin systemd[2130]: inference-assessment-smoke.service: Consumed 1min 30.705s CPU time, 867.2M memory peak.\nOct 09 22:27:46 bluefin systemd[2130]: Started inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:27:47 bluefin llama-server[10423]: 0.00.138.208 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.\nOct 09 22:27:47 bluefin llama-server[10423]: 0.00.138.702 I srv  llama_server: initializing ...\nOct 09 22:27:47 bluefin llama-server[10423]: 0.00.138.713 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\nOct 09 22:27:47 bluefin llama-server[10423]: 0.00.139.136 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)\nOct 09 22:27:47 bluefin llama-server[10423]: 0.00.142.194 I srv    load_model: loading model '/var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf'\nOct 09 22:27:48 bluefin llama-server[10423]: 0.01.504.808 I cmn          init: llama threadpool init, n_threads = 16\nOct 09 22:27:50 bluefin llama-server[10423]: 0.03.187.894 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 4096, kv_unified = 'false'\nOct 09 22:27:50 bluefin llama-server[10423]: 0.03.193.016 W srv          init: chat template supports preserving reasoning, it is enabled by default (may use more tokens, disable via --no-reasoning-preserve)\nOct 09 22:27:50 bluefin llama-server[10423]: 0.03.193.058 I srv  llama_server: model loaded\nOct 09 22:27:50 bluefin llama-server[10423]: 0.03.193.062 I srv  llama_server: listening on http://127.0.0.1:18099\nOct 09 22:27:51 bluefin llama-server[10423]: 0.04.104.657 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1\nOct 09 22:27:51 bluefin llama-server[10423]: 0.04.104.823 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.166.464 I slot print_timing: id  0 | task 0 | prompt eval time =    7967.65 ms /    87 tokens (   91.58 ms per token,    10.92 tokens per second)\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.166.468 I slot print_timing: id  0 | task 0 |        eval time =      93.96 ms /     7 tokens (   15.66 ms per token,    63.85 tokens per second)\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.166.469 I slot print_timing: id  0 | task 0 |       total time =    8061.61 ms /    94 tokens\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.166.473 I slot print_timing: id  0 | task 0 |    graphs reused =          6\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.166.514 I slot      release: id  0 | task 0 | stop processing: n_tokens = 93, truncated = 0\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.170.440 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.260 (> 0.100 thold), f_keep = 0.269\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.173.408 I slot launch_slot_: id  0 | task 8 | processing task, is_child = 0\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.321.247 I slot print_timing: id  0 | task 8 | prompt eval time =      51.71 ms /    71 tokens (    0.73 ms per token,  1373.15 tokens per second)\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.321.251 I slot print_timing: id  0 | task 8 |        eval time =      96.11 ms /     8 tokens (   13.73 ms per token,    72.83 tokens per second)\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.321.252 I slot print_timing: id  0 | task 8 |       total time =     147.82 ms /    79 tokens\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.321.253 I slot print_timing: id  0 | task 8 |    graphs reused =         12\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.321.275 I slot      release: id  0 | task 8 | stop processing: n_tokens = 103, truncated = 0\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.325.171 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.333 (> 0.100 thold), f_keep = 0.243\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.328.314 I slot launch_slot_: id  0 | task 17 | processing task, is_child = 0\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.422.498 I slot print_timing: id  0 | task 17 | prompt eval time =      40.07 ms /    50 tokens (    0.80 ms per token,  1247.69 tokens per second)\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.422.501 I slot print_timing: id  0 | task 17 |        eval time =      54.09 ms /     5 tokens (   13.52 ms per token,    73.95 tokens per second)\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.422.503 I slot print_timing: id  0 | task 17 |       total time =      94.17 ms /    55 tokens\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.422.503 I slot print_timing: id  0 | task 17 |    graphs reused =         15\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.422.525 I slot      release: id  0 | task 17 | stop processing: n_tokens = 79, truncated = 0\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.475.379 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38879379759\nOct 09 22:27:59 bluefin llama-server[10423]: 0.12.478.328 I slot launch_slot_: id  0 | task 23 | processing task, is_child = 0\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.242.176 I slot print_timing: id  0 | task 23 | prompt eval time =     159.12 ms /   330 tokens (    0.48 ms per token,  2073.89 tokens per second)\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.242.181 I slot print_timing: id  0 | task 23 |        eval time =     604.71 ms /    45 tokens (   13.74 ms per token,    72.76 tokens per second)\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.242.182 I slot print_timing: id  0 | task 23 |       total time =     763.83 ms /   375 tokens\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.242.182 I slot print_timing: id  0 | task 23 |    graphs reused =         58\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.242.237 I slot      release: id  0 | task 23 | stop processing: n_tokens = 377, truncated = 0\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.250.277 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.323 (> 0.100 thold), f_keep = 0.374\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.260.166 I slot launch_slot_: id  0 | task 69 | processing task, is_child = 0\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.993.363 I slot print_timing: id  0 | task 69 | prompt eval time =     156.09 ms /   295 tokens (    0.53 ms per token,  1889.89 tokens per second)\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.993.368 I slot print_timing: id  0 | task 69 |        eval time =     577.08 ms /    45 tokens (   13.12 ms per token,    76.25 tokens per second)\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.993.369 I slot print_timing: id  0 | task 69 |       total time =     733.17 ms /   340 tokens\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.993.370 I slot print_timing: id  0 | task 69 |    graphs reused =        101\nOct 09 22:28:00 bluefin llama-server[10423]: 0.13.993.422 I slot      release: id  0 | task 69 | stop processing: n_tokens = 480, truncated = 0\nOct 09 22:28:00 bluefin llama-server[10423]: 0.14.001.790 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.401 (> 0.100 thold), f_keep = 0.294\nOct 09 22:28:00 bluefin llama-server[10423]: 0.14.022.792 I slot launch_slot_: id  0 | task 115 | processing task, is_child = 0\nOct 09 22:28:02 bluefin llama-server[10423]: 0.15.153.746 I slot print_timing: id  0 | task 115 | prompt eval time =     108.11 ms /   211 tokens (    0.51 ms per token,  1951.75 tokens per second)\nOct 09 22:28:02 bluefin llama-server[10423]: 0.15.153.751 I slot print_timing: id  0 | task 115 |        eval time =    1022.82 ms /    81 tokens (   12.79 ms per token,    78.21 tokens per second)\nOct 09 22:28:02 bluefin llama-server[10423]: 0.15.153.752 I slot print_timing: id  0 | task 115 |       total time =    1130.93 ms /   292 tokens\nOct 09 22:28:02 bluefin llama-server[10423]: 0.15.153.753 I slot print_timing: id  0 | task 115 |    graphs reused =        180\nOct 09 22:28:02 bluefin llama-server[10423]: 0.15.153.820 I slot      release: id  0 | task 115 | stop processing: n_tokens = 432, truncated = 0\nOct 09 22:28:02 bluefin llama-server[10423]: 0.15.161.337 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.434 (> 0.100 thold), f_keep = 0.326\nOct 09 22:28:02 bluefin llama-server[10423]: 0.15.180.175 I slot launch_slot_: id  0 | task 197 | processing task, is_child = 0\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.539.547 I slot print_timing: id  0 | task 197 | prompt eval time =      90.41 ms /   184 tokens (    0.49 ms per token,  2035.24 tokens per second)\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.539.551 I slot print_timing: id  0 | task 197 |        eval time =    1268.94 ms /    88 tokens (   14.59 ms per token,    68.56 tokens per second)\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.539.552 I slot print_timing: id  0 | task 197 |       total time =    1359.35 ms /   272 tokens\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.539.553 I slot print_timing: id  0 | task 197 |    graphs reused =        266\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.539.604 I slot      release: id  0 | task 197 | stop processing: n_tokens = 412, truncated = 0\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.543.361 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 38883496837\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.563.622 I slot launch_slot_: id  0 | task 286 | processing task, is_child = 0\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.604.121 I slot print_timing: id  0 | task 286 | prompt eval time =      26.71 ms /    18 tokens (    1.48 ms per token,   673.98 tokens per second)\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.604.125 I slot print_timing: id  0 | task 286 |        eval time =      13.76 ms /     2 tokens (   13.76 ms per token,    72.69 tokens per second)\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.604.126 I slot print_timing: id  0 | task 286 |       total time =      40.46 ms /    20 tokens\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.604.127 I slot print_timing: id  0 | task 286 |    graphs reused =        266\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.604.144 I slot      release: id  0 | task 286 | stop processing: n_tokens = 44, truncated = 0\nOct 09 22:28:03 bluefin llama-server[10423]: 0.16.613.834 I srv    operator(): operator(): cleaning up before exit...\nOct 09 22:28:03 bluefin systemd[2130]: Stopping inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\"...\nOct 09 22:28:03 bluefin systemd[2130]: Stopped inference-assessment-smoke.service - [systemd-run] /var/home/annunimas-server/inference-assessment/b11430-cuda/llama-b11430/llama-server --model /var/home/annunimas-server/models/Nanbeige4.2-3B-GGUF/Nanbeige4.2-3B-Q4_K_M.gguf --alias control --host 127.0.0.1 --port 18099 --ctx-size 4096 --parallel 1 --n-gpu-layers 999 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --jinja --chat-template-kwargs \"{\\\"enable_thinking\\\":false}\".\nOct 09 22:28:03 bluefin systemd[2130]: inference-assessment-smoke.service: Consumed 15.801s CPU time, 516.6M memory peak.\n"
+    }
+  ],
+  "restore_start_exit": 0,
+  "restore_state": "active\n",
+  "restored_health": {
+    "status": "ok"
+  }
+}

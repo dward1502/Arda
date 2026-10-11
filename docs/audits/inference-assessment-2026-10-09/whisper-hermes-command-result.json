@@ -1,0 +1,87 @@
+{
+  "complete": true,
+  "scope": "installed Hermes public STT dispatcher, isolated config, synthetic fixtures only",
+  "adapter_sha256": "82ed7b7deee5c8a9f960c508dfd6e835e9db7ad70f6b8867f6785c5f6dd1a94b",
+  "model_manifest": {
+    "repo": "mobiuslabsgmbh/faster-whisper-large-v3-turbo",
+    "revision": "0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf",
+    "files": [
+      {
+        "name": "config.json",
+        "sha256": "b0253ea6c0d3bea6b1e19e91a02acfd3b53f4467362efcb5a3e6b16c9b3a9b7e",
+        "advertised": null,
+        "bytes": 2263
+      },
+      {
+        "name": "model.bin",
+        "sha256": "e76620f83d5f5b69efd3d87e3dc180c1bd21df9fbebacfd4335e5e1efcc018da",
+        "advertised": "e76620f83d5f5b69efd3d87e3dc180c1bd21df9fbebacfd4335e5e1efcc018da",
+        "bytes": 1617884929
+      },
+      {
+        "name": "preprocessor_config.json",
+        "sha256": "7ccc62c6f2765af1f3b46c00c9b5894426835a05021c8b9c01eecb6dfb542711",
+        "advertised": null,
+        "bytes": 340
+      },
+      {
+        "name": "tokenizer.json",
+        "sha256": "297b13372ac43916285644fb9687add3cc62ee2a1adb60da3dc25cc94c1871fd",
+        "advertised": null,
+        "bytes": 2710337
+      },
+      {
+        "name": "vocabulary.json",
+        "sha256": "c69260f2ab26d659b7c398f9a2b2b48ed0df16c3b47d7326782fd9cba71690c1",
+        "advertised": null,
+        "bytes": 1068114
+      }
+    ]
+  },
+  "config": {
+    "stt": {
+      "enabled": true,
+      "provider": "arda_whisper_trial",
+      "providers": {
+        "arda_whisper_trial": {
+          "type": "command",
+          "command": "/usr/bin/systemd-run --user --wait --pipe --collect --quiet -p RuntimeMaxSec=75 -p MemoryMax=4G -p MemorySwapMax=0 -p CPUQuota=400% -p IPAddressDeny=any --setenv=HF_HUB_OFFLINE=1 --setenv=CUDA_VISIBLE_DEVICES= /var/home/mythos/.local/share/arda/voice-whisper/venv/bin/python -I /var/home/mythos/.local/share/arda/voice-whisper/releases/82ed7b7deee5c8a9f960c508dfd6e835e9db7ad70f6b8867f6785c5f6dd1a94b/whisper_command.py --input {input_path} --model /var/home/mythos/.local/share/arda/voice-whisper/model --language {language}",
+          "timeout": 90,
+          "language": "en",
+          "output_format": "txt"
+        }
+      }
+    }
+  },
+  "exit_code": 0,
+  "cases": [
+    {
+      "case": "speech",
+      "elapsed_s": 8.776014256000053,
+      "result": {
+        "success": true,
+        "transcript": "Please research local inference and review the code changes.",
+        "provider": "arda_whisper_trial"
+      }
+    },
+    {
+      "case": "silence",
+      "elapsed_s": 2.3848362090066075,
+      "result": {
+        "success": false,
+        "transcript": "",
+        "error": "STT command provider 'arda_whisper_trial' exited with code 3: stderr: No speech detected; no transcript submitted",
+        "provider": "arda_whisper_trial"
+      }
+    },
+    {
+      "case": "missing",
+      "elapsed_s": 0.00102422502823174,
+      "result": {
+        "success": false,
+        "transcript": "",
+        "error": "Audio file not found: /var/home/mythos/.hermes/cache/scratch/whisper-reviewed-p_mp5p1n/missing.wav"
+      }
+    }
+  ]
+}

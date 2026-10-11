@@ -1,0 +1,25 @@
+{
+  "runtime_commit": "8345f333951c661d166b00e6f9362e553768f292",
+  "template_sha256": "9f36ab8f70ce878872cf86a0e278336f3090302a52154d8f0313196706e3bb4f",
+  "scope": "offline strict autoparser/mapper; synthetic output, not model generation or HTTP streaming",
+  "rows": [
+    {
+      "reversed": false,
+      "parse_success": true,
+      "native_calls": 1,
+      "arguments": {
+        "path": "alpha.txt",
+        "offset": 17
+      },
+      "pass": true
+    },
+    {
+      "reversed": true,
+      "parse_success": false,
+      "native_calls": 0,
+      "arguments": null,
+      "pass": false
+    }
+  ],
+  "exit_code": 1
+}

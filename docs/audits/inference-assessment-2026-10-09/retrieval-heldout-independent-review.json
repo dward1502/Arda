@@ -1,0 +1,33 @@
+{
+  "reviewer": "deleg_9bbde5ce/task-0",
+  "status": "pass_recomputation_and_corpus_label_consistency_only",
+  "sha256": {
+    "retrieval-heldout-result.json": "9ec4dbe7aacbfe401cddaa9b1a0f7ab53a0cbec50c4193f7afa5253e0a6e0f47",
+    "retrieval-heldout-fixture.json": "62c7408709569daa6ccabc2e18f20a68a77c756bf33431830743827b48404712",
+    "retrieval-heldout-probe.py": "e56c8f0b55cbe1052ac0104aa951ed3516d78c63adb55127c5914ed34720a686"
+  },
+  "verified_by_reviewer": [
+    "12 documents, 12 cases, six per split, 36 reranker pairs",
+    "all rankings, calibration-only thresholds and split metrics reproduce",
+    "local model manifest hashes verified"
+  ],
+  "limitations": [
+    "not generated-answer abstention or human gold",
+    "not production BM25 parity",
+    "procedural freeze, not sealed preregistration",
+    "small shared corpus",
+    "probe docstring stale; executed bytes preserved"
+  ],
+  "failures": {
+    "bm25": [
+      "held-1 false unsupported"
+    ],
+    "reranked": [
+      "held-4 false supported"
+    ],
+    "embedding": [
+      "held-1 false unsupported",
+      "held-4 false supported"
+    ]
+  }
+}

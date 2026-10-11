@@ -1,0 +1,24 @@
+{
+  "available": false,
+  "audio_available": false,
+  "stt_available": true,
+  "missing_packages": [
+    "sounddevice",
+    "numpy"
+  ],
+  "details": "Audio capture: MISSING (PortAudio system library not found -- install it first:)\nSTT provider: OK (OpenAI)\nEnvironment: PortAudio system library not found -- install it first:\n  Linux:  sudo apt-get install libportaudio2\n  macOS:  brew install portaudio\nThen retry /voice on.",
+  "environment": {
+    "available": false,
+    "warnings": [
+      "PortAudio system library not found -- install it first:\n  Linux:  sudo apt-get install libportaudio2\n  macOS:  brew install portaudio\nThen retry /voice on."
+    ],
+    "notices": []
+  }
+}
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import os, sys, runpy; os.environ.pop('PYTHONHOME', None); os.environ.pop('PYTHONPATH', None); os.environ.pop('VIRTUAL_ENV', None); sys.path.insert(0, '/var/home/mythos/.hermes/hermes-agent'); os.environ['HERMES_HOME'] = os.environ.get('HERMES_HOME') or str(__import__('hermes_constants').get_default_hermes_root()); import hermes_bootstrap; import json; from tools.voice_mode import check_voice_requirements; print(json.dumps(check_voice_requirements(), indent=2)); import sounddevice; print(sounddevice.query_devices())
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^^^^^^^^^^^^^^^^^^
+  File "/var/home/mythos/.hermes/installs/93d02a9d25b9a6b1/environments/b27492a62be54414b55cc58c04f77739/venv/lib/python3.14/site-packages/sounddevice.py", line 72, in <module>
+    raise OSError('PortAudio library not found')
+OSError: PortAudio library not found

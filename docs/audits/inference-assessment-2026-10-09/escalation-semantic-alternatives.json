@@ -1,0 +1,138 @@
+{
+  "scope": "Synthetic semantic screening, not representative difficult-work qualification",
+  "runs": [
+    {
+      "request": {
+        "model": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+        "allow_forced_provider_fallback": false,
+        "workload_role": "interactive",
+        "context_window_target": 4096,
+        "max_tokens": 768,
+        "stream": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Assess this synthetic monitoring packet, observation only. Return bare JSON with keys current_cpu_pressure (boolean or null), active_swapping (boolean or null), backups_recoverable (boolean or null), endpoint_responding (boolean), evidence (object mapping those four keys to source-ID arrays), limitation (string). No actions or recommendations.\nS1: vmstat first row is since-boot average: CPU idle 2%, swap-in 200 KiB/s.\nS2: second row is a one-second sample: CPU idle 98%, swap-in 0, swap-out 0. Occupied swap 200000 KiB; total swap capacity not provided.\nS3: one GET /health returned HTTP 200. No workload test.\nS4: backup utility is installed. No successful backup or restore evidence supplied.\nUse S2 for current sampled CPU/swap activity. Unknown recovery must be null. Explain that the sample does not establish sustained health."
+          }
+        ]
+      },
+      "passed": false,
+      "status": 200,
+      "body": {
+        "_manwe_route": {
+          "context_window_target": 4096,
+          "execution_lane": "interactive",
+          "latency_ms": 202,
+          "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+          "provider_id": "openrouter",
+          "route_class": "interactive",
+          "route_id": "7c5ef62ad32fa7a4"
+        },
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\n  \"current_cpu_pressure\": false,\n  \"active_swapping\": false,\n  \"backups_recoverable\": null,\n  \"endpoint_responding\": true,\n  \"evidence\": {\n    \"current_cpu_pressure\": [\"S2\"],\n    \"active_swapping\": [\"S2\"],\n    \"backups_recoverable\": [],\n    \"endpoint_responding\": [\"S3\"]\n  },\n  \"limitation\": \"The assessment is based on a one-second sample (S2) which does not establish sustained health; backup recoverability unknown due to lack of successful backup/restore evidence.\"\n}",
+              "reasoning": "We need to parse observations and produce JSON with keys: current_cpu_pressure (boolean or null), active_swapping (boolean or null), backups_recoverable (boolean or null), endpoint_responding (boolean). Also evidence: object mapping those four keys to source-ID arrays. limitation: string.\n\nWe need to use S2 for current sampled CPU/swap activity. So:\n\n- S2 shows CPU idle 98%, swap-in 0, swap-out 0. So CPU not under pressure (since idle high). current_cpu_pressure = false? Or maybe we infer no pressure. So boolean false.\n\n- active_swapping: swap-in 0, swap-out 0, so not actively swapping. active_swapping = false.\n\n- backups_recoverable: backup utility installed but no successful backup or restore evidence. Unknown recovery must be null. So backups_recoverable = null.\n\n- endpoint_responding: one GET /health returned HTTP 200. So endpoint responding true.\n\nEvidence mapping: each key maps to source-ID arrays (list of source IDs that support that observation). Use S1, S2, S3, S4 as source IDs.\n\n- current_cpu_pressure: evidence from S2 (CPU idle 98%) indicating not pressure. So evidence[\"current_cpu_pressure\"] = [\"S2\"].\n\n- active_swapping: evidence from S2 (swap-in 0, swap-out 0) => [\"S2\"].\n\n- backups_recoverable: evidence: S4 says backup utility installed but no successful backup or restore evidence. So we have no evidence of recoverable; we set null but evidence maybe empty? The spec: evidence mapping those four keys to source-ID arrays. For null we could still provide empty array or maybe none? Provide empty array.\n\n- endpoint_responding: evidence from S3 => [\"S3\"].\n\nLimitation: string describing limitation: \"The assessment is based on a one-second sample (S2) which does not establish sustained health; backup recoverability unknown due to lack of successful backup/restore evidence.\"\n\nReturn bare JSON only.\n\nLet's construct:\n\n{\n  \"current_cpu_pressure\": false,\n  \"active_swapping\": false,\n  \"backups_recoverable\": null,\n  \"endpoint_responding\": true,\n  \"evidence\": {\n    \"current_cpu_pressure\": [\"S2\"],\n    \"active_swapping\": [\"S2\"],\n    \"backups_recoverable\": [],\n    \"endpoint_responding\": [\"S3\"]\n  },\n  \"limitation\": \"The assessment is based on a one-second sample (S2) which does not establish sustained health; backup recoverability unknown due to lack of successful backup/restore evidence.\"\n}\n\nMake sure JSON is valid. No extra text.",
+              "reasoning_details": [
+                {
+                  "format": "unknown",
+                  "index": 0,
+                  "text": "We need to parse observations and produce JSON with keys: current_cpu_pressure (boolean or null), active_swapping (boolean or null), backups_recoverable (boolean or null), endpoint_responding (boolean). Also evidence: object mapping those four keys to source-ID arrays. limitation: string.\n\nWe need to use S2 for current sampled CPU/swap activity. So:\n\n- S2 shows CPU idle 98%, swap-in 0, swap-out 0. So CPU not under pressure (since idle high). current_cpu_pressure = false? Or maybe we infer no pressure. So boolean false.\n\n- active_swapping: swap-in 0, swap-out 0, so not actively swapping. active_swapping = false.\n\n- backups_recoverable: backup utility installed but no successful backup or restore evidence. Unknown recovery must be null. So backups_recoverable = null.\n\n- endpoint_responding: one GET /health returned HTTP 200. So endpoint responding true.\n\nEvidence mapping: each key maps to source-ID arrays (list of source IDs that support that observation). Use S1, S2, S3, S4 as source IDs.\n\n- current_cpu_pressure: evidence from S2 (CPU idle 98%) indicating not pressure. So evidence[\"current_cpu_pressure\"] = [\"S2\"].\n\n- active_swapping: evidence from S2 (swap-in 0, swap-out 0) => [\"S2\"].\n\n- backups_recoverable: evidence: S4 says backup utility installed but no successful backup or restore evidence. So we have no evidence of recoverable; we set null but evidence maybe empty? The spec: evidence mapping those four keys to source-ID arrays. For null we could still provide empty array or maybe none? Provide empty array.\n\n- endpoint_responding: evidence from S3 => [\"S3\"].\n\nLimitation: string describing limitation: \"The assessment is based on a one-second sample (S2) which does not establish sustained health; backup recoverability unknown due to lack of successful backup/restore evidence.\"\n\nReturn bare JSON only.\n\nLet's construct:\n\n{\n  \"current_cpu_pressure\": false,\n  \"active_swapping\": false,\n  \"backups_recoverable\": null,\n  \"endpoint_responding\": true,\n  \"evidence\": {\n    \"current_cpu_pressure\": [\"S2\"],\n    \"active_swapping\": [\"S2\"],\n    \"backups_recoverable\": [],\n    \"endpoint_responding\": [\"S3\"]\n  },\n  \"limitation\": \"The assessment is based on a one-second sample (S2) which does not establish sustained health; backup recoverability unknown due to lack of successful backup/restore evidence.\"\n}\n\nMake sure JSON is valid. No extra text.",
+                  "type": "reasoning.text"
+                }
+              ],
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1791710829,
+        "id": "gen-1791710829-LN5O88qef0vGLH6GWwmf",
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "object": "chat.completion",
+        "provider": "Nvidia",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 710,
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "reasoning_tokens": 580
+          },
+          "cost": 0,
+          "cost_details": {
+            "upstream_inference_completions_cost": 0,
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0
+          },
+          "is_byok": false,
+          "prompt_tokens": 220,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cache_write_tokens": 0,
+            "cached_tokens": 0,
+            "video_tokens": 0
+          },
+          "total_tokens": 930
+        }
+      },
+      "headers": {
+        "x-manwe-route-id": "7c5ef62ad32fa7a4",
+        "x-manwe-provider-id": "openrouter",
+        "x-manwe-model-id": "nvidia/nemotron-3-super-120b-a12b:free",
+        "x-manwe-route-class": "interactive",
+        "x-manwe-execution-lane": "interactive"
+      },
+      "parsed": {
+        "current_cpu_pressure": false,
+        "active_swapping": false,
+        "backups_recoverable": null,
+        "endpoint_responding": true,
+        "evidence": {
+          "current_cpu_pressure": [
+            "S2"
+          ],
+          "active_swapping": [
+            "S2"
+          ],
+          "backups_recoverable": [],
+          "endpoint_responding": [
+            "S3"
+          ]
+        },
+        "limitation": "The assessment is based on a one-second sample (S2) which does not establish sustained health; backup recoverability unknown due to lack of successful backup/restore evidence."
+      },
+      "mechanical_pass": false,
+      "identity_pass": true,
+      "elapsed_s": 9.301266343973111
+    },
+    {
+      "request": {
+        "model": "openrouter/poolside/laguna-xs-2.1:free",
+        "allow_forced_provider_fallback": false,
+        "workload_role": "interactive",
+        "context_window_target": 4096,
+        "max_tokens": 768,
+        "stream": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Assess this synthetic monitoring packet, observation only. Return bare JSON with keys current_cpu_pressure (boolean or null), active_swapping (boolean or null), backups_recoverable (boolean or null), endpoint_responding (boolean), evidence (object mapping those four keys to source-ID arrays), limitation (string). No actions or recommendations.\nS1: vmstat first row is since-boot average: CPU idle 2%, swap-in 200 KiB/s.\nS2: second row is a one-second sample: CPU idle 98%, swap-in 0, swap-out 0. Occupied swap 200000 KiB; total swap capacity not provided.\nS3: one GET /health returned HTTP 200. No workload test.\nS4: backup utility is installed. No successful backup or restore evidence supplied.\nUse S2 for current sampled CPU/swap activity. Unknown recovery must be null. Explain that the sample does not establish sustained health."
+          }
+        ]
+      },
+      "passed": false,
+      "status": 502,
+      "error": "{\"error\":{\"message\":\"Agent error: manwe \u2014 proxy routing exhausted fallback providers after 1 attempt(s): [openrouter:poolside/laguna-xs-2.1:free HTTP 429 rate_or_retry_error (provider openrouter HTTP 429: {\\\"error\\\":{\\\"code\\\":429,\\\"message\\\":\\\"Provider returned error\\\",\\\"metadata\\\":{\\\"is_byok\\\":false,\\\"limit_source\\\":\\\"upstream_provider_shared_pool\\\",\\\"provider_name\\\":\\\"P\u2026)]\",\"type\":\"manwe_error\"}}",
+      "elapsed_s": 0.19106522999936715
+    }
+  ],
+  "desktop_before": "MainPID=0\nActiveState=inactive\n",
+  "desktop_after": "MainPID=0\nActiveState=inactive\n",
+  "review_required": true
+}

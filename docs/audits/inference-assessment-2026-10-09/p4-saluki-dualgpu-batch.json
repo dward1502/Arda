@@ -1,0 +1,68 @@
+{
+  "scope": "authorized dual GPU test; original 60-second task budget",
+  "cases": [
+    {
+      "kind": "recovery",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "exit_code": 0,
+      "final": "missing.txt is absent; index.txt points to records.txt, which holds the record.\n\nTicket ALPHA:\n- Status: paused\n- Reason: cooling\n- Retry time: 09:40 UTC\n\nNo files were created or modified.",
+      "error": null
+    },
+    {
+      "kind": "recovery",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "exit_code": 0,
+      "final": "missing.txt is absent; index.txt points to records.txt, which holds the record.\n\nTicket ALPHA:\n- Status: paused\n- Reason: cooling\n- Retry time: 09:40 UTC\n\nNo files were created or modified.",
+      "error": null
+    },
+    {
+      "kind": "research",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "exit_code": 0,
+      "final": "Resolution: current.txt (2026-02-01) supersedes old.txt (2026-01-01), which explicitly states it is superseded by current.txt.\n\n- Current owner: lynx \u2014 current.txt line 1\n- Current port: 48231 \u2014 current.txt line 1\n- Obsolete source: old.txt (dated 2026-01-01, owner fox, port 40111) \u2014 obsolete per its own supersession statement and the earlier date.\n- Energy consumption: not known. current.txt line 1 states \"Energy use has not been measured.\" No measurement is invented.\n\nNo files were changed.",
+      "error": null
+    },
+    {
+      "kind": "research",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "exit_code": 0,
+      "final": "Resolution: current.txt (2026-02-01) supersedes old.txt (2026-01-01), which explicitly states it is superseded by current.txt.\n\n- Current owner: lynx\n- Current port: 48231\n- Citations:\n  - current.txt line 1: \"Dated 2026-02-01. Owner: lynx. Port: 48231. Current approved configuration. Energy use has not been measured.\"\n  - old.txt line 1: \"Dated 2026-01-01. Owner: fox. Port: 40111. Superseded by current.txt.\"\n\nObsolete source: old.txt \u2014 it is dated earlier (2026-01-01 vs 2026-02-01) and carries an explicit supersession statement pointing to current.txt.\n\nEnergy consumption: not known. current.txt states \"Energy use has not been measured,\" and no measurement appears in either file. No invented values. No files were modified.",
+      "error": null
+    },
+    {
+      "kind": "coding",
+      "repeat": 1,
+      "mechanical_pass": true,
+      "exit_code": 0,
+      "final": "Done.\n\nChange: `calc.py`'s `total` previously used `if value`, which is falsy-truthy filtering \u2014 it drops `0` (violating \"preserve zero\") and also drops booleans, but more subtly, `True`/`False` are ints so the old code would have summed them as 1/0. The new version explicitly keeps only `int`/`float` values and excludes `bool` (checked first, since `bool` is a subclass of `int`), so:\n\n- `None` is ignored (not int/float)\n- Booleans are ignored (excluded explicitly)\n- `0` and negative numbers are preserved (they pass the type check)\n- Empty input returns `0` (sum of empty iterable)\n\nI cannot run tests with the available file-only tools \u2014 no shell or Python interpreter is available to me here. The change is a single-line edit verified by the file tool's lint check, but I have not executed it against actual inputs.",
+      "error": null
+    },
+    {
+      "kind": "coding",
+      "repeat": 2,
+      "mechanical_pass": true,
+      "exit_code": 0,
+      "final": "Done.\n\nChange: `calc.py` now reads:\n\n```python\ndef total(values):\n    return sum(value for value in values if isinstance(value, (int, float)) and not isinstance(value, bool))\n```\n\nWhy this satisfies the spec:\n- Sums numeric entries: `isinstance(value, (int, float))` keeps ints and floats (including 0 and negatives, which the old `if value` truthiness check would have dropped).\n- Ignores `None`: `None` fails the `isinstance` check.\n- Ignores booleans: `bool` is a subclass of `int`, so `isinstance(True, int)` is `True` \u2014 the explicit `not isinstance(value, bool)` guard excludes both `True` and `False`.\n- Empty input: `sum` over an empty generator returns `0`.\n\nHonesty note: I cannot run tests with the available file-only tools (no shell/interpreter execution), so I have not executed the code. The change is a straightforward filter fix and the file passes a syntax lint, but I have not verified runtime behavior against actual inputs.",
+      "error": null
+    }
+  ],
+  "candidate_health": {
+    "status": "ok"
+  },
+  "restore": "",
+  "health_after": {
+    "8097": {
+      "status": "ok"
+    },
+    "8098": {
+      "status": "ok"
+    }
+  },
+  "core_health_after": {
+    "status": "ok"
+  }
+}

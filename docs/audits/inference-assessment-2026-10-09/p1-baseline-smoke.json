@@ -1,0 +1,374 @@
+[
+  {
+    "utc": "2026-10-10T05:02:35.832003+00:00",
+    "model": "bonsai-27b-q1_0",
+    "case": "coding",
+    "request": {
+      "model": "bonsai-27b-q1_0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Diagnose this Rust error. Reply only A or B. Error: future cannot be sent between threads safely, MutexGuard used across await. A: stale Cargo.lock. B: std::sync::MutexGuard alive across await."
+        }
+      ],
+      "max_tokens": 96,
+      "temperature": 0,
+      "seed": 42,
+      "stream": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "expected": "B",
+    "endpoint": "http://100.102.250.115:8097/v1/chat/completions",
+    "scope": "tiny direct-endpoint smoke; not isolated, not routed acceptance",
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "B"
+          }
+        }
+      ],
+      "created": 1791608556,
+      "model": "bonsai-27b-q1_0",
+      "system_fingerprint": "b1-9fcaed7",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 2,
+        "prompt_tokens": 59,
+        "total_tokens": 61,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-kvFMVy09MDJZhXQwXmCpZmiOxuEtQ68j",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 59,
+        "prompt_ms": 294.858,
+        "prompt_per_token_ms": 4.997593220338983,
+        "prompt_per_second": 200.0963175494645,
+        "predicted_n": 2,
+        "predicted_ms": 28.141,
+        "predicted_per_token_ms": 14.0705,
+        "predicted_per_second": 71.0706797910522
+      }
+    },
+    "passed": true,
+    "elapsed_seconds": 0.3566374970250763
+  },
+  {
+    "utc": "2026-10-10T05:02:36.188822+00:00",
+    "model": "bonsai-27b-q1_0",
+    "case": "research",
+    "request": {
+      "model": "bonsai-27b-q1_0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Use only the following synthetic sources. [A] January: service runs on port 7000. [B] February correction: port 7001 replaces 7000. What is the corrected port? Reply exactly 7001 [B]."
+        }
+      ],
+      "max_tokens": 96,
+      "temperature": 0,
+      "seed": 42,
+      "stream": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "expected": "7001 [B]",
+    "endpoint": "http://100.102.250.115:8097/v1/chat/completions",
+    "scope": "tiny direct-endpoint smoke; not isolated, not routed acceptance",
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "7001"
+          }
+        }
+      ],
+      "created": 1791608556,
+      "model": "bonsai-27b-q1_0",
+      "system_fingerprint": "b1-9fcaed7",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 5,
+        "prompt_tokens": 69,
+        "total_tokens": 74,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-FSpVEkROpnQZ5fb8WbWSu8QrSby5Ufyw",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 69,
+        "prompt_ms": 263.126,
+        "prompt_per_token_ms": 3.813420289855072,
+        "prompt_per_second": 262.23178249203806,
+        "predicted_n": 5,
+        "predicted_ms": 98.556,
+        "predicted_per_token_ms": 19.711199999999998,
+        "predicted_per_second": 50.732578432566264
+      }
+    },
+    "passed": false,
+    "elapsed_seconds": 0.5811210399842821
+  },
+  {
+    "utc": "2026-10-10T05:02:36.770194+00:00",
+    "model": "bonsai-27b-q1_0",
+    "case": "abstention",
+    "request": {
+      "model": "bonsai-27b-q1_0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "The complete supplied repository has only Cargo.toml and src/main.rs. What function is in src/router.rs? Reply exactly CANNOT_VERIFY if absent."
+        }
+      ],
+      "max_tokens": 96,
+      "temperature": 0,
+      "seed": 42,
+      "stream": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "expected": "CANNOT_VERIFY",
+    "endpoint": "http://100.102.250.115:8097/v1/chat/completions",
+    "scope": "tiny direct-endpoint smoke; not isolated, not routed acceptance",
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "CANNOT_VERIFY"
+          }
+        }
+      ],
+      "created": 1791608557,
+      "model": "bonsai-27b-q1_0",
+      "system_fingerprint": "b1-9fcaed7",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 4,
+        "prompt_tokens": 42,
+        "total_tokens": 46,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-6eGCNIx0238Y8jRpbqDAKePyt4Qcvc0J",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 42,
+        "prompt_ms": 233.099,
+        "prompt_per_token_ms": 5.54997619047619,
+        "prompt_per_second": 180.18095315724221,
+        "predicted_n": 4,
+        "predicted_ms": 74.526,
+        "predicted_per_token_ms": 18.6315,
+        "predicted_per_second": 53.67254381021389
+      }
+    },
+    "passed": true,
+    "elapsed_seconds": 0.5414087789831683
+  },
+  {
+    "utc": "2026-10-10T05:02:37.311864+00:00",
+    "model": "nanbeige4.2-3b-q4_k_m",
+    "case": "coding",
+    "request": {
+      "model": "nanbeige4.2-3b-q4_k_m",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Diagnose this Rust error. Reply only A or B. Error: future cannot be sent between threads safely, MutexGuard used across await. A: stale Cargo.lock. B: std::sync::MutexGuard alive across await."
+        }
+      ],
+      "max_tokens": 96,
+      "temperature": 0,
+      "seed": 42,
+      "stream": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "expected": "B",
+    "endpoint": "http://100.102.250.115:8098/v1/chat/completions",
+    "scope": "tiny direct-endpoint smoke; not isolated, not routed acceptance",
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "B\n</think>\n\nB"
+          }
+        }
+      ],
+      "created": 1791608557,
+      "model": "nanbeige4.2-3b-q4_k_m",
+      "system_fingerprint": "b10151-c6640a1c0",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 7,
+        "prompt_tokens": 87,
+        "total_tokens": 94,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-0biPCanD8QytYX2sfv8zLdpek3irDTfy",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 87,
+        "prompt_ms": 208.295,
+        "prompt_per_token_ms": 2.3941954022988505,
+        "prompt_per_second": 417.6768525408675,
+        "predicted_n": 7,
+        "predicted_ms": 166.612,
+        "predicted_per_token_ms": 23.801714285714286,
+        "predicted_per_second": 42.01378052001057
+      }
+    },
+    "passed": false,
+    "elapsed_seconds": 0.409111512999516
+  },
+  {
+    "utc": "2026-10-10T05:02:37.721265+00:00",
+    "model": "nanbeige4.2-3b-q4_k_m",
+    "case": "research",
+    "request": {
+      "model": "nanbeige4.2-3b-q4_k_m",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Use only the following synthetic sources. [A] January: service runs on port 7000. [B] February correction: port 7001 replaces 7000. What is the corrected port? Reply exactly 7001 [B]."
+        }
+      ],
+      "max_tokens": 96,
+      "temperature": 0,
+      "seed": 42,
+      "stream": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "expected": "7001 [B]",
+    "endpoint": "http://100.102.250.115:8098/v1/chat/completions",
+    "scope": "tiny direct-endpoint smoke; not isolated, not routed acceptance",
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "7001 [B]"
+          }
+        }
+      ],
+      "created": 1791608557,
+      "model": "nanbeige4.2-3b-q4_k_m",
+      "system_fingerprint": "b10151-c6640a1c0",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 8,
+        "prompt_tokens": 96,
+        "total_tokens": 104,
+        "prompt_tokens_details": {
+          "cached_tokens": 25
+        }
+      },
+      "id": "chatcmpl-OfTXQPG5XgLHpHp8M2tdA4eQ1xQXmtVv",
+      "timings": {
+        "cache_n": 25,
+        "prompt_n": 71,
+        "prompt_ms": 49.6,
+        "prompt_per_token_ms": 0.6985915492957747,
+        "prompt_per_second": 1431.4516129032256,
+        "predicted_n": 8,
+        "predicted_ms": 93.359,
+        "predicted_per_token_ms": 11.669875,
+        "predicted_per_second": 85.69072076607505
+      }
+    },
+    "passed": true,
+    "elapsed_seconds": 0.18187497998587787
+  },
+  {
+    "utc": "2026-10-10T05:02:37.903438+00:00",
+    "model": "nanbeige4.2-3b-q4_k_m",
+    "case": "abstention",
+    "request": {
+      "model": "nanbeige4.2-3b-q4_k_m",
+      "messages": [
+        {
+          "role": "user",
+          "content": "The complete supplied repository has only Cargo.toml and src/main.rs. What function is in src/router.rs? Reply exactly CANNOT_VERIFY if absent."
+        }
+      ],
+      "max_tokens": 96,
+      "temperature": 0,
+      "seed": 42,
+      "stream": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "expected": "CANNOT_VERIFY",
+    "endpoint": "http://100.102.250.115:8098/v1/chat/completions",
+    "scope": "tiny direct-endpoint smoke; not isolated, not routed acceptance",
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "CANNOT_VERIFY"
+          }
+        }
+      ],
+      "created": 1791608558,
+      "model": "nanbeige4.2-3b-q4_k_m",
+      "system_fingerprint": "b10151-c6640a1c0",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 5,
+        "prompt_tokens": 75,
+        "total_tokens": 80,
+        "prompt_tokens_details": {
+          "cached_tokens": 25
+        }
+      },
+      "id": "chatcmpl-XAWA4JQqcFTMNpgP81FIGMQpphFPEQck",
+      "timings": {
+        "cache_n": 25,
+        "prompt_n": 50,
+        "prompt_ms": 42.442,
+        "prompt_per_token_ms": 0.84884,
+        "prompt_per_second": 1178.0783186466235,
+        "predicted_n": 5,
+        "predicted_ms": 54.904,
+        "predicted_per_token_ms": 10.9808,
+        "predicted_per_second": 91.06804604400408
+      }
+    },
+    "passed": true,
+    "elapsed_seconds": 0.1368107299786061
+  }
+]

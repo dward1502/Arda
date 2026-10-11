@@ -1,0 +1,28 @@
+{
+  "scope": "authorized single GPU Bonsai2 test; original 60-second task budget",
+  "cases": [
+    {
+      "kind": "coding",
+      "repeat": 1,
+      "mechanical_pass": false,
+      "exit_code": 1,
+      "final": null,
+      "error": "HTTP Error 502: Bad Gateway"
+    }
+  ],
+  "candidate_health": {
+    "status": "ok"
+  },
+  "restore": "",
+  "health_after": {
+    "8097": {
+      "status": "ok"
+    },
+    "8098": {
+      "status": "ok"
+    }
+  },
+  "core_health_after": {
+    "status": "ok"
+  }
+}

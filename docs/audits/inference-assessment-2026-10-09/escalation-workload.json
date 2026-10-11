@@ -1,0 +1,462 @@
+{
+  "scope": "synthetic text-only escalation; no tool, production or general-agent qualification",
+  "binary_sha256": "7beec36b2363aeafe2fe67a73666fce13d138703077f59d68988739204c3036b",
+  "root": "/var/home/mythos/.hermes/cache/scratch/escalation-workload-ac2g993n",
+  "cases": [
+    {
+      "id": "monitoring_evidence",
+      "request": {
+        "model": "openai_sub/gpt-6-astra",
+        "allow_forced_provider_fallback": false,
+        "workload_role": "interactive",
+        "context_window_target": 8192,
+        "max_tokens": 1800,
+        "stream": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Assess this synthetic home-server evidence; observation only, do not recommend or execute changes. Return bare JSON with keys current_cpu_pressure, current_swap_activity, endpoint_health, workload_health, backup_recoverability. Each value is an object with verdict and sources (source-ID array).\nS1: vmstat first row, since boot: idle 18%, si 320, so 170. Subsequent interval rows at 12:00:01 and 12:00:02: idle 97% and 98%, si=0, so=0 in both.\nS2: Current swap occupancy 3GiB; total RAM 32GiB; MemAvailable 18GiB.\nS3: All five service health URLs returned HTTP 200 at 12:00:02. No application transactions were exercised.\nS4: Backup timer enabled. No last-success, retained restore or backup-content evidence is available.\nFor each field choose the best verdict from: low, high, observed, not_observed, responding, failed, verified, unknown. Explain briefly in an additional rationale string per field; cite the evidence supporting uncertainty as well as known facts."
+          }
+        ]
+      },
+      "passed": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "9185ff91b3fe6384",
+          "x-manwe-provider-id": "openai_sub",
+          "x-manwe-model-id": "gpt-6-astra",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_charon_driver": "codex_responses",
+          "_manwe_route": {
+            "context_window_target": 8192,
+            "execution_lane": "interactive",
+            "latency_ms": 8909,
+            "model_id": "gpt-6-astra",
+            "provider_id": "openai_sub",
+            "route_class": "interactive",
+            "route_id": "9185ff91b3fe6384"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "{\n  \"current_cpu_pressure\": {\n    \"verdict\": \"low\",\n    \"sources\": [\"S1\"],\n    \"rationale\": \"Current interval samples show 97\u201398% CPU idle. The first row's 18% idle is a since-boot average, not current pressure.\"\n  },\n  \"current_swap_activity\": {\n    \"verdict\": \"not_observed\",\n    \"sources\": [\"S1\", \"S2\"],\n    \"rationale\": \"Both current intervals show si=0 and so=0. The 3GiB swap occupancy does not establish current swapping; 18GiB of RAM is available. The first row's swap activity is historical.\"\n  },\n  \"endpoint_health\": {\n    \"verdict\": \"responding\",\n    \"sources\": [\"S3\"],\n    \"rationale\": \"All five health URLs returned HTTP 200 at 12:00:02, establishing that those endpoints responded.\"\n  },\n  \"workload_health\": {\n    \"verdict\": \"unknown\",\n    \"sources\": [\"S3\"],\n    \"rationale\": \"Health endpoints responded, but no application transactions were exercised, so workload functionality is not verified.\"\n  },\n  \"backup_recoverability\": {\n    \"verdict\": \"unknown\",\n    \"sources\": [\"S4\"],\n    \"rationale\": \"The backup timer is enabled, but no last-success, retained restore, or backup-content evidence is available to establish recoverability.\"\n  }\n}",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791727787,
+          "id": "resp_027c0c98146176f1016acb98a2faec8199b8ad040a6f245958",
+          "model": null,
+          "object": "chat.completion",
+          "usage": {
+            "attribution": {
+              "items": {
+                "msg_027c0c98146176f1016acb98a2fb88819988be48555f3fe785": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "content": [
+                    {
+                      "cache_write_tokens": 0,
+                      "cached_tokens": 0,
+                      "input_tokens": 238,
+                      "output_tokens": 0
+                    }
+                  ],
+                  "input_tokens": 238,
+                  "output_tokens": 0
+                },
+                "msg_027c0c98146176f1016acb98a432388199865b3fbecd9a8347": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "content": [
+                    {
+                      "cache_write_tokens": 0,
+                      "cached_tokens": 0,
+                      "input_tokens": 2,
+                      "output_tokens": 307
+                    }
+                  ],
+                  "input_tokens": 2,
+                  "output_tokens": 307
+                }
+              },
+              "request_fields": {
+                "instructions": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 10,
+                  "output_tokens": 0
+                }
+              }
+            },
+            "input_tokens": 250,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 307,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 557
+          }
+        }
+      },
+      "elapsed_s": 9.006675937969703,
+      "answer": {
+        "current_cpu_pressure": {
+          "verdict": "low",
+          "sources": [
+            "S1"
+          ],
+          "rationale": "Current interval samples show 97\u201398% CPU idle. The first row's 18% idle is a since-boot average, not current pressure."
+        },
+        "current_swap_activity": {
+          "verdict": "not_observed",
+          "sources": [
+            "S1",
+            "S2"
+          ],
+          "rationale": "Both current intervals show si=0 and so=0. The 3GiB swap occupancy does not establish current swapping; 18GiB of RAM is available. The first row's swap activity is historical."
+        },
+        "endpoint_health": {
+          "verdict": "responding",
+          "sources": [
+            "S3"
+          ],
+          "rationale": "All five health URLs returned HTTP 200 at 12:00:02, establishing that those endpoints responded."
+        },
+        "workload_health": {
+          "verdict": "unknown",
+          "sources": [
+            "S3"
+          ],
+          "rationale": "Health endpoints responded, but no application transactions were exercised, so workload functionality is not verified."
+        },
+        "backup_recoverability": {
+          "verdict": "unknown",
+          "sources": [
+            "S4"
+          ],
+          "rationale": "The backup timer is enabled, but no last-success, retained restore, or backup-content evidence is available to establish recoverability."
+        }
+      },
+      "checks": {
+        "identity": true,
+        "complete": true,
+        "no_tools": true,
+        "object": true,
+        "current_cpu_pressure": true,
+        "current_swap_activity": true,
+        "endpoint_health": true,
+        "workload_health": true,
+        "backup_recoverability": true
+      }
+    },
+    {
+      "id": "conflicting_evidence",
+      "request": {
+        "model": "openai_sub/gpt-6-astra",
+        "allow_forced_provider_fallback": false,
+        "workload_role": "interactive",
+        "context_window_target": 8192,
+        "max_tokens": 1800,
+        "stream": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Review this synthetic incident packet, observation only. Return bare JSON with diagnosis, evidence (source-ID array), excluded_conclusions (array), next_observation, and rationale. Do not recommend restarting, resetting, deploying, deleting, or changing credentials.\nS1 at 09:00: router reports provider unhealthy from an old payload parser failure.\nS2 at 09:05: direct upstream usage probe says allowed=true, limit_reached=false, utilization 37%.\nS3 at 09:06: pool.select returns status ok, but immediate disk readback reports exhausted with a future reset. Pool and singleton tokens differ but account and subject match.\nS4 at 09:07: an isolated router refuses before upstream: no usable stored credential.\nS5 code: successful automatic recovery clears last_status_at; persistence prefers the old disk cooldown if its timestamp exceeds the in-memory timestamp.\nChoose diagnosis from [confirmed_subscription_exhaustion, credential_persistence_defect, model_quality_failure]. Include all S1-S5 in evidence and explain their distinct scopes. In excluded_conclusions include confirmed_subscription_exhaustion and reproduced_parser_failure. The next_observation must be a read-only check, not a repair."
+          }
+        ]
+      },
+      "passed": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "817599a7181ab84b",
+          "x-manwe-provider-id": "openai_sub",
+          "x-manwe-model-id": "gpt-6-astra",
+          "x-manwe-route-class": "interactive",
+          "x-manwe-execution-lane": "interactive"
+        },
+        "body": {
+          "_charon_driver": "codex_responses",
+          "_manwe_route": {
+            "context_window_target": 8192,
+            "execution_lane": "interactive",
+            "latency_ms": 13551,
+            "model_id": "gpt-6-astra",
+            "provider_id": "openai_sub",
+            "route_class": "interactive",
+            "route_id": "817599a7181ab84b"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "content": "{\n  \"diagnosis\": \"credential_persistence_defect\",\n  \"evidence\": [\"S1\", \"S2\", \"S3\", \"S4\", \"S5\"],\n  \"excluded_conclusions\": [\n    \"confirmed_subscription_exhaustion\",\n    \"reproduced_parser_failure\"\n  ],\n  \"next_observation\": \"Read and compare the existing in-memory and persisted credential status, last_status_at, and cooldown/reset fields for the matching account and subject, then inspect available persistence traces to determine whether the old disk cooldown won after automatic recovery cleared last_status_at. Do not modify state or expose token values.\",\n  \"rationale\": \"S1 describes historical router health derived from an old payload parser failure; it does not establish a current parser failure. S2 measures current upstream usage eligibility: allowed=true, limit_reached=false, and 37% utilization argue against confirmed subscription exhaustion. S3 exposes a local state discrepancy: pool selection succeeds, but immediate disk readback retains an exhausted state and future reset. Different token values do not establish different accounts because account and subject match. S4 localizes the isolated router refusal to stored-credential eligibility before any upstream request, not to upstream quota enforcement or model output quality. S5 supplies the persistence mechanism: automatic recovery clears the in-memory status timestamp, allowing an older disk cooldown with a greater timestamp to take precedence. Together, these observations support a credential persistence defect that preserves stale exhaustion state; tracing the actual persistence decision remains the read-only confirmation step.\"\n}",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791727801,
+          "id": "resp_0c721b9d7da5142f016acb98ac4e088199a8a30b7344ca62e4",
+          "model": null,
+          "object": "chat.completion",
+          "usage": {
+            "attribution": {
+              "items": {
+                "msg_0c721b9d7da5142f016acb98ac4e888199a0f382455f5f9763": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "content": [
+                    {
+                      "cache_write_tokens": 0,
+                      "cached_tokens": 0,
+                      "input_tokens": 245,
+                      "output_tokens": 0
+                    }
+                  ],
+                  "input_tokens": 245,
+                  "output_tokens": 0
+                },
+                "msg_0c721b9d7da5142f016acb98adb3648199a1c38b9630b1c0a8": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "content": [
+                    {
+                      "cache_write_tokens": 0,
+                      "cached_tokens": 0,
+                      "input_tokens": 2,
+                      "output_tokens": 311
+                    }
+                  ],
+                  "input_tokens": 2,
+                  "output_tokens": 311
+                }
+              },
+              "request_fields": {
+                "instructions": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 10,
+                  "output_tokens": 0
+                }
+              }
+            },
+            "input_tokens": 257,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 311,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 568
+          }
+        }
+      },
+      "elapsed_s": 13.61031267902581,
+      "answer": {
+        "diagnosis": "credential_persistence_defect",
+        "evidence": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5"
+        ],
+        "excluded_conclusions": [
+          "confirmed_subscription_exhaustion",
+          "reproduced_parser_failure"
+        ],
+        "next_observation": "Read and compare the existing in-memory and persisted credential status, last_status_at, and cooldown/reset fields for the matching account and subject, then inspect available persistence traces to determine whether the old disk cooldown won after automatic recovery cleared last_status_at. Do not modify state or expose token values.",
+        "rationale": "S1 describes historical router health derived from an old payload parser failure; it does not establish a current parser failure. S2 measures current upstream usage eligibility: allowed=true, limit_reached=false, and 37% utilization argue against confirmed subscription exhaustion. S3 exposes a local state discrepancy: pool selection succeeds, but immediate disk readback retains an exhausted state and future reset. Different token values do not establish different accounts because account and subject match. S4 localizes the isolated router refusal to stored-credential eligibility before any upstream request, not to upstream quota enforcement or model output quality. S5 supplies the persistence mechanism: automatic recovery clears the in-memory status timestamp, allowing an older disk cooldown with a greater timestamp to take precedence. Together, these observations support a credential persistence defect that preserves stale exhaustion state; tracing the actual persistence decision remains the read-only confirmation step."
+      },
+      "checks": {
+        "identity": true,
+        "complete": true,
+        "no_tools": true,
+        "object": true,
+        "diagnosis": true,
+        "sources": true,
+        "exclusions": true,
+        "observation": true
+      }
+    },
+    {
+      "id": "concurrent_credential_review",
+      "request": {
+        "model": "openai_sub/gpt-6-astra",
+        "allow_forced_provider_fallback": false,
+        "workload_role": "interactive",
+        "context_window_target": 8192,
+        "max_tokens": 1800,
+        "stream": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Review this synthetic proposed Python credential-pool repair. Return bare JSON with verdict (accept or reject), failure_sequence (array), required_invariants (array), regression_tests (array). Be precise about disk persistence versus the immediately returned candidate. No tools or changes are authorized.\nBefore: automatic recovery returns an ok row but saves a stale exhausted disk status. Proposed fix:\nnow = time.time()  # before live quota probe\nif quota_restored(entry) or cooldown_expired(entry):\n    entry = replace(entry, last_status='ok', last_status_at=now)\n    available.append(entry)\npersist(entries)\nreturn available[0]\nPersistence merge:\nif mem.access_token != disk.access_token: return mem\nif disk.last_status_at <= mem.last_status_at: return mem\nreturn disk\nA peer may mark the same token DEAD after this process loaded its exhausted row but before now. persist returns the merged rows, but the caller ignores them. Explicit reset has a separate audited status_cleared_ids path. Identify the terminal-state race and stale available-list bug, propose minimal invariants without allowing automatic recovery to override terminal state, and name tests for quota recovery, TTL recovery, explicit reset, fresh token generation, and later peer exhaustion."
+          }
+        ]
+      },
+      "passed": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-manwe-route-id": "28010126e052f222",
+          "x-manwe-provider-id": "openai_sub",
+          "x-manwe-model-id": "gpt-6-astra",
+          "x-manwe-route-class": "tool_oriented",
+          "x-manwe-execution-lane": "execution"
+        },
+        "body": {
+          "_charon_driver": "codex_responses",
+          "_manwe_route": {
+            "context_window_target": 8192,
+            "execution_lane": "execution",
+            "latency_ms": 32087,
+            "model_id": "gpt-6-astra",
+            "provider_id": "openai_sub",
+            "route_class": "tool_oriented",
+            "route_id": "28010126e052f222"
+          },
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                "codex_reasoning_items": [
+                  {
+                    "content": [],
+                    "encrypted_content": "gAAAAABqy5i9JiyCWhp56j_8XpPV6HHYI282gCtcZ9wn4VgGZwX9HhkAT89MLPsCmP1J5lyBpp1_wqqAPMFMqy24eDqyGyMUcfXKFe2M4tD6DLZzRQRKHt8ImAqYy2YegAebPQ43X7W_DuFPa2XIlCVLrigQ1G0sTEkSQvRl69pzvQ5bYtW7SyR6-0-LYoH3F_KZDZus5Ud_P-xFaSYgOa2Mp8Vq6nnXkXQTL_65DbLBPMfjFjce7YbBLkuU0w0umDlSS_uvoPCALngBTNv-HgDWF7LmjmPMPlsEHcYeR_yRjrJs8CgN1XQI6nyfC49VL8kmoXYJGbning7GOd_KSpit0fZtrFtIg6_aJSr1amyYgB5JI7wWAKZzTjmOD15hbpGzfIzT7qA2_99dBqyFmp8zHRowo51aliU4j7r2ozPQ9qCNt5mOiyUlmejT97cseop9ZyAJeVMGN_ZsV-7CTOSAakRUh_rRmuE3F2VYD03_iD182m3FHeEnCBLiP3F-QHpaL50g-iqGNDkdUYJa6BAbLFPDU8U_G-r8U_wonQQZ7Cw55QeB2t_dqA7Z3z_R01Tvenvz10J9EYTS_awY7QpumcQqo9n_23eOtzpADjgT8F6vJwqYC5O6-OuYuPCnGlicRzXMPjWW5RrCAmfmfbWS0XC6CxH5EcnBXDCViMAyej_WZPy8b2GUKG5n6IfOgoBuNG8wD0Cd68oI7S0cftr1VHYQX5Ri05gDSA5uKr4mH3m0RkTOwYdxBxlbI5c5MDq3q4Y2FU35w9N6pCal2XMWUfKd8WmnXyKqNbucrzOAAu1nVKTO39UUbXeUtH5DydAB0BUYqruX2TPcmcgjIvIsqh2s1WR-_TnpxLdHref0etPOrQo7Er-UiddyUyeQT6kKmkZt8-dHkT1vAlRRsWv4WWXynqDWgss2-MymlUo9xXqtNG7mMbwqtI2UPuF0l-zSkmcjS2QoKkoc9_m5jGzCpCdhP3JDSlris7cpICICzh_UdeV5WsSoiUgInf2XR2CpRukzB7iHQfvBOL6pO4bwnjPx4d7GYvL37Z_ofuSqMZo9S0C5Pjucha6y61LiA5AJc1YcEYKTVnoaZ7Md4puEgAN-IR_yiH6eYcVHMTC4XJsag3BLoMO5od9W-_Exd7DEM7N2AcL0_YAeNj9GvQ2v5pXAOEgYYvzAJz-j_YnAgKF6UO0lS1F41gACdq93RDis_Wmb0pidhY69IXppwdKHAr0Pzwu9UOwuJDXEfgkcs05MsrDGRIg4iyPnlMDLedMUULPFN808zdqarefJigxeaFnGhfg3DSQANL-IgC_l_Fqe_kzTFQcK1WLanrHPlfg8IGRf91JbYwkeDKlYWKrGptLpEOgc85k5xIScb4jc3eQEBflCC-VP6Z-FFpAhAp4W3grPe4yebWuaZgYJl59B0B7Xye-sG65KjaEm_CqKMmPXCcgGVmespOLiz4pgfqj-HkAeidWa6plvnQyn8kDgFKiPMMmY_n5iItvPTidoPXP5G3sz86bYEpxl-DW3QEIEGpsMQ-a94J1hrSSgZUNTETVuavNvhDMf7JwtefH2sQJ5WyQsBTjCvfagp2mMOorUTkUMemqHgkIHvj6Ws0CujAQu3P5NRo8xBN3EkPEm5KhSI0aWOIEikhMtRjXBhR54tHW4UCSwupm7JQt1jzOZHjIsHZUQWYppoLALKcbeykv_UpGhSoqR6F7CzE9GcFg-iM792rdmhzCq4Kf4pnbO1A-74x2GvGhGQKgzGr7E_z-R4dp4G4m8YygcVQAp9D2Ggefc8RK6irtfgBcb0fmUXuZmg_Fs18jOS9al1nnijm8vjFTIQdgqHQRyRcJYmB6dBaSq7ZHU48uNVESbQQqmBJPEOe7HHMHeDQjZJHIX6RYWWvClKw5h0kC28jvA81htzb6SjfMCUp7KTKzv1-aJ-41gihAWqJcpZiq0CRSuzqZXgiOtJ8eMJTFE3uF39ENgbhdyO8FyIr_xIbEdV7Xq-q4IPcE2t7BJ0jg6PjjAhuKckCNuytOEKAmMc8xAPhAm8MCJTV1yuzmdF28MmdKA4Yh3xd1s1HsGUw_FHERdUVFJbHgwT1ZBE2fukz67NsJpxYwW6xI_F8eZlC4X_-U0SGhxixRrOXOGUr2dFP7oGodsxA3MhHIFIMMYJ6_VJS2IX-Y_MpPgD0oDg13IKpO3jcKa_iJfo9FGCqsEwqVEOOwePSmE2mzElAgnyxpWi3VLBSjp_AURt5U0C2AkzXuNvUPgPV6_1VS6qLsZ7tZMSTkRS6R0VujQhBG_fV54flZZOV0ZRzcw8hS6CDbs12K3iXe4B23XlE_cZLGUkGbs9QjdSPh2o5LFjXAPASYrudD7vFTkgGcZ9PnoygrCjEluoFq56u1ilupgKjvXzTrNvq3S7gii0h6RWjawgKJkjqEq8F6ZM07svUk0ZeDtmbqCS992hr2wE-i9OqTGBN-iC4br0N2WEczLVTWKTqlrbhje7ZW9DbD-2qZ8Q8GQfzdc8Ah6g-W5VIhVCucgqhX229Br0tnyeWQ3DgE0ZH9zQlJnqMegY89_",
+                    "id": "rs_0248b7c1ea94d37e016acb98bde4c0819980895095168301c9",
+                    "summary": [],
+                    "type": "reasoning"
+                  }
+                ],
+                "content": "{\n  \"verdict\": \"reject\",\n  \"failure_sequence\": [\n    \"Process A loads token T with an exhausted status.\",\n    \"A peer marks the same token T DEAD and persists that terminal state after A's load but before A captures now.\",\n    \"A's quota probe succeeds or its cooldown check passes. A replaces its stale exhausted row with an ok row timestamped now and appends that row to available.\",\n    \"During persistence, the tokens match and the peer's DEAD timestamp is earlier than now, so the proposed merge selects A's ok row. Disk is incorrectly changed from DEAD to ok, and A returns that resurrected token.\",\n    \"In a separate interleaving, a peer writes DEAD or exhausted with a timestamp later than A's now. The merge keeps the peer's row on disk, but A ignores the merged rows and returns the stale ok candidate from available. Disk remains correctly unavailable while the immediately returned candidate incorrectly claims availability.\"\n  ],\n  \"required_invariants\": [\n    \"For the same token generation, automatic recovery must never clear a terminal state such as DEAD, regardless of timestamp ordering or a successful quota probe. A local observation timestamp is not authorization to resurrect a terminal token.\",\n    \"Automatic recovery may clear only recoverable states, subject to conflict resolution against current persisted state. A later peer exhaustion must not be overwritten by an earlier recovery.\",\n    \"Terminal-state clearing must remain restricted to the separately audited explicit-reset path using status_cleared_ids, or to an authorized fresh token generation. Do not grant automatic recovery that bypass.\",\n    \"Token identity and generation must be respected. A DEAD state for an old token must not poison an authorized replacement token, but access_token inequality alone must not let a stale writer roll back a newer persisted generation.\",\n    \"Merge and persistence must resolve conflicts against current disk state within the storage mechanism's atomic or serialized update boundary.\",\n    \"Select the immediately returned candidate from the resolved, persisted rows after rechecking eligibility; do not return an object from the pre-merge available list. If the candidate is now terminal or exhausted, select another eligible row or report none.\",\n    \"This return-value guarantee applies at the persistence/selection boundary. Preventing invalidation by a peer after that boundary requires additional reservation or coordination; merely using merged rows does not provide that stronger guarantee.\"\n  ],\n  \"regression_tests\": [\n    \"Quota recovery: with a recoverable exhausted token and restored quota, verify both disk and the returned candidate become ok without using status_cleared_ids.\",\n    \"TTL recovery: with a recoverable exhausted token, an expired cooldown, and no restored quota, verify both disk and the returned candidate become ok. Verify an unexpired cooldown does not recover it.\",\n    \"Terminal race before now: persist peer DEAD after the initial load but before A captures now, then trigger quota recovery and, separately, TTL recovery. Verify disk remains DEAD and the token is not returned.\",\n    \"Terminal race after now: persist peer DEAD with a newer timestamp before A persists. Verify the merge retains DEAD and selection does not return the stale available-list candidate.\",\n    \"Explicit reset: verify an authorized, audited status_cleared_ids reset can clear terminal state under its defined reset semantics; the same write without that authorization must not clear DEAD.\",\n    \"Fresh token generation: verify an authorized replacement token can be persisted and returned despite the old token being DEAD. Verify a stale writer holding the old token cannot restore that older generation.\",\n    \"Later peer exhaustion: after A captures now and prepares recovery, persist a newer exhausted status for the same token before A's merge. Verify disk retains the peer exhaustion and the immediate result is another eligible token or no candidate, not A's stale ok row.\"\n  ]\n}",
+                "role": "assistant"
+              }
+            }
+          ],
+          "created": 1791727833,
+          "id": "resp_0248b7c1ea94d37e016acb98b9a7a4819989556df2cae8ecc2",
+          "model": null,
+          "object": "chat.completion",
+          "usage": {
+            "attribution": {
+              "items": {
+                "msg_0248b7c1ea94d37e016acb98b9a8648199b10b65483727b3aa": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "content": [
+                    {
+                      "cache_write_tokens": 0,
+                      "cached_tokens": 0,
+                      "input_tokens": 253,
+                      "output_tokens": 0
+                    }
+                  ],
+                  "input_tokens": 253,
+                  "output_tokens": 0
+                },
+                "msg_0248b7c1ea94d37e016acb98be0f808199b8dc78bc2e265a17": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "content": [
+                    {
+                      "cache_write_tokens": 0,
+                      "cached_tokens": 0,
+                      "input_tokens": 0,
+                      "output_tokens": 766
+                    }
+                  ],
+                  "input_tokens": 0,
+                  "output_tokens": 766
+                },
+                "rs_0248b7c1ea94d37e016acb98bde4c0819980895095168301c9": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 2,
+                  "output_tokens": 68
+                }
+              },
+              "request_fields": {
+                "instructions": {
+                  "cache_write_tokens": 0,
+                  "cached_tokens": 0,
+                  "input_tokens": 10,
+                  "output_tokens": 0
+                }
+              }
+            },
+            "input_tokens": 265,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 834,
+            "output_tokens_details": {
+              "reasoning_tokens": 68
+            },
+            "total_tokens": 1099
+          }
+        }
+      },
+      "elapsed_s": 32.14866941398941,
+      "answer": {
+        "verdict": "reject",
+        "failure_sequence": [
+          "Process A loads token T with an exhausted status.",
+          "A peer marks the same token T DEAD and persists that terminal state after A's load but before A captures now.",
+          "A's quota probe succeeds or its cooldown check passes. A replaces its stale exhausted row with an ok row timestamped now and appends that row to available.",
+          "During persistence, the tokens match and the peer's DEAD timestamp is earlier than now, so the proposed merge selects A's ok row. Disk is incorrectly changed from DEAD to ok, and A returns that resurrected token.",
+          "In a separate interleaving, a peer writes DEAD or exhausted with a timestamp later than A's now. The merge keeps the peer's row on disk, but A ignores the merged rows and returns the stale ok candidate from available. Disk remains correctly unavailable while the immediately returned candidate incorrectly claims availability."
+        ],
+        "required_invariants": [
+          "For the same token generation, automatic recovery must never clear a terminal state such as DEAD, regardless of timestamp ordering or a successful quota probe. A local observation timestamp is not authorization to resurrect a terminal token.",
+          "Automatic recovery may clear only recoverable states, subject to conflict resolution against current persisted state. A later peer exhaustion must not be overwritten by an earlier recovery.",
+          "Terminal-state clearing must remain restricted to the separately audited explicit-reset path using status_cleared_ids, or to an authorized fresh token generation. Do not grant automatic recovery that bypass.",
+          "Token identity and generation must be respected. A DEAD state for an old token must not poison an authorized replacement token, but access_token inequality alone must not let a stale writer roll back a newer persisted generation.",
+          "Merge and persistence must resolve conflicts against current disk state within the storage mechanism's atomic or serialized update boundary.",
+          "Select the immediately returned candidate from the resolved, persisted rows after rechecking eligibility; do not return an object from the pre-merge available list. If the candidate is now terminal or exhausted, select another eligible row or report none.",
+          "This return-value guarantee applies at the persistence/selection boundary. Preventing invalidation by a peer after that boundary requires additional reservation or coordination; merely using merged rows does not provide that stronger guarantee."
+        ],
+        "regression_tests": [
+          "Quota recovery: with a recoverable exhausted token and restored quota, verify both disk and the returned candidate become ok without using status_cleared_ids.",
+          "TTL recovery: with a recoverable exhausted token, an expired cooldown, and no restored quota, verify both disk and the returned candidate become ok. Verify an unexpired cooldown does not recover it.",
+          "Terminal race before now: persist peer DEAD after the initial load but before A captures now, then trigger quota recovery and, separately, TTL recovery. Verify disk remains DEAD and the token is not returned.",
+          "Terminal race after now: persist peer DEAD with a newer timestamp before A persists. Verify the merge retains DEAD and selection does not return the stale available-list candidate.",
+          "Explicit reset: verify an authorized, audited status_cleared_ids reset can clear terminal state under its defined reset semantics; the same write without that authorization must not clear DEAD.",
+          "Fresh token generation: verify an authorized replacement token can be persisted and returned despite the old token being DEAD. Verify a stale writer holding the old token cannot restore that older generation.",
+          "Later peer exhaustion: after A captures now and prepares recovery, persist a newer exhausted status for the same token before A's merge. Verify disk retains the peer exhaustion and the immediate result is another eligible token or no candidate, not A's stale ok row."
+        ]
+      },
+      "checks": {
+        "identity": true,
+        "complete": true,
+        "no_tools": true,
+        "object": true,
+        "verdict": true,
+        "failure_sequence": true,
+        "required_invariants": true,
+        "regression_tests": true
+      }
+    }
+  ],
+  "mechanical_passed": true,
+  "semantic_review": "pending",
+  "desktop_before": "MainPID=0\nActiveState=inactive",
+  "candidate_stopped": true,
+  "listener_absent": true,
+  "desktop_after": "MainPID=0\nActiveState=inactive"
+}

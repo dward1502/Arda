@@ -2458,13 +2458,47 @@ fn messages_imply_tool_intent(messages: &[Value]) -> bool {
     if joined.trim().is_empty() {
         return false;
     }
-    tool_intent_regex().is_some_and(|regex| regex.is_match(&joined))
+    // Text hints are routing heuristics, not authority. A prohibition must not
+    // invent a tool requirement; explicit tool fields/history are handled first.
+    static NEGATED: OnceLock<regex::Regex> = OnceLock::new();
+    static CONTRAST: OnceLock<regex::Regex> = OnceLock::new();
+    let negated = NEGATED.get_or_init(|| {
+        regex::Regex::new(r"\b(not|don't|don’t|never|avoid)[\s,]+(?:(?:please|actually)[\s,]+)*$").unwrap()
+    });
+    let contrast = CONTRAST.get_or_init(|| {
+        regex::Regex::new(r"[;.!?]|\b(but|instead|however)\b").unwrap()
+    });
+    tool_intent_regex().is_some_and(|regex| {
+        let mut offset = 0;
+        let mut last_negated_end = None;
+        while let Some(intent) = regex.find_at(&joined, offset) {
+            let start = intent.start();
+            let prohibited = negated.is_match(&joined[..start]);
+            // A trailing "with the tools" modifies the prohibited action; it
+            // is not a separate affirmative request. Explicit new verbs remain
+            // eligible even inside a greedy earlier match.
+            let prohibited_modifier = intent.as_str().starts_with("with ")
+                && last_negated_end.is_some_and(|end| {
+                    end <= start && !contrast.is_match(&joined[end..start])
+                });
+            if !prohibited && !prohibited_modifier {
+                return true;
+            }
+            if prohibited {
+                last_negated_end = Some(intent.end());
+            }
+            // Advance past the first character, not the whole match: greedy
+            // phrases must not consume a later independent affirmative verb.
+            offset = start + joined[start..].chars().next().unwrap().len_utf8();
+        }
+        false
+    })
 }
 
-fn tool_intent_regex() -> Option<&'static regex::RegexSet> {
-    static REGEX: OnceLock<Option<regex::RegexSet>> = OnceLock::new();
+fn tool_intent_regex() -> Option<&'static regex::Regex> {
+    static REGEX: OnceLock<Option<regex::Regex>> = OnceLock::new();
     REGEX.get_or_init(|| {
-        regex::RegexSet::new([
+        regex::Regex::new(&[
             r"\b(run|execute|invoke|call)\s+(the\s+)?(tool|tools|command|terminal|shell|script|harness)\b",
             r"\b(use|with)\s+(the\s+)?(terminal|shell|filesystem|file tools|tools)\b",
             r"\b(inspect|scan|check|verify)\s+.*\b(repo|repository|file|files|local state|private local state|queue evidence)\b",
@@ -2473,7 +2507,7 @@ fn tool_intent_regex() -> Option<&'static regex::RegexSet> {
             r"\b(cargo|npm|pnpm|git|hermes|bash|python3?|rg|jq)\s+[A-Za-z0-9_./:-]",
             r"\b(continue|work|begin|finish|complete)\s+.*\b(active[_ -]?queue|task queue|queued task|queue_active)\b",
             r"\b(apply|make)\s+.*\b(change|changes|fix|patch|commit|push)\b",
-        ])
+        ].join("|"))
         .ok()
     })
     .as_ref()
@@ -2764,6 +2798,45 @@ mod tests {
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::{Arc, Mutex};
     use tempfile::tempdir;
+
+    #[test]
+    fn tool_intent_negated_prohibitions_are_not_action_requests() {
+        for text in [
+            "Do not make changes.",
+            "Don't run the command.",
+            "Never use the terminal.",
+            "You must not edit the file.",
+            "Do not make changes; do not run the script.",
+            "Do not actually make changes.",
+            "Do not, please, make changes.",
+            "Do not run the command with the tools.",
+        ] {
+            let messages = vec![json!({"role":"user", "content":text})];
+            assert!(!super::request_has_tool_or_skill_intent(&json!({}), &messages), "{text}");
+        }
+    }
+
+    #[test]
+    fn tool_intent_affirmative_and_explicit_requests_survive_prohibitions() {
+        for text in [
+            "Make changes.",
+            "Run the command.",
+            "Do not make changes, but read the file.",
+            "Do not make changes. Run the command.",
+            "Run\nthe command.",
+            "Check the current status, including the repository.",
+            "Do not inspect the repo—instead read the file.",
+            "Do not make changes and instead run the command to verify the patch.",
+        ] {
+            let messages = vec![json!({"role":"user", "content":text})];
+            assert!(super::request_has_tool_or_skill_intent(&json!({}), &messages), "{text}");
+        }
+        let messages = vec![json!({"role":"user", "content":"Do not make changes."})];
+        assert!(super::request_has_tool_or_skill_intent(&json!({"tool_use_required":true}), &messages));
+        assert!(super::request_has_tool_or_skill_intent(&json!({"tool_choice":"required"}), &messages));
+        let history = vec![json!({"role":"tool", "tool_call_id":"call_1", "content":"Do not make changes."})];
+        assert!(super::request_has_tool_or_skill_intent(&json!({}), &history));
+    }
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
 

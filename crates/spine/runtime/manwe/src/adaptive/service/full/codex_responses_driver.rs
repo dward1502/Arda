@@ -1,3 +1,4 @@
+use super::responses_messages::split_messages_for_responses;
 use super::{ArdaError, JsonValue, ProviderState, Result};
 use base64::Engine;
 use std::path::PathBuf;
@@ -21,6 +22,7 @@ pub(super) fn build_codex_responses_request(
     model_id: &str,
     body: &JsonValue,
 ) -> Result<CodexResponsesRequest> {
+    let request_body = chat_body_to_responses_body(model_id, body)?;
     let bearer = resolve_codex_access_token()?;
     let base_url = provider
         .base_url
@@ -35,7 +37,6 @@ pub(super) fn build_codex_responses_request(
         .trim_end_matches('/')
         .to_string();
     let url = format!("{base_url}/responses");
-    let request_body = chat_body_to_responses_body(model_id, body);
     Ok(CodexResponsesRequest {
         url,
         chatgpt_account_id: chatgpt_account_id_from_jwt(&bearer),
@@ -95,8 +96,8 @@ pub(super) fn codex_responses_timeout(default_timeout: Duration) -> Duration {
         .unwrap_or(default_timeout)
 }
 
-fn chat_body_to_responses_body(model_id: &str, body: &JsonValue) -> JsonValue {
-    let (instructions, input) = split_messages_for_responses(body);
+fn chat_body_to_responses_body(model_id: &str, body: &JsonValue) -> Result<JsonValue> {
+    let (instructions, input) = split_messages_for_responses(body)?;
     let mut payload = serde_json::json!({
         "model": model_id,
         "instructions": instructions,
@@ -114,12 +115,33 @@ fn chat_body_to_responses_body(model_id: &str, body: &JsonValue) -> JsonValue {
     if let Some(tool_choice) = responses_tool_choice(body) {
         payload["tool_choice"] = tool_choice;
     }
-    payload
+    Ok(payload)
 }
 
 #[cfg(test)]
 mod framing_regressions {
     use super::*;
+    #[test]
+    fn responses_normalization_preserves_distinct_linkage() {
+        let mut body = serde_json::json!({"messages":[
+            {"role":"assistant", "tool_calls":[
+                {"id":"call_a", "function":{"name":"one", "arguments":"{}"}},
+                {"id":"tc0000001", "function":{"name":"two", "arguments":"{}"}}]},
+            {"role":"tool", "tool_call_id":"call_a", "content":"first"},
+            {"role":"tool", "tool_call_id":"tc0000001", "content":"second"}
+        ]});
+        super::super::normalize_openai_request_payload_with_policy(&mut body, false);
+        let calls = &body["messages"][0]["tool_calls"];
+        assert_ne!(calls[0]["id"], calls[1]["id"]);
+        assert_eq!(calls[0]["id"], body["messages"][1]["tool_call_id"]);
+        assert_eq!(calls[1]["id"], body["messages"][2]["tool_call_id"]);
+    }
+    #[test]
+    fn responses_incomplete_stream_fails_closed() {
+        let event = serde_json::json!({"type":"response.incomplete", "response":{
+            "status":"incomplete", "output":[{"type":"function_call", "call_id":"partial", "name":"read", "arguments":"{"}]}});
+        assert!(parse_codex_response_text(&format!("data: {event}\n\n")).get("error").is_some());
+    }
     #[test]
     fn terminal_snapshot_with_crlf_preserves_output() {
         let event = serde_json::json!({"type":"response.completed", "response":{
@@ -128,6 +150,10 @@ mod framing_regressions {
         let parsed = parse_codex_response_text(&format!("data: {event}\r\n\r\n"));
         assert_eq!(parsed["output"][0]["content"][0]["text"], "review result");
         assert!(parse_codex_response_text("garbage").get("error").is_some());
+        assert_eq!(responses_body_to_chat_completion(&parsed)["choices"][0]["message"]["content"], "review result");
+        let delta = serde_json::json!({"type":"response.output_text.delta", "delta":"review"});
+        let partial = parse_codex_response_text(&format!("data: {delta}\n\ndata: {event}\n\n"));
+        assert_eq!(responses_body_to_chat_completion(&partial)["choices"][0]["message"]["content"], "review result");
     }
 }
 
@@ -225,6 +251,8 @@ fn codex_sse_text_to_responses_body(text: &str) -> Option<JsonValue> {
                 if let Some(items) = response.get("output").and_then(JsonValue::as_array) {
                     if !items.is_empty() {
                         output_items = items.clone();
+                        // Terminal output is authoritative over absent/partial deltas.
+                        output_text = extract_responses_text(&serde_json::json!({"output": items}));
                     }
                 }
                 usage = response.get("usage").cloned().unwrap_or(JsonValue::Null);
@@ -246,6 +274,12 @@ fn codex_sse_text_to_responses_body(text: &str) -> Option<JsonValue> {
 
     if !saw_event {
         return None;
+    }
+    if status == "incomplete" {
+        return Some(serde_json::json!({"error": {
+            "type": "codex_responses_incomplete",
+            "message": "Codex Responses stream is incomplete; tool calls withheld"
+        }}));
     }
     if status == "failed" {
         return Some(serde_json::json!({
@@ -281,56 +315,6 @@ fn codex_sse_text_to_responses_body(text: &str) -> Option<JsonValue> {
         "usage": usage,
         "_charon_driver": "codex_responses",
     }))
-}
-
-fn split_messages_for_responses(body: &JsonValue) -> (String, JsonValue) {
-    let mut instructions = "You are a helpful assistant.".to_string();
-    let mut input = Vec::new();
-    for message in body
-        .get("messages")
-        .and_then(JsonValue::as_array)
-        .into_iter()
-        .flatten()
-    {
-        let role = message
-            .get("role")
-            .and_then(JsonValue::as_str)
-            .unwrap_or("user");
-        let raw_content = message.get("content").unwrap_or(&JsonValue::Null);
-        let content = flatten_content(raw_content);
-        if role == "system" {
-            if !content.trim().is_empty() {
-                instructions = content;
-            }
-            continue;
-        }
-        let response_role = if role == "assistant" {
-            "assistant"
-        } else {
-            "user"
-        };
-        let content_value = if raw_content.is_string() {
-            JsonValue::String(content)
-        } else {
-            let text_type = if response_role == "assistant" {
-                "output_text"
-            } else {
-                "input_text"
-            };
-            serde_json::json!([{"type": text_type, "text": content}])
-        };
-        input.push(serde_json::json!({
-            "role": response_role,
-            "content": content_value,
-        }));
-    }
-    if input.is_empty() {
-        input.push(serde_json::json!({
-            "role": "user",
-            "content": [{"type": "input_text", "text": ""}],
-        }));
-    }
-    (instructions, JsonValue::Array(input))
 }
 
 fn responses_reasoning(body: &JsonValue) -> Option<JsonValue> {
@@ -369,6 +353,17 @@ fn responses_body_to_chat_completion(body: &JsonValue) -> JsonValue {
     });
     if !tool_calls.is_empty() {
         message["tool_calls"] = JsonValue::Array(tool_calls);
+    }
+    let reasoning: Vec<_> = body
+        .get("output")
+        .and_then(JsonValue::as_array)
+        .into_iter()
+        .flatten()
+        .filter(|item| item["type"] == "reasoning" && item["encrypted_content"].is_string())
+        .cloned()
+        .collect();
+    if !reasoning.is_empty() {
+        message["codex_reasoning_items"] = JsonValue::Array(reasoning);
     }
     serde_json::json!({
         "id": body.get("id").cloned().unwrap_or_else(|| serde_json::json!("chatcmpl-codex-responses")),
@@ -498,27 +493,6 @@ fn extract_responses_text(body: &JsonValue) -> String {
     parts.join("")
 }
 
-fn flatten_content(value: &JsonValue) -> String {
-    if let Some(text) = value.as_str() {
-        return text.to_string();
-    }
-    if let Some(parts) = value.as_array() {
-        return parts
-            .iter()
-            .filter_map(|part| {
-                if let Some(text) = part.as_str() {
-                    return Some(text.to_string());
-                }
-                part.get("text")
-                    .and_then(JsonValue::as_str)
-                    .map(str::to_string)
-            })
-            .collect::<Vec<_>>()
-            .join("\n");
-    }
-    String::new()
-}
-
 fn resolve_codex_access_token() -> Result<String> {
     if let Ok(token) = std::env::var("HERMES_CODEX_ACCESS_TOKEN") {
         if !token.trim().is_empty() {
@@ -531,32 +505,82 @@ fn resolve_codex_access_token() -> Result<String> {
         message: format!("codex_responses could not read {}: {err}", path.display()),
     })?;
     let parsed: JsonValue = serde_json::from_str(&raw)?;
-    if let Some(token) = parsed
-        .get("providers")
-        .and_then(|providers| providers.get("openai-codex"))
-        .and_then(|state| state.get("tokens"))
-        .and_then(|tokens| tokens.get("access_token"))
-        .and_then(JsonValue::as_str)
-        .filter(|token| !token.trim().is_empty())
-    {
-        return Ok(token.to_string());
+    select_codex_access_token(&parsed, chrono::Utc::now().timestamp())
+        .map(str::to_owned)
+        .ok_or_else(|| ArdaError::Agent {
+            agent: "manwe".to_string(),
+            message: "codex_responses found no usable OpenAI Codex credential; refresh Hermes auth"
+                .to_string(),
+        })
+}
+
+// Read-only recovery honors the pool's explicit reset deadline. Without one,
+// Hermes must refresh the row; do not invent a TTL or revive terminal states.
+fn codex_pool_entry_available(entry: &JsonValue, now: i64) -> bool {
+    match entry["last_status"].as_str() {
+        None | Some("ok") => true,
+        Some("exhausted") => {
+            let value = &entry["last_error_reset_at"];
+            let numeric = value
+                .as_f64()
+                .or_else(|| value.as_str()?.trim().parse::<f64>().ok());
+            let reset = numeric.or_else(|| {
+                chrono::DateTime::parse_from_rfc3339(value.as_str()?.trim())
+                    .ok()
+                    .map(|time| time.timestamp_millis() as f64 / 1000.0)
+            });
+            reset.is_some_and(|reset| {
+                let seconds = if reset > 1_000_000_000_000.0 {
+                    reset / 1000.0
+                } else {
+                    reset
+                };
+                seconds.is_finite() && seconds > 0.0 && seconds <= now as f64
+            })
+        }
+        _ => false,
     }
-    if let Some(token) = parsed
+}
+
+// Hermes's credential pool is authoritative when present. Never fall back to
+// legacy state after a pool credential is revoked, exhausted or refreshed.
+fn select_codex_access_token(store: &JsonValue, now: i64) -> Option<&str> {
+    let usable = |token: &str| {
+        if token.trim().is_empty() {
+            return false;
+        }
+        let expiry = token
+            .split('.')
+            .nth(1)
+            .and_then(|part| {
+                base64::engine::general_purpose::URL_SAFE_NO_PAD
+                    .decode(part)
+                    .ok()
+            })
+            .and_then(|bytes| serde_json::from_slice::<JsonValue>(&bytes).ok())
+            .and_then(|claims| claims["exp"].as_i64());
+        expiry.is_none_or(|expiry| expiry > now + 30)
+    };
+    if let Some(pool) = store
         .get("credential_pool")
-        .and_then(|pool| pool.get("openai-codex"))
-        .and_then(JsonValue::as_array)
-        .into_iter()
-        .flatten()
-        .filter_map(|entry| entry.get("access_token").and_then(JsonValue::as_str))
-        .find(|token| !token.trim().is_empty())
+        .and_then(|p| p.get("openai-codex"))
     {
-        return Ok(token.to_string());
+        return pool
+            .as_array()?
+            .iter()
+            .filter(|entry| codex_pool_entry_available(entry, now))
+            .filter(|entry| entry["disabled"] != true)
+            .filter_map(|entry| {
+                let token = entry["access_token"].as_str()?;
+                usable(token).then_some((entry["priority"].as_i64().unwrap_or(i64::MAX), token))
+            })
+            .min_by_key(|(priority, _)| *priority)
+            .map(|(_, token)| token);
     }
-    Err(ArdaError::Agent {
-        agent: "manwe".to_string(),
-        message: "codex_responses found no OpenAI Codex access token in Hermes auth store"
-            .to_string(),
-    })
+    store
+        .pointer("/providers/openai-codex/tokens/access_token")
+        .and_then(JsonValue::as_str)
+        .filter(|token| usable(token))
 }
 
 fn auth_store_path() -> PathBuf {
@@ -618,70 +642,9 @@ fn error_preview(value: &JsonValue) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::adaptive::types::{ModelCapabilities, ModelState};
-
-    fn provider() -> ProviderState {
-        ProviderState {
-            id: "openai_sub".to_string(),
-            name: "OpenAI Codex".to_string(),
-            base_url: Some("https://chatgpt.com/backend-api/codex".to_string()),
-            api_key_env: None,
-            access_tier: "paid_cloud".to_string(),
-            quality_band: "high".to_string(),
-            intelligence_refreshed_at_utc: None,
-            probe_model: None,
-            probe_profile: None,
-            enabled: true,
-            has_api_key: true,
-            healthy: true,
-            in_cooldown: false,
-            cooldown_until_utc: None,
-            cooldown_backoff_seconds: 0,
-            requests_per_minute: None,
-            requests_used_minute: 0,
-            minute_window_started_utc: None,
-            requests_per_day: None,
-            requests_used_day: 0,
-            day_window_started_utc: None,
-            models: vec![ModelState {
-                id: "gpt-5.5".to_string(),
-                aliases: vec![],
-                capable_tasks: vec!["chat".to_string()],
-                context_window: 128_000,
-                is_default: true,
-                healthy: true,
-                in_cooldown: false,
-                cooldown_until_utc: None,
-                consecutive_failures: 0,
-                consecutive_successes: 0,
-                last_error: None,
-                avg_latency_ms: None,
-                cost_per_million_tokens_in: None,
-                cost_per_million_tokens_out: None,
-                capabilities: ModelCapabilities::default(),
-                streaming_validated: None,
-            }],
-            error_count: 0,
-            consecutive_failures: 0,
-            consecutive_successes: 0,
-            last_error: None,
-            avg_latency_ms: None,
-            active_connections: 0,
-            last_reservation_utc: None,
-            supports_tools: true,
-            supports_structured_output: false,
-            driver: "codex_responses".to_string(),
-            hermes_bin: None,
-            hermes_provider: Some("openai-codex".to_string()),
-            hermes_toolsets: None,
-        }
-    }
-
     #[test]
     fn converts_chat_messages_to_codex_responses_request() {
-        std::env::set_var("HERMES_CODEX_ACCESS_TOKEN", "header.payload.signature");
-        let req = build_codex_responses_request(
-            &provider(),
+        let req = chat_body_to_responses_body(
             "gpt-5.5",
             &serde_json::json!({
                 "messages": [
@@ -692,21 +655,17 @@ mod tests {
             }),
         )
         .expect("request");
-        std::env::remove_var("HERMES_CODEX_ACCESS_TOKEN");
 
-        assert_eq!(req.url, "https://chatgpt.com/backend-api/codex/responses");
-        assert_eq!(req.body["model"], "gpt-5.5");
-        assert_eq!(req.body["instructions"], "System prompt");
-        assert_eq!(req.body["stream"], true);
-        assert_eq!(req.body["input"][0]["content"], "Hello");
-        assert_eq!(req.body["reasoning"]["effort"], "low");
+        assert_eq!(req["model"], "gpt-5.5");
+        assert_eq!(req["instructions"], "System prompt");
+        assert_eq!(req["stream"], true);
+        assert_eq!(req["input"][0]["content"], "Hello");
+        assert_eq!(req["reasoning"]["effort"], "low");
     }
 
     #[test]
     fn preserves_structured_chat_content_for_codex_responses() {
-        std::env::set_var("HERMES_CODEX_ACCESS_TOKEN", "header.payload.signature");
-        let req = build_codex_responses_request(
-            &provider(),
+        let req = chat_body_to_responses_body(
             "gpt-5.5",
             &serde_json::json!({
                 "messages": [
@@ -716,19 +675,16 @@ mod tests {
             }),
         )
         .expect("request");
-        std::env::remove_var("HERMES_CODEX_ACCESS_TOKEN");
 
-        assert_eq!(req.body["input"][0]["content"][0]["type"], "input_text");
-        assert_eq!(req.body["input"][0]["content"][0]["text"], "Hello");
-        assert_eq!(req.body["input"][1]["content"][0]["type"], "output_text");
-        assert_eq!(req.body["input"][1]["content"][0]["text"], "Hi");
+        assert_eq!(req["input"][0]["content"][0]["type"], "input_text");
+        assert_eq!(req["input"][0]["content"][0]["text"], "Hello");
+        assert_eq!(req["input"][1]["content"][0]["type"], "output_text");
+        assert_eq!(req["input"][1]["content"][0]["text"], "Hi");
     }
 
     #[test]
     fn maps_chat_tools_to_codex_responses_tools() {
-        std::env::set_var("HERMES_CODEX_ACCESS_TOKEN", "header.payload.signature");
-        let req = build_codex_responses_request(
-            &provider(),
+        let req = chat_body_to_responses_body(
             "gpt-5.5",
             &serde_json::json!({
                 "messages": [{"role": "user", "content": "read a file"}],
@@ -753,12 +709,11 @@ mod tests {
             }),
         )
         .expect("request");
-        std::env::remove_var("HERMES_CODEX_ACCESS_TOKEN");
 
-        assert_eq!(req.body["tools"][0]["type"], "function");
-        assert_eq!(req.body["tools"][0]["name"], "read_file");
-        assert_eq!(req.body["tools"][0]["parameters"]["required"][0], "path");
-        assert_eq!(req.body["tool_choice"]["name"], "read_file");
+        assert_eq!(req["tools"][0]["type"], "function");
+        assert_eq!(req["tools"][0]["name"], "read_file");
+        assert_eq!(req["tools"][0]["parameters"]["required"][0], "path");
+        assert_eq!(req["tool_choice"]["name"], "read_file");
     }
 
     #[test]
@@ -825,5 +780,94 @@ mod tests {
             out["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"],
             "{\"path\":\"/tmp/x\"}"
         );
+    }
+
+    #[test]
+    fn responses_tool_round_trip_preserves_linkage_and_reasoning() {
+        let reasoning = serde_json::json!({"type":"reasoning", "id":"rs_fixture", "encrypted_content":"opaque", "summary":[]});
+        let completion = responses_body_to_chat_completion(&serde_json::json!({
+            "output":[reasoning, {"type":"function_call", "call_id":"call_fixture", "name":"readiness", "arguments":"{}"}]
+        }));
+        let mut next = serde_json::json!({"messages":[
+            {"role":"user", "content":"Check readiness"},
+            completion["choices"][0]["message"],
+            {"role":"tool", "tool_call_id":"call_fixture", "content":"ready"}
+        ]});
+        super::super::normalize_openai_request_payload_with_policy(&mut next, false);
+        let body = chat_body_to_responses_body("configured-model", &next).unwrap();
+        assert_eq!(body["input"][1], reasoning);
+        assert_eq!(body["input"][2]["type"], "function_call");
+        assert_eq!(body["input"][2]["call_id"], body["input"][3]["call_id"]);
+        assert_eq!(body["input"][3]["type"], "function_call_output");
+        assert_eq!(body["input"][3]["output"], "ready");
+    }
+}
+
+#[cfg(test)]
+mod credential_selection_tests {
+    use super::*;
+    use serde_json::json;
+    #[test]
+    fn refreshed_pool_precedes_legacy_and_respects_unavailable_entries() {
+        let mut store = json!({"providers":{"openai-codex":{"tokens":{"access_token":"legacy"}}},
+            "credential_pool":{"openai-codex":[{"priority":0,"last_status":"ok","access_token":"fresh"}]}});
+        assert_eq!(select_codex_access_token(&store, 100), Some("fresh"));
+        store["credential_pool"]["openai-codex"][0]["last_status"] = json!("exhausted");
+        assert_eq!(select_codex_access_token(&store, 100), None);
+        store["credential_pool"]["openai-codex"] = json!([]);
+        assert_eq!(select_codex_access_token(&store, 100), None);
+        store.as_object_mut().unwrap().remove("credential_pool");
+        assert_eq!(select_codex_access_token(&store, 100), Some("legacy"));
+    }
+    #[test]
+    fn authoritative_elapsed_exhaustion_recovers_without_reviving_dead_entries() {
+        let now = 1_800_000_000;
+        let mut store = json!({"credential_pool":{"openai-codex":[
+            {"priority":0,"last_status":"exhausted","access_token":"recovered","last_error_reset_at":now-1},
+            {"priority":5,"last_status":"ok","access_token":"fallback"}
+        ]}});
+        assert_eq!(select_codex_access_token(&store, now), Some("recovered"));
+        for reset in [
+            json!(now),
+            json!((now - 1) * 1000_i64),
+            json!((now - 1).to_string()),
+            json!(chrono::DateTime::from_timestamp(now - 1, 0)
+                .unwrap()
+                .to_rfc3339()),
+        ] {
+            store["credential_pool"]["openai-codex"][0]["last_error_reset_at"] = reset;
+            assert_eq!(select_codex_access_token(&store, now), Some("recovered"));
+        }
+        for reset in [json!(now + 1), json!(null), json!("bad"), json!(-1)] {
+            store["credential_pool"]["openai-codex"][0]["last_error_reset_at"] = reset;
+            assert_eq!(select_codex_access_token(&store, now), Some("fallback"));
+        }
+        store["credential_pool"]["openai-codex"][0]["last_error_reset_at"] = json!(now - 1);
+        store["credential_pool"]["openai-codex"][0]["last_status"] = json!("dead");
+        assert_eq!(select_codex_access_token(&store, now), Some("fallback"));
+        store["credential_pool"]["openai-codex"][0]["last_status"] = json!("exhausted");
+        store["credential_pool"]["openai-codex"][0]["disabled"] = json!(true);
+        assert_eq!(select_codex_access_token(&store, now), Some("fallback"));
+    }
+    #[test]
+    fn credential_expiry_safety_boundary() {
+        for (expiry, accepted) in [(130, false), (131, true)] {
+            let jwt = format!(
+                "fixture.{}.signature",
+                base64::engine::general_purpose::URL_SAFE_NO_PAD
+                    .encode(json!({"exp":expiry}).to_string())
+            );
+            let store = json!({"credential_pool":{"openai-codex":[{"access_token":jwt}]}});
+            assert_eq!(select_codex_access_token(&store, 100).is_some(), accepted);
+        }
+    }
+    #[test]
+    fn expired_credentials_are_not_sent() {
+        let jwt = format!(
+            "fixture.{}.signature",
+            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(br#"{"exp":100}"#)
+        );
+        let store = json!({"providers":{"openai-codex":{"tokens":{"access_token":jwt}}}});
+        assert_eq!(select_codex_access_token(&store, 100), None);
     }
 }

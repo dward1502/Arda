@@ -64,6 +64,19 @@ pub(crate) fn normalize_openai_request_payload_with_policy(
 
     let mut normalized_tool_call_ids = std::collections::BTreeMap::new();
     let mut next_tool_call_ordinal: u32 = 1;
+    // Reserve every already-valid ID before allocating replacements.
+    for message in messages.iter() {
+        if message["role"] != "assistant" {
+            continue;
+        }
+        for call in message.get("tool_calls").and_then(JsonValue::as_array).into_iter().flatten() {
+            if let Some(id) = call.get("id").and_then(JsonValue::as_str) {
+                if id.len() == 9 && id.chars().all(|ch| ch.is_ascii_alphanumeric()) {
+                    normalized_tool_call_ids.insert(id.to_string(), id.to_string());
+                }
+            }
+        }
+    }
 
     for message in messages.iter_mut() {
         let Some(msg_obj) = message.as_object_mut() else {
@@ -716,6 +729,7 @@ pub(crate) fn slim_local_attempt_body(body: &mut JsonValue) {
 
 pub(crate) fn local_payload_requires_structured_tool_history(body: &JsonValue) -> bool {
     body.get("tool_choice").is_some()
+        || body.get("tools").and_then(JsonValue::as_array).is_some_and(|tools| !tools.is_empty())
         || body
             .get("messages")
             .and_then(JsonValue::as_array)

@@ -1737,7 +1737,17 @@ fn local_payload_without_tools_can_still_be_slimmed() {
 }
 
 #[test]
-fn optional_tools_are_stripped_before_plain_chat_proxying() {
+fn optional_tools_without_tool_choice_require_lossless_payload() {
+    let body = serde_json::json!({
+        "messages": [{"role":"system", "content":"policy".repeat(2000)}],
+        "tools": [{"type":"function", "function":{"name":"read_file",
+            "parameters":{"type":"object", "properties":{"path":{"type":"string", "description":"Authorized relative path"}}}}}]
+    });
+    assert!(super::local_payload_requires_structured_tool_history(&body));
+}
+
+#[test]
+fn optional_tools_are_preserved_before_plain_chat_proxying() {
     let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "chat".to_string(),
@@ -1760,10 +1770,10 @@ fn optional_tools_are_stripped_before_plain_chat_proxying() {
         "tool_choice": "auto"
     });
 
-    super::strip_optional_tool_payload(&req, &mut body);
+    let original = body.clone();
+    super::preserve_tool_payload(&req, &mut body);
 
-    assert!(body.get("tools").is_none());
-    assert!(body.get("tool_choice").is_none());
+    assert_eq!(body, original, "optional tools are still an upstream API contract");
 }
 
 #[test]
@@ -1789,7 +1799,7 @@ fn required_tools_are_preserved_before_agentic_proxying() {
         "tool_choice": "auto"
     });
 
-    super::strip_optional_tool_payload(&req, &mut body);
+    super::preserve_tool_payload(&req, &mut body);
 
     assert!(body.get("tools").is_some());
     assert_eq!(body["tool_choice"], "auto");

@@ -56,54 +56,15 @@ fn remember_reasoning_replay_route(
     }
 }
 
-fn request_requires_tool_payload(req: &ManweRequestEnvelope) -> bool {
-    req.options
-        .get("tool_use_required")
-        .and_then(JsonValue::as_bool)
-        .unwrap_or(false)
-        || req
-            .options
-            .get("tool_choice")
-            .is_some_and(tool_choice_requires_tool_call)
-        || req.messages.iter().any(message_has_tool_history)
-}
-
-fn tool_choice_requires_tool_call(value: &JsonValue) -> bool {
-    match value {
-        JsonValue::Null => false,
-        JsonValue::Bool(required) => *required,
-        JsonValue::String(raw) => {
-            let trimmed = raw.trim().to_ascii_lowercase();
-            !trimmed.is_empty() && !matches!(trimmed.as_str(), "auto" | "none" | "off")
-        }
-        JsonValue::Object(map) => !map.is_empty(),
-        JsonValue::Array(items) => !items.is_empty(),
-        _ => true,
-    }
-}
-
-fn message_has_tool_history(message: &JsonValue) -> bool {
-    (message.get("role").and_then(JsonValue::as_str) == Some("tool")
-        && message
-            .get("tool_call_id")
-            .and_then(JsonValue::as_str)
-            .is_some_and(|value| !value.trim().is_empty()))
-        || message
-            .get("tool_calls")
-            .and_then(JsonValue::as_array)
-            .is_some_and(|items| !items.is_empty())
-        || message
-            .get("function_call")
-            .is_some_and(|value| !value.is_null())
-}
-
-pub(crate) fn strip_optional_tool_payload(req: &ManweRequestEnvelope, body: &mut JsonValue) {
-    if request_requires_tool_payload(req) {
-        return;
-    }
+/// Tool availability and required-use routing are separate contracts. Preserve
+/// explicitly supplied schemas even when the model may choose not to call them.
+pub(crate) fn preserve_tool_payload(req: &ManweRequestEnvelope, body: &mut JsonValue) {
     if let Some(payload) = body.as_object_mut() {
-        payload.remove("tools");
-        payload.remove("tool_choice");
+        for field in ["tools", "tool_choice"] {
+            if let Some(value) = req.options.get(field) {
+                payload.entry(field).or_insert_with(|| value.clone());
+            }
+        }
     }
 }
 
@@ -288,7 +249,7 @@ impl CharonService {
         if body.get("model").is_some_and(|v| v.is_null()) {
             body.as_object_mut().map(|obj| obj.remove("model"));
         }
-        strip_optional_tool_payload(&req, &mut body);
+        preserve_tool_payload(&req, &mut body);
 
         let (decision, provider_id, url, latency_ms, status, parsed) =
             self.proxy_openai_request(req, body).await?;
@@ -427,7 +388,7 @@ impl CharonService {
                     "stream": true
                 });
             }
-            strip_optional_tool_payload(&routed_req, &mut attempt_body);
+            preserve_tool_payload(&routed_req, &mut attempt_body);
             let preserve_reasoning_replay = reasoning_replay_required_for_route(
                 &reasoning_replay_routes,
                 &provider.id,
@@ -811,7 +772,7 @@ impl CharonService {
                     "messages": []
                 });
             }
-            strip_optional_tool_payload(&routed_req, &mut attempt_body);
+            preserve_tool_payload(&routed_req, &mut attempt_body);
             let preserve_reasoning_replay = reasoning_replay_required_for_route(
                 &reasoning_replay_routes,
                 &provider.id,
@@ -851,6 +812,12 @@ impl CharonService {
                         &attempt_body,
                     ) {
                         Ok(request) => request,
+                        // Invalid conversation linkage is a caller payload error,
+                        // not a credential failure or provider health failure.
+                        Err(err @ ArdaError::Task(_)) => {
+                            let _ = self.release_provider_reservation(&provider.id).await;
+                            return Err(err);
+                        }
                         Err(err) => {
                             let err_msg = err.to_string();
                             let _ = self

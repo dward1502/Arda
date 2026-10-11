@@ -1174,6 +1174,13 @@ fn request_allows_low_context_tool_fallback(req: &ManweRequestEnvelope) -> bool 
         .unwrap_or(false)
 }
 
+// Payload acceptance is distinct from required execution and its context floors.
+fn request_carries_tool_schemas(req: &ManweRequestEnvelope) -> bool {
+    req.options.get("tools_available").and_then(serde_json::Value::as_bool) == Some(true)
+        || req.options.get("tools").and_then(serde_json::Value::as_array)
+            .is_some_and(|tools| !tools.is_empty())
+}
+
 fn request_needs_tool_capable_route(req: &ManweRequestEnvelope) -> bool {
     if request_requires_agentic_tool_use(req) {
         return true;
@@ -1257,7 +1264,8 @@ pub(super) fn provider_supports_request_capabilities(
     p: &ProviderState,
     req: &ManweRequestEnvelope,
 ) -> bool {
-    if request_needs_tool_capable_route(req) && !provider_or_model_supports_tools(p, req) {
+    if (request_carries_tool_schemas(req) || request_needs_tool_capable_route(req))
+        && !provider_or_model_supports_tools(p, req) {
         return false;
     }
     let request_uses_structured_output = req.options.get("response_format").is_some();
@@ -1320,14 +1328,24 @@ pub(super) fn model_supports_request(
     };
     let priority = req.priority.to_ascii_lowercase();
     let route_profile = derive_route_execution_profile(req, &priority);
-    let mut context_window_target =
-        if is_local_provider(provider_id) && request_requires_agentic_tool_use(req) {
-            route_profile
-                .context_window_target
-                .min(local_slimmed_tool_context_target(req))
+    let estimated_context = estimate_request_tokens(req).saturating_add(
+        if provider_id == "edge_core"
+            && req.options.get("max_tokens").and_then(serde_json::Value::as_u64).is_none()
+        {
+            // Match apply_workstation_generation_defaults when no limit was supplied.
+            2048
         } else {
-            route_profile.context_window_target
-        };
+            0
+        },
+    );
+    let mut context_window_target = if is_local_provider(provider_id)
+        && request_requires_agentic_tool_use(req)
+        && request_allows_low_context_tool_fallback(req)
+    {
+        route_profile.context_window_target.min(round_up_context_tier(estimated_context))
+    } else {
+        route_profile.context_window_target
+    }.max(estimated_context);
     if request_needs_tool_capable_route(req) && !request_allows_low_context_tool_fallback(req) {
         context_window_target = context_window_target.max(tool_execution_min_context_window());
     }
@@ -1361,7 +1379,8 @@ pub(super) fn model_supports_request(
     if request_uses_structured_output(req) && model.capabilities.structured_output == Some(false) {
         return false;
     }
-    let needs_tool_capable_model = request_requires_agentic_tool_use(req)
+    let needs_tool_capable_model = request_carries_tool_schemas(req)
+        || request_requires_agentic_tool_use(req)
         || route_profile.route_class == "tool_oriented"
         || route_profile.execution_lane == "execution";
     if needs_tool_capable_model
@@ -1414,14 +1433,24 @@ pub(super) fn model_request_incompatibilities(
 
     let priority = req.priority.to_ascii_lowercase();
     let route_profile = derive_route_execution_profile(req, &priority);
-    let mut context_window_target =
-        if is_local_provider(provider_id) && request_requires_agentic_tool_use(req) {
-            route_profile
-                .context_window_target
-                .min(local_slimmed_tool_context_target(req))
+    let estimated_context = estimate_request_tokens(req).saturating_add(
+        if provider_id == "edge_core"
+            && req.options.get("max_tokens").and_then(serde_json::Value::as_u64).is_none()
+        {
+            // Match apply_workstation_generation_defaults when no limit was supplied.
+            2048
         } else {
-            route_profile.context_window_target
-        };
+            0
+        },
+    );
+    let mut context_window_target = if is_local_provider(provider_id)
+        && request_requires_agentic_tool_use(req)
+        && request_allows_low_context_tool_fallback(req)
+    {
+        route_profile.context_window_target.min(round_up_context_tier(estimated_context))
+    } else {
+        route_profile.context_window_target
+    }.max(estimated_context);
     if request_needs_tool_capable_route(req) && !request_allows_low_context_tool_fallback(req) {
         context_window_target = context_window_target.max(tool_execution_min_context_window());
     }
@@ -1458,7 +1487,8 @@ pub(super) fn model_request_incompatibilities(
     if request_uses_structured_output(req) && model.capabilities.structured_output == Some(false) {
         reasons.push("structured_output:required_but_unsupported".to_string());
     }
-    let needs_tool_capable_model = request_requires_agentic_tool_use(req)
+    let needs_tool_capable_model = request_carries_tool_schemas(req)
+        || request_requires_agentic_tool_use(req)
         || route_profile.route_class == "tool_oriented"
         || route_profile.execution_lane == "execution";
     if needs_tool_capable_model && model.capabilities.tools == Some(false) {
@@ -1541,38 +1571,6 @@ fn configured_tool_incompatible_model(provider_id: &str, model_id: &str) -> bool
                 model_id.contains(&entry)
             }
         })
-}
-
-fn local_slimmed_tool_context_target(req: &ManweRequestEnvelope) -> usize {
-    let message_tokens = req
-        .messages
-        .iter()
-        .map(|message| {
-            let role = message
-                .get("role")
-                .and_then(serde_json::Value::as_str)
-                .unwrap_or_default();
-            let serialized_tokens = estimate_json_tokens(message);
-            if matches!(role, "system" | "developer") {
-                serialized_tokens.min(2_500)
-            } else {
-                serialized_tokens
-            }
-        })
-        .sum::<usize>();
-    let tool_tokens = req
-        .options
-        .get("tools")
-        .map(|tools| estimate_json_tokens(tools).min(4_000))
-        .unwrap_or(0);
-    let output_tokens = req
-        .options
-        .get("max_tokens")
-        .and_then(|value| value.as_u64())
-        .map(|value| value as usize)
-        .unwrap_or(2_048)
-        .min(4_096);
-    round_up_context_tier(message_tokens + tool_tokens + output_tokens).min(16_000)
 }
 
 fn request_requires_streaming(req: &ManweRequestEnvelope) -> bool {

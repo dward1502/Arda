@@ -42,6 +42,8 @@ mod capabilities;
 mod catalog_reconciliation;
 #[path = "full/codex_responses_driver.rs"]
 mod codex_responses_driver;
+#[path = "full/responses_messages.rs"]
+mod responses_messages;
 #[path = "full/echo_gate.rs"]
 mod echo_gate;
 #[path = "full/event_writer.rs"]
@@ -114,7 +116,7 @@ use echo_gate::{evaluate_pre_route_governance_with_options, GateAction};
 pub use proxy::StreamingProxyOutcome;
 #[cfg(test)]
 pub(crate) use proxy::{
-    provider_has_alternate_routable_model, proxy_timeout_for_provider, strip_optional_tool_payload,
+    provider_has_alternate_routable_model, proxy_timeout_for_provider, preserve_tool_payload,
 };
 pub use route_sessions::RouteHistoryEntry;
 use route_sessions::{route_history_limit, StickyRouteSession};

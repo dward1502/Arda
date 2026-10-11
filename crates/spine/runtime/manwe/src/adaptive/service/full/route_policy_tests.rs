@@ -366,6 +366,15 @@ fn available_tool_schemas_do_not_promote_chat_to_execution_lane() {
 
     assert_ne!(profile.execution_lane, "execution");
     assert_ne!(profile.route_class, "tool_oriented");
+    let mut candidate = provider("text_only");
+    candidate.models[0].context_window = 256_000;
+    candidate.supports_tools = false;
+    candidate.models[0].capabilities.tools = Some(false);
+    assert!(!provider_supports_request_capabilities(&candidate, &req));
+    assert!(select_model_for_provider_request(&candidate, "chat", None, Some(&req)).is_none());
+    candidate.models[0].capabilities.tools = Some(true);
+    assert!(provider_supports_request_capabilities(&candidate, &req));
+    assert!(select_model_for_provider_request(&candidate, "chat", None, Some(&req)).is_some());
 }
 
 #[test]
@@ -1285,7 +1294,7 @@ fn structured_output_demotion_does_not_block_tool_routes() {
 }
 
 #[test]
-fn explicit_emergency_flag_allows_low_context_tool_fallback() {
+fn emergency_fallback_does_not_discount_lossless_tool_context() {
     let model = ModelState {
         aliases: vec![],
         id: "Qwen3-8B-Q4_K_M".to_string(),
@@ -1341,7 +1350,39 @@ fn explicit_emergency_flag_allows_low_context_tool_fallback() {
 
     let profile = derive_route_execution_profile(&req, "normal");
     assert_eq!(profile.context_window_target, 64_000);
-    assert!(model_supports_request("local_fallback", &model, Some(&req)));
+    assert!(!model_supports_request("local_fallback", &model, Some(&req)));
+    assert!(model_request_incompatibilities("local_fallback", &model, &req, None)
+        .iter().any(|reason| reason.starts_with("context_window:")));
+
+    // Emergency fallback may waive the policy floor, not actual payload size.
+    let mut small = req.clone();
+    small.messages = vec![serde_json::json!({"role":"user","content":"read a file"})];
+    small.options["tools"][0]["function"]["description"] = serde_json::json!("Run a command");
+    small.options["tool_use_required"] = serde_json::json!(true);
+    assert!(model_supports_request("local_fallback", &model, Some(&small)));
+
+    let mut core_boundary = small.clone();
+    core_boundary.options.as_object_mut().unwrap().remove("max_tokens");
+    core_boundary.options["context_window_target"] = serde_json::json!(1024);
+    core_boundary.messages[0]["content"] = serde_json::json!("x".repeat(60_000));
+    assert!(!model_supports_request("edge_core", &model, Some(&core_boundary)));
+    assert!(model_request_incompatibilities("edge_core", &model, &core_boundary, None)
+        .iter().any(|reason| reason.starts_with("context_window:")));
+
+    for (context, output, prompt_bytes) in [
+        (16_384, 32_000, 0),
+        (256_000, 2048, 1_200_000),
+    ] {
+        let mut boundary_model = model.clone();
+        boundary_model.context_window = context;
+        let mut boundary = small.clone();
+        boundary.options["context_window_target"] = serde_json::json!(1024);
+        boundary.options["max_tokens"] = serde_json::json!(output);
+        boundary.messages[0]["content"] = serde_json::json!("x".repeat(prompt_bytes));
+        assert!(!model_supports_request("local_fallback", &boundary_model, Some(&boundary)));
+        assert!(model_request_incompatibilities("local_fallback", &boundary_model, &boundary, None)
+            .iter().any(|reason| reason.starts_with("context_window:")));
+    }
 }
 
 #[test]

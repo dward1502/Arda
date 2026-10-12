@@ -3,6 +3,8 @@ use arda_engine::objectives::{
     ProjectAuthority, ReceiptStage, ScheduleSpec, StageReceipt,
 };
 mod admission_recovery;
+#[path = "objective_store/budget_admission.rs"]
+mod budget_admission;
 #[path = "objective_store/recovery_fence.rs"]
 mod recovery_fence;
 

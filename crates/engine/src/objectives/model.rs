@@ -2,7 +2,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
+// Admission must reject unsupported constraints before canonical serialization:
+// silently dropping fields would bind approval to weaker work than was requested.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ProjectAuthority {
     pub project_id: String,
     pub contract_digest: String,
@@ -15,6 +18,7 @@ pub struct ProjectAuthority {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NewLeaf {
     pub id: String,
     pub project_id: Option<String>,
@@ -26,6 +30,7 @@ pub struct NewLeaf {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct LeafExecutionSpec {
     pub objective: String,
     pub execution_prompt: String,
@@ -36,6 +41,7 @@ pub struct LeafExecutionSpec {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NewObjective {
     pub id: String,
     pub source_id: String,

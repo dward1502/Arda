@@ -32,6 +32,9 @@ pub struct NewLeaf {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LeafExecutionSpec {
+    /// Approval-bound absolute cutoff. Corrections retain it; absence preserves legacy encoding.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub execution_deadline_unix_ms: Option<u64>,
     pub objective: String,
     pub execution_prompt: String,
     pub verification_prompt: String,

@@ -434,7 +434,7 @@ impl WorkbenchExecutionAdapter {
                 "receipt_digest": close_receipt.receipt_digest,
             });
             if recovery.is_some() {
-                close_body = workspace_authority::provider_body(authorization, item, close_body)?;
+                close_body = workspace_authority::authorized_body(authorization, item, close_body)?;
             }
             let response = self
                 .client
@@ -833,6 +833,16 @@ fn explicit_run_graph(item: &ExplicitWorkbenchWorkItem, approval_id: &str) -> Va
         None,
         &item.project_contract_digest,
     );
+    if let Some(deadline) = item.execution_deadline_unix_ms {
+        for node in graph["nodes"].as_array_mut().expect("generated nodes") {
+            if let Some(worker) = node["worker"].as_object_mut() {
+                let existing = worker["deadline_unix_ms"]
+                    .as_u64()
+                    .expect("generated deadline");
+                worker.insert("deadline_unix_ms".into(), json!(existing.min(deadline)));
+            }
+        }
+    }
     if item.read_only {
         for node in graph["nodes"].as_array_mut().expect("generated nodes") {
             match node["id"].as_str() {
@@ -850,5 +860,7 @@ fn explicit_run_graph(item: &ExplicitWorkbenchWorkItem, approval_id: &str) -> Va
     graph
 }
 
+#[cfg(test)]
+mod deadline_tests;
 #[cfg(test)]
 mod tests;

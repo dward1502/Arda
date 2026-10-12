@@ -36,6 +36,22 @@ pub(super) fn reauthorize(
 pub(super) fn provider_body(
     authority: Option<&dyn ExplicitWorkspaceAuthorization>,
     item: &ExplicitWorkbenchWorkItem,
+    body: Value,
+) -> Result<Value> {
+    if let Some(deadline) = item.execution_deadline_unix_ms {
+        anyhow::ensure!(
+            u64::try_from(Utc::now().timestamp_millis())? < deadline,
+            "approved execution deadline expired"
+        );
+    }
+    authorized_body(authority, item, body)
+}
+
+/// Provider-free publication still requires current lease/stop authority, but
+/// consumes no execution allowance and must remain possible after its cutoff.
+pub(super) fn authorized_body(
+    authority: Option<&dyn ExplicitWorkspaceAuthorization>,
+    item: &ExplicitWorkbenchWorkItem,
     mut body: Value,
 ) -> Result<Value> {
     reauthorize(authority, item)?;
@@ -202,6 +218,18 @@ pub(super) fn run(item: &ExplicitWorkbenchWorkItem, value: &Value) -> Result<()>
     let nodes = graph["nodes"]
         .as_array()
         .ok_or_else(|| anyhow!("run omitted nodes"))?;
+    if let Some(deadline) = item.execution_deadline_unix_ms {
+        for id in ["execute", "verify", "review"] {
+            let worker_deadline = nodes
+                .iter()
+                .find(|node| node["id"] == id)
+                .and_then(|node| node["worker"]["deadline_unix_ms"].as_u64());
+            anyhow::ensure!(
+                worker_deadline.is_some_and(|value| value <= deadline),
+                "retained run exceeds approved execution deadline for {id}"
+            );
+        }
+    }
     if item.read_only {
         let expected = explicit_run_graph(item, approval);
         for id in ["execute", "verify", "review"] {

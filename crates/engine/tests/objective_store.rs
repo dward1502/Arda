@@ -143,6 +143,7 @@ fn original_admission_survives_restart_and_controls_without_reconstruction() {
     let store = ObjectiveStore::open(&path).unwrap();
     let mut input = objective("admission", "admission-key");
     input.leaves[0].execution = Some(arda_engine::objectives::LeafExecutionSpec {
+        execution_deadline_unix_ms: None,
         objective: input.text.clone(),
         execution_prompt: "fixture evidence bytes: \"quoted\"\nVairë — untrusted advisory".into(),
         verification_prompt: "fixture verification evidence".into(),

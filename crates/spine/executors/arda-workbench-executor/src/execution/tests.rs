@@ -118,6 +118,7 @@ async fn explicit_work_item_recovers_receipts_without_reading_or_writing_queue()
     let dir = tempfile::tempdir().unwrap();
     let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
     let item = ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: None,
         objective_id: "objective-1".into(),
         read_only: false,
         leaf_id: "leaf-1".into(),
@@ -213,6 +214,7 @@ async fn explicit_work_item_reconciles_scheduler_conflict_from_terminal_run() {
         ]}
     });
     let item = ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: None,
         objective_id: "objective-conflict".into(),
         read_only: false,
         leaf_id: "leaf-conflict".into(),
@@ -326,6 +328,7 @@ async fn conflicted_close_is_not_treated_as_scheduler_owned_completion() {
     .await;
     let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
     let item = ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: None,
         objective_id: "objective-close-conflict".into(),
         read_only: false,
         leaf_id: "leaf-close-conflict".into(),
@@ -376,6 +379,7 @@ fn terminal_close_rejects_locally_valid_noncanonical_payload() {
     let dir = tempfile::tempdir().unwrap();
     let digest = |byte: char| format!("sha256:{}", byte.to_string().repeat(64));
     let item = ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: None,
         objective_id: "objective-forged-close".into(),
         read_only: false,
         leaf_id: "leaf-forged-close".into(),
@@ -480,6 +484,7 @@ async fn explicit_work_item_executes_all_stages_without_queue_continuations() {
     .await;
     let adapter = WorkbenchExecutionAdapter::with_harness_url(dir.path(), harness_url).unwrap();
     let item = ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: None,
         objective_id: "objective-2".into(),
         read_only: false,
         leaf_id: "leaf-2".into(),

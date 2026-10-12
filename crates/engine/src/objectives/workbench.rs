@@ -286,6 +286,7 @@ pub(crate) fn work_item(
         object.remove("research_brief_id");
     }
     Ok(ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: execution.execution_deadline_unix_ms,
         read_only: claim.authority == "read_only",
         objective_id: claim.objective_id.clone(),
         leaf_id: claim.leaf_id.clone(),
@@ -842,6 +843,7 @@ mod tests {
             current_receipt_digest: None,
             project_contract_digest: Some(project_digest.clone()),
             execution: Some(LeafExecutionSpec {
+                execution_deadline_unix_ms: None,
                 objective: "inspect the exact project ".repeat(300),
                 execution_prompt: format!("execute exact project\n{}", "e".repeat(48 * 1024)),
                 verification_prompt: format!("verify exact project\n{}", "e".repeat(48 * 1024)),

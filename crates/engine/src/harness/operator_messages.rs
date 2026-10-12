@@ -1494,6 +1494,7 @@ fn create_operator_objective(
             }.into(),
             dependencies: Vec::new(),
             execution: Some(LeafExecutionSpec {
+                execution_deadline_unix_ms: None,
                 objective: format!(
                     "Inspect exact project {project_id} for project-local evidence."
                 ),
@@ -1518,6 +1519,7 @@ fn create_operator_objective(
             authority: primary.authority,
             dependencies: leaves.iter().map(|leaf| leaf.id.clone()).collect(),
             execution: Some(LeafExecutionSpec {
+                execution_deadline_unix_ms: None,
                 objective: text.to_owned(),
                 execution_prompt:
                     "Synthesize the completed project leaves into one objective result.".into(),

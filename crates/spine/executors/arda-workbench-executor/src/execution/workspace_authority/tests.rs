@@ -237,6 +237,7 @@ async fn fencing_after_execute_prevents_verify_and_carries_original_lease() {
 
 fn item(root: &Path) -> ExplicitWorkbenchWorkItem {
     ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: None,
         read_only: false,
         objective_id: "objective".into(),
         leaf_id: "leaf".into(),

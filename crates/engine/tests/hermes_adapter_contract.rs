@@ -775,7 +775,7 @@ async fn governed_capsule_is_injected_and_bound_to_typed_receipts() {
     )
     .unwrap();
     let prompt = capture["prompt"].as_str().unwrap();
-    assert!(prompt.contains("organism_context_capsule"));
+    assert!(prompt.contains("organism_context_projection"));
     let config = HermesAdapterConfig::from_toml_str(
         &fs::read_to_string(root.path().join("hermes-workbench.toml")).unwrap(),
     )

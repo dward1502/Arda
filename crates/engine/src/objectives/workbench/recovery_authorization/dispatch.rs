@@ -51,6 +51,14 @@ impl RecoveryProviderDispatch {
                     tx,
                     grant,
                 )?;
+                // The legacy recovery overlay replaces the captured worker
+                // deadline. Until it carries an immutable ceiling, it must not
+                // widen explicitly deadline-bound work. Receipt-only recovery
+                // never constructs this provider dispatch gate.
+                anyhow::ensure!(
+                    material.execution.execution_deadline_unix_ms.is_none(),
+                    "deadline-bound work permits receipt-only recovery, not a new recovery provider window"
+                );
                 anyhow::ensure!(
                     task.project_contract_digest
                         == material.graph.provenance.project_contract_digest,

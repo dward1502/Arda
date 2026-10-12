@@ -147,6 +147,37 @@ async fn recovery_rejects_missing_context_writes_and_invalid_window_before_netwo
 }
 
 #[tokio::test]
+async fn expired_execution_deadline_allows_provider_free_recovery_close() {
+    let root = tempfile::tempdir().unwrap();
+    let (mut work, guard) = recovery_fixture(root.path());
+    work.execution_deadline_unix_ms = Some(1);
+    let stages = ["approval", "execute", "verify", "review", "close"];
+    let mut closed = recovery_run(&work, &stages);
+    closed["graph"]["nodes"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|n| n["id"] == "close")
+        .unwrap()["output_digest"] = json!("__REQUEST_RECEIPT_DIGEST__");
+    let (url, requests) = scripted_harness(vec![
+        Some((200, recovery_run(&work, &stages[..4]).to_string())),
+        Some((200, closed.to_string())),
+    ])
+    .await;
+    let adapter = WorkbenchExecutionAdapter::with_harness_url(root.path(), url).unwrap();
+    let outcome = adapter
+        .execute_authorized(&work, &guard, &runtime_admission::FixtureAdmission)
+        .await
+        .unwrap();
+    assert_eq!(outcome.status, "succeeded");
+    let requests = requests.await.unwrap();
+    assert_eq!(requests.len(), 2);
+    assert!(requests[0].starts_with("GET "));
+    assert!(requests[1].contains("/nodes/close/complete"));
+    assert!(!requests.iter().any(|r| r.contains("execute-provider")));
+}
+
+#[tokio::test]
 async fn recovery_resumes_verify_review_and_provider_free_close_only() {
     let root = tempfile::tempdir().unwrap();
     let (work, guard) = recovery_fixture(root.path());

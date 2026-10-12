@@ -15,6 +15,9 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ExplicitWorkbenchWorkItem {
+    /// Approval-bound absolute cutoff. Corrections retain it; absence preserves legacy encoding.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub execution_deadline_unix_ms: Option<u64>,
     /// Narrow the execution graph to file-only inspection. Never grants authority.
     #[serde(default)]
     pub read_only: bool,

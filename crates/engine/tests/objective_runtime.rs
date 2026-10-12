@@ -1292,6 +1292,7 @@ impl LeafExecution for RealExecutor {
 
 fn execution_spec(leaf_id: &str) -> LeafExecutionSpec {
     LeafExecutionSpec {
+        execution_deadline_unix_ms: None,
         objective: format!("Execute {leaf_id}"),
         execution_prompt: format!("Execute only {leaf_id}"),
         verification_prompt: format!("Verify {leaf_id}"),

@@ -3,6 +3,55 @@ use super::*;
 use arda_engine::objectives::LeafExecutionSpec;
 use serde_json::{json, Value};
 
+#[test]
+fn approved_deadline_survives_restart_and_cannot_change_on_replay() {
+    let temp = TempDir::new().unwrap();
+    let path = temp.path().join("objectives.sqlite3");
+    let mut input = objective("deadline", "deadline-ingress");
+    let mut spec = execution();
+    spec["execution_deadline_unix_ms"] = json!(3_600_100_u64);
+    input.leaves[0].execution = Some(serde_json::from_value(spec).unwrap());
+    let store = ObjectiveStore::open(&path).unwrap();
+    store
+        .create_authenticated_objective(input.clone(), 100)
+        .unwrap();
+    drop(store);
+    let store = ObjectiveStore::open_existing(&path).unwrap();
+    assert_eq!(
+        store
+            .authenticated_admission(&input.idempotency_key, &input.operator_id)
+            .unwrap(),
+        Some(input.clone())
+    );
+    for replacement in [None, Some(0), Some(7_200_100)] {
+        let mut changed = input.clone();
+        changed.leaves[0]
+            .execution
+            .as_mut()
+            .unwrap()
+            .execution_deadline_unix_ms = replacement;
+        assert!(store.create_authenticated_objective(changed, 200).is_err());
+    }
+    store.create_authenticated_objective(input, 200).unwrap();
+}
+
+#[test]
+fn legacy_admission_cannot_gain_deadline_on_replay() {
+    let temp = TempDir::new().unwrap();
+    let store = ObjectiveStore::open(temp.path().join("objectives.sqlite3")).unwrap();
+    let mut input = objective("legacy-deadline", "legacy-deadline-ingress");
+    input.leaves[0].execution = Some(serde_json::from_value(execution()).unwrap());
+    store
+        .create_authenticated_objective(input.clone(), 100)
+        .unwrap();
+    input.leaves[0]
+        .execution
+        .as_mut()
+        .unwrap()
+        .execution_deadline_unix_ms = Some(7_200_100);
+    assert!(store.create_authenticated_objective(input, 200).is_err());
+}
+
 fn execution() -> Value {
     json!({
         "objective": "bounded remedy",

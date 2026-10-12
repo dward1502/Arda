@@ -174,6 +174,7 @@ fn canonical_work_item(
         object.remove("research_brief_id");
     }
     ExplicitWorkbenchWorkItem {
+        execution_deadline_unix_ms: execution.execution_deadline_unix_ms,
         read_only: true,
         objective_id: grant.bindings.objective_id.clone(),
         leaf_id: grant.bindings.leaf_id.clone(),

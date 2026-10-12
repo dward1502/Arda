@@ -15,12 +15,17 @@ struct Fixture {
 }
 
 fn fixture() -> Fixture {
+    fixture_with_deadline(None)
+}
+
+fn fixture_with_deadline(deadline: Option<u64>) -> Fixture {
     let root = tempfile::tempdir().unwrap();
     let workspace = root.path().join("project");
     std::fs::create_dir(&workspace).unwrap();
     let digest = format!("sha256:{}", "a".repeat(64));
     let store = ObjectiveStore::open(root.path().join("data/arda/objectives.sqlite3")).unwrap();
     let execution = LeafExecutionSpec {
+        execution_deadline_unix_ms: deadline,
         objective: "correct artifact".into(),
         execution_prompt: "implement".into(),
         verification_prompt: "verify".into(),
@@ -149,7 +154,7 @@ fn fixture() -> Fixture {
             "authority":if stage=="execute" {"execute_with_approval"} else if stage=="verify" {"verify"} else {"read_only"},
             "budget":{"max_joules":5000.0,"max_cost_usd":2.0},"retry":{"max_attempts":2},"timeout_ms":900000,
             "idempotency_key":format!("{stage}-key"),"output_digest":output,"parent_receipts":[],
-            "worker":if stage=="close" {serde_json::Value::Null} else {json!({"role":if stage=="execute" {"implementer"} else if stage=="verify" {"independent_verifier"} else {"security_privacy_critic"},"worker_id":format!("worker-{stage}"),"route_id":"fixture","route_class":"hosted","prompt_digest":digest,"allowed_toolsets":["file"],"dependencies":[if stage=="execute" {"approval"} else if stage=="verify" {"execute"} else {"verify"}],"deadline_unix_ms":9999999999999u64,"output_contract":"arda.hermes-job-result.v1","evidence_policy":if stage=="verify" {"project_native_checks"} else {"worker_report"}})}
+            "worker":if stage=="close" {serde_json::Value::Null} else {json!({"role":if stage=="execute" {"implementer"} else if stage=="verify" {"independent_verifier"} else {"security_privacy_critic"},"worker_id":format!("worker-{stage}"),"route_id":"fixture","route_class":"hosted","prompt_digest":digest,"allowed_toolsets":["file"],"dependencies":[if stage=="execute" {"approval"} else if stage=="verify" {"execute"} else {"verify"}],"deadline_unix_ms":deadline.unwrap_or(9999999999999u64),"output_contract":"arda.hermes-job-result.v1","evidence_policy":if stage=="verify" {"project_native_checks"} else {"worker_report"}})}
         }));
     }
     nodes.push(json!({"id":"approval","kind":"approval","state":"succeeded","authority":"human_approval","budget":{"max_joules":5000.0,"max_cost_usd":2.0},"retry":{"max_attempts":2},"timeout_ms":900000,"idempotency_key":"approval-key","output_digest":digest,"parent_receipts":[digest]}));
@@ -257,6 +262,48 @@ fn critic_correction_requires_new_approval_preserves_rejection_and_replays_once(
         f.store.objective("objective").unwrap().unwrap().state,
         crate::objectives::ObjectiveState::Failed
     );
+}
+
+#[test]
+fn critic_correction_preserves_absolute_deadline_after_restart() {
+    for deadline in [1, 9_999_999_999_999] {
+        let f = fixture_with_deadline(Some(deadline));
+        let child = admit(&f).unwrap();
+        let root = f.root.path().to_path_buf();
+        drop(f.store);
+        let store =
+            ObjectiveStore::open_existing(root.join("data/arda/objectives.sqlite3")).unwrap();
+        store
+            .apply_control(
+                "objective",
+                ControlAction::Approve { revision: 2 },
+                "approve-correction",
+                "operator",
+                7,
+            )
+            .unwrap();
+        let claim = store
+            .claim_runnable("worker", 8, 1000, 1)
+            .unwrap()
+            .remove(0);
+        assert_eq!(claim.leaf_id, child);
+        let execution = claim.execution.as_ref().unwrap();
+        assert_eq!(execution.execution_deadline_unix_ms, Some(deadline));
+        let (_, context) = assemble_resident_context(
+            &root,
+            &claim,
+            claim.execution_run_id.as_ref().unwrap(),
+            execution,
+            "project",
+        )
+        .unwrap();
+        assert_eq!(
+            work_item(&claim, &context)
+                .unwrap()
+                .execution_deadline_unix_ms,
+            Some(deadline)
+        );
+    }
 }
 
 #[test]

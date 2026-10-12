@@ -149,6 +149,7 @@ mod tests {
 
     fn item(root: &Path) -> ExplicitWorkbenchWorkItem {
         ExplicitWorkbenchWorkItem {
+            execution_deadline_unix_ms: None,
             read_only: true,
             objective_id: "objective-1".into(),
             leaf_id: "join".into(),

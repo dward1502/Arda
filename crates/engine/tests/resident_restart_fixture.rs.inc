@@ -77,6 +77,7 @@ async fn resident_receipt_crash_child() {
                     authority: "execute_with_approval".into(),
                     dependencies: vec![],
                     execution: Some(LeafExecutionSpec {
+                        execution_deadline_unix_ms: None,
                         objective: execution_objective.into(),
                         execution_prompt: execution_objective.into(),
                         verification_prompt: execution_objective.into(),

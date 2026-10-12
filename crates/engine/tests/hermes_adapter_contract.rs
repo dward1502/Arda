@@ -1078,9 +1078,37 @@ async fn elapsed_persisted_worker_deadline_prevents_spawn() {
 
 #[tokio::test]
 async fn graph_node_timeout_terminates_and_reaps_hermes() {
+    assert_timeout_reaps_hermes(false).await;
+}
+
+#[tokio::test]
+async fn persisted_worker_deadline_terminates_and_reaps_hermes() {
+    assert_timeout_reaps_hermes(true).await;
+}
+
+async fn assert_timeout_reaps_hermes(worker_deadline_limits: bool) {
     use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
     let root = TempDir::new().expect("project root");
     let adapter = adapter(&root, "sleep");
+    let adapter = if worker_deadline_limits {
+        let config = root.path().join("hermes-workbench.toml");
+        let raw = fs::read_to_string(&config).unwrap();
+        assert!(raw.contains("max_timeout_ms = 1000"));
+        fs::write(
+            &config,
+            raw.replace("max_timeout_ms = 1000", "max_timeout_ms = 10000"),
+        )
+        .unwrap();
+        HermesAdapter::load(
+            &config,
+            root.path(),
+            root.path(),
+            &host_environment(root.path(), "sleep"),
+        )
+        .unwrap()
+    } else {
+        adapter
+    };
     let listener = tokio::net::UnixListener::bind(root.path().join("provider.sock")).unwrap();
     let is_alive = |fd: &OwnedFd| {
         let mut poll = libc::pollfd {
@@ -1106,11 +1134,25 @@ async fn graph_node_timeout_terminates_and_reaps_hermes() {
         }
         peers
     };
-    let task = task(1_000);
+    let mut task = task(if worker_deadline_limits {
+        10_000
+    } else {
+        1_000
+    });
+    if worker_deadline_limits {
+        let deadline = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis()
+            + 1_000;
+        task.node.worker = Some(worker_contract(&["file", "terminal"], deadline));
+    }
+    let started = std::time::Instant::now();
     let (result, peers) = tokio::join!(
         adapter.execute(&task, AdapterCancellation::new()),
         tokio::time::timeout(std::time::Duration::from_secs(2), collect)
     );
+    let within_worker_bound = started.elapsed() < std::time::Duration::from_secs(4);
     let survivors = peers
         .as_ref()
         .map(|peers| peers.iter().any(&is_alive))
@@ -1128,6 +1170,12 @@ async fn graph_node_timeout_terminates_and_reaps_hermes() {
                 );
             }
         }
+    }
+    if worker_deadline_limits {
+        assert!(
+            within_worker_bound,
+            "worker deadline must win over both 10-second node and adapter limits"
+        );
     }
     let error = result.expect_err("sleeping Hermes process must time out");
     assert!(matches!(error, HermesAdapterError::Timeout));

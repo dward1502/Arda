@@ -57,6 +57,36 @@ owns remaining competing-writer retirement, not this plan.
   I/O budgets, cancellation, missed-run behavior and delivery destination. Reuse the
   existing nightly trigger; resident authority schedules objective continuation.
   Expose last useful cycle and partial/failure state, not only successful process exit.
+  - Installed research transport: the seven-file optional-tool preservation
+    carry-forward passed hash-bound independent source review, a fresh-target
+    release build, 318 serial Manwe tests, strict Clippy and synthetic executable
+    smoke checks. The installed Manwe binary is
+    `202b5eeb1e6656f50fea572c6b6b42ef4413a2c2d55f2546c1aba6f56c617282`.
+    Installed dry-run readback now retains the supplied `web_search` schema;
+    gateway and keeper processes, root binary and authority binding are preserved.
+    Evidence is under `~/.local/state/arda/deployments/d1-tool-preservation-v2/`
+    (`qualification.json`, `manwe-deployment.json`, `installed-route-preflight.json`).
+    Review approved only the observed source diff, not whole-cycle acceptance.
+  - Fresh manual research attempt: the 2026-10-26 UTC run exercised the installed
+    route under a request-scoped `free_only` inference restriction, separately from
+    the recurring owner. It returned normally after 28 agent API calls and 25
+    native tool calls (11 reads, 8 searches, 6 file searches), but performed no
+    source extraction or evidence-file writes. No current-day `cycle.json` was
+    produced. Its unsupported final ambiguity/token-starvation claim is not an
+    accepted finding. The retained `manual-research/acceptance.json` in that same
+    deployment records failed useful-cycle acceptance; normal agent completion
+    does not qualify research delivery, spending attestation or a scheduled fire.
+  - Remaining: enforce and qualify actual source-grounded cycle publication;
+    the producer must not stop successfully at an unsupported prose answer.
+    Install and qualify the approved fifteen-minute research window independently
+    of inactivity after the continuing gateway session is quiescent; PID 1802
+    predates the reviewed cancellation/routing source and was not restarted.
+    Keep research-only provider/job wiring pending that owner activation and
+    readback. Establish operator-approved CPU/model/I/O ceilings rather than
+    invent numeric allowances. Per-research ceilings are not currently qualified.
+    Pause prevents new scheduling, not cancellation of an in-flight agent;
+    isolated cancellation tests do not qualify the live job's control surface.
+    Resident remedy expenditure enforcement remains D5's responsibility.
 - [ ] D2 — Generate questions from active objectives, connected projects and failed
   checks; retain operator-pinned topics/exclusions. Keep daily scans bounded, deeper
   project-purpose/code audits weekly, capability/cost/dormant-project review monthly
